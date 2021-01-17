@@ -387,57 +387,120 @@ class AbilityActionSelectHandler(AskUserEventHandler):
             return None
 
 
-class StorageSelectSingleEventHandler(AskUserEventHandler):
-    """
-    Inherit this class if the action requires selecting one single itme.
-    e.g. Item inventory
-    """
-    
-    def __init__(self, engine: Engine, inventory_component: Inventory, show_only: Tuple(InventoryOrder)=None):
+class StorageSelectEventHandler(AskUserEventHandler):
+    def __init__(
+            self, 
+            engine: Engine, 
+            inventory_component: Inventory, 
+            show_only_types: Tuple(InventoryOrder)=None, 
+            show_only_status: Tuple(str) = None,
+            show_if_satisfy_both: bool = True,
+            ):
         """
         Args:
             inventory_component:
                 component you are trying to use(open)
-            show_only:
+            show_only_types:
                 Tuple that contains enums. The input handler will show only the given types of items
                 If its set to None, show every type of items.
+            show_only_status:
+                Tuple that contains strings that indicate status.
+                If its set to None, show every type of items.
+                "full-identified-blessed"
+                "semi-identified-uncursed"
+                "unidentified-cursed"
+                "semi-identified-all" -> Show all semi-identified
+                "unidentified-all" -> Show all unidentified
+            show_if_satisfy_both:
+                show item only if both types and status is satisfied.
+                if False, show items if they satisfy either one.
         """
         super().__init__(engine)
         self.inventory_component = inventory_component 
-        self.show_only = show_only
+        self.show_only_types = show_only_types
+        self.show_only_status = show_only_status
+        self.show_if_satisfy_both = show_if_satisfy_both
         if hasattr(self.inventory_component.parent, "name"):
             self.TITLE = f"{self.inventory_component.parent.name}"
         else:
             self.TITLE = ""
 
     def check_should_render_item(self, item: Item) -> bool:
+        if self.show_if_satisfy_both:
+            if (self.check_should_render_type(item) and self.check_should_render_status(item)):
+                return True
+        else:
+            if (self.check_should_render_type(item) or self.check_should_render_status(item)):
+                return True
+
+    def check_should_render_type(self, item: Item) -> bool:
         """
         Return whether this input handler should render or take input of given item.
         """
-        if self.show_only: # If there is show_only value, display only the given types of items
-            if item.item_type in self.show_only:
+        if self.show_only_types: # If there is show_only_types value, display only the given types of items
+            if item.item_type in self.show_only_types:
                 return True
             else:
                 return False
         else:
             return True
 
-        #TODO: Add BUC filter (show only cursed items etc.)
+    def check_should_render_status(self, item: Item) -> bool:
+        """
+        Return whether this input handler should render or take input of given item.
+        """
+        if self.show_only_status:
+            # Check BUC
+            pair = {0:"uncursed", -1:"cursed", 1:"blessed"}
+            buc = item.item_state.BUC
 
+            # Find if string contains substring
+            for valid_string in self.show_only_status:
+
+                # Check identification
+                if item.item_state.check_if_semi_identified() and ("semi-identified" in valid_string):
+                    # Check BUC
+                    if pair[buc] in valid_string:
+                        return True
+                    elif "all" in valid_string:
+                        return True
+                elif item.item_state.check_if_full_identified() and ("full-identified" in valid_string):
+                    # Check BUC
+                    if pair[buc] in valid_string:
+                        return True
+                    elif "all" in valid_string:
+                        return True
+                elif (not item.item_state.check_if_semi_identified()) and ("unidentified" in valid_string):
+                    # Check BUC
+                    if pair[buc] in valid_string:
+                        return True
+                    elif "all" in valid_string:
+                        return True
+
+            return False
+        else:
+            return True
+
+    def on_render(self, console: tcod.Console) -> None:
+        return super().on_render(console)
+
+
+class StorageSelectSingleEventHandler(StorageSelectEventHandler):
+    """
+    Inherit this class if the action requires selecting one single itme.
+    e.g. Item inventory
+    """
     def on_render(self, console: tcod.Console) -> None:
         """
         Render an inventory menu, which displays the items in the inventory, and the letter to select them.
         """
         super().on_render(console)
 
-        # If there is a filter for item types, only count the valid items
-        if self.show_only:
-            number_of_valid_items = 0
-            for item in self.inventory_component.items:
-                if item.item_type in self.show_only:
-                    number_of_valid_items += 1
-        else:
-            number_of_valid_items = len(self.inventory_component.items)
+        # Get valid item number
+        number_of_valid_items = 0
+        for item in self.inventory_component.items:
+            if self.check_should_render_item(item):
+                number_of_valid_items += 1
 
         height = number_of_valid_items + 2
         if height <= 3:
@@ -471,7 +534,16 @@ class StorageSelectSingleEventHandler(AskUserEventHandler):
                     continue
                 
                 i += 1
-                item_text = f"({item_key}) {item.name}"
+                item_text = f"({item_key}) "
+                if item.item_state.check_if_full_identified(): # Display BUC only if fully identified
+                    if item.item_state.BUC == 0:
+                        item_text += "uncursed "
+                    if item.item_state.BUC >= 1:
+                        item_text += "blessed "
+                    if item.item_state.BUC <= -1:
+                        item_text += "cursed "
+
+                item_text += f"{item.name}"
                 item_text_color = None
                 item_damage_text = ""
                 item_state_text = ""
@@ -568,11 +640,20 @@ class InventoryChooseItemAndCallbackHandler(StorageSelectSingleEventHandler):
     and call given callback function.
     e.g. reading scroll of enchantment -> choosing an item to upgrade
     """
-    def __init__(self, engine: Engine, inventory_component: Inventory, callback: Callable, show_only: Tuple(InventoryOrder)=None):
-        super().__init__(engine, inventory_component, show_only)
+    def __init__(
+            self, 
+            engine: Engine, 
+            inventory_component: Inventory, 
+            callback: Callable, 
+            show_only_types: Tuple(InventoryOrder)=None, 
+            show_only_status: Tuple(str) = None, 
+            show_if_satisfy_both: bool = True,
+        ):
+        super().__init__(engine, inventory_component, show_only_types, show_only_status, show_if_satisfy_both)
         self.TITLE = "Inventory"
         self.selected_item = None
         self.callback = callback
+    
 
     def on_item_selected(self, item: Item) -> Optional[Action]:
         """Return the action for the selected item."""
@@ -582,8 +663,15 @@ class InventoryChooseItemAndCallbackHandler(StorageSelectSingleEventHandler):
 
 class InventoryEventHandler(StorageSelectSingleEventHandler):
 
-    def __init__(self, engine: Engine, inventory_component: Inventory, show_only: Tuple(InventoryOrder)=None):
-        super().__init__(engine, inventory_component, show_only)
+    def __init__(
+            self, 
+            engine: Engine, 
+            inventory_component: Inventory,
+            show_only_types: Tuple(InventoryOrder)=None, 
+            show_only_status: Tuple(str) = None, 
+            show_if_satisfy_both: bool = True,
+        ):
+        super().__init__(engine, inventory_component, show_only_types, show_only_status, show_if_satisfy_both)
         self.TITLE = "Inventory"
 
     def on_item_selected(self, item: Item) -> Optional[Action]:
@@ -799,30 +887,25 @@ class InventorySplitHandler(AskUserEventHandler):
             return None
 
 
-class StorageSelectMultipleEventHandler(AskUserEventHandler):
+class StorageSelectMultipleEventHandler(StorageSelectEventHandler):
     """
     Inherit this class if the action requires selecting multiple items.
     e.g. Opening and taking items from chest
 
     A child of this class MUST modify the choice_confirmed() method to its use.
     """
-    def __init__(self, engine: Engine, inventory_component: Inventory):
-        super().__init__(engine)
-        self.inventory_component = inventory_component # Inventory that this class is opening
-        if hasattr(self.inventory_component.parent, "name"):
-            self.TITLE = f"{self.inventory_component.parent.name}"
-        else:
-            self.TITLE = ""
-        self.selected_items = set()
-
     def on_render(self, console: tcod.Console) -> None:
         """
         Render an inventory menu, which displays the items in the inventory, and the letter to select them.
         """
         super().on_render(console)
-        number_of_items_in_storage = len(self.inventory_component.items)
+        # Get valid item number
+        number_of_valid_items = 0
+        for item in self.inventory_component.items:
+            if self.check_should_render_item(item):
+                number_of_valid_items += 1
 
-        height = number_of_items_in_storage + 2
+        height = number_of_valid_items + 2
         if height <= 3:
             height = 3
 
@@ -843,14 +926,24 @@ class StorageSelectMultipleEventHandler(AskUserEventHandler):
             bg=color.gui_inventory_bg,
         )
 
-        if number_of_items_in_storage > 0:
+        if number_of_valid_items > 0:
             i = -1
 
             for item_key, item in self.inventory_component.item_hotkeys.items():
                 if item == None:
                     continue
                 i += 1
-                item_text = f"({item_key}) {item.name}"
+                item_text = f"({item_key}) "
+
+                if item.item_state.check_if_full_identified(): # Display BUC only if fully identified
+                    if item.item_state.BUC == 0:
+                        item_text += "uncursed "
+                    if item.item_state.BUC >= 1:
+                        item_text += "blessed "
+                    if item.item_state.BUC <= -1:
+                        item_text += "cursed "
+
+                item_text += f"{item.name}"
                 item_text_color = None
                 item_damage_text = ""
                 item_state_text = ""

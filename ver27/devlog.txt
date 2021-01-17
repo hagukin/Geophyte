@@ -1215,12 +1215,12 @@
             > 지금 보니까 장착한 아이템이 이동될때 버그발생이 일어남 계속. 앞으로 유의해야할듯.
             >> 해결.
 20201228 - ability의 구조적 문제 해결. 생각보다 큰 문제는 아니었음.
-20200104 - electrical 데미지 대폭 개선.
+20210104 - electrical 데미지 대폭 개선.
           > 이제 데미지는 인접한 액터 뿐만 아니라, 연결된 모든 액터들에게 다 적용됨. 연결된 액터들을 구할 때 BFS나 DFS를 사용할 수도 있지만 대신 재귀함수를 통한 다른 방법을 사용함.
             > 또한 데미지는 전기 발생 장소로부터의 거리에 따라 감소함. 
             (기존 계획은 액터 한 명을 거칠 때마다 전기의 세기가 약해지는 방식으로 할려고 그랬는데, 이 방식을 구현하려면 BFS 사용이 필수적이어서 chebyshev거리를 계산해 그 거리에 따라 데미지를 감소시키는 방법을 사용함
             다행히 이 방법을 사용해도 계산 결과값은 변하지 않음.)
-20200107 - AI 구조 대폭 개선.
+20210107 - AI 구조 대폭 개선.
           > AI가 타겟이 시야 밖으로 사라지자마자 추적을 포기하는 문제 해결.
           > AI는 이제 매 턴마다 시야를 갱신하며 쫓아옴.
           >> AI의 시야를 매번 생성하는 형태에서 AI 자체에 저장하는 형식으로 변경.
@@ -1240,7 +1240,7 @@
 
           TODO: 펫 너무 멀리 가는 것 방지하기 위한 명령들 추가 (ex. go kill everything / protect me / stay with me 등)
           TODO: 상자 세미액터가 길막하는문제 방지
-20200108 - Scroll of enchantment 제작. 이 스크롤에 필요한 별도의 인풋핸들러 InventorySelectItemAndCallbackHandler 제작. 파이프라인 구축하는게 생각보다 훨씬 힘들었음...
+20210108 - Scroll of enchantment 제작. 이 스크롤에 필요한 별도의 인풋핸들러 InventorySelectItemAndCallbackHandler 제작. 파이프라인 구축하는게 생각보다 훨씬 힘들었음...
           > 참고: InventorySelectItemAndCallbackHandler가 실행될 때 일어나는 일
           readable.get_action()에서 event_handler을 InventorySelectItemAndCallbackHandler로 변경.
           게임루프 종료, event_handler 실행 (인풋대기)
@@ -1262,4 +1262,26 @@
 
           PlaceSwapAction은 이제 액터 - 액터 뿐아니라 액터 - 엔티티도 지원함.
           > 상자가 길막하는 문제 해결.
-20200115 - github에 리퍼지토리 등록.
+20210115 - github에 리퍼지토리 등록.
+20210117 - BUC 추가, Identification 추가.
+            > Scroll of Remove Curse와 Scroll of identify 추가
+            > 아이템에게 initialize_item() 메소드 추가, 이제 아이템의 초기 BUC와 Identification을 확률과 함께 설정할 수 있음.
+
+            BUC, Identification 관련 StorageEventHandler의 on_render()함수 수정.
+
+            StorageMultiple, Single SelectEventHandler의 공통부분을 부모클래스로 통합함.
+
+            Identification 세분화 - full, semi, none으로.
+            > full은 BUC까지 다 아는 상태
+            > semi는 아이템 이름만 아는 상태
+
+            인풋핸들러의 스토리지 출력 필터링 기능 세분화
+            > 어떤 아이템만을 출력할지 보다 더 세부적으로 조정할 수 있게 되었음.
+
+            크고 작은 버그 수정.
+
+            item_state에 identify_self() 를 추가해서 다양한 상황에서 쉽게 identify가 가능하도록 구조적 변경.
+            
+            한 번 감정(semi-identify)된 아이템은 이후 게임 내내 감정된 상태(이름이 표시됨)로 나오는 기능 추가.
+            > item_state에 check_if_semi_identified()와 check_if_full_identified()를 추가
+            > item_factories에 item_identified 딕셔너리 추가
