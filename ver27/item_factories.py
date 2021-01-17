@@ -7,6 +7,7 @@ from order import InventoryOrder
 
 item_lists = []
 item_rarity = []
+item_identified = {} #key: item.entity_id, value: item.item_state.is_identified
 
 #########################################################################
 ################################ POTIONS ################################
@@ -34,6 +35,7 @@ potion_of_healing = Item(
 )
 item_lists.append(potion_of_healing)
 item_rarity.append(potion_of_healing.rarity)
+item_identified[potion_of_healing.entity_id] = potion_of_healing.item_state.is_identified
 
 
 ### Potion of paralysis
@@ -58,6 +60,7 @@ potion_of_paralysis = Item(
 )
 item_lists.append(potion_of_paralysis)
 item_rarity.append(potion_of_paralysis.rarity)
+item_identified[potion_of_paralysis.entity_id] = potion_of_paralysis.item_state.is_identified
 
 #########################################################################
 ################################ SCROLLS ################################
@@ -85,6 +88,7 @@ scroll_of_confusion = Item(
 )
 item_lists.append(scroll_of_confusion)
 item_rarity.append(scroll_of_confusion.rarity)
+item_identified[scroll_of_confusion.entity_id] = scroll_of_confusion.item_state.is_identified
 
 
 ### Scroll of Meteor Storm
@@ -109,6 +113,7 @@ scroll_of_meteor_storm = Item(
 )
 item_lists.append(scroll_of_meteor_storm)
 item_rarity.append(scroll_of_meteor_storm.rarity)
+item_identified[scroll_of_meteor_storm.entity_id] = scroll_of_meteor_storm.item_state.is_identified
 
 
 ### Scroll of Thunderstorm
@@ -133,6 +138,7 @@ scroll_of_thunderstorm = Item(
 )
 item_lists.append(scroll_of_thunderstorm)
 item_rarity.append(scroll_of_thunderstorm.rarity)
+item_identified[scroll_of_thunderstorm.entity_id] = scroll_of_thunderstorm.item_state.is_identified
 
 
 ### Scroll of Lightning
@@ -157,6 +163,7 @@ scroll_of_lightning = Item(
 )
 item_lists.append(scroll_of_lightning)
 item_rarity.append(scroll_of_lightning.rarity)
+item_identified[scroll_of_lightning.entity_id] = scroll_of_lightning.item_state.is_identified
 
 
 ### Scroll of magic missile
@@ -181,6 +188,7 @@ scroll_of_magic_missile = Item(
 )
 item_lists.append(scroll_of_magic_missile)
 item_rarity.append(scroll_of_magic_missile.rarity)
+item_identified[scroll_of_magic_missile.entity_id] = scroll_of_magic_missile.item_state.is_identified
 
 
 ### Scroll of magic mapping
@@ -205,6 +213,7 @@ scroll_of_magic_mapping = Item(
 )
 item_lists.append(scroll_of_magic_mapping)
 item_rarity.append(scroll_of_magic_mapping.rarity)
+item_identified[scroll_of_magic_mapping.entity_id] = scroll_of_magic_mapping.item_state.is_identified
 
 
 ### Scroll of piercing flame
@@ -229,6 +238,7 @@ scroll_of_piercing_flame = Item(
 )
 item_lists.append(scroll_of_piercing_flame)
 item_rarity.append(scroll_of_piercing_flame.rarity)
+item_identified[scroll_of_piercing_flame.entity_id] = scroll_of_piercing_flame.item_state.is_identified
 
 
 ### Scroll of tame
@@ -253,6 +263,7 @@ scroll_of_tame = Item(
 )
 item_lists.append(scroll_of_tame)
 item_rarity.append(scroll_of_tame.rarity)
+item_identified[scroll_of_tame.entity_id] = scroll_of_tame.item_state.is_identified
 
 
 ### Scroll of enchantment
@@ -277,6 +288,57 @@ scroll_of_enchantment = Item(
 )
 item_lists.append(scroll_of_enchantment)
 item_rarity.append(scroll_of_enchantment.rarity)
+item_identified[scroll_of_enchantment.entity_id] = scroll_of_enchantment.item_state.is_identified
+
+
+### Scroll of identify
+scroll_of_identify = Item(
+    char="≈",
+    fg=(255, 255, 200),
+    name="Scroll of identify",
+    entity_id="scroll_of_identify",
+    entity_desc="Scroll of identify desc",
+    rarity=4,
+    weight=0.1,
+    price=50,
+    item_type=InventoryOrder.SCROLL,
+    item_state=ItemState(),
+    spawnable=True,
+    flammable=0.5,
+    droppable=True,
+    stackable=True,
+    throwable=throwable.NormalThrowable(air_friction=20),
+    readable=readable.ScrollOfIdentifyReadable(),
+    quaffable=None,
+)
+item_lists.append(scroll_of_identify)
+item_rarity.append(scroll_of_identify.rarity)
+item_identified[scroll_of_identify.entity_id] = scroll_of_identify.item_state.is_identified
+
+
+### Scroll of Remove Curse
+scroll_of_remove_curse = Item(
+    char="≈",
+    fg=(255, 255, 200),
+    name="Scroll of remove curse",
+    entity_id="scroll_of_remove_curse",
+    entity_desc="Scroll of remove curse desc",
+    rarity=4,
+    weight=0.1,
+    price=150,
+    item_type=InventoryOrder.SCROLL,
+    item_state=ItemState(),
+    spawnable=True,
+    flammable=0.5,
+    droppable=True,
+    stackable=True,
+    throwable=throwable.NormalThrowable(air_friction=20),
+    readable=readable.ScrollOfRemoveCurseReadable(),
+    quaffable=None,
+)
+item_lists.append(scroll_of_remove_curse)
+item_rarity.append(scroll_of_remove_curse.rarity)
+item_identified[scroll_of_remove_curse.entity_id] = scroll_of_remove_curse.item_state.is_identified
 
 
 #########################################################################
@@ -304,6 +366,8 @@ leather_armor = Item(
 )
 item_lists.append(leather_armor)
 item_rarity.append(leather_armor.rarity)
+item_identified[leather_armor.entity_id] = 1
+
 
 #########################################################################
 ############################### WEAPONS #################################
@@ -329,6 +393,7 @@ shortsword = Item(
 )
 item_lists.append(shortsword)
 item_rarity.append(shortsword.rarity)
+item_identified[shortsword.entity_id] = 1 #NOTE: All weapons are semi-identified from the beginning
 
 
 #########################################################################
@@ -357,6 +422,7 @@ corpse = Item(
 )
 item_lists.append(corpse)
 item_rarity.append(corpse.rarity) # All items should be appended regardless of its rarity
+item_identified[corpse.entity_id] = 1 #NOTE: All corpses are semi-identified from the beginning
 
 
 #########################################################################
@@ -385,3 +451,4 @@ toxic_goo = Item(
 )
 item_lists.append(toxic_goo)
 item_rarity.append(toxic_goo.rarity)
+item_identified[toxic_goo.entity_id] = 1

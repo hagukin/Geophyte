@@ -57,6 +57,12 @@ def main() -> None:
 
                 ### WRITE DEBUG FUNCTIONS HERE ###
                 # print("DEBUG")
+                # for item in engine.player.inventory.items:
+                #     print(item.name)
+                #     print(item.item_state.check_if_semi_identified())
+                #     print(item.item_state.check_if_full_identified())
+                #     print(item.item_state.is_identified)
+                #     print(item.item_state.BUC)
 
             # Handle exceptions in game
             except Exception:

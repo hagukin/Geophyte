@@ -15,6 +15,8 @@ class ItemState(BaseComponent):
         was_burning = False,
         is_burning: bool = False,
         burntness: int = 0,
+        BUC: int = 0,
+        is_identified: int = 0,
         is_equipped: str = None,
     ):
         """
@@ -24,6 +26,14 @@ class ItemState(BaseComponent):
                 1 - partly burnt
                 2 - severly burnt
                 3 - burnt out (its gone)
+            BUC:
+                -1 - cursed
+                0 - uncursed (regular)
+                1 - blessed
+            is_identified:
+                0 - unidentified
+                1 - semi-identified (You know the id(type) of an item, but BUC is unknown)
+                2 - full-identified (You know the id(type) AND the BUC.)
             is_equipped:
                 string value that indicates the equip region this item if currently equipped on. (if there is one)
         """
@@ -37,6 +47,41 @@ class ItemState(BaseComponent):
         # values that are stored in item_state dictionaty
         self.is_burning = is_burning
         self.burntness = burntness
+        self.BUC = BUC
+        self.is_identified = is_identified
+
+    def identify_self(self, identify_level: int=1):
+        import item_factories
+        self.is_identified = identify_level # Full-identification
+        item_factories.item_identified[self.parent.entity_id] = 1 # Change db
+    
+    def check_if_semi_identified(self):
+        """
+        return True if item is semi-identified OR full-identified.
+        """
+        import item_factories
+        if self.is_identified >= 1 or item_factories.item_identified[self.parent.entity_id] >= 1:
+            return True
+        else:
+            return False
+
+    def check_if_full_identified(self):
+        """
+        return True if item is full-identified.
+        """
+        import item_factories
+        if self.is_identified >= 2 or item_factories.item_identified[self.parent.entity_id] >= 2: 
+            #NOTE: On regular occasion, item_factories.item_identified is either 0 or 1, 
+            # since full-identification can differ from indivisual instances.
+            return True
+        else:
+            return False
+
+    def uncurse_self(self):
+        """
+        Remove this parent's curse
+        """
+        self.BUC = 0
 
     def check_if_identical(self, comparing_item: Item) -> bool:
         """
@@ -50,19 +95,21 @@ class ItemState(BaseComponent):
         THIS IS THE REASON WHY THEY ARE NOT STACKABLE FROM THE BEGINNING.
         """
         # 1. Compare names
-        if self.parent.name == comparing_item.name:
+        if self.parent.name == comparing_item.name and self.parent.entity_id == comparing_item.entity_id:
 
-            # 2. Compare item cursed / blessed status
-            #TODO: add BUC?
-            #TODO: add identification?
-
-            # 3. Compare item states
-            #NOTE: update the code when new features are added to item_states!
+            # 2. Compare item states
+            if self.parent.item_state.BUC != comparing_item.item_state.BUC:
+                return False
+            if self.check_if_semi_identified() != comparing_item.check_if_semi_identified()\
+                and self.check_if_full_identified() != comparing_item.check_if_full_identified():
+                return False
             if(
-                self.parent.item_state.burntness == comparing_item.item_state.burntness and
-                self.parent.item_state.is_burning == comparing_item.item_state.is_burning
+                self.parent.item_state.burntness != comparing_item.item_state.burntness or
+                self.parent.item_state.is_burning != comparing_item.item_state.is_burning
             ):
-                return True
+                return False
+            
+            return True
 
         return False
 

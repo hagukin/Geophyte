@@ -151,7 +151,7 @@ class ScrollOfEnchantmentReadable(SelectItemFromInventoryReadable):
         self.engine.event_handler = InventoryChooseItemAndCallbackHandler(
             self.engine,
             inventory_component=consumer.inventory,
-            show_only=(
+            show_only_types=(
                 InventoryOrder.MELEE_WEAPON,
                 InventoryOrder.THROWING_WEAPON,
                 InventoryOrder.ARMOR,
@@ -165,6 +165,57 @@ class ScrollOfEnchantmentReadable(SelectItemFromInventoryReadable):
     
     def effects_on_selected_item(self, consumer: Actor, selected_item: Item):
         selected_item.equipable.upgrade_this(1) #TODO: Add more powerful enchanting scrolls? blessed?
+        
+        # Log
+        if consumer == self.engine.player:
+            self.engine.message_log.add_message(f"Your {selected_item.name} emits a bright magical light!", color.status_effect_applied, target=consumer)
+            if selected_item.item_state.is_equipped:
+                self.engine.message_log.add_message(f"You feel your {selected_item.name} is now more powerful!", color.status_effect_applied, target=consumer)
+        else:
+            self.engine.message_log.add_message(f"{consumer.name}'s {selected_item.name} emits a bright magical light!", color.white, target=consumer)
+            # TODO: auto-identify if the scroll is used in sight?
+
+
+class ScrollOfIdentifyReadable(SelectItemFromInventoryReadable):
+    def get_action(self, consumer: Actor) -> Optional[actions.Action]:
+        self.engine.message_log.add_message("Choose an item to identify.", color.needs_target)
+        self.engine.event_handler = InventoryChooseItemAndCallbackHandler(
+            self.engine,
+            inventory_component=consumer.inventory,
+            show_only_status=("unidentified-all", "semi-identified-all"), # NOTE: WARNING - If yoou pass only one parameter, additional comma is needed inside tuple to prevent passing the data in string form
+            callback=lambda selected_item : actions.ReadItem(consumer, self.parent, (0,0), selected_item),
+        )
+        return None
+    
+    def effects_on_selected_item(self, consumer: Actor, selected_item: Item):
+        selected_item.item_state.identify_self(2)
+
+        # Log TODO
+        #TODO: identify multiple when blessed?
+        #NOTE: Currently self-identification is possible
+
+
+class ScrollOfRemoveCurseReadable(SelectItemFromInventoryReadable):
+    def get_action(self, consumer: Actor) -> Optional[actions.Action]:
+        self.engine.message_log.add_message("Choose an item to remove curse.", color.needs_target)
+        self.engine.event_handler = InventoryChooseItemAndCallbackHandler(
+            self.engine,
+            inventory_component=consumer.inventory,
+            show_only_status=("unidentified-all", "semi-identified-all", "full-identified-cursed",),
+            callback=lambda selected_item : actions.ReadItem(consumer, self.parent, (0,0), selected_item),
+        )
+        return None
+    
+    def effects_on_selected_item(self, consumer: Actor, selected_item: Item):
+        temp = selected_item.item_state.BUC
+        selected_item.item_state.uncurse_self() #TODO: uncurse multiple when blessed?
+
+        # Log
+        if temp <= -1: #If item was cursed before
+            self.engine.message_log.add_message(f"The dark energy that were inside of {consumer.name}'s {selected_item.name} evaporates!", color.status_effect_applied, target=consumer)
+        else:
+            self.engine.message_log.add_message(f"A white light surrounds {consumer.name}'s {selected_item.name}.", color.status_effect_applied, target=consumer)
+        #NOTE: Currently self-uncursing is possible
 
 
 class ScrollOfMagicMappingReadable(Readable): #TODO: make parent class like other readables

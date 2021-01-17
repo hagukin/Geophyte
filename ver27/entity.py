@@ -444,7 +444,21 @@ class Item(Entity):
         quaffable: Quaffable = None,
         equipable: Equipable = None,
         edible: Edible = None,
+        initial_BUC: dict = { 1: 0, 0: 1, -1: 0 },
+        initial_identified: float = 0,
+        initial_upgrades: List = [], #TODO
     ):
+        """
+        Args:
+            initial_BUC:
+                Chance of this item spawning with certain BUC status.
+                { BUC number : chance of having that BUC number indicated as weight, ...)
+                e.g. { 1: 3, 0: 5, -1: 1 } -> Has highest chance of spawing as uncursed.
+            initial_identification:
+                Chance of this item spawning as already identified. (semi-identified)
+            initial_upgrades:
+                TODO
+        """
         super().__init__(
             gamemap=gamemap,
             x=x,
@@ -493,12 +507,41 @@ class Item(Entity):
         if edible:
             self.edible.parent = self
 
+        self.initial_BUC = initial_BUC
+        self.initial_identified = initial_identified
+        self.initial_upgrades = initial_upgrades
+
     def remove_self(self):
         super().remove_self()
         if self.parent:
             if self.equipable: # If the item can be equipped, try to remove it from its wearer. (if there is any)
                 self.parent.parent.equipments.remove_equipment(region=self.equipable.equip_region, forced=True)
             self.parent.remove_item(self, remove_count=self.stack_count)
+
+    def initialize_item(self):
+        """
+        Sets initial BUC, identification status, etc.
+        This method is called from spawn().
+        """
+        import item_factories
+        if random.random() <= self.initial_identified:
+            self.item_state.is_identified = 1
+            item_factories.item_identified[self.entity_id] = 1
+        else:
+            self.item_state.is_identified = 0
+            item_factories.item_identified[self.entity_id] = 0
+        
+        self.item_state.BUC = random.choices(list(self.initial_BUC.keys()), list(self.initial_BUC.values()), k=1)[0]
+
+        #TODO: upgrades initialization
+
+    def spawn(self: T, gamemap: GameMap, x: int, y: int) -> T:
+        """
+        Spawn a copy of this instance at the given location.
+        """
+        clone = super().spawn(gamemap, x, y)
+        clone.initialize_item()#NOTE: initialize_item() should be called AFTER super().spawn(), so that the actor's gamemap is set.
+        return clone
 
     def get_info(self) -> dict:
         """
@@ -527,6 +570,8 @@ class Item(Entity):
         # Get variables from item_state class that can be modified after generation.
         info["is_burning"] = self.item_state.is_burning
         info["burntness"] = self.item_state.burntness
+        info["BUC"] = self.item_state.BUC
+        info["is_identified"] = self.item_state.is_identified
 
         # Copy the entire component if possible
         # NOTE: If something goes wrong, try copying the values manually like above.
