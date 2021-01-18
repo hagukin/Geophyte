@@ -1285,3 +1285,11 @@
             한 번 감정(semi-identify)된 아이템은 이후 게임 내내 감정된 상태(이름이 표시됨)로 나오는 기능 추가.
             > item_state에 check_if_semi_identified()와 check_if_full_identified()를 추가
             > item_factories에 item_identified 딕셔너리 추가
+20200118 - 아이템 랜덤화 기능 추가. 이제 아이템은 정통 로그라이크처럼 랜덤한 형태와 이름을 가지고 스폰됨.
+
+	   Item manager.py 추가.
+	   Item list, item identification list를 Item manager 안으로 옮김.
+	   entity의 char, fg, bg, name, entity_desc 값을 프로퍼티화해서 조건에 맞는 값을 리턴하도록 제작함.
+	   > 아이템은 랜덤으로 정해진 색상 혹은 이름을 출력하며, 만약 감정된 상태일 경우 원본 이름 혹은 설명을 출력함.
+	   
+	   그외 자잘한 버그 수정.
