@@ -36,12 +36,12 @@ class Entity:
         gamemap: Optional[GameMap] = None,
         x: int = 0,
         y: int = 0,
-        char: str = "?",
-        fg: Tuple[int, int, int] = (255, 255, 255),
-        bg: Tuple[int, int, int] = None,
-        name: str = "<Unnamed>",
+        _char: str = "?",
+        _fg: Tuple[int, int, int] = (255, 255, 255),
+        _bg: Tuple[int, int, int] = None,
+        _name: str = "<Unnamed>",
         entity_id: str = "<Undefined id>",
-        entity_desc: str = "",
+        _entity_desc: str = "",
         rarity: int = 0,
         action_point: int = 60, # 0 to 60
         action_speed: int = 0, # 0 to 60 (60 being fastest)
@@ -69,12 +69,12 @@ class Entity:
         """
         self.x = x
         self.y = y
-        self.char = char
-        self.fg = fg
-        self.bg = bg
-        self.name = name
+        self._char = _char
+        self._fg = _fg
+        self._bg = _bg
+        self._name = _name
         self.entity_id = entity_id
-        self.entity_desc = entity_desc
+        self._entity_desc = _entity_desc
         self.rarity = rarity
         self.action_point = action_point
         self.action_speed = action_speed
@@ -88,6 +88,26 @@ class Entity:
         self.render_order = render_order
         self.entity_order = 0
         self.gamemap = gamemap
+
+    @property
+    def char(self):
+        return self._char
+    
+    @property
+    def fg(self):
+        return self._fg
+
+    @property
+    def bg(self):
+        return self._bg
+
+    @property
+    def name(self):
+        return self._name
+
+    @property
+    def entity_desc(self):
+        return self._entity_desc
 
     def do_environmental_effects(self):
         """
@@ -246,12 +266,12 @@ class Actor(Entity):
             gamemap=gamemap,
             x=x,
             y=y,
-            char=char,
-            fg=fg,
-            bg=bg,
-            name=name,
+            _char=char,
+            _fg=fg,
+            _bg=bg,
+            _name=name,
             entity_id=entity_id,
-            entity_desc=entity_desc,
+            _entity_desc=entity_desc,
             rarity=rarity,
             action_point=action_point,
             action_speed=action_speed,
@@ -419,6 +439,7 @@ class Item(Entity):
         gamemap: Optional[GameMap] = None,
         x: int = 0,
         y: int = 0,
+        should_randomize: bool = False,
         char: str = "?",
         fg: Tuple[int, int, int] = (255, 255, 255),
         bg: Tuple[int, int, int] = None,
@@ -463,12 +484,12 @@ class Item(Entity):
             gamemap=gamemap,
             x=x,
             y=y,
-            char=char,
-            fg=fg,
-            bg=bg,
-            name=name,
+            _char=char,
+            _fg=fg,
+            _bg=bg,
+            _name=name,
             entity_id=entity_id,
-            entity_desc=entity_desc,
+            _entity_desc=entity_desc,
             rarity=rarity,
             action_point=action_point,
             action_speed=action_speed,
@@ -477,6 +498,7 @@ class Item(Entity):
             blocks_sight=blocks_sight,
             render_order=RenderOrder.ITEM,
         )
+        self.should_randomize = should_randomize
         self.parent = parent
         self.weight = weight
         self.price = price
@@ -511,6 +533,52 @@ class Item(Entity):
         self.initial_identified = initial_identified
         self.initial_upgrades = initial_upgrades
 
+    @property
+    def char(self):
+        char = self.gamemap.engine.item_manager.items_randomized[self.entity_id]["char"]
+        if char:
+            return char
+        else:
+            return self._char
+    
+    @property
+    def fg(self):
+        fg = self.gamemap.engine.item_manager.items_randomized[self.entity_id]["fg"]
+        if fg:
+            return fg
+        else:
+            return self._fg
+
+    @property
+    def bg(self):
+        bg = self.gamemap.engine.item_manager.items_randomized[self.entity_id]["bg"]
+        if bg:
+            return bg
+        else:
+            return self._bg
+
+    @property
+    def name(self):
+        if self.item_state.check_if_semi_identified():
+            return self._name
+        else:
+            name = self.gamemap.engine.item_manager.items_randomized[self.entity_id]["name"]
+            if name:
+                return name
+            else:
+                return self._name
+            
+    @property
+    def entity_desc(self):
+        if self.item_state.check_if_semi_identified():
+            return self._entity_desc
+        else:
+            entity_desc = self.gamemap.engine.item_manager.items_randomized[self.entity_id]["entity_desc"]
+            if entity_desc:
+                return entity_desc
+            else:
+                return self._entity_desc
+
     def remove_self(self):
         super().remove_self()
         if self.parent:
@@ -523,13 +591,10 @@ class Item(Entity):
         Sets initial BUC, identification status, etc.
         This method is called from spawn().
         """
-        import item_factories
         if random.random() <= self.initial_identified:
-            self.item_state.is_identified = 1
-            item_factories.item_identified[self.entity_id] = 1
+            self.item_state.identify_self()
         else:
-            self.item_state.is_identified = 0
-            item_factories.item_identified[self.entity_id] = 0
+            self.item_state.unidentify_self()
         
         self.item_state.BUC = random.choices(list(self.initial_BUC.keys()), list(self.initial_BUC.values()), k=1)[0]
 
@@ -701,12 +766,12 @@ class SemiActor(Entity):
         super().__init__(
             x=x,
             y=y,
-            char=char,
-            fg=fg,
-            bg=bg,
-            name=name,
+            _char=char,
+            _fg=fg,
+            _bg=bg,
+            _name=name,
             entity_id=entity_id,
-            entity_desc=entity_desc,
+            _entity_desc=entity_desc,
             action_point=action_point,
             action_speed=action_speed,
             walkable=walkable,

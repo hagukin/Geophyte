@@ -5,9 +5,9 @@ import anim_graphics
 
 from order import InventoryOrder
 
-item_lists = []
+temp_items_lists = []
 item_rarity = []
-item_identified = {} #key: item.entity_id, value: item.item_state.is_identified
+
 
 #########################################################################
 ################################ POTIONS ################################
@@ -33,9 +33,8 @@ potion_of_healing = Item(
     readable=None,
     quaffable=quaffable.PotionOfHealingQuaffable(amount=10),
 )
-item_lists.append(potion_of_healing)
+temp_items_lists.append(potion_of_healing)
 item_rarity.append(potion_of_healing.rarity)
-item_identified[potion_of_healing.entity_id] = potion_of_healing.item_state.is_identified
 
 
 ### Potion of paralysis
@@ -58,9 +57,9 @@ potion_of_paralysis = Item(
     readable=None,
     quaffable=quaffable.PotionOfParalysisQuaffable(turn=10),
 )
-item_lists.append(potion_of_paralysis)
+temp_items_lists.append(potion_of_paralysis)
 item_rarity.append(potion_of_paralysis.rarity)
-item_identified[potion_of_paralysis.entity_id] = potion_of_paralysis.item_state.is_identified
+
 
 #########################################################################
 ################################ SCROLLS ################################
@@ -86,9 +85,8 @@ scroll_of_confusion = Item(
     readable=readable.ScrollOfConfusionReadable(number_of_turns=15),
     quaffable=None,
 )
-item_lists.append(scroll_of_confusion)
+temp_items_lists.append(scroll_of_confusion)
 item_rarity.append(scroll_of_confusion.rarity)
-item_identified[scroll_of_confusion.entity_id] = scroll_of_confusion.item_state.is_identified
 
 
 ### Scroll of Meteor Storm
@@ -111,9 +109,8 @@ scroll_of_meteor_storm = Item(
     readable=readable.ScrollOfMeteorStormReadable(damage=12, radius=1),
     quaffable=None,
 )
-item_lists.append(scroll_of_meteor_storm)
+temp_items_lists.append(scroll_of_meteor_storm)
 item_rarity.append(scroll_of_meteor_storm.rarity)
-item_identified[scroll_of_meteor_storm.entity_id] = scroll_of_meteor_storm.item_state.is_identified
 
 
 ### Scroll of Thunderstorm
@@ -136,9 +133,8 @@ scroll_of_thunderstorm = Item(
     readable=readable.ScrollOfThunderStormReadable(damage=20, maximum_range=5, tier=1),
     quaffable=None,
 )
-item_lists.append(scroll_of_thunderstorm)
+temp_items_lists.append(scroll_of_thunderstorm)
 item_rarity.append(scroll_of_thunderstorm.rarity)
-item_identified[scroll_of_thunderstorm.entity_id] = scroll_of_thunderstorm.item_state.is_identified
 
 
 ### Scroll of Lightning
@@ -161,9 +157,8 @@ scroll_of_lightning = Item(
     readable=readable.ScrollOfThunderStormReadable(damage=20, maximum_range=5, tier=2),
     quaffable=None,
 )
-item_lists.append(scroll_of_lightning)
+temp_items_lists.append(scroll_of_lightning)
 item_rarity.append(scroll_of_lightning.rarity)
-item_identified[scroll_of_lightning.entity_id] = scroll_of_lightning.item_state.is_identified
 
 
 ### Scroll of magic missile
@@ -186,9 +181,8 @@ scroll_of_magic_missile = Item(
     readable=readable.ScrollOfMagicMissileReadable(anim_graphic=anim_graphics.magic_missile, damage=20, penetration=False),
     quaffable=None,
 )
-item_lists.append(scroll_of_magic_missile)
+temp_items_lists.append(scroll_of_magic_missile)
 item_rarity.append(scroll_of_magic_missile.rarity)
-item_identified[scroll_of_magic_missile.entity_id] = scroll_of_magic_missile.item_state.is_identified
 
 
 ### Scroll of magic mapping
@@ -211,9 +205,8 @@ scroll_of_magic_mapping = Item(
     readable=readable.ScrollOfMagicMappingReadable(tier=1),
     quaffable=None,
 )
-item_lists.append(scroll_of_magic_mapping)
+temp_items_lists.append(scroll_of_magic_mapping)
 item_rarity.append(scroll_of_magic_mapping.rarity)
-item_identified[scroll_of_magic_mapping.entity_id] = scroll_of_magic_mapping.item_state.is_identified
 
 
 ### Scroll of piercing flame
@@ -236,9 +229,8 @@ scroll_of_piercing_flame = Item(
     readable=readable.ScrollOfPiercingFlameReadable(anim_graphic=anim_graphics.piercing_flame, damage=20, penetration=True),
     quaffable=None,
 )
-item_lists.append(scroll_of_piercing_flame)
+temp_items_lists.append(scroll_of_piercing_flame)
 item_rarity.append(scroll_of_piercing_flame.rarity)
-item_identified[scroll_of_piercing_flame.entity_id] = scroll_of_piercing_flame.item_state.is_identified
 
 
 ### Scroll of tame
@@ -261,9 +253,8 @@ scroll_of_tame = Item(
     readable=readable.ScrollOfTame(),
     quaffable=None,
 )
-item_lists.append(scroll_of_tame)
+temp_items_lists.append(scroll_of_tame)
 item_rarity.append(scroll_of_tame.rarity)
-item_identified[scroll_of_tame.entity_id] = scroll_of_tame.item_state.is_identified
 
 
 ### Scroll of enchantment
@@ -286,9 +277,8 @@ scroll_of_enchantment = Item(
     readable=readable.ScrollOfEnchantmentReadable(),
     quaffable=None,
 )
-item_lists.append(scroll_of_enchantment)
+temp_items_lists.append(scroll_of_enchantment)
 item_rarity.append(scroll_of_enchantment.rarity)
-item_identified[scroll_of_enchantment.entity_id] = scroll_of_enchantment.item_state.is_identified
 
 
 ### Scroll of identify
@@ -311,9 +301,8 @@ scroll_of_identify = Item(
     readable=readable.ScrollOfIdentifyReadable(),
     quaffable=None,
 )
-item_lists.append(scroll_of_identify)
+temp_items_lists.append(scroll_of_identify)
 item_rarity.append(scroll_of_identify.rarity)
-item_identified[scroll_of_identify.entity_id] = scroll_of_identify.item_state.is_identified
 
 
 ### Scroll of Remove Curse
@@ -336,9 +325,8 @@ scroll_of_remove_curse = Item(
     readable=readable.ScrollOfRemoveCurseReadable(),
     quaffable=None,
 )
-item_lists.append(scroll_of_remove_curse)
+temp_items_lists.append(scroll_of_remove_curse)
 item_rarity.append(scroll_of_remove_curse.rarity)
-item_identified[scroll_of_remove_curse.entity_id] = scroll_of_remove_curse.item_state.is_identified
 
 
 #########################################################################
@@ -356,7 +344,7 @@ leather_armor = Item(
     weight=4.5,
     price=300,
     item_type=InventoryOrder.ARMOR,
-    item_state=ItemState(),
+    item_state=ItemState(is_identified=1),
     spawnable=True,
     flammable=1,##DEBUG
     droppable=True,
@@ -364,9 +352,8 @@ leather_armor = Item(
     throwable=throwable.NormalThrowable(),
     equipable=equipable.LeatherArmorEquipable()
 )
-item_lists.append(leather_armor)
+temp_items_lists.append(leather_armor)
 item_rarity.append(leather_armor.rarity)
-item_identified[leather_armor.entity_id] = 1
 
 
 #########################################################################
@@ -384,16 +371,15 @@ shortsword = Item(
     weight=1.5,
     price=250,
     item_type=InventoryOrder.MELEE_WEAPON,
-    item_state=ItemState(),
+    item_state=ItemState(is_identified=1),
     spawnable=True,
     droppable=True,
     stackable=False,
     throwable=throwable.NormalThrowable(base_throw=1, additional_throw=2, penetration=False, air_friction=15),
     equipable=equipable.ShortswordEquipable()
 )
-item_lists.append(shortsword)
+temp_items_lists.append(shortsword)
 item_rarity.append(shortsword.rarity)
-item_identified[shortsword.entity_id] = 1 #NOTE: All weapons are semi-identified from the beginning
 
 
 #########################################################################
@@ -411,8 +397,7 @@ corpse = Item(
     weight=0,# Weight initialized when the actor dies
     price=2,
     item_type=InventoryOrder.FOOD,
-    item_state=ItemState(
-    ),
+    item_state=ItemState(is_identified=1),
     spawnable=False,
     flammable=0.2,
     droppable=True,
@@ -420,9 +405,8 @@ corpse = Item(
     throwable=throwable.NormalThrowable(),
     edible=None # Edible initialized when the actor is generated (status.py)
 )
-item_lists.append(corpse)
+temp_items_lists.append(corpse)
 item_rarity.append(corpse.rarity) # All items should be appended regardless of its rarity
-item_identified[corpse.entity_id] = 1 #NOTE: All corpses are semi-identified from the beginning
 
 
 #########################################################################
@@ -440,8 +424,7 @@ toxic_goo = Item(
     weight=0.1,
     price=0,
     item_type=InventoryOrder.MISC,
-    item_state=ItemState(
-    ),
+    item_state=ItemState(is_identified=1),
     spawnable=False,
     flammable=0,
     droppable=True,
@@ -449,6 +432,5 @@ toxic_goo = Item(
     throwable=throwable.ToxicGooThrowable(base_throw=1, additional_throw=1, break_chance=1, air_friction=2),
     edible=None
 )
-item_lists.append(toxic_goo)
+temp_items_lists.append(toxic_goo)
 item_rarity.append(toxic_goo.rarity)
-item_identified[toxic_goo.entity_id] = 1

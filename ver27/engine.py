@@ -3,6 +3,7 @@ from typing import TYPE_CHECKING, List
 from tcod.path import SimpleGraph, Pathfinder
 from tcod.console import Console
 from tcod.map import compute_fov
+from item_manager import ItemManager
 
 import numpy as np
 import exceptions
@@ -30,6 +31,7 @@ from entity import Actor, Item, SemiActor
 if TYPE_CHECKING:
     from game_map import GameMap
     from input_handlers import EventHandler
+
 
 class Engine:
     def __init__(self, player: Actor):
@@ -69,11 +71,19 @@ class Engine:
         self.world = {}
         self.game_map: GameMap = None
         self.depth: int = 0
+        self.item_manager: ItemManager = None
 
     @property
     def mouse_relative_location(self):
         x, y = self.camera.get_relative_coordinate(abs_x=self.mouse_location[0], abs_y=self.mouse_location[1])
         return x, y
+
+    def initialize_item_manager(self):
+        if self.item_manager == None:
+            self.item_manager = ItemManager()
+            self.item_manager.initialize_data()
+
+        return None
 
     def handle_world(self, turn_pass: bool) -> None:
         """

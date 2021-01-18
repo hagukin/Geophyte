@@ -106,7 +106,7 @@ def spawn_items(
 
     # Choose items to spawn
     spawn_list = random.choices(
-        population=item_factories.item_lists,
+        population=dungeon.engine.item_manager.items_lists,
         weights=item_factories.item_rarity,
         k=number_of_items
         )

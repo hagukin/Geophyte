@@ -51,16 +51,18 @@ class ItemState(BaseComponent):
         self.is_identified = is_identified
 
     def identify_self(self, identify_level: int=1):
-        import item_factories
         self.is_identified = identify_level # Full-identification
-        item_factories.item_identified[self.parent.entity_id] = 1 # Change db
+        self.engine.item_manager.items_identified[self.parent.entity_id] = 1 # Cannot "fully identify" the entire item type.
+    
+    def unidentify_self(self):
+        self.is_identified = 0 # Full-identification
+        self.engine.item_manager.items_identified[self.parent.entity_id] = 0
     
     def check_if_semi_identified(self):
         """
         return True if item is semi-identified OR full-identified.
         """
-        import item_factories
-        if self.is_identified >= 1 or item_factories.item_identified[self.parent.entity_id] >= 1:
+        if self.is_identified >= 1 or self.engine.item_manager.items_identified[self.parent.entity_id] >= 1:
             return True
         else:
             return False
@@ -69,8 +71,7 @@ class ItemState(BaseComponent):
         """
         return True if item is full-identified.
         """
-        import item_factories
-        if self.is_identified >= 2 or item_factories.item_identified[self.parent.entity_id] >= 2: 
+        if self.is_identified >= 2 or self.engine.item_manager.items_identified[self.parent.entity_id] >= 2: 
             #NOTE: On regular occasion, item_factories.item_identified is either 0 or 1, 
             # since full-identification can differ from indivisual instances.
             return True
@@ -100,8 +101,8 @@ class ItemState(BaseComponent):
             # 2. Compare item states
             if self.parent.item_state.BUC != comparing_item.item_state.BUC:
                 return False
-            if self.check_if_semi_identified() != comparing_item.check_if_semi_identified()\
-                and self.check_if_full_identified() != comparing_item.check_if_full_identified():
+            if self.check_if_semi_identified() != comparing_item.item_state.check_if_semi_identified()\
+                and self.check_if_full_identified() != comparing_item.item_state.check_if_full_identified():
                 return False
             if(
                 self.parent.item_state.burntness != comparing_item.item_state.burntness or

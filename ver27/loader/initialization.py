@@ -50,6 +50,9 @@ def init_game_variables(cfg):
     # Save Config to engine
     engine.config = cfg
 
+    # Set item manager
+    engine.initialize_item_manager()
+
     # Generate Map
     engine.depth = 1
     engine.world[1] = engine.generate_new_dungeon()
