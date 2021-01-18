@@ -33,7 +33,7 @@ class Entity:
     """
     def __init__(
         self,
-        gamemap: Optional[GameMap] = None,
+        gamemap: GameMap = None,
         x: int = 0,
         y: int = 0,
         _char: str = "?",
@@ -88,6 +88,9 @@ class Entity:
         self.render_order = render_order
         self.entity_order = 0
         self.gamemap = gamemap
+    @property
+    def engine(self):
+        return self.gamemap.engine
 
     @property
     def char(self):
@@ -104,6 +107,8 @@ class Entity:
     @property
     def name(self):
         return self._name
+    def change_name(self, name):
+        self._name = name
 
     @property
     def entity_desc(self):
@@ -620,11 +625,11 @@ class Item(Entity):
         # Get variables from entity class that can be modified after generation.
         info["gamemap"] = self.gamemap
         info["parent"] = self.parent
-        info["char"] = self.char
-        info["fg"] = self.fg
-        info["bg"] = self.bg
-        info["name"] = self.name
-        info["entity_desc"] = self.entity_desc
+        info["char"] = self._char
+        info["fg"] = self._fg
+        info["bg"] = self._bg
+        info["name"] = self._name
+        info["entity_desc"] = self._entity_desc
         info["weight"] = self.weight
         info["price"] = self.price
         info["flammable"] = self.flammable
@@ -655,11 +660,11 @@ class Item(Entity):
         # Entity
         self.gamemap = info["gamemap"]
         self.parent = info["parent"]
-        self.char = info["char"]
-        self.fg = info["fg"]
-        self.bg = info["bg"]
-        self.name = info["name"]
-        self.entity_desc = info["entity_desc"]
+        self._char = info["char"]
+        self._fg = info["fg"]
+        self._bg = info["bg"]
+        self._name = info["name"]
+        self._entity_desc = info["entity_desc"]
         self.weight = info["weight"]
         self.price = info["price"]
         self.flammable = info["flammable"]
@@ -702,11 +707,9 @@ class Item(Entity):
                 If set to None, the copied item's stack_count is copied from the original.
                 If it has any value, the method will use it instead.
         """
-        import item_factories
-
         # Create new item instance from item_factories
         dup_item = None
-        for i in item_factories.item_lists:
+        for i in self.engine.item_manager.items_lists:
             if i.entity_id == self.entity_id:
                 dup_item = copy.deepcopy(i)
 

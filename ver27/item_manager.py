@@ -50,6 +50,10 @@ class ItemManager:
         ] # NOTE: Currently 24 colors available
         self.colors_for_scrolls = copy.copy(self.colors_for_potions)
 
+        # shuffle color
+        random.shuffle(self.colors_for_potions)
+        random.shuffle(self.colors_for_scrolls)
+
     def initialize_data(self):
         import item_factories
 
@@ -67,8 +71,10 @@ class ItemManager:
     def randomize_item(self, item: Item):
         self.items_randomized[item.entity_id] = {"fg":None, "bg":None, "name":None, "char":None, "entity_desc":None}
         if item.item_type == InventoryOrder.SCROLL:
+            color_name, fg, bg = self.gen_randomized_color()
             self.items_randomized[item.entity_id]["name"] = "Scroll labeled " + self.gen_randomized_string(random.randint(4, 8))
             self.items_randomized[item.entity_id]["entity_desc"] = "Scroll made out of thin paper. You are clueless about what this scroll could do."
+            self.items_randomized[item.entity_id]["fg"] = fg
         elif item.item_type == InventoryOrder.POTION:
             color_name, fg, bg = self.gen_randomized_color()
             self.items_randomized[item.entity_id]["name"] = color_name + " potion"
@@ -82,8 +88,12 @@ class ItemManager:
     def gen_randomized_string(self, string_length: int = 6) -> str:
         vowels = "aeiou"
         non_vowels = "bcdfghjklmnpqrstvwxyz"
-        #TODO
-        return "TESTING"
+        alphabet = "abcdefghijklmnopqrstuvwxyz"
+        
+        word = ""
+        for _ in range(string_length):
+            word += alphabet[random.randint(0,25)]
+        return word
 
     def gen_randomized_color(self):
         return self.colors_for_potions.pop()

@@ -296,7 +296,7 @@ class Status(BaseComponent):
         if self.parent.edible: # if edible is None, no corpse is spawned.
             new_corpse = copy.deepcopy(item_factories.corpse)
             new_corpse.weight = max(round(self.parent.actor_state.weight / 2, 2), 0.01)
-            new_corpse.name = self.parent.name + " corpse"
+            new_corpse.change_name(self.parent.name + " corpse")
             new_corpse.edible = self.parent.edible # copy edible value from parent
             new_corpse.edible.parent = new_corpse
             new_corpse.spawn(self.parent.gamemap, self.parent.x, self.parent.y)
