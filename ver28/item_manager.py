@@ -16,15 +16,15 @@ class ItemManager:
         self.items_lists = None
         self.item_rarity = None
         self.items_identified = {}
-        self.items_randomized = {} # key: item.entity_id, value: dice{"fg":(r,g,b), "bg":(r,g,b), "name":string, "char":string, "entity_desc":string}
-        # if there is no data stored in items_randomized, or if the data is set to None,
+        self.items_fake_info = {} # key: item.entity_id, value: dice{"fg":(r,g,b), "bg":(r,g,b), "name":string, "char":string, "entity_desc":string}
+        # if there is no data stored in items_fake_info, or if the data is set to None,
         # the item will use its default value instead.
-        # e.g. if items_randomized["potion_of_fire"] throws an error,
+        # e.g. if items_fake_info["potion_of_fire"] throws an error,
         # potion of fire will use its default color, name, etc.
         self.colors_for_potions = [
             ("bloodlike",(178,34,34), None),
             ("red",(255,0,0), None),
-            ("pink",(255,192,203), None),
+            ("pink",(255,0,127), None),
             ("violet",(199,21,133), None),
             ("orange",(255,69,0), None),
             ("fruity",(255,165,0), None),
@@ -62,25 +62,28 @@ class ItemManager:
             self.items_lists = copy.copy(item_factories.temp_items_lists)
         
             for item in self.items_lists:
-                # initialize items_randomized (Randomize items)
-                self.randomize_item(item)
+                # initialize items_fake_info (info is set to None if the item doesn't have any "fake information".)
+                self.items_fake_info[item.entity_id] = {"fg":None, "bg":None, "name":None, "char":None, "entity_desc":None}
+
+                #  Randomize items
+                if item.should_randomize:
+                    self.randomize_item(item)
 
                 # initialize items_identified (decide whether item should start as identified or not)
                 self.items_identified[item.entity_id] = item.item_state.is_identified
 
     def randomize_item(self, item: Item):
-        self.items_randomized[item.entity_id] = {"fg":None, "bg":None, "name":None, "char":None, "entity_desc":None}
         if item.item_type == InventoryOrder.SCROLL:
-            color_name, fg, bg = self.gen_randomized_color()
-            self.items_randomized[item.entity_id]["name"] = "Scroll labeled " + self.gen_randomized_string(random.randint(4, 8))
-            self.items_randomized[item.entity_id]["entity_desc"] = "Scroll made out of thin paper. You are clueless about what this scroll could do."
-            self.items_randomized[item.entity_id]["fg"] = fg
+            color_name, fg, bg = self.gen_randomized_color(item_type=InventoryOrder.SCROLL)
+            self.items_fake_info[item.entity_id]["name"] = "Scroll labeled " + self.gen_randomized_string(random.randint(4, 8))
+            self.items_fake_info[item.entity_id]["entity_desc"] = "Scroll made out of thin paper. You are clueless about what this scroll could do."
+            self.items_fake_info[item.entity_id]["fg"] = fg
         elif item.item_type == InventoryOrder.POTION:
-            color_name, fg, bg = self.gen_randomized_color()
-            self.items_randomized[item.entity_id]["name"] = color_name + " potion"
-            self.items_randomized[item.entity_id]["entity_desc"] = f"{color_name} colored potion. You are clueless about what this potion could do."
-            self.items_randomized[item.entity_id]["fg"] = fg
-            self.items_randomized[item.entity_id]["bg"] = bg
+            color_name, fg, bg = self.gen_randomized_color(item_type=InventoryOrder.POTION)
+            self.items_fake_info[item.entity_id]["name"] = color_name + " potion"
+            self.items_fake_info[item.entity_id]["entity_desc"] = f"{color_name} colored potion. You are clueless about what this potion could do."
+            self.items_fake_info[item.entity_id]["fg"] = fg
+            self.items_fake_info[item.entity_id]["bg"] = bg
         else:
             print(f"ERROR::Cannot randomize {item.name} of {item.item_type} type.")
             return None
@@ -95,6 +98,9 @@ class ItemManager:
             word += alphabet[random.randint(0,25)]
         return word
 
-    def gen_randomized_color(self):
-        return self.colors_for_potions.pop()
+    def gen_randomized_color(self, item_type):
+        if item_type == InventoryOrder.POTION:
+            return self.colors_for_potions.pop()
+        elif item_type == InventoryOrder.SCROLL:
+            return self.colors_for_scrolls.pop()
 

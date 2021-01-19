@@ -540,7 +540,7 @@ class Item(Entity):
 
     @property
     def char(self):
-        char = self.gamemap.engine.item_manager.items_randomized[self.entity_id]["char"]
+        char = self.gamemap.engine.item_manager.items_fake_info[self.entity_id]["char"]
         if char:
             return char
         else:
@@ -548,7 +548,7 @@ class Item(Entity):
     
     @property
     def fg(self):
-        fg = self.gamemap.engine.item_manager.items_randomized[self.entity_id]["fg"]
+        fg = self.gamemap.engine.item_manager.items_fake_info[self.entity_id]["fg"]
         if fg:
             return fg
         else:
@@ -556,7 +556,7 @@ class Item(Entity):
 
     @property
     def bg(self):
-        bg = self.gamemap.engine.item_manager.items_randomized[self.entity_id]["bg"]
+        bg = self.gamemap.engine.item_manager.items_fake_info[self.entity_id]["bg"]
         if bg:
             return bg
         else:
@@ -567,7 +567,7 @@ class Item(Entity):
         if self.item_state.check_if_semi_identified():
             return self._name
         else:
-            name = self.gamemap.engine.item_manager.items_randomized[self.entity_id]["name"]
+            name = self.gamemap.engine.item_manager.items_fake_info[self.entity_id]["name"]
             if name:
                 return name
             else:
@@ -578,7 +578,7 @@ class Item(Entity):
         if self.item_state.check_if_semi_identified():
             return self._entity_desc
         else:
-            entity_desc = self.gamemap.engine.item_manager.items_randomized[self.entity_id]["entity_desc"]
+            entity_desc = self.gamemap.engine.item_manager.items_fake_info[self.entity_id]["entity_desc"]
             if entity_desc:
                 return entity_desc
             else:
