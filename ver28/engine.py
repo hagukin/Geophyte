@@ -317,7 +317,7 @@ class Engine:
                 if actor.ai:
                     actor.ai.vision = np.full((self.game_map.width, self.game_map.height), fill_value=False, order="F")
                     actor.ai.update_vision()
-            
+
             ## The game will not update every actor's vision every turn due to performance issues
             # actor.ai.update_vision()
 

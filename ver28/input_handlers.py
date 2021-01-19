@@ -894,6 +894,17 @@ class StorageSelectMultipleEventHandler(StorageSelectEventHandler):
 
     A child of this class MUST modify the choice_confirmed() method to its use.
     """
+    def __init__(
+            self, 
+            engine: Engine, 
+            inventory_component: Inventory, 
+            show_only_types: Tuple(InventoryOrder)=None, 
+            show_only_status: Tuple(str) = None,
+            show_if_satisfy_both: bool = True,
+            ):
+        super().__init__(engine, inventory_component, show_only_types, show_only_status, show_if_satisfy_both)
+        self.selected_items = set()
+
     def on_render(self, console: tcod.Console) -> None:
         """
         Render an inventory menu, which displays the items in the inventory, and the letter to select them.
