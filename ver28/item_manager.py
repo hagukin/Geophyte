@@ -17,10 +17,10 @@ class ItemManager:
         self.item_rarity = None
         self.items_identified = {}
         self.items_fake_info = {} # key: item.entity_id, value: dice{"fg":(r,g,b), "bg":(r,g,b), "name":string, "char":string, "entity_desc":string}
-        # if there is no data stored in items_fake_info, or if the data is set to None,
-        # the item will use its default value instead.
-        # e.g. if items_fake_info["potion_of_fire"] throws an error,
-        # potion of fire will use its default color, name, etc.
+        # items_fake_info stores fake information(or the surface information) for EVERY items that exists in game.
+        # However, if the data's values are set to None, they are unused, and the item will use its default value instead.
+        # e.g. if items_fake_info["potion_of_fire"]["name"] == None,
+        # potion of fire will use its default name.
         self.colors_for_potions = [
             ("bloodlike",(178,34,34), None),
             ("red",(255,0,0), None),
@@ -53,6 +53,17 @@ class ItemManager:
         # shuffle color
         random.shuffle(self.colors_for_potions)
         random.shuffle(self.colors_for_scrolls)
+
+    def identify_type(self, item_id:str, identify_level: int=1):
+        """
+        NOTE: When identifying an entire type, use item_manager.identify_type instead.
+        NOTE: Normally, you should not "fully identify" the entire item type.
+        Thus, identify_level should stay 1 in normal occasions.
+        """
+        self.items_identified[item_id] = identify_level
+
+    def unidentify_type(self, item_id:str):
+        self.items_identified[item_id] = 0
 
     def initialize_data(self):
         import item_factories

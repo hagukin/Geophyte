@@ -72,8 +72,16 @@ CONFIRM_KEYS = {
 
 
 class EventHandler(tcod.event.EventDispatch[Action]):
-    def __init__(self, engine: Engine):
+    def __init__(self, engine: Engine, revert_callback: Callable = None):
+        """
+        Args:
+            revert_callback:
+                If there is a value(lambda function), 
+                this event will call that function when the item usage has been cancelled. 
+                (Howeever, items will still get consumed)
+        """
         self.engine = engine
+        self.revert_callback = revert_callback
 
     def handle_events(self, event: tcod.event.Event) -> None:
         return self.handle_action(self.dispatch(event))
@@ -159,7 +167,12 @@ class AskUserEventHandler(EventHandler):
             tcod.event.K_RALT,
         }:
             return None
-        return self.on_exit()
+        # ESC
+        if self.revert_callback is None:
+            return self.on_exit()
+        else:
+            self.engine.event_handler = ItemUseCancelHandler(self.engine, self.revert_callback)
+            return None
 
     def ev_mousebuttondown(self, event: tcod.event.MouseButtonDown) -> Optional[Action]:
         """By default any mouse click exits this input handler."""
@@ -172,6 +185,23 @@ class AskUserEventHandler(EventHandler):
         """
         self.engine.event_handler = MainGameEventHandler(self.engine)
         return None
+
+
+class ItemUseCancelHandler(AskUserEventHandler):
+    def __init__(self, engine, revert_callback: Callable):
+        super().__init__(engine, revert_callback)
+
+    def on_render(self, console: tcod.Console,) -> None:
+        super().on_render(console)
+        self.engine.message_log.add_message(f"Do you really want to cancel your action? The item will be consumed anyway. (Y/N)", color.lime, stack=False, show_once=True)
+
+    def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[Action]:
+        if event.sym == tcod.event.K_y or event.sym == tcod.event.K_KP_ENTER:
+            self.engine.event_handler = MainGameEventHandler(self.engine)
+            self.engine.message_log.add_message(f"Cancelled.", color.gray, stack=False, show_once=True)
+            return self.revert_callback(True)# passing True (action is cancelled)
+        else:
+            return self.revert_callback(False)# passing False (action is not cancelled)
 
 
 class SaveInputHandler(AskUserEventHandler):
@@ -395,6 +425,7 @@ class StorageSelectEventHandler(AskUserEventHandler):
             show_only_types: Tuple(InventoryOrder)=None, 
             show_only_status: Tuple(str) = None,
             show_if_satisfy_both: bool = True,
+            revert_callback: Callable = None,
             ):
         """
         Args:
@@ -415,7 +446,7 @@ class StorageSelectEventHandler(AskUserEventHandler):
                 show item only if both types and status is satisfied.
                 if False, show items if they satisfy either one.
         """
-        super().__init__(engine)
+        super().__init__(engine, revert_callback)
         self.inventory_component = inventory_component 
         self.show_only_types = show_only_types
         self.show_only_status = show_only_status
@@ -648,8 +679,9 @@ class InventoryChooseItemAndCallbackHandler(StorageSelectSingleEventHandler):
             show_only_types: Tuple(InventoryOrder)=None, 
             show_only_status: Tuple(str) = None, 
             show_if_satisfy_both: bool = True,
+            revert_callback: Callable = None,
         ):
-        super().__init__(engine, inventory_component, show_only_types, show_only_status, show_if_satisfy_both)
+        super().__init__(engine, inventory_component, show_only_types, show_only_status, show_if_satisfy_both, revert_callback)
         self.TITLE = "Inventory"
         self.selected_item = None
         self.callback = callback
@@ -1189,9 +1221,9 @@ class InventoryDropHandler(StorageSelectMultipleEventHandler):
 class SelectIndexHandler(AskUserEventHandler):
     """Handles asking the user for an index on the map."""
 
-    def __init__(self, engine: Engine):
+    def __init__(self, engine: Engine, revert_callback: Callable = None):
         """Sets the cursor to the player when this handler is constructed."""
-        super().__init__(engine)
+        super().__init__(engine, revert_callback)
         player = self.engine.player
         engine.mouse_location = player.x, player.y
 
@@ -1254,9 +1286,9 @@ class LookHandler(SelectIndexHandler):
 class SelectDirectionHandler(AskUserEventHandler):
     """Handles asking the user for an index on the map."""
 
-    def __init__(self, engine: Engine):
+    def __init__(self, engine: Engine, revert_callback: Callable = None):
         """Sets the cursor to the player when this handler is constructed."""
-        super().__init__(engine)
+        super().__init__(engine, revert_callback)
         player = self.engine.player
         engine.mouse_location = player.x, player.y
 
@@ -1321,7 +1353,7 @@ class MagicMappingLookHandler(AskUserEventHandler):
 class SingleRangedAttackHandler(SelectIndexHandler):
     """Handles targeting a single enemy. Only the enemy selected will be affected."""
     def __init__(
-        self, engine: Engine, callback: Callable[[Tuple[int, int]], Optional[Action]]
+        self, engine: Engine, callback: Callable[[Tuple[int, int]], Optional[Action]], revert_callback: Callable = None
     ):
         super().__init__(engine)
         self.callback = callback
@@ -1337,8 +1369,9 @@ class AreaRangedAttackHandler(SelectIndexHandler):
         engine: Engine,
         radius: int,
         callback: Callable[[Tuple[int, int]], Optional[Action]],
+        revert_callback: Callable = None,
     ):
-        super().__init__(engine)
+        super().__init__(engine, revert_callback)
         self.radius = radius
         self.callback = callback
 
@@ -1371,8 +1404,9 @@ class RayRangedInputHandler(SelectDirectionHandler):
         actor: Actor,
         max_range: int,
         callback: Callable[[Tuple[int, int]], Optional[Action]],
+        revert_callback: Callable = None,
     ):
-        super().__init__(engine)
+        super().__init__(engine, revert_callback)
         self.actor = actor
         self.max_range = max_range
         self.callback = callback

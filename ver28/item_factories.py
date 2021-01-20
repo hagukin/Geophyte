@@ -15,6 +15,7 @@ item_rarity = []
 
 ### Potion of healing
 potion_of_healing = Item(
+    should_randomize=True,
     char="!",
     fg=(127, 0, 255),
     name="Potion of healing",
@@ -39,6 +40,7 @@ item_rarity.append(potion_of_healing.rarity)
 
 ### Potion of paralysis
 potion_of_paralysis = Item(
+    should_randomize=True,
     char="!",
     fg=(255, 0, 255),
     name="Potion of paralysis",
@@ -67,6 +69,7 @@ item_rarity.append(potion_of_paralysis.rarity)
 
 ### Scroll of Confusion
 scroll_of_confusion = Item(
+    should_randomize=True,
     char="≈",
     fg=(207, 63, 255),
     name="Scroll of confusion",
@@ -91,6 +94,7 @@ item_rarity.append(scroll_of_confusion.rarity)
 
 ### Scroll of Meteor Storm
 scroll_of_meteor_storm = Item(
+    should_randomize=True,
     char="≈",
     fg=(255, 100, 0),
     name="Scroll of meteor storm",
@@ -115,6 +119,7 @@ item_rarity.append(scroll_of_meteor_storm.rarity)
 
 ### Scroll of Thunderstorm
 scroll_of_thunderstorm = Item(
+    should_randomize=True,
     char="≈",
     fg=(255, 255, 0),
     name="Scroll of thunderstom",
@@ -139,6 +144,7 @@ item_rarity.append(scroll_of_thunderstorm.rarity)
 
 ### Scroll of Lightning
 scroll_of_lightning = Item(
+    should_randomize=True,
     char="≈",
     fg=(255, 252, 99),
     name="Scroll of lightning",
@@ -163,6 +169,7 @@ item_rarity.append(scroll_of_lightning.rarity)
 
 ### Scroll of magic missile
 scroll_of_magic_missile = Item(
+    should_randomize=True,
     char="≈",
     fg=(100, 50, 255),
     name="Scroll of magic missile",
@@ -187,6 +194,7 @@ item_rarity.append(scroll_of_magic_missile.rarity)
 
 ### Scroll of magic mapping
 scroll_of_magic_mapping = Item(
+    should_randomize=True,
     char="≈",
     fg=(255, 90, 90),
     name="Scroll of magic mapping",
@@ -211,6 +219,7 @@ item_rarity.append(scroll_of_magic_mapping.rarity)
 
 ### Scroll of piercing flame
 scroll_of_piercing_flame = Item(
+    should_randomize=True,
     char="≈",
     fg=(255, 0, 30),
     name="Scroll of piercing flame",
@@ -235,6 +244,7 @@ item_rarity.append(scroll_of_piercing_flame.rarity)
 
 ### Scroll of tame
 scroll_of_tame = Item(
+    should_randomize=True,
     char="≈",
     fg=(255, 0, 200),
     name="Scroll of tame",
@@ -250,7 +260,7 @@ scroll_of_tame = Item(
     droppable=True,
     stackable=True,
     throwable=throwable.NormalThrowable(air_friction=20),
-    readable=readable.ScrollOfTame(),
+    readable=readable.ScrollOfTameReadable(),
     quaffable=None,
 )
 temp_items_lists.append(scroll_of_tame)
@@ -259,6 +269,7 @@ item_rarity.append(scroll_of_tame.rarity)
 
 ### Scroll of enchantment
 scroll_of_enchantment = Item(
+    should_randomize=True,
     char="≈",
     fg=(191, 255, 0),
     name="Scroll of enchantment",
@@ -283,6 +294,7 @@ item_rarity.append(scroll_of_enchantment.rarity)
 
 ### Scroll of identify
 scroll_of_identify = Item(
+    should_randomize=True,
     char="≈",
     fg=(255, 255, 200),
     name="Scroll of identify",
@@ -307,6 +319,7 @@ item_rarity.append(scroll_of_identify.rarity)
 
 ### Scroll of Remove Curse
 scroll_of_remove_curse = Item(
+    should_randomize=True,
     char="≈",
     fg=(255, 255, 200),
     name="Scroll of remove curse",

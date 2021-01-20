@@ -1287,9 +1287,24 @@
             > item_factories에 item_identified 딕셔너리 추가
 20200118 - 아이템 랜덤화 기능 추가. 이제 아이템은 정통 로그라이크처럼 랜덤한 형태와 이름을 가지고 스폰됨.
 
-	   Item manager.py 추가.
-	   Item list, item identification list를 Item manager 안으로 옮김.
-	   entity의 char, fg, bg, name, entity_desc 값을 프로퍼티화해서 조건에 맞는 값을 리턴하도록 제작함.
-	   > 아이템은 랜덤으로 정해진 색상 혹은 이름을 출력하며, 만약 감정된 상태일 경우 원본 이름 혹은 설명을 출력함.
-	   
-	   그외 자잘한 버그 수정.
+          Item manager.py 추가.
+          Item list, item identification list를 Item manager 안으로 옮김.
+          entity의 char, fg, bg, name, entity_desc 값을 프로퍼티화해서 조건에 맞는 값을 리턴하도록 제작함.
+          > 아이템은 랜덤으로 정해진 색상 혹은 이름을 출력하며, 만약 감정된 상태일 경우 원본 이름 혹은 설명을 출력함.
+          
+          그외 자잘한 버그 수정.
+20200119 - 버그 수정.
+20200120 - 아이템을 사용할 경우 identification이 자동으로 되는 기능 추가.
+          > item_state.identify_self() 함수와 별도로 item_manager.identify_type()함수를 제작함.
+
+          주문서와 같은 사용 후 플레이어의 인풋을 받는 아이템의 경우, 한번 사용하고 취소하면 아이템이 사라지도록 변경함. (다른 로그라이크들에도 존재하는 기능임)
+          > revert_callback()함수를 get_action에 넘겨주는 방식으로 동작함.
+          > 생각보다 상당히 추가하기 어려운 기능이었음.. 
+            재귀적으로 콜백함수를 호출하는데다가, 콜백 호출 전에 유저로부터 확인인풋을 또 받아야 하기 때문에 구현하기가 여간 쉽지 않았음.
+
+          >> 1. ~able.get_action()에서 자기자신(get_action())을 input_handler에 revert_callback()으로 넘겨줌.
+          >> 2. input_handler에서 만약 esc 등을 눌러 행동을 취소했을 경우, 사용자에게 다시 정말 행동을 취소할 것인지를 물어보는 ItemUseCancelHandler로 넘어감.
+          >> 3. 사용자가 취소를 confirm하면 ItemUseCancelHandler에서 앞서 전달되었던 revert_callback(cancel=True)을 실행함.
+                사용자가 취소를 취소하면 revert_callback(cancel=False)를 실행함.
+          >> 4. revert_callback()에서 cancel 파라미터로 받은 값에 따라 InputHandler를 다시 실행하거나 (cancel=False일때), 
+                혹은 아이템을 consume하고 WaitAction을 반환해 턴을 소모함. (cancel=True일때)

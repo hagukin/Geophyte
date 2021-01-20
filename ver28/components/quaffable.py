@@ -29,6 +29,8 @@ class Quaffable(BaseComponent):
 
     def consume(self) -> None:
         """Remove the consumed item from its containing inventory."""
+        # fully identify used instance, and semi-identify the same item types.
+        self.parent.item_state.identify_self(identify_level=2)
         self.parent.parent.remove_item(self.parent, remove_count=1)
 
 

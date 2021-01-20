@@ -51,12 +51,15 @@ class ItemState(BaseComponent):
         self.is_identified = is_identified
 
     def identify_self(self, identify_level: int=1):
+        """
+        NOTE: When identifying an entire type, use item_manager.identify_type instead.
+        """
         self.is_identified = identify_level # Full-identification
-        self.engine.item_manager.items_identified[self.parent.entity_id] = 1 # Cannot "fully identify" the entire item type.
+        self.engine.item_manager.identify_type(self.parent.entity_id, 1) # "semi identify" the entire item type.
     
     def unidentify_self(self):
         self.is_identified = 0 # Full-identification
-        self.engine.item_manager.items_identified[self.parent.entity_id] = 0
+        self.engine.item_manager.unidentify_type(self.parent.entity_id)
     
     def check_if_semi_identified(self):
         """

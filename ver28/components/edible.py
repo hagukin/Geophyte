@@ -78,9 +78,10 @@ class Edible(BaseComponent):
         Gain nutrition.
         All the special effects of the food is not handled here.
         """
+        # gain nutrition
         consumer = action.entity
         nutrition_gained = self.nutrition
-        consumer.actor_state.hunger += nutrition_gained # gain nutrition
+        consumer.actor_state.hunger += nutrition_gained
 
         #TODO: Add food poison, over eating debuffs
 
@@ -157,6 +158,8 @@ class Edible(BaseComponent):
 
     def consume(self) -> None:
         """Remove the consumed item from its containing inventory."""
+        # fully identify used instance, and semi-identify the same item types.
+        self.parent.item_state.identify_self(identify_level=2)
         self.parent.remove_self()
 
 

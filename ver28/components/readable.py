@@ -31,6 +31,8 @@ class Readable(BaseComponent):
 
     def consume(self) -> None:
         """Remove the consumed item from its containing inventory."""
+        # fully identify used instance, and semi-identify the same item types.
+        self.parent.item_state.identify_self(identify_level=2)
         self.parent.parent.remove_item(self.parent, remove_count=1)
 
 
@@ -38,11 +40,16 @@ class SelectTileReadable(Readable):
     def __init__(self):
         pass
         
-    def get_action(self, consumer: Actor) -> Optional[actions.Action]:
+    def get_action(self, consumer: Actor, cancelled: bool=False) -> Optional[actions.Action]:
+        if cancelled:
+            self.consume()
+            return actions.WaitAction(consumer)
+
         self.engine.message_log.add_message("Select a target location.", color.needs_target)
         self.engine.event_handler = SingleRangedAttackHandler(
             self.engine,
             callback=lambda xy: actions.ReadItem(consumer, self.parent, xy),
+            revert_callback=lambda x: self.get_action(consumer, x),
         )
         return None
     
@@ -89,7 +96,7 @@ class ScrollOfConfusionReadable(SelectTileReadable):
         target.actor_state.is_confused[1] = self.number_of_turns
 
 
-class ScrollOfTame(SelectTileReadable):
+class ScrollOfTameReadable(SelectTileReadable):
     
     def effects_on_selected_tile_with_no_actor(self, consumer: Actor):
         self.engine.message_log.add_message(f"{consumer.name} tried your best to tame a thin air, but failed.", color.gray)
@@ -123,13 +130,18 @@ class SelectItemFromInventoryReadable(Readable):
     def __init__(self):
         pass
 
-    def get_action(self, consumer: Actor) -> Optional[actions.Action]:
+    def get_action(self, consumer: Actor, cancelled: bool=False) -> Optional[actions.Action]:
+        if cancelled:
+            self.consume()
+            return actions.WaitAction(consumer)
+
         self.engine.message_log.add_message("Choose an item to enchant.", color.needs_target)
         self.engine.event_handler = InventoryChooseItemAndCallbackHandler(
             self.engine,
             inventory_component=consumer.inventory,
             show_only=None, # If item_type filter is needed, you should override this entire function.
             callback=lambda selected_item : actions.ReadItem(consumer, self.parent, (0,0), selected_item),
+            revert_callback=lambda x: self.get_action(consumer, x),
         )
         return None
     
@@ -146,7 +158,11 @@ class SelectItemFromInventoryReadable(Readable):
 
 
 class ScrollOfEnchantmentReadable(SelectItemFromInventoryReadable):
-    def get_action(self, consumer: Actor) -> Optional[actions.Action]:
+    def get_action(self, consumer: Actor, cancelled: bool = False) -> Optional[actions.Action]:
+        if cancelled:
+            self.consume()
+            return actions.WaitAction(consumer)
+
         self.engine.message_log.add_message("Choose an item to enchant.", color.needs_target)
         self.engine.event_handler = InventoryChooseItemAndCallbackHandler(
             self.engine,
@@ -160,6 +176,7 @@ class ScrollOfEnchantmentReadable(SelectItemFromInventoryReadable):
                 InventoryOrder.WAND,
                 ),# Only display enchantable items.
             callback=lambda selected_item : actions.ReadItem(consumer, self.parent, (0,0), selected_item),
+            revert_callback=lambda x: self.get_action(consumer, x),
         )
         return None
     
@@ -177,13 +194,18 @@ class ScrollOfEnchantmentReadable(SelectItemFromInventoryReadable):
 
 
 class ScrollOfIdentifyReadable(SelectItemFromInventoryReadable):
-    def get_action(self, consumer: Actor) -> Optional[actions.Action]:
+    def get_action(self, consumer: Actor, cancelled: bool = False) -> Optional[actions.Action]:
+        if cancelled:
+            self.consume()
+            return actions.WaitAction(consumer)
+
         self.engine.message_log.add_message("Choose an item to identify.", color.needs_target)
         self.engine.event_handler = InventoryChooseItemAndCallbackHandler(
             self.engine,
             inventory_component=consumer.inventory,
             show_only_status=("unidentified-all", "semi-identified-all"), # NOTE: WARNING - If yoou pass only one parameter, additional comma is needed inside tuple to prevent passing the data in string form
             callback=lambda selected_item : actions.ReadItem(consumer, self.parent, (0,0), selected_item),
+            revert_callback=lambda x: self.get_action(consumer, x),
         )
         return None
     
@@ -196,13 +218,18 @@ class ScrollOfIdentifyReadable(SelectItemFromInventoryReadable):
 
 
 class ScrollOfRemoveCurseReadable(SelectItemFromInventoryReadable):
-    def get_action(self, consumer: Actor) -> Optional[actions.Action]:
+    def get_action(self, consumer: Actor, cancelled: bool = False) -> Optional[actions.Action]:
+        if cancelled:
+            self.consume()
+            return actions.WaitAction(consumer)
+
         self.engine.message_log.add_message("Choose an item to remove curse.", color.needs_target)
         self.engine.event_handler = InventoryChooseItemAndCallbackHandler(
             self.engine,
             inventory_component=consumer.inventory,
             show_only_status=("unidentified-all", "semi-identified-all", "full-identified-cursed",),
             callback=lambda selected_item : actions.ReadItem(consumer, self.parent, (0,0), selected_item),
+            revert_callback=lambda x: self.get_action(consumer, x),
         )
         return None
     
@@ -251,7 +278,7 @@ class ScrollOfMagicMappingReadable(Readable): #TODO: make parent class like othe
         self.engine.event_handler = MagicMappingLookHandler(
             self.engine,
             callback=lambda trash_value: actions.ReadItem(consumer, self.parent),
-        )
+        )#NOTE: Has no revert_callback parameter, since the item already has been consumed.
         return None
 
 
@@ -260,7 +287,11 @@ class ScrollOfMeteorStormReadable(Readable): #TODO: Make parent class like other
         self.damage = damage
         self.radius = radius
 
-    def get_action(self, consumer: Actor) -> Optional[actions.Action]:
+    def get_action(self, consumer: Actor, cancelled: bool = False) -> Optional[actions.Action]:
+        if cancelled:
+            self.consume()
+            return actions.WaitAction(consumer)
+
         self.engine.message_log.add_message(
             "Select a target location.", color.needs_target
         )
@@ -268,6 +299,7 @@ class ScrollOfMeteorStormReadable(Readable): #TODO: Make parent class like other
             self.engine,
             radius=self.radius,
             callback=lambda xy: actions.ReadItem(consumer, self.parent, xy),
+            revert_callback=lambda x: self.get_action(consumer, x),
         )
         return None
 
@@ -367,7 +399,11 @@ class RayReadable(Readable):
         """effects applied to the actor that the ray collided with."""
         pass
 
-    def get_action(self, consumer):
+    def get_action(self, consumer, cancelled: bool=False) -> Optional[actions.Action]:
+        if cancelled:
+            self.consume()
+            return actions.WaitAction(consumer)
+
         self.engine.message_log.add_message(
             "Select a direction.", color.needs_target
         )
@@ -376,6 +412,7 @@ class RayReadable(Readable):
             actor=consumer,
             max_range=self.max_range,
             callback=lambda xy: actions.ReadItem(consumer, self.parent, xy),
+            revert_callback=lambda x: self.get_action(consumer, x),
         )
         return None
 
