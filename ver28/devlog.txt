@@ -1308,6 +1308,6 @@
                 사용자가 취소를 취소하면 revert_callback(cancel=False)를 실행함.
           >> 4. revert_callback()에서 cancel 파라미터로 받은 값에 따라 InputHandler를 다시 실행하거나 (cancel=False일때), 
                 혹은 아이템을 consume하고 WaitAction을 반환해 턴을 소모함. (cancel=True일때)
-20200121 - 메세지창을 띄우는 메소드 제작 (engine.draw_window)
+20200121 - 메세지창을 띄우는 메소드 제작 (engine.draw_window).
 
           세이브, 아이템 사용 취소 시 로그에 메세지를 표시하는 대신 메세지 창을 띄우도록 변경.
