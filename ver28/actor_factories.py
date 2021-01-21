@@ -62,7 +62,12 @@ player = Actor(
     inventory=Inventory(capacity=52, is_fireproof=False),
     ability_inventory=AbilityInventory(capacity=10),
     equipments=Equipments(),
-    initial_items=[(item_factories.scroll_of_enchantment, 1, (1,5)), (item_factories.scroll_of_identify, 1, (1,4)), (item_factories.scroll_of_remove_curse, 1, (1,4)), (item_factories.scroll_of_magic_missile, 1, (1,4))],##DEBUG,
+    initial_items=[
+        (item_factories.scroll_of_enchantment, 1, (1,5)), 
+        (item_factories.scroll_of_identify, 1, (1,4)), 
+        (item_factories.scroll_of_remove_curse, 1, (1,4)), 
+        (item_factories.scroll_of_magic_missile, 1, (1,4))
+        ],
     initial_equipments=[(item_factories.leather_armor, 1)],
     initial_abilities=[(ability_factories.lightning_bolt, 1), (ability_factories.steal, 1)],
 )

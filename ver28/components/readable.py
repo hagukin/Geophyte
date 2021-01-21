@@ -35,6 +35,15 @@ class Readable(BaseComponent):
         self.parent.item_state.identify_self(identify_level=2)
         self.parent.parent.remove_item(self.parent, remove_count=1)
 
+    def item_use_cancelled(self, actor: Actor) -> actions.Action:
+        """
+        Called when item usage is cancelled.
+        Only the player should be able to call this function.
+        """
+        self.consume()
+        self.engine.message_log.add_message(f"Your {self.parent.name} crumbles into dust.", color.white)
+        return actions.WaitAction(actor)
+
 
 class SelectTileReadable(Readable):
     def __init__(self):
@@ -42,8 +51,7 @@ class SelectTileReadable(Readable):
         
     def get_action(self, consumer: Actor, cancelled: bool=False) -> Optional[actions.Action]:
         if cancelled:
-            self.consume()
-            return actions.WaitAction(consumer)
+            return self.item_use_cancelled(actor=consumer)
 
         self.engine.message_log.add_message("Select a target location.", color.needs_target)
         self.engine.event_handler = SingleRangedAttackHandler(
@@ -132,8 +140,7 @@ class SelectItemFromInventoryReadable(Readable):
 
     def get_action(self, consumer: Actor, cancelled: bool=False) -> Optional[actions.Action]:
         if cancelled:
-            self.consume()
-            return actions.WaitAction(consumer)
+            return self.item_use_cancelled(actor=consumer)
 
         self.engine.message_log.add_message("Choose an item to enchant.", color.needs_target)
         self.engine.event_handler = InventoryChooseItemAndCallbackHandler(
@@ -160,8 +167,7 @@ class SelectItemFromInventoryReadable(Readable):
 class ScrollOfEnchantmentReadable(SelectItemFromInventoryReadable):
     def get_action(self, consumer: Actor, cancelled: bool = False) -> Optional[actions.Action]:
         if cancelled:
-            self.consume()
-            return actions.WaitAction(consumer)
+            return self.item_use_cancelled(actor=consumer)
 
         self.engine.message_log.add_message("Choose an item to enchant.", color.needs_target)
         self.engine.event_handler = InventoryChooseItemAndCallbackHandler(
@@ -196,8 +202,7 @@ class ScrollOfEnchantmentReadable(SelectItemFromInventoryReadable):
 class ScrollOfIdentifyReadable(SelectItemFromInventoryReadable):
     def get_action(self, consumer: Actor, cancelled: bool = False) -> Optional[actions.Action]:
         if cancelled:
-            self.consume()
-            return actions.WaitAction(consumer)
+            return self.item_use_cancelled(actor=consumer)
 
         self.engine.message_log.add_message("Choose an item to identify.", color.needs_target)
         self.engine.event_handler = InventoryChooseItemAndCallbackHandler(
@@ -220,8 +225,7 @@ class ScrollOfIdentifyReadable(SelectItemFromInventoryReadable):
 class ScrollOfRemoveCurseReadable(SelectItemFromInventoryReadable):
     def get_action(self, consumer: Actor, cancelled: bool = False) -> Optional[actions.Action]:
         if cancelled:
-            self.consume()
-            return actions.WaitAction(consumer)
+            return self.item_use_cancelled(actor=consumer)
 
         self.engine.message_log.add_message("Choose an item to remove curse.", color.needs_target)
         self.engine.event_handler = InventoryChooseItemAndCallbackHandler(
@@ -289,8 +293,7 @@ class ScrollOfMeteorStormReadable(Readable): #TODO: Make parent class like other
 
     def get_action(self, consumer: Actor, cancelled: bool = False) -> Optional[actions.Action]:
         if cancelled:
-            self.consume()
-            return actions.WaitAction(consumer)
+            return self.item_use_cancelled(actor=consumer)
 
         self.engine.message_log.add_message(
             "Select a target location.", color.needs_target
@@ -401,8 +404,7 @@ class RayReadable(Readable):
 
     def get_action(self, consumer, cancelled: bool=False) -> Optional[actions.Action]:
         if cancelled:
-            self.consume()
-            return actions.WaitAction(consumer)
+            return self.item_use_cancelled(actor=consumer)
 
         self.engine.message_log.add_message(
             "Select a direction.", color.needs_target

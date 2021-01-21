@@ -1,11 +1,14 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import Optional, Tuple, TYPE_CHECKING
+
+from numpy.core.numeric import Inf
 from entity import Actor, Item
 
 import color
 
 if TYPE_CHECKING:
+    from game_map import GameMap
     from tcod import Console
     from engine import Engine
     
@@ -270,3 +273,90 @@ def render_names_at_mouse_location(
 
     console.print(x=x, y=y, string=tile_name_at_location, fg=color.white)
     console.print(x=x, y=y+1, string=names_at_mouse_location, fg=color.yellow)
+
+def insert_string(origin: str, insert: str, insert_loc: int) -> str:
+    return origin[:insert_loc] + insert + origin[insert_loc:]
+
+def render_message_window(
+    console: Console, 
+    engine: Engine, 
+    text: str,
+    fixed_width: bool = False,
+    x: Optional[int] = None,
+    y: Optional[int] = None,
+    width: Optional[int] = None,
+    height: Optional[int] = None,
+    title: Optional[str] = "",
+    frame_fg: Optional[Tuple[int, int, int]] = (218, 196, 0),
+    frame_bg: Optional[Tuple[int, int, int]] = (0, 0, 0),
+    text_fg: Optional[Tuple[int, int, int]] = (255, 255, 255),
+) -> None:
+    """
+    Text should be given as a single line.
+    The function will automatically divide it into multiple lines if necessary.
+    Args:
+        x, y:
+            top-left position of the window.
+            if set to None(default), the function will assign a position between (5,5) ~ (width/2, 5).
+        width, height:
+            if set to None(default), the function will assign a size between 5 ~ screen_width - 14.
+    """
+    # values
+    screen_width, screen_height = engine.config["screen_width"], engine.config["screen_height"]
+    msg = text
+    msg_length = len(text)
+
+    # constants
+    DEFAULT_X_PADDING = 4
+    DEFAULT_Y_PADDING = 4 # Fixed
+    MAX_FRAME_WIDTH = screen_width - (DEFAULT_X_PADDING * 2)
+    DEFAULT_FRAME_WIDTH = MAX_FRAME_WIDTH
+    MAX_FRAME_HEIGHT = screen_height - (DEFAULT_Y_PADDING * 2)
+
+    if fixed_width:
+        msg_width = DEFAULT_FRAME_WIDTH - 2
+        msg_height = min(int(msg_length / msg_width) + 1, MAX_FRAME_HEIGHT - 2)
+        
+        # Set frame width, height, x, y
+        width, height = msg_width + 2, msg_height + 2
+        if not x and not y:
+            x, y = DEFAULT_X_PADDING, DEFAULT_Y_PADDING
+        msg_x, msg_y = x+1, y+1
+
+        # divide string into multiple parts
+        loc = msg_width
+        for i in range(0, msg_height):
+            msg = insert_string(msg, "\n", loc * (i+1) + i) # adding i because the string gradually gets longer becuase "\n" is being added.
+    else:
+        if msg_length > MAX_FRAME_WIDTH - 2:
+            msg_width = MAX_FRAME_WIDTH - 2
+            msg_height = min(int(msg_length / msg_width) + 1, MAX_FRAME_HEIGHT - 2)
+
+            # Set frame width, height, x, y
+            if not width and not height:
+                width, height = msg_width + 2, msg_height + 2
+            if not x and not y:
+                x, y = DEFAULT_X_PADDING, DEFAULT_Y_PADDING
+            msg_x, msg_y = x+1, y+1
+
+            # divide string into multiple parts
+            loc = msg_width
+            for i in range(0, msg_height):
+                msg = insert_string(msg, "\n", loc * (i+1) + i) # adding i because the string gradually gets longer becuase "\n" is being added.
+        else:
+            msg_width = max(msg_length, len(title) + 2)
+            msg_height = 1
+
+            # Set frame width, height, x, y
+            if not width and not height:
+                width, height = msg_width + 2, msg_height + 2
+            if not x and not y:
+                x = int((screen_width - msg_width + 2) / 2)
+                y = DEFAULT_Y_PADDING
+            msg_x, msg_y = x+1, y+1
+
+    # draw frame
+    console.draw_frame(x, y, width, height, title=title, fg=frame_fg, bg=frame_bg, clear=True)
+
+    # print msg
+    console.print(msg_x, msg_y, msg, fg=text_fg)

@@ -193,12 +193,12 @@ class ItemUseCancelHandler(AskUserEventHandler):
 
     def on_render(self, console: tcod.Console,) -> None:
         super().on_render(console)
-        self.engine.message_log.add_message(f"Do you really want to cancel your action? The item will be consumed anyway. (Y/N)", color.lime, stack=False, show_once=True)
+        self.engine.draw_window(console, text="Do you really want to cancel your action? The item will be consumed anyway. (Y/N)", title="Cancel Action", frame_fg=color.lime)
 
     def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[Action]:
         if event.sym == tcod.event.K_y or event.sym == tcod.event.K_KP_ENTER:
             self.engine.event_handler = MainGameEventHandler(self.engine)
-            self.engine.message_log.add_message(f"Cancelled.", color.gray, stack=False, show_once=True)
+            self.engine.message_log.add_message(f"Cancelled.", color.white, stack=False, show_once=True)
             return self.revert_callback(True)# passing True (action is cancelled)
         else:
             return self.revert_callback(False)# passing False (action is not cancelled)
@@ -208,7 +208,7 @@ class SaveInputHandler(AskUserEventHandler):
 
     def on_render(self, console: tcod.Console) -> None:
         super().on_render(console)
-        self.engine.message_log.add_message(f"Do you really want to save current game? (Y/N)", color.lime, stack=False, show_once=True)
+        self.engine.draw_window(console, text="Do you really want to save current game? (Y/N)", title="Save", frame_fg=color.lime)
 
     def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[Action]:
         player = self.engine.player
@@ -1603,7 +1603,7 @@ class HistoryViewer(EventHandler):
         # Draw a frame with a custom banner title.
         log_console.draw_frame(0, 0, log_console.width, log_console.height)
         log_console.print_box(
-            0, 0, log_console.width, 1, "┤Message history├", alignment=tcod.CENTER
+            0, 0, log_console.width, 1, "Game Log", alignment=tcod.CENTER
         )
 
         # Render the message log using the cursor parameter.

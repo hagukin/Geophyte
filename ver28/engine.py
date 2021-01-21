@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import TYPE_CHECKING, List
+from typing import TYPE_CHECKING, List, Optional, Tuple
 from tcod.path import SimpleGraph, Pathfinder
 from tcod.console import Console
 from tcod.map import compute_fov
@@ -25,6 +25,7 @@ from render_functions import (
     render_names_at_mouse_location,
     render_character_status,
     render_character_state,
+    render_message_window,
 )
 from entity import Actor, Item, SemiActor
 
@@ -515,6 +516,11 @@ class Engine:
     def render_playerinfo(self, console: Console, gui_x: int, gui_y: int, draw_frame: bool=False) -> None:
         """
         Handles the GUI about players status.
+        This includes player status, and player's status effects.
+        Args:
+            gui_x, gui_y:
+                top-left side of the graphical user interfaces.
+                NOTE: This is NOT the coordinate of the GUi frame. This is the coordinate of the inner area.
         """
         render_character_name(console=console, x=gui_x, y=gui_y, character=self.player)
 
@@ -542,19 +548,47 @@ class Engine:
 
         if draw_frame:
             # If the border goes across the game screen it will not be displayed.
-            # TODO: Most of the values are hard-coded.
+            # Values are hard-coded.
 
             # border for status gui
             console.draw_frame(x=gui_x-1, y=gui_y-1, width=28, height=15, title="Player Status", clear=False, fg=(255,255,255), bg=(0,0,0))
             # border for state gui
-            console.draw_frame(x=gui_x-1, y=gui_y+14, width=28, height=8, title="Status Effect", clear=False, fg=(255,255,255), bg=(0,0,0))
+            console.draw_frame(x=gui_x-1, y=gui_y+14, width=28, height=8, title="Status Effects", clear=False, fg=(255,255,255), bg=(0,0,0))
             
+    def draw_window(
+            self,
+            console: Console,
+            text: str,
+            fixed_width: bool = False,
+            x: Optional[int] = None,
+            y: Optional[int] = None,
+            width: Optional[int] = None,
+            height: Optional[int] = None,
+            title: Optional[str] = "",
+            frame_fg: Optional[Tuple[int, int, int]] = (218, 196, 0),
+            frame_bg: Optional[Tuple[int, int, int]] = (0, 0, 0),
+            text_fg: Optional[Tuple[int, int, int]] = (255, 255, 255),
+        ):
+            render_message_window(
+                console=console, 
+                engine=self, 
+                text=text, 
+                fixed_width=fixed_width,
+                x=x,
+                y=y,
+                width=width,
+                height=height,
+                title=title,
+                frame_fg=frame_fg,
+                frame_bg=frame_bg,
+                text_fg=text_fg,
+            )
+
     def render_gui(self, console: Console) -> None:
         """
         Handles rendering all the graphical user interfaces.
         """
-        # TODO: Most of the values are hard-coded.
-
+        # Values are hard-coded.
         self.message_log.render(console=console, x=1, y=48, width=70, height=9, draw_frame=True)
         render_gameinfo(console=console, x=1, y=58, depth=self.depth, game_turn=self.game_turn)
         self.render_playerinfo(console=console, gui_x=73, gui_y=1, draw_frame=True)
