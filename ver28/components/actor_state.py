@@ -353,7 +353,6 @@ class ActorState(BaseComponent):
             if self.is_paralyzing[0] >= 0: # Last infinitly if negative
                 self.is_paralyzing[0] += 1
 
-
     def actor_freeze(self):
         """
         Actor is freezing.
@@ -533,9 +532,45 @@ class ActorState(BaseComponent):
         elif self.is_confused[0] >= 0: # lasts forever if negative
             self.is_confused[0] += 1
     
+    def actor_melting(self):
+        """
+        Actor is melting from the acid.
+        """
+        # Check resistance
+        if random.random() <= self.parent.status.changed_status["acid_resistance"]:
+            self.is_melting = [0, 0, 0, 0]
+            self.engine.message_log.add_message(f"{self.parent.name} is no longer taking damage from acid.", fg=color.gray, target=self.parent)
+
+        # Check turns
+        if self.is_melting[2] >= self.is_melting[3]:
+            self.engine.message_log.add_message(f"The {self.parent.name} is no longer taking damage from acid.", target=self.parent)
+            self.is_melting = [0, 0, 0, 0]
+        else:
+            if self.is_melting[3] >= 0: # lasts forever if negative
+                self.is_melting[2] += 1
+
+            self.is_melting[0] = max(1, self.is_melting[0] - self.is_melting[1])
+            
+            # Apply damage
+            acid_dmg = self.is_melting[0]
+            acid_dmg = self.parent.status.calculate_dmg_reduction(damage=acid_dmg, damage_type="acid")
+            self.parent.status.take_damage(amount=acid_dmg)
+
+            # Log
+            if self.parent == self.engine.player:
+                dmg_color = color.player_damaged
+            else:
+                dmg_color = color.enemy_damaged
+            self.engine.message_log.add_message(f"{self.parent.name} is slowly melting from the acid, taking {acid_dmg} damage!", fg=dmg_color, target=self.parent)
+
+            # corrode equipped items if possible (chance of getting corroded is calculated inside of corrode() function.)
+            for equipment in self.parent.equipments.equipments.values():
+                if equipment:
+                    equipment.item_state.corrode(owner=self.parent, amount=1)
+
     def actor_bleed(self):
         """
-        Actor bleeds.
+        Actor is bleeding.
         """
         # Check if the parent actor can even bleed in the first place.
         if not self.has_blood:

@@ -461,7 +461,8 @@ class Item(Entity):
         blocks_movement: bool = False,
         blocks_sight: bool = False,
         spawnable: bool = False,
-        flammable: int = 0, # 0 to 1, 1 being always flammable
+        flammable: float = 0, # 0 to 1, 1 being always flammable
+        corrodible: float = 0, # 0 to 1, 1 being will always corrode
         droppable: bool = True,
         stackable: bool = True,
         stack_count: int = 1,
@@ -513,6 +514,7 @@ class Item(Entity):
         self.item_state.parent = self
 
         self.flammable = flammable
+        self.corrodible = corrodible
         self.droppable = droppable
 
         self.stackable = stackable
@@ -640,6 +642,7 @@ class Item(Entity):
         # Get variables from item_state class that can be modified after generation.
         info["is_burning"] = self.item_state.is_burning
         info["burntness"] = self.item_state.burntness
+        info["corrosion"] = self.item_state.corrosion
         info["BUC"] = self.item_state.BUC
         info["is_identified"] = self.item_state.is_identified
 
@@ -675,6 +678,7 @@ class Item(Entity):
         # item_state
         self.item_state.is_burning = info["is_burning"]
         self.item_state.burntness = info["burntness"]
+        self.item_state.corrosion = info["corrosion"]
 
         # components
         #NOTE: the parent variable must be changed.

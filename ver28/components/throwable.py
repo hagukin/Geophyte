@@ -304,7 +304,7 @@ class PotionOfParalysisThrowable(NormalThrowable):
 class ToxicGooThrowable(NormalThrowable):
     
     def effect_when_collided_with_actor(self, target: Actor):
-        if target.actor_state.is_poisoned == [0,0,0,0]:
+        if target.actor_state.is_melting == [0,0,0,0]:
             # Log
             if target == self.engine.player:
                 self.engine.message_log.add_message(f"You are covered in toxic goo!",color.player_damaged,)
@@ -313,4 +313,4 @@ class ToxicGooThrowable(NormalThrowable):
                     self.engine.message_log.add_message(f"{target.name} is covered in toxic goo.", color.white, target=target)
 
             # Poison
-            target.actor_state.is_poisoned = [1, 0, 0, 4]
+            target.actor_state.is_melting = [4, 1, 0, 4]

@@ -53,7 +53,7 @@ class PickupAction(Action):
 
         for item in self.engine.game_map.items:
             if actor_location_x == item.x and actor_location_y == item.y:
-                if len(inventory.items) >= inventory.capacity:
+                if inventory.check_if_full():
                     raise exceptions.Impossible("Your inventory is full.")
 
                 # Remove the item from current gamemap
@@ -101,6 +101,9 @@ class DescendAction(Action):
                     self.engine.world[goal_depth] = self.engine.generate_new_dungeon(depth=goal_depth)
                     self.engine.game_map = self.engine.world[goal_depth]
                     self.engine.depth = goal_depth
+
+                    # Adjust things (AI's vision is initialized here)
+                    self.engine.adjustments_before_new_map()
             ### Monster Level Descending
             else: 
                 pass # TODO
@@ -373,96 +376,11 @@ class MeleeAction(ActionWithDirection):
     def __init__(self, entity: Actor, dx: int, dy: int, effects: List=None, effects_var: List=None):
         """
         Args:
-            effects: A list that contains tuples. The tuples contains one string and one float.
-                The string indicates which status effects should be applied when the attack is successfully delivered.
-                The float indicates the possiblity of such effects to be applied, and it has range of 0 to 1.
-
-                They are usually passed in from the AI component's __init__().
-            
-            effects_var: A list that contains the parameters for the status effects of this melee attack.
-                The effect_var parameter MUST sync up with the effects parameter, and they should have the EXACT SAME ORDER.
-                If the effect doesn't need any parameter, an empty list is passed.
-
-                They are usually passed in from the AI component's __init__().
-
-        Examples:
-            the melee attack have 30% chance of giving burning effects and 50% chance of giving bleeding effects.
-            effects = [("bleed_target", 0.3), ("burn_target", 0.5)]
-
-            the burning effect and the bleeding effect's parameter are passed as well.
-            effects_var = [[10,5,4,4], [20,4,4,4]]
+            Check engine.add_effects_to_actors for more info.
         """
         super().__init__(entity, dx, dy)
         self.effects = effects
         self.effects_var = effects_var
-
-    def melee_special_effect_to_target(self) -> None:
-        """
-        This method applies the status effects for this melee attack.
-
-        It is usually done by modifying the actor_state components value, 
-        but on some cases, if the special effects should be handled immediatly,
-        a function can be directly called from this method. (e.g. electric shock)
-
-        TODO : 공격자 자기 자신에게 가하는 특수효과를 처리하는 함수 제작?
-        TODO : 특수효과는 맨손일때만 적용되게 만들기?
-        """
-        target = self.target_actor
-
-        # Check if this melee attack has any special effects
-        if self.effects:
-
-            # Check if the effects param and effects var param are synced.
-            if len(self.effects) != len(self.effects_var):
-                raise Exception("Melee Special Effects - Something went wrong. effects != effects_var")
-
-            # Apply status effects
-            for n in range(len(self.effects)):
-
-                # Calcultate the odds
-                if random.random() <= self.effects[n][1]:
-                    pass
-                else:
-                    continue # This effect will not be applied, move to next effect.
-
-                # Negative status effects
-                if self.effects[n][0] == "burn_target":
-                    target.actor_state.is_burning = copy.copy(self.effects_var[n])
-                elif self.effects[n][0] == "poison_target":
-                    target.actor_state.is_poisoned = copy.copy(self.effects_var[n])
-                elif self.effects[n][0] == "freeze_target":
-                    target.actor_state.is_freezing = copy.copy(self.effects_var[n])
-                elif self.effects[n][0] == "electrocute_target":
-                    target.actor_state.is_electrocuting = copy.copy(self.effects_var[n])
-                    target.actor_state.actor_electrocuted()
-                elif self.effects[n][0] == "bleed_target":
-                    target.actor_state.is_bleeding = copy.copy(self.effects_var[n])
-                elif self.effects[n][0] == "paralyze_target":
-                    target.actor_state.is_paralyzing = copy.copy(self.effects_var[n])
-                elif self.effects[n][0] == "slow_target":
-                    target.actor_state.is_acting_slower = copy.copy(self.effects_var[n])
-                elif self.effects[n][0] == "sleep_target":
-                    target.actor_state.is_sleeping = copy.copy(self.effects_var[n])
-                elif self.effects[n][0] == "melt_target":
-                    target.actor_state.is_melting = copy.copy(self.effects_var[n])
-                elif self.effects[n][0] == "sick_target":
-                    target.actor_state.is_sick = copy.copy(self.effects_var[n])
-                elif self.effects[n][0] == "anger_target":
-                    target.actor_state.is_angry = copy.copy(self.effects_var[n])
-                elif self.effects[n][0] == "confuse_target":
-                    target.actor_state.is_confused = copy.copy(self.effects_var[n])
-                elif self.effects[n][0] == "hallucinate_target":
-                    target.actor_state.is_hallucinating = copy.copy(self.effects_var[n])
-                
-                # Other status effects
-                elif self.effects[n][0] == "fast_target":
-                    target.actor_state.is_acting_faster = copy.copy(self.effects_var[n])
-                elif self.effects[n][0] == "invisible_target":
-                    target.actor_state.is_invisible = copy.copy(self.effects_var[n])
-                elif self.effects[n][0] == "phase_target":
-                    target.actor_state.is_phasing = copy.copy(self.effects_var[n])
-                elif self.effects[n][0] == "fly_target":
-                    target.actor_state.is_flying = copy.copy(self.effects_var[n])
                       
     def is_miss(self) -> bool:
         """Returns whether the attack was successful or not."""
@@ -593,7 +511,7 @@ class MeleeAction(ActionWithDirection):
         # If the target is alive after calculating the pure melee damage hit, apply melee status effects.
         # Status effects are still applied if the damage is zero
         if not target.actor_state.is_dead:
-            self.melee_special_effect_to_target()
+            self.engine.add_special_effect_to_target(target=target, effects=self.effects, effects_var=self.effects_var)
 
 
 class MovementAction(ActionWithDirection):

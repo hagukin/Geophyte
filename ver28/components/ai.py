@@ -48,7 +48,7 @@ class BaseAI(BaseComponent):
         self.do_ranged_atk = do_ranged_atk
         self.use_ability = use_ability
 
-        # Use MeleeAction __init__ as a reference
+        # Use engine.add_special_effects_to_actor() as a reference
         # These two values are initiated in ai_factories.py
         self.melee_effects = []
         self.melee_effects_var = []

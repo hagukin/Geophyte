@@ -597,6 +597,10 @@ class StorageSelectSingleEventHandler(StorageSelectEventHandler):
                     item_damage_text += " (partly burnt)"
                 elif item.item_state.burntness == 2:
                     item_damage_text += " (severely burnt)"
+                if item.item_state.corrosion == 1:
+                    item_state_text += " (slightly corroded)"
+                elif item.item_state.corrosion == 2:
+                    item_state_text += " (severly corroded)"
                     
                 # Display special states if it is true
                 if item.item_state.is_burning:

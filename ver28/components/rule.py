@@ -69,17 +69,17 @@ class FireRule(BaseRule):
         # Set Random Graphics
         color = random.randint(1, 4)
         if color == 1:
-            self.parent.fg = (255, 255, 255)
-            self.parent.bg = (254, 212, 1)
+            self.parent._fg = (255, 255, 255)
+            self.parent._bg = (254, 212, 1)
         elif color == 2:
-            self.parent.fg = (235, 66, 1)
-            self.parent.bg = (254, 139, 0)
+            self.parent._fg = (235, 66, 1)
+            self.parent._bg = (254, 139, 0)
         elif color == 3:
-            self.parent.fg = (255, 179, 54)
-            self.parent.bg = (251, 122, 14)
+            self.parent._fg = (255, 179, 54)
+            self.parent._bg = (251, 122, 14)
         elif color == 4:
-            self.parent.fg = (254, 212, 1)
-            self.parent.bg = (239, 239, 231)
+            self.parent._fg = (254, 212, 1)
+            self.parent._bg = (239, 239, 231)
 
         # Damage Calculation
         target = self.engine.game_map.get_actor_at_location(self.parent.x, self.parent.y)

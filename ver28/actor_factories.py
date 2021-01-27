@@ -66,9 +66,16 @@ player = Actor(
         (item_factories.scroll_of_enchantment, 1, (1,5)), 
         (item_factories.scroll_of_identify, 1, (1,4)), 
         (item_factories.scroll_of_remove_curse, 1, (1,4)), 
-        (item_factories.scroll_of_magic_missile, 1, (1,4))
+        (item_factories.scroll_of_magic_missile, 1, (1,4)),
+        (item_factories.scroll_of_tame, 1, (1,4)),
+        (item_factories.scroll_of_meteor_storm, 1, (1,4)),
+        (item_factories.potion_of_healing, 1, (1,4)),
+        (item_factories.potion_of_paralysis, 1, (1,4)),
         ],
-    initial_equipments=[(item_factories.leather_armor, 1)],
+    initial_equipments=[
+        (item_factories.leather_armor, 1),
+        (item_factories.shortsword, 1,),
+        ],
     initial_abilities=[(ability_factories.lightning_bolt, 1), (ability_factories.steal, 1)],
 )
 
@@ -473,6 +480,159 @@ monster_difficulty[large_cat.status.difficulty].append(large_cat)
 
 
 ####################################################
+####################  d - dogs  ####################
+####################################################
+
+
+### puppy
+puppy = Actor(
+    char="d",
+    fg=(196, 220, 255),
+    name="Puppy",
+    entity_id="puppy",
+    entity_desc="\
+        TODO\n\
+        ",
+    #TODO fix desc
+    rarity=3,
+    spawnable=True,
+    edible=RawMeatEdible(nutrition=300),
+    ai_cls=ai_factories.puppy_ai,
+    status=Status(
+        hp=34,
+        mp=3,
+        strength=7,
+        dexterity=9,
+        agility=9,
+        intelligence=5,
+        constitution=11,
+        charm=13,
+        difficulty=3,
+        base_melee=3,
+        additional_melee=4,
+        protection=6,
+        eyesight=18,
+        ),
+    actor_state=ActorState(
+        size=3,
+        weight=5,
+        can_swim=True,
+        can_talk=False,
+        has_left_arm=False,
+        has_right_arm=False,
+        has_leg=True,
+        has_eye=True,
+        has_torso=False,
+        has_blood=True,
+        has_soul=True,
+    ),
+    inventory=Inventory(capacity=5),
+    ability_inventory=AbilityInventory(capacity=2),
+    equipments=Equipments(),
+)
+monster_difficulty[puppy.status.difficulty].append(puppy)
+
+
+### Dog
+dog = Actor(
+    char="d",
+    fg=(105, 165, 255),
+    name="Dog",
+    entity_id="dog",
+    entity_desc="\
+        Men's best friend.\n\
+        What more do you need?\n\
+        ",
+    #TODO fix desc
+    rarity=8,
+    spawnable=True,
+    edible=RawMeatEdible(nutrition=300),
+    ai_cls=ai_factories.dog_ai,
+    status=Status(
+        hp=50,
+        mp=5,
+        strength=11,
+        dexterity=12,
+        agility=15,
+        intelligence=9,
+        constitution=13,
+        charm=13,
+        difficulty=4,
+        base_melee=5,
+        additional_melee=4,
+        protection=7,
+        eyesight=18,
+        ),
+    actor_state=ActorState(
+        size=3,
+        weight=35,
+        can_swim=True,
+        can_talk=False,
+        has_left_arm=False,
+        has_right_arm=False,
+        has_leg=True,
+        has_eye=True,
+        has_torso=False,
+        has_blood=True,
+        has_soul=True,
+    ),
+    inventory=Inventory(capacity=5),
+    ability_inventory=AbilityInventory(capacity=2),
+    equipments=Equipments(),
+)
+monster_difficulty[dog.status.difficulty].append(dog)
+
+
+### Large Dog
+large_dog = Actor(
+    char="d",
+    fg=(0, 102, 255),
+    name="Large Dog",
+    entity_id="large_dog",
+    entity_desc="\
+        TODO\n\
+        ",
+    #TODO fix desc
+    rarity=3,
+    spawnable=True,
+    edible=RawMeatEdible(nutrition=300),
+    ai_cls=ai_factories.large_dog_ai,
+    status=Status(
+        hp=70,
+        mp=9,
+        strength=15,
+        dexterity=16,
+        agility=17,
+        intelligence=11,
+        constitution=14,
+        charm=17,
+        difficulty=6,
+        base_melee=8,
+        additional_melee=4,
+        protection=12,
+        eyesight=21,
+        ),
+    actor_state=ActorState(
+        size=4,
+        weight=5,
+        can_swim=True,
+        can_talk=False,
+        has_left_arm=False,
+        has_right_arm=False,
+        has_leg=True,
+        has_eye=True,
+        has_torso=False,
+        has_blood=True,
+        has_soul=True,
+    ),
+    inventory=Inventory(capacity=5),
+    ability_inventory=AbilityInventory(capacity=2),
+    equipments=Equipments(),
+)
+monster_difficulty[large_dog.status.difficulty].append(large_dog)
+
+
+####################################################
 ################  e - eyes & brains  ###############
 ####################################################
 
@@ -595,7 +755,7 @@ black_jelly = Actor(
     entity_desc="\
         TODO\n\
         ",
-    rarity=7,
+    rarity=5,
     spawnable=True,
     edible=RawMeatEdible(nutrition=10), #TODO
     ai_cls=ai_factories.black_jelly_ai,
@@ -677,11 +837,11 @@ nymph = Actor(
         has_blood=True,
         has_soul=True,
     ),
-    inventory=Inventory(capacity=5),
+    inventory=Inventory(capacity=1),
     ability_inventory=AbilityInventory(capacity=2),
     equipments=Equipments(),
-    initial_items=[(item_factories.scroll_of_magic_mapping, 1, (1,5))],##DEBUG
-    initial_equipments=[(item_factories.leather_armor, 1)],
+    initial_items=[],
+    initial_equipments=[],
     initial_abilities=[(ability_factories.lightning_bolt, 1), (ability_factories.steal, 1)]
 )
 monster_difficulty[nymph.status.difficulty].append(nymph)
@@ -836,6 +996,60 @@ monster_difficulty[maggot.status.difficulty].append(maggot)
 ####################################################
 ################## E - ELEMENTALS  #################
 ####################################################
+
+### Ice Elemental
+ice_elemental = Actor(
+    char="E",
+    fg=(207, 247, 255),
+    name="Ice Elemental",
+    entity_id="ice_elemental",
+    entity_desc="\
+        Elementals are mystical beings. No human being truly understands the full story behind who created them.\n\
+        Some say they are the will of mother nature, while the other says they are a creation of ancient wizards.\n\
+        Despite all these mysteries, one thing remains clear: elementals are powerful.\n\
+        And sometimes, they are willing to handle these powers to one they admire, rarely even to humans.\
+        ",
+    rarity=4,
+    spawnable=True,
+    edible=None, # 시체 없음
+    ai_cls=ai_factories.ice_elemental_ai,
+    status=Status(#TODO : 슽텟조정
+        hp=110,
+        mp=50,
+        strength=16,
+        dexterity=20,
+        agility=15,
+        intelligence=15,
+        constitution=18,
+        charm=18,
+        difficulty=12,
+        base_melee=8,
+        additional_melee=8,
+        protection=8,
+        eyesight=20,
+        cold_resistance=1,
+        poison_resistance=1,
+        ),
+    actor_state=ActorState(
+        size=4,
+        weight=95,
+        sexuality="None",
+        can_breathe_underwater=True,
+        can_fly=True,
+        can_talk=True,
+        has_left_arm=True,
+        has_right_arm=True,
+        has_leg=False,
+        has_eye=True,
+        has_torso=True,
+        has_blood=False,
+        has_soul=True,
+    ),
+    inventory=Inventory(capacity=5),
+    ability_inventory=AbilityInventory(capacity=5),
+    equipments=Equipments(),
+)
+monster_difficulty[ice_elemental.status.difficulty].append(ice_elemental)
 
 ### Ice Elemental
 ice_elemental = Actor(

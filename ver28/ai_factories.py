@@ -1,5 +1,6 @@
 import components.ai as ai
 import color
+import actions
 
 class Melee_Ai(ai.BaseAI):
     """Melee AI that only attacks humans."""
@@ -94,8 +95,8 @@ class Black_Jelly_Ai(ai.BaseAI):
         super().__init__(alignment, do_melee_atk, do_ranged_atk, use_ability, hostile_type=hostile_type)
 
         # Poison dmg, 10%
-        self.melee_effects_var.append([1, 0, 0, 2])
-        self.melee_effects.append(("poison_target", 0.1))
+        self.melee_effects_var.append([1, 1, 0, 2])
+        self.melee_effects.append(("melt_target", 0.3))
 
     def check_is_ranged_atk_possible(self, attacker, target):
         # Check for ammo
@@ -110,7 +111,7 @@ class Black_Jelly_Ai(ai.BaseAI):
             return direction, ammo
         else:
             return False
-    
+
 
 ####################################################
 #################### n - nymphs  ###################
@@ -131,15 +132,16 @@ class Nymph_Ai(ai.BaseAI):
         
         # A. Steal
         if not ability_chosen:
-            # Check if this actor has the ability
-            steal = self.parent.ability_inventory.get_ability_by_id("sk_steal")
-            # Set the direction and check the range
-            dxdy = self.get_ranged_direction(attacker=attacker, target=target, valid_range=1)
-            if dxdy:
-                coordinate = self.parent.x + dxdy[0], self.parent.y + dxdy[1]
-            # Ignore mana since this is a "Skill" not a "Spell"
-            if steal and coordinate:
-                ability_chosen = steal
+            if not self.parent.inventory.check_if_full():
+                # Check if this actor has the ability
+                steal = self.parent.ability_inventory.get_ability_by_id("sk_steal")
+                # Set the direction and check the range
+                dxdy = self.get_ranged_direction(attacker=attacker, target=target, valid_range=1)
+                if dxdy:
+                    coordinate = self.parent.x + dxdy[0], self.parent.y + dxdy[1]
+                # Ignore mana since this is a "Skill" not a "Spell"
+                if steal and coordinate:
+                    ability_chosen = steal
 
         # B. Lightning Bolt
         if not ability_chosen:
@@ -200,6 +202,10 @@ bat_ai = Melee_Ai()
 kitten_ai = Melee_Ai()
 cat_ai = Melee_Ai()
 large_cat_ai = Melee_Ai()
+#d
+puppy_ai = Melee_Ai()
+dog_ai = Melee_Ai()
+large_dog_ai = Melee_Ai()
 #e
 floating_eye_ai = Floating_Eye_Ai()
 #s

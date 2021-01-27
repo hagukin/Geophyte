@@ -6,6 +6,7 @@ from tcod.map import compute_fov
 from item_manager import ItemManager
 
 import numpy as np
+import random
 import exceptions
 import copy
 import traceback
@@ -78,6 +79,12 @@ class Engine:
     def mouse_relative_location(self):
         x, y = self.camera.get_relative_coordinate(abs_x=self.mouse_location[0], abs_y=self.mouse_location[1])
         return x, y
+
+    def adjustments_before_new_map(self):
+        self.game_map.sort_entities()
+        self.update_fov()
+        self.update_enemy_fov(is_initialization=True)
+        self.update_entity_in_sight(is_initialization=True)
 
     def initialize_item_manager(self):
         if self.item_manager == None:
@@ -178,6 +185,9 @@ class Engine:
             # Bleeding
             if actor.actor_state.is_bleeding != [0,0,0]:
                 actor.actor_state.actor_bleed()
+            # Melting from acid
+            if actor.actor_state.is_melting != [0,0,0,0]:
+                actor.actor_state.actor_melting()
             # Poisoned
             if actor.actor_state.is_poisoned != [0,0,0,0]:
                 actor.actor_state.actor_poisoned()
@@ -243,6 +253,91 @@ class Engine:
         e.g. monster regeneration
         """
         self.game_map.respawn_monsters()
+
+    def add_special_effect_to_target(self, target: Actor, effects, effects_var) -> None:
+        """
+        This method applies the status effects to the given actor.
+
+        It is usually done by modifying the actor_state components value, 
+        but on some cases, if the special effects should be handled immediatly,
+        a function can be directly called from this method. (e.g. electric shock)
+
+        Args:
+            effects: A list that contains tuples. The tuples contains one string and one float.
+                The string indicates which status effects should be applied when the attack is successfully delivered.
+                The float indicates the possiblity of such effects to be applied, and it has range of 0 to 1.
+
+                They are usually passed in from the AI component's __init__().
+            
+            effects_var: A list that contains the parameters for the status effects of this function call.
+                The effect_var parameter MUST sync up with the effects parameter, and they should have the EXACT SAME ORDER.
+                If the effect doesn't need any parameter, an empty list is passed.
+
+                They are usually passed in from the AI component's __init__().
+
+        Examples:
+            the melee attack have 30% chance of giving burning effects and 50% chance of giving bleeding effects.
+            effects = [("bleed_target", 0.3), ("burn_target", 0.5)]
+
+            the burning effect and the bleeding effect's parameter are passed as well.
+            effects_var = [[10,5,4,4], [20,4,4,4]]
+
+            call engine.add_special_effect_to_target() from MeleeAction.perform()
+        """
+        # Check if this melee attack has any special effects
+        if effects:
+
+            # Check if the effects param and effects var param are synced.
+            if len(effects) != len(effects_var):
+                raise Exception("Adding Special Effects - Something went wrong. effects != effects_var")
+
+            # Apply status effects
+            for n in range(len(effects)):
+
+                # Calcultate the odds
+                if random.random() <= effects[n][1]:
+                    pass
+                else:
+                    continue # This effect will not be applied, move to next effect.
+
+                # Negative status effects
+                if effects[n][0] == "burn_target":
+                    target.actor_state.is_burning = copy.copy(effects_var[n])
+                elif effects[n][0] == "poison_target":
+                    target.actor_state.is_poisoned = copy.copy(effects_var[n])
+                elif effects[n][0] == "freeze_target":
+                    target.actor_state.is_freezing = copy.copy(effects_var[n])
+                elif effects[n][0] == "electrocute_target":
+                    target.actor_state.is_electrocuting = copy.copy(effects_var[n])
+                    target.actor_state.actor_electrocuted()
+                elif effects[n][0] == "bleed_target":
+                    target.actor_state.is_bleeding = copy.copy(effects_var[n])
+                elif effects[n][0] == "paralyze_target":
+                    target.actor_state.is_paralyzing = copy.copy(effects_var[n])
+                elif effects[n][0] == "slow_target":
+                    target.actor_state.is_acting_slower = copy.copy(effects_var[n])
+                elif effects[n][0] == "sleep_target":
+                    target.actor_state.is_sleeping = copy.copy(effects_var[n])
+                elif effects[n][0] == "melt_target":
+                    target.actor_state.is_melting = copy.copy(effects_var[n])
+                elif effects[n][0] == "sick_target":
+                    target.actor_state.is_sick = copy.copy(effects_var[n])
+                elif effects[n][0] == "anger_target":
+                    target.actor_state.is_angry = copy.copy(effects_var[n])
+                elif effects[n][0] == "confuse_target":
+                    target.actor_state.is_confused = copy.copy(effects_var[n])
+                elif effects[n][0] == "hallucinate_target":
+                    target.actor_state.is_hallucinating = copy.copy(effects_var[n])
+                
+                # Other status effects
+                elif effects[n][0] == "fast_target":
+                    target.actor_state.is_acting_faster = copy.copy(effects_var[n])
+                elif effects[n][0] == "invisible_target":
+                    target.actor_state.is_invisible = copy.copy(effects_var[n])
+                elif effects[n][0] == "phase_target":
+                    target.actor_state.is_phasing = copy.copy(effects_var[n])
+                elif effects[n][0] == "fly_target":
+                    target.actor_state.is_flying = copy.copy(effects_var[n])
 
     def generate_new_dungeon(self, depth=1) -> GameMap:
         """Generate new dungeon and return as gamemap object"""

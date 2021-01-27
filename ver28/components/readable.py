@@ -107,7 +107,8 @@ class ScrollOfConfusionReadable(SelectTileReadable):
 class ScrollOfTameReadable(SelectTileReadable):
     
     def effects_on_selected_tile_with_no_actor(self, consumer: Actor):
-        self.engine.message_log.add_message(f"{consumer.name} tried your best to tame a thin air, but failed.", color.gray)
+        if consumer == self.engine.player:
+            self.engine.message_log.add_message(f"You tried your best to tame a thin air, but failed.", color.gray)
 
     def effects_on_selected_tile_with_actor(self, consumer: Actor, target: Actor):
         if not target.ai or target == consumer:

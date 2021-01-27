@@ -15,6 +15,7 @@ class ItemState(BaseComponent):
         was_burning = False,
         is_burning: bool = False,
         burntness: int = 0,
+        corrosion: int = 0,
         BUC: int = 0,
         is_identified: int = 0,
         is_equipped: str = None,
@@ -26,6 +27,11 @@ class ItemState(BaseComponent):
                 1 - partly burnt
                 2 - severly burnt
                 3 - burnt out (its gone)
+            corrosion:
+                0 - Not corroded
+                1 - partly corroded
+                2 - severly corroded
+                3 - gone
             BUC:
                 -1 - cursed
                 0 - uncursed (regular)
@@ -47,6 +53,7 @@ class ItemState(BaseComponent):
         # values that are stored in item_state dictionaty
         self.is_burning = is_burning
         self.burntness = burntness
+        self.corrosion = corrosion
         self.BUC = BUC
         self.is_identified = is_identified
 
@@ -109,7 +116,8 @@ class ItemState(BaseComponent):
                 return False
             if(
                 self.parent.item_state.burntness != comparing_item.item_state.burntness or
-                self.parent.item_state.is_burning != comparing_item.item_state.is_burning
+                self.parent.item_state.is_burning != comparing_item.item_state.is_burning or
+                self.parent.item_state.corrosion != comparing_item.item_state.corrosion
             ):
                 return False
             
@@ -187,4 +195,33 @@ class ItemState(BaseComponent):
             
             self.is_burning = False
             self.was_burning = False
+
+    def corrode(self, owner: Actor=None, amount: int=1):
+        if random.random() <= self.parent.corrodible:
+            self.corrosion += amount
+        else:
+            return None
+
+        if self.corrosion > 2:
+            # Log
+            if owner:
+                if owner == self.engine.player:
+                    self.engine.message_log.add_message(f"Your {self.parent.name} completely corrodes away.", fg=color.red)
+                else:
+                    self.engine.message_log.add_message(f"{owner.name}\'s {self.parent.name} corrodes away.", fg=color.white, target=owner)
+            else:
+                self.engine.message_log.add_message(f"{self.parent.name} corrodes away!", fg=color.white, target=self.parent)
+
+            # Completely corroded
+            self.parent.remove_self()
+        elif self.corrosion == 2:
+            # Log
+            if owner:
+                if owner == self.engine.player:
+                    self.engine.message_log.add_message(f"Your {self.parent.name} is severly corroded.", fg=color.white)
+        elif self.corrosion == 1:
+            # Log
+            if owner:
+                if owner == self.engine.player:
+                    self.engine.message_log.add_message(f"Your {self.parent.name} is slightly corroded.", fg=color.white)
 

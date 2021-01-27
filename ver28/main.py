@@ -32,10 +32,7 @@ def main() -> None:
         # Final adjustments before starting the game loop
         engine.console = root_console
         engine.context = context
-        engine.game_map.sort_entities()
-        engine.update_fov()
-        engine.update_enemy_fov(is_initialization=True)
-        engine.update_entity_in_sight(is_initialization=True)
+        engine.adjustments_before_new_map()
 
         # Main Game Loop
         while True:

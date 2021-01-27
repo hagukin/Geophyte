@@ -34,6 +34,9 @@ class Inventory(BaseComponent):
         
         return False
 
+    def check_if_full(self) -> bool:
+        return len(self.items) >= self.capacity
+
     def drop(self, item: Item, show_msg: bool=True) -> None:
         """
         Removes an item from the inventory and restores it to the game map, at the player's current location.
