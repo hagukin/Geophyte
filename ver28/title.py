@@ -117,7 +117,6 @@ def title_event_handler(console, context, cfg):
     animation_frame = 1
     render_title_animation(console=console, context=context, x=title_animation_x, y=title_animation_y, frame=animation_frame)
 
-
     # Present to console
     context.present(console, keep_aspect=True)
 

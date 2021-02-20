@@ -7,44 +7,53 @@ import tcod
 import actor_factories, item_factories, semiactor_factories
 import terrain_factories
 import biome_factories
-import tile_types
 import terrain_generation
 
-from numpy.lib.shape_base import tile
 from order import TilemapOrder
 from typing import Iterator, List, Tuple, TYPE_CHECKING
 from room_factories import Room, RectangularRoom, CircularRoom, PerpendicularRoom
 from game_map import GameMap
-from tile_types import DEBUG
 
 if TYPE_CHECKING:
     from engine import Engine
 
 
 def choose_biome(
-    biome_lists=biome_factories.biome_lists
+    biome_dicts: dict=None #if value is given, use it as population and weights
 ) -> None:
-    # Choose biome
-    biome = random.choices(
-        population=biome_factories.biome_lists,
-        weights=biome_factories.biome_rarity,
-        k=1
-        )
+    if biome_dicts == None:
+        biome_id = random.choices(
+            population=list(biome_factories.biome_dict.keys()),
+            weights=biome_factories.biome_rarity,
+            k=1
+            )[0]
+    else:
+        biome_id = random.choices(
+            population=list(biome_dicts.keys()),
+            weights=list(biome_dicts.values()),
+            k=1
+            )[0]
 
-    return biome[0]
+    return biome_factories.biome_dict[biome_id]
 
 
 def choose_terrain(
-    terrain_lists=terrain_factories.terrain_lists
+    terrain_dicts: dict=None #if value is given, use it as population and weights
 ) -> None:
-    # Choose terrain
-    terrain = random.choices(
-        population=terrain_factories.terrain_lists,
-        weights=terrain_factories.terrain_rarity,
-        k=1
-        )
+    if terrain_dicts == None:
+        terrain_id = random.choices(
+            population=list(terrain_factories.terrain_dict.keys()),
+            weights=terrain_factories.terrain_rarity,
+            k=1
+            )[0]
+    else:
+        terrain_id = random.choices(
+            population=list(terrain_dicts.keys()),
+            weights=list(terrain_dicts.values()),
+            k=1
+            )[0]
 
-    return terrain[0]
+    return terrain_factories.terrain_dict[terrain_id]
 
 
 def choose_monster_difficulty(depth: int, toughness: int=0) -> int:
@@ -99,7 +108,7 @@ def spawn_monsters_by_difficulty(
 
 
 def spawn_items(
-    room: Room, dungeon: GameMap, max_item_per_room: int, min_item_per_room: int=0
+    room: Room, dungeon: GameMap, max_item_per_room: int, min_item_per_room: int=0,
 ) -> None:
     number_of_items = random.randint(min_item_per_room, max_item_per_room)
     tile_coordinates = room.inner_tiles
@@ -223,38 +232,6 @@ def adjust_convex(
         dungeon.tiles[cor] = dungeon.tileset["t_DEBUG"]()# TODO: Add feature
 
 
-def tile_functions(biome):
-    """
-    Change the tileset of the gamemap depending on its biome.
-    This function will return a dictionary that consists of tiles.
-    """
-    # Default tileset
-    tileset = {
-        "t_wall":tile_types.wall,
-        "t_border":tile_types.vintronium,
-        "t_floor":tile_types.floor,
-        "t_dense_grass":tile_types.dense_grass,
-        "t_sparse_grass":tile_types.sparse_grass,
-        "t_ascending_stair":tile_types.ascending_stair,
-        "t_descending_stair":tile_types.descending_stair,
-        "t_burnt_floor":tile_types.burnt_floor,
-        "t_deep_pit":tile_types.deep_pit,
-        "t_shallow_pit":tile_types.shallow_pit,
-        "t_deep_water":tile_types.deep_water,
-        "t_shallow_water":tile_types.shallow_water,
-        "t_DEBUG":tile_types.DEBUG,
-    }
-
-    # Modify values depending on the biome
-    if biome.biome_id == "desert_dungeon":
-        tileset["t_wall"]=tile_types.wall_desert
-        tileset["t_floor"]=tile_types.floor_desert
-        tileset["t_dense_grass"]=tile_types.dense_grass_desert
-        tileset["t_sparse_grass"]=tile_types.sparse_grass_desert
-
-    return tileset
-
-
 def generate_earth(
     dungeon: GameMap,
     map_width: int,
@@ -297,7 +274,10 @@ def generate_rooms(
     # Generate rooms
     for r in range(max_rooms):
         # Choose the terrain of the room
-        room_terrain = choose_terrain(terrain_lists=terrain_factories.terrain_lists)
+        if dungeon.biome.terrain == None:
+            room_terrain = choose_terrain()
+        else:
+            room_terrain = choose_terrain(terrain_dicts=dungeon.biome.terrain)
 
         # Choose the size of the room
         room_width = random.randint(room_terrain.min_width, room_terrain.max_width)
@@ -673,16 +653,30 @@ def debug(dungeon):
         print(end="\n")
 
 
+def get_dungeon_biome(depth: int):
+    if depth == 1: ##TEST TODO
+        return {
+            "ancient_ruins":5
+        }
+    elif depth == 25:
+        return {
+            "ancinet_ruins":1
+        }
+
+
 def generate_dungeon(
-    biome,
     engine,
     depth,
 ) -> GameMap:
     player = engine.player
     rooms: List[Room] = []
+    possible_biome = get_dungeon_biome(depth) # If there is certain list of biomes specified for certain depth, choose one from the specified biome list.
+    if possible_biome:
+        biome = choose_biome(possible_biome)
+    else:
+        biome = choose_biome()
 
     dungeon = GameMap(depth=depth, engine=engine, biome=biome, entities=[player]) #NOTE: tilemap initialization happens during  gamemap.__init__()
-    dungeon.tileset = tile_functions(biome=biome)
 
     generate_earth(
         dungeon=dungeon,

@@ -28,7 +28,7 @@ monster_rarity_for_each_difficulty = {
 ### Player
 player = Actor(
     char="@",
-    fg=(255, 255, 255),
+    fg=(0, 255, 0),
     name="Player",
     entity_id="player",
     entity_desc="Player desc",

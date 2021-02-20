@@ -15,7 +15,6 @@ import color
 from collections import deque
 from actions import BumpAction, DescendAction, AscendAction, PickupAction
 from procgen import generate_dungeon
-from procgen import choose_biome
 from input_handlers import MainGameEventHandler
 from message_log import MessageLog
 from render_functions import (
@@ -345,12 +344,8 @@ class Engine:
         temp_console, temp_context = self.console, self.context
         self.console, self.context = None, None
 
-        # Select biome
-        biome = choose_biome()
-
-        # Generate dungeon
+        # Generate regular dungeon
         new_dungeon = generate_dungeon(
-            biome=biome,
             engine=self,
             depth=depth,
         )

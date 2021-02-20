@@ -85,9 +85,9 @@ class Terrain:
                     If the value is set to None, the chest will use default values.
         """
 
-        self.name = name,
-        self.terrain_id = terrain_id,
-        self.terrain_desc = terrain_desc,
+        self.name = name
+        self.terrain_id = terrain_id
+        self.terrain_desc = terrain_desc
 
         self.rarity = rarity
 

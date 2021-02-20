@@ -24,7 +24,7 @@ class GameMap:
         self.width, self.height = biome.map_width, biome.map_height
         self.entities = list(entities)
 
-        self.tileset = None # initialized at procgen
+        self.tileset = biome.tileset # initialized at procgen
 
         self.tiles = np.full((biome.map_width, biome.map_height), fill_value=tile_types.DEBUG(), order="F")
         self.tilemap = np.full((biome.map_width, biome.map_height), fill_value=TilemapOrder.VOID.value, order="F")

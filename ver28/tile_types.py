@@ -216,13 +216,32 @@ def floor_desert():
         ),
         light=(
             ord("·"),
-            (150, 150, 150),
-            (214, 196, 146)
+            (254, 207, 71),
+            (209, 199, 155),
         ),
-        tile_name="sand floor",
+        tile_name="sand",
         tile_id="floor",
     )
-
+def floor_ancient_ruins():
+    return new_tile(
+        walkable=True,
+        safe_to_walk=True,
+        flammable=False,
+        phaseable=True,
+        transparent=True,
+        dark=(
+            ord("·"),
+            (60, 60, 60),
+            (15, 15, 15)
+        ),
+        light=(
+            ord("·"),
+            (70, 65, 89),
+            (47, 47, 47),
+        ),
+        tile_name="ancient tiles",
+        tile_id="floor",
+    )
 
 ### Wall
 def wall():
@@ -261,15 +280,36 @@ def wall_desert():
         ),
         light=(
             ord("#"),
-            (40, 40, 40),
-            (130, 90, 60)
+            (194, 168, 99),
+            (227, 216, 148)
         ),
-        darkest_bg_color=(250, 240, 180),
-        brightest_bg_color=(170, 140, 40),
+        darkest_bg_color=(227, 216, 148),
+        brightest_bg_color=(254, 207, 71),
         tile_name="sand wall",
         tile_id="wall",
     )
-
+def wall_ancient_ruins():
+    return new_tile_randomized(
+        walkable=False,
+        safe_to_walk=True,
+        flammable=0,
+        phaseable=True,
+        transparent=False,
+        dark=(
+            ord("#"),
+            (20, 20, 20),
+            (20, 20, 50)
+        ),
+        light=(
+            ord("#"),
+            (199, 240, 219),
+            (227, 216, 148)
+        ),
+        darkest_bg_color=(108, 123, 149),
+        brightest_bg_color=(139, 186, 187),
+        tile_name="ancient wall",
+        tile_id="wall",
+    )
 
 ### Dense Grass
 def dense_grass():
@@ -308,8 +348,8 @@ def dense_grass_desert():
         ),
         light=(
             ord("\""),
-            (85, 200, 55),
-            (214, 196, 146)
+            (150, 190, 50),
+            (209, 199, 155),
         ),
         darkest_fg_color=(150, 190, 50),
         brightest_fg_color=(15, 255, 0),
@@ -353,8 +393,8 @@ def sparse_grass_desert():
         ), # TODO : If floor tile's bg change, doors' bg should change dynamically as well
         light=(
             ord("\'"),
-            (85, 200, 55),
-            (214, 196, 146)
+            (150, 190, 50),
+            (209, 199, 155),
         ),
         tile_name="sparse grass",
         tile_id="sparse_grass",

@@ -1,3 +1,37 @@
+import tile_types
+
+def tileset(
+    adjustments: dict=None,
+):
+    """
+    Args:
+        adjustments:
+            dictionary. key - tile id, value - tile
+            if any adjustments value is given, this function will modify the default tilesets as given.
+    """
+    tileset = {
+        "t_wall":tile_types.wall,
+        "t_border":tile_types.vintronium,
+        "t_floor":tile_types.floor,
+        "t_dense_grass":tile_types.dense_grass,
+        "t_sparse_grass":tile_types.sparse_grass,
+        "t_ascending_stair":tile_types.ascending_stair,
+        "t_descending_stair":tile_types.descending_stair,
+        "t_burnt_floor":tile_types.burnt_floor,
+        "t_deep_pit":tile_types.deep_pit,
+        "t_shallow_pit":tile_types.shallow_pit,
+        "t_deep_water":tile_types.deep_water,
+        "t_shallow_water":tile_types.shallow_water,
+        "t_DEBUG":tile_types.DEBUG,
+    }
+
+    if adjustments:
+        for tile in adjustments.items():
+            tileset[tile[0]] = tile[1]
+
+    return tileset
+
+
 class Biome:
     """
     Biome component for the gamemap.
@@ -15,7 +49,8 @@ class Biome:
         respawn_time: float = 50,
         max_monsters_per_room: int = 4,
         max_items_per_room: int = 4,
-        terrain: dict = {        },
+        tileset: dict = tileset(),
+        terrain: dict = None,
         # TODO Add biome-differentiated monster generating system feature
     ):
         """
@@ -31,9 +66,13 @@ class Biome:
                 > Which means, unless more than 50 monsters die, the gamemap will not regenerate any monster.
             respawn_time:
                 Time that takes for a single loop of monster regeneration. (In-game turn)
+            tileset:
+                tileset of this biome.
+                The arguments must be passed by using the "tileset() function" above.
             terrain:
                 Possible terrains for this gamemap/biome.
-                TODO feature currently under development.
+                key - terrain id (string)
+                value - weight (integer)
         """
         self.name = name
         self.biome_id = biome_id
@@ -46,3 +85,5 @@ class Biome:
         self.respawn_time = respawn_time
         self.max_monsters_per_room = max_monsters_per_room
         self.max_items_per_room = max_items_per_room
+        self.tileset = tileset
+        self.terrain = terrain

@@ -20,7 +20,7 @@ def get_game_config():
 
     tileset_path = "sources\\Cheepicus-8x8x2.png"
 
-    world_depth = 25 # Total dungeon depth TODO: Unused value
+    world_depth = 25 # Total dungeon depth
 
     game_config = {
         "screen_width" : screen_width,
@@ -32,6 +32,9 @@ def get_game_config():
         "camera_ypos" : camera_ypos,
         "tileset_path" : tileset_path,
         "world_depth" : world_depth,
+        "unique_dungeons" : {
+            25:"ancient_ruins"
+            },
     }
 
     return game_config

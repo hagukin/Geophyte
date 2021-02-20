@@ -1,6 +1,6 @@
 from terrain import Terrain
 
-terrain_lists = []
+terrain_dict = {}
 terrain_rarity = []
 
 # Standard
@@ -13,7 +13,7 @@ standard = Terrain(
     spawn_monster=True,
     gen_grass=None,
 )
-terrain_lists.append(standard)
+terrain_dict[standard.terrain_id] = standard
 terrain_rarity.append(standard.rarity)
 
 
@@ -27,7 +27,7 @@ grass_field = Terrain(
     spawn_monster=True,
     gen_grass={"core_num_range":(1,8), "scale_range":(1,4), "density":0.6},
 )
-terrain_lists.append(grass_field)
+terrain_dict[grass_field.terrain_id] = grass_field
 terrain_rarity.append(grass_field.rarity)
 
 
@@ -42,7 +42,7 @@ trap_field = Terrain(
     gen_grass={"core_num_range":(1,6), "scale_range":(1,4), "density":0.3},
     gen_traps={"checklist":{"spike_trap":10}, "max_traps_per_room":5, "spawn_chance":0.02, "forced_traps_gen_number":2},
 )
-terrain_lists.append(trap_field)
+terrain_dict[trap_field.terrain_id] = trap_field
 terrain_rarity.append(trap_field.rarity)
 
 
@@ -56,7 +56,7 @@ chest_room = Terrain(
     spawn_monster=False,
     gen_chests={"checklist":{"large_wooden_chest" : 10}, "chest_num_range":(1,8), "initial_items":None},
 )
-terrain_lists.append(chest_room)
+terrain_dict[chest_room.terrain_id] = chest_room
 terrain_rarity.append(chest_room.rarity)
 
 
@@ -75,7 +75,7 @@ large_lake = Terrain(
     gen_grass={"core_num_range":(4,8), "scale_range":(2,6), "density":0.7},
     gen_water={"core_num_range":(1,1), "scale_range":(7,11), "density":0.9, "no_border":False},
 )
-terrain_lists.append(large_lake)
+terrain_dict[large_lake.terrain_id] = large_lake
 terrain_rarity.append(large_lake.rarity)
 
 
@@ -90,7 +90,7 @@ ocean = Terrain(
     gen_traps={"checklist":{"spike_trap":1}, "max_traps_per_room":5, "spawn_chance":0.02, "forced_traps_gen_number":2},
     gen_water={"core_num_range":(3,5), "scale_range":(4,8), "density":0.9, "no_border":True},
 )
-terrain_lists.append(ocean)
+terrain_dict[ocean.terrain_id] = ocean
 terrain_rarity.append(ocean.rarity)
 
 
@@ -109,5 +109,5 @@ swamp = Terrain(
     gen_grass={"core_num_range":(4,8), "scale_range":(2,4), "density":0.7},
     gen_water={"core_num_range":(10,20), "scale_range":(2,4), "density":0.6, "no_border":False},
 )
-terrain_lists.append(swamp)
+terrain_dict[swamp.terrain_id] = swamp
 terrain_rarity.append(swamp.rarity)
