@@ -105,7 +105,7 @@ def sign(num: int):
 
 
 def render_character_status(
-    console: Console, x: int, y: int, character: Actor,
+    console: Console, x: int, y: int, character: Actor, draw_frame:bool = True,
 ) -> None:
     """NOTE: x, y coordinates is the position of the letter S of the word Str(strength)"""
     stat = character.status.changed_status
@@ -123,9 +123,13 @@ def render_character_status(
     console.print(x=x, y=y+6, string=f"Base Atk: {stat['base_melee']}", fg=color.white)
     console.print(x=x, y=y+7, string=f"Add. Atk: 0 ~ {stat['additional_melee']}", fg=color.white)
 
+    # border for status gui
+    if draw_frame:
+        console.draw_frame(x=x-1, y=y-6, width=28, height=15, title="Player Status", clear=False, fg=(255,255,255), bg=(0,0,0))
+
 
 def render_character_state(
-    console: Console, x: int, y: int, character: Actor,
+    console: Console, x: int, y: int, height: int, character: Actor, draw_frame: bool=True,
 ) -> None:
     """
     NOTE: Status effects' string length should be shorter than 13 characters. (including blanks)
@@ -136,7 +140,7 @@ def render_character_state(
     num2 = 0 # y position of the rightside lane
     lane1_x = x #  x pos of the leftside lane
     lane2_x = x+13 # x pos of the rightside lane #NOTE hard-coded
-    window_height = 6 # This particular graphic ui's frame height (frame border spaces(2 tiles) are ignored)
+    window_height = height # This graphic ui's frame height (frame border spaces(2 tiles) are ignored)
     # Maximum amount of status effects that can be displayed at once is (window_height * 2).
 
     #### Hunger ####
@@ -254,6 +258,10 @@ def render_character_state(
     if not num1 and not num2:
         num1 = 1
         console.print(x=lane1_x, y=y+num1, string="None", fg=color.gray)
+
+    # border for state gui
+    if draw_frame:
+        console.draw_frame(x=x-1, y=y, width=28, height=window_height+2, title="Status Effects", clear=False, fg=(255,255,255), bg=(0,0,0))
 
 
 def render_character_equipments(

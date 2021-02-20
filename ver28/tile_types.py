@@ -1,7 +1,6 @@
 from typing import Tuple
 
 import numpy as np  # type: ignore
-
 import random
 
 
@@ -43,7 +42,7 @@ def new_tile(
     light: Tuple[int, Tuple[int, int, int], Tuple[int, int, int]],
     tile_name: str,
     tile_id: str,
-) -> np.ndarray:
+    ) -> np.ndarray:
     """Helper function for defining individual tile types """
     return np.array((walkable, safe_to_walk, flammable, phaseable, transparent, dark, light, tile_name, tile_id), dtype=tile_dt)
 
@@ -63,7 +62,7 @@ def new_tile_randomized(
     brightest_bg_color: Tuple[int, int, int]=None,
     tile_name: str,
     tile_id: str,
-) -> np.ndarray:
+    ) -> np.ndarray:
     """Helper function for defining individual tile types """
 
     # fg color randomize
@@ -116,10 +115,8 @@ def new_tile_randomized(
 
     return np.array((walkable, safe_to_walk, flammable, phaseable, transparent, dark, randomized_light, tile_name, tile_id), dtype=tile_dt)
 
-
 # SHROUD represents unexplored, unseen tiles
 SHROUD = np.array((ord(" "), (255, 255, 255), (0, 0, 0)), dtype=graphic_dt)
-
 
 ###############################################################
 # NOTE:

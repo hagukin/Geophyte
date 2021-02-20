@@ -47,7 +47,8 @@ ancient_ruins = Biome(
     tileset=tileset({
         "t_wall":tile_types.wall_ancient_ruins,
         "t_floor":tile_types.floor_ancient_ruins,
-    })
+    }),
+    terrain = {"dungeon_chamber":1},
 )
 biome_dict[ancient_ruins.biome_id] = ancient_ruins
 biome_rarity.append(ancient_ruins.rarity)

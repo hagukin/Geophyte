@@ -3,8 +3,8 @@ from terrain import Terrain
 terrain_dict = {}
 terrain_rarity = []
 
-# Standard
-standard = Terrain(
+# Dungeon chamber (Standard)
+dungeon_chamber = Terrain(
     name="Dungeon Chamber",
     terrain_id="dungeon_chamber",
     terrain_desc="Desc of dungeon chamber terrain (TEST)",
@@ -13,8 +13,8 @@ standard = Terrain(
     spawn_monster=True,
     gen_grass=None,
 )
-terrain_dict[standard.terrain_id] = standard
-terrain_rarity.append(standard.rarity)
+terrain_dict[dungeon_chamber.terrain_id] = dungeon_chamber
+terrain_rarity.append(dungeon_chamber.rarity)
 
 
 # Grass Field

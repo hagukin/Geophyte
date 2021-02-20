@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import TYPE_CHECKING, List, Optional, Tuple
+from typing import TYPE_CHECKING, List, Optional, Tuple, Set
 from tcod.path import SimpleGraph, Pathfinder
 from tcod.console import Console
 from tcod.map import compute_fov
@@ -60,10 +60,10 @@ class Engine:
         self.player = player
         self.player_path = deque([])
         self.player_dir = None
-        self.actors_in_sight = set()
-        self.items_in_sight = set()
-        self.prev_actors_in_sight = set()
-        self.prev_items_in_sight = set()
+        self.actors_in_sight: Set(Actor) = set()
+        self.items_in_sight: Set(Item) = set()
+        self.prev_actors_in_sight: Set(Actor) = set()
+        self.prev_items_in_sight: Set(Item) = set()
         self.game_turn = 0
         self.config = None # Set from initialization
         self.console = None
@@ -367,6 +367,9 @@ class Engine:
         self.prev_actors_in_sight = copy.copy(self.actors_in_sight)
         self.prev_items_in_sight = copy.copy(self.items_in_sight)
 
+        self.actors_in_sight.clear()
+        self.items_in_sight.clear()
+
         # Get new data
         for entity in self.game_map.entities:
             if self.game_map.visible[entity.x, entity.y]:
@@ -603,7 +606,7 @@ class Engine:
         self.render(self.console)
         self.context.present(self.console)
 
-    def render_playerinfo(self, console: Console, gui_x: int, gui_y: int, draw_frame: bool=False) -> None:
+    def render_playerinfo(self, console: Console, gui_x: int, gui_y: int) -> None:
         """
         Handles the GUI about players status.
         This includes player status, and player's status effects.
@@ -632,19 +635,35 @@ class Engine:
             total_width=26,
         )
 
-        render_character_status(console=console, x=gui_x, y=gui_y + 5, character=self.player)
+        render_character_status(console=console, x=gui_x, y=gui_y + 5, character=self.player, draw_frame=True)
 
-        render_character_state(console=console, x=gui_x, y=gui_y + 14, character=self.player)
+        render_character_state(console=console, x=gui_x, y=gui_y + 14, height=10, character=self.player, draw_frame=True)
 
+
+    def render_visible_entities(self, console: Console, gui_x: int, gui_y: int, height: int, draw_frame: bool=False) -> None:
+        x = gui_x
+        num = gui_y
+
+        for actor in self.actors_in_sight:
+            if num - gui_y >= height - 3: # Out of border
+                console.print(x=x, y=num, string="...", fg=color.gray)
+                break
+            console.print(x=x, y=num, string=actor.char, fg=actor.fg)
+            console.print(x=x+2, y=num, string=actor.name, fg=color.light_gray)
+            num += 1
+
+        for item in self.items_in_sight:
+            if num - gui_y >= height - 3: # Out of border
+                console.print(x=x, y=num, string="...", fg=color.gray)
+                break
+            console.print(x=x, y=num, string=item.char, fg=item.fg)
+            console.print(x=x+2, y=num, string=item.name, fg=color.light_gray)
+            num += 1
+        
+        # draw frame
         if draw_frame:
-            # If the border goes across the game screen it will not be displayed.
-            # Values are hard-coded.
+            console.draw_frame(x=gui_x-1, y=gui_y-1, width=28, height=height, title="In sight", clear=False, fg=(255,255,255), bg=(0,0,0))
 
-            # border for status gui
-            console.draw_frame(x=gui_x-1, y=gui_y-1, width=28, height=15, title="Player Status", clear=False, fg=(255,255,255), bg=(0,0,0))
-            # border for state gui
-            console.draw_frame(x=gui_x-1, y=gui_y+14, width=28, height=8, title="Status Effects", clear=False, fg=(255,255,255), bg=(0,0,0))
-            
     def draw_window(
             self,
             console: Console,
@@ -681,7 +700,8 @@ class Engine:
         # Values are hard-coded.
         self.message_log.render(console=console, x=1, y=48, width=70, height=9, draw_frame=True)
         render_gameinfo(console=console, x=1, y=58, depth=self.depth, game_turn=self.game_turn)
-        self.render_playerinfo(console=console, gui_x=73, gui_y=1, draw_frame=True)
+        self.render_playerinfo(console=console, gui_x=73, gui_y=1)
+        self.render_visible_entities(console=console, gui_x=73, gui_y=28, height=31, draw_frame=True)
 
     def render(self, console: Console) -> None:
         """

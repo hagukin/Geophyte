@@ -32,9 +32,6 @@ def get_game_config():
         "camera_ypos" : camera_ypos,
         "tileset_path" : tileset_path,
         "world_depth" : world_depth,
-        "unique_dungeons" : {
-            25:"ancient_ruins"
-            },
     }
 
     return game_config

@@ -75,13 +75,11 @@ class BaseAI(BaseComponent):
 
             self.in_player_sight = True
             self.active = True
-            self.engine.actors_in_sight.add(self.parent) # add this actor to player's actors in sight list
         else:
             if not self.in_player_sight:
                 return None
 
             self.in_player_sight = False # NOTE: self.active remains True even after going out of player's sight
-            self.engine.actors_in_sight.remove(self.parent) # remove this actor to player's actors in sight list
     
     def perform(self) -> None:
         """
