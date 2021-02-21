@@ -471,6 +471,7 @@ class Item(Entity):
         quaffable: Quaffable = None,
         equipable: Equipable = None,
         edible: Edible = None,
+        lockpickable: Tuple[float, float] = (0, 0),
         initial_BUC: dict = { 1: 0, 0: 1, -1: 0 },
         initial_identified: float = 0,
         initial_upgrades: List = [], #TODO
@@ -485,6 +486,9 @@ class Item(Entity):
                 Chance of this item spawning as already identified. (semi-identified)
             initial_upgrades:
                 TODO
+            lockpickable:
+                0 to 1 OR -1, 1 being always successfully unlocking something when used by actor of dex 18 or higher, and -1 being ALWAYS unlocking regardless of the actor's status. 
+                0 to 1, 1 being item always being broken when used to lockpick/unlock things.
         """
         super().__init__(
             gamemap=gamemap,
@@ -535,6 +539,8 @@ class Item(Entity):
         self.edible = edible
         if edible:
             self.edible.parent = self
+        
+        self.lockpickable = lockpickable
 
         self.initial_BUC = initial_BUC
         self.initial_identified = initial_identified
@@ -754,6 +760,7 @@ class SemiActor(Entity):
         blocks_sight: bool = False,
         rule_cls = None,
         bump_action = None,
+        render_order = RenderOrder.SEMIACTOR, #NOTE: Might change depending on the entity itself
     ):
         """
         Args:
@@ -784,7 +791,7 @@ class SemiActor(Entity):
             walkable=walkable,
             blocks_movement=blocks_movement,
             blocks_sight=blocks_sight,
-            render_order=RenderOrder.SEMIACTOR, ##TODO
+            render_order=render_order,
         )
         self.rule = rule_cls
         if rule_cls:

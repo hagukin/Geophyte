@@ -1337,3 +1337,19 @@
           visible entities를 보여주는 GUI 기능 추가.
           > engine.actors_in_sight랑 items_in_sight 관련한 자잘한 버그 수정.
           
+          locked door 추가, unlock 액션 추가.
+          모든 아이템들은 이제 lockpickable 수치를 가짐. (얼마나 자물쇠따기에 효율적인지를 나타내는 척도)
+
+          chest, door과의 interaction관련해서 어떻게 방안을 찾을것.
+          > door는 턴이 언제 지나는지, 또 어떤 식으로 상호작용할 지 명확하지 않음.
+          > chest는 ai가 실수로 열지 못하게 막아야 함. ai와 나 사이에 상자가 있다면 ai는 swap대신 상자를 열려고 시도하기 때문에 이를 해결해야 함.
+20210221 - 현재로썬 플레이어가 스스로 doorbreakaction 혹은 doorunlockaction을 할 수 있는 방법이 없음. 이를 해결할 것.
+          또 몬스터의 doorbreakaction 파트가 디버깅이 안되어있음.
+
+          두 세미액터가 같은 위치일 경우 BUmpAction이 불가능해질때가 있는 버그 발견. (ex. 문과 창고가 겹칠 때 창고와 swap할 수 없음)
+          >> 수정. BumpAction을 가지고 있는 세미액터를 우선해서 반환하는 함수 추가.
+          
+          두 세미액터가 같은 위치일 때 렌더링 순서가 꼬이는 경우 발생.
+          >> 수정. semiactor_obj라는 새로운 RenderOrder Enum 추가.
+
+          

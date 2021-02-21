@@ -114,6 +114,13 @@ class GameMap:
 
         return None
 
+    def get_semiactor_with_bumpaction_at_location(self, x: int, y: int) -> Optional[Actor]:
+        for semiactor in self.semiactors:
+            if semiactor.x == x and semiactor.y == y and semiactor.bump_action:
+                return semiactor
+        
+        return None
+
     def in_bounds(self, x: int, y: int) -> bool:
         """Return True if x and y are inside of the bounds of this map."""
         return 0 <= x < self.width and 0 <= y < self.height

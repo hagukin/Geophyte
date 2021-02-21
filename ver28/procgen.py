@@ -348,6 +348,7 @@ def generate_rooms(
                         # spawn door unless there is nothing on the location
                         if not dungeon.get_any_entity_at_location(door_loc[0], door_loc[1]):
                             semiactor_factories.closed_door.spawn(gamemap=dungeon, x=door_loc[0], y=door_loc[1], lifetime=-1)
+                            #semiactor_factories.locked_door.spawn(gamemap=dungeon, x=door_loc[0], y=door_loc[1], lifetime=-1)
                 elif direction == "d":
                     for door_down_slice in new_room.door_down:
                         # generate door convex
@@ -364,6 +365,7 @@ def generate_rooms(
                         # spawn door unless there is nothing on the location
                         if not dungeon.get_any_entity_at_location(door_loc[0], door_loc[1]):
                             semiactor_factories.closed_door.spawn(gamemap=dungeon, x=door_loc[0], y=door_loc[1], lifetime=-1)
+                            #semiactor_factories.locked_door.spawn(gamemap=dungeon, x=door_loc[0], y=door_loc[1], lifetime=-1)
                 elif direction == "l":
                     for door_left_slice in new_room.door_left:
                         # generate door convex
@@ -380,6 +382,7 @@ def generate_rooms(
                         # spawn door unless there is nothing on the location
                         if not dungeon.get_any_entity_at_location(door_loc[0], door_loc[1]):
                             semiactor_factories.closed_door.spawn(gamemap=dungeon, x=door_loc[0], y=door_loc[1], lifetime=-1)
+                            #semiactor_factories.locked_door.spawn(gamemap=dungeon, x=door_loc[0], y=door_loc[1], lifetime=-1)
                 elif direction == "r":
                     for door_right_slice in new_room.door_right:
                         # generate door convex
@@ -396,6 +399,7 @@ def generate_rooms(
                         # spawn door unless there is nothing on the location
                         if not dungeon.get_any_entity_at_location(door_loc[0], door_loc[1]):
                             semiactor_factories.closed_door.spawn(gamemap=dungeon, x=door_loc[0], y=door_loc[1], lifetime=-1)
+                            #semiactor_factories.locked_door.spawn(gamemap=dungeon, x=door_loc[0], y=door_loc[1], lifetime=-1)
 
         # Finally, append the new room to the list.
         rooms.append(new_room)

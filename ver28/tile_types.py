@@ -213,10 +213,10 @@ def floor_desert():
         ),
         light=(
             ord("·"),
-            (254, 207, 71),
             (209, 199, 155),
+            (115, 110, 99),
         ),
-        tile_name="sand",
+        tile_name="sandy floor",
         tile_id="floor",
     )
 def floor_ancient_ruins():
@@ -346,7 +346,7 @@ def dense_grass_desert():
         light=(
             ord("\""),
             (150, 190, 50),
-            (209, 199, 155),
+            (115, 110, 99),
         ),
         darkest_fg_color=(150, 190, 50),
         brightest_fg_color=(15, 255, 0),
@@ -391,7 +391,7 @@ def sparse_grass_desert():
         light=(
             ord("\'"),
             (150, 190, 50),
-            (209, 199, 155),
+            (115, 110, 99),
         ),
         tile_name="sparse grass",
         tile_id="sparse_grass",

@@ -394,7 +394,8 @@ shortsword = Item(
     droppable=True,
     stackable=False,
     throwable=throwable.NormalThrowable(base_throw=1, additional_throw=2, penetration=False, air_friction=15),
-    equipable=equipable.ShortswordEquipable()
+    equipable=equipable.ShortswordEquipable(),
+    lockpickable=(1,1),
 )
 temp_items_lists.append(shortsword)
 item_rarity.append(shortsword.rarity)

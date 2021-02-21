@@ -365,8 +365,17 @@ class ActionWithDirection(Action):
 
     @property
     def target_semiactor(self) -> Optional[SemiActor]:
-        """Return the semiactor at this actions destination."""
+        """
+        Return the semiactor at this actions destination.
+        """
         return self.engine.game_map.get_semiactor_at_location(*self.dest_xy)
+
+    @property
+    def target_semiactor_bump(self) -> Optional[SemiActor]:
+        """
+        Return the semiactor at this actions destination if it has any bumpaction attached.
+        """
+        return self.engine.game_map.get_semiactor_with_bumpaction_at_location(*self.dest_xy)
 
     def perform(self) -> None:
         raise NotImplementedError()
@@ -561,8 +570,13 @@ class MovementAction(ActionWithDirection):
         self.entity.move(self.dx, self.dy)
 
 
-class DoorOpenAction(ActionWithDirection):
-    def perform(self) -> None:
+class DoorUnlockAction(ActionWithDirection):
+    """
+    NOTE: Unlocking something REQUIRES an item to use to unlock the door.
+    It is recommended to make ai unable to unlock something.
+    The chance of successfully unlocking something depends on both the actor and the item used.
+    """
+    def unlock(self, item: Item) -> None:
         import semiactor_factories
 
         # Checking for inability
@@ -577,56 +591,115 @@ class DoorOpenAction(ActionWithDirection):
 
         if not semiactor_on_dir:
             raise exceptions.Impossible("There is nothing to open.")
-        elif semiactor_on_dir.entity_id == "closed_door":
-            can_open_door = False
-            can_try_break_door = False
+        elif semiactor_on_dir.entity_id == "closed_door" or semiactor_on_dir.entity_id == "opened_door":
+            raise exceptions.Impossible("The door is already unlocked.")
+        elif semiactor_on_dir.entity_id == "locked_door":
             dexterity = self.entity.status.changed_status["dexterity"]
-            strength = self.entity.status.changed_status["strength"]
-            intelligence = self.entity.status.changed_status["intelligence"]
 
-            # If the actor has arm, it can try to open the door regardless of its dexterity
-            if self.entity.actor_state.has_left_arm or self.entity.actor_state.has_left_arm:
-                can_open_door = True
-            # If the actor has no arm, but has enough dexterity and intelligence, it still can try to open the door 
-            # TODO : Adjust numbers
-            elif dexterity >= 10 and intelligence >= 10:
-                can_open_door = True
-            # If the actor fits none of the conditions above, but has enough strength, it can still try to break the door open
-            # TODO : Adjust numbers
-            elif strength >= 17:
-                can_open_door = False
-                can_try_break_door = True
+            tool_bonus = item.lockpickable[0]
+            tool_chance_of_breaking = item.lockpickable[1]
 
-            # Player can always try to break open the door regardless of strength
+            # -1 - Always successful
+            if tool_bonus == -1:
+                chance_of_unlocking = 1
+            else:
+                chance_of_unlocking = tool_bonus * min(1, dexterity / 18)
+
+            if random.random() <= chance_of_unlocking:
+                # Unlock succeded
+                self.engine.message_log.add_message(f"{self.entity.name} has successfully unlocked the door with {item.name}!", color.white, target=self.entity)
+
+                semiactor_on_dir.remove_self()
+                semiactor_factories.closed_door.spawn(self.engine.game_map, dest_x, dest_y, -1)
+            else:
+                # Unlock failed
+                self.engine.message_log.add_message(f"{self.entity.name} failed to unlock the door with {item.name}.", color.invalid, target=self.entity)
+
+            # Item can break regardless of the result
+            if random.random() <= tool_chance_of_breaking:
+                item.remove_self()
+                self.engine.message_log.add_message(f"{item.name} is broken during the process.", color.player_damaged, target=self.entity)
+
+            from input_handlers import MainGameEventHandler
+            self.engine.event_handler = MainGameEventHandler(engine=self.engine)
+
+    def perform(self) -> None:
+        # If the player is the actor, call input handler
+        if self.entity == self.engine.player:
+            from input_handlers import InventoryChooseItemAndCallbackHandler
+            from order import InventoryOrder
+            self.engine.event_handler = InventoryChooseItemAndCallbackHandler(
+                self.engine, 
+                self.engine.player.inventory, 
+                self.unlock,
+                title="Choose an item to unlock the door",
+                show_only_types=(
+                    InventoryOrder.MELEE_WEAPON,
+                    InventoryOrder.TOOL,
+                )
+            )
+            return None
+        # If the AI is the actor, TODO
+        else:
+            print("DEBUG::AI TRIED TO UNLOCK THE DOOR")
+
+
+class DoorBreakAction(ActionWithDirection):
+    def break_door(self, door: SemiActor, strength: int) -> None:
+        break_fail = random.randint(10, 20)
+
+        if break_fail > strength:
+            self.engine.message_log.add_message(f"{self.entity.name} slams the door.", color.invalid, target=self.entity)
+        elif break_fail * 2 <= strength: # if the strength value is higher than the break_fail * 2, break open the door (Minimum str req. for breaking the door: 20)
+            self.engine.message_log.add_message(f"{self.entity.name} slams the door and destorys it!", color.invalid, target=self.entity)
+            door.remove_self()
+            # TODO: drop the wooden door pieces?
+        else: # Bust open the door but not break it
+            self.engine.message_log.add_message(f"{self.entity.name} slams the door open!", color.invalid, target=self.entity)
+
+            door.remove_self()
+
+            import semiactor_factories
+            semiactor_factories.opened_door.spawn(self.engine.game_map, door.x, door.y, -1)
+        
+        from input_handlers import MainGameEventHandler
+        self.engine.event_handler = MainGameEventHandler(self.engine)
+    
+    def check_actor_condition(self, strength: int) -> bool:
+        can_try_break_door = True
+
+        # If the actorhas enough strength, it can try to break the door open
+        # TODO : Adjust numbers
+        if strength >= 17:
+            can_try_break_door = True
+        # Player can always try to break open the door regardless of strength
+        if self.entity == self.engine.player:
+            can_try_break_door = True
+        
+        return can_try_break_door
+
+    def perform(self) -> None:
+        # Checking for inability
+        if self.entity.check_for_immobility():
             if self.entity == self.engine.player:
-                can_try_break_door = True
+                self.engine.message_log.add_message(f"You can't do anything!", color.red)
+            return None
 
-            # Check if the actor can open the door
-            if can_open_door:
-                open_fail = random.randint(0, 18)
+        # Get door coordinates
+        dest_x, dest_y = self.dest_xy
+        semiactor_on_dir = self.engine.game_map.get_semiactor_at_location(dest_x, dest_y)
+
+        # Get actor status
+        strength = self.entity.status.changed_status["strength"]
+
+        if not semiactor_on_dir:
+            raise exceptions.Impossible("There is nothing to break open.")
+        elif semiactor_on_dir.entity_id == "closed_door":
+            can_try_break_door = self.check_actor_condition(strength)
             
-                if open_fail > dexterity: # check if the actor failed to open the door
-                    self.engine.message_log.add_message(f"{self.entity.name} has failed to open the door!", color.invalid, target=self.entity)
-                    return None
-
-                self.engine.game_map.get_semiactor_at_location(dest_x, dest_y).remove_self()
-                semiactor_factories.opened_door.spawn(self.engine.game_map, dest_x, dest_y, -1)
-            # If the actor can't open the door but can try to break the door, actor tries it
-            elif can_try_break_door:
-                break_fail = random.randint(10, 20)
-
-                if break_fail > strength:
-                    self.engine.message_log.add_message(f"{self.entity.name} slams the door.", color.invalid, target=self.entity)
-                    return None
-                elif break_fail * 2 <= strength: # if the strength value is higher than the break_fail * 2, break open the door (Minimum str req. for breaking the door: 20)
-                    self.engine.message_log.add_message(f"{self.entity.name} slams the door and destorys it!", color.invalid, target=self.entity)
-                    self.engine.game_map.get_semiactor_at_location(dest_x, dest_y).remove_self()
-                    # TODO: drop the wooden door pieces?
-                else: # Bust open the door but not break it
-                    self.engine.message_log.add_message(f"{self.entity.name} slams the door open!", color.invalid, target=self.entity)
-
-                    self.engine.game_map.get_semiactor_at_location(dest_x, dest_y).remove_self()
-                    semiactor_factories.opened_door.spawn(self.engine.game_map, dest_x, dest_y, -1)
+            # If the actor can try to break the door, actor tries it
+            if can_try_break_door:
+                self.break_door(semiactor_on_dir, strength)
             else:
                 # If the actor has ai, but has no capabilities to open/break the door open, discard the current path and find a new path.
                 if self.entity.ai:
@@ -635,6 +708,105 @@ class DoorOpenAction(ActionWithDirection):
             return None
         elif semiactor_on_dir.entity_id == "opened_door":
             raise exceptions.Impossible("It is already opened.")
+        elif semiactor_on_dir.entity_id == "locked_door":
+            can_try_break_door = self.check_actor_condition(strength)
+
+            if can_try_break_door:
+                self.break_door(semiactor_on_dir, strength)
+            elif self.entity.ai:
+                self.entity.ai.path = None
+        else:
+            raise exceptions.Impossible("There is nothing to open.")
+
+
+class DoorOpenAction(ActionWithDirection):
+    
+    def open_door(self, door: SemiActor, dexterity: int, intelligence: int) -> None:
+        open_fail = random.randint(0, 18)
+            
+        if open_fail > dexterity: # check if the actor failed to open the door
+            self.engine.message_log.add_message(f"{self.entity.name} has failed to open the door!", color.invalid, target=self.entity)
+            from input_handlers import MainGameEventHandler
+            self.engine.event_handler = MainGameEventHandler(self.engine)
+            return None
+
+        door.remove_self()
+        import semiactor_factories
+        semiactor_factories.opened_door.spawn(self.engine.game_map, door.x, door.y, -1)
+
+        from input_handlers import MainGameEventHandler
+        self.engine.event_handler = MainGameEventHandler(self.engine)
+
+    def check_actor_condition(self, dexterity: int, intelligence: int) -> bool:
+        can_open_door = True
+
+        # If the actor has arm, it can try to open the door regardless of its dexterity
+        if self.entity.actor_state.has_left_arm or self.entity.actor_state.has_left_arm:
+            can_open_door = True
+        # If the actor has no arm, but has enough dexterity and intelligence, it still can try to open the door 
+        # TODO : Adjust numbers
+        elif dexterity >= 10 and intelligence >= 10:
+            can_open_door = True
+        
+        return can_open_door
+
+    def perform(self) -> None:
+        # Checking for inability
+        if self.entity.check_for_immobility():
+            if self.entity == self.engine.player:
+                self.engine.message_log.add_message(f"You can't do anything!", color.red)
+            return None
+
+        # Get door coordinates
+        dest_x, dest_y = self.dest_xy
+        semiactor_on_dir = self.engine.game_map.get_semiactor_at_location(dest_x, dest_y)
+
+        # Get actor status
+        dexterity = self.entity.status.changed_status["dexterity"]
+        strength = self.entity.status.changed_status["strength"]
+        intelligence = self.entity.status.changed_status["intelligence"]
+
+        if not semiactor_on_dir:
+            raise exceptions.Impossible("There is nothing to open.")
+        elif semiactor_on_dir.entity_id == "closed_door":
+            can_open_door = self.check_actor_condition(dexterity, intelligence)
+            can_try_break_door = DoorBreakAction(self.entity, self.dx, self.dy).check_actor_condition(strength)
+            
+            # Check if the actor can open the door
+            if can_open_door:
+                self.open_door(semiactor_on_dir, dexterity, intelligence)
+            # If the actor can't open the door but can try to break the door, actor tries it
+            # NOTE: Yoou can make Player automatically trying to break the door for game-control convenience by un-commenting the lines below.
+            # elif can_try_break_door:
+            #     DoorBreakAction(self.entity, self.dx, self.dy).break_door(semiactor_on_dir, strength)
+            elif self.entity != self.engine.player and self.entity.ai:
+                # If the actor has ai, but has no capabilities to open the door open, check if it can break the door open.
+                if can_try_break_door: # If it can, try breaking the door
+                    DoorBreakAction(self.entity, self.dx, self.dy).break_door(semiactor_on_dir, strength)
+                else: # if it can't, discard the current path and find a new path.
+                    self.entity.ai.path = None
+
+            return None
+        elif semiactor_on_dir.entity_id == "opened_door":
+            raise exceptions.Impossible("It is already opened.")
+        elif semiactor_on_dir.entity_id == "locked_door":
+            if self.entity == self.engine.player:
+                self.engine.message_log.add_message(f"You tried to open the door, but it's locked.", color.invalid)
+
+            # NOTE: You can comment out this area to disable the game asking player what to do when the door is locked.
+            # If the player is the actor, call input handler to decide what to do
+            if self.entity == self.engine.player:
+                from input_handlers import LockedDoorEventHandler##DEBUG
+                self.engine.event_handler = LockedDoorEventHandler(self.engine, semiactor_on_dir)
+                return None
+            # If the AI is the actor, It will break the door if it can. if not, it will re-route.
+            else:
+                can_open_door, can_try_break_door = self.check_actor_condition(strength, dexterity, intelligence)
+
+                if can_try_break_door:
+                    self.break_door(semiactor_on_dir, strength)
+                elif self.entity.ai:
+                    self.entity.ai.path = None
         else:
             raise exceptions.Impossible("There is nothing to open.")
 
@@ -681,7 +853,7 @@ class DoorCloseAction(ActionWithDirection):
             semiactor_factories.closed_door.spawn(self.engine.game_map, dest_x, dest_y, -1)
 
             return None
-        elif self.engine.game_map.get_semiactor_at_location(dest_x, dest_y).entity_id == "closed_door":
+        elif semiactor_on_dir.entity_id == "closed_door" or semiactor_on_dir.entity_id == "locked_door":
             raise exceptions.Impossible("It is already closed.")
         else:
             raise exceptions.Impossible("There is nothing to close.")
@@ -699,7 +871,7 @@ class ChestOpenAction(ActionWithDirection):
 
         # Set coordinates
         dest_x, dest_y = self.dest_xy
-        semiactor_on_dir = self.engine.game_map.get_semiactor_at_location(dest_x, dest_y)
+        semiactor_on_dir = self.engine.game_map.get_semiactor_with_bumpaction_at_location(dest_x, dest_y)
 
         if not semiactor_on_dir:
             raise exceptions.Impossible("There is nothing to loot.")
@@ -762,10 +934,7 @@ class BumpAction(ActionWithDirection):
                     return MeleeAction(self.entity, self.dx, self.dy).perform()
             else:
                 return MeleeAction(self.entity, self.dx, self.dy).perform()
-        elif self.target_semiactor:
-            if self.target_semiactor.bump_action:
-                return self.target_semiactor.bump_action(self.entity, self.dx, self.dy).perform()
-            else:
-                return MovementAction(self.entity, self.dx, self.dy).perform()
+        elif self.target_semiactor_bump:
+            return self.target_semiactor_bump.bump_action(self.entity, self.dx, self.dy).perform()
         else:
             return MovementAction(self.entity, self.dx, self.dy).perform()

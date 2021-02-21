@@ -1,5 +1,5 @@
 from entity import SemiActor
-from actions import DoorOpenAction
+from actions import DoorOpenAction, DoorUnlockAction
 import components.rule_factories as rule
 import components.walkable as walkable
 
@@ -80,4 +80,20 @@ opened_door = SemiActor(
     blocks_sight=False,
     rule_cls=None,
     bump_action=None,
+)
+
+locked_door = SemiActor(
+    char="+",
+    fg=(10, 10, 10),
+    bg=(170, 140, 75),
+    name="locked door",
+    entity_id="locked_door",
+    entity_desc="description of locked door",
+    do_action=False,
+    walkable=None,
+    safe_to_move=True,
+    blocks_movement=True,
+    blocks_sight=True,
+    rule_cls=None,
+    bump_action=DoorOpenAction,#NOTE: Change this value to None to toggle off auto door opening
 )

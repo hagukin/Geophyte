@@ -5,6 +5,7 @@ class RenderOrder(Enum):
     LOWEST = auto()
     SEMIACTOR = auto()
     ITEM = auto()
+    SEMIACTOR_OBJ = auto() # e.g. chests
     ACTOR = auto()
     PLAYER = auto()
 
@@ -36,6 +37,7 @@ class InventoryOrder(Enum):
     WAND = auto()
     FOOD = auto()
     CORPSE = auto()
+    TOOL = auto()
     MISC = auto()
 
 class AbilityOrder(Enum):

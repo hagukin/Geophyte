@@ -1,4 +1,5 @@
 from ast import walk
+from order import RenderOrder
 import random
 from typing import Tuple, List
 from entity import SemiActor
@@ -59,6 +60,7 @@ class ChestSemiactor(SemiActor):
             blocks_sight=blocks_sight,
             rule_cls=rule_cls,
             bump_action=bump_action,
+            render_order=RenderOrder.SEMIACTOR_OBJ,
         )
         self.storage = storage
         if self.storage:

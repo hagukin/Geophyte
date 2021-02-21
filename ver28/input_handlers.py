@@ -1,10 +1,11 @@
 from __future__ import annotations
+from entity import SemiActor
 from components.inventory import Inventory
 from typing import Callable, Optional, Tuple, TYPE_CHECKING
 from order import InventoryOrder
 from actions import (
     Action,
-    BumpAction,
+    BumpAction, DoorBreakAction, DoorOpenAction,
     PickupAction,
     WaitAction,
     DoorCloseAction,
@@ -15,6 +16,7 @@ from actions import (
     DescendAction,
     AscendAction,
     PlaceSwapAction,
+    DoorUnlockAction,
 )
 from loader.data_loader import save_game
 
@@ -679,14 +681,15 @@ class InventoryChooseItemAndCallbackHandler(StorageSelectSingleEventHandler):
             self, 
             engine: Engine, 
             inventory_component: Inventory, 
-            callback: Callable, 
+            callback: Callable,
+            title: str = "Inventory",
             show_only_types: Tuple(InventoryOrder)=None, 
-            show_only_status: Tuple(str) = None, 
+            show_only_status: Tuple(str) = None,
             show_if_satisfy_both: bool = True,
             revert_callback: Callable = None,
         ):
         super().__init__(engine, inventory_component, show_only_types, show_only_status, show_if_satisfy_both, revert_callback)
-        self.TITLE = "Inventory"
+        self.TITLE = title
         self.selected_item = None
         self.callback = callback
     
@@ -714,7 +717,7 @@ class InventoryEventHandler(StorageSelectSingleEventHandler):
         """Return the action for the selected item."""
         self.engine.event_handler = InventoryActionSelectHandler(self.engine, item)
         return None
-    
+
 
 class InventoryActionSelectHandler(AskUserEventHandler):
     """Handle choosing the action for selected item."""
@@ -1089,6 +1092,64 @@ class StorageSelectMultipleEventHandler(StorageSelectEventHandler):
             self.selected_items.remove(item)
         else:
             self.selected_items.add(item)
+
+
+class LockedDoorEventHandler(AskUserEventHandler):
+    def __init__(self, engine, door: SemiActor):
+        super().__init__(engine)
+        self.door = door
+        self.TITLE = "The door is locked. What do you want to do?"
+
+    def on_render(self, console: tcod.Console) -> None:
+        """
+        Render an action selection menu, which displays the possible actions of the selected item.
+        """
+        super().on_render(console)
+
+        height = 7 #TODO hard-coded
+        if height <= 3:
+            height = 3
+
+        x = 0
+        y = 0
+        x_space = 5 # per side
+        y_space = 3
+        width = self.engine.config["screen_width"] - (x_space * 2)
+
+        # draw frame
+        console.draw_frame(
+            x=x + x_space,
+            y=y + y_space,
+            width=width,
+            height=height,
+            title=self.TITLE,
+            clear=True,
+            fg=color.gui_action_fg,
+            bg=color.gui_inventory_bg,
+        )
+
+        # Message log
+        console.print(x + x_space + 1, y + y_space + 2, "(u) - Try to unlock the door", fg=color.white)
+        console.print(x + x_space + 1, y + y_space + 4, "(b) - Try to break the door", fg=color.white)
+        console.print(x + x_space + 1, y + y_space + 6, "esc - Cancel", fg=color.white)
+
+    def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[Action]:
+        key = event.sym
+
+        if key == tcod.event.K_u:
+            DoorUnlockAction(self.engine.player, self.door.x - self.engine.player.x, self.door.y - self.engine.player.y).perform()
+            return None
+        elif key == tcod.event.K_b:
+            DoorBreakAction(self.engine.player, self.door.x - self.engine.player.x, self.door.y - self.engine.player.y)\
+                .break_door(self.door, self.engine.player.status.changed_status["strength"])
+            return None
+        elif key == tcod.event.K_ESCAPE:
+            self.engine.event_handler = MainGameEventHandler(self.engine)
+            return None
+        else:
+            self.engine.message_log.add_message("Invalid entry.", color.invalid)
+            self.engine.event_handler = MainGameEventHandler(self.engine)
+            return None
 
 
 class ChestEventHandler(AskUserEventHandler):
@@ -1566,6 +1627,13 @@ class MainGameEventHandler(EventHandler):
                     actor=player,
                     max_range=1,
                     callback=lambda dx, dy: DoorCloseAction(player, dx, dy)
+                    )
+            elif key == tcod.event.K_o:
+                self.engine.event_handler = RayDirInputHandler(
+                    engine=self.engine,
+                    actor=player,
+                    max_range=1,
+                    callback=lambda dx, dy: DoorOpenAction(player, dx, dy)
                     )
             elif key == tcod.event.K_a:
                 self.engine.event_handler = AbilityActivateHandler(self.engine)
