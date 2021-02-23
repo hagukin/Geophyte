@@ -402,6 +402,37 @@ item_rarity.append(shortsword.rarity)
 
 
 #########################################################################
+############################### AMULETS #################################
+#########################################################################
+
+### Amulet of Kugah
+amulet_of_kugah = Item(
+    indestructible=True,
+    char="]",
+    fg = (255, 72, 0),
+    name="Amulet of Kugah",
+    entity_id="amulet_of_kugah",
+    entity_desc="amulet of kugah desc",
+    rarity=0,
+    weight=0.2,
+    price=0,
+    item_type=InventoryOrder.AMULET,
+    item_state=ItemState(is_identified=2),
+    spawnable=False,
+    flammable=0,
+    corrodible=0,
+    droppable=True,
+    stackable=False,
+    throwable=throwable.NormalThrowable(base_throw=1, additional_throw=2, penetration=False, air_friction=15),
+    equipable=equipable.AmuletOfKugahEquipable(),
+    edible=None
+)
+temp_items_lists.append(amulet_of_kugah)
+item_rarity.append(amulet_of_kugah.rarity)
+
+
+
+#########################################################################
 ############################### EDIBLES #################################
 #########################################################################
 
@@ -455,3 +486,5 @@ toxic_goo = Item(
 )
 temp_items_lists.append(toxic_goo)
 item_rarity.append(toxic_goo.rarity)
+
+

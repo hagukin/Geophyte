@@ -225,6 +225,18 @@ class SaveInputHandler(AskUserEventHandler):
         return super().ev_keydown(event)
 
 
+class GameClearInputHandler(AskUserEventHandler): #TODO Unfinished
+
+    def on_render(self, console: tcod.Console) -> None:
+        super().on_render(console)
+        self.engine.draw_window(
+            self.engine.console,
+            text="You retrieved the amulet of Kugah!",
+            title="You win!",
+            frame_fg=color.yellow,
+        )
+
+
 class AbilityEventHandler(AskUserEventHandler):
     """
     This handler lets the user select an ability to use / cast.
@@ -610,7 +622,7 @@ class StorageSelectSingleEventHandler(StorageSelectEventHandler):
 
                 # Display equip info if it is true(if value isn't None)
                 if item.item_state.is_equipped:
-                    item_equip_text += f" [equipped on {item.item_state.is_equipped}]"
+                    item_equip_text += f" [{item.item_state.is_equipped}]"
 
                 # Print
                 console.print(x + x_space + 1, y + i + y_space + 1, item_text, fg=item_text_color)

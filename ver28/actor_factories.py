@@ -75,6 +75,7 @@ player = Actor(
     initial_equipments=[
         (item_factories.leather_armor, 1),
         (item_factories.shortsword, 1,),
+        (item_factories.amulet_of_kugah, 1),
         ],
     initial_abilities=[(ability_factories.lightning_bolt, 1), (ability_factories.steal, 1)],
 )
@@ -1009,7 +1010,7 @@ ice_elemental = Actor(
         Despite all these mysteries, one thing remains clear: elementals are powerful.\n\
         And sometimes, they are willing to handle these powers to one they admire, rarely even to humans.\
         ",
-    rarity=4,
+    rarity=99,#TODO
     spawnable=True,
     edible=None, # 시체 없음
     ai_cls=ai_factories.ice_elemental_ai,
@@ -1022,7 +1023,7 @@ ice_elemental = Actor(
         intelligence=15,
         constitution=18,
         charm=18,
-        difficulty=12,
+        difficulty=4,#TODO
         base_melee=8,
         additional_melee=8,
         protection=8,
@@ -1051,59 +1052,6 @@ ice_elemental = Actor(
 )
 monster_difficulty[ice_elemental.status.difficulty].append(ice_elemental)
 
-### Ice Elemental
-ice_elemental = Actor(
-    char="E",
-    fg=(207, 247, 255),
-    name="Ice Elemental",
-    entity_id="ice_elemental",
-    entity_desc="\
-        Elementals are mystical beings. No human being truly understands the full story behind who created them.\n\
-        Some say they are the will of mother nature, while the other says they are a creation of ancient wizards.\n\
-        Despite all these mysteries, one thing remains clear: elementals are powerful.\n\
-        And sometimes, they are willing to handle these powers to one they admire, rarely even to humans.\
-        ",
-    rarity=4,
-    spawnable=True,
-    edible=None, # 시체 없음
-    ai_cls=ai_factories.ice_elemental_ai,
-    status=Status(#TODO : 슽텟조정
-        hp=110,
-        mp=50,
-        strength=16,
-        dexterity=20,
-        agility=15,
-        intelligence=15,
-        constitution=18,
-        charm=18,
-        difficulty=12,
-        base_melee=8,
-        additional_melee=8,
-        protection=8,
-        eyesight=20,
-        cold_resistance=1,
-        poison_resistance=1,
-        ),
-    actor_state=ActorState(
-        size=4,
-        weight=95,
-        sexuality="None",
-        can_breathe_underwater=True,
-        can_fly=True,
-        can_talk=True,
-        has_left_arm=True,
-        has_right_arm=True,
-        has_leg=False,
-        has_eye=True,
-        has_torso=True,
-        has_blood=False,
-        has_soul=True,
-    ),
-    inventory=Inventory(capacity=5),
-    ability_inventory=AbilityInventory(capacity=5),
-    equipments=Equipments(),
-)
-monster_difficulty[ice_elemental.status.difficulty].append(ice_elemental)
 
 ####################################################
 ################### I - IMPOSTERS  #################

@@ -1352,4 +1352,12 @@
           두 세미액터가 같은 위치일 때 렌더링 순서가 꼬이는 경우 발생.
           >> 수정. semiactor_obj라는 새로운 RenderOrder Enum 추가.
 
-          
+          TODO: 문 종류마다 파괴 가능여부를 기록해야함
+          TODO2: 잠긴 문이 던전에 랜덤하게 생기게 해야함.
+20210223 - (임시) 게임 엔딩 제작
+            Amulet of Kugah 제작
+
+            entity에 indestructible 프로퍼티 추가. 해당 프로퍼티가 참일 경우 해당 엔티티는 remove_self()로 제거되지 않는다.
+            > indestructible키워드의 남용은 오류 발생 위험이 있으므로 amulet of kugah와 같이 특수한 경우를 제외하고는 최대한 사용을 자제하는 게 권장된다.
+
+            펫과 자리 swap할때 경로가 꼬이는 듯한 현상 발견.

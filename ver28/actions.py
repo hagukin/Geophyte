@@ -146,6 +146,10 @@ class AscendAction(Action):
                 if goal_depth in list(self.engine.world.keys()):
                     self.engine.game_map = self.engine.world[goal_depth]
                     self.engine.depth = goal_depth
+                # Temporary game ending
+                elif self.engine.player.inventory.check_if_in_inv("amulet_of_kugah"):
+                    from input_handlers import GameClearInputHandler
+                    self.engine.event_handler = GameClearInputHandler(engine=self.engine)
                 else:
                     print("ERROR : LEVEL DOES NOT EXIST")
                     raise Exception # You cannot ascend to a level that does not exist.

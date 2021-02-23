@@ -34,6 +34,7 @@ class Entity:
     def __init__(
         self,
         gamemap: GameMap = None,
+        indestructible: bool = False,
         x: int = 0,
         y: int = 0,
         _char: str = "?",
@@ -53,6 +54,8 @@ class Entity:
     ):
         """
         Args:
+            indestructible:
+                If true, this entity cannot be destroyed by remove_self().
             entity_desc:
                 Recommended not to write more than 5 lines.
                 Each lines should contain less than 110 characters. (Including blanks)
@@ -67,6 +70,7 @@ class Entity:
             action_speed:
                 action points gained per turn.
         """
+        self.indestructible = indestructible
         self.x = x
         self.y = y
         self._char = _char
@@ -161,7 +165,10 @@ class Entity:
         self.action_point = max(0, self.action_point - value)
 
     def remove_self(self) -> None:
-        if self.gamemap:
+        if self.indestructible:
+            print(f"DEBUG::{self.name} IS INDESTRUCTIBLE. ENTITY.REMOVE_SELF() IS NULLIFIED.")
+            return None
+        elif self.gamemap:
             # If the gamemap value is not yet set for the entity, an error might pop up here.
             # If so, it can be safely ignored.
             # example of these errors: a flame that is generated on non-flammable tile may cause an error
@@ -217,6 +224,7 @@ class Actor(Entity):
         self,
         *,
         gamemap: Optional[GameMap] = None,
+        indestructible: bool = False,
         x: int = 0,
         y: int = 0,
         char: str = "?",
@@ -269,6 +277,7 @@ class Actor(Entity):
         """
         super().__init__(
             gamemap=gamemap,
+            indestructible=indestructible,
             x=x,
             y=y,
             _char=char,
@@ -442,6 +451,7 @@ class Item(Entity):
         *,
         parent: Optional[Inventory] = None,
         gamemap: Optional[GameMap] = None,
+        indestructible: bool = False,
         x: int = 0,
         y: int = 0,
         should_randomize: bool = False,
@@ -492,6 +502,7 @@ class Item(Entity):
         """
         super().__init__(
             gamemap=gamemap,
+            indestructible=indestructible,
             x=x,
             y=y,
             _char=char,
@@ -594,6 +605,10 @@ class Item(Entity):
 
     def remove_self(self):
         super().remove_self()
+        if self.indestructible:
+            print(f"DEBUG::{self.name} IS INDESTRUCTIBLE. ITEM.REMOVE_SELF() IS NULLIFIED.")
+            return None
+
         if self.parent:
             if self.equipable: # If the item can be equipped, try to remove it from its wearer. (if there is any)
                 self.parent.parent.equipments.remove_equipment(region=self.equipable.equip_region, forced=True)
@@ -743,6 +758,8 @@ class SemiActor(Entity):
     def __init__(
         self,
         *,
+        gamemap: Optional[GameMap] = None,
+        indestructible: bool = False,
         x: int = 0,
         y: int = 0,
         char: str = "?",
@@ -778,6 +795,8 @@ class SemiActor(Entity):
                 If its set to None, the game will call MoveAction.
         """
         super().__init__(
+            gamemap=gamemap,
+            indestructible=indestructible,
             x=x,
             y=y,
             _char=char,

@@ -42,8 +42,8 @@ class InventoryOrder(Enum):
 
 class AbilityOrder(Enum):
     """
-    SKILL - 비 마법 능력
-    SPELL - 마법 능력
+    SKILL - Non-magics
+    SPELL - Magics
     """
     PASSIVE_SKILL = auto()
     REGULAR_SKILL = auto()

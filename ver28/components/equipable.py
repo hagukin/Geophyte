@@ -263,3 +263,16 @@ class ShortswordEquipable(Equipable):
                 self.add_base_melee += min(3, str_diff * (-1) - 2)
                 self.add_additional_melee += min(3, str_diff * (-1) - 2)
 
+#################################################
+################### AMULETS #####################
+#################################################
+
+class AmuletOfKugahEquipable(Equipable):
+    def __init__(self, upgrade=0):
+        super().__init__(
+            upgrade=upgrade,
+            equip_region="amulet",
+            )
+
+    def upgrade_stat_change(self):
+        return None #TODO
