@@ -849,6 +849,58 @@ monster_difficulty[nymph.status.difficulty].append(nymph)
 
 
 ####################################################
+#################### o - spheres ###################
+####################################################
+sphere_of_acid = Actor(
+    char="o",
+    fg=(123, 255, 0),
+    name="Sphere of acid",
+    entity_id="sphere_of_acid",
+    entity_desc="\
+        TODO\n\
+        ",
+    rarity=99, #TODO DEBUG
+    spawnable=True,
+    edible=None,
+    ai_cls=ai_factories.sphere_of_acid_ai,
+    status=Status(
+        hp=50,
+        mp=0,
+        strength=12,
+        dexterity=14,
+        agility=8,
+        intelligence=8,
+        constitution=16,
+        charm=5,
+        difficulty=3,#TODO 6
+        base_melee=0,
+        additional_melee=0,
+        protection=10,
+        eyesight=15,
+        poison_resistance=1,
+        acid_resistance=1,
+        psychic_resistance=1,
+        sleep_resistance=1,
+        ),
+    actor_state=ActorState(
+        size=3,
+        weight=40,
+        has_left_arm=False,
+        has_right_arm=False,
+        has_leg=False,
+        has_eye=False,
+        has_torso=False,
+        has_blood=False,
+        has_soul=True,
+    ),
+    inventory=Inventory(capacity=1),
+    ability_inventory=AbilityInventory(capacity=1),
+    equipments=Equipments(),
+)
+monster_difficulty[sphere_of_acid.status.difficulty].append(sphere_of_acid)
+
+
+####################################################
 ############# s - spiders & scorpions  #############
 ####################################################
 
@@ -1010,7 +1062,7 @@ ice_elemental = Actor(
         Despite all these mysteries, one thing remains clear: elementals are powerful.\n\
         And sometimes, they are willing to handle these powers to one they admire, rarely even to humans.\
         ",
-    rarity=99,#TODO
+    rarity=4,#TODO
     spawnable=True,
     edible=None, # 시체 없음
     ai_cls=ai_factories.ice_elemental_ai,
@@ -1023,7 +1075,7 @@ ice_elemental = Actor(
         intelligence=15,
         constitution=18,
         charm=18,
-        difficulty=4,#TODO
+        difficulty=12,#TODO
         base_melee=8,
         additional_melee=8,
         protection=8,

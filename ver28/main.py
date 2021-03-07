@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 import traceback
+
+from tcod.context import RENDERER_SDL2
 import title
 import tcod
 import color
@@ -16,7 +18,7 @@ def main() -> None:
     else:
         set_screen = None
 
-    with tcod.context.new_terminal(
+    with tcod.context.new(
         columns=cfg["screen_width"],
         rows=cfg["screen_height"],
         tileset=tcod.tileset.load_tilesheet(cfg["tileset_path"], 16, 16, tcod.tileset.CHARMAP_CP437),

@@ -99,6 +99,17 @@ class GameMap:
 
         return None
 
+    def get_all_items_at_location(self, x: int, y: int) -> Optional[Item]:
+        tmp = []
+
+        for item in self.items:
+            if item.x == x and item.y == y:
+                tmp.append(item)
+        
+        if len(tmp):
+            return tmp
+
+        return None
 
     def get_item_at_location(self, x: int, y: int) -> Optional[Item]:
         for item in self.items:

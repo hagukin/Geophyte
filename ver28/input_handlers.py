@@ -1,4 +1,6 @@
 from __future__ import annotations
+
+from numpy.lib.npyio import save
 from entity import SemiActor
 from components.inventory import Inventory
 from typing import Callable, Optional, Tuple, TYPE_CHECKING
@@ -18,7 +20,7 @@ from actions import (
     PlaceSwapAction,
     DoorUnlockAction,
 )
-from loader.data_loader import save_game
+from loader.data_loader import save_game, quit_game
 
 import tcod
 import time
@@ -221,7 +223,7 @@ class SaveInputHandler(AskUserEventHandler):
             self.engine.message_log.add_message(f"Game saved.", color.lime, stack=False)
             save_game(player=player, engine=engine)
         else:
-            self.engine.message_log.add_message(f"Saving canceled.", color.lime, stack=False)
+            self.engine.message_log.add_message(f"Saving cancelled.", color.lime, stack=False)
         return super().ev_keydown(event)
 
 
@@ -1598,6 +1600,25 @@ class RayDirInputHandler(SelectDirectionHandler):
         return self.callback(self.dx, self.dy)
 
 
+class QuitInputHandler(AskUserEventHandler):
+
+    def on_render(self, console: tcod.Console) -> None:
+        super().on_render(console)
+        self.engine.draw_window(console, text="Do you really want to quit? Any unsaved progress will be lost.(Y/N)", title="Quit", frame_fg=color.lime)
+
+    def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[Action]:
+        player = self.engine.player
+        engine = self.engine
+
+        if event.sym == tcod.event.K_y or event.sym == tcod.event.K_KP_ENTER:
+            self.engine.event_handler = MainGameEventHandler(self.engine)
+            save_game(player=player, engine=engine)
+            quit_game()
+        else:
+            self.engine.message_log.add_message(f"Cancelled.", color.lime, stack=False)
+        return super().ev_keydown(event)
+
+
 class MainGameEventHandler(EventHandler):
     def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[Action]:
         action: Optional[Action] = None
@@ -1655,6 +1676,11 @@ class MainGameEventHandler(EventHandler):
                 pic_name = self.engine.player.name + "_" + time_str
                 self.engine.context.save_screenshot(f"./screenshots/{pic_name}.png")
                 self.engine.message_log.add_message(f"Screenshot saved as {pic_name}.png", color.needs_target)
+            elif key == tcod.event.K_ESCAPE:
+                self.engine.event_handler = QuitInputHandler(self.engine)
+            elif key == tcod.event.K_F11:#TODO DEBUG
+                from actions import ExplodeAction
+                ExplodeAction(self.engine.player, False, True, radius=3, expl_dmg=50, cause_fire=5).perform()
 
         # No valid key was pressed
         return action

@@ -159,6 +159,22 @@ class Nymph_Ai(ai.BaseAI):
         else:
             return False
 
+####################################################
+#################### o - spheres  ##################
+####################################################
+
+class Sphere_Of_Acid_Ai(ai.BaseAI):
+    def __init__(self, alignment:str="hostile", do_melee_atk:bool=True, do_ranged_atk: bool=False, use_ability: bool=False, hostile_type: set=set('@')):
+        super().__init__(alignment, do_melee_atk, do_ranged_atk, use_ability, hostile_type=hostile_type)
+
+    def get_melee_action(self, dx, dy):
+        """
+        Return the action this ai will perform when its melee attacking something.
+        If the ai has any sort of special effects to its melee attack, its passed as a parameter.
+        """
+        actions.ExplodeAction(self.parent, False, True, radius=2, expl_dmg=50, dmg_reduction_by_dist=10, cause_fire=5).perform()
+        self.parent.status.die()
+
 
 ####################################################
 #####################  w - worms  ##################
@@ -216,6 +232,8 @@ giant_wasp_ai = Giant_Wasp_Ai()
 black_jelly_ai = Black_Jelly_Ai()
 #n
 nymph_ai = Nymph_Ai()
+#o
+sphere_of_acid_ai = Sphere_Of_Acid_Ai()
 #w
 earthworm_ai = Melee_Neutral_Ai()
 maggot_ai = Melee_Neutral_Ai()

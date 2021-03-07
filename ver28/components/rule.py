@@ -90,11 +90,12 @@ class FireRule(BaseRule):
                 target.actor_state.is_burning = [self.base_damage, self.add_damage, 0, self.fire_duration]
 
         # Light Items in gamemap on fire
-        target_item = self.engine.game_map.get_item_at_location(self.parent.x, self.parent.y)
-        if target_item:
-            will_catch_fire = random.random()
-            if will_catch_fire < target_item.flammable:
-                target_item.item_state.is_burning = True
+        target_items = self.engine.game_map.get_all_items_at_location(self.parent.x, self.parent.y)
+        if target_items:
+            for target_item in target_items:
+                will_catch_fire = random.random()
+                if will_catch_fire < target_item.flammable:
+                    target_item.item_state.is_burning = True
 
         # Light Items in Inventory on fire
         target_entity = self.engine.game_map.get_actor_at_location(self.parent.x, self.parent.y)

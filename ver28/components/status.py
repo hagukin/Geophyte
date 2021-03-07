@@ -349,9 +349,11 @@ class Status(BaseComponent):
                 if None, the damage is considered pure type, and nothing will happen.
                 "magic" only applies to pure magic attacks. For example fire ray magic is considered "fire".
 
+                
+
             penetration_constant:
                 When additional values should be passed use this.
-                E.g. When calculating physical type damages, strength is passed to penetration_constant.
+                E.g. When calculating physical type damages, attacker's strength is passed to penetration_constant.
         """
         dmg = damage
 
@@ -362,6 +364,12 @@ class Status(BaseComponent):
                 protection = self.changed_status["protection"]
                 penetration = 1 + math.log2(penetration_constant/10 + 1) # y = log2(x/10 + 1) + 1 # TODO: adjust the constant 10
                 dmg_absorbed = random.randint(0, int(protection/penetration))
+                dmg_reduced = 1 + math.log2(protection/5 + 1) # y = 1 + log2(x/5 + 1)
+                dmg = (dmg - dmg_absorbed) / dmg_reduced
+            elif damage_type == "explosion":
+                # NOTE: explosion damages are exactly like physical damage, except that is ignores any penetration constants given.
+                protection = self.changed_status["protection"]
+                dmg_absorbed = random.randint(0, int(protection))
                 dmg_reduced = 1 + math.log2(protection/5 + 1) # y = 1 + log2(x/5 + 1)
                 dmg = (dmg - dmg_absorbed) / dmg_reduced
             elif damage_type == "fire":

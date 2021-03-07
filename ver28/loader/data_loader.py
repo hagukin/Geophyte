@@ -1,4 +1,5 @@
 import os
+import sys
 import shelve
 
 def save_game(player, engine):
@@ -28,3 +29,7 @@ def load_game():
         engine = savefile["engine"]
 
     return engine.game_map.entities[player_index], engine
+
+
+def quit_game():
+    sys.exit()
