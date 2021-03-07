@@ -1378,4 +1378,93 @@
           tcod 라이브러리 버전을 업데이트함.
 
           TODO: 세미액터에도 flammable 추가해야함. 특히 문에 추가해야 함
+20210307 - 폭발 관련 버그 수정.
 
+          조작키 꾹 누르고있으면 화면 끊김 현상 발생하는 것 원인 찾음, 수정 완료
+          > 처음엔 게임 내의 알고리즘 자체가 느려서 발생하는 문제인줄 알았으나, 원인은 화면 출력을 화면에 변화가 일어날 때마다 해주지 않는 경우가 있어서 였음
+          > sdl/tcod 라이브러리와 관련된 문제로 추정되며(버그는 아님), 버튼을 꾹 누르고 있을 때 tcod.wait()가 여러 명령을 동시에 수집하기 때문임.
+          -----------------------------------
+          0.0019991397857666016 - handle_events() - <type='KEYDOWN', scancode=SCANCODE_KP_6, sym=K_KP_6, mod=KMOD_NUM, repeat=True>
+          0.0010309219360351562 - sort_entities()
+          0.05603432655334473 - handle_world()
+          0.0 - handle_events() - <type='TEXTINPUT', text='6')
+          0.0010001659393310547 - sort_entities()
+          0.0020093917846679688 - handle_world()
+          0.0029900074005126953 - handle_events() - <type='KEYDOWN', scancode=SCANCODE_KP_6, sym=K_KP_6, mod=KMOD_NUM, repeat=True>
+          0.0010008811950683594 - sort_entities()
+          0.04899787902832031 - handle_world()
+          0.0 - handle_events() - <type='TEXTINPUT', text='6')
+          0.0009996891021728516 - sort_entities()
+          0.0020003318786621094 - handle_world()
+          0.0019998550415039062 - handle_events() - <type='KEYDOWN', scancode=SCANCODE_KP_6, sym=K_KP_6, mod=KMOD_NUM, repeat=True>
+          0.0009989738464355469 - sort_entities()
+          0.020000934600830078 - handle_world()
+          0.0 - handle_events() - <type='TEXTINPUT', text='6')
+          0.000965118408203125 - sort_entities()
+          0.0019648075103759766 - handle_world()
+          0.0020003318786621094 - handle_events() - <type='KEYDOWN', scancode=SCANCODE_KP_6, sym=K_KP_6, mod=KMOD_NUM, repeat=True>
+          0.0010004043579101562 - sort_entities()
+          0.05803370475769043 - handle_world()
+          0.0 - handle_events() - <type='TEXTINPUT', text='6')
+          0.0 - sort_entities()
+          0.0010378360748291016 - handle_world()
+          0.0019996166229248047 - handle_events() - <type='KEYDOWN', scancode=SCANCODE_KP_6, sym=K_KP_6, mod=KMOD_NUM, repeat=True>
+          0.00099945068359375 - sort_entities()
+          0.053034305572509766 - handle_world()
+          0.0 - handle_events() - <type='TEXTINPUT', text='6')
+          0.0010030269622802734 - sort_entities()
+          0.0020012855529785156 - handle_world()
+          0.0029964447021484375 - handle_events() - <type='KEYDOWN', scancode=SCANCODE_KP_6, sym=K_KP_6, mod=KMOD_NUM, repeat=True>
+          0.001001119613647461 - sort_entities()
+          0.05903482437133789 - handle_world()
+          0.0 - handle_events() - <type='TEXTINPUT', text='6')
+          0.0009996891021728516 - sort_entities()
+          0.002003192901611328 - handle_world()
+          0.0019981861114501953 - handle_events() - <type='KEYDOWN', scancode=SCANCODE_KP_6, sym=K_KP_6, mod=KMOD_NUM, repeat=True>
+          0.0010020732879638672 - sort_entities()
+          0.06403422355651855 - handle_world()
+          0.0 - handle_events() - <type='TEXTINPUT', text='6')
+          0.0 - sort_entities()
+          0.002000570297241211 - handle_world()
+          0.0010221004486083984 - handle_events() - <type='KEYDOWN', scancode=SCANCODE_KP_6, sym=K_KP_6, mod=KMOD_NUM, repeat=True>
+          0.0 - sort_entities()
+          0.002001047134399414 - handle_world()
+          0.0 - handle_events() - <type='TEXTINPUT', text='6')
+          0.0009746551513671875 - sort_entities()
+          0.001973867416381836 - handle_world()
+          0.8393642902374268 - total turn
+          0.0010251998901367188 - context rendering >> 이 부분을 보면 6번키 입력이 연달아 이루어지고 나서야 한번 context rendering이 일어나는 것을 볼 수 있음.
+          >> 즉 실제로 게임은 한 턴당 0.06초 혹은 10fps 정도로 턴제 게임에는 충분한 속도로 렌더링이 가능함.
+          >> 예전에 작성한 코드들 수정하는 등 더 성능을 개선시키면 프레임을 끌어올릴 수는 있겠지만 아직은 굳이 필요치 않다고 생각됨.
+          ----------------------------------- 
+          0.0009984970092773438 - handle_events() - <type='KEYDOWN', scancode=SCANCODE_KP_6, sym=K_KP_6, mod=KMOD_NUM, repeat=True>
+          0.0 - sort_entities()
+          0.0009987354278564453 - handle_world()
+          0.0 - handle_events() - <type='TEXTINPUT', text='6')
+          0.00099945068359375 - sort_entities()
+          0.002000093460083008 - handle_world()
+          0.023000717163085938 - total turn
+          0.002034902572631836 - context rendering
+          -----------------------------------
+          0.0009996891021728516 - handle_events() - <type='KEYDOWN', scancode=SCANCODE_KP_6, sym=K_KP_6, mod=KMOD_NUM, repeat=True>
+          0.0010426044464111328 - sort_entities()
+          0.0020449161529541016 - handle_world()
+          0.0 - handle_events() - <type='TEXTINPUT', text='6')
+          0.0009644031524658203 - sort_entities()
+          0.001964092254638672 - handle_world()
+          0.028748750686645508 - total turn
+          0.0019989013671875 - context rendering
+          -----------------------------------
+          0.001043081283569336 - handle_events() - <type='KEYDOWN', scancode=SCANCODE_KP_6, sym=K_KP_6, mod=KMOD_NUM, repeat=True>
+          0.001009225845336914 - sort_entities()
+          0.0010459423065185547 - handle_world()
+          0.0 - handle_events() - <type='TEXTINPUT', text='6')
+          0.0009992122650146484 - sort_entities()
+          0.001997709274291992 - handle_world()
+          0.03007030487060547 - total turn
+          0.0009975433349609375 - context rendering
+          -----------------------------------
+
+          >>> 해결 완료. 이제 프레임이 낮아질 지언정 화면이 끊기는 현상은 없음.
+
+          
