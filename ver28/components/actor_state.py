@@ -117,6 +117,9 @@ class ActorState(BaseComponent):
         # Actor is hallucinating
         # Value: [Current turn, Max lasting turn]
         is_hallucinating: list = [0, 0],
+        # Actor can detect things that are out of sight
+        # Value: [Current turn, Max lasting turn, tuple with strings: object type]
+        is_detecting_obj: list = [0, 0, None],
 
         ### Spatial states
         # Actor is on air (whether willingly or unwillingly)
@@ -188,6 +191,7 @@ class ActorState(BaseComponent):
         self.is_angry = is_angry
         self.is_confused = is_confused
         self.is_hallucinating = is_hallucinating
+        self.is_detecting_obj = is_detecting_obj
 
         self.is_flying = is_flying
         self.is_in_deep_pit = is_in_deep_pit
@@ -686,6 +690,17 @@ class ActorState(BaseComponent):
             self.is_drowning = [0,0]
             return None
 
+    def actor_detecting(self):
+        """Make player detect(see) certain types of entities regardless of sight range."""
+
+        # Check turns
+        if self.is_detecting_obj[0] >= self.is_detecting_obj[1]:
+            if self.parent == self.engine.player:
+                self.engine.message_log.add_message(f"Your senses are back to normal.", target=self.parent)
+            self.is_detecting_obj = [0,0,None]
+        elif self.is_detecting_obj[0] >= 0: # lasts forever if negative
+            self.is_detecting_obj[0] += 1
+
     def remove_all_actor_states(self):
         """
         Reset everything related to this actor's state.
@@ -719,6 +734,7 @@ class ActorState(BaseComponent):
         self.is_angry = [0, 0]
         self.is_confused = [0, 0]
         self.is_hallucinating = [0, 0]
+        self.is_detecting_obj = [0, 0, None]
         # spatial states
         self.is_flying = False
         self.is_in_deep_pit = False

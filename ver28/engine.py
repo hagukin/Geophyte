@@ -202,6 +202,10 @@ class Engine:
             # Drowning
             if actor.actor_state.is_drowning != [0,0]:
                 actor.actor_state.actor_drowning()
+            # Detecting far objects
+            if actor.actor_state.is_detecting_obj[2]:
+                actor.actor_state.actor_detecting()
+                # Actual detection happens during update_fov()
 
             ### Regular status effects ###
             # Health point recovering
@@ -383,6 +387,23 @@ class Engine:
             self.prev_actors_in_sight = copy.copy(self.actors_in_sight)
             self.prev_items_in_sight = copy.copy(self.items_in_sight)
 
+    def detect_entities(self, actor: Actor) -> None:
+        if actor == self.player:
+            explored = self.game_map.explored
+            visible = self.game_map.visible
+        elif actor.ai:
+            visible = actor.ai.vision
+        else:
+            print("ACTOR_STATE - ACTOR_DETECTING : THE ACTOR HAS NO AI / VISION")
+            return
+
+        # Make certain types of entities visible
+        for entity in self.game_map.typed_entities(actor.actor_state.is_detecting_obj[2]):
+            visible[entity.x, entity.y] = True
+
+        if actor == self.player:
+            explored |= visible
+
     def update_fov(self) -> None:
         """Recompute the visible area based on the players point of view."""
         temp_vision = copy.copy(self.game_map.tiles["transparent"])
@@ -400,6 +421,10 @@ class Engine:
         # If a tile is "visible" it should be added to "explored".
         self.game_map.explored |= self.game_map.visible
 
+        # Check if player is detecting something
+        if self.player.actor_state.is_detecting_obj[2]:
+            self.detect_entities(self.player)
+
     def update_enemy_fov(self, is_initialization: bool=False) -> None:
         """
         Recomputes the vision of actors besides player.
@@ -409,8 +434,7 @@ class Engine:
             # initialize actors vision
             if is_initialization:
                 if actor.ai:
-                    actor.ai.vision = np.full((self.game_map.width, self.game_map.height), fill_value=False, order="F")
-                    actor.ai.update_vision()
+                    actor.ai.init_vision()
 
             ## The game will not update every actor's vision every turn due to performance issues
             # actor.ai.update_vision()

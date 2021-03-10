@@ -65,6 +65,32 @@ temp_items_lists.append(potion_of_paralysis)
 item_rarity.append(potion_of_paralysis.rarity)
 
 
+### Potion of telepathy
+potion_of_telepathy = Item(
+    should_randomize=True,
+    char="!",
+    fg=(255, 0, 255),
+    name="Potion of telepathy",
+    entity_id="potion_of_telepathy",
+    entity_desc="Potion of telepathy desc",
+    rarity=6,
+    weight=0.2,
+    price=80,
+    item_type=InventoryOrder.POTION,
+    item_state=ItemState(),
+    spawnable=True,
+    flammable=0,
+    corrodible=0,
+    droppable=True,
+    stackable=True,
+    throwable=throwable.NormalThrowable(break_chance=1),
+    readable=None,
+    quaffable=quaffable.PotionOfTelepathyQuaffable(turn=20),
+)
+temp_items_lists.append(potion_of_telepathy)
+item_rarity.append(potion_of_telepathy.rarity)
+
+
 #########################################################################
 ################################ SCROLLS ################################
 #########################################################################

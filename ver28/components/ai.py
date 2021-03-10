@@ -65,16 +65,26 @@ class BaseAI(BaseComponent):
 
         # Owner
         self.owner = owner
+    
+    def init_vision(self) -> None:
+        """Initialize this ai's vision"""
+        self.vision = np.full((self.engine.game_map.width, self.engine.game_map.height), fill_value=False, order="F")
+        self.update_vision()
+
+    def activate(self) -> None:
+        """Activate this ai"""
+        self.init_vision()
+        self.active = True
 
     def check_active(self) -> None:
         # Set to active when this ai is in player's sight
-        if self.gamemap.visible[self.parent.x, self.parent.y]:
+        if self.gamemap.visible[self.parent.x, self.parent.y] and self.vision[self.engine.player.x, self.engine.player.y]:
             # prevent overwriting
             if self.in_player_sight:
                 return None
 
             self.in_player_sight = True
-            self.active = True
+            self.activate()
         else:
             if not self.in_player_sight:
                 return None

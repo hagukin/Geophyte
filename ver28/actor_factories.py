@@ -71,6 +71,7 @@ player = Actor(
         (item_factories.scroll_of_meteor_storm, 1, (1,4)),
         (item_factories.potion_of_healing, 1, (1,4)),
         (item_factories.potion_of_paralysis, 1, (1,4)),
+        (item_factories.potion_of_telepathy, 1, (3,4)),
         ],
     initial_equipments=[
         (item_factories.leather_armor, 1),

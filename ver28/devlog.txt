@@ -1466,5 +1466,29 @@
           -----------------------------------
 
           >>> 해결 완료. 이제 프레임이 낮아질 지언정 화면이 끊기는 현상은 없음.
+20210310 - potion of telepathy 뼈대 제작.
+            > 각종 메소드 추가
 
-          
+            몬스터가 시야 내에 들어오면 wake하는 부분 원리를 바꿀것.
+            
+            몬스터간의 전투시 발생하는 버그 > ai.vision이 없는데도 vision을 확인하려 할 때 발생 (원인불명, 간혹 한번씩 발생)
+            Traceback (most recent call last):
+            File "c:\Users\user\Desktop\Geophyte_tcod\ver28_identification\ver28\main.py", line 56, in main
+              engine.handle_world(turn_pass=turn_pass)
+            File "c:\Users\user\Desktop\Geophyte_tcod\ver28_identification\ver28\engine.py", line 110, in handle_world
+              self.handle_enemy_turns()
+            File "c:\Users\user\Desktop\Geophyte_tcod\ver28_identification\ver28\engine.py", line 133, in handle_enemy_turns
+              entity.ai.perform()
+            File "c:\Users\user\Desktop\Geophyte_tcod\ver28_identification\ver28\components\ai.py", line 90, in perform
+              self.check_active()
+            File "c:\Users\user\Desktop\Geophyte_tcod\ver28_identification\ver28\components\ai.py", line 71, in check_active
+              if self.gamemap.visible[self.parent.x, self.parent.y] and self.vision[self.engine.player.x, self.engine.player.y]:
+          TypeError: 'NoneType' object is not subscriptable
+          >> 원인은 아마 regenerated된 몬스터의 vision이 초기화가 안된 상태라 그런 것 같음.
+          >> 수정
+
+          일부 메세지 로그가 액터의 위치에 관계없이 로그창에 표시되는 현상 발견.
+          > ex. 보이지 않는 곳에서 다른 몬스터가 번개를 맞은 게 로그창에 뜸.
+          > 어떤 종류의 메세지들에 이런 현상이 나타나는지를 기록해서 일괄적으로 해결해야 할듯함.
+
+          f10키를 누르면 해당 층의 모든 몬스터를 activate하도록 디버그용 기능 제작.

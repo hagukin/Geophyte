@@ -73,3 +73,21 @@ class PotionOfParalysisQuaffable(Quaffable):
                 self.engine.message_log.add_message(f"{consumer.name} suddenly stops all movements!", color.white, target=consumer)
             
         self.consume()
+
+class PotionOfTelepathyQuaffable(Quaffable):
+    """The actor will gain a temporary ability to see far away actors that are on this level."""
+    def __init__(self, turn: int):
+        self.turn = turn
+    
+    def activate(self, action: actions.QuaffItem) -> None:
+        consumer = action.entity
+        consumer.actor_state.is_detecting_obj = [0,self.turn,("actor",)]
+        
+        # Log
+        if consumer == self.engine.player:
+            self.engine.message_log.add_message(f"You start to sense the existence of other creatures vividly.", color.player_damaged,)
+        else:
+            if self.engine.game_map.visible[consumer.x, consumer.y]:
+                self.engine.message_log.add_message(f"{consumer.name} looks more sharp.", color.white, target=consumer)
+            
+        self.consume()

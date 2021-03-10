@@ -102,7 +102,7 @@ def spawn_monsters_by_difficulty(
 
     if spawn_awake:
         if new_monster.ai:
-            new_monster.ai.active = True
+            new_monster.ai.activate()
     if is_first_generation:
         dungeon.starting_monster_num += 1
 

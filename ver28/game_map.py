@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import numpy as np  # type: ignore
 import random
+
+from numpy.lib.arraysetops import isin
 import tile_types
 
 from typing import Iterable, Iterator, Optional, TYPE_CHECKING
@@ -47,6 +49,24 @@ class GameMap:
     @property
     def gamemap(self) -> GameMap:
         return self
+
+    def is_type(self, entity: Entity, types: Tuple(str)) -> bool:
+        for t in types:
+            if t == "actor" and isinstance(entity, Actor) and not entity.is_dead:
+                return True
+            elif t == "item" and isinstance(entity, Item):
+                return True
+            elif t == "semiactor" and isinstance(entity, SemiActor):
+                return True
+        return False
+    
+    def typed_entities(self, types: Tuple(str)) -> Iterator[Entity]:
+        """Iterate over this maps entities of given types."""
+        yield from (
+            entity
+            for entity in self.entities
+            if self.is_type(entity, types)
+        )
 
     @property
     def actors(self) -> Iterator[Actor]:

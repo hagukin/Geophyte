@@ -1632,7 +1632,7 @@ class MainGameEventHandler(EventHandler):
                 action = AscendAction(player)
             
             elif key == tcod.event.K_q:
-                raise SystemExit()
+                self.engine.event_handler = QuitInputHandler(self.engine)
             elif key == tcod.event.K_s:
                 self.engine.event_handler = SaveInputHandler(
                     engine=self.engine
@@ -1676,11 +1676,14 @@ class MainGameEventHandler(EventHandler):
                 pic_name = self.engine.player.name + "_" + time_str
                 self.engine.context.save_screenshot(f"./screenshots/{pic_name}.png")
                 self.engine.message_log.add_message(f"Screenshot saved as {pic_name}.png", color.needs_target)
-            elif key == tcod.event.K_ESCAPE:
-                self.engine.event_handler = QuitInputHandler(self.engine)
             elif key == tcod.event.K_F11:#TODO DEBUG
                 from actions import ExplodeAction
                 ExplodeAction(self.engine.player, False, True, radius=3, expl_dmg=50, cause_fire=5).perform()
+            elif key == tcod.event.K_F10:#TODO DEBUG
+                for actor in self.engine.game_map.actors:
+                    if actor.ai:
+                        actor.ai.activate()
+                print("ACTIVATED ALL ACTORS IN THIS LEVEL")
 
         # No valid key was pressed
         return action
