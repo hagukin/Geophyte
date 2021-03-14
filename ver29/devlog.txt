@@ -1498,5 +1498,5 @@
           procgen 관련 함수들 코드 정리, 반복 줄이고 더 작은 함수들로 분할
           
           <버그발견>
-          scroll of tame 취소가 그냥 되는 경우 확인
-          scroll of identify 취소 시 에러발생
+          scroll of tame 취소가 그냥 되는 경우 확인 >> 수정
+          scroll of identify 취소 시 에러발생, 원인 불명

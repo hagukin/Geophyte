@@ -333,6 +333,11 @@ def adjust_obstacles(gamemap: GameMap):
             if gamemap.tilemap[semiactor.x, semiactor.y] == TilemapOrder.WATER.value:
                 semiactor.remove_self()
 
+        # 3. Delete chests that are generated on water (all types)
+        if semiactor.entity_id[-5:] == "chest":
+            if gamemap.tilemap[semiactor.x, semiactor.y] == TilemapOrder.WATER.value:
+                semiactor.remove_self()
+
         # 3. Delete chests that are generated on water
         if isinstance(semiactor, chest_factories.ChestSemiactor):
             if gamemap.tilemap[semiactor.x, semiactor.y] == TilemapOrder.WATER.value:

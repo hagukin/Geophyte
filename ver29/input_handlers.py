@@ -1434,7 +1434,7 @@ class SingleRangedAttackHandler(SelectIndexHandler):
     def __init__(
         self, engine: Engine, callback: Callable[[Tuple[int, int]], Optional[Action]], revert_callback: Callable = None
     ):
-        super().__init__(engine)
+        super().__init__(engine, revert_callback=revert_callback)
         self.callback = callback
 
     def on_index_selected(self, x: int, y: int) -> Optional[Action]:
