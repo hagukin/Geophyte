@@ -1,10 +1,10 @@
 from __future__ import annotations
 
 from typing import Optional, Tuple, TYPE_CHECKING
-
 from numpy.core.numeric import Inf
 from entity import Actor, Item
 
+import tcod
 import color
 
 if TYPE_CHECKING:
@@ -375,3 +375,35 @@ def render_message_window(
 
     # print msg
     console.print(msg_x, msg_y, msg, fg=text_fg)
+
+def render_img(
+    console, 
+    img,
+    dest_x:int = 0, 
+    dest_y:int = 0, 
+    img_x: int = 0, 
+    img_y: int = 0,
+    img_width: int = -1,
+    img_height: int = -1,
+    ):
+    """
+    Args:
+        https://python-tcod.readthedocs.io/en/latest/tcod/image.html?highlight=blit_2x#tcod.image.Image.blit_2x
+
+        console (Console):
+            Blit destination Console.
+        dest_x (int):
+            Console tile X position starting from the left at 0.
+        dest_y (int):
+            Console tile Y position starting from the top at 0.
+        img_x (int):
+            Left corner pixel of the Image to blit
+        img_y (int):
+            Top corner pixel of the Image to blit
+        img_width (int):
+            Width of the Image to blit. Use -1 for the full Image width.
+        img_height (int):
+            Height of the Image to blit. Use -1 for the full Image height.
+    """
+    # tcod.image_blit(image=img, console=console, x=dest_x, y=dest_y, bkgnd_flag=1, scalex=0.7, scaley=0.7, angle=0)
+    tcod.image_blit_2x(image=img, console=console, dx=dest_x, dy=dest_y, sx=img_x, sy=img_y, w=img_width, h=img_height)

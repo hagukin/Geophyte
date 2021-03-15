@@ -1,12 +1,12 @@
-import tcod
-
-import time
-import color
-
-import random
-
 from loader.initialization import init_game_variables
 from loader.data_loader import load_game
+from render import render_img
+
+import color
+import tcod
+import time
+import random
+
 
 class TitleInputHandler(tcod.event.EventDispatch[None]):
     """
@@ -22,48 +22,61 @@ class TitleInputHandler(tcod.event.EventDispatch[None]):
         return None
 
 
-def render_title_animation(console, context, x, y, frame):
+def render_title_animation(console, x, y, frame):
     """
     Render animations for the title screen.
     """
     # Title Logo Color changes every loop
-    num = random.randint(0,1)
-    if num == 0:
-        text_color = color.white
-    else:
-        text_color = color.red
+    # num = random.randint(0,1)
+    # if num == 0:
+    #     text_color = color.white
+    # else:
+    #     text_color = color.red
+
+    text_color = color.logo_c1
 
     # Get title graphic
-    with open("sources\\geophyte_title.txt", "r") as f:
+    with open("resources\\geophyte_title.txt", "r") as f:
         title = f.read()
     
     # render
     console.print(x, y, string=title, fg=text_color)
 
     # Get animation graphic
-    if frame == 1:
-        with open("sources\\f1.txt", "r") as f:
-            graphic = f.read()
-    elif frame == 2:
-        with open("sources\\f2.txt", "r") as f:
-            graphic = f.read()
-    elif frame == 3:
-        with open("sources\\f3.txt", "r") as f:
-            graphic = f.read()
-    elif frame == 4:
-        with open("sources\\f4.txt", "r") as f:
-            graphic = f.read()
-
-    # render
-    console.print(x, y + 15, string=graphic, fg=color.white)
+    g2frame = (3,4,5,6,7,8,1,2) #differs the frame to make more non-synchronized feeleing
+    with open(f"resources\\f{frame}.txt", "r") as f:
+        graphic1 = f.read()
+    with open(f"resources\\f{g2frame[frame-1]}.txt", "r") as f:
+        graphic2 = f.read()
+    torch = " \' \n\\-/\n\\ /\n # \n # \n # \n # \n # \n # \n # "
     
+    flame_color = (255, random.randint(100,255), 0)
 
-def render_title_gui(console, context, x, y):
+    width = tcod.console_get_width(console)
+    height = tcod.console_get_height(console)
+    anim_x = int(width / 2) - 9
+    anim_y = height - 18
+    console.print(anim_x - 2, anim_y - 2, string=graphic1, fg=flame_color)
+    console.print(anim_x - 2, anim_y, string=torch, fg=color.brown)
+    console.print(anim_x + 18, anim_y - 2, string=graphic2, fg=flame_color)
+    console.print(anim_x + 18, anim_y, string=torch, fg=color.brown)
+
+
+def render_title_gui(console):
     """
     Renders GUI for the title screen.
     """
+    width = tcod.console_get_width(console)
+    height = tcod.console_get_height(console)
+    x = int(width / 2) - 8
+    y = height - 17
     # render
-    console.print(x, y, string="N - New Game\n\nL - Load Game\n\nQ - Quit Game", fg=color.white)
+    console.draw_frame(x, y, width=17, height=9, clear=False, fg=color.title_gui_frame)
+    console.print(x+2, y+1, string="\nN - New Game\n\nL - Load Game\n\nQ - Quit Game\n", fg=color.white)
+
+    # Copyright Note, version mark
+    console.print(width - 32, height - 4, string="Copyright (C) 2020 by Haguk Kim", fg=color.white)
+    console.print(width - 24, height - 2, string="Geophyte Pre-Alpha v1.0", fg=color.white)
 
 
 def get_title_action(sec_per_frame):
@@ -100,22 +113,17 @@ def title_event_handler(console, context, cfg):
     Core function that handles most of the things related to the title screen.
     Title screen loop is handled here.
     """
-    # Set variables
-    title_gui_x = 5
-    title_gui_y = 50
+    title_animation_x = int(tcod.console_get_width(console) / 2) - 41
+    title_animation_y = 15
 
-    title_animation_x = 28
-    title_animation_y = 10
-
-    sec_per_frame = 1
-    prev_frame = time.time()
-
-    max_frame = 4
+    sec_per_frame = 0.2
+    max_frame = 8
 
     # Render Title Screen for the first time
-    render_title_gui(console=console, context=context, x=title_gui_x, y=title_gui_y)
+    render_img(console=console, dest_x = 5, dest_y = 5, img=tcod.image_load("resources\\title_img.png"))
+    render_title_gui(console=console)
     animation_frame = 1
-    render_title_animation(console=console, context=context, x=title_animation_x, y=title_animation_y, frame=animation_frame)
+    render_title_animation(console=console, x=title_animation_x, y=title_animation_y, frame=animation_frame)
 
     # Present to console
     context.present(console, keep_aspect=True)
@@ -126,8 +134,7 @@ def title_event_handler(console, context, cfg):
         title_action = get_title_action(sec_per_frame=sec_per_frame)
     
         # Render Title GUI
-        render_title_gui(console=console, context=context, x=title_gui_x, y=title_gui_y)
-        time_increment = time.time()
+        render_title_gui(console=console)
 
         # Add frame
         if animation_frame >= max_frame:
@@ -135,7 +142,7 @@ def title_event_handler(console, context, cfg):
         else:
             animation_frame += 1
 
-        render_title_animation(console=console, context=context, x=title_animation_x, y=title_animation_y, frame=animation_frame)
+        render_title_animation(console=console, x=title_animation_x, y=title_animation_y, frame=animation_frame)
 
         # Present to console
         context.present(console, keep_aspect=True)

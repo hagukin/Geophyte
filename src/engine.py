@@ -17,7 +17,7 @@ from actions import BumpAction, DescendAction, AscendAction, PickupAction
 from procgen import generate_dungeon
 from input_handlers import MainGameEventHandler
 from message_log import MessageLog
-from render_functions import (
+from render import (
     render_character_name,
     render_gameinfo,
     render_health_bar,

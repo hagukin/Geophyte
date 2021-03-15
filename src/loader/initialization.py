@@ -18,7 +18,7 @@ def get_game_config():
     camera_xpos = 1 # top-left (0,0)
     camera_ypos = 1
 
-    tileset_path = "sources\\Cheepicus-8x8x2.png"
+    tileset_path = "resources\\Cheepicus-8x8x2.png"
 
     world_depth = 25 # Total dungeon depth
 
