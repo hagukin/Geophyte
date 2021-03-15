@@ -1678,7 +1678,7 @@ class MainGameEventHandler(EventHandler):
                 self.engine.message_log.add_message(f"Screenshot saved as {pic_name}.png", color.needs_target)
             elif key == tcod.event.K_F11:#TODO DEBUG
                 from actions import ExplodeAction
-                ExplodeAction(self.engine.player, False, True, radius=3, expl_dmg=50, cause_fire=5).perform()
+                ExplodeAction(self.engine.player, False, True, radius=50, expl_dmg=50, cause_fire=5).perform()
             elif key == tcod.event.K_F10:#TODO DEBUG
                 for actor in self.engine.game_map.actors:
                     if actor.ai:

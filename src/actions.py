@@ -2,13 +2,13 @@ from __future__ import annotations
 
 from typing import Optional, Tuple, List, TYPE_CHECKING
 
-import copy
 import math
 import color
 import exceptions
 import random
 import anim_graphics
-from util import draw_circle, get_distance
+from util import get_distance
+from explosion import calc_explosion
 
 if TYPE_CHECKING:
     from engine import Engine
@@ -411,7 +411,7 @@ class RadiusAction(Action):
         return self.engine.game_map.get_actor_at_location(x, y)
 
     def get_tiles(self, radius: int, penetrate_wall: bool, only_in_sight: bool) -> List[int]:
-        self.tiles = draw_circle(self.engine, self.entity.x, self.entity.y, radius, fat_circles=True, penetrate_wall=penetrate_wall, only_in_sight=only_in_sight)
+        self.tiles = calc_explosion(self.engine, self.entity.x, self.entity.y, radius, fat_circles=True, penetrate_wall=penetrate_wall, only_in_sight=only_in_sight)
 
     def get_target_actors(self) -> None:
         for xy in self.tiles:
