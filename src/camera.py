@@ -101,7 +101,7 @@ class Camera:
         # Render visual objects
         i = 0
         tmp_len = len(self.visuals)
-        while (i < tmp_len):
+        for i in range(tmp_len):
             curr = self.visuals.pop()
 
             if self.xpos <= curr.x < self.xpos + self.width and self.ypos <= curr.y < self.ypos + self.height:
@@ -115,10 +115,8 @@ class Camera:
             
             curr.lifetime -= 1
             if curr.lifetime > 0:
-                self.visuals.append(curr) # TODO: Maybe find a better solution?
+                self.visuals.append(curr)
             i += 1
-
-            console.print(x=10,y=10,string="$",fg=(255,255,255),bg=None)###DEBUG
 
         # Draw frame around the camera
         if draw_frame:

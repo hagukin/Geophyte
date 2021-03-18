@@ -1517,6 +1517,7 @@
           camera에 visuals 추가, visual.py추가 (Visual 오브젝트 추가)
           > 시각적인 용도 이외 아무런 용도가 없는 객체들로, 맵상의 위치(절대좌표)와 lifetime을 가짐.
           > camera.render()에서 렌더링됨.
+          >> TODO: camera.render()에서 visual이 렌더링되자마자 바로 사라지는 문제 해결해야함. print되자마자 바로 refresh되는 듯함.
 
           engine.update_additional_vision() 제작
           > 이제 일반적인 시야 fov 업데이트 이외의 모든 시야 관련 효과는 여기서 처리됨.

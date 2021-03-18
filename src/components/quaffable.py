@@ -74,7 +74,7 @@ class PotionOfParalysisQuaffable(Quaffable):
             
         self.consume()
 
-class PotionOfTelepathyQuaffable(Quaffable):
+class PotionOfMonsterDetectionQuaffable(Quaffable):
     """The actor will gain a temporary ability to see far away actors that are on this level."""
     def __init__(self, turn: int):
         self.turn = turn

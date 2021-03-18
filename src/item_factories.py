@@ -65,13 +65,13 @@ temp_items_lists.append(potion_of_paralysis)
 item_rarity.append(potion_of_paralysis.rarity)
 
 
-### Potion of telepathy
-potion_of_telepathy = Item(
+### Potion of mosnter detection
+potion_of_monster_detection = Item(
     should_randomize=True,
     char="!",
     fg=(255, 0, 255),
-    name="Potion of telepathy",
-    entity_id="potion_of_telepathy",
+    name="Potion of monster detection",
+    entity_id="potion_of_monster_detection",
     entity_desc="Potion of telepathy desc",
     rarity=6,
     weight=0.2,
@@ -85,10 +85,10 @@ potion_of_telepathy = Item(
     stackable=True,
     throwable=throwable.NormalThrowable(break_chance=1),
     readable=None,
-    quaffable=quaffable.PotionOfTelepathyQuaffable(turn=20),
+    quaffable=quaffable.PotionOfMonsterDetectionQuaffable(turn=20),
 )
-temp_items_lists.append(potion_of_telepathy)
-item_rarity.append(potion_of_telepathy.rarity)
+temp_items_lists.append(potion_of_monster_detection)
+item_rarity.append(potion_of_monster_detection.rarity)
 
 
 #########################################################################
