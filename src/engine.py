@@ -387,25 +387,42 @@ class Engine:
             self.prev_actors_in_sight = copy.copy(self.actors_in_sight)
             self.prev_items_in_sight = copy.copy(self.items_in_sight)
 
-    def detect_entities(self, actor: Actor) -> None:
+    def apply_telepathy(self, actor: Actor, target: Actor, visible: np.ndarray) -> None:
+        """
+        Check if the actor can see(using telepathy) certain target.
+        If it can, make the tile visible.
+        """
+        # Make actor type entities visible
         if actor == self.player:
-            explored = self.game_map.explored
-            visible = self.game_map.visible
-        elif actor.ai:
-            visible = actor.ai.vision
-        else:
-            print("ACTOR_STATE - ACTOR_DETECTING : THE ACTOR HAS NO AI / VISION")
-            return
+            from util import get_distance
+            from visual import Visual
 
+            # telepathy distance is affected by actor's intelligence. Max 8
+            if not visible[target.x, target.y] and get_distance(actor.x, actor.y, target.x, target.y) < max(actor.status.changed_status["intelligence"] * 0.6, 15):
+                # different colors depending on the ai's hostility
+                tele_color = color.white
+                if target.ai:
+                    if target.ai.check_if_enemy(actor):
+                        tele_color = color.red
+                
+                self.camera.visuals.append(Visual(target.x, target.y, char='?', fg=tele_color, bg=None, lifetime=1))
+        else:
+            pass #TODO Make ai able to have telepathy
+
+    def detect_entities(self, actor: Actor, visible: np.ndarray, explored: Optional[np.ndarray]=None) -> None:
         # Make certain types of entities visible
         for entity in self.game_map.typed_entities(actor.actor_state.is_detecting_obj[2]):
             visible[entity.x, entity.y] = True
 
-        if actor == self.player:
+        # If the actor has explored vision, update it too
+        if explored:
             explored |= visible
 
     def update_fov(self) -> None:
-        """Recompute the visible area based on the players point of view."""
+        """
+        Recompute the visible area based on the players point of view.
+        + apply telepathy
+        """
         temp_vision = copy.copy(self.game_map.tiles["transparent"])
 
         for entity in self.game_map.entities:
@@ -420,10 +437,32 @@ class Engine:
 
         # If a tile is "visible" it should be added to "explored".
         self.game_map.explored |= self.game_map.visible
+    
+        # Update additional vision effects
+        self.update_additional_vision(actor=self.player)
 
-        # Check if player is detecting something
-        if self.player.actor_state.is_detecting_obj[2]:
-            self.detect_entities(self.player)
+    def update_additional_vision(self, actor: Actor) -> None:
+        if actor == self.player:
+            explored = self.game_map.explored
+            visible = self.game_map.visible
+        elif actor.ai:
+            explored = None
+            visible = actor.ai.vision
+        else:
+            print("ACTOR_STATE - ACTOR_DETECTING : THE ACTOR HAS NO AI / VISION")
+            return
+        
+        # Entity detection
+        if actor.actor_state.is_detecting_obj[2]:
+            if explored != None:
+                self.detect_entities(self.player, vision=visible, explored=explored)
+            else:
+                self.detect_entities(self.player, vision=visible)
+        
+        # Telepathy
+        if actor.actor_state.has_telepathy:
+            for target in set(self.game_map.actors):
+                self.apply_telepathy(actor, target, visible=visible)
 
     def update_enemy_fov(self, is_initialization: bool=False) -> None:
         """
@@ -436,8 +475,9 @@ class Engine:
                 if actor.ai:
                     actor.ai.init_vision()
 
-            ## The game will not update every actor's vision every turn due to performance issues
+            ## The game will not update every actor's vision/additional vision every turn due to performance issues
             # actor.ai.update_vision()
+            # self.update_additional_vision(actor=actor)
 
     def set_player_path(self, dest_x: int, dest_y: int, ignore_unexplored: bool=True, ignore_dangerous_tiles: bool=True, ignore_blocking_entities: bool=True, ignore_semiactors: bool=True) -> None:
         """

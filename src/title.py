@@ -48,7 +48,7 @@ def render_title_animation(console, x, y, frame):
         graphic1 = f.read()
     with open(f"resources\\f{g2frame[frame-1]}.txt", "r") as f:
         graphic2 = f.read()
-    torch = " \' \n\\-/\n\\ /\n # \n # \n # \n # \n # \n # \n # "
+    torch = " \' \n\\-/\n\\#/\n # \n # \n # \n # \n # \n # \n # "
     
     flame_color = (255, random.randint(100,255), 0)
 

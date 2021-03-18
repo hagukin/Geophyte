@@ -1,6 +1,11 @@
 from engine import Engine
+from typing import List
+
 import tile_types
 import numpy as np
+import visual
+import color
+from collections import deque
 
 class Camera:
     """
@@ -39,6 +44,7 @@ class Camera:
         self.display_x = display_x
         self.display_y = display_y
         self.show_all = show_all # TODO : Add feature and make it work properly with magic mapping
+        self.visuals =  deque() # List of visual objects that are going to be rendered this turn.
 
     @property
     def biggest_x(self):
@@ -80,16 +86,43 @@ class Camera:
             default=tile_types.SHROUD,
         )[self.xpos : self.xpos+self.width, self.ypos : self.ypos+self.height]
 
+        # Render entities
         for entity in self.engine.game_map.entities:
             if self.xpos <= entity.x < self.xpos + self.width and self.ypos <= entity.y < self.ypos + self.height:
                 if self.engine.game_map.visible[entity.x, entity.y]:
                     console.print(
-                        x=entity.x - self.xpos + self.display_x, y=entity.y - self.ypos + self.display_y, string=entity.char, fg=entity.fg, bg=entity.bg,
+                        x=entity.x - self.xpos + self.display_x, 
+                        y=entity.y - self.ypos + self.display_y, 
+                        string=entity.char, 
+                        fg=entity.fg, 
+                        bg=entity.bg,
                     )
+
+        # Render visual objects
+        i = 0
+        tmp_len = len(self.visuals)
+        while (i < tmp_len):
+            curr = self.visuals.pop()
+
+            if self.xpos <= curr.x < self.xpos + self.width and self.ypos <= curr.y < self.ypos + self.height:
+                console.print(
+                    x=curr.x - self.xpos + self.display_x, 
+                    y=curr.y - self.ypos + self.display_y, 
+                    string=curr.char, 
+                    fg=curr.fg, 
+                    bg=curr.bg,
+                )
+            
+            curr.lifetime -= 1
+            if curr.lifetime > 0:
+                self.visuals.append(curr) # TODO: Maybe find a better solution?
+            i += 1
+
+            console.print(x=10,y=10,string="$",fg=(255,255,255),bg=None)###DEBUG
 
         # Draw frame around the camera
         if draw_frame:
-            console.draw_frame(x=self.display_x-1, y=self.display_y-1, width=self.width+2, height=self.height+2, clear=False, fg=(255,255,255))
+            console.draw_frame(x=self.display_x-1, y=self.display_y-1, width=self.width+2, height=self.height+2, clear=False, fg=color.white)
 
     def get_relative_coordinate(self, *, abs_x: int=None, abs_y: int=None) -> int:
         """

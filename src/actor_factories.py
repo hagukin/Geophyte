@@ -6,7 +6,7 @@ from components.inventory import Inventory
 from components.ability_inventory import AbilityInventory
 from components.equipments import Equipments
 from components.actor_state import ActorState
-from components.edible import RawMeatEdible
+from components.edible import RawMeatEdible, FireAntEdible, VoltAntEdible, FloatingEyeEdible
 from entity import Actor
 from order import RenderOrder
 
@@ -58,6 +58,7 @@ player = Actor(
         heal_wounds=True,
         size=4,
         weight=70,
+        has_telepathy=True,##TEST DEBUG TODO
     ),
     inventory=Inventory(capacity=52, is_fireproof=False),
     ability_inventory=AbilityInventory(capacity=10),
@@ -131,12 +132,12 @@ ant = Actor(
     entity_id="ant",
     entity_desc="\
         Some ants are slightly less affected by the dark energy emerging from the dungeon.\n\
-        However, these ants are still much larger than typical ants, scaling about the size of a human finger.\n\
+        However these ants are still much larger than typical ants, scaling about the size of a human finger.\n\
         Their bites can be irritating but hardly does any damage.\
         ",
     rarity=9,
     spawnable=True,
-    edible=RawMeatEdible(nutrition=20),
+    edible=RawMeatEdible(nutrition=5),
     ai_cls=ai_factories.ant_ai,
     status=Status(
         hp=4,
@@ -182,11 +183,11 @@ fire_ant = Actor(
     entity_desc="\
         Fire ants are about the size of a human fist.\n\
         While they are not as large as some other massive creatures in the dungeon,\n\
-        they have a unique ability that lets them start a small flame from their jaw.\
+        they have a unique ability that let them start a small flame from their jaw.\
         ",
     rarity=5,
     spawnable=True,
-    edible=RawMeatEdible(nutrition=20),#TODO
+    edible=FireAntEdible(nutrition=10, cook_bonus=5),
     ai_cls=ai_factories.fire_ant_ai,
     status=Status(
         hp=25,
@@ -231,16 +232,16 @@ volt_ant = Actor(
     entity_id="volt_ant",
     entity_desc="\
         Volt ants are about the size of a human fist.\n\
-        Their body is surrounded by a light electrical spark, which helps them to protect themselves from other creatures.\
+        Their body is surrounded by a weak electrical spark, which helps them to protect themselves from other creatures.\
         ",
-    rarity=99,##DEBUG
+    rarity=5,
     spawnable=True,
-    edible=RawMeatEdible(nutrition=20),#TODO
+    edible=VoltAntEdible(nutrition=10, cook_bonus=5),
     ai_cls=ai_factories.volt_ant_ai,
     status=Status(
         hp=25,
         mp=2,
-        strength=150,####DEBUG TODO
+        strength=6,
         dexterity=8,
         agility=12,
         intelligence=5,
@@ -284,12 +285,12 @@ bat = Actor(
     entity_id="bat",
     entity_desc="\
         Bats are very maneuvrable when they are flying.\n\
-        Their odd resemblance with both birds and rats makes them hated among many humans.\n\
-        Ironically, most bats are relatively harmless creatures, and they are not much of a threat.\
+        Their odd resemblance with both birds and rats makes them a hated creatures among many humans.\n\
+        However, a regular bats are relatively harmless, and are not much of a threat.\
         ",
     rarity=5,
     spawnable=True,
-    edible=RawMeatEdible(nutrition=70),
+    edible=RawMeatEdible(nutrition=13, cook_bonus=8),
     ai_cls=ai_factories.bat_ai,
     status=Status(
         hp=14,
@@ -314,18 +315,19 @@ bat = Actor(
         can_talk=False,
         has_left_arm=False,
         has_right_arm=False,
+        has_wing=True,
         has_leg=True,
         has_eye=True,
         has_torso=False,
         has_blood=True,
         has_soul=True,
+        can_move_on_surface=False,
     ),
-    inventory=Inventory(capacity=5),
-    ability_inventory=AbilityInventory(capacity=5),
+    inventory=Inventory(capacity=1),
+    ability_inventory=AbilityInventory(capacity=1),
     equipments=Equipments(),
 )
 monster_difficulty[bat.status.difficulty].append(bat)
-
 
 
 ####################################################
@@ -341,11 +343,11 @@ kitten = Actor(
     entity_desc="\
         Creatures in the dungeon see kittens in two different ways.\n\
         One sees them as an adorable little animal,\n\
-        while the other sees them no more than a delicious snack.\n\
+        while the other sees them no more than a delicious chunk of meat.\n\
         ",
     rarity=5,
     spawnable=True,
-    edible=RawMeatEdible(nutrition=180),
+    edible=RawMeatEdible(nutrition=36, cook_bonus=9),
     ai_cls=ai_factories.kitten_ai,
     status=Status(
         hp=32,
@@ -365,7 +367,7 @@ kitten = Actor(
     actor_state=ActorState(
         size=2,
         weight=3,
-        can_swim=False, # 아기고양이는 수영 못함
+        can_swim=False,# NOTE: baby cats cannot swim
         can_talk=False,
         has_left_arm=False,
         has_right_arm=False,
@@ -375,8 +377,8 @@ kitten = Actor(
         has_blood=True,
         has_soul=True,
     ),
-    inventory=Inventory(capacity=5),
-    ability_inventory=AbilityInventory(capacity=5),
+    inventory=Inventory(capacity=2),
+    ability_inventory=AbilityInventory(capacity=1),
     equipments=Equipments(),
 )
 monster_difficulty[kitten.status.difficulty].append(kitten)
@@ -390,12 +392,12 @@ cat = Actor(
     entity_id="cat",
     entity_desc="\
         Cats are lazy, mysterious, natural-born hunters.\n\
-        They are incredibly flexible, have very sensitive eyesight, and pretty much eat anything, which makes them ideal for a friendly pet.\n\
-        Some believe that cats have spiritual forces and can manipulate one's dream, but nothing is yet to be confirmed.\n\
+        They are incredibly flexible, have very sensitive eyesight, and eat pretty much anything, which makes them ideal for a friendly pet.\n\
+        Some believe that cats possess spiritual forces and can manipulate one's dream, but nothing is yet to be confirmed.\n\
         ",
     rarity=8,
     spawnable=True,
-    edible=RawMeatEdible(nutrition=300),
+    edible=RawMeatEdible(nutrition=50, cook_bonus=30),
     ai_cls=ai_factories.cat_ai,
     status=Status(
         hp=48,
@@ -426,7 +428,7 @@ cat = Actor(
         has_soul=True,
     ),
     inventory=Inventory(capacity=5),
-    ability_inventory=AbilityInventory(capacity=5),
+    ability_inventory=AbilityInventory(capacity=2),
     equipments=Equipments(),
 )
 monster_difficulty[cat.status.difficulty].append(cat)
@@ -444,7 +446,7 @@ large_cat = Actor(
         ",
     rarity=3,
     spawnable=True,
-    edible=RawMeatEdible(nutrition=500),
+    edible=RawMeatEdible(nutrition=110, cook_bonus=35),
     ai_cls=ai_factories.large_cat_ai,
     status=Status(
         hp=55,
@@ -474,8 +476,8 @@ large_cat = Actor(
         has_blood=True,
         has_soul=True,
     ),
-    inventory=Inventory(capacity=5),
-    ability_inventory=AbilityInventory(capacity=5),
+    inventory=Inventory(capacity=10),
+    ability_inventory=AbilityInventory(capacity=3),
     equipments=Equipments(),
 )
 monster_difficulty[large_cat.status.difficulty].append(large_cat)
@@ -493,12 +495,12 @@ puppy = Actor(
     name="Puppy",
     entity_id="puppy",
     entity_desc="\
-        TODO\n\
+        Puppies are sparkly and curious beings.\n\
+        While they are much weaker than the adults, they are definitely more energetic.\
         ",
-    #TODO fix desc
     rarity=3,
     spawnable=True,
-    edible=RawMeatEdible(nutrition=300),
+    edible=RawMeatEdible(nutrition=45, cook_bonus=10),
     ai_cls=ai_factories.puppy_ai,
     status=Status(
         hp=34,
@@ -528,8 +530,8 @@ puppy = Actor(
         has_blood=True,
         has_soul=True,
     ),
-    inventory=Inventory(capacity=5),
-    ability_inventory=AbilityInventory(capacity=2),
+    inventory=Inventory(capacity=2),
+    ability_inventory=AbilityInventory(capacity=1),
     equipments=Equipments(),
 )
 monster_difficulty[puppy.status.difficulty].append(puppy)
@@ -542,13 +544,12 @@ dog = Actor(
     name="Dog",
     entity_id="dog",
     entity_desc="\
-        Men's best friend.\n\
-        What more do you need?\n\
+        Men's best friend.\
         ",
     #TODO fix desc
     rarity=8,
     spawnable=True,
-    edible=RawMeatEdible(nutrition=300),
+    edible=RawMeatEdible(nutrition=80, cook_bonus=20),
     ai_cls=ai_factories.dog_ai,
     status=Status(
         hp=50,
@@ -579,7 +580,7 @@ dog = Actor(
         has_soul=True,
     ),
     inventory=Inventory(capacity=5),
-    ability_inventory=AbilityInventory(capacity=2),
+    ability_inventory=AbilityInventory(capacity=1),
     equipments=Equipments(),
 )
 monster_difficulty[dog.status.difficulty].append(dog)
@@ -592,12 +593,12 @@ large_dog = Actor(
     name="Large Dog",
     entity_id="large_dog",
     entity_desc="\
-        TODO\n\
+        Men's best friend.\n\
+        ...Unless you angered it.\n\
         ",
-    #TODO fix desc
     rarity=3,
     spawnable=True,
-    edible=RawMeatEdible(nutrition=300),
+    edible=RawMeatEdible(nutrition=120, cook_bonus=30),
     ai_cls=ai_factories.large_dog_ai,
     status=Status(
         hp=70,
@@ -627,7 +628,7 @@ large_dog = Actor(
         has_blood=True,
         has_soul=True,
     ),
-    inventory=Inventory(capacity=5),
+    inventory=Inventory(capacity=15),
     ability_inventory=AbilityInventory(capacity=2),
     equipments=Equipments(),
 )
@@ -652,7 +653,7 @@ floating_eye = Actor(
         ",
     rarity=4,
     spawnable=True,
-    edible=RawMeatEdible(nutrition=500), #TODO
+    edible=FloatingEyeEdible(nutrition=20),#cannot be cooked
     ai_cls=ai_factories.floating_eye_ai,
     status=Status(
         hp=50,

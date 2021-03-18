@@ -11,13 +11,13 @@ if TYPE_CHECKING:
 
 class Edible(BaseComponent):
     parent: Item
-    def __init__(self, nutrition: int, spoilage: int, is_cooked: bool, spoil_speed:int=1):
+    def __init__(self, nutrition: int, spoilage: int=0, is_cooked: bool=False, can_cook: bool=False, spoil_speed:int=1, cook_bonus: int = 0):
         """
         Args:
             nutrition:
-                nutrition ≈ 5 kcal.
+                1 nutrition ≈ 5 kcal.
             spoil_speed:
-                speed of this food rotting.
+                speed of this food rotting. higher number -> faster rotting
             spoilage:
                 int(range from [-1, 3]). higher the number is, the worse the food's condition is.
                 negative value indicates that the food will never go bad.
@@ -28,7 +28,9 @@ class Edible(BaseComponent):
                 higher: rotted out (the food is gone)
         """
         self._nutrition = nutrition
+        self.cook_bonus= cook_bonus
         self.spoil_speed = spoil_speed
+        self.can_cook = can_cook
 
         # Values that need manual copying when copying the component
         self.time_after_spawned = 0 # passed time after the food(or the corpse) was generated on the dungeon. (NOTE: This DOES NOT indicate the turn passed. This is a relative value.)
@@ -72,6 +74,13 @@ class Edible(BaseComponent):
     def get_action(self, consumer: Actor) -> Optional[actions.Action]:
         """Try to return the action for this item."""
         return actions.EatItem(consumer, self.parent)
+
+    def cook(self):
+        if self.can_cook:
+            self.is_cooked = True
+            self._nutrition += self.cook_bonus
+        else:
+            return None
 
     def gain_nutrition(self, action: actions.EatItem):
         """
@@ -146,7 +155,27 @@ class Edible(BaseComponent):
                 target=action.entity,
             )
 
-        self.consume()
+    def effect_cooked(self, action: actions.EatItem):
+        pass
+
+    def effect_uncooked(self, action: actions.EatItem):
+        pass
+
+    def effect_always(self, action: actions.EatItem):
+        pass
+
+    def apply_effect(self, action: actions.EatItem):
+        if self.is_cooked:
+            self.effect_cooked(action)
+        else:
+            self.effect_uncooked(action)
+        self.effect_always(action)
+
+    def consume(self) -> None:
+        """Remove the consumed item from its containing inventory."""
+        # fully identify used instance, and semi-identify the same item types.
+        self.parent.item_state.identify_self(identify_level=2)
+        self.parent.remove_self()
 
     def activate(self, action: actions.EatItem) -> None:
         """
@@ -154,13 +183,8 @@ class Edible(BaseComponent):
         `action` is the context for this activation.
         """
         self.gain_nutrition(action=action)
-        raise NotImplementedError()
-
-    def consume(self) -> None:
-        """Remove the consumed item from its containing inventory."""
-        # fully identify used instance, and semi-identify the same item types.
-        self.parent.item_state.identify_self(identify_level=2)
-        self.parent.remove_self()
+        self.apply_effect(action=action)
+        self.consume()
 
 
 class RawMeatEdible(Edible):
@@ -170,14 +194,45 @@ class RawMeatEdible(Edible):
     The consumer gains nutritions.
     Meat rots faster. (spoil_speed set to 3)
     """
-    def __init__(self, nutrition: int, spoilage: int=0, is_cooked: bool=False, spoil_speed: int=3):
-        super().__init__(
-            nutrition,
-            spoilage,
-            is_cooked,
-            spoil_speed,
-            )
+    def __init__(self, nutrition: int, spoilage: int=0, is_cooked: bool=False, can_cook: bool=True, spoil_speed: int=3, cook_bonus:int = None):
+        super().__init__(nutrition,spoilage,is_cooked,can_cook,spoil_speed,cook_bonus)
 
-    def activate(self, action: actions.QuaffItem) -> None:
-        self.gain_nutrition(action=action)
+
+
+
+####################################################
+###################### a - ants  ###################
+####################################################
+
+class FireAntEdible(RawMeatEdible):
+    def effect_uncooked(self, action: actions.EatItem):
+        consumer = action.entity
+        # Log
+        if consumer == self.engine.player:
+            self.engine.message_log.add_message(f"You feel an mildly hot sensation in your mouth.", color.white)
+        return super().effect_cooked()
+
+
+class VoltAntEdible(RawMeatEdible):
+    def effect_uncooked(self, action: actions.EatItem):
+        consumer = action.entity
+        # Log
+        if consumer == self.engine.player:
+            self.engine.message_log.add_message(f"Your tongue tingles.", color.white)
+        return super().effect_cooked()
+
+
+####################################################
+################  e - eyes & brains  ###############
+####################################################
+
+class FloatingEyeEdible(Edible):
+    def effect_always(self, action: actions.EatItem):
+        consumer = action.entity
+        consumer.actor_state.has_telepathy = True # Gain telepathy
+        # Log
+        if consumer == self.engine.player:
+            self.engine.message_log.add_message(f"You feel the connection between you and this world.", color.status_effect_applied)
+        return super().effect_always(action)
+    
 

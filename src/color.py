@@ -15,7 +15,7 @@ water_blue = (0x16, 0xA8, 0xD8)
 purple = (0x9c, 0x00, 0x8c)
 
 logo_c1 = green
-title_gui_frame = (0x0a, 0x70, 0x00)
+title_gui_frame = brown
 
 player_atk = white
 player_crit = yellow

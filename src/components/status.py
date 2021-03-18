@@ -349,8 +349,6 @@ class Status(BaseComponent):
                 if None, the damage is considered pure type, and nothing will happen.
                 "magic" only applies to pure magic attacks. For example fire ray magic is considered "fire".
 
-                
-
             penetration_constant:
                 When additional values should be passed use this.
                 E.g. When calculating physical type damages, attacker's strength is passed to penetration_constant.

@@ -118,7 +118,8 @@ class ActorState(BaseComponent):
         # Value: [Current turn, Max lasting turn]
         is_hallucinating: list = [0, 0],
         # Actor can detect things that are out of sight
-        # Value: [Current turn, Max lasting turn, tuple with strings: object type]
+        # Value: [Current turn, Max lasting turn, List with strings: object type]
+        # NOTE: Detection != telepathy
         is_detecting_obj: list = [0, 0, None],
 
         ### Spatial states
@@ -139,6 +140,7 @@ class ActorState(BaseComponent):
         has_left_arm: bool = True,
         has_right_arm: bool = True,
         has_leg: bool = True, # has one or more leg
+        has_wing: bool = False, # NOTE: Warning) If creature has wing and can fly, it is interpreted as the creature cannot fly without its wings.
         has_eye: bool = True, # has one or more eye (A sensor that can work as an eye is also considered an eye)
         has_torso: bool = True, # has torso (Arms are unnecessary)
         has_blood: bool = True, # has blood
@@ -149,8 +151,9 @@ class ActorState(BaseComponent):
         can_swim: bool = False,
         can_breathe_underwater: bool = False,
         can_fly: bool = False,
-        can_move_on_surface: bool = True, # including walking, crawling, etc. (basically if you can move on surface, set to True)
+        can_move_on_surface: bool = True, # including walking, crawling, etc. NOTE: This does not include flying, levitating, etc. #TODO make fly-only creatures unable to move without its flying ability
         has_immortality: bool = False,
+        has_telepathy: bool = False,
         can_revive_self: bool = False, # can revive after actor dies
 
         ### Mental capabilities
@@ -203,6 +206,7 @@ class ActorState(BaseComponent):
         self.has_left_arm = has_right_arm
         self.has_right_arm = has_left_arm
         self.has_leg = has_leg
+        self.has_wing = has_wing
         self.has_eye = has_eye
         self.has_torso = has_torso
         self.has_blood = has_blood
@@ -215,6 +219,7 @@ class ActorState(BaseComponent):
         self.can_move_on_surface = can_move_on_surface
 
         self.has_immortality = has_immortality
+        self.has_telepathy = has_telepathy
         self.can_revive_self = can_revive_self
 
         self.can_think = can_think
@@ -317,7 +322,7 @@ class ActorState(BaseComponent):
                     self.is_burning[2] += 1 # current turn += 1
 
                 # Calculate dmg for current turn
-                fire_dmg = self.is_burning[0] + self.is_burning[1] * (self.is_burning[2] - 1)
+                fire_dmg = max(self.is_burning[0] + self.is_burning[1] * (self.is_burning[2] - 1), 0)
 
                 # Damage reduction
                 fire_dmg = self.parent.status.calculate_dmg_reduction(damage=fire_dmg, damage_type="fire")
@@ -691,8 +696,10 @@ class ActorState(BaseComponent):
             return None
 
     def actor_detecting(self):
-        """Make player detect(see) certain types of entities regardless of sight range."""
-
+        """
+        Make player detect(see) certain types of entities regardless of sight range.
+        Actual detection calculation occurs during update_fov()
+        """
         # Check turns
         if self.is_detecting_obj[0] >= self.is_detecting_obj[1]:
             if self.parent == self.engine.player:

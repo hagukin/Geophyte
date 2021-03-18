@@ -60,7 +60,7 @@ class GameMap:
                 return True
         return False
     
-    def typed_entities(self, types: Tuple(str)) -> Iterator[Entity]:
+    def typed_entities(self, types: List(str)) -> Iterator[Entity]:
         """Iterate over this maps entities of given types."""
         yield from (
             entity
