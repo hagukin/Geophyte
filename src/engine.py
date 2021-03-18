@@ -415,7 +415,7 @@ class Engine:
             visible[entity.x, entity.y] = True
 
         # If the actor has explored vision, update it too
-        if explored:
+        if isinstance(explored, np.ndarray):
             explored |= visible
 
     def update_fov(self) -> None:
@@ -454,10 +454,10 @@ class Engine:
         
         # Entity detection
         if actor.actor_state.is_detecting_obj[2]:
-            if explored != None:
-                self.detect_entities(self.player, vision=visible, explored=explored)
+            if isinstance(explored, np.ndarray):
+                self.detect_entities(self.player, visible=visible, explored=explored)
             else:
-                self.detect_entities(self.player, vision=visible)
+                self.detect_entities(self.player, visible=visible)
         
         # Telepathy
         if actor.actor_state.has_telepathy:
