@@ -703,7 +703,6 @@ class Engine:
 
         render_character_state(console=console, x=gui_x, y=gui_y + 14, height=10, character=self.player, draw_frame=True)
 
-
     def render_visible_entities(self, console: Console, gui_x: int, gui_y: int, height: int, draw_frame: bool=False) -> None:
         x = gui_x
         num = gui_y

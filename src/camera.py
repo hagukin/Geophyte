@@ -45,6 +45,7 @@ class Camera:
         self.display_y = display_y
         self.show_all = show_all # TODO : Add feature and make it work properly with magic mapping
         self.visuals =  deque() # List of visual objects that are going to be rendered this turn.
+        self.prev_gameturn = self.engine.game_turn # Keeps track of game turn to determine whether the camera should decrease the lifetime of the visual objects or not.
 
     @property
     def biggest_x(self):
@@ -99,24 +100,24 @@ class Camera:
                     )
 
         # Render visual objects
-        i = 0
         tmp_len = len(self.visuals)
-        for i in range(tmp_len):
+        for _ in range(tmp_len):
             curr = self.visuals.pop()
 
             if self.xpos <= curr.x < self.xpos + self.width and self.ypos <= curr.y < self.ypos + self.height:
                 console.print(
-                    x=curr.x - self.xpos + self.display_x, 
-                    y=curr.y - self.ypos + self.display_y, 
+                    x=curr.x - self.xpos + self.display_x,
+                    y=curr.y - self.ypos + self.display_y,
                     string=curr.char, 
                     fg=curr.fg, 
                     bg=curr.bg,
                 )
             
-            curr.lifetime -= 1
+            if (self.engine.game_turn > self.prev_gameturn):
+                curr.lifetime -= 1
             if curr.lifetime > 0:
                 self.visuals.append(curr)
-            i += 1
+        self.prev_gameturn = self.engine.game_turn
 
         # Draw frame around the camera
         if draw_frame:

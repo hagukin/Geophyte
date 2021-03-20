@@ -37,17 +37,15 @@ def main() -> None:
         engine.adjustments_before_new_map()
 
         # Main Game Loop
+        t = 0
         while True:
+            t += 1
+            print(t, engine.game_turn)
             try:
                 if engine.player_path or engine.player_dir:
                     turn_pass = engine.do_player_queue_actions()
                     engine.game_map.sort_entities() # rearranging entities to prevent rendering issues
                     engine.handle_world(turn_pass=turn_pass)
-
-                    # Render game
-                    root_console.clear()
-                    engine.event_handler.on_render(console=root_console) #refreshing graphics for the root console
-                    context.present(root_console, keep_aspect=True)
                 else:
                     for event in tcod.event.wait(timeout=None):# set to None = wait indefinitly for any events
                         context.convert_event(event)
@@ -55,10 +53,10 @@ def main() -> None:
                         engine.game_map.sort_entities()
                         engine.handle_world(turn_pass=turn_pass)
 
-                        # Render game
-                        root_console.clear()
-                        engine.event_handler.on_render(console=root_console) #refreshing graphics for the root console
-                        context.present(root_console, keep_aspect=True)
+                # Render game
+                root_console.clear()
+                engine.event_handler.on_render(console=root_console) #refreshing graphics for the root console
+                context.present(root_console, keep_aspect=True)
 
                 ### WRITE DEBUG FUNCTIONS HERE ###
                 # print("DEBUG")

@@ -15,6 +15,7 @@ class Visual():
         Args:
             lifetime(int) :
                 game turn left until this visual objects deletes itself.
+                NOTE: The measurement isn't a gameloop, its a game turn. (player's action point spent)
         """
         self.x = x
         self.y = y
