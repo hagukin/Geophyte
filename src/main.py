@@ -37,10 +37,7 @@ def main() -> None:
         engine.adjustments_before_new_map()
 
         # Main Game Loop
-        t = 0
         while True:
-            t += 1
-            print(t, engine.game_turn)
             try:
                 if engine.player_path or engine.player_dir:
                     turn_pass = engine.do_player_queue_actions()

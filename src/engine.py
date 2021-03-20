@@ -402,8 +402,13 @@ class Engine:
                 # different colors depending on the ai's hostility
                 tele_color = color.white
                 if target.ai:
-                    if target.ai.check_if_enemy(actor):
-                        tele_color = color.red
+                    if target.ai.owner == actor:
+                        tele_color = color.green
+                    elif target.ai.check_if_enemy(actor):
+                        if target.ai.alignment == "neutral":
+                            tele_color = color.yellow
+                        else:
+                            tele_color = color.red
                 
                 self.camera.visuals.append(Visual(target.x, target.y, char='?', fg=tele_color, bg=None, lifetime=1))
         else:
@@ -437,7 +442,7 @@ class Engine:
 
         # If a tile is "visible" it should be added to "explored".
         self.game_map.explored |= self.game_map.visible
-    
+
         # Update additional vision effects
         self.update_additional_vision(actor=self.player)
 

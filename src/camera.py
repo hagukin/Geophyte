@@ -4,6 +4,7 @@ from typing import List
 import tile_types
 import numpy as np
 import visual
+import copy
 import color
 from collections import deque
 
@@ -45,7 +46,8 @@ class Camera:
         self.display_y = display_y
         self.show_all = show_all # TODO : Add feature and make it work properly with magic mapping
         self.visuals =  deque() # List of visual objects that are going to be rendered this turn.
-        self.prev_gameturn = self.engine.game_turn # Keeps track of game turn to determine whether the camera should decrease the lifetime of the visual objects or not.
+        self.prev_visuals = deque()
+        self.prev_gameturn = 1 # Keeps track of game turn to determine whether the camera should decrease the lifetime of the visual objects or not.
 
     @property
     def biggest_x(self):
@@ -73,21 +75,45 @@ class Camera:
         self.xpos = min(max(0, self.xpos), self.engine.game_map.width - self.width)
         self.ypos = min(max(0, self.ypos), self.engine.game_map.height - self.height)
 
-    def render(self, console, draw_frame=False) -> None:
+    def render_visuals(self, console) -> None:
         """
-        Renders the map.
+        Render visual objects.
 
-        If a tile is in the "visible" array, then draw it with the "light" colors.
-        If it isn't, but it's in the "explored" array, then draw it with the "dark" colors.
-        Otherwise, the default is "SHROUD".
+        NOTE: Visual objects can be rendered multiple times between one game turn and next game turn,
+        since multiple gameloops can exist between them.
         """
-        console.tiles_rgb[self.display_x : self.width + self.display_x , self.display_y : self.height + self.display_y] = np.select(
-            condlist=[self.engine.game_map.visible, self.engine.game_map.explored],
-            choicelist=[self.engine.game_map.tiles["light"], self.engine.game_map.tiles["dark"]],
-            default=tile_types.SHROUD,
-        )[self.xpos : self.xpos+self.width, self.ypos : self.ypos+self.height]
+        if self.engine.game_turn > self.prev_gameturn:
+            self.prev_visuals.clear()
+            tmp_len = len(self.visuals)
+            for _ in range(tmp_len):
+                curr = self.visuals.pop()
+                if self.xpos <= curr.x < self.xpos + self.width and self.ypos <= curr.y < self.ypos + self.height:
+                    console.print(
+                        x=curr.x - self.xpos + self.display_x,
+                        y=curr.y - self.ypos + self.display_y,
+                        string=curr.char, 
+                        fg=curr.fg, 
+                        bg=curr.bg,
+                    )
+                self.prev_visuals.append(curr)
+                curr.lifetime -= 1
+                if curr.lifetime > 0:
+                    self.visuals.append(curr)
+            
+            self.prev_gameturn = self.engine.game_turn
+        elif self.engine.game_turn == self.prev_gameturn:
+            for curr in self.prev_visuals:
+                if self.xpos <= curr.x < self.xpos + self.width and self.ypos <= curr.y < self.ypos + self.height:
+                    console.print(
+                        x=curr.x - self.xpos + self.display_x,
+                        y=curr.y - self.ypos + self.display_y,
+                        string=curr.char, 
+                        fg=curr.fg, 
+                        bg=curr.bg,
+                    )
 
-        # Render entities
+    def render_entities(self, console) -> None:
+       
         for entity in self.engine.game_map.entities:
             if self.xpos <= entity.x < self.xpos + self.width and self.ypos <= entity.y < self.ypos + self.height:
                 if self.engine.game_map.visible[entity.x, entity.y]:
@@ -99,25 +125,29 @@ class Camera:
                         bg=entity.bg,
                     )
 
-        # Render visual objects
-        tmp_len = len(self.visuals)
-        for _ in range(tmp_len):
-            curr = self.visuals.pop()
+    def render_tiles(self, console) -> None:
+        console.tiles_rgb[self.display_x : self.width + self.display_x , self.display_y : self.height + self.display_y] = np.select(
+            condlist=[self.engine.game_map.visible, self.engine.game_map.explored],
+            choicelist=[self.engine.game_map.tiles["light"], self.engine.game_map.tiles["dark"]],
+            default=tile_types.SHROUD,
+        )[self.xpos : self.xpos+self.width, self.ypos : self.ypos+self.height]
 
-            if self.xpos <= curr.x < self.xpos + self.width and self.ypos <= curr.y < self.ypos + self.height:
-                console.print(
-                    x=curr.x - self.xpos + self.display_x,
-                    y=curr.y - self.ypos + self.display_y,
-                    string=curr.char, 
-                    fg=curr.fg, 
-                    bg=curr.bg,
-                )
-            
-            if (self.engine.game_turn > self.prev_gameturn):
-                curr.lifetime -= 1
-            if curr.lifetime > 0:
-                self.visuals.append(curr)
-        self.prev_gameturn = self.engine.game_turn
+    def render(self, console, draw_frame=False) -> None:
+        """
+        Renders the map.
+
+        If a tile is in the "visible" array, then draw it with the "light" colors.
+        If it isn't, but it's in the "explored" array, then draw it with the "dark" colors.
+        Otherwise, the default is "SHROUD".
+        """
+        # Render tiles
+        self.render_tiles(console)
+
+        # Render entities
+        self.render_entities(console)
+        
+        # Render visual objects
+        self.render_visuals(console)
 
         # Draw frame around the camera
         if draw_frame:
