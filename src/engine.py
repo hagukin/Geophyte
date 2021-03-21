@@ -111,6 +111,7 @@ class Engine:
             self.handle_semiactor_turns()
             self.handle_actor_states()
             self.handle_item_states()
+            self.handle_semiactor_states()
             self.handle_gamemap_states()
             self.update_fov()
             self.update_enemy_fov()
@@ -151,6 +152,15 @@ class Engine:
                     item.item_state.burn(owner=entity)# NOTE: The fireproof checking of the inventory happens during the ignition of the fire. (at rule.py)
                 if item.edible:
                     item.edible.time_pass()
+
+    def handle_semiactor_states(self) -> None:
+        """
+        Handle things about items that should be updated every turn.
+        e.g. Rotting foods, burning items
+        """
+        for semiactor in set(self.game_map.semiactors):
+            if semiactor.semiactor_info.is_burning:
+                semiactor.semiactor_info.burn()
 
     def handle_actor_states(self) -> None:
         """

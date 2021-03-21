@@ -67,7 +67,7 @@ player = Actor(
         (item_factories.scroll_of_enchantment, 1, (1,5)), 
         (item_factories.scroll_of_identify, 1, (1,4)), 
         (item_factories.scroll_of_remove_curse, 1, (1,4)), 
-        (item_factories.scroll_of_magic_missile, 1, (1,4)),
+        (item_factories.scroll_of_piercing_flame, 1, (1,4)),
         (item_factories.scroll_of_tame, 1, (1,4)),
         (item_factories.scroll_of_meteor_storm, 1, (1,4)),
         (item_factories.potion_of_healing, 1, (1,4)),

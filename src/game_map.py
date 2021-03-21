@@ -119,16 +119,22 @@ class GameMap:
 
         return None
 
+    def get_all_actors_at_location(self, x: int, y: int) -> Optional[Actor]:
+        tmp = []
+        for actor in self.actors:
+            if actor.x == x and actor.y == y:
+                tmp.append(actor)
+        if len(tmp):
+            return tmp
+        return None
+
     def get_all_items_at_location(self, x: int, y: int) -> Optional[Item]:
         tmp = []
-
         for item in self.items:
             if item.x == x and item.y == y:
                 tmp.append(item)
-        
         if len(tmp):
             return tmp
-
         return None
 
     def get_item_at_location(self, x: int, y: int) -> Optional[Item]:
@@ -138,18 +144,27 @@ class GameMap:
 
         return None
 
-    def get_semiactor_at_location(self, x: int, y: int) -> Optional[Actor]:
+    def get_semiactor_at_location(self, x: int, y: int) -> Optional[SemiActor]:
         for semiactor in self.semiactors:
             if semiactor.x == x and semiactor.y == y:
                 return semiactor
 
         return None
 
-    def get_semiactor_with_bumpaction_at_location(self, x: int, y: int) -> Optional[Actor]:
+    def get_semiactor_with_bumpaction_at_location(self, x: int, y: int) -> Optional[SemiActor]:
         for semiactor in self.semiactors:
             if semiactor.x == x and semiactor.y == y and semiactor.bump_action:
                 return semiactor
         
+        return None
+
+    def get_all_semiactors_at_location(self, x: int, y: int) -> Optional[SemiActor]:
+        tmp = []
+        for semiactor in self.semiactors:
+            if semiactor.x == x and semiactor.y == y:
+                tmp.append(semiactor)
+        if len(tmp):
+            return tmp
         return None
 
     def in_bounds(self, x: int, y: int) -> bool:

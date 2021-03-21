@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import Optional, Tuple, List, TYPE_CHECKING
 
 import math
+import copy
 import color
 import exceptions
 import random
@@ -771,8 +772,9 @@ class DoorUnlockAction(ActionWithDirection):
                 # Unlock succeded
                 self.engine.message_log.add_message(f"{self.entity.name} has successfully unlocked the door with {item.name}!", color.white, target=self.entity)
 
+                tmp = semiactor_factories.closed_door.spawn(self.engine.game_map, dest_x, dest_y, -1)
+                semiactor_on_dir.semiactor_info.move_self_to(tmp)
                 semiactor_on_dir.remove_self()
-                semiactor_factories.closed_door.spawn(self.engine.game_map, dest_x, dest_y, -1)
             else:
                 # Unlock failed
                 self.engine.message_log.add_message(f"{self.entity.name} failed to unlock the door with {item.name}.", color.invalid, target=self.entity)
@@ -819,10 +821,10 @@ class DoorBreakAction(ActionWithDirection):
         else: # Bust open the door but not break it
             self.engine.message_log.add_message(f"{self.entity.name} slams the door open!", color.invalid, target=self.entity)
 
-            door.remove_self()
-
             import semiactor_factories
-            semiactor_factories.opened_door.spawn(self.engine.game_map, door.x, door.y, -1)
+            tmp = semiactor_factories.opened_door.spawn(self.engine.game_map, door.x, door.y, -1)
+            door.semiactor_info.move_self_to(tmp)
+            door.remove_self()
         
         from input_handlers import MainGameEventHandler
         self.engine.event_handler = MainGameEventHandler(self.engine)
@@ -892,9 +894,10 @@ class DoorOpenAction(ActionWithDirection):
             self.engine.event_handler = MainGameEventHandler(self.engine)
             return None
 
-        door.remove_self()
         import semiactor_factories
-        semiactor_factories.opened_door.spawn(self.engine.game_map, door.x, door.y, -1)
+        tmp = semiactor_factories.opened_door.spawn(self.engine.game_map, door.x, door.y, -1)
+        door.semiactor_info.move_self_to(tmp)
+        door.remove_self()
 
         from input_handlers import MainGameEventHandler
         self.engine.event_handler = MainGameEventHandler(self.engine)
@@ -1011,8 +1014,9 @@ class DoorCloseAction(ActionWithDirection):
                 self.engine.message_log.add_message(f"{self.entity.name} has failed to close the door!", color.invalid, target=self.entity)
                 return None
 
+            tmp = semiactor_factories.closed_door.spawn(self.engine.game_map, dest_x, dest_y, -1)
+            semiactor_on_dir.semiactor_info.move_self_to(tmp)
             semiactor_on_dir.remove_self()
-            semiactor_factories.closed_door.spawn(self.engine.game_map, dest_x, dest_y, -1)
 
             return None
         elif semiactor_on_dir.entity_id == "closed_door" or semiactor_on_dir.entity_id == "locked_door":

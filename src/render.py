@@ -14,7 +14,7 @@ if TYPE_CHECKING:
     
 
 
-def get_names_at_location(x: int, y: int, game_map: GameMap) -> str:
+def get_names_at_location(x: int, y: int, game_map: GameMap, display_id: bool=False) -> str:
     """
     Display entity's name that are at the mouse cursor location. (Only when the location is visible)
     """
@@ -25,6 +25,10 @@ def get_names_at_location(x: int, y: int, game_map: GameMap) -> str:
 
     for entity in reversed(game_map.entities):
         if entity.x == x and entity.y == y:
+            if display_id:
+                names.append(f"{id(entity)}:{entity.name}")
+                continue
+
             if isinstance(entity, Item):
                 # If entity is a item, display stack_count as well
                 if entity.stack_count > 1:
@@ -282,7 +286,7 @@ def render_names_at_mouse_location(
 ) -> None:
     mouse_x, mouse_y = engine.mouse_location
 
-    names_at_mouse_location = get_names_at_location(x=mouse_x, y=mouse_y, game_map=engine.game_map)
+    names_at_mouse_location = get_names_at_location(x=mouse_x, y=mouse_y, game_map=engine.game_map, display_id=True)#DEBUG
 
     tile_name_at_location = get_tile_name_at_location(x=mouse_x, y=mouse_y, game_map=engine.game_map)
 

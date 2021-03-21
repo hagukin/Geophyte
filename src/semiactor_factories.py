@@ -2,6 +2,7 @@ from entity import SemiActor
 from actions import DoorOpenAction, DoorUnlockAction
 import components.rule_factories as rule
 import components.walkable as walkable
+import components.semiactor_info as semiactor_info
 
 
 ##########################################################################
@@ -19,6 +20,7 @@ fire = SemiActor(
     entity_desc="description of a fire",
     action_point=60, # 0 to 60
     action_speed=10, # 0 to 60
+    semiactor_info=semiactor_info.Default(),
     blocks_movement=False,
     rule_cls=rule.normal_fire_rule,
 )
@@ -39,6 +41,7 @@ spike_trap = SemiActor(
     entity_desc="description of spike trap",
     do_action=False,
     walkable=walkable.low_dmg_spike_trap_walkable,
+    semiactor_info=semiactor_info.Default(),
     blocks_movement=False,
     rule_cls=None,
 )
@@ -60,6 +63,7 @@ closed_door = SemiActor(
     do_action=False,
     walkable=None,
     safe_to_move=True,
+    semiactor_info=semiactor_info.Door(flammable=True, corrodable=True),
     blocks_movement=True,
     blocks_sight=True,
     rule_cls=None,
@@ -76,6 +80,7 @@ opened_door = SemiActor(
     do_action=False,
     walkable=None,
     safe_to_move=True,
+    semiactor_info=semiactor_info.Door(flammable=True, corrodable=True),
     blocks_movement=False,
     blocks_sight=False,
     rule_cls=None,
@@ -92,6 +97,7 @@ locked_door = SemiActor(
     do_action=False,
     walkable=None,
     safe_to_move=True,
+    semiactor_info=semiactor_info.Door(flammable=True, corrodable=True),
     blocks_movement=True,
     blocks_sight=True,
     rule_cls=None,

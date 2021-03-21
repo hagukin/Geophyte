@@ -23,6 +23,7 @@ if TYPE_CHECKING:
     from components.equipments import Equipments
     from components.item_state import ItemState
     from components.actor_state import ActorState
+    from components.semiactor_info import SemiactorInfo
     from game_map import GameMap
 
 T = TypeVar("T", bound="Entity")
@@ -166,7 +167,7 @@ class Entity:
 
     def remove_self(self) -> None:
         if self.indestructible:
-            print(f"DEBUG::{self.name} IS INDESTRUCTIBLE. ENTITY.REMOVE_SELF() IS NULLIFIED.")
+            print(f"ENTITY_REMOVE_SELF()::{self.name} IS INDESTRUCTIBLE. ENTITY.REMOVE_SELF() IS NULLIFIED.")
             return None
         elif self.gamemap:
             # If the gamemap value is not yet set for the entity, an error might pop up here.
@@ -175,7 +176,7 @@ class Entity:
             try:
                 self.gamemap.entities.remove(self)
             except ValueError:
-                print(f"DEBUG::{self.name} HAS NO GAMEMAP. THIS MIGHT NOT BE A SERIOUS ISSUE.")
+                print(f"ENTITY_REMOVE_SELF()::{self.name} HAS NO GAMEMAP. THIS MIGHT NOT BE A SERIOUS ISSUE.")
                 pass
 
     def spawn(self: T, gamemap: GameMap, x: int, y: int) -> T:
@@ -217,6 +218,14 @@ class Entity:
 
         # Apply environmental effects when moved.
         self.do_environmental_effects()
+
+    def collided_with_fire(self, fire):
+        """
+        Args:
+            fire:
+                Fire semiactor that this entity collided with.
+        """
+        pass
 
 
 class Actor(Entity):
@@ -443,6 +452,23 @@ class Actor(Entity):
             return True
 
         return False
+
+    def collided_with_fire(self, fire):
+        """
+        Args:
+            fire:
+                Fire semiactor that this entity collided with.
+        """
+        super().collided_with_fire(fire)
+        # Burn the actor
+        if self.actor_state.is_burning == [0,0,0,0]: # was not already burning
+            self.engine.message_log.add_message(f"{self.name} catches on fire!",target=self)
+            self.actor_state.is_burning = [fire.rule.base_damage, fire.rule.add_damage, 0, fire.rule.fire_duration]
+
+        # Ignite items in inventory
+        if self.inventory.is_fireproof == False:
+            for item in self.inventory.items:
+                item.collided_with_fire(fire)
 
 
 class Item(Entity):
@@ -752,6 +778,18 @@ class Item(Entity):
             dup_item.stack_count = self.stack_count
         
         return dup_item
+
+    def collided_with_fire(self, fire=None):
+        """
+        Args:
+            fire:
+                Fire semiactor that this entity collided with.
+        """
+        if fire:
+            super().collided_with_fire(fire)
+        will_catch_fire = random.random()
+        if will_catch_fire < self.flammable:
+            self.item_state.is_burning = True
         
 
 class SemiActor(Entity):
@@ -771,6 +809,7 @@ class SemiActor(Entity):
         do_action: bool = True,
         action_point: int = 60, # 0 to 60
         action_speed: int = 0, # 0 to 60
+        semiactor_info: SemiactorInfo,
         walkable: Walkable = None,
         safe_to_move: bool = False,
         blocks_movement: bool = False,
@@ -825,6 +864,8 @@ class SemiActor(Entity):
 
         self.safe_to_move = safe_to_move
         self.bump_action = bump_action
+        self.semiactor_info = semiactor_info
+        self.semiactor_info.parent = self
 
     @property
     def is_active(self) -> bool:
@@ -846,3 +887,15 @@ class SemiActor(Entity):
         clone.gamemap = gamemap
         gamemap.entities.append(clone)
         return clone
+
+    def collided_with_fire(self, fire):
+        """
+        Args:
+            fire:
+                Fire semiactor that this entity collided with.
+        """
+        super().collided_with_fire(fire)
+        if self.semiactor_info.flammable:
+            will_catch_fire = random.random()
+            if will_catch_fire < self.semiactor_info.flammable:
+                self.semiactor_info.is_burning = True

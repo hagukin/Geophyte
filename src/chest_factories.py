@@ -1,4 +1,6 @@
 from ast import walk
+from components import semiactor_info
+from components.semiactor_info import SemiactorInfo
 from order import RenderOrder
 import random
 from typing import Tuple, List
@@ -22,6 +24,7 @@ class ChestSemiactor(SemiActor):
         action_speed: int = 0,
         walkable = None,
         safe_to_move: bool = False,
+        semiactor_info: SemiactorInfo,
         blocks_movement: bool = True,
         blocks_sight: bool = False,
         rule_cls = None,
@@ -56,6 +59,7 @@ class ChestSemiactor(SemiActor):
             action_speed=action_speed,
             walkable=walkable,
             safe_to_move=safe_to_move,
+            semiactor_info=semiactor_info,
             blocks_movement=blocks_movement,
             blocks_sight=blocks_sight,
             rule_cls=rule_cls,
@@ -100,6 +104,7 @@ large_wooden_chest = ChestSemiactor(
         do_action=False,
         walkable=None,
         safe_to_move=True,
+        semiactor_info=semiactor_info.Chest(),
         blocks_movement=True,
         blocks_sight=False,
         rule_cls=None,

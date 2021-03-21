@@ -81,30 +81,11 @@ class FireRule(BaseRule):
             self.parent._fg = (254, 212, 1)
             self.parent._bg = (239, 239, 231)
 
-        # Damage Calculation
-        target = self.engine.game_map.get_actor_at_location(self.parent.x, self.parent.y)
-        if target:
-            if target.actor_state.is_burning == [0,0,0,0]: # already burning
-                self.engine.message_log.add_message(f"{target.name} catches on fire!",target=target)
-
-                target.actor_state.is_burning = [self.base_damage, self.add_damage, 0, self.fire_duration]
-
-        # Light Items in gamemap on fire
-        target_items = self.engine.game_map.get_all_items_at_location(self.parent.x, self.parent.y)
-        if target_items:
-            for target_item in target_items:
-                will_catch_fire = random.random()
-                if will_catch_fire < target_item.flammable:
-                    target_item.item_state.is_burning = True
-
-        # Light Items in Inventory on fire
-        target_entity = self.engine.game_map.get_actor_at_location(self.parent.x, self.parent.y)
-        if target_entity:
-            if target_entity.inventory.is_fireproof == False:
-                for item in target_entity.inventory.items:
-                    will_catch_fire = random.random()
-                    if will_catch_fire < item.flammable:
-                        item.item_state.is_burning = True
+        # Collision with entities
+        # NOTE: Actual calculations are handled in entity.collided_with_fire()
+        for entity in self.engine.game_map.entities:
+            if entity.x == self.parent.x and entity.y == self.parent.y:
+                entity.collided_with_fire(self.parent)
 
         # Remove entity if floor is not flammable
         if self.engine.game_map.tiles[self.parent.x, self.parent.y]["flammable"] == False:
@@ -115,8 +96,17 @@ class FireRule(BaseRule):
         spread_dir = ((1,0), (0,1), (-1,0), (0,-1), (1,1), (-1,-1), (-1,1), (1,-1))
 
         for direction in spread_dir:
-            if self.engine.game_map.tiles[self.parent.x + direction[0], self.parent.y + direction[1]]["flammable"] and self.engine.game_map.get_semiactor_at_location(self.parent.x + direction[0], self.parent.y + direction[1]) == None:
-                
+            if self.engine.game_map.tiles[self.parent.x + direction[0], self.parent.y + direction[1]]["flammable"]:
+                # Check if there is any other fire semiactor on the tile
+                flag = False
+                semiactors = self.engine.game_map.get_all_semiactors_at_location(self.parent.x + direction[0], self.parent.y + direction[1])
+                if semiactors:
+                    for semiactor in semiactors:
+                        if semiactor.entity_id == "fire":
+                            flag = True
+                if flag:
+                    continue
+
                 # chance of catching fire depends on "flammable"
                 if random.random() <= self.engine.game_map.tiles[self.parent.x + direction[0], self.parent.y + direction[1]]["flammable"]:
                     semiactor_factories.fire.spawn(self.engine.game_map, self.parent.x + direction[0], self.parent.y + direction[1], 6)
