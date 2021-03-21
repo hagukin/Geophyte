@@ -91,6 +91,8 @@ class SemiactorInfo(BaseComponent):
         And set given semiactor's semiactor_info to this.
 
         NOTE: This feature is not meant to be used for copying semiactor_info.
+        This function is mainly used when a certain semiactor has to change into other similar semiactor while remaining its semiactor_info.
+        e.g. opening door: deletes closed_door entity, spawn opened_door entity, and transfer closed_door.semiactor_info to opened_door entity.
         """
         import copy
         tmp = copy.copy(self)
