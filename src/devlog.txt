@@ -1547,4 +1547,5 @@
 
           세미액터와 관련된 정보를 다루는 semiactor_info 추가.
 
-          
+          render에 get_names_at_location에 display_id 파라미터 추가 (디버그용 기능). 
+          앞으로 마우스 위의 엔티티의 id(메모리)를 알고 싶다면 True로 설정해주면 됨.
