@@ -12,8 +12,8 @@ if TYPE_CHECKING:
 class SemiactorInfo(BaseComponent):
     def __init__(
         self,
-        flammable: bool,
-        corrodable: bool,
+        flammable: float,
+        corrodable: float,
         was_burning: bool = False,
         is_burning: bool = False,
         burntness: int = 0,
@@ -89,6 +89,8 @@ class SemiactorInfo(BaseComponent):
         """
         Copy self, and swap its parent to given semiactor.
         And set given semiactor's semiactor_info to this.
+
+        NOTE: This feature is not meant to be used for copying semiactor_info.
         """
         import copy
         tmp = copy.copy(self)
@@ -101,8 +103,8 @@ class Default(SemiactorInfo):
     """
     def __init__(
         self,
-        flammable: bool = False,
-        corrodable: bool = False,
+        flammable: float = 0,
+        corrodable: float = 0,
         was_burning: bool = False,
         is_burning: bool = False,
         burntness: int = 0,
@@ -114,8 +116,8 @@ class Default(SemiactorInfo):
 class Door(SemiactorInfo):
     def __init__(
         self,
-        flammable: bool = True,
-        corrodable: bool = True,
+        flammable: float = 0.5,
+        corrodable: float = 0.2,
         was_burning: bool = False,
         is_burning: bool = False,
         burntness: int = 0,
@@ -131,8 +133,8 @@ class Door(SemiactorInfo):
 class Chest(SemiactorInfo):
     def __init__(
         self,
-        flammable: bool = True,
-        corrodable: bool = False,
+        flammable: float = 0.1,
+        corrodable: float = 0.01,
         was_burning: bool = False,
         is_burning: bool = False,
         burntness: int = 0,
