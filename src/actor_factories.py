@@ -58,7 +58,6 @@ player = Actor(
         heal_wounds=True,
         size=4,
         weight=70,
-        has_telepathy=True,##TEST DEBUG TODO
     ),
     inventory=Inventory(capacity=52, is_fireproof=False),
     ability_inventory=AbilityInventory(capacity=10),

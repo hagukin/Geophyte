@@ -1,5 +1,6 @@
 from __future__ import annotations
-from typing import Tuple
+from typing import Tuple, Optional
+from tcod import Console
 
 import math
 import numpy as np
@@ -30,3 +31,32 @@ def blueshift(rgb: Tuple(int,int,int)) -> Tuple(int,int,int): #WARN: FUNCTION NO
 
     return (red, green, blue)
 
+def draw_thick_frame(
+        console: Console,
+        x: int,
+        y: int,
+        width: int,
+        height: int,
+        title: str = "",
+        fg: Optional[Tuple[int, int, int]] = None,
+        bg: Optional[Tuple[int, int, int]] = None,
+    ) -> None:
+        frame = ('','#','#','#','#','#','#','#','#','#',)
+        #frame = (' ','╚','═','╝','║',' ','║','╔','═','╗')
+
+        for ypos in range(y, y+height):
+            if ypos == y:
+                console.print(x, ypos, frame[7], fg, bg)
+                for xpos in range(x+1, x+width):
+                    console.print(xpos, ypos, frame[2], fg, bg)
+                console.print(x+width-1, ypos, frame[9], fg, bg)
+            elif ypos == y+height-1:
+                console.print(x, ypos, frame[1], fg, bg)
+                for xpos in range(x+1, x+width):
+                    console.print(xpos, ypos, frame[2], fg, bg)
+                console.print(x+width-1, ypos, frame[3], fg, bg)
+            else:
+                console.print(x, ypos, frame[4], fg, bg)
+                console.print(x+width-1, ypos, frame[6], fg, bg)
+
+        

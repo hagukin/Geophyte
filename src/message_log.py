@@ -66,7 +66,7 @@ class MessageLog:
         self.render_messages(console, x, y, width, height, self.messages)
 
         if draw_frame:
-            console.draw_frame(x=x-1, y=y-1, width=width+2, height=height+2, clear=False, fg=(255,255,255))
+            console.draw_frame(x=x-1, y=y-1, width=width+2, height=height+2, clear=False, fg=color.gui_frame_fg, bg=color.gui_frame_bg)
 
     @staticmethod
     def wrap(string: str, width: int) -> Iterable[str]:

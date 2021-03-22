@@ -230,9 +230,10 @@ class FloatingEyeEdible(Edible):
     def effect_always(self, action: actions.EatItem):
         consumer = action.entity
         consumer.actor_state.has_telepathy = True # Gain telepathy
-        # Log
-        if consumer == self.engine.player:
-            self.engine.message_log.add_message(f"You feel the connection between you and this world.", color.status_effect_applied)
-        return super().effect_always(action)
-    
 
+        # Log
+        if not consumer.actor_state.has_telepathy:
+            if consumer == self.engine.player:
+                self.engine.message_log.add_message(f"You feel the connection between you and this world.", color.status_effect_applied)
+            consumer.actor_state.has_telepathy = True
+        return super().effect_always(action)

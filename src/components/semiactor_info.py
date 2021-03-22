@@ -10,6 +10,9 @@ if TYPE_CHECKING:
     from entity import Item, Actor
 
 class SemiactorInfo(BaseComponent):
+    """
+    Equivalent to items' "ItemState" component.
+    """
     def __init__(
         self,
         flammable: float,

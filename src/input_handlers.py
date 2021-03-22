@@ -197,7 +197,7 @@ class ItemUseCancelHandler(AskUserEventHandler):
 
     def on_render(self, console: tcod.Console,) -> None:
         super().on_render(console)
-        self.engine.draw_window(console, text="Do you really want to cancel your action? The item will be consumed anyway. (Y/N)", title="Cancel Action", frame_fg=color.lime)
+        self.engine.draw_window(console, text="Do you really want to cancel your action? The item will be consumed anyway. (Y/N)", title="Cancel Using Item", frame_fg=color.lime, frame_bg=color.gui_inventory_bg)
 
     def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[Action]:
         if event.sym == tcod.event.K_y or event.sym == tcod.event.K_KP_ENTER:
@@ -212,7 +212,7 @@ class SaveInputHandler(AskUserEventHandler):
 
     def on_render(self, console: tcod.Console) -> None:
         super().on_render(console)
-        self.engine.draw_window(console, text="Do you really want to save current game? (Y/N)", title="Save", frame_fg=color.lime)
+        self.engine.draw_window(console, text="Do you really want to save current game? (Y/N)", title="Save", frame_fg=color.lime, frame_bg=color.gui_inventory_bg)
 
     def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[Action]:
         player = self.engine.player
@@ -1604,7 +1604,7 @@ class QuitInputHandler(AskUserEventHandler):
 
     def on_render(self, console: tcod.Console) -> None:
         super().on_render(console)
-        self.engine.draw_window(console, text="Do you really want to quit? Any unsaved progress will be lost.(Y/N)", title="Quit", frame_fg=color.lime)
+        self.engine.draw_window(console, text="Do you really want to quit? Any unsaved progress will be lost.(Y/N)", title="Quit", frame_fg=color.lime, frame_bg=color.gui_inventory_bg)
 
     def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[Action]:
         player = self.engine.player

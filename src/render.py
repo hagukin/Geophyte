@@ -129,7 +129,7 @@ def render_character_status(
 
     # border for status gui
     if draw_frame:
-        console.draw_frame(x=x-1, y=y-6, width=28, height=15, title="Player Status", clear=False, fg=(255,255,255), bg=(0,0,0))
+        console.draw_frame(x=x-1, y=y-6, width=28, height=15, title="Player Status", clear=False, fg=color.gui_frame_fg, bg=color.gui_frame_bg)
 
 
 def render_character_state(
@@ -265,7 +265,7 @@ def render_character_state(
 
     # border for state gui
     if draw_frame:
-        console.draw_frame(x=x-1, y=y, width=28, height=window_height+2, title="Status Effects", clear=False, fg=(255,255,255), bg=(0,0,0))
+        console.draw_frame(x=x-1, y=y, width=28, height=window_height+2, title="Status Effects", clear=False,  fg=color.gui_frame_fg, bg=color.gui_frame_bg)
 
 
 def render_character_equipments(
@@ -375,7 +375,7 @@ def render_message_window(
             msg_x, msg_y = x+1, y+1
 
     # draw frame
-    console.draw_frame(x, y, width, height, title=title, fg=frame_fg, bg=frame_bg, clear=True)
+    console.draw_frame(x, y, width, height, title=title, clear=True, fg=frame_fg, bg=frame_bg)
 
     # print msg
     console.print(msg_x, msg_y, msg, fg=text_fg)

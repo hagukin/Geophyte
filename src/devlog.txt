@@ -1549,3 +1549,13 @@
 
           render에 get_names_at_location에 display_id 파라미터 추가 (디버그용 기능). 
           앞으로 마우스 위의 엔티티의 id(메모리)를 알고 싶다면 True로 설정해주면 됨.
+
+          floating eye의 시체에 먹으면 telepathy 획득하도록 만듬.
+20200322 - 이미지 대신 ttf파일을 타일셋으로 불러오는 기능 추가,tileset.ttf 추가
+            > 한글화 가능!!!
+
+            draw_thick_frame()을 util.py에 제작.
+
+            TODO: color.gui_frame_bg를 플레이어 상태(ex.on fire -> 빨강색) 혹은 현재 플레이어가 있는 terrain에 의해 바뀌게 하면 가시적으로 상태를 나타낼 수 있을 듯함.
+
+            타일셋 변경으로 인해 anim_graphic의 여러 그래픽 char 변경.

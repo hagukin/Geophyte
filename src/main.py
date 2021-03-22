@@ -21,7 +21,7 @@ def main() -> None:
     with tcod.context.new(
         columns=cfg["screen_width"],
         rows=cfg["screen_height"],
-        tileset=tcod.tileset.load_tilesheet(cfg["tileset_path"], 16, 16, tcod.tileset.CHARMAP_CP437),
+        tileset=tcod.tileset.load_truetype_font(path="./resources/tileset.ttf", tile_width=16, tile_height=16),#tcod.tileset.load_tilesheet(cfg["tileset_path"], 16, 16, tcod.tileset.CHARMAP_CP437),
         title="Geophyte",
         sdl_window_flags=set_screen,
         vsync=False,
