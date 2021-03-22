@@ -105,6 +105,7 @@ class FireRule(BaseRule):
                         if semiactor.entity_id == "fire":
                             flag = True
                 if flag:
+                    print("RULE.PY::CANNOT SPAWN MULTIPLE FIRE ON THE SAME TILE")
                     continue
 
                 # chance of catching fire depends on "flammable"

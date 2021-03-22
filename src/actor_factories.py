@@ -67,7 +67,7 @@ player = Actor(
     initial_items=[
         (item_factories.scroll_of_enchantment, 1, (1,5)), 
         (item_factories.scroll_of_identify, 1, (1,4)), 
-        (item_factories.scroll_of_remove_curse, 1, (1,4)), 
+        (item_factories.scroll_of_magic_mapping, 1, (88,99)), 
         (item_factories.scroll_of_piercing_flame, 1, (1,4)),
         (item_factories.scroll_of_tame, 1, (1,4)),
         (item_factories.scroll_of_meteor_storm, 1, (1,4)),
@@ -260,7 +260,7 @@ volt_ant = Actor(
         additional_melee=5,
         protection=6,
         eyesight=15,
-        shock_resistance=0.9,
+        shock_resistance=1,
         ),
     actor_state=ActorState(
         size=2,
@@ -450,9 +450,9 @@ monster_difficulty[cat.status.difficulty].append(cat)
 
 ### Large Cat
 large_cat = Actor(
-    char="큰 고양이",
+    char="c",
     fg=(230, 169, 0),
-    name="Large Cat",
+    name="큰 고양이",
     entity_id="large_cat",
     entity_desc="\
         던전의 기운을 받은 고양이들은 지상의 맹수에 가까운 크기로 자라기도 한다.\n\

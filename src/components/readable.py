@@ -407,7 +407,7 @@ class RayReadable(Readable):
             return self.item_use_cancelled(actor=consumer)
 
         self.engine.message_log.add_message(
-            "Select a direction.", color.needs_target
+            "방향을 선택하세요. (1~9)", color.needs_target
         )
         self.engine.event_handler = RayRangedInputHandler(
             self.engine,

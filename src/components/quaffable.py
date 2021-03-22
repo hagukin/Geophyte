@@ -71,7 +71,7 @@ class PotionOfParalysisQuaffable(Quaffable):
             self.engine.message_log.add_message(f"당신은 갑자기 몸을 움직일 수가 없게 되었다!", color.player_damaged,)
         else:
             if self.engine.game_map.visible[consumer.x, consumer.y]:
-                self.engine.message_log.add_message(f"{g(consumer.name, '이')} 갑자기 모든 움직임을 멈추었다.", color.white, target=consumer)
+                self.engine.message_log.add_message(f"{g(consumer.name, '이')} 돌연 모든 움직임을 멈추었다.", color.white, target=consumer)
             
         self.consume()
 

@@ -34,7 +34,7 @@ def main() -> None:
         # Final adjustments before starting the game loop
         engine.console = root_console
         engine.context = context
-        engine.adjustments_before_new_map()
+        engine.adjustments_before_new_map(update_player_fov=True)
 
         # Main Game Loop
         while True:

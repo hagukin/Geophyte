@@ -79,9 +79,10 @@ class Engine:
         x, y = self.camera.get_relative_coordinate(abs_x=self.mouse_location[0], abs_y=self.mouse_location[1])
         return x, y
 
-    def adjustments_before_new_map(self):
+    def adjustments_before_new_map(self, update_player_fov: bool=False):
         self.game_map.sort_entities()
-        self.update_fov()
+        if update_player_fov:
+            self.update_fov()
         self.update_enemy_fov(is_initialization=True)
         self.update_entity_in_sight(is_initialization=True)
 

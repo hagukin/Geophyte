@@ -20,7 +20,7 @@ grayish_blue = (0x49, 0x69, 0x80)
 logo_c1 = green
 title_gui_frame = brown
 gui_frame_fg = white
-gui_frame_bg = dark_gray
+gui_frame_bg = grayish_blue
 camera_frame_fg = gui_frame_fg
 camera_frame_bg = gui_frame_bg
 

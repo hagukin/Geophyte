@@ -87,13 +87,13 @@ class ItemManager:
     def randomize_item(self, item: Item):
         if item.item_type == InventoryOrder.SCROLL:
             color_name, fg, bg = self.gen_randomized_color(item_type=InventoryOrder.SCROLL)
-            self.items_fake_info[item.entity_id]["name"] = f"{g(self.gen_randomized_string(random.randint(4, 8)), '라')}고 적힌 주문서"
+            self.items_fake_info[item.entity_id]["name"] = f"{self.gen_randomized_string(random.randint(4, 8))}이라고 적혀있는 주문서"
             self.items_fake_info[item.entity_id]["entity_desc"] = "얇은 종이로 만들어진 주문서이다. 주문서의 내용을 해독할 수 없다."
             self.items_fake_info[item.entity_id]["fg"] = fg
         elif item.item_type == InventoryOrder.POTION:
             color_name, fg, bg = self.gen_randomized_color(item_type=InventoryOrder.POTION)
-            self.items_fake_info[item.entity_id]["name"] = color_name + " potion"
-            self.items_fake_info[item.entity_id]["entity_desc"] = f"{color_name} 포션. 마시면 무슨 일이 일어날지 알 수 없다."
+            self.items_fake_info[item.entity_id]["name"] = color_name + " 물약"
+            self.items_fake_info[item.entity_id]["entity_desc"] = f"{color_name} 물약. 마시면 무슨 일이 일어날지 알 수 없다."
             self.items_fake_info[item.entity_id]["fg"] = fg
             self.items_fake_info[item.entity_id]["bg"] = bg
         else:

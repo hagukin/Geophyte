@@ -8,7 +8,7 @@ from order import AbilityOrder
 
 ### Lightning Bolt
 lightning_bolt = Ability(
-    name="뇌창",
+    name="뇌격",
     ability_id="m_lightning_bolt",
     ability_desc="시야 내의 임의의 생명체 위에 번개가 떨어집니다.",
     ability_type=AbilityOrder.REGULAR_SPELL,

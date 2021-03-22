@@ -473,7 +473,7 @@ class StorageSelectEventHandler(AskUserEventHandler):
         else:
             self.TITLE = ""
 
-    def get_item_rendered_text(self, item: Item, item_key) -> Optional[Tuple(str, str, str, str, Tuple(int,int,int))]:
+    def get_item_rendered_text(self, item: Item, item_key, choose_multiple: bool) -> Optional[Tuple(str, str, str, str, Tuple(int,int,int))]:
         """
         Returns:
             item_text, item_damage_text, item_state_text, item_equip_text, item_text_color
@@ -503,8 +503,9 @@ class StorageSelectEventHandler(AskUserEventHandler):
             item_text_color = color.gui_armor_name
 
         # Change color of the selected items
-        if item in self.selected_items:
-            item_text_color = color.gui_selected_item #TODO: Maybe add a short string in front of item name? like (selected)
+        if choose_multiple:
+            if item in self.selected_items:
+                item_text_color = color.gui_selected_item #TODO: Maybe add a short string in front of item name? like (selected)
         
         # Display item counts if it is greater than 1
         if item.stack_count > 1:
@@ -667,7 +668,7 @@ class StorageSelectSingleEventHandler(StorageSelectEventHandler):
                 if not self.check_should_render_item(item):
                     continue
                 
-                item_text, item_damage_text, item_state_text, item_equip_text, item_text_color = self.get_item_rendered_text(item, item_key)
+                item_text, item_damage_text, item_state_text, item_equip_text, item_text_color = self.get_item_rendered_text(item, item_key, choose_multiple=False)
 
                 i += 1
 
@@ -859,21 +860,21 @@ class InventoryActionSelectHandler(AskUserEventHandler):
         for i, action in enumerate(self.possible_actions):
             
             if action == "read":
-                console.print(x + x_space + 1, y + i + desc_height + 2 + y_space, "(r) 읽기(Read)", fg=color.gui_item_action)
+                console.print(x + x_space + 1, y + i + desc_height + 2 + y_space, "(r) 읽기", fg=color.gui_item_action)
             elif action == "quaff":
-                console.print(x + x_space + 1, y + i + desc_height + 2 + y_space, "(q) 마시기(Quaff)", fg=color.gui_item_action)
+                console.print(x + x_space + 1, y + i + desc_height + 2 + y_space, "(q) 마시기", fg=color.gui_item_action)
             elif action == "eat":
-                console.print(x + x_space + 1, y + i + desc_height + 2 + y_space, "(a) 먹기(Eat)", fg=color.gui_item_action)
+                console.print(x + x_space + 1, y + i + desc_height + 2 + y_space, "(a) 먹기", fg=color.gui_item_action)
             elif action == "equip":
-                console.print(x + x_space + 1, y + i + desc_height + 2 + y_space, "(e) 장착하기(Equip)", fg=color.gui_item_action)
+                console.print(x + x_space + 1, y + i + desc_height + 2 + y_space, "(e) 장착하기", fg=color.gui_item_action)
             elif action == "unequip":
-                console.print(x + x_space + 1, y + i + desc_height + 2 + y_space, "(u) 장착 해제하기(Unequip)", fg=color.gui_item_action)
+                console.print(x + x_space + 1, y + i + desc_height + 2 + y_space, "(u) 장착 해제하기", fg=color.gui_item_action)
             elif action == "split":
-                console.print(x + x_space + 1, y + i + desc_height + 2 + y_space, "(s) 아이템 나누기(Split)", fg=color.gui_item_action)
+                console.print(x + x_space + 1, y + i + desc_height + 2 + y_space, "(s) 아이템 나누기", fg=color.gui_item_action)
             elif action == "throw":
-                console.print(x + x_space + 1, y + i + desc_height + 2 + y_space, "(t) 던지기(Throw)", fg=color.gui_item_action)
+                console.print(x + x_space + 1, y + i + desc_height + 2 + y_space, "(t) 던지기", fg=color.gui_item_action)
             elif action == "drop":
-                console.print(x + x_space + 1, y + i + desc_height + 2 + y_space, "(d) 아이템 떨어뜨리기(Drop)", fg=color.gui_item_action)
+                console.print(x + x_space + 1, y + i + desc_height + 2 + y_space, "(d) 아이템 떨어뜨리기", fg=color.gui_item_action)
             else:
                 console.print(x + x_space + 1, y + desc_height + 2 + y_space, "(없음)")
 
@@ -1044,7 +1045,7 @@ class StorageSelectMultipleEventHandler(StorageSelectEventHandler):
                 if not self.check_should_render_item(item):
                     continue
                 
-                item_text, item_damage_text, item_state_text, item_equip_text, item_text_color = self.get_item_rendered_text(item, item_key)
+                item_text, item_damage_text, item_state_text, item_equip_text, item_text_color = self.get_item_rendered_text(item, item_key, choose_multiple=True)
 
                 i += 1
 
@@ -1148,8 +1149,8 @@ class LockedDoorEventHandler(AskUserEventHandler):
         )
 
         # Message log
-        console.print(x + x_space + 1, y + y_space + 2, "(u) - 잠금 해제(Unlock)", fg=color.white)
-        console.print(x + x_space + 1, y + y_space + 4, "(b) - 파괴(break)", fg=color.white)
+        console.print(x + x_space + 1, y + y_space + 2, "(u) - 잠금 해제", fg=color.white)
+        console.print(x + x_space + 1, y + y_space + 4, "(b) - 파괴", fg=color.white)
         console.print(x + x_space + 1, y + y_space + 6, "ESC - 취소", fg=color.white)
 
     def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[Action]:
@@ -1209,9 +1210,9 @@ class ChestEventHandler(AskUserEventHandler):
         )
 
         # Message log
-        console.print(x + x_space + 1, y + y_space + 2, "(t) - 무언가를 꺼낸다(Take out)", fg=color.white)
-        console.print(x + x_space + 1, y + y_space + 4, "(p) - 무언가를 넣는다(Put in)", fg=color.white)
-        console.print(x + x_space + 1, y + y_space + 6, "(s) - 위치를 바꾼다(Swap)", fg=color.white)
+        console.print(x + x_space + 1, y + y_space + 2, "(t) - 무언가를 꺼낸다", fg=color.white)
+        console.print(x + x_space + 1, y + y_space + 4, "(p) - 무언가를 넣는다", fg=color.white)
+        console.print(x + x_space + 1, y + y_space + 6, "(s) - 위치를 바꾼다", fg=color.white)
         console.print(x + x_space + 1, y + y_space + 8, "ESC - 취소", fg=color.white)
 
     def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[Action]:
@@ -1683,7 +1684,7 @@ class MainGameEventHandler(EventHandler):
                 self.engine.message_log.add_message(f"Screenshot saved as {pic_name}.png", color.needs_target)
             elif key == tcod.event.K_F11:#TODO DEBUG
                 from actions import ExplodeAction
-                ExplodeAction(self.engine.player, False, True, radius=50, expl_dmg=50, cause_fire=5).perform()
+                ExplodeAction(self.engine.player, False, True, radius=50, expl_dmg=3000, cause_fire=5).perform()
             elif key == tcod.event.K_F10:#TODO DEBUG
                 for actor in self.engine.game_map.actors:
                     if actor.ai:
