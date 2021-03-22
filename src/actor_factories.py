@@ -6,7 +6,7 @@ from components.inventory import Inventory
 from components.ability_inventory import AbilityInventory
 from components.equipments import Equipments
 from components.actor_state import ActorState
-from components.edible import RawMeatEdible, FireAntEdible, VoltAntEdible, FloatingEyeEdible
+from components.edible import GiantWaspEdible, RawMeatEdible, FireAntEdible, VoltAntEdible, FloatingEyeEdible
 from entity import Actor
 from order import RenderOrder
 
@@ -29,9 +29,11 @@ monster_rarity_for_each_difficulty = {
 player = Actor(
     char="@",
     fg=(0, 255, 0),
-    name="Player",
+    name="조나단",
     entity_id="player",
-    entity_desc="Player desc",
+    entity_desc="\
+        당신은 쿠가의 아뮬렛을 가져오라는 임무를 받고 끝이 보이지 않는 던전으로 발을 들였다.\n\
+        ",
     rarity=0,
     spawnable=False,
     growthable=True,
@@ -127,12 +129,14 @@ monster_difficulty[DEBUG.status.difficulty].append(DEBUG)
 ant = Actor(
     char="a",
     fg=(26, 33, 0),
-    name="Ant",
+    name="개미",
     entity_id="ant",
     entity_desc="\
-        Some ants are slightly less affected by the dark energy emerging from the dungeon.\n\
-        However these ants are still much larger than typical ants, scaling about the size of a human finger.\n\
-        Their bites can be irritating but hardly does any damage.\
+        던전에서 뿜어나오는 어두운 기운은 동물은 물론 곤충들까지 거대하고 흉측한 괴수로 변이시켰다.\n\
+        그렇지만 개중에는 어두운 기운의 영향을 덜 받은 개체들도 있기 마련이다.\n\
+        비교적 던전의 기운을 덜 받은 이 개미들은 기껏해야 사람 손가락 남짓한 크기로, 대체로 별 위협이 되지 않는다.\n\
+        \n\
+        \"생각해보라고, 좁아터진 개미굴에 비하면 놈들은 거대한 저택에 사는 거나 마찬가지라니까?\"\
         ",
     rarity=9,
     spawnable=True,
@@ -177,12 +181,15 @@ monster_difficulty[ant.status.difficulty].append(ant)
 fire_ant = Actor(
     char="a",
     fg=(255, 0, 0),
-    name="Fire Ant",
+    name="불개미",
     entity_id="fire_ant",
     entity_desc="\
-        Fire ants are about the size of a human fist.\n\
-        While they are not as large as some other massive creatures in the dungeon,\n\
-        they have a unique ability that let them start a small flame from their jaw.\
+        던전의 불개미들은 만지면 따끔한 수준의 지상의 불개미들과는 차원이 다른 존재이다.\n\
+        성인 남성 주먹 정도의 크기인 이들은, 전신에 두른 약한 화염으로 자신을 방어한다.\n\
+        이들이 턱에서 쏘는 작은 불꽃은 인간에게 크게 위협적이지는 않지만,\n\
+        책이나 주문서를 가지고 다니는 마법사들에게는 큰 골칫거리로 여겨진다.\n\
+        \n\
+        \"빌어먹을 불개미녀석들, 이번에는 400샤인짜리 주문서를 태워먹었다고 썅.\"\
         ",
     rarity=5,
     spawnable=True,
@@ -227,11 +234,13 @@ monster_difficulty[fire_ant.status.difficulty].append(fire_ant)
 volt_ant = Actor(
     char="a",
     fg=(99, 255, 193),
-    name="Volt Ant",
+    name="스파크 개미",
     entity_id="volt_ant",
     entity_desc="\
-        Volt ants are about the size of a human fist.\n\
-        Their body is surrounded by a weak electrical spark, which helps them to protect themselves from other creatures.\
+        스파크 개미들은 몸에 두른 전류를 통해 적으로부터 자신을 보호한다.\n\
+        스파크 개미는 시큼텁텁한 맛이 나는 것으로 알려져 있으며, 일부 모험가들 사이에서는 별미로 꼽힌다.\n\
+        \n\
+        \"이놈들을 잔뜩 잡아서 지상에서 안주로 팔면 대박이 날 거야, 암.\"\
         ",
     rarity=5,
     spawnable=True,
@@ -280,12 +289,14 @@ monster_difficulty[volt_ant.status.difficulty].append(volt_ant)
 bat = Actor(
     char="b",
     fg=(94, 0, 122),
-    name="Bat",
+    name="박쥐",
     entity_id="bat",
     entity_desc="\
-        Bats are very maneuvrable when they are flying.\n\
-        Their odd resemblance with both birds and rats makes them a hated creatures among many humans.\n\
-        However, a regular bats are relatively harmless, and are not much of a threat.\
+        박쥐는 공중에서 자유자재로 날아다닐 수 있는 비행능력을 보유하고 있다.\n\
+        설치류와 조류 사이에 걸친 애매한 외형 때문에 이들은 오랜 시간 인간들에게 박해받아왔지만,\n\
+        대부분의 박쥐는 무해하며, 인간에게 먼저 공격을 거는 경우는 드물다고 한다.\n\
+        \n\
+        \"난 솔직히 걔들이 해를 끼치던 말던 관심없어. 생긴 게 징그럽잖아?\"\
         ",
     rarity=5,
     spawnable=True,
@@ -337,16 +348,18 @@ monster_difficulty[bat.status.difficulty].append(bat)
 kitten = Actor(
     char="c",
     fg=(222, 208, 169),
-    name="Kitten",
+    name="새끼고양이",
     entity_id="kitten",
     entity_desc="\
-        Creatures in the dungeon see kittens in two different ways.\n\
-        One sees them as an adorable little animal,\n\
-        while the other sees them no more than a delicious chunk of meat.\n\
+        던전 속에서 새끼고양이는 둘 중 하나로 취급된다.\n\
+        작고 귀여운 동물,\n\
+        혹은 영양가 넘치는 자그마한 고깃덩어리.\n\
+        \n\
+        \"얼마 전 옆집 고양이가 새끼를 낳았다던데, 그 집 식구들이 건강해보이는 건 기분 탓인가?\"\
         ",
     rarity=5,
     spawnable=True,
-    edible=RawMeatEdible(nutrition=36, cook_bonus=9),
+    edible=RawMeatEdible(nutrition=66, cook_bonus=30),
     ai_cls=ai_factories.kitten_ai,
     status=Status(
         hp=32,
@@ -387,16 +400,18 @@ monster_difficulty[kitten.status.difficulty].append(kitten)
 cat = Actor(
     char="c",
     fg=(217, 184, 91),
-    name="Cat",
+    name="고양이",
     entity_id="cat",
     entity_desc="\
-        Cats are lazy, mysterious, natural-born hunters.\n\
-        They are incredibly flexible, have very sensitive eyesight, and eat pretty much anything, which makes them ideal for a friendly pet.\n\
-        Some believe that cats possess spiritual forces and can manipulate one's dream, but nothing is yet to be confirmed.\n\
+        고양이들은 게으르지만 맹수의 본능을 지닌 민첩한 사냥꾼들이다.\n\
+        이들은 잡식성이고 시력이 좋기 때문에 많은 모험꾼들에게 애완동물로 사랑받는다.\n\
+        고양이들이 사람의 꿈을 조종하는 영적인 능력을 지녔다고 주장하는 학자들도 있지만, 명확히 밝혀진 것은 없다.\n\
+        \n\
+        \"그 녀석하고 눈이 마주친 날이면 난 항상 악몽을 꿔. 그런데도 왜일까, 녀석만 보면 자꾸 먹이를 주게 돼.\"\
         ",
     rarity=8,
     spawnable=True,
-    edible=RawMeatEdible(nutrition=50, cook_bonus=30),
+    edible=RawMeatEdible(nutrition=83, cook_bonus=30),
     ai_cls=ai_factories.cat_ai,
     status=Status(
         hp=48,
@@ -435,13 +450,15 @@ monster_difficulty[cat.status.difficulty].append(cat)
 
 ### Large Cat
 large_cat = Actor(
-    char="c",
+    char="큰 고양이",
     fg=(230, 169, 0),
     name="Large Cat",
     entity_id="large_cat",
     entity_desc="\
-        Some cats in the dungeon grow much bigger than the others.\n\
-        They are by no means a beast, but they definitely can be a threat when engaged unprepared.\
+        던전의 기운을 받은 고양이들은 지상의 맹수에 가까운 크기로 자라기도 한다.\n\
+        이들은 결코 맹수는 아니지만, 무방비한 모험가에게는 충분한 위협이 될 수 있다.\n\
+        \n\
+        \"이 흉터가 고양이 때문에 생겼다는 건 죽어도 비밀이다, 알겠지?\"\
         ",
     rarity=3,
     spawnable=True,
@@ -491,11 +508,13 @@ monster_difficulty[large_cat.status.difficulty].append(large_cat)
 puppy = Actor(
     char="d",
     fg=(196, 220, 255),
-    name="Puppy",
+    name="강아지",
     entity_id="puppy",
     entity_desc="\
-        Puppies are sparkly and curious beings.\n\
-        While they are much weaker than the adults, they are definitely more energetic.\
+        강아지들은 호기심이 넘치는 존재이다.\n\
+        성체에 비하면 한참 뒤떨어지는 신체능력을 가졌지만, 넘치는 에너지 만큼은 성체를 압도한다.\n\
+        \n\
+        \"포션술사는 절대 강아지를 길러선 안돼. 집이 언제 불바다가 될 지 모르거든.\"\
         ",
     rarity=3,
     spawnable=True,
@@ -508,7 +527,7 @@ puppy = Actor(
         dexterity=9,
         agility=9,
         intelligence=5,
-        constitution=11,
+        constitution=15,
         charm=13,
         difficulty=3,
         base_melee=3,
@@ -540,10 +559,13 @@ monster_difficulty[puppy.status.difficulty].append(puppy)
 dog = Actor(
     char="d",
     fg=(105, 165, 255),
-    name="Dog",
+    name="개",
     entity_id="dog",
     entity_desc="\
-        Men's best friend.\
+        인간 최고의 친구라는 이명은 던전 안에서도 예외가 아니다.\n\
+        이들은 한 번 충성을 바친 주인에게는 무슨 일이 있어도 복종하며, 자신의 목숨을 바치는 데도 망설임이 없다.\n\
+        \n\
+        \"가족이 날 버려도 너만은 함께 해주는구나, 토비.\"\
         ",
     #TODO fix desc
     rarity=8,
@@ -557,7 +579,7 @@ dog = Actor(
         dexterity=12,
         agility=15,
         intelligence=9,
-        constitution=13,
+        constitution=12,
         charm=13,
         difficulty=4,
         base_melee=5,
@@ -589,11 +611,13 @@ monster_difficulty[dog.status.difficulty].append(dog)
 large_dog = Actor(
     char="d",
     fg=(0, 102, 255),
-    name="Large Dog",
+    name="큰 개",
     entity_id="large_dog",
     entity_desc="\
-        Men's best friend.\n\
-        ...Unless you angered it.\n\
+        인간 최고의 친구라는 이명은 던전 안에서도 예외가 아니다.\n\
+        ...적으로 마주치지만 않는다면.\n\
+        \n\
+        \"사냥꾼의 가장 강력한 무기는 단검도, 활도 아니야. 그건 바로 녀석의 사냥개야.\"\
         ",
     rarity=3,
     spawnable=True,
@@ -642,13 +666,15 @@ monster_difficulty[large_dog.status.difficulty].append(large_dog)
 floating_eye = Actor(
     char="e",
     fg=(255, 255, 255),
-    name="Floating Eye",
+    name="떠다니는 눈",
     entity_id="floating_eye",
     entity_desc="\
-        Like many other creatures dwelling in the dungeon, floating eyes are considered mysterious and weird.\n\
-        It has no limbs, torso, or any other body parts except for one giant eyeball.\n\
-        Floating eyes\' gaze can cause paralyzation for reasons unknown, so it is better not to engage with these creatures.\n\
-        Despite its potential danger, floating eyes can't physically hurt other beings.\
+        던전 안의 많은 생명체들은 그 정체가 베일에 감추어져 있다.\n\
+        그러나 그 중에서도 가장 기원을 알 수 없고, 알려진 게 없는 존재가 바로 '떠다니는 눈' 들이다.\n\
+        이들은 눈을 마주치는 것으로 생명체를 마비시킬 수 있는 강력한 힘을 가졌지만, 다행히 이들은 호전적이지 않을 뿐더러\n\
+        물리적으로는 전혀 위협이 되지 않는다.\n\
+        \n\
+        \"마치 몸의 지배권을 빼앗기는 느낌이었어. 내가 녀석이 되고 녀석이 내가 되는 듯한 느낌이었지.\"\
         ",
     rarity=4,
     spawnable=True,
@@ -700,14 +726,19 @@ monster_difficulty[floating_eye.status.difficulty].append(floating_eye)
 giant_wasp = Actor(
     char="i",
     fg=(250, 250, 0),
-    name="Giant Wasp",
+    name="거대 말벌",
     entity_id="giant_wasp",
     entity_desc="\
-        TODO\n\
+        어릴 적 꿀벌을 잡으며 놀아본 적은 있을 것이다.\n\
+        하지만 꿀벌이 아니라 말벌이라면 이야기는 달라진다.\n\
+        거기에 독침이 사람 손가락 정도 크기라면,\n\
+        우리는 이들을 다른 종으로 분류해야 할 지도 모른다.\n\
+        \n\
+        \"독이 묻은 단검에 찔린다고 생각해봐. 거기에 그 단검이 날아다니면서 너를 쫓아온다면 난 분명 오줌을 지릴거야.\"\
         ",
     rarity=5,
     spawnable=True,
-    edible=RawMeatEdible(nutrition=130),
+    edible=GiantWaspEdible(nutrition=50, cook_bonus=5),
     ai_cls=ai_factories.giant_wasp_ai,
     status=Status(
         hp=50,
@@ -752,7 +783,7 @@ monster_difficulty[giant_wasp.status.difficulty].append(giant_wasp)
 black_jelly = Actor(
     char="j",
     fg=(10, 20, 10),
-    name="Black Jelly",
+    name="검정색 덩어리",
     entity_id="black_jelly",
     entity_desc="\
         TODO\n\
@@ -791,7 +822,7 @@ black_jelly = Actor(
     inventory=Inventory(capacity=1),
     ability_inventory=AbilityInventory(capacity=1),
     equipments=Equipments(),
-    initial_items=[(item_factories.toxic_goo, 1, (-1,-1))],
+    initial_items=[(item_factories.acid_goo, 1, (-1,-1))],
 )
 monster_difficulty[black_jelly.status.difficulty].append(black_jelly)
 

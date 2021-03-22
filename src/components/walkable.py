@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING
 from numpy.lib.twodim_base import tri
 from components.base_component import BaseComponent
 from entity import Actor, Item
+from korean import grammar as g
 
 
 class Walkable(BaseComponent):
@@ -95,21 +96,21 @@ class SpikeTrapWalkable(TrapWalkable):
         feet_item = target.equipments.equipments["feet"]
         if feet_item:
             if self.gamemap.visible[target.x, target.y]:
-                self.engine.message_log.add_message(f"{target.name} steps on the spike trap, but his {feet_item.name} protects!", target=target)
+                self.engine.message_log.add_message(f"{g(target.name, '은')} 가시 함정을 밟았지만, {g(feet_item.name, '이')} {g(target.name, '을')} 보호했다!", target=target)
 
             return None
 
         # No effects when levitating(flying)
         if target.actor_state.is_flying:
             if self.gamemap.visible[target.x, target.y]:
-                self.engine.message_log.add_message(f"{target.name} hovers over the spike trap.", target=target)
+                self.engine.message_log.add_message(f"{g(target.name, '이')} 가시 함정 위를 넘어갔다.", target=target)
 
             return None
 
         # else
         dmg = self.base_damage + random.randint(0, self.add_damage)
         if self.gamemap.visible[target.x, target.y]:
-            self.engine.message_log.add_message(f"{target.name} steps on the spike trap, taking {dmg} damage.", target=target)
+            self.engine.message_log.add_message(f"{g(target.name, '이')} 가시 함정을 밟아 {dmg} 데미지를 받았다.", target=target)
         target.status.take_damage(dmg)
 
 

@@ -3,6 +3,7 @@ from os import dup
 from typing import Optional, TYPE_CHECKING
 from components.base_component import BaseComponent
 from input_handlers import RayDirInputHandler
+from korean import grammar as g
 
 import random
 import actions
@@ -54,7 +55,7 @@ class StealActivatable(Activatable):
     """
     def get_action(self, caster: Actor, x: int=None, y: int=None, target: Actor=None):
         if caster == self.engine.player:
-            self.engine.message_log.add_message("Select a target location.", color.needs_target)
+            self.engine.message_log.add_message("타겟의 위치를 선택하세요.", color.needs_target)
             self.engine.event_handler = RayDirInputHandler(
                 engine=self.engine,
                 actor=caster,
@@ -71,7 +72,7 @@ class StealActivatable(Activatable):
 
         # If there is no target
         if not target:
-            self.engine.message_log.add_message(f"{attacker.name} tried to steal something from a thin air.", target=attacker, fg=color.gray)
+            self.engine.message_log.add_message(f"{g(attacker.name, '은')} 허공에서 훔칠만한 것을 찾아보았지만 실패했다.", target=attacker, fg=color.gray)
             return None
 
         # Chance of successfully stealing depends on the caster's dexterity.
@@ -107,17 +108,17 @@ class StealActivatable(Activatable):
 
                 # Log
                 if item_count > 1:
-                    self.engine.message_log.add_message(f"{attacker.name} steals {dup_item.name} from {target.name}(x{dup_item.stack_count})!", target=attacker)
+                    self.engine.message_log.add_message(f"{g(attacker.name, '은')} {g(target.name, '로')}부터 {g(dup_item.name, '을')} 훔쳤다! (x{dup_item.stack_count})", target=attacker)
                     target.status.take_damage(amount=0, attacked_from=attacker)# make target hostile
                 else:
-                    self.engine.message_log.add_message(f"{attacker.name} steals {dup_item.name} from {target.name}!", target=attacker)
+                    self.engine.message_log.add_message(f"{g(attacker.name, '은')} {g(target.name, '로')}부터 {g(dup_item.name, '을')} 훔쳤다!", target=attacker)
                     target.status.take_damage(amount=0, attacked_from=attacker)# make target hostile
             else:
-                self.engine.message_log.add_message(f"{attacker.name} tried to steal something from {target.name}, but there was nothing to steal.", target=attacker)
+                self.engine.message_log.add_message(f"{g(attacker.name, '은')} {g(target.name, '로')}부터 무언가를 훔치려 시도했지만 훔칠 만한 것이 아무 것도 없었다.", target=attacker)
                 target.status.take_damage(amount=0, attacked_from=attacker)# make target hostile
         # B. Stealing Failed
         else:
-            self.engine.message_log.add_message(f"{attacker.name} tried to steal something from {target.name}, but failed.", target=attacker)
+            self.engine.message_log.add_message(f"{g(attacker.name, '은')} {g(target.name, '로')}부터 무언가를 훔치려 시도했지만 실패했다.", target=attacker)
             target.status.take_damage(amount=0, attacked_from=attacker)# make target hostile
 
 
@@ -155,7 +156,8 @@ class SpellActivateable(Activatable):
         if action.entity.status.changed_status["mp"] >= self.mana_cost:
             self.cast(action=action)
         else:
-            self.engine.message_log.add_message(f"{action.entity.name} failed to cast a spell from lack of mana.", target=action.entity)
+            if action.entity == self.engine.player:
+                self.engine.message_log.add_message(f"{g(action.entity.name, '은')} 마나 부족으로 인해 마법 사용에 실패했다.", target=action.entity)
         
 
 class LightningStrikeActivatable(SpellActivateable):
@@ -178,7 +180,7 @@ class LightningStrikeActivatable(SpellActivateable):
                     closest_distance = distance
 
         if target:
-            self.engine.message_log.add_message(f"A lighting bolt strikes {target.name}!", target=caster)
+            self.engine.message_log.add_message(f"번개가 {g(target.name, '을')} 내리쳤다!", target=caster)
 
             target.status.take_damage(amount=0, attacked_from=caster) # trigger target
             target.actor_state.is_electrocuting = [self.damage, 0.5]

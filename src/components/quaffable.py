@@ -5,6 +5,7 @@ from typing import Optional, TYPE_CHECKING
 import actions
 import color
 from components.base_component import BaseComponent
+from korean import grammar as g
 
 if TYPE_CHECKING:
     from entity import Actor, Item
@@ -44,13 +45,13 @@ class PotionOfHealingQuaffable(Quaffable):
 
         if amount_recovered > 0:
             if consumer == self.engine.player:
-                self.engine.message_log.add_message(f"Your wounds start to recover!",color.health_recovered,)
+                self.engine.message_log.add_message(f"당신의 상처가 낫기 시작한다!",color.health_recovered,)
             else:
                 if self.engine.game_map.visible[consumer.x, consumer.y]:
-                    self.engine.message_log.add_message(f"{consumer.name}'s wounds suddenly start to recover!", color.white, target=consumer)
+                    self.engine.message_log.add_message(f"{consumer.name}의 상처가 낫기 시작한다!", color.white, target=consumer)
         else:# Gain additional health when quaffed while full-health
             if consumer == self.engine.player:
-                self.engine.message_log.add_message(f"You feel much more energetic!",color.health_recovered,)
+                self.engine.message_log.add_message(f"당신의 몸에 에너지가 넘친다!",color.health_recovered,)
 
             consumer.status.max_hp += max(1, round(self.amount / 10))#TODO balance
         
@@ -67,10 +68,10 @@ class PotionOfParalysisQuaffable(Quaffable):
 
         # Log
         if consumer == self.engine.player:
-            self.engine.message_log.add_message(f"Suddenly you can't move your body!", color.player_damaged,)
+            self.engine.message_log.add_message(f"당신은 갑자기 몸을 움직일 수가 없게 되었다!", color.player_damaged,)
         else:
             if self.engine.game_map.visible[consumer.x, consumer.y]:
-                self.engine.message_log.add_message(f"{consumer.name} suddenly stops all movements!", color.white, target=consumer)
+                self.engine.message_log.add_message(f"{g(consumer.name, '이')} 갑자기 모든 움직임을 멈추었다.", color.white, target=consumer)
             
         self.consume()
 
@@ -85,7 +86,7 @@ class PotionOfMonsterDetectionQuaffable(Quaffable):
         
         # Log
         if consumer == self.engine.player:
-            self.engine.message_log.add_message(f"You start to sense the existence of other creatures vividly.", color.player_damaged,)
+            self.engine.message_log.add_message(f"당신은 다른 생명체들의 존재를 감지하기 시작했다.", color.player_damaged,)
         else:
             if self.engine.game_map.visible[consumer.x, consumer.y]:
                 self.engine.message_log.add_message(f"{consumer.name} looks more sharp.", color.white, target=consumer)

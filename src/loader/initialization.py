@@ -22,6 +22,8 @@ def get_game_config():
 
     world_depth = 25 # Total dungeon depth
 
+    lang = "ko"
+
     game_config = {
         "screen_width" : screen_width,
         "screen_height" : screen_height,
@@ -32,6 +34,7 @@ def get_game_config():
         "camera_ypos" : camera_ypos,
         "tileset_path" : tileset_path,
         "world_depth" : world_depth,
+        "lang": lang,
     }
 
     return game_config

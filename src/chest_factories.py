@@ -95,10 +95,10 @@ from components.inventory import Inventory
 import item_factories
 
 large_wooden_chest = ChestSemiactor(
-        char="♫",
+        char="▣",
         fg=(191, 128, 0),
         bg=None,
-        name="large wooden chest",
+        name="대형 나무 상자",
         entity_id="large_wooden_chest",
         entity_desc="large wooden chest desc",
         do_action=False,

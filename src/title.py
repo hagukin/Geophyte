@@ -72,7 +72,7 @@ def render_title_gui(console):
     y = height - 17
     # render
     from util import draw_thick_frame
-    draw_thick_frame(console, x, y, width=17, height=9, fg=color.title_gui_frame)
+    #draw_thick_frame(console, x, y, width=17, height=9, fg=color.title_gui_frame)
     console.print(x+2, y+1, string="\nN - New Game\n\nL - Load Game\n\nQ - Quit Game\n", fg=color.white)
 
     # Copyright Note, version mark
@@ -151,15 +151,15 @@ def title_event_handler(console, context, cfg):
         # Get input from title screen
         if title_action == "new_game":
             player, engine = init_game_variables(cfg)
-            engine.message_log.add_message(f"Hello {player.name}, welcome to Geophyte!", color.welcome_text)
+            engine.message_log.add_message(f"{player.name} 님, 지오파이트의 세계에 오신 것을 환영합니다!", color.welcome_text)
             return player, engine
         elif title_action == "load_game":
             try:
                 player, engine = load_game()
-                engine.message_log.add_message(f"Welcome back to Geophyte, {player.name}!", color.welcome_text)
+                engine.message_log.add_message(f"{player.name}님, 지오파이트의 세계에 돌아오신 것을 환영합니다!", color.welcome_text)
                 return player, engine
             except:
-                console.print(5, 5, string="Couldn't find any save data available.", fg=color.red)
+                console.print(5, 5, string="세이브 파일을 찾지 못했습니다.", fg=color.red)
                 context.present(console, keep_aspect=True)
                 continue
 

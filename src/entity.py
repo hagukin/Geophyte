@@ -8,6 +8,7 @@ from typing import Optional, Tuple, Type, TypeVar, TYPE_CHECKING, List
 from numpy.core.shape_base import block
 from order import RenderOrder, InventoryOrder
 from components.experience import Experience
+from korean import grammar as g
 
 if TYPE_CHECKING:
     from components.ai import BaseAI
@@ -462,7 +463,7 @@ class Actor(Entity):
         super().collided_with_fire(fire)
         # Burn the actor
         if self.actor_state.is_burning == [0,0,0,0]: # was not already burning
-            self.engine.message_log.add_message(f"{self.name} catches on fire!",target=self)
+            self.engine.message_log.add_message(f"{self.name}에 불이 붙었다!",target=self)
             self.actor_state.is_burning = [fire.rule.base_damage, fire.rule.add_damage, 0, fire.rule.fire_duration]
 
         # Ignite items in inventory

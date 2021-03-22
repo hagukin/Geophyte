@@ -740,7 +740,7 @@ class Engine:
         
         # draw frame
         if draw_frame:
-            console.draw_frame(x=gui_x-1, y=gui_y-1, width=28, height=height, title="In sight", clear=False, fg=color.gui_frame_fg, bg=color.gui_frame_bg)
+            console.draw_frame(x=gui_x-1, y=gui_y-1, width=28, height=height, title="시야 내 정보", clear=False, fg=color.gui_frame_fg, bg=color.gui_frame_bg)
     def draw_window(
             self,
             console: Console,

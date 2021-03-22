@@ -5,7 +5,7 @@ biome_dict = {}
 biome_rarity = []
 
 rocky_dungeon = Biome(
-    name="Rocky Dungeon",
+    name="돌무더기",
     biome_id="rocky_dungeon",
     biome_desc="Desc of rocky dungeon biome (TEST)",
     rarity=1,
@@ -16,7 +16,7 @@ biome_dict[rocky_dungeon.biome_id] = rocky_dungeon
 biome_rarity.append(rocky_dungeon.rarity)
 
 desert_dungeon = Biome(
-    name="Desert Dungeon",
+    name="사막",
     biome_id="desert_dungeon",
     biome_desc="desert_dungeon (TEST)",
     rarity=1,
@@ -34,7 +34,7 @@ biome_dict[desert_dungeon.biome_id] = desert_dungeon
 biome_rarity.append(desert_dungeon.rarity)
 
 ancient_ruins = Biome(
-    name="Ancient Ruins",
+    name="고대 유적",
     biome_id="ancient_ruins",
     biome_desc="ancient_ruins (TEST)",
     rarity=0,

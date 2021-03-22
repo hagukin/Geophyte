@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing import Optional, TYPE_CHECKING
 from components.base_component import BaseComponent
+from korean import grammar as g
 
 import actions
 import color
@@ -65,10 +66,10 @@ class Edible(BaseComponent):
         if self.spoilage > 3:
             if self.parent.parent != None:
                 if self.parent.parent.parent == self.engine.player:
-                    self.engine.message_log.add_message(f"Your {self.parent.name} rots away!", color.player_damaged,)
+                    self.engine.message_log.add_message(f"당신의 {g(self.parent.name, '이')} 썩어 사라졌다!", color.player_damaged,)
             else:
                 if self.engine.game_map.visible[self.parent.x, self.parent.y]:
-                    self.engine.message_log.add_message(f"{self.parent.name} rots away.", color.gray, target=self.parent)
+                    self.engine.message_log.add_message(f"{g(self.parent.name, '이')} 썩어 사라졌다.", color.gray, target=self.parent)
             self.parent.remove_self()
 
     def get_action(self, consumer: Actor) -> Optional[actions.Action]:
@@ -98,59 +99,59 @@ class Edible(BaseComponent):
         if consumer == self.engine.player:
             if self.spoilage <= 0: # Fresh
                 self.engine.message_log.add_message(
-                    f"{self.parent.name} tastes fresh!",
+                    f"{g(self.parent.name, '은')} 굉장히 맛있었다!",
                     color.health_recovered,
                 )
             elif self.spoilage == 1: # Normal
                 self.engine.message_log.add_message(
-                    f"{self.parent.name} tastes fine.",
+                    f"{g(self.parent.name, '은')} 나쁘지 않았다.",
                     color.white,
                 )
             elif self.spoilage == 2: # Bad
                 self.engine.message_log.add_message(
-                    f"{self.parent.name} doesn't taste good.",
+                    f"{g(self.parent.name, '은')} 맛이 좋지 않았다.",
                     color.white,
                 )
             elif self.spoilage >= 3: # rotten
                 self.engine.message_log.add_message(
-                    f"{self.parent.name} tastes awful!",
+                    f"{g(self.parent.name, '은')} 맛이 끔찍했다!",
                     color.player_damaged,
                 )
 
             # Log - status
             if consumer.actor_state.hunger_state == "fainting":
                 self.engine.message_log.add_message(
-                    f"You are still fainting from hunger...",
+                    f"당신은 아직 배고픔에 허덕이고 있다...",
                     color.player_damaged,
                 )
             elif consumer.actor_state.hunger_state == "starving":
                 self.engine.message_log.add_message(
-                    f"You are still starving...",
+                    f"당신은 아직 굶주리고 있다...",
                     color.player_damaged,
                 )
             elif consumer.actor_state.hunger_state == "hungry":
                 self.engine.message_log.add_message(
-                    f"You are still a bit hungry.",
+                    f"당신은 아직 배고프다.",
                     color.gray,
                 )
             elif consumer.actor_state.hunger_state == "":
                 self.engine.message_log.add_message(
-                    f"Your stomach feels okay.",
+                    f"당신은 배가 고프지 않다.",
                     color.gray,
                 )
             elif consumer.actor_state.hunger_state == "satiated":
                 self.engine.message_log.add_message(
-                    f"You feel full.",
+                    f"당신은 배가 부르다.",
                     color.gray,
                 )
             elif consumer.actor_state.hunger_state == "overeaten":
                 self.engine.message_log.add_message(
-                    f"You feel terribly full.",
+                    f"당신은 끔찍할 정도로 배가 부르다.",
                     color.player_damaged,
                 )
         else:
             self.engine.message_log.add_message(
-                f"The {action.entity.name} is eating the {self.parent.name}.",
+                f"{g(action.entity.name, '이')} {g(self.parent.name, '을')} 먹었다.",
                 fg=color.gray,
                 target=action.entity,
             )
@@ -209,7 +210,7 @@ class FireAntEdible(RawMeatEdible):
         consumer = action.entity
         # Log
         if consumer == self.engine.player:
-            self.engine.message_log.add_message(f"You feel an mildly hot sensation in your mouth.", color.white)
+            self.engine.message_log.add_message(f"당신의 입 안에서 약간의 열기가 느껴진다.", color.white)
         return super().effect_cooked()
 
 
@@ -218,7 +219,7 @@ class VoltAntEdible(RawMeatEdible):
         consumer = action.entity
         # Log
         if consumer == self.engine.player:
-            self.engine.message_log.add_message(f"Your tongue tingles.", color.white)
+            self.engine.message_log.add_message(f"당신의 혓바닥이 따끔거린다.", color.white)
         return super().effect_cooked()
 
 
@@ -229,11 +230,26 @@ class VoltAntEdible(RawMeatEdible):
 class FloatingEyeEdible(Edible):
     def effect_always(self, action: actions.EatItem):
         consumer = action.entity
-        consumer.actor_state.has_telepathy = True # Gain telepathy
 
         # Log
         if not consumer.actor_state.has_telepathy:
             if consumer == self.engine.player:
-                self.engine.message_log.add_message(f"You feel the connection between you and this world.", color.status_effect_applied)
+                self.engine.message_log.add_message(f"당신은 다른 생명체들과의 정신적 교감을 느꼈다.", color.status_effect_applied)
             consumer.actor_state.has_telepathy = True
+        return super().effect_always(action)
+
+
+####################################################
+############### i = flying insects  ################
+####################################################
+
+class GiantWaspEdible(Edible):
+    def effect_uncooked(self, action: actions.EatItem):
+        consumer = action.entity
+
+        # Log
+        if not consumer.actor_state.has_telepathy:
+            if consumer == self.engine.player:
+                self.engine.message_log.add_message(f"끔찍한 맛이 났다!", color.player_damaged)
+            consumer.actor_state.is_poisoned = [1, 0, 0, 8]
         return super().effect_always(action)

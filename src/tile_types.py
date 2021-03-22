@@ -173,7 +173,7 @@ def vintronium():
         brightest_fg_color=(60, 0, 106),
         darkest_bg_color=(15, 15, 15),
         brightest_bg_color=(35, 35, 35),
-        tile_name="vintronium",
+        tile_name="빈트로늄",
         tile_id="vintronium",
     )
 
@@ -196,7 +196,7 @@ def floor():
             (150, 150, 150),
             (47, 47, 47)
         ),
-        tile_name="stone floor",
+        tile_name="석재 바닥",
         tile_id="floor",
     )
 def floor_desert():
@@ -216,7 +216,7 @@ def floor_desert():
             (209, 199, 155),
             (115, 110, 99),
         ),
-        tile_name="sandy floor",
+        tile_name="모래 바닥",
         tile_id="floor",
     )
 def floor_ancient_ruins():
@@ -236,7 +236,7 @@ def floor_ancient_ruins():
             (70, 65, 89),
             (47, 47, 47),
         ),
-        tile_name="ancient tiles",
+        tile_name="고대 타일",
         tile_id="floor",
     )
 
@@ -260,7 +260,7 @@ def wall():
         ),
         darkest_bg_color=(90, 60, 30),
         brightest_bg_color=(210, 110, 40),
-        tile_name="wall",
+        tile_name="벽",
         tile_id="wall",
     )
 def wall_desert():
@@ -282,7 +282,7 @@ def wall_desert():
         ),
         darkest_bg_color=(227, 216, 148),
         brightest_bg_color=(254, 207, 71),
-        tile_name="sand wall",
+        tile_name="사암 벽",
         tile_id="wall",
     )
 def wall_ancient_ruins():
@@ -304,7 +304,7 @@ def wall_ancient_ruins():
         ),
         darkest_bg_color=(108, 123, 149),
         brightest_bg_color=(139, 186, 187),
-        tile_name="ancient wall",
+        tile_name="고대 벽",
         tile_id="wall",
     )
 
@@ -328,7 +328,7 @@ def dense_grass():
         ),
         darkest_fg_color=(150, 190, 50),
         brightest_fg_color=(15, 255, 0),
-        tile_name="dense grass",
+        tile_name="잔디",
         tile_id="dense_grass",
     )
 def dense_grass_desert():
@@ -350,7 +350,7 @@ def dense_grass_desert():
         ),
         darkest_fg_color=(150, 190, 50),
         brightest_fg_color=(15, 255, 0),
-        tile_name="dense grass",
+        tile_name="사막 풀",
         tile_id="dense_grass",
     )
 
@@ -373,7 +373,7 @@ def sparse_grass():
             (85, 200, 55),
             (47, 47, 47)
         ),
-        tile_name="sparse grass",
+        tile_name="잔디",
         tile_id="sparse_grass",
     )
 def sparse_grass_desert():
@@ -393,7 +393,7 @@ def sparse_grass_desert():
             (150, 190, 50),
             (115, 110, 99),
         ),
-        tile_name="sparse grass",
+        tile_name="사막 풀",
         tile_id="sparse_grass",
     )
 
@@ -416,7 +416,7 @@ def burnt_floor():
             (250, 10, 0),
             (35, 25, 25)
         ),
-        tile_name="burnt floor",
+        tile_name="그을린 바닥",
         tile_id="burnt_floor",
     )
 
@@ -439,7 +439,7 @@ def ascending_stair():
             (255, 255, 0),
             (80, 80, 80)
         ),
-        tile_name="ascending stair",
+        tile_name="올라가는 계단",
         tile_id="ascending_stair",
     )
 
@@ -462,7 +462,7 @@ def descending_stair():
             (255, 255, 0),
             (80, 80, 80)
         ),
-        tile_name="descending stair",
+        tile_name="내려가는 계단",
         tile_id="descending_stair",
     )
 
@@ -485,7 +485,7 @@ def hole():
             (0, 0, 0),
             (0, 0, 0)
         ),
-        tile_name="hole",
+        tile_name="구멍",
         tile_id="hole",
     )
 
@@ -508,7 +508,7 @@ def deep_pit():
             (0, 0, 0),
             (15, 15, 15)
         ),
-        tile_name="deep pit",
+        tile_name="깊은 구덩이",
         tile_id="deep_pit",
     )
 
@@ -531,7 +531,7 @@ def shallow_pit():
             (0, 0, 0),
             (36, 36, 36)
         ),
-        tile_name="shallow pit",
+        tile_name="얕은 구덩이",
         tile_id="shallow_pit",
     )
 
@@ -556,7 +556,7 @@ def deep_water():
         ),
         darkest_bg_color=(75, 68, 182),
         brightest_bg_color=(32, 24, 145),
-        tile_name="deep water",
+        tile_name="깊은 물",
         tile_id="deep_water",
     )
 
@@ -581,7 +581,7 @@ def shallow_water():
         ),
         darkest_bg_color=(75, 68, 182),
         brightest_bg_color=(106, 107, 250),
-        tile_name="shallow water",
+        tile_name="얕은 물",
         tile_id="shallow_water",
     )
 

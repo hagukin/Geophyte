@@ -38,7 +38,7 @@ def get_names_at_location(x: int, y: int, game_map: GameMap, display_id: bool=Fa
             elif isinstance(entity, Actor):
                 if entity.ai:
                     if entity.ai.owner == game_map.engine.player:
-                        names.append(f"Pet {entity.name}")
+                        names.append(f"펫 {entity.name}")
                     else:
                         names.append(entity.name)
                 else:
@@ -71,8 +71,8 @@ def render_gameinfo(
     console: Console, x: int, y: int, depth: int, game_turn: int,
 ) -> None:
     """print dungeon depth, game turn, etc."""
-    console.print(x=x, y=y, string=f"Depth: {depth}", fg=color.white)
-    console.print(x=x+11, y=y, string=f"Turn: {game_turn}", fg=color.gray)
+    console.print(x=x, y=y, string=f"층: {depth}", fg=color.white)
+    console.print(x=x+11, y=y, string=f"턴수: {game_turn}", fg=color.gray)
 
 
 def render_health_bar(
@@ -85,7 +85,7 @@ def render_health_bar(
     if bar_width > 0:
         console.draw_rect(x=x, y=y, width=bar_width, height=1, ch=1, bg=color.health_bar_filled)
 
-    console.print(x=x, y=y, string=f"HP: {current_value}/{maximum_value}", fg=color.white)
+    console.print(x=x, y=y, string=f"체력: {current_value}/{maximum_value}", fg=color.white)
 
 
 def render_mana_bar(
@@ -98,7 +98,7 @@ def render_mana_bar(
     if bar_width > 0:
         console.draw_rect(x=x, y=y, width=bar_width, height=1, ch=1, bg=color.mana_bar_filled)
 
-    console.print(x=x, y=y, string=f"MP: {current_value}/{maximum_value}", fg=color.white)
+    console.print(x=x, y=y, string=f"마나: {current_value}/{maximum_value}", fg=color.white)
 
 
 def sign(num: int):
@@ -115,21 +115,21 @@ def render_character_status(
     stat = character.status.changed_status
 
     # Status
-    console.print(x=x, y=y, string=f"Str: {stat['strength']}", fg=color.light_gray)
-    console.print(x=x+13, y=y, string=f"Dex: {stat['dexterity']}", fg=color.light_gray)
-    console.print(x=x, y=y+1, string=f"Con: {stat['constitution']}", fg=color.light_gray)
-    console.print(x=x+13, y=y+1, string=f"Agi: {stat['agility']}", fg=color.light_gray)
-    console.print(x=x, y=y+2, string=f"Int: {stat['intelligence']}", fg=color.light_gray)
-    console.print(x=x+13, y=y+2, string=f"Cha: {stat['charm']}", fg=color.light_gray)
+    console.print(x=x, y=y, string=f"힘: {stat['strength']}", fg=color.light_gray)
+    console.print(x=x+13, y=y, string=f"손재주: {stat['dexterity']}", fg=color.light_gray)
+    console.print(x=x, y=y+1, string=f"활력: {stat['constitution']}", fg=color.light_gray)
+    console.print(x=x+13, y=y+1, string=f"민첩: {stat['agility']}", fg=color.light_gray)
+    console.print(x=x, y=y+2, string=f"지능: {stat['intelligence']}", fg=color.light_gray)
+    console.print(x=x+13, y=y+2, string=f"매력: {stat['charm']}", fg=color.light_gray)
 
     # Armor
-    console.print(x=x, y=y+4, string=f"Protection level: {stat['protection']}", fg=color.white)
-    console.print(x=x, y=y+6, string=f"Base Atk: {stat['base_melee']}", fg=color.white)
-    console.print(x=x, y=y+7, string=f"Add. Atk: 0 ~ {stat['additional_melee']}", fg=color.white)
+    console.print(x=x, y=y+4, string=f"보호도: {stat['protection']}", fg=color.white)
+    console.print(x=x, y=y+6, string=f"기본 공격력: {stat['base_melee']}", fg=color.white)
+    console.print(x=x, y=y+7, string=f"추가 공격력: 0 ~ {stat['additional_melee']}", fg=color.white)
 
     # border for status gui
     if draw_frame:
-        console.draw_frame(x=x-1, y=y-6, width=28, height=15, title="Player Status", clear=False, fg=color.gui_frame_fg, bg=color.gui_frame_bg)
+        console.draw_frame(x=x-1, y=y-6, width=28, height=15, title="스테이터스", clear=False, fg=color.gui_frame_fg, bg=color.gui_frame_bg)
 
 
 def render_character_state(
@@ -173,99 +173,99 @@ def render_character_state(
     if character.actor_state.is_burning != [0,0,0,0]:
         if num1 > window_height:
             num2 += 1
-            console.print(x=lane2_x, y=y+num2, string="on fire", fg=color.red)
+            console.print(x=lane2_x, y=y+num2, string="불 붙음", fg=color.red)
         else:
             num1 += 1
-            console.print(x=lane1_x, y=y+num1, string="on fire", fg=color.red)
+            console.print(x=lane1_x, y=y+num1, string="불 붙음", fg=color.red)
     if character.actor_state.is_freezing != [0,0,0,0,0]:
         if num1 > window_height:
             num2 += 1
-            console.print(x=lane2_x, y=y+num2, string="freezing", fg=color.ice)
+            console.print(x=lane2_x, y=y+num2, string="얼고 있음", fg=color.ice)
         else:
             num1 += 1
-            console.print(x=lane1_x, y=y+num1, string="freezing", fg=color.ice)
+            console.print(x=lane1_x, y=y+num1, string="얼고 있음", fg=color.ice)
     if character.actor_state.is_frozen != [0,0,0]:
         if num1 > window_height:
             num2 += 1
-            console.print(x=lane2_x, y=y+num2, string="frozen", fg=color.blue_ice)
+            console.print(x=lane2_x, y=y+num2, string="얼어붙음", fg=color.blue_ice)
         else:
             num1 += 1
-            console.print(x=lane1_x, y=y+num1, string="frozen", fg=color.blue_ice)
+            console.print(x=lane1_x, y=y+num1, string="얼어붙음", fg=color.blue_ice)
     if character.actor_state.is_paralyzing != [0,0]:
         if num1 > window_height:
             num2 += 1
-            console.print(x=lane2_x, y=y+num2, string="paralyzed", fg=color.yellow)
+            console.print(x=lane2_x, y=y+num2, string="마비됨", fg=color.yellow)
         else:
             num1 += 1
-            console.print(x=lane1_x, y=y+num1, string="paralyzed", fg=color.yellow)
+            console.print(x=lane1_x, y=y+num1, string="마비됨", fg=color.yellow)
     if character.actor_state.is_confused != [0,0]:
         if num1 > window_height:
             num2 += 1
-            console.print(x=lane2_x, y=y+num2, string="confused", fg=color.yellow)
+            console.print(x=lane2_x, y=y+num2, string="혼란", fg=color.yellow)
         else:
             num1 += 1
-            console.print(x=lane1_x, y=y+num1, string="confused", fg=color.yellow)
+            console.print(x=lane1_x, y=y+num1, string="혼란", fg=color.yellow)
     if character.actor_state.is_bleeding != [0,0,0]:
         if num1 > window_height:
             num2 += 1
-            console.print(x=lane2_x, y=y+num2, string="bleeding", fg=color.blood)
+            console.print(x=lane2_x, y=y+num2, string="출혈", fg=color.blood)
         else:
             num1 += 1
-            console.print(x=lane1_x, y=y+num1, string="bleeding", fg=color.blood)
+            console.print(x=lane1_x, y=y+num1, string="출혈", fg=color.blood)
     if character.actor_state.is_melting != [0,0,0,0]:
         if num1 > window_height:
             num2 += 1
-            console.print(x=lane2_x, y=y+num2, string="covered in acid", fg=color.lime)
+            console.print(x=lane2_x, y=y+num2, string="산에 뒤덮임", fg=color.lime)
         else:
             num1 += 1
-            console.print(x=lane1_x, y=y+num1, string="covered in acid", fg=color.lime)
+            console.print(x=lane1_x, y=y+num1, string="산에 뒤덮임", fg=color.lime)
     if character.actor_state.is_poisoned != [0,0,0,0]:
         if num1 > window_height:
             num2 += 1
-            console.print(x=lane2_x, y=y+num2, string="poisoned", fg=color.purple)
+            console.print(x=lane2_x, y=y+num2, string="중독", fg=color.purple)
         else:
             num1 += 1
-            console.print(x=lane1_x, y=y+num1, string="poisoned", fg=color.purple)
+            console.print(x=lane1_x, y=y+num1, string="중독", fg=color.purple)
     if character.actor_state.is_submerged:
         if character.actor_state.is_underwater:
             if num1 > window_height:
                 num2 += 1
-                console.print(x=lane2_x, y=y+num2, string="fully submerged", fg=color.water_blue)
+                console.print(x=lane2_x, y=y+num2, string="완전히 물에 잠김", fg=color.water_blue)
             else:
                 num1 += 1
-                console.print(x=lane1_x, y=y+num1, string="fully submerged", fg=color.water_blue)
+                console.print(x=lane1_x, y=y+num1, string="완전히 물에 잠김", fg=color.water_blue)
         else:
             if num1 > window_height:
                 num2 += 1
-                console.print(x=lane2_x, y=y+num2, string="partially submerged", fg=color.water_blue)
+                console.print(x=lane2_x, y=y+num2, string="일부분 물에 잠김", fg=color.water_blue)
             else:
                 num1 += 1
-                console.print(x=lane1_x, y=y+num1, string="partially submerged", fg=color.water_blue)
+                console.print(x=lane1_x, y=y+num1, string="일부분 물에 잠김", fg=color.water_blue)
     if character.actor_state.is_drowning != [0,0]:
         # Display turns left until drowning
         if character.actor_state.is_drowning[0] >= character.actor_state.is_drowning[1] * 0.75:# 75% drowning
             if num1 > window_height:
                 num2 += 1
-                console.print(x=lane2_x, y=y+num2, string=f"drowning ({character.actor_state.is_drowning[1]-character.actor_state.is_drowning[0]})", fg=color.red)
+                console.print(x=lane2_x, y=y+num2, string=f"익사까지 {character.actor_state.is_drowning[1]-character.actor_state.is_drowning[0]}턴", fg=color.red)
             else:
                 num1 += 1
-                console.print(x=lane1_x, y=y+num1, string=f"drowning ({character.actor_state.is_drowning[1]-character.actor_state.is_drowning[0]})", fg=color.red)
+                console.print(x=lane1_x, y=y+num1, string=f"익사까지 {character.actor_state.is_drowning[1]-character.actor_state.is_drowning[0]}턴", fg=color.red)
         elif character.actor_state.is_drowning[0] >= character.actor_state.is_drowning[1] * 0.5:# 50% drowning
             if num1 > window_height:
                 num2 += 1
-                console.print(x=lane2_x, y=y+num2, string=f"drowning ({character.actor_state.is_drowning[1]-character.actor_state.is_drowning[0]})", fg=color.player_damaged)
+                console.print(x=lane2_x, y=y+num2, string=f"익사까지 {character.actor_state.is_drowning[1]-character.actor_state.is_drowning[0]}턴", fg=color.player_damaged)
             else:
                 num1 += 1
-                console.print(x=lane1_x, y=y+num1, string=f"drowning ({character.actor_state.is_drowning[1]-character.actor_state.is_drowning[0]})", fg=color.player_damaged)
+                console.print(x=lane1_x, y=y+num1, string=f"익사까지 {character.actor_state.is_drowning[1]-character.actor_state.is_drowning[0]}턴", fg=color.player_damaged)
         
     # Display "None" if there is no status effects
     if not num1 and not num2:
         num1 = 1
-        console.print(x=lane1_x, y=y+num1, string="None", fg=color.gray)
+        console.print(x=lane1_x, y=y+num1, string="(없음)", fg=color.gray)
 
     # border for state gui
     if draw_frame:
-        console.draw_frame(x=x-1, y=y, width=28, height=window_height+2, title="Status Effects", clear=False,  fg=color.gui_frame_fg, bg=color.gui_frame_bg)
+        console.draw_frame(x=x-1, y=y, width=28, height=window_height+2, title="상태 이상", clear=False,  fg=color.gui_frame_fg, bg=color.gui_frame_bg)
 
 
 def render_character_equipments(
@@ -276,7 +276,7 @@ def render_character_equipments(
     NOTE: This function can display any actor's status.
     """
 
-    console.print(x=x, y=y, string=f"Main-hand: {character.equipments.equipments['main_hand']}", fg=color.gui_status_text)
+    console.print(x=x, y=y, string=f"메인 핸드: {character.equipments.equipments['main_hand']}", fg=color.gui_status_text)
     #TODO: Display item name instead of memory address
     #TODO: Do not display unequipped body parts
 

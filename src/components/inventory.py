@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import List, TYPE_CHECKING
 from components.base_component import BaseComponent
 from exceptions import Impossible
+from korean import grammar as g
 
 import color
 
@@ -50,14 +51,14 @@ class Inventory(BaseComponent):
         if show_msg:
             if self.parent == self.engine.player:
                 if item.stack_count > 1:
-                    self.engine.message_log.add_message(f"You dropped the {item.name} (x{item.stack_count}).")
+                    self.engine.message_log.add_message(f"당신은 {g(item.name, '을')} 땅에 떨어뜨렸다. (x{item.stack_count}).")
                 else:
-                    self.engine.message_log.add_message(f"You dropped the {item.name}.")
+                    self.engine.message_log.add_message(f"당신은 {g(item.name, '을')} 땅에 떨어뜨렸다.")
             else:
                 if item.stack_count > 1:
-                    self.engine.message_log.add_message(f"{self.parent.name} threw the {item.name} (x{item.stack_count}).", fg=color.gray, target=self.parent)
+                    self.engine.message_log.add_message(f"{g(self.parent.name, '이')} {g(item.name, '을')} 땅에 떨어뜨렸다. (x{item.stack_count}).", fg=color.gray, target=self.parent)
                 else:
-                    self.engine.message_log.add_message(f"{self.parent.name} threw the {item.name}.", fg=color.gray, target=self.parent)
+                    self.engine.message_log.add_message(f"{g(self.parent.name, '이')} {g(item.name, '을')} 땅에 떨어뜨렸다.", fg=color.gray, target=self.parent)
 
         return True
     
@@ -79,9 +80,9 @@ class Inventory(BaseComponent):
 
         if show_msg:
             if self.parent == self.engine.player:
-                self.engine.message_log.add_message(f"You threw the {item.name}.")
+                self.engine.message_log.add_message(f"당신은 {g(item.name, '을')} 던졌다.")
             else:
-                self.engine.message_log.add_message(f"{self.parent.name} threw the {item.name}.", fg=color.gray, target=self.parent)
+                self.engine.message_log.add_message(f"{g(self.parent.name, '이')} {g(item.name, '을')} 던졌다.", fg=color.gray, target=self.parent)
 
         return True
 
@@ -193,6 +194,6 @@ class Inventory(BaseComponent):
                 # return the copy
                 return spliten_item
             else:
-                raise Impossible(f"The minimum amount you can split is 1.")
+                raise Impossible(f"최소한 하나 이상을 선택하세요.")
         else:
-            raise Impossible(f"The maximum amount you can split is {item.stack_count - 1}.")
+            raise Impossible(f"최대 {item.stack_count - 1}개 까지만 선택할 수 있습니다.")

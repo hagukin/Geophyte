@@ -4,6 +4,7 @@ from typing import List, TYPE_CHECKING, Optional
 
 from components.base_component import BaseComponent
 from components.equipable import Equipable
+from korean import grammar as g
 import exceptions
 
 import color
@@ -95,7 +96,7 @@ class Equipments(BaseComponent):
         if item.item_state.is_equipped:
             if not forced:
                 if self.parent == self.engine.player:
-                    raise exceptions.Impossible(f"You are already equipping {item.name}.")
+                    raise exceptions.Impossible(f"당신은 이미 {g(item.name, '을')} 장착하고 있다.")
 
             return None
 
@@ -112,9 +113,9 @@ class Equipments(BaseComponent):
 
         if not forced:
             if self.parent == self.engine.player:
-                self.engine.message_log.add_message(f"You equipped the {item.name}.", fg=color.health_recovered)
+                self.engine.message_log.add_message(f"당신은 {g(item.name, '을')} 장착했다.", fg=color.health_recovered)
             else:
-                self.engine.message_log.add_message(f"{self.parent.name} equipped the {item.name}.", fg=color.gray, target=self.parent)
+                self.engine.message_log.add_message(f"{g(self.parent.name, '이')} {g(item.name, '을')} 장착했다.", fg=color.gray, target=self.parent)
         item.item_state.is_equipped = item.equipable.equip_region
     
 
@@ -131,7 +132,7 @@ class Equipments(BaseComponent):
         if self.equipments[region] == None: 
             if not forced:
                 if self.parent == self.engine.player:
-                    raise exceptions.Impossible("You are not equipping anything.")
+                    raise exceptions.Impossible("당신은 해당 위치에 아무 것도 장착하고 있지 않다.")
 
             return None
         else:
@@ -140,8 +141,8 @@ class Equipments(BaseComponent):
 
             if not forced: # If the equipments is burned, rotted, etc(forced), do not display the log message.
                 if self.parent == self.engine.player:
-                    self.engine.message_log.add_message(f"You unequipped the {self.equipments[region].name}.", fg=color.health_recovered)
+                    self.engine.message_log.add_message(f"당신은 {g(self.equipments[region].name, '을')} 장착 해제했다.", fg=color.health_recovered)
                 else:
-                    self.engine.message_log.add_message(f"{self.parent.name} unequipped the {self.equipments[region].name}.", fg=color.gray, target=self.parent)
+                    self.engine.message_log.add_message(f"{g(self.parent.name, '이')} {g(self.equipments[region].name, '을')} 장착 해제했다.", fg=color.gray, target=self.parent)
 
             self.equipments[region] = None

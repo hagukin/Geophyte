@@ -5,6 +5,7 @@ from animation import Animation
 from components.base_component import BaseComponent
 from entity import Actor, SemiActor
 from input_handlers import RayRangedInputHandler
+from korean import grammar as g
 
 import semiactor_factories
 import actions
@@ -89,7 +90,7 @@ class Throwable(BaseComponent):
     def get_action(self, thrower: Actor) -> Optional[actions.Action]:
         """Try to return the action for this item."""
         self.engine.message_log.add_message(
-            "Select a direction.", color.needs_target
+            "방향을 선택하세요.", color.needs_target
         )
         self.engine.event_handler = RayRangedInputHandler(
             self.engine,
@@ -159,9 +160,9 @@ class NormalThrowable(Throwable):
                     dmg = self.damage_calculation(target=thrower, crit_multiplier=crit_multiplier)
 
                     if dmg > 0:
-                        self.engine.message_log.add_message(f"{thrower.name} throws {self.parent.name} to itself, for {dmg} damage!", target=thrower,)
+                        self.engine.message_log.add_message(f"{g(thrower.name, '이')} {g(self.parent.name, '을')} 자신에게 던져 {dmg} 데미지를 입혔다!", target=thrower,)
                     else:
-                        self.engine.message_log.add_message(f"{thrower.name} throws {self.parent.name} to itself!", target=thrower,)
+                        self.engine.message_log.add_message(f"{g(thrower.name, '이')} {g(self.parent.name, '을')} 자신에게 던졌다!", target=thrower,)
                     thrower.status.take_damage(amount=self.damage) # cannot trigger itself
 
                     # apply special effects (if the thrower survived the initial damage)
@@ -175,7 +176,11 @@ class NormalThrowable(Throwable):
                     if not self.shattered:
                         thrower.inventory.throw(item=self.parent, x=thrower.x, y=thrower.y, show_msg=False)
                     else:
-                        self.engine.message_log.add_message(f"{self.parent.name} shatters into pieces.", fg=color.gray, target=thrower)
+                        from order import InventoryOrder
+                        if self.parent.item_type == InventoryOrder.POTION:
+                            self.engine.message_log.add_message(f"{g(self.parent.name, '이')} 깨졌다.", fg=color.gray, target=thrower)
+                        else:
+                            self.engine.message_log.add_message(f"{g(self.parent.name, '이')} 파괴되었다.", fg=color.gray, target=thrower)
                         self.parent.parent.remove_item(self.parent, remove_count=1)
 
                     return 0
@@ -185,9 +190,9 @@ class NormalThrowable(Throwable):
                     # Check dodged
                     if self.is_miss(thrower=thrower, target=collided):
                         if collided is self.engine.player:
-                            self.engine.message_log.add_message(f"You dodge {self.parent.name}!", color.player_atk_missed)
+                            self.engine.message_log.add_message(f"당신은 {g(self.parent.name, '을')} 피했다.", color.player_atk_missed)
                         else:
-                            self.engine.message_log.add_message(f"{collided.name} dodges {self.parent.name}!", color.player_atk_missed, target=collided,)
+                            self.engine.message_log.add_message(f"{g(collided.name, '이')} {g(self.parent.name, '을')} 피했다.", color.player_atk_missed, target=collided,)
                     else:
                         # set dmg
                         crit_multiplier = self.crit_calculation(thrower=thrower)
@@ -195,7 +200,7 @@ class NormalThrowable(Throwable):
 
                         # log
                         if dmg > 0:
-                            self.engine.message_log.add_message(f"{thrower.name} throws {self.parent.name} to {collided.name}, inflicting {dmg} damage!", target=thrower,)
+                            self.engine.message_log.add_message(f"{g(thrower.name, '이')} {g(self.parent.name, '을')} {collided.name}에게 던져 {dmg} 데미지를 입혔다.", target=thrower,)
                             collided.status.take_damage(amount=dmg, attacked_from=thrower)
 
                         # apply special effects (if the target survived the initial damage)
@@ -264,7 +269,11 @@ class NormalThrowable(Throwable):
                 except: # if loc doesn't exists (e.g. thrown against the wall)
                     thrower.inventory.throw(item=self.parent, x=thrower.x, y=thrower.y, show_msg=False)
         else:# Destroyed
-            self.engine.message_log.add_message(f"{self.parent.name} is destroyed by the impact.", fg=color.gray, target=thrower)
+            from order import InventoryOrder
+            if self.parent.item_type == InventoryOrder.POTION:
+                self.engine.message_log.add_message(f"{g(self.parent.name, '이')} 깨졌다.", fg=color.gray, target=thrower)
+            else:
+                self.engine.message_log.add_message(f"{g(self.parent.name, '이')} 파괴되었다.", fg=color.gray, target=thrower)
             self.parent.parent.remove_item(self.parent, remove_count=1)
 
             # throwable component is shared through the entire stack, so .shattered should be set back to False after the item was thrown
@@ -284,10 +293,10 @@ class PotionOfParalysisThrowable(NormalThrowable):
 
             # Log
             if target == self.engine.player:
-                self.engine.message_log.add_message(f"Suddenly you can't move your body!",color.player_damaged,)
+                self.engine.message_log.add_message(f"당신은 갑자기 몸을 움직일 수가 없게 되었다!",color.player_damaged,)
             else:
                 if self.engine.game_map.visible[target.x, target.y]:
-                    self.engine.message_log.add_message(f"{target.name} suddenly stops all movements!", color.white, target=target)
+                    self.engine.message_log.add_message(f"{g(target.name, '이')} 갑자기 모든 움직임을 멈추었다.", color.white, target=target)
 
             # Paralyze
             target.actor_state.is_paralyzing = [0, self.parent.quaffable.turn]
@@ -295,22 +304,18 @@ class PotionOfParalysisThrowable(NormalThrowable):
 
             # Log
             if target == self.engine.player:
-                self.engine.message_log.add_message(f"Your body feels even stiffer!",color.player_damaged,)
+                self.engine.message_log.add_message(f"당신의 몸이 더 뻣뻣해졌다!",color.player_damaged,)
 
             # If paralyzation is permanent, (is_paralyzing[0] is set to negative) prevent overwriting the turn left
             target.actor_state.is_paralyzing = [min(target.actor_state.is_paralyzing[0], 0), max(target.actor_state.is_paralyzing[1], self.parent.quaffable.turn)]
             
 
-class ToxicGooThrowable(NormalThrowable):
+class AcidGooThrowable(NormalThrowable):
     
     def effect_when_collided_with_actor(self, target: Actor):
         if target.actor_state.is_melting == [0,0,0,0]:
             # Log
-            if target == self.engine.player:
-                self.engine.message_log.add_message(f"You are covered in toxic goo!",color.player_damaged,)
-            else:
-                if self.engine.game_map.visible[target.x, target.y]:
-                    self.engine.message_log.add_message(f"{target.name} is covered in toxic goo.", color.white, target=target)
+            self.engine.message_log.add_message(f"{g(target.name, '은')} 산성 점액에 뒤덮였다.", color.white, target=target)
 
             # Poison
             target.actor_state.is_melting = [4, 1, 0, 4]

@@ -1,5 +1,6 @@
 from entity import Item
 from order import InventoryOrder
+from korean import grammar as g
 
 import random
 import copy
@@ -22,31 +23,31 @@ class ItemManager:
         # e.g. if items_fake_info["potion_of_fire"]["name"] == None,
         # potion of fire will use its default name.
         self.colors_for_potions = [
-            ("bloodlike",(178,34,34), None),
-            ("red",(255,0,0), None),
-            ("pink",(255,0,127), None),
-            ("violet",(199,21,133), None),
-            ("orange",(255,69,0), None),
-            ("fruity",(255,165,0), None),
-            ("golden",(255,215,0), None),
-            ("yellow",(255,255,0), None),
-            ("shining",(255,255,224), None),
-            ("mirky",(189,183,107), None),
-            ("lavender",(230,230,250), None),
-            ("magenta",(255,0,255), None),
-            ("indigo",(75,0,130), None),
-            ("lime",(0,255,0), None),
-            ("glowing",(0,250,154), None),
-            ("green",(34,139,34), None),
-            ("olive",(128,128,0), None),
-            ("cyan",(0,255,255), None),
-            ("lightblue",(173,216,230), None),
-            ("blue",(0,0,255), None),
-            ("navy",(0,0,128), None),
-            ("white",(255,250,250), None),
-            ("silver",(192,192,192), None),
-            ("gray",(128,128,128), None),
-            ("black",(10,10,10), None),
+            ("적혈색",(178,34,34), None),
+            ("빨간색",(255,0,0), None),
+            ("핑크색",(255,0,127), None),
+            ("자주색",(199,21,133), None),
+            ("주황색",(255,69,0), None),
+            ("백황색",(255,165,0), None),
+            ("황금색",(255,215,0), None),
+            ("노란색",(255,255,0), None),
+            ("빛나는",(255,255,224), None),
+            ("뿌연",(189,183,107), None),
+            ("라벤더색",(230,230,250), None),
+            ("마젠타색",(255,0,255), None),
+            ("인디고색",(75,0,130), None),
+            ("라임색",(0,255,0), None),
+            ("반짝이는",(0,250,154), None),
+            ("초록색",(34,139,34), None),
+            ("올리브색",(128,128,0), None),
+            ("시안색",(0,255,255), None),
+            ("하늘색",(173,216,230), None),
+            ("파란색",(0,0,255), None),
+            ("군청색",(0,0,128), None),
+            ("하얀색",(255,250,250), None),
+            ("은색",(192,192,192), None),
+            ("회색",(128,128,128), None),
+            ("검정색",(10,10,10), None),
         ] # NOTE: Currently 24 colors available
         self.colors_for_scrolls = copy.copy(self.colors_for_potions)
 
@@ -86,13 +87,13 @@ class ItemManager:
     def randomize_item(self, item: Item):
         if item.item_type == InventoryOrder.SCROLL:
             color_name, fg, bg = self.gen_randomized_color(item_type=InventoryOrder.SCROLL)
-            self.items_fake_info[item.entity_id]["name"] = "Scroll labeled " + self.gen_randomized_string(random.randint(4, 8))
-            self.items_fake_info[item.entity_id]["entity_desc"] = "Scroll made out of thin paper. You are clueless about what this scroll could do."
+            self.items_fake_info[item.entity_id]["name"] = f"{g(self.gen_randomized_string(random.randint(4, 8)), '라')}고 적힌 주문서"
+            self.items_fake_info[item.entity_id]["entity_desc"] = "얇은 종이로 만들어진 주문서이다. 주문서의 내용을 해독할 수 없다."
             self.items_fake_info[item.entity_id]["fg"] = fg
         elif item.item_type == InventoryOrder.POTION:
             color_name, fg, bg = self.gen_randomized_color(item_type=InventoryOrder.POTION)
             self.items_fake_info[item.entity_id]["name"] = color_name + " potion"
-            self.items_fake_info[item.entity_id]["entity_desc"] = f"{color_name} colored potion. You are clueless about what this potion could do."
+            self.items_fake_info[item.entity_id]["entity_desc"] = f"{color_name} 포션. 마시면 무슨 일이 일어날지 알 수 없다."
             self.items_fake_info[item.entity_id]["fg"] = fg
             self.items_fake_info[item.entity_id]["bg"] = bg
         else:

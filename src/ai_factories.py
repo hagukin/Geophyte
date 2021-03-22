@@ -2,6 +2,8 @@ import components.ai as ai
 import color
 import actions
 
+from korean import grammar as g
+
 class Melee_Ai(ai.BaseAI):
     """Melee AI that only attacks humans."""
     def __init__(self, alignment:str="hostile", do_melee_atk:bool=True, do_ranged_atk: bool=False, use_ability: bool=False, hostile_type: set=set('@')):
@@ -66,7 +68,7 @@ class Floating_Eye_Ai(ai.BaseAI):
 
                 # Message log
                 if self.engine.game_map.visible[self.parent.x, self.parent.y] or self.engine.game_map.visible[self.attacked_from.x, self.attacked_from.y]:
-                    self.engine.message_log.add_message(f"{self.parent.name} stares at the {self.attacked_from.name}.", color.white)
+                    self.engine.message_log.add_message(f"{g(self.parent.name, '이')} {g(self.attacked_from.name, '을')} 바라본다.", color.white)
 
                 self.attacked_from = None
 
@@ -213,7 +215,7 @@ ant_ai = Melee_Ai()
 fire_ant_ai = Fire_Ant_Ai()
 volt_ant_ai = Volt_Ant_Ai()
 #b
-bat_ai = Melee_Ai()
+bat_ai = Melee_Neutral_Ai()
 #c
 kitten_ai = Melee_Ai()
 cat_ai = Melee_Ai()

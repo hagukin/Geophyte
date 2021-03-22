@@ -2,6 +2,7 @@ from __future__ import annotations
 from entity import SemiActor
 from typing import TYPE_CHECKING
 from components.base_component import BaseComponent
+from korean import grammar as g
 
 import random
 import color
@@ -49,7 +50,7 @@ class SemiactorInfo(BaseComponent):
         # Catch on fire log
         if self.was_burning == False:
             self.was_burning = True
-            self.engine.message_log.add_message(f"{self.parent.name} catches on fire.", fg=color.white)
+            self.engine.message_log.add_message(f"{self.parent.name}에 불이 붙었다.", fg=color.white)
 
         # Further burning calculation
         will_burn = random.random()
@@ -60,7 +61,7 @@ class SemiactorInfo(BaseComponent):
         if self.burntness == 3:
             # Delete item from the game
             self.parent.remove_self()
-            self.engine.message_log.add_message(f"{self.parent.name} burns out!", fg=color.red)
+            self.engine.message_log.add_message(f"{g(self.parent.name, '이')} 완전히 연소했다!", fg=color.red)
             
             #Adjust variables
             self.is_burning = False
@@ -69,7 +70,7 @@ class SemiactorInfo(BaseComponent):
         # Extinguish Chance
         extinguish_chance = random.random()
         if extinguish_chance >= self.flammable:
-            self.engine.message_log.add_message(f"{self.parent.name} stops burning.", fg=color.gray, target=self.parent)
+            self.engine.message_log.add_message(f"{g(self.parent.name, '이')} 타는 것을 멈췄다.", fg=color.gray, target=self.parent)
             self.is_burning = False
             self.was_burning = False
 
@@ -80,13 +81,13 @@ class SemiactorInfo(BaseComponent):
             return None
 
         if self.corrosion > 2:
-            self.engine.message_log.add_message(f"{self.parent.name} completely corrodes away.", fg=color.red)
+            self.engine.message_log.add_message(f"{g(self.parent.name, '이')} 완전히 부식되어 사라졌다.", fg=color.red)
             # Completely corroded
             self.parent.remove_self()
         elif self.corrosion == 2:
-            self.engine.message_log.add_message(f"{self.parent.name} is severly corroded.", fg=color.white)
+            self.engine.message_log.add_message(f"{g(self.parent.name, '이')} 심하게 부식되었다.", fg=color.white)
         elif self.corrosion == 1:
-            self.engine.message_log.add_message(f"{self.parent.name} is slightly corroded.", fg=color.white)
+            self.engine.message_log.add_message(f"{g(self.parent.name, '이')} 다소 부식되었다.", fg=color.white)
 
     def move_self_to(self, semiactor: SemiActor) -> None:
         """

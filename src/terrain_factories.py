@@ -5,7 +5,7 @@ terrain_rarity = []
 
 # Dungeon chamber (Standard)
 dungeon_chamber = Terrain(
-    name="Dungeon Chamber",
+    name="던전 챔버",
     terrain_id="dungeon_chamber",
     terrain_desc="Desc of dungeon chamber terrain (TEST)",
     rarity=5,
@@ -19,7 +19,7 @@ terrain_rarity.append(dungeon_chamber.rarity)
 
 # Grass Field
 grass_field = Terrain(
-    name="Grassfield",
+    name="평야",
     terrain_id="grass_field",
     terrain_desc="Desc of grass_field terrain (TEST)",
     rarity=10,
@@ -33,7 +33,7 @@ terrain_rarity.append(grass_field.rarity)
 
 # Trap Field
 trap_field = Terrain(
-    name="Trap field",
+    name="함정 필드",
     terrain_id="trap_field",
     terrain_desc="Desc of trap_field terrain (TEST)",
     rarity=5,
@@ -48,7 +48,7 @@ terrain_rarity.append(trap_field.rarity)
 
 # Chest Room
 chest_room = Terrain(
-    name="Chest room",
+    name="창고",
     terrain_id="chest_room",
     terrain_desc="chest room desc",
     rarity=2,
@@ -62,7 +62,7 @@ terrain_rarity.append(chest_room.rarity)
 
 # Large Lake
 large_lake = Terrain(
-    name="Large lake",
+    name="큰 호수",
     terrain_id="large_lake",
     terrain_desc="Desc of large_lake terrain (TEST)",
     rarity=1,#FIXME
@@ -81,7 +81,7 @@ terrain_rarity.append(large_lake.rarity)
 
 # Ocean
 ocean = Terrain(
-    name="Ocean",
+    name="바다",
     terrain_id="Ocean",
     terrain_desc="Desc of ocean terrain (TEST)",
     rarity=2,#FIXME
@@ -96,7 +96,7 @@ terrain_rarity.append(ocean.rarity)
 
 # Swamp
 swamp = Terrain(
-    name="Swamp",
+    name="늪지대",
     terrain_id="swamp",
     terrain_desc="Desc of swamp terrain (TEST)",
     rarity=1,#FIXME

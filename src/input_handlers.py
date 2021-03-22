@@ -21,6 +21,7 @@ from actions import (
     DoorUnlockAction,
 )
 from loader.data_loader import save_game, quit_game
+from korean import grammar as g
 
 import tcod
 import time
@@ -197,12 +198,12 @@ class ItemUseCancelHandler(AskUserEventHandler):
 
     def on_render(self, console: tcod.Console,) -> None:
         super().on_render(console)
-        self.engine.draw_window(console, text="Do you really want to cancel your action? The item will be consumed anyway. (Y/N)", title="Cancel Using Item", frame_fg=color.lime, frame_bg=color.gui_inventory_bg)
+        self.engine.draw_window(console, text="정말 아이템 사용을 취소하시겠습니까? 아이템은 여전히 소모됩니다. (Y/N)", title="아이템 사용 취소", frame_fg=color.lime, frame_bg=color.gui_inventory_bg)
 
     def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[Action]:
         if event.sym == tcod.event.K_y or event.sym == tcod.event.K_KP_ENTER:
             self.engine.event_handler = MainGameEventHandler(self.engine)
-            self.engine.message_log.add_message(f"Cancelled.", color.white, stack=False, show_once=True)
+            self.engine.message_log.add_message(f"아이템 사용 취소됨.", color.white, stack=False, show_once=True)
             return self.revert_callback(True)# passing True (action is cancelled)
         else:
             return self.revert_callback(False)# passing False (action is not cancelled)
@@ -212,7 +213,7 @@ class SaveInputHandler(AskUserEventHandler):
 
     def on_render(self, console: tcod.Console) -> None:
         super().on_render(console)
-        self.engine.draw_window(console, text="Do you really want to save current game? (Y/N)", title="Save", frame_fg=color.lime, frame_bg=color.gui_inventory_bg)
+        self.engine.draw_window(console, text="정말 현재 게임을 저장하시겠습니까? (Y/N)", title="저장", frame_fg=color.lime, frame_bg=color.gui_inventory_bg)
 
     def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[Action]:
         player = self.engine.player
@@ -220,10 +221,10 @@ class SaveInputHandler(AskUserEventHandler):
 
         if event.sym == tcod.event.K_y or event.sym == tcod.event.K_KP_ENTER:
             self.engine.event_handler = MainGameEventHandler(self.engine)
-            self.engine.message_log.add_message(f"Game saved.", color.lime, stack=False)
+            self.engine.message_log.add_message(f"게임 저장됨.", color.lime, stack=False)
             save_game(player=player, engine=engine)
         else:
-            self.engine.message_log.add_message(f"Saving cancelled.", color.lime, stack=False)
+            self.engine.message_log.add_message(f"저장 취소됨.", color.lime, stack=False)
         return super().ev_keydown(event)
 
 
@@ -233,8 +234,8 @@ class GameClearInputHandler(AskUserEventHandler): #TODO Unfinished
         super().on_render(console)
         self.engine.draw_window(
             self.engine.console,
-            text="You retrieved the amulet of Kugah!",
-            title="You win!",
+            text="쿠가의 아뮬렛을 탈환했다!",
+            title="승리했습니다!",
             frame_fg=color.yellow,
         )
 
@@ -247,7 +248,7 @@ class AbilityEventHandler(AskUserEventHandler):
 
     def __init__(self, engine: Engine):
         super().__init__(engine)
-        self.TITLE = "Abilities"
+        self.TITLE = "능력"
 
     def on_render(self, console: tcod.Console) -> None:
         """
@@ -293,9 +294,9 @@ class AbilityEventHandler(AskUserEventHandler):
                 # Message log
                 console.print(x + x_space + 1, y + i + y_space + 1, ability_text, fg=ability_text_color)
         else:
-            console.print(x + x_space + 1, y + y_space + 1, "(Nothing)", color.gray)
+            console.print(x + x_space + 1, y + y_space + 1, "(없음)", color.gray)
 
-        console.print(x + x_space + 1, height + 3, "\"/\"key: - Sort Inventory", color.gui_inventory_fg)
+        console.print(x + x_space + 1, height + 3, "\"/\"키: - 인벤토리 정렬", color.gui_inventory_fg)
 
 
     def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[Action]:
@@ -335,7 +336,7 @@ class AbilityEventHandler(AskUserEventHandler):
             return self.on_ability_selected(selected_ability)
         except Exception as e:
             print(e)
-            self.engine.message_log.add_message("Invalid entry.", color.invalid)
+            self.engine.message_log.add_message("잘못된 입력입니다.", color.invalid)
             return None
 
     def on_ability_selected(self, ability: Ability) -> Optional[Action]:
@@ -348,7 +349,7 @@ class AbilityActivateHandler(AbilityEventHandler):
 
     def __init__(self, engine: Engine):
         super().__init__(engine)
-        self.TITLE = "Abilities"
+        self.TITLE = "능력"
 
     def on_ability_selected(self, ability: Ability) -> Optional[Action]:
         """Return the action for the selected item."""
@@ -413,9 +414,9 @@ class AbilityActionSelectHandler(AskUserEventHandler):
         for i, action in enumerate(self.possible_actions):
             
             if action == "cast/conduct":
-                console.print(x + x_space + 1, y + i + desc_height + 2 + y_space, "(c) Cast / Conduct", fg=color.gui_item_action)
+                console.print(x + x_space + 1, y + i + desc_height + 2 + y_space, "(c) 마법/기술 사용", fg=color.gui_item_action)
             else:
-                console.print(x + x_space + 1, y + desc_height + 2 + y_space, "(Empty)")
+                console.print(x + x_space + 1, y + desc_height + 2 + y_space, "(없음)")
 
     def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[Action]:
         player = self.engine.player
@@ -428,7 +429,7 @@ class AbilityActionSelectHandler(AskUserEventHandler):
             self.engine.event_handler = MainGameEventHandler(self.engine)
             return None
         else:
-            self.engine.message_log.add_message("Invalid entry.", color.invalid)
+            self.engine.message_log.add_message("잘못된 입력입니다.", color.invalid)
             self.engine.event_handler = MainGameEventHandler(self.engine)
             return None
 
@@ -471,6 +472,92 @@ class StorageSelectEventHandler(AskUserEventHandler):
             self.TITLE = f"{self.inventory_component.parent.name}"
         else:
             self.TITLE = ""
+
+    def get_item_rendered_text(self, item: Item, item_key) -> Optional[Tuple(str, str, str, str, Tuple(int,int,int))]:
+        """
+        Returns:
+            item_text, item_damage_text, item_state_text, item_equip_text, item_text_color
+        """
+        item_text = f"({item_key}) "
+
+        if item.item_state.check_if_full_identified(): # Display BUC only if fully identified
+            if item.item_state.BUC == 0:
+                item_text += "저주받지 않은 "
+            if item.item_state.BUC >= 1:
+                item_text += "축복받은 "
+            if item.item_state.BUC <= -1:
+                item_text += "저주받은 "
+
+        item_text += f"{item.name}"
+        item_damage_text = ""
+        item_state_text = ""
+        item_equip_text = ""
+        item_text_color = None
+
+        # Assign color of its type
+        if item.item_type == InventoryOrder.POTION:
+            item_text_color = color.gui_potion_name
+        elif item.item_type == InventoryOrder.SCROLL:
+            item_text_color = color.gui_scroll_name
+        elif item.item_type == InventoryOrder.ARMOR:
+            item_text_color = color.gui_armor_name
+
+        # Change color of the selected items
+        if item in self.selected_items:
+            item_text_color = color.gui_selected_item #TODO: Maybe add a short string in front of item name? like (selected)
+        
+        # Display item counts if it is greater than 1
+        if item.stack_count > 1:
+            item_text += f" (x{item.stack_count})"
+            
+        # Display damage status if their is one
+        if item.item_state.burntness == 1:
+            item_damage_text += " (다소 그을림)"
+        elif item.item_state.burntness == 2:
+            item_damage_text += " (상당히 그을림)"
+            
+        # Display special states if it is true
+        if item.item_state.is_burning:
+            item_state_text += " [불붙음]"
+
+        # Display equip info if it is true(if value isn't None)
+        if self.engine.config["lang"] == "ko":
+            translated = ""
+            
+            if item.item_state.is_equipped:
+                if item.item_state.is_equipped == "main hand":
+                    translated = "메인 핸드"
+                elif item.item_state.is_equipped == "off hand":
+                    translated = "오프 핸드"
+                elif item.item_state.is_equipped == "head":
+                    translated = "머리"
+                elif item.item_state.is_equipped == "face":
+                    translated = "얼굴"
+                elif item.item_state.is_equipped == "torso":
+                    translated = "상반신"
+                elif item.item_state.is_equipped == "hand":
+                    translated = "손"
+                elif item.item_state.is_equipped == "belt":
+                    translated = "허리춤"
+                elif item.item_state.is_equipped == "leg":
+                    translated = "다리"
+                elif item.item_state.is_equipped == "feet":
+                    translated = "발"
+                elif item.item_state.is_equipped == "cloak":
+                    translated = "망토"
+                elif item.item_state.is_equipped == "amulet":
+                    translated = "아뮬렛"
+                elif item.item_state.is_equipped == "left ring":
+                    translated = "왼손 반지"
+                elif item.item_state.is_equipped == "right ring":
+                    translated = "오른손 반지"
+
+                item_equip_text += f" [{translated}]"
+        else:
+            if item.item_state.is_equipped:
+                item_equip_text += f" [equipped on {item.item_state.is_equipped}]"
+
+        return item_text, item_damage_text, item_state_text, item_equip_text, item_text_color
 
     def check_should_render_item(self, item: Item) -> bool:
         if self.show_if_satisfy_both:
@@ -580,51 +667,9 @@ class StorageSelectSingleEventHandler(StorageSelectEventHandler):
                 if not self.check_should_render_item(item):
                     continue
                 
+                item_text, item_damage_text, item_state_text, item_equip_text, item_text_color = self.get_item_rendered_text(item, item_key)
+
                 i += 1
-                item_text = f"({item_key}) "
-                if item.item_state.check_if_full_identified(): # Display BUC only if fully identified
-                    if item.item_state.BUC == 0:
-                        item_text += "uncursed "
-                    if item.item_state.BUC >= 1:
-                        item_text += "blessed "
-                    if item.item_state.BUC <= -1:
-                        item_text += "cursed "
-
-                item_text += f"{item.name}"
-                item_text_color = None
-                item_damage_text = ""
-                item_state_text = ""
-                item_equip_text = ""
-
-                # Assign color of its type
-                if item.item_type == InventoryOrder.POTION:
-                    item_text_color = color.gui_potion_name
-                elif item.item_type == InventoryOrder.SCROLL:
-                    item_text_color = color.gui_scroll_name
-                elif item.item_type == InventoryOrder.ARMOR:
-                    item_text_color = color.gui_armor_name
-                
-                # Display item counts if it is greater than 1
-                if item.stack_count > 1:
-                    item_text += f" (x{item.stack_count})"
-                    
-                # Display damage status if their is one
-                if item.item_state.burntness == 1:
-                    item_damage_text += " (partly burnt)"
-                elif item.item_state.burntness == 2:
-                    item_damage_text += " (severely burnt)"
-                if item.item_state.corrosion == 1:
-                    item_state_text += " (slightly corroded)"
-                elif item.item_state.corrosion == 2:
-                    item_state_text += " (severly corroded)"
-                    
-                # Display special states if it is true
-                if item.item_state.is_burning:
-                    item_state_text += " [on fire]"
-
-                # Display equip info if it is true(if value isn't None)
-                if item.item_state.is_equipped:
-                    item_equip_text += f" [{item.item_state.is_equipped}]"
 
                 # Print
                 console.print(x + x_space + 1, y + i + y_space + 1, item_text, fg=item_text_color)
@@ -632,9 +677,9 @@ class StorageSelectSingleEventHandler(StorageSelectEventHandler):
                 console.print(x + x_space + 1 + len(item_text) + len(item_damage_text), y + i + y_space + 1, item_equip_text, fg=color.gui_item_equip)
                 console.print(x + x_space + 1 + len(item_text) + len(item_damage_text) + len(item_equip_text), y + i + y_space + 1, item_state_text, fg=color.gui_item_state)
         else:
-            console.print(x + x_space + 1, y + y_space + 1, "(Empty)", color.gray)
+            console.print(x + x_space + 1, y + y_space + 1, "(없음)", color.gray)
 
-        console.print(x + x_space + 1, height + 4, "\"/\"key: - Sort Items", color.gui_inventory_fg)
+        console.print(x + x_space + 1, height + 4, "\"/\"키 - 아이템 정렬", color.gui_inventory_fg)
         
     def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[Action]:
         if event.sym in {  # Ignore modifier keys.
@@ -675,10 +720,10 @@ class StorageSelectSingleEventHandler(StorageSelectEventHandler):
             if selected_item:
                 return self.on_item_selected(selected_item)
             else:
-                self.engine.message_log.add_message(f"Invalid entry.", color.invalid)
+                self.engine.message_log.add_message(f"잘못된 입력입니다.", color.invalid)
                 return None
         except:
-            self.engine.message_log.add_message("Invalid entry.", color.invalid)
+            self.engine.message_log.add_message("잘못된 입력입니다.", color.invalid)
             return None
 
     def on_item_selected(self, item: Item) -> Optional[Action]:
@@ -696,7 +741,7 @@ class InventoryChooseItemAndCallbackHandler(StorageSelectSingleEventHandler):
             engine: Engine, 
             inventory_component: Inventory, 
             callback: Callable,
-            title: str = "Inventory",
+            title: str = "인벤토리",
             show_only_types: Tuple(InventoryOrder)=None, 
             show_only_status: Tuple(str) = None,
             show_if_satisfy_both: bool = True,
@@ -725,7 +770,7 @@ class InventoryEventHandler(StorageSelectSingleEventHandler):
             show_if_satisfy_both: bool = True,
         ):
         super().__init__(engine, inventory_component, show_only_types, show_only_status, show_if_satisfy_both)
-        self.TITLE = "Inventory"
+        self.TITLE = "인벤토리"
 
     def on_item_selected(self, item: Item) -> Optional[Action]:
         """Return the action for the selected item."""
@@ -814,23 +859,23 @@ class InventoryActionSelectHandler(AskUserEventHandler):
         for i, action in enumerate(self.possible_actions):
             
             if action == "read":
-                console.print(x + x_space + 1, y + i + desc_height + 2 + y_space, "(r) Read", fg=color.gui_item_action)
+                console.print(x + x_space + 1, y + i + desc_height + 2 + y_space, "(r) 읽기(Read)", fg=color.gui_item_action)
             elif action == "quaff":
-                console.print(x + x_space + 1, y + i + desc_height + 2 + y_space, "(q) Quaff", fg=color.gui_item_action)
+                console.print(x + x_space + 1, y + i + desc_height + 2 + y_space, "(q) 마시기(Quaff)", fg=color.gui_item_action)
             elif action == "eat":
-                console.print(x + x_space + 1, y + i + desc_height + 2 + y_space, "(a) Eat", fg=color.gui_item_action)
+                console.print(x + x_space + 1, y + i + desc_height + 2 + y_space, "(a) 먹기(Eat)", fg=color.gui_item_action)
             elif action == "equip":
-                console.print(x + x_space + 1, y + i + desc_height + 2 + y_space, "(e) Equip", fg=color.gui_item_action)
+                console.print(x + x_space + 1, y + i + desc_height + 2 + y_space, "(e) 장착하기(Equip)", fg=color.gui_item_action)
             elif action == "unequip":
-                console.print(x + x_space + 1, y + i + desc_height + 2 + y_space, "(u) Unequip", fg=color.gui_item_action)
+                console.print(x + x_space + 1, y + i + desc_height + 2 + y_space, "(u) 장착 해제하기(Unequip)", fg=color.gui_item_action)
             elif action == "split":
-                console.print(x + x_space + 1, y + i + desc_height + 2 + y_space, "(s) Split", fg=color.gui_item_action)
+                console.print(x + x_space + 1, y + i + desc_height + 2 + y_space, "(s) 아이템 나누기(Split)", fg=color.gui_item_action)
             elif action == "throw":
-                console.print(x + x_space + 1, y + i + desc_height + 2 + y_space, "(t) Throw", fg=color.gui_item_action)
+                console.print(x + x_space + 1, y + i + desc_height + 2 + y_space, "(t) 던지기(Throw)", fg=color.gui_item_action)
             elif action == "drop":
-                console.print(x + x_space + 1, y + i + desc_height + 2 + y_space, "(d) Drop", fg=color.gui_item_action)
+                console.print(x + x_space + 1, y + i + desc_height + 2 + y_space, "(d) 아이템 떨어뜨리기(Drop)", fg=color.gui_item_action)
             else:
-                console.print(x + x_space + 1, y + desc_height + 2 + y_space, "(Empty)")
+                console.print(x + x_space + 1, y + desc_height + 2 + y_space, "(없음)")
 
     def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[Action]:
         player = self.engine.player
@@ -851,13 +896,13 @@ class InventoryActionSelectHandler(AskUserEventHandler):
                 self.engine.event_handler = InventorySplitHandler(self.engine, self.item)
             elif key == tcod.event.K_t:
                 if self.item.item_state.is_equipped:
-                    self.engine.message_log.add_message("You can't throw something you are equipping.", color.invalid)
+                    self.engine.message_log.add_message("장착하고 있는 아이템을 던질 수 없습니다.", color.invalid)
                     self.engine.event_handler = MainGameEventHandler(self.engine)
                     return None
                 return self.item.throwable.get_action(self.engine.player)
             elif key == tcod.event.K_d:
                 if self.item.item_state.is_equipped:
-                    self.engine.message_log.add_message("You can't drop something you are equipping.", color.invalid)
+                    self.engine.message_log.add_message("장착하고 있는 아이템을 떨어뜨릴 수 없습니다.", color.invalid)
                     self.engine.event_handler = MainGameEventHandler(self.engine)
                     return None
                 return DropItem(self.engine.player, self.item)
@@ -865,7 +910,7 @@ class InventoryActionSelectHandler(AskUserEventHandler):
             self.engine.event_handler = MainGameEventHandler(self.engine)
             return None
         else:
-            self.engine.message_log.add_message("Invalid entry.", color.invalid)
+            self.engine.message_log.add_message("잘못된 입력입니다.", color.invalid)
             self.engine.event_handler = MainGameEventHandler(self.engine)
             return None
 
@@ -911,9 +956,9 @@ class InventorySplitHandler(AskUserEventHandler):
         )
 
         # Texts
-        console.print(x + x_space + 1, height + 3, "Use +, - key to alter the amount of items you want to split.", color.gui_inventory_fg)
+        console.print(x + x_space + 1, height + 3, "+, - 키를 사용해 나누고 싶은 아이템의 수를 선택하세요.", color.gui_inventory_fg)
         console.print(x + x_space + 1, y + y_space + 1, self.item.entity_desc, fg=color.gui_item_description)
-        console.print(x + x_space + 1, y + y_space + 3, f"{self.split_amount} items chosen.", fg=color.gui_item_description)
+        console.print(x + x_space + 1, y + y_space + 3, f"{self.split_amount}개 선택됨.", fg=color.gui_item_description)
 
     def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[Action]:
         player = self.engine.player
@@ -923,19 +968,19 @@ class InventorySplitHandler(AskUserEventHandler):
             if self.split_amount < self.item.stack_count - 1:
                 self.split_amount += 1
             else:
-                self.engine.message_log.add_message("You have reached the maximum amount.", color.invalid)
+                self.engine.message_log.add_message("나눌 수 있는 수의 최대치에 도달하였습니다.", color.invalid, show_once=True)
         elif key == tcod.event.K_MINUS or key == tcod.event.K_KP_MINUS:
             if self.split_amount > 1:
                 self.split_amount -= 1
             else:
-                self.engine.message_log.add_message("You must selected more than one.", color.invalid)
+                self.engine.message_log.add_message("1 이상을 선택하셔야 합니다.", color.invalid, show_once=True)
         elif key == tcod.event.K_ESCAPE:
             self.engine.event_handler = MainGameEventHandler(self.engine)
             return None
         elif key == tcod.event.K_RETURN:
             return SplitItem(self.engine.player, self.item, self.split_amount)
         else:
-            self.engine.message_log.add_message("Invalid entry.", color.invalid)
+            self.engine.message_log.add_message("잘못된 입력입니다.", color.invalid)
             self.engine.event_handler = MainGameEventHandler(self.engine)
             return None
 
@@ -992,56 +1037,16 @@ class StorageSelectMultipleEventHandler(StorageSelectEventHandler):
 
         if number_of_valid_items > 0:
             i = -1
-
             for item_key, item in self.inventory_component.item_hotkeys.items():
                 if item == None:
                     continue
-                i += 1
-                item_text = f"({item_key}) "
 
-                if item.item_state.check_if_full_identified(): # Display BUC only if fully identified
-                    if item.item_state.BUC == 0:
-                        item_text += "uncursed "
-                    if item.item_state.BUC >= 1:
-                        item_text += "blessed "
-                    if item.item_state.BUC <= -1:
-                        item_text += "cursed "
-
-                item_text += f"{item.name}"
-                item_text_color = None
-                item_damage_text = ""
-                item_state_text = ""
-                item_equip_text = ""
-
-                # Assign color of its type
-                if item.item_type == InventoryOrder.POTION:
-                    item_text_color = color.gui_potion_name
-                elif item.item_type == InventoryOrder.SCROLL:
-                    item_text_color = color.gui_scroll_name
-                elif item.item_type == InventoryOrder.ARMOR:
-                    item_text_color = color.gui_armor_name
-
-                # Change color of the selected items
-                if item in self.selected_items:
-                    item_text_color = color.gui_selected_item #TODO: Maybe add a short string in front of item name? like (selected)
+                if not self.check_should_render_item(item):
+                    continue
                 
-                # Display item counts if it is greater than 1
-                if item.stack_count > 1:
-                    item_text += f" (x{item.stack_count})"
-                    
-                # Display damage status if their is one
-                if item.item_state.burntness == 1:
-                    item_damage_text += " (partly burnt)"
-                elif item.item_state.burntness == 2:
-                    item_damage_text += " (severely burnt)"
-                    
-                # Display special states if it is true
-                if item.item_state.is_burning:
-                    item_state_text += " [on fire]"
+                item_text, item_damage_text, item_state_text, item_equip_text, item_text_color = self.get_item_rendered_text(item, item_key)
 
-                # Display equip info if it is true(if value isn't None)
-                if item.item_state.is_equipped:
-                    item_equip_text += f" [equipped on {item.item_state.is_equipped}]"
+                i += 1
 
                 # Print
                 console.print(x + x_space + 1, y + i + y_space + 1, item_text, fg=item_text_color)
@@ -1049,9 +1054,9 @@ class StorageSelectMultipleEventHandler(StorageSelectEventHandler):
                 console.print(x + x_space + 1 + len(item_text) + len(item_damage_text), y + i + y_space + 1, item_equip_text, fg=color.gui_item_equip)
                 console.print(x + x_space + 1 + len(item_text) + len(item_damage_text) + len(item_equip_text), y + i + y_space + 1, item_state_text, fg=color.gui_item_state)
         else:
-            console.print(x + x_space + 1, y + y_space + 1, "(Empty)", color.gray)
+            console.print(x + x_space + 1, y + y_space + 1, "(없음)", color.gray)
 
-        console.print(x + x_space + 1, height + 4, "\"/\"key: - Sort Items | \"Enter\"key - Confirm Choices", color.gui_inventory_fg)
+        console.print(x + x_space + 1, height + 4, "\"/\"키 - 아이템 정렬 | 엔터 키- 선택 확인", color.gui_inventory_fg)
 
     def choice_confirmed(self):
         raise NotImplementedError()
@@ -1094,10 +1099,10 @@ class StorageSelectMultipleEventHandler(StorageSelectEventHandler):
                 self.on_item_selected(selected_item)
                 return None
             else:
-                self.engine.message_log.add_message(f"Invalid entry.", color.invalid)
+                self.engine.message_log.add_message(f"잘못된 입력입니다.", color.invalid)
                 return None
         except:
-            self.engine.message_log.add_message("Invalid entry.", color.invalid)
+            self.engine.message_log.add_message("잘못된 입력입니다.", color.invalid)
             return None
 
     def on_item_selected(self, item: Item) -> Optional[Action]:
@@ -1112,7 +1117,7 @@ class LockedDoorEventHandler(AskUserEventHandler):
     def __init__(self, engine, door: SemiActor):
         super().__init__(engine)
         self.door = door
-        self.TITLE = "The door is locked. What do you want to do?"
+        self.TITLE = "문이 잠겨 있습니다. 무엇을 하시겠습니까?"
 
     def on_render(self, console: tcod.Console) -> None:
         """
@@ -1143,9 +1148,9 @@ class LockedDoorEventHandler(AskUserEventHandler):
         )
 
         # Message log
-        console.print(x + x_space + 1, y + y_space + 2, "(u) - Try to unlock the door", fg=color.white)
-        console.print(x + x_space + 1, y + y_space + 4, "(b) - Try to break the door", fg=color.white)
-        console.print(x + x_space + 1, y + y_space + 6, "esc - Cancel", fg=color.white)
+        console.print(x + x_space + 1, y + y_space + 2, "(u) - 잠금 해제(Unlock)", fg=color.white)
+        console.print(x + x_space + 1, y + y_space + 4, "(b) - 파괴(break)", fg=color.white)
+        console.print(x + x_space + 1, y + y_space + 6, "ESC - 취소", fg=color.white)
 
     def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[Action]:
         key = event.sym
@@ -1161,7 +1166,7 @@ class LockedDoorEventHandler(AskUserEventHandler):
             self.engine.event_handler = MainGameEventHandler(self.engine)
             return None
         else:
-            self.engine.message_log.add_message("Invalid entry.", color.invalid)
+            self.engine.message_log.add_message("잘못된 입력입니다.", color.invalid)
             self.engine.event_handler = MainGameEventHandler(self.engine)
             return None
 
@@ -1171,9 +1176,9 @@ class ChestEventHandler(AskUserEventHandler):
         super().__init__(engine)
         self.inventory_component = inventory_component
         if hasattr(self.inventory_component.parent, "name"):
-            self.TITLE = f"What do you want to do with {self.inventory_component.parent.name}?"
+            self.TITLE = f"{self.inventory_component.parent.name}?"
         else:
-            self.TITLE = "What do you want to do?"
+            self.TITLE = "무엇을 하시겠습니까?"
 
     def on_render(self, console: tcod.Console) -> None:
         """
@@ -1204,10 +1209,10 @@ class ChestEventHandler(AskUserEventHandler):
         )
 
         # Message log
-        console.print(x + x_space + 1, y + y_space + 2, "(t) - Take out something", fg=color.white)
-        console.print(x + x_space + 1, y + y_space + 4, "(p) - Put in something", fg=color.white)
-        console.print(x + x_space + 1, y + y_space + 6, "(s) - Swap places", fg=color.white)
-        console.print(x + x_space + 1, y + y_space + 8, "esc - Cancel", fg=color.white)
+        console.print(x + x_space + 1, y + y_space + 2, "(t) - 무언가를 꺼낸다(Take out)", fg=color.white)
+        console.print(x + x_space + 1, y + y_space + 4, "(p) - 무언가를 넣는다(Put in)", fg=color.white)
+        console.print(x + x_space + 1, y + y_space + 6, "(s) - 위치를 바꾼다(Swap)", fg=color.white)
+        console.print(x + x_space + 1, y + y_space + 8, "ESC - 취소", fg=color.white)
 
     def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[Action]:
         key = event.sym
@@ -1224,7 +1229,7 @@ class ChestEventHandler(AskUserEventHandler):
             self.engine.event_handler = MainGameEventHandler(self.engine)
             return None
         else:
-            self.engine.message_log.add_message("Invalid entry.", color.invalid)
+            self.engine.message_log.add_message("잘못된 입력입니다.", color.invalid)
             self.engine.event_handler = MainGameEventHandler(self.engine)
             return None
 
@@ -1239,9 +1244,9 @@ class ChestTakeEventHandler(StorageSelectMultipleEventHandler):
             self.engine.player.inventory.add_item(item)
             
             if item.stack_count <= 1:
-                self.engine.message_log.add_message(f"You obtained {item.name}", color.gray)
+                self.engine.message_log.add_message(f"{g(item.name, '을')} 얻었다.", color.white)
             else:
-                self.engine.message_log.add_message(f"You obtained {item.name} (x{item.stack_count})", color.gray)
+                self.engine.message_log.add_message(f"{g(item.name, '을')} 얻었다. (x{item.stack_count})", color.white)
 
         return self.on_exit() #NOTE: game turn is already passed at the moment player opened the chest, so taking something wont cost additional turn.
 
@@ -1252,9 +1257,9 @@ class ChestPutEventHandler(StorageSelectMultipleEventHandler):
     def __init__(self, engine: Engine, actor_inventory_component: Inventory, chest_inventory_component: Inventory):
         super().__init__(engine, actor_inventory_component)
         if hasattr(chest_inventory_component.parent, "name"):
-            self.TITLE = f"Select items to put inside of {chest_inventory_component.parent.name}"
+            self.TITLE = f"{chest_inventory_component.parent.name}에 넣을 아이템을 선택하세요."
         else:
-            self.TITLE = "Select items to put in"
+            self.TITLE = "넣을 아이템을 선택하세요."
         self.actor_inv = actor_inventory_component
         self.chest_inv = chest_inventory_component
 
@@ -1264,15 +1269,15 @@ class ChestPutEventHandler(StorageSelectMultipleEventHandler):
         """
         for item in self.selected_items:
             if item.item_state.is_equipped:
-                self.engine.message_log.add_message("You can't move something away while equipping it.", color.invalid)
+                self.engine.message_log.add_message("장착하고 있는 아이템을 넣을 수 없습니다.", color.invalid)
                 continue
             self.actor_inv.remove_item(item, -1) #TODO: Add feature to choose certain amounts
             self.chest_inv.add_item(item)
             
             if item.stack_count > 1:
-                self.engine.message_log.add_message(f"You put {item.name} inside the {self.chest_inv.parent.name}", color.gray)
+                self.engine.message_log.add_message(f"{g(item.name, '을')} {self.chest_inv.parent.name}에 넣었다.", color.gray)
             else:
-                self.engine.message_log.add_message(f"You put {item.name} inside the {self.chest_inv.parent.name} (x{item.stack_count})", color.gray)
+                self.engine.message_log.add_message(f"{g(item.name, '을')} {self.chest_inv.parent.name}에 넣었다. (x{item.stack_count})", color.gray)
 
         return self.on_exit() #NOTE: game turn is already passed at the moment player opened the chest, so putting something in wont cost additional turn.
 
@@ -1290,7 +1295,7 @@ class InventoryDropHandler(StorageSelectMultipleEventHandler):
         """
         for item in self.selected_items:
             if item.item_state.is_equipped:
-                self.engine.message_log.add_message("You can't drop something you are equipping.", color.invalid)
+                self.engine.message_log.add_message("장착하고 있는 아이템을 떨어뜨릴 수 없습니다.", color.invalid)
                 continue
             DropItem(self.engine.player, item).perform()
 
@@ -1551,7 +1556,7 @@ class RayDirInputHandler(SelectDirectionHandler):
         self.callback = callback
         self.target = None
         self.engine.message_log.add_message(
-                "Choose a direction (1~9)", color.needs_target
+                "방향을 선택하세요. (1~9)", color.needs_target
             )
 
     def on_render(self, console: tcod.Console) -> None:
@@ -1604,7 +1609,7 @@ class QuitInputHandler(AskUserEventHandler):
 
     def on_render(self, console: tcod.Console) -> None:
         super().on_render(console)
-        self.engine.draw_window(console, text="Do you really want to quit? Any unsaved progress will be lost.(Y/N)", title="Quit", frame_fg=color.lime, frame_bg=color.gui_inventory_bg)
+        self.engine.draw_window(console, text="정말 현재 게임을 종료하시겠습니까? 모든 저장하지 않은 내역은 지워집니다. (Y/N)", title="Quit", frame_fg=color.lime, frame_bg=color.gui_inventory_bg)
 
     def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[Action]:
         player = self.engine.player
@@ -1615,7 +1620,7 @@ class QuitInputHandler(AskUserEventHandler):
             save_game(player=player, engine=engine)
             quit_game()
         else:
-            self.engine.message_log.add_message(f"Cancelled.", color.lime, stack=False)
+            self.engine.message_log.add_message(f"취소됨.", color.lime, stack=False)
         return super().ev_keydown(event)
 
 
@@ -1716,7 +1721,7 @@ class HistoryViewer(EventHandler):
         # Draw a frame with a custom banner title.
         log_console.draw_frame(0, 0, log_console.width, log_console.height)
         log_console.print_box(
-            0, 0, log_console.width, 1, "Game Log", alignment=tcod.CENTER
+            0, 0, log_console.width, 1, "게임 로그", alignment=tcod.CENTER
         )
 
         # Render the message log using the cursor parameter.

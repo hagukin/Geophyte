@@ -10,6 +10,7 @@ import math
 
 from components.base_component import BaseComponent
 from input_handlers import GameOverEventHandler
+from korean import grammar as g
 
 if TYPE_CHECKING:
     from entity import Actor
@@ -266,20 +267,20 @@ class Status(BaseComponent):
         if cause == "low_hp":
             death_message = ""
         elif cause == "lack_of_strength":
-            death_message = f"{self.parent.name} is too weak to maintain itself!\n"
+            death_message = f"{g(self.parent.name, '은')} 스스로를 가누지 못할 만큼 약해졌다!\n"
         elif cause == "starvation":
-            death_message = f"{self.parent.name} has no nutrition to sustain itself!\n"
+            death_message = f"{g(self.parent.name, '은')} 충분한 영양분을 얻지 못했다!\n"
         elif cause == "drowning":
-            death_message = f"{self.parent.name} has no oxygen!\n"
+            death_message = f"{g(self.parent.name, '은')} 충분한 산소를 공급받지 못했다!\n"
         else:
             death_message = "UNDEFINED"
 
         if self.engine.player is self.parent:
-            death_message += "You died!"
+            death_message += "당신은 죽었다!"
             death_message_color = color.player_die
             self.engine.event_handler = GameOverEventHandler(self.engine)
         elif self.engine.game_map.visible[self.parent.x, self.parent.y]: # if dead entity is in player's visible range
-            death_message += f"{self.parent.name} is dead!"
+            death_message += f"{g(self.parent.name, '이')} 죽었다!"
             death_message_color = color.enemy_die
         else:
             death_message_color = color.white
@@ -296,7 +297,7 @@ class Status(BaseComponent):
         if self.parent.edible: # if edible is None, no corpse is spawned.
             new_corpse = copy.deepcopy(item_factories.corpse)
             new_corpse.weight = max(round(self.parent.actor_state.weight / 2, 2), 0.01)
-            new_corpse.change_name(self.parent.name + " corpse")
+            new_corpse.change_name(self.parent.name + " 시체")
             new_corpse.edible = self.parent.edible # copy edible value from parent
             new_corpse.edible.parent = new_corpse
             new_corpse.spawn(self.parent.gamemap, self.parent.x, self.parent.y)
