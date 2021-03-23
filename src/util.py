@@ -91,8 +91,9 @@ def draw_thick_frame(
         fg: Optional[Tuple[int, int, int]] = None,
         bg: Optional[Tuple[int, int, int]] = None,
     ) -> None:
-        frame = ('','#','#','#','#','#','#','#','#','#',)
+        #frame = ('','#','#','#','#','#','#','#','#','#',)
         #frame = (' ','╚','═','╝','║',' ','║','╔','═','╗')
+        frame = (' ','┗','━','┛','┃',' ','┃','┏','━','┓')
 
         for ypos in range(y, y+height):
             if ypos == y:
@@ -109,4 +110,4 @@ def draw_thick_frame(
                 console.print(x, ypos, frame[4], fg, bg)
                 console.print(x+width-1, ypos, frame[6], fg, bg)
 
-        
+        console.print(int(width/2 - len(title)/2) - 1, y, string=title, fg=bg, bg=fg)

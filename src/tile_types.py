@@ -545,12 +545,12 @@ def deep_water():
         phaseable=True,
         transparent=True,
         dark=(
-            ord("~"),
+            ord("≈"),
             (0, 0, 0),
             (5, 5, 10)
         ),
         light=(
-            ord("~"),
+            ord("≈"),
             (32, 24, 145),
             (16, 48, 156)
         ),

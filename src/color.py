@@ -16,13 +16,14 @@ blue_ice = (0x01, 0x51, 0x80)
 water_blue = (0x16, 0xA8, 0xD8)
 purple = (0x9c, 0x00, 0x8c)
 grayish_blue = (0x49, 0x69, 0x80)
+soothing_blue = (0x03, 0x5D, 0x96)
 
 logo_c1 = green
 title_gui_frame = brown
 gui_frame_fg = white
-gui_frame_bg = grayish_blue
-camera_frame_fg = gui_frame_fg
-camera_frame_bg = gui_frame_bg
+gui_frame_bg = soothing_blue
+camera_frame_fg = black
+camera_frame_bg = soothing_blue
 
 player_atk = white
 player_crit = yellow

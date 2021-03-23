@@ -151,6 +151,8 @@ class Camera:
 
         # Draw frame around the camera
         if draw_frame:
+            import util
+            #util.draw_thick_frame(console, x=self.display_x-1, y=self.display_y-1, width=self.width+2, title="Camera", height=self.height+2, fg=color.camera_frame_fg, bg=color.camera_frame_bg)
             console.draw_frame(x=self.display_x-1, y=self.display_y-1, width=self.width+2, height=self.height+2, clear=False, fg=color.camera_frame_fg, bg=color.camera_frame_bg)
 
     def get_relative_coordinate(self, *, abs_x: int=None, abs_y: int=None) -> int:

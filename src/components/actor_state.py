@@ -700,7 +700,7 @@ class ActorState(BaseComponent):
             self.apply_drowning([0, 80])##TODO
         # Moved from deep water to shallow water while drowning (The actor is still submerged, but is_underwater is set to False)
         elif self.parent.actor_state.is_drowning != [0,0] and not self.parent.actor_state.is_underwater:
-            self.apply_drowning([0, 80])
+            self.apply_drowning([0, 0])
 
     def actor_drowning(self):
         """
