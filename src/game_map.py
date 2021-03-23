@@ -167,6 +167,12 @@ class GameMap:
             return tmp
         return None
 
+    def check_if_id_at_location(self, entity_id: str, x: int, y: int) -> bool:
+        for entity in self.entities:
+            if (entity.x == x and entity.y == y and entity.entity_id == entity_id):
+                return True
+        return False
+
     def in_bounds(self, x: int, y: int) -> bool:
         """Return True if x and y are inside of the bounds of this map."""
         return 0 <= x < self.width and 0 <= y < self.height

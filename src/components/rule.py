@@ -14,6 +14,11 @@ class BaseRule(BaseComponent):
         self.parent = None
 
     def perform(self) -> None:
+        # Decrease liftime
+        if self.parent.lifetime > 0:
+            self.parent.lifetime -= 1
+
+    def dynamic_graphic(self) -> None:
         raise NotImplementedError()
 
     def get_path_to(self, dest_x: int, dest_y: int) -> List[Tuple[int, int]]:
@@ -54,19 +59,7 @@ class FireRule(BaseRule):
         self.add_damage = add_damage
         self.fire_duration = fire_duration
 
-
-    def perform(self) -> None:
-        # Decrease liftime
-        if self.parent.lifetime > 0:
-            self.parent.lifetime -= 1
-
-        # Delete old entities
-        if self.parent.lifetime == 0:
-            self.engine.game_map.tiles[self.parent.x, self.parent.y] = self.engine.game_map.tileset["t_burnt_floor"]()
-            self.parent.remove_self()
-            return None
-
-        # Set Random Graphics
+    def dynamic_graphic(self) -> None:
         color = random.randint(1, 4)
         if color == 1:
             self.parent._fg = (255, 255, 255)
@@ -81,6 +74,19 @@ class FireRule(BaseRule):
             self.parent._fg = (254, 212, 1)
             self.parent._bg = (239, 239, 231)
 
+    def perform(self) -> None:
+        # decrease lifetime
+        super().perform()
+
+        # Delete old entities
+        if self.parent.lifetime == 0:
+            self.engine.game_map.tiles[self.parent.x, self.parent.y] = self.engine.game_map.tileset["t_burnt_floor"]()
+            self.parent.remove_self()
+            return None
+
+        # Set Random Graphics
+        self.dynamic_graphic()
+
         # Collision with entities
         # NOTE: Actual calculations are handled in entity.collided_with_fire()
         for entity in self.engine.game_map.entities:
@@ -94,18 +100,15 @@ class FireRule(BaseRule):
 
         # Spread fire
         spread_dir = ((1,0), (0,1), (-1,0), (0,-1), (1,1), (-1,-1), (-1,1), (1,-1))
+        memoization = []
 
         for direction in spread_dir:
             if self.engine.game_map.tiles[self.parent.x + direction[0], self.parent.y + direction[1]]["flammable"]:
                 # Check if there is any other fire semiactor on the tile
-                flag = False
-                semiactors = self.engine.game_map.get_all_semiactors_at_location(self.parent.x + direction[0], self.parent.y + direction[1])
-                if semiactors:
-                    for semiactor in semiactors:
-                        if semiactor.entity_id == "fire":
-                            flag = True
-                if flag:
-                    print("RULE.PY::CANNOT SPAWN MULTIPLE FIRE ON THE SAME TILE")
+                if (self.parent.x + direction[0], self.parent.y + direction[1]) in memoization\
+                    or self.engine.game_map.check_if_id_at_location("fire", self.parent.x + direction[0], self.parent.y + direction[1]):
+                    memoization.append((self.parent.x + direction[0], self.parent.y + direction[1]))
+                    #print("RULE.PY::CANNOT SPAWN MULTIPLE FIRE SEMIACTOR ON THE SAME TILE")
                     continue
 
                 # chance of catching fire depends on "flammable"
