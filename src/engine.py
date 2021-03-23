@@ -214,7 +214,7 @@ class Engine:
             if actor.actor_state.is_drowning != [0,0]:
                 actor.actor_state.actor_drowning()
             # Detecting far objects
-            if actor.actor_state.is_detecting_obj[2]:
+            if actor.actor_state.is_detecting_obj[2]: #List is not empty
                 actor.actor_state.actor_detecting()
                 # Actual detection happens during update_fov()
 
@@ -270,11 +270,13 @@ class Engine:
 
     def add_special_effect_to_target(self, target: Actor, effects, effects_var) -> None:
         """
-        This method applies the status effects to the given actor.
+        This method takes two lists, applies the status effects to the given actor.
 
-        It is usually done by modifying the actor_state components value, 
+        It is usually done by calling apply_xxxing methods,
         but on some cases, if the special effects should be handled immediatly,
         a function can be directly called from this method. (e.g. electric shock)
+
+        NOTE: This function is mainly used for melee attack special effects.
 
         Args:
             effects: A list that contains tuples. The tuples contains one string and one float.
@@ -316,42 +318,42 @@ class Engine:
 
                 # Negative status effects
                 if effects[n][0] == "burn_target":
-                    target.actor_state.is_burning = copy.copy(effects_var[n])
+                    target.actor_state.apply_burning(effects_var[n])
                 elif effects[n][0] == "poison_target":
-                    target.actor_state.is_poisoned = copy.copy(effects_var[n])
+                    target.actor_state.apply_poisoning(effects_var[n])
                 elif effects[n][0] == "freeze_target":
-                    target.actor_state.is_freezing = copy.copy(effects_var[n])
+                    target.actor_state.apply_freezing(effects_var[n])
                 elif effects[n][0] == "electrocute_target":
-                    target.actor_state.is_electrocuting = copy.copy(effects_var[n])
+                    target.actor_state.apply_electrocution(effects_var[n])
                     target.actor_state.actor_electrocuted()
                 elif effects[n][0] == "bleed_target":
-                    target.actor_state.is_bleeding = copy.copy(effects_var[n])
+                    target.actor_state.apply_bleeding(effects_var[n])
                 elif effects[n][0] == "paralyze_target":
-                    target.actor_state.is_paralyzing = copy.copy(effects_var[n])
+                    target.actor_state.apply_paralyzation(effects_var[n])
                 elif effects[n][0] == "slow_target":
-                    target.actor_state.is_acting_slower = copy.copy(effects_var[n])
+                    target.actor_state.apply_slowness(effects_var[n])
                 elif effects[n][0] == "sleep_target":
-                    target.actor_state.is_sleeping = copy.copy(effects_var[n])
+                    target.actor_state.apply_sleeping(effects_var[n])
                 elif effects[n][0] == "melt_target":
-                    target.actor_state.is_melting = copy.copy(effects_var[n])
+                    target.actor_state.apply_melting(effects_var[n])
                 elif effects[n][0] == "sick_target":
-                    target.actor_state.is_sick = copy.copy(effects_var[n])
+                    target.actor_state.apply_sickness(effects_var[n])
                 elif effects[n][0] == "anger_target":
-                    target.actor_state.is_angry = copy.copy(effects_var[n])
+                    target.actor_state.apply_anger(effects_var[n])
                 elif effects[n][0] == "confuse_target":
-                    target.actor_state.is_confused = copy.copy(effects_var[n])
+                    target.actor_state.apply_confusion(effects_var[n])
                 elif effects[n][0] == "hallucinate_target":
-                    target.actor_state.is_hallucinating = copy.copy(effects_var[n])
+                    target.actor_state.apply_hallucination(effects_var[n])
                 
                 # Other status effects
                 elif effects[n][0] == "fast_target":
-                    target.actor_state.is_acting_faster = copy.copy(effects_var[n])
+                    target.actor_state.apply_haste(effects_var[n])
                 elif effects[n][0] == "invisible_target":
-                    target.actor_state.is_invisible = copy.copy(effects_var[n])
+                    target.actor_state.apply_invisibility(effects_var[n])
                 elif effects[n][0] == "phase_target":
-                    target.actor_state.is_phasing = copy.copy(effects_var[n])
-                elif effects[n][0] == "fly_target":
-                    target.actor_state.is_flying = copy.copy(effects_var[n])
+                    target.actor_state.apply_phasing(effects_var[n])
+                elif effects[n][0] == "levitate_target":
+                    target.actor_state.apply_levitation(effects_var[n])
 
     def generate_new_dungeon(self, depth=1) -> GameMap:
         """Generate new dungeon and return as gamemap object"""
@@ -717,7 +719,7 @@ class Engine:
 
         render_character_status(console=console, x=gui_x, y=gui_y + 5, character=self.player, draw_frame=True)
 
-        render_character_state(console=console, x=gui_x, y=gui_y + 14, height=10, character=self.player, draw_frame=True)
+        render_character_state(engine=self, x=gui_x, y=gui_y + 14, height=10, character=self.player, draw_frame=True)
 
     def render_visible_entities(self, console: Console, gui_x: int, gui_y: int, height: int, draw_frame: bool=False) -> None:
         x = gui_x

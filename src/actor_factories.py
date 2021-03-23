@@ -29,7 +29,7 @@ monster_rarity_for_each_difficulty = {
 player = Actor(
     char="@",
     fg=(0, 255, 0),
-    name="조나단",
+    name="갬장장이",
     entity_id="player",
     entity_desc="\
         당신은 쿠가의 아뮬렛을 가져오라는 임무를 받고 끝이 보이지 않는 던전으로 발을 들였다.\n\
@@ -240,7 +240,7 @@ volt_ant = Actor(
         스파크 개미들은 몸에 두른 전류를 통해 적으로부터 자신을 보호한다.\n\
         스파크 개미는 시큼텁텁한 맛이 나는 것으로 알려져 있으며, 일부 모험가들 사이에서는 별미로 꼽힌다.\n\
         \n\
-        \"이놈들을 잔뜩 잡아서 지상에서 안주로 팔면 대박이 날 거야, 암.\"\
+        \"이놈들을 잔뜩 잡아서 안주로 팔면 대박이 날 거야, 암.\"\
         ",
     rarity=5,
     spawnable=True,
@@ -296,7 +296,7 @@ bat = Actor(
         설치류와 조류 사이에 걸친 애매한 외형 때문에 이들은 오랜 시간 인간들에게 박해받아왔지만,\n\
         대부분의 박쥐는 무해하며, 인간에게 먼저 공격을 거는 경우는 드물다고 한다.\n\
         \n\
-        \"난 솔직히 걔들이 해를 끼치던 말던 관심없어. 생긴 게 징그럽잖아?\"\
+        \"난 솔직히 걔들이 해를 주던 말던 관심없어. 생긴 게 징그럽잖아.\"\
         ",
     rarity=5,
     spawnable=True,
@@ -617,7 +617,7 @@ large_dog = Actor(
         인간 최고의 친구라는 이명은 던전 안에서도 예외가 아니다.\n\
         ...적으로 마주치지만 않는다면.\n\
         \n\
-        \"사냥꾼의 가장 강력한 무기는 단검도, 활도 아니야. 그건 바로 녀석의 사냥개야.\"\
+        \"사냥꾼의 가장 강력한 무기는 단검도, 활도 아니야. 그건 바로 녀석의 사냥개지.\"\
         ",
     rarity=3,
     spawnable=True,
@@ -783,7 +783,7 @@ monster_difficulty[giant_wasp.status.difficulty].append(giant_wasp)
 black_jelly = Actor(
     char="j",
     fg=(10, 20, 10),
-    name="검정색 덩어리",
+    name="검정 덩어리",
     entity_id="black_jelly",
     entity_desc="\
         TODO\n\
@@ -801,7 +801,7 @@ black_jelly = Actor(
         intelligence=2,
         constitution=20,
         charm=3,
-        difficulty=3,#5
+        difficulty=5,
         base_melee=2,
         additional_melee=5,
         protection=7,
@@ -853,7 +853,7 @@ nymph = Actor(
         intelligence=16,
         constitution=18,
         charm=40,
-        difficulty=5,##TODO : 7
+        difficulty=7,
         base_melee=2,
         additional_melee=8,
         protection=10,

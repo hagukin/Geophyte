@@ -99,7 +99,7 @@ class ScrollOfConfusionReadable(SelectTileReadable):
         else:
             self.engine.message_log.add_message(f"{g(target.name, '이')} 휘청거리기 시작한다.", color.status_effect_applied, target=target)
 
-        target.actor_state.is_confused[1] = self.number_of_turns
+        target.actor_state.apply_confusion([0,self.number_of_turns])
 
 
 class ScrollOfTameReadable(SelectTileReadable):
@@ -516,7 +516,7 @@ class ScrollOfThunderStormReadable(AutoTargetingReadable):
         target.status.take_damage(amount=0, attacked_from=consumer)
 
         # damage
-        target.actor_state.is_electrocuting = [self.damage, 0.5]
+        target.actor_state.apply_electrocution([self.damage, 0.5])
         target.actor_state.actor_electrocuted()
 
         

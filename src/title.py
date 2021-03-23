@@ -151,7 +151,7 @@ def title_event_handler(console, context, cfg):
         # Get input from title screen
         if title_action == "new_game":
             player, engine = init_game_variables(cfg)
-            engine.message_log.add_message(f"{player.name} 님, 지오파이트의 세계에 오신 것을 환영합니다!", color.welcome_text)
+            engine.message_log.add_message(f"{player.name}님, 지오파이트의 세계에 오신 것을 환영합니다!", color.welcome_text)
             return player, engine
         elif title_action == "load_game":
             try:

@@ -1,4 +1,5 @@
 from __future__ import annotations
+from entity import Actor, SemiActor
 
 import numpy as np  # type: ignore
 import tcod
@@ -91,7 +92,10 @@ class FireRule(BaseRule):
         # NOTE: Actual calculations are handled in entity.collided_with_fire()
         for entity in self.engine.game_map.entities:
             if entity.x == self.parent.x and entity.y == self.parent.y:
-                entity.collided_with_fire(self.parent)
+                if isinstance(entity, Actor):
+                    entity.collided_with_fire(self.parent) # pass fire semiactor to calculate dmg
+                else:
+                    entity.collided_with_fire()
 
         # Remove entity if floor is not flammable
         if self.engine.game_map.tiles[self.parent.x, self.parent.y]["flammable"] == False:

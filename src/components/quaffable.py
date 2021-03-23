@@ -64,7 +64,7 @@ class PotionOfParalysisQuaffable(Quaffable):
 
     def activate(self, action: actions.QuaffItem) -> None:
         consumer = action.entity
-        consumer.actor_state.is_paralyzing = [0,self.turn]
+        consumer.actor_state.apply_paralyzation([0,self.turn])
 
         # Log
         if consumer == self.engine.player:
@@ -82,7 +82,7 @@ class PotionOfMonsterDetectionQuaffable(Quaffable):
     
     def activate(self, action: actions.QuaffItem) -> None:
         consumer = action.entity
-        consumer.actor_state.is_detecting_obj = [0,self.turn,("actor",)]
+        consumer.actor_state.apply_object_detection([0,self.turn,["actor"]])
         
         # Log
         if consumer == self.engine.player:

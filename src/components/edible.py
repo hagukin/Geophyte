@@ -91,7 +91,7 @@ class Edible(BaseComponent):
         # gain nutrition
         consumer = action.entity
         nutrition_gained = self.nutrition
-        consumer.actor_state.hunger += nutrition_gained
+        consumer.actor_state.gain_nutrition(nutrition_gained)
 
         #TODO: Add food poison, over eating debuffs
 
@@ -250,6 +250,6 @@ class GiantWaspEdible(Edible):
         # Log
         if not consumer.actor_state.has_telepathy:
             if consumer == self.engine.player:
-                self.engine.message_log.add_message(f"끔찍한 맛이 났다!", color.player_damaged)
-            consumer.actor_state.is_poisoned = [1, 0, 0, 8]
+                self.engine.message_log.add_message(f"혀에서 엄청난 고통이 느껴진다.", color.player_damaged)
+            consumer.actor_state.apply_poisoning([1, 0, 0, 8])
         return super().effect_always(action)

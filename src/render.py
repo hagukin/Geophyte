@@ -133,7 +133,7 @@ def render_character_status(
 
 
 def render_character_state(
-    console: Console, x: int, y: int, height: int, character: Actor, draw_frame: bool=True,
+    engine: Engine, x: int, y: int, height: int, character: Actor, draw_frame: bool=True,
 ) -> None:
     """
     NOTE: Status effects' string length should be shorter than 13 characters. (including blanks)
@@ -146,28 +146,40 @@ def render_character_state(
     lane2_x = x+13 # x pos of the rightside lane #NOTE hard-coded
     window_height = height # This graphic ui's frame height (frame border spaces(2 tiles) are ignored)
     # Maximum amount of status effects that can be displayed at once is (window_height * 2).
+    console = engine.console
+    hunger_text = character.actor_state.hunger_state
 
     #### Hunger ####
     if character.actor_state.hunger_state == "hungry":
         hunger_color = color.player_damaged
+        if engine.config["lang"] == "ko":
+            hunger_text = "배고픔"
     elif character.actor_state.hunger_state == "overeaten":
         hunger_color = color.player_damaged
+        if engine.config["lang"] == "ko":
+            hunger_text = "과식"
     elif character.actor_state.hunger_state == "starving":
         hunger_color = color.red
+        if engine.config["lang"] == "ko":
+            hunger_text = "굶주림"
     elif character.actor_state.hunger_state == "fainting":
         hunger_color = color.red
+        if engine.config["lang"] == "ko":
+            hunger_text = "배고픔에 허덕임"
     elif character.actor_state.hunger_state == "satiated":
         hunger_color = color.yellow
+        if engine.config["lang"] == "ko":
+            hunger_text = "배부름"
     else:
         hunger_color = color.white
 
     if character.actor_state.hunger_state != "":
         if num1 > window_height:
             num2 += 1
-            console.print(x=lane2_x, y=y+num2, string=character.actor_state.hunger_state, fg=hunger_color)
+            console.print(x=lane2_x, y=y+num2, string=hunger_text, fg=hunger_color)
         else:
             num1 += 1
-            console.print(x=lane1_x, y=y+num1, string=character.actor_state.hunger_state, fg=hunger_color)
+            console.print(x=lane1_x, y=y+num1, string=hunger_text, fg=hunger_color)
 
     #### Others ####
     if character.actor_state.is_burning != [0,0,0,0]:

@@ -183,7 +183,7 @@ class LightningStrikeActivatable(SpellActivateable):
             self.engine.message_log.add_message(f"번개가 {g(target.name, '을')} 내리쳤다!", target=caster)
 
             target.status.take_damage(amount=0, attacked_from=caster) # trigger target
-            target.actor_state.is_electrocuting = [self.damage, 0.5]
+            target.actor_state.apply_electrocution([self.damage, 0.5])
             target.actor_state.actor_electrocuted()
 
         self.spend_mana(caster=caster, amount=30)

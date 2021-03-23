@@ -299,7 +299,7 @@ class PotionOfParalysisThrowable(NormalThrowable):
                     self.engine.message_log.add_message(f"{g(target.name, '이')} 갑자기 모든 움직임을 멈추었다.", color.white, target=target)
 
             # Paralyze
-            target.actor_state.is_paralyzing = [0, self.parent.quaffable.turn]
+            target.actor_state.apply_paralyzation([0, self.parent.quaffable.turn])
         else: # When the target was paralyzed before
 
             # Log
@@ -307,7 +307,7 @@ class PotionOfParalysisThrowable(NormalThrowable):
                 self.engine.message_log.add_message(f"당신의 몸이 더 뻣뻣해졌다!",color.player_damaged,)
 
             # If paralyzation is permanent, (is_paralyzing[0] is set to negative) prevent overwriting the turn left
-            target.actor_state.is_paralyzing = [min(target.actor_state.is_paralyzing[0], 0), max(target.actor_state.is_paralyzing[1], self.parent.quaffable.turn)]
+            target.actor_state.apply_paralyzation([0, self.parent.quaffable.turn])
             
 
 class AcidGooThrowable(NormalThrowable):
@@ -318,4 +318,4 @@ class AcidGooThrowable(NormalThrowable):
             self.engine.message_log.add_message(f"{g(target.name, '은')} 산성 점액에 뒤덮였다.", color.white, target=target)
 
             # Poison
-            target.actor_state.is_melting = [4, 1, 0, 4]
+            target.actor_state.apply_melting([4, 1, 0, 4])

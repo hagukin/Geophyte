@@ -1,6 +1,7 @@
 import components.ai as ai
 import color
 import actions
+import explosion_action
 
 from korean import grammar as g
 
@@ -64,7 +65,7 @@ class Floating_Eye_Ai(ai.BaseAI):
 
             # Check if the target is in radius, and if the target is not already paralyzed
             if monster_vision[self.attacked_from.x, self.attacked_from.y] and self.attacked_from.actor_state.is_paralyzing == [0,0]:
-                self.attacked_from.actor_state.is_paralyzing = [0, 15]
+                self.attacked_from.actor_state.apply_paralyzation([0, 15])
 
                 # Message log
                 if self.engine.game_map.visible[self.parent.x, self.parent.y] or self.engine.game_map.visible[self.attacked_from.x, self.attacked_from.y]:
@@ -174,7 +175,7 @@ class Sphere_Of_Acid_Ai(ai.BaseAI):
         Return the action this ai will perform when its melee attacking something.
         If the ai has any sort of special effects to its melee attack, its passed as a parameter.
         """
-        actions.ExplodeAction(self.parent, False, True, radius=2, expl_dmg=50, dmg_reduction_by_dist=10, cause_fire=5).perform()
+        explosion_action.ExplodeAction(self.parent, False, True, radius=2, expl_dmg=50, dmg_reduction_by_dist=10, cause_fire=5).perform()
         self.parent.status.die()
 
 

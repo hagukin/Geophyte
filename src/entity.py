@@ -220,12 +220,7 @@ class Entity:
         # Apply environmental effects when moved.
         self.do_environmental_effects()
 
-    def collided_with_fire(self, fire):
-        """
-        Args:
-            fire:
-                Fire semiactor that this entity collided with.
-        """
+    def collided_with_fire(self):
         pass
 
 
@@ -453,6 +448,12 @@ class Actor(Entity):
             return True
 
         return False
+    
+    def inventory_on_fire(self):
+        # Ignite items in inventory
+        if self.inventory.is_fireproof == False:
+            for item in self.inventory.items:
+                item.collided_with_fire()
 
     def collided_with_fire(self, fire):
         """
@@ -460,16 +461,11 @@ class Actor(Entity):
             fire:
                 Fire semiactor that this entity collided with.
         """
-        super().collided_with_fire(fire)
+        super().collided_with_fire()
         # Burn the actor
         if self.actor_state.is_burning == [0,0,0,0]: # was not already burning
             self.engine.message_log.add_message(f"{self.name}에 불이 붙었다!",target=self)
-            self.actor_state.is_burning = [fire.rule.base_damage, fire.rule.add_damage, 0, fire.rule.fire_duration]
-
-        # Ignite items in inventory
-        if self.inventory.is_fireproof == False:
-            for item in self.inventory.items:
-                item.collided_with_fire(fire)
+            self.actor_state.apply_burning([fire.rule.base_damage, fire.rule.add_damage, 0, fire.rule.fire_duration])
 
 
 class Item(Entity):
@@ -889,13 +885,13 @@ class SemiActor(Entity):
         gamemap.entities.append(clone)
         return clone
 
-    def collided_with_fire(self, fire):
+    def collided_with_fire(self):
         """
         Args:
             fire:
                 Fire semiactor that this entity collided with.
         """
-        super().collided_with_fire(fire)
+        super().collided_with_fire()
         if self.semiactor_info.flammable:
             will_catch_fire = random.random()
             if will_catch_fire < self.semiactor_info.flammable:

@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import TYPE_CHECKING, List, Set, Tuple
+from typing import TYPE_CHECKING, List, Set, Tuple, Any
 
 from numpy.core.fromnumeric import sort
 from components.base_component import BaseComponent
@@ -57,7 +57,7 @@ class ActorState(BaseComponent):
 
         ### Status effects - Physical
         # NOTE: WARNING - If any of the default values of the status effects is changed, make sure to change actor_state.remove_all_actor_states() as well.
-        # NOTE: 'Effect lasts for negative turns' are considered as lasting infinitly.
+        # NOTE: 'Effect lasting for negative turns' are considered as lasting infinitly. = if max turn is negative, effects goes on forever
         # Actor is on fire / Actor is emitting fire from its body
         # Value: [Initial damage, Damage decrease per turn, Current turn, Max lasting turn]
         is_burning: list = [0, 0, 0, 0], 
@@ -100,6 +100,7 @@ class ActorState(BaseComponent):
         # Actor is floating unwillingly
         # NOTE: To check whether the actor is on air or not, use is_flying instead.
         # is_levitating value's sole purpose is to give actor a status effect of floation.
+        # Value: [Current turn, Max lasting turn]
         is_levitating: list = [0, 0],
         # Actor is drowning
         # Value: [Current turn, Turns needed for drowning(this is NOT turns left before drowning)]
@@ -121,7 +122,7 @@ class ActorState(BaseComponent):
         # Actor can detect things that are out of sight
         # Value: [Current turn, Max lasting turn, List with strings: object type]
         # NOTE: Detection != telepathy
-        is_detecting_obj: list = [0, 0, None],
+        is_detecting_obj: list = [0, 0, []],
 
         ### Spatial states
         # Actor is on air (whether willingly or unwillingly)
@@ -295,6 +296,9 @@ class ActorState(BaseComponent):
             if hunger_state == "starved to death":
                 self.parent.status.die(cause="starvation")
 
+    def gain_nutrition(self, nutrition: int) -> None:
+        self.hunger += nutrition
+
     def actor_heal_wounds(self):
         """
         constitution will affect both heal amount and heal interval.
@@ -314,16 +318,16 @@ class ActorState(BaseComponent):
     def actor_burn(self):
         if self.parent.status.changed_status["fire_resistance"] >= 1:
             self.engine.message_log.add_message(f"{g(self.parent.name, '은')} 화염에 저항했다!", fg=color.white, target=self.parent)
-            self.is_burning = [0, 0, 0, 0]
+            self.apply_burning([0, 0, 0, 0])
         else:
-            if self.is_burning[2] >= self.is_burning[3]: # No damage if the fire goes off
-                self.is_burning = [0, 0, 0, 0]
+            if self.is_burning[3] > 0 and self.is_burning[2] >= self.is_burning[3]: # No damage if the fire goes off
+                self.apply_burning([0, 0, 0, 0])
             else:
                 if self.is_burning[2] >= 0: # Last infinitly if negetive
                     self.is_burning[2] += 1 # current turn += 1
 
                 # Calculate dmg for current turn
-                fire_dmg = max(self.is_burning[0] + self.is_burning[1] * (self.is_burning[2] - 1), 0)
+                fire_dmg = max(min(self.is_burning[0] + self.is_burning[1] * (self.is_burning[2] - 1), self.is_burning[0] * 3), 0) # Theoretical max dmg = initial dmg * 3
 
                 # Damage reduction
                 fire_dmg = self.parent.status.calculate_dmg_reduction(damage=fire_dmg, damage_type="fire")
@@ -339,10 +343,14 @@ class ActorState(BaseComponent):
                 
                 self.engine.message_log.add_message(f"{g(self.parent.name, '은')} 화염으로부터 {fire_dmg} 데미지를 받았다.", fg=dmg_color, target=self.parent)
             
+                # Inventory on fire
+                self.parent.inventory_on_fire()
+
+
             # Chance of fire going off
             extinguish_chance = random.random()
             if extinguish_chance <= self.parent.status.changed_status["fire_resistance"]:
-                self.is_burning = [0, 0, 0, 0]
+                self.apply_burning([0, 0, 0, 0])
                 self.engine.message_log.add_message(f"{g(self.parent.name, '은')} 더 이상 불타고 있지 않다.", fg=color.gray, target=self.parent)
 
     def actor_paralyzing(self):
@@ -357,7 +365,7 @@ class ActorState(BaseComponent):
             else:
                 self.engine.message_log.add_message(f"{g(self.parent.name, '이')} 다시 움직이기 시작한다.", fg=color.white, target=self.parent)
             # Remove paralyzation
-            self.is_paralyzing = [0,0]
+            self.apply_paralyzation([0,0])
             return None
         else:
             if self.is_paralyzing[0] >= 0: # Last infinitly if negative
@@ -369,17 +377,17 @@ class ActorState(BaseComponent):
         """
         # No additional effect if the actor is already frozen.
         if self.is_frozen != [0,0,0]:
-            self.is_freezing = [0, 0, 0, 0, 0]
+            self.apply_freezing([0, 0, 0, 0, 0])
             return None
 
         if self.parent.status.changed_status["cold_resistance"] >= 1:
             self.engine.message_log.add_message(f"{g(self.parent.name, '은')} 냉기에 저항했다!", fg=color.white, target=self.parent)
-            self.is_freezing = [0, 0, 0, 0, 0]
+            self.apply_freezing([0, 0, 0, 0, 0])
             # Reset this actor's agility value
             self.parent.status.reset_bonuses(["bonus_agility"]) #TODO: Might need serious reworks. currently when yoou reset the bonus the entire buffs/debuffs are resetted.
         else:
             if self.is_freezing[3] >= self.is_freezing[4]: # If past max turn, reset stats
-                self.is_freezing = [0, 0, 0, 0, 0]
+                self.apply_freezing([0, 0, 0, 0, 0])
                 self.parent.status.reset_bonuses(["bonus_agility"])
             else:
                 if self.is_freezing[3] >= 0: # Last infinitly if negative
@@ -409,9 +417,9 @@ class ActorState(BaseComponent):
                     # max lasting turn = is_freezing max lasting turn * 2
                     dmg = round(self.is_freezing[0] * 1.5)
                     turn = round(self.is_freezing[4] * 2)
-                    self.is_frozen = [dmg, 0, turn]
+                    self.apply_frozen([dmg, 0, turn])
                     
-                    self.is_freezing = [0, 0, 0, 0, 0]
+                    self.apply_freezing([0, 0, 0, 0, 0])
                     self.parent.status.reset_bonuses(["bonus_agility"])
 
                     # Run frozen state handling method
@@ -421,7 +429,7 @@ class ActorState(BaseComponent):
             # Resistances
             resist_chance = random.random()
             if resist_chance <= self.parent.status.changed_status["cold_resistance"]:
-                self.is_freezing = [0, 0, 0, 0, 0]
+                self.apply_freezing([0, 0, 0, 0, 0])
                 self.parent.status.reset_bonuses(["bonus_agility"])
                 self.engine.message_log.add_message(f"{g(self.parent.name, '은')} 더 이상 얼어붙고 있지 않다.", fg=color.gray, target=self.parent)
 
@@ -430,7 +438,7 @@ class ActorState(BaseComponent):
         Actor is completely frozen
         """
         if self.is_frozen[1] >= self.is_frozen[2]:# Stats reset after max turn
-            self.is_frozen = [0, 0, 0]
+            self.apply_frozen([0,0,0])
             self.parent.status.reset_bonuses(["bonus_agility"])
         else:
             if self.is_frozen[1] >= 0: # will last infinitly if negetive
@@ -456,7 +464,7 @@ class ActorState(BaseComponent):
         # Resistance
         resist_chance = random.random()
         if resist_chance <= self.parent.status.changed_status["cold_resistance"]:
-            self.is_frozen = [0, 0, 0]
+            self.apply_frozen([0,0,0])
             self.parent.status.reset_bonuses(["bonus_agility"])
             self.engine.message_log.add_message(f"{g(self.parent.name, '은')} 더 이상 얼어있지 않다.", fg=color.white, target=self.parent)
 
@@ -541,7 +549,7 @@ class ActorState(BaseComponent):
                 self.engine.message_log.add_message(f"당신은 다시 정신을 차렸다.")
             else:
                 self.engine.message_log.add_message(f"{g(self.parent.name, '은')} 정신을 차린 듯 하다.", target=self.parent)
-            self.is_confused = [0,0]
+            self.apply_confusion([0,0])
         elif self.is_confused[0] >= 0: # lasts forever if negative
             self.is_confused[0] += 1
     
@@ -551,12 +559,12 @@ class ActorState(BaseComponent):
         """
         # Check resistance
         if random.random() <= self.parent.status.changed_status["acid_resistance"]:
-            self.is_melting = [0, 0, 0, 0]
+            self.apply_melting([0, 0, 0, 0])
             self.engine.message_log.add_message(f"{g(self.parent.name, '은')} 더 이상 산으로부터 데미지를 받고 있지 않다.", fg=color.gray, target=self.parent)
 
         # Check turns
         if self.is_melting[2] >= self.is_melting[3]:
-            self.is_melting = [0, 0, 0, 0]
+            self.apply_melting([0, 0, 0, 0])
             self.engine.message_log.add_message(f"{g(self.parent.name, '은')} 더 이상 산으로부터 데미지를 받고 있지 않다.", fg=color.gray, target=self.parent)
         else:
             if self.is_melting[3] >= 0: # lasts forever if negative
@@ -587,7 +595,7 @@ class ActorState(BaseComponent):
         """
         # Check if the parent actor can even bleed in the first place.
         if not self.has_blood:
-            self.is_bleeding = [0,0,0]
+            self.apply_bleeding([0,0,0])
             return None
 
         # Check turns
@@ -596,7 +604,7 @@ class ActorState(BaseComponent):
                 self.engine.message_log.add_message(f"당신은 더 이상 출혈 상태가 아니다.")
             else:
                 self.engine.message_log.add_message(f"{self.parent.name}의 출혈이 멎은 듯 하다.")
-            self.is_bleeding = [0,0,0]
+            self.apply_bleeding([0,0,0])
         else:
             if self.is_bleeding[1] >= 0: # lasts forever if negative
                 self.is_bleeding[1] += 1
@@ -624,7 +632,7 @@ class ActorState(BaseComponent):
         """
         if self.parent.status.changed_status["poison_resistance"] >= 1:
             self.engine.message_log.add_message(f"{g(self.parent.name, '은')} 독에 저항했다!", fg=color.white, target=self.parent)
-            self.is_poisoned = [0, 0, 0, 0]
+            self.apply_poisoning([0, 0, 0, 0])
             self.parent.status.reset_bonuses(["bonus_constitution"]) # TODO: Improve buff/debuff system
         else:
             if self.is_poisoned[2] >= self.is_poisoned[3]:
@@ -632,7 +640,7 @@ class ActorState(BaseComponent):
                     self.engine.message_log.add_message(f"당신은 더 이상 중독 상태가 아니다.", target=self.parent)
                 else:
                     self.engine.message_log.add_message(f"{g(self.parent.name, '은')} 기운을 차린 듯 하다.", target=self.parent)
-                self.is_poisoned = [0,0,0,0]
+                self.apply_poisoning([0, 0, 0, 0])
                 self.parent.status.reset_bonuses(["bonus_constitution"])
             else:
                 if self.is_poisoned[2] >= 0: # lasts forever if negative
@@ -658,7 +666,7 @@ class ActorState(BaseComponent):
             # Resistance
             resist_chance = random.random()
             if resist_chance <= self.parent.status.changed_status["poison_resistance"]:
-                self.is_poisoned = [0, 0, 0, 0]
+                self.apply_poisoning([0, 0, 0, 0])
                 self.parent.status.reset_bonuses(["bonus_constitution"])
                 if self.parent == self.engine.player:
                     self.engine.message_log.add_message(f"당신은 더 이상 중독 상태가 아니다.", target=self.parent)
@@ -675,7 +683,7 @@ class ActorState(BaseComponent):
         # Remove fire unless the fire lasts eternally (Check if current turn value is negative or not)
         # NOTE: Items in actor's inv will not be effected. TODO: fix? add wet items?
         if self.is_burning[2] >= 0:
-            self.is_burning = [0,0,0,0]
+            self.apply_burning([0,0,0,0])
 
         # Debuffs on agi and dex if you cant swim
         if not self.parent.actor_state.can_swim:
@@ -689,10 +697,10 @@ class ActorState(BaseComponent):
         
         # Actor will slowly drown if it can't swim nor breathe underwater, and it needs to breathe to live
         if self.parent.actor_state.is_drowning == [0,0] and not self.parent.actor_state.can_swim and not self.parent.actor_state.can_breathe_underwater and self.parent.actor_state.need_breathe:
-            self.is_drowning = [0, 80]##TODO
+            self.apply_drowning([0, 80])##TODO
         # Moved from deep water to shallow water while drowning (The actor is still submerged, but is_underwater is set to False)
         elif self.parent.actor_state.is_drowning != [0,0] and not self.parent.actor_state.is_underwater:
-            self.is_drowning = [0,0]
+            self.apply_drowning([0, 80])
 
     def actor_drowning(self):
         """
@@ -705,7 +713,7 @@ class ActorState(BaseComponent):
             if self.is_drowning[0] >= self.is_drowning[1]:
                 self.parent.status.die(cause="drowning")
         else:
-            self.is_drowning = [0,0]
+            self.apply_drowning([0, 0])
             return None
 
     def actor_detecting(self):
@@ -717,17 +725,21 @@ class ActorState(BaseComponent):
         if self.is_detecting_obj[0] >= self.is_detecting_obj[1]:
             if self.parent == self.engine.player:
                 self.engine.message_log.add_message(f"당신은 감각이 다시 원래대로 돌아오는 것을 느꼈다.", target=self.parent)
-            self.is_detecting_obj = [0,0,None]
+            self.apply_object_detection([0,0,[]])
         elif self.is_detecting_obj[0] >= 0: # lasts forever if negative
             self.is_detecting_obj[0] += 1
 
-    def remove_all_actor_states(self):
+    def remove_all_actor_states(self, include_spatial_states: bool = False):
         """
         Reset everything related to this actor's state.
 
+        WARNING: This function FORCES to remove ALL actor states regardless of situations.
+        So any permanent actor state (e.g. burning state of Fire Elemental) will be removed as well.
+        If you forcefully want to remove certain states only, use change the instance variable directly insted. (ex. self.burning = [0,0,0,0])
+        If you want to remove certain states non-forcefully, and let the game decide whether the state should be removed or not, use apply_xxxing methods instead. (ex. self.apply_burning([0,0,0,0]))
+
         NOTE: This function's main purpose is to prevent any unwanted behaviour from dead entities by removing their actor states.
-        This function should NOT be called to remove status effects from a living actor, 
-        since its just modifying the values so the game engine will ignore this actor when handling actors status.
+        This function should NOT be called for the purpose of removing status effects from a living actor.
         """
         # hunger
         self.hunger = -1
@@ -754,11 +766,370 @@ class ActorState(BaseComponent):
         self.is_angry = [0, 0]
         self.is_confused = [0, 0]
         self.is_hallucinating = [0, 0]
-        self.is_detecting_obj = [0, 0, None]
-        # spatial states
-        self.is_flying = False
-        self.is_in_deep_pit = False
-        self.is_in_shallow_pit = False
-        self.is_submerged = False
-        self.is_underwater = 0
+        self.is_detecting_obj = [0, 0, []]
+        if include_spatial_states:
+            # spatial states
+            self.is_flying = False
+            self.is_in_deep_pit = False
+            self.is_in_shallow_pit = False
+            self.is_submerged = False
+            self.is_underwater = 0
 
+    def apply_burning(self, value: List[int, int, int, int]) -> None:
+        """
+        ### FLOW ###
+        # Am I burning eternally?
+        # Yes)
+        #       Am I receiving a value to start burning eternally?
+        #       Yes)
+        #           Overwrite.
+        #       No)
+        #           ignore given value.
+        # No)
+        #       Am I receiving a value to start burn for eternity?
+        #       Yes)
+        #           Overwrite.
+        #       No)
+        #           Am I currently burning?
+        #           Yes)
+        #               Set dmg to higher value, set dmg decrement to lower value, keep current turn unchanged, prolong max turn
+        #           No)
+        #               Set is_burning to given value
+        #############
+        """
+        if self.is_burning[3] < 0:
+            if value[3] < 0:
+                self.is_burning = value
+                return None
+            else:
+                return None
+        else:
+            if value[3] < 0:
+                self.is_burning = value
+            else:
+                if self.is_burning != [0,0,0,0] and value != [0,0,0,0]:
+                    self.is_burning[0] = max(self.is_burning[0], value[0]) # set to higher dmg
+                    self.is_burning[1] = min(self.is_burning[1], value[1]) # set to lower decrement
+                    # keep current turn unchanged
+                else:
+                    self.is_burning = value
+
+    def apply_poisoning(self, value: List[int, int, int, int]) -> None:
+        """
+        Flow similar to apply_burning()
+        """
+        if self.is_poisoned[3] < 0:
+            if value[3] < 0:
+                self.is_poisoned = value
+                return None
+            else:
+                return None
+        else:
+            if value[3] < 0:
+                self.is_poisoned = value
+            else:
+                if self.is_poisoned != [0,0,0,0] and value != [0,0,0,0]:
+                    self.is_poisoned[0] = max(self.is_poisoned[0], value[0]) # set to higher dmg
+                    self.is_poisoned[1] = max(self.is_poisoned[1], value[1]) # set to higher increment
+                    # keep current turn unchanged
+                    self.is_poisoned[3] += value[3] # prolong poisoning
+                else:
+                    self.is_poisoned = value
+
+    def apply_freezing(self, value: List[int, int, int, int, int]) -> None:
+        """
+        Flow similar to apply_burning()
+        """
+        if self.is_freezing[4] < 0:
+            if value[4] < 0:
+                self.is_freezing = value
+                return None
+            else:
+                return None
+        else:
+            if value[4] < 0:
+                self.is_freezing = value
+            else:
+                if self.is_freezing != [0,0,0,0,0] and value != [0,0,0,0,0]:
+                    self.is_freezing[0] = max(self.is_freezing[0], value[0]) # set to higher dmg
+                    self.is_freezing[1] = max(self.is_freezing[1], value[1]) # set to higher agility decrement
+                    self.is_freezing[2] = max(self.is_freezing[2], value[2]) # set to higher chance of being frozen
+                    # keep current turn unchanged
+                    self.is_freezing[4] += value[4] # prolong freezing
+                else:
+                    self.is_freezing = value
+
+    def apply_frozen(self, value: List[int, int, int]) -> None:
+        """
+        Flow similar to apply_burning()
+        """
+        if self.is_frozen[2] < 0:
+            if value[2] < 0:
+                self.is_frozen = value
+                return None
+            else:
+                return None
+        else:
+            if value[2] < 0:
+                self.is_frozen = value
+            else:
+                if self.is_frozen != [0,0,0] and value != [0,0,0]:
+                    self.is_frozen[0] = max(self.is_frozen[0], value[0]) # set to higher dmg
+                    # keep current turn unchanged
+                    # no prolonging
+                else:
+                    self.is_frozen = value
+
+    def apply_bleeding(self, value: List[int, int, int]) -> None:
+        """
+        Flow similar to apply_burning()
+        """
+        if self.is_bleeding[2] < 0:
+            if value[2] < 0:
+                self.is_bleeding = value
+                return None
+            else:
+                return None
+        else:
+            if value[2] < 0:
+                self.is_bleeding = value
+            else:
+                if self.is_bleeding != [0,0,0] and value != [0,0,0]:
+                    self.is_bleeding[0] += value[0] # dmg stacks
+                    # keep current turn unchanged
+                    self.is_bleeding[2] = max(self.is_bleeding[2], value[2]) # No prolonging but set to higher value
+                else:
+                    self.is_bleeding = value
+
+    def apply_slowness(self, value: List[int, int, int]) -> None:
+        """
+        Flow similar to apply_burning()
+        """
+        if self.is_acting_slower[2] < 0:
+            if value[2] < 0:
+                self.is_acting_slower = value
+                return None
+            else:
+                return None
+        else:
+            if value[2] < 0:
+                self.is_acting_slower = value
+            else:
+                if self.is_acting_slower != [0,0,0] and value != [0,0,0]:
+                    self.is_acting_slower[0] = max(self.is_acting_slower[0], value[0])
+                    # keep current turn unchanged
+                    self.is_acting_slower[1] += value[1] # prolong max turn
+                else:
+                    self.is_acting_slower = value
+
+    def apply_haste(self, value: List[int, int, int]) -> None:
+        """
+        Flow similar to apply_burning()
+        """
+        if self.is_acting_faster[2] < 0:
+            if value[2] < 0:
+                self.is_acting_faster = value
+                return None
+            else:
+                return None
+        else:
+            if value[2] < 0:
+                self.is_acting_faster = value
+            else:
+                if self.is_acting_faster != [0,0,0] and value != [0,0,0]:
+                    self.is_acting_faster[0] = max(self.is_acting_faster[0], value[0])
+                    # keep current turn unchanged
+                    self.is_acting_faster[1] += value[1] # prolong max turn
+                else:
+                    self.is_acting_faster = value
+
+    def apply_melting(self, value: List[int,int,int,int]) -> None:
+        """
+        Flow similar to apply_burning()
+        """
+        if self.is_melting[3] < 0:
+            if value[3] < 0:
+                self.is_melting = value
+                return None
+            else:
+                return None
+        else:
+            if value[3] < 0:
+                self.is_melting = value
+            else:
+                if self.is_melting != [0,0,0,0] and value != [0,0,0,0]:
+                    self.is_melting[0] = max(self.is_melting[0], value[0])
+                    self.is_melting[1] = max(0, self.is_melting[1] - int(value[0]/2)) # lower dmg decrement by the newly taken dmg
+                    # keep current turn unchanged
+                    self.is_melting[2] += value[2] # prolong max turn
+                else:
+                    self.is_melting = value
+
+    def apply_sickness(self, value: List[float,int,int]) -> None:
+        """
+        Flow similar to apply_burning()
+        """
+        if self.is_sick[2] < 0:
+            if value[2] < 0:
+                self.is_sick = value
+                return None
+            else:
+                return None
+        else:
+            if value[2] < 0:
+                self.is_sick = value
+            else:
+                if self.is_sick != [0.0,0,0] and value != [0,0,0,0]:
+                    self.is_sick[0] = max(self.is_sick[0], value[0])
+                    # keep current turn unchanged
+                    # keep max turn unchanged
+                else:
+                    self.is_sick = value
+
+    def apply_electrocution(self, value: List[int,float]) -> None:
+        if self.is_electrocuting != [0,0]:
+            self.is_electrocuting[0] = max(self.is_electrocuting[0], value[0]) # set to higher dmg
+            self.is_electrocuting[1] = max(self.is_electrocuting[1], value[1]) # set to higher dmg ratio
+        else:
+            self.is_electrocuting = value
+
+    def apply_invisibility(self, value: List[int,int]) -> None:
+        if self.is_invisible[1] < 0:
+            return None
+        if self.is_invisible != [0,0] and value != [0,0]:
+            # keep current turn unchanged
+            self.is_invisible[1] += value[1] # prolong max turn
+        else:
+            self.is_invisible = value
+
+    def apply_phasing(self, value: List[int,int]) -> None:
+        if self.is_phasing[1] < 0:
+            return None
+        if self.is_phasing != [0,0] and value != [0,0]:
+            # keep current turn unchanged
+            self.is_phasing[1] += value[1] # prolong max turn
+        else:
+            self.is_phasing = value
+
+    def apply_paralyzation(self, value: List[int,int]) -> None:
+        if self.is_paralyzing[1] < 0:
+            return None
+        if self.is_paralyzing != [0,0] and value != [0,0]:
+            # keep current turn unchanged
+            self.is_paralyzing[1] = max(self.is_paralyzing[1], value[1]) # No prolonging to prevent paralyzing indefinitely, but set to higher value
+        else:
+            self.is_paralyzing = value
+
+    def apply_levitation(self, value: List[int,int]) -> None:
+        if self.is_levitating[1] < 0:
+            raise NotImplementedError("ERROR::You should not be able to obtain levitation state eternally. Consider using is_flying instead.")
+        if self.is_levitating != [0,0] and value != [0,0]:
+            # keep current turn unchanged
+            self.is_levitating[1] += value[1]
+        else:
+            self.is_levitating = value
+    
+    def apply_drowning(self, value: List[int,int]) -> None:
+        if self.is_drowning != [0,0] and value != [0,0]:
+            # keep current turn unchanged
+            # keep max turn unchanged
+            pass
+        else:
+            self.is_drowning = value
+
+    def apply_sleeping(self, value: List[int,int]) -> None:
+        if self.is_sleeping[1] < 0:
+            return None
+        if self.is_sleeping != [0,0] and value != [0,0]:
+            # keep current turn unchanged
+            # keep max turn unchanged
+            pass
+        else:
+            self.is_sleeping = value
+
+    def apply_anger(self, value: List[int,int]) -> None:
+        if self.is_angry[1] < 0:
+            return None
+        if self.is_angry != [0,0] and value != [0,0]:
+            # keep current turn unchanged
+            # keep max turn unchanged
+            pass
+        else:
+            self.is_angry = value
+    
+    def apply_confusion(self, value: List[int,int]) -> None:
+        if self.is_confused[1] < 0:
+            return None
+        if self.is_confused != [0,0] and value != [0,0]:
+            # keep current turn unchanged
+            self.is_confused[1] += value[1] # prolong max turn
+        else:
+            self.is_confused = value
+
+    def apply_hallucination(self, value: List[int,int]) -> None:
+        if self.is_hallucinating[1] < 0:
+            return None
+        if self.is_hallucinating != [0,0] and value != [0,0]:
+            # keep current turn unchanged
+            self.is_hallucinating[1] += value[1] # prolong max turn
+        else:
+            self.is_hallucinating = value
+
+    def apply_object_detection(self, value: List[int,int]) -> None:
+        if self.is_detecting_obj[1] < 0:
+            raise NotImplementedError("ERROR::You should not be able to obtain object detection state eternally")
+        if self.is_detecting_obj != [0,0,[]] and value != [0,0,[]]:
+            # keep current turn unchanged
+            self.is_detecting_obj[1] += value[1] # prolong max turn
+            self.is_detecting_obj[2] = list(set(self.is_detecting_obj[2] + value[2])) # Add both lists, delete duplicates, and make it back to list type
+        else:
+            self.is_detecting_obj = value
+
+    def apply_actor_state(self, state_name: str, value: Any) -> None:
+        """
+        Alter this actor's actor_state.
+        This function will prevent actor_state being overwritten by smaller values.
+        Using this function is highly recommended over directly manipulating actor_state values or directly calling apply_xxxing functions.
+        
+        NOTE: Function currently unused. aplly_xxxing() methods are being called directly. (20210323)
+        """
+        if state_name == "is_burning":
+            self.apply_burning(value)
+        elif state_name == "is_poisoned":
+            self.apply_poisoning(value)
+        elif state_name == "is_freezing":
+            self.apply_freezing(value)
+        elif state_name == "is_frozen":
+            self.apply_frozen(value)
+        elif state_name == "is_electrocuting":
+            self.apply_electrocution(value)
+        elif state_name == "is_invisible":
+            self.apply_invisibility(value)
+        elif state_name == "is_phasing":
+            self.apply_phasing(value)
+        elif state_name == "is_paralyzing":
+            self.apply_paralyzation(value)
+        elif state_name == "is_bleeding":
+            self.apply_bleeding(value)
+        elif state_name == "is_acting_slower":
+            self.apply_slowness(value)
+        elif state_name == "is_acting_faster":
+            self.apply_haste(value)
+        elif state_name == "is_melting":
+            self.apply_melting(value)
+        elif state_name == "is_sick":
+            self.apply_sickness(value)
+        elif state_name == "is_levitating":
+            self.apply_levitation(value)
+        elif state_name == "is_drowning":
+            self.apply_drowning(value)
+        elif state_name == "is_sleeping":
+            self.apply_sleeping(value)
+        elif state_name == "is_angry":
+            self.apply_anger(value)
+        elif state_name == "is_confused":
+            self.apply_confusion(value)
+        elif state_name == "is_hallucinating":
+            self.apply_hallucination(value)
+        elif state_name == "is_detecting_obj":
+            self.apply_object_detection(value)
