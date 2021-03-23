@@ -516,6 +516,10 @@ class StorageSelectEventHandler(AskUserEventHandler):
             item_damage_text += " (다소 그을림)"
         elif item.item_state.burntness == 2:
             item_damage_text += " (상당히 그을림)"
+        if item.item_state.corrosion == 1:
+            item_damage_text += " (다소 부식됨)"
+        elif item.item_state.corrosion == 2:
+            item_damage_text += " (심하게 부식됨)"
             
         # Display special states if it is true
         if item.item_state.is_burning:

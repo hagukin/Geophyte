@@ -175,7 +175,7 @@ class Sphere_Of_Acid_Ai(ai.BaseAI):
         Return the action this ai will perform when its melee attacking something.
         If the ai has any sort of special effects to its melee attack, its passed as a parameter.
         """
-        explosion_action.ExplodeAction(self.parent, False, True, radius=2, expl_dmg=50, dmg_reduction_by_dist=10, cause_fire=5).perform()
+        explosion_action.AcidExplodeAction(self.parent, False, True, radius=2, expl_dmg=50, dmg_reduction_by_dist=10, cause_fire=0).perform()
         self.parent.status.die()
 
 

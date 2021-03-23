@@ -500,7 +500,7 @@ class MeleeAction(ActionWithDirection):
         if damage > 0:
             if self.engine.game_map.visible[self.entity.x, self.entity.y] and self.engine.game_map.visible[target.x, target.y]:# 시야에 보이는 엔티티의 전투만 프린트함. (공격자, 피공격자 중 하나라도 시야 내에 있으면 로그를 표시함.)
                 self.engine.message_log.add_message(
-                    f"{attack_desc}해 {damage}를 입혔다.", attack_color
+                    f"{attack_desc}해 {damage} 데미지를 입혔다.", attack_color
                 )
 
                 # Gain strength experience point

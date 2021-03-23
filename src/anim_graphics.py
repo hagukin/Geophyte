@@ -32,3 +32,23 @@ def explosion():
     }
 
     return expl
+
+
+### Explosion
+def acid_explosion():
+
+    fgs = (
+        (176,191,26),
+        (117,191,21),
+        (186,191,27),
+        (152,191,44)
+    )
+    fg = random.choice(fgs)
+
+    expl = {
+        "char":"*",
+        "fg":fg,
+        "bg":None,
+    }
+
+    return expl

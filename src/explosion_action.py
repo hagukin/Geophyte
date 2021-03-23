@@ -136,7 +136,7 @@ class ExplodeAction(RadiusAction):
 
     def tile_in_radius_action(self, x, y):
         from semiactor_factories import fire
-        if self.cause_fire:
+        if self.cause_fire > 0:
             fire.spawn(self.entity.gamemap, x, y, self.cause_fire)
 
         pass #NOTE: Can do additional things here
@@ -178,7 +178,7 @@ class AcidExplodeAction(ExplodeAction):
         affect_items: bool, 
         affect_actors: bool,
         radius: int=1,
-        graphic_function: dict = anim_graphics.explosion,
+        graphic_function: dict = anim_graphics.acid_explosion,
         explosion_speed: int=1,
         expl_dmg: int=0,
         dmg_reduction_by_dist: int=1,
@@ -204,5 +204,6 @@ class AcidExplodeAction(ExplodeAction):
 
     def actor_in_radius_action(self, actor: Actor):
         super().actor_in_radius_action(actor)
+        actor.actor_state.apply_melting(self.acid)
 
 
