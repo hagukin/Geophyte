@@ -688,39 +688,6 @@ class Engine:
         self.render(self.console)
         self.context.present(self.console)
 
-    def render_playerinfo(self, console: Console, gui_x: int, gui_y: int) -> None:
-        """
-        Handles the GUI about players status.
-        This includes player status, and player's status effects.
-        Args:
-            gui_x, gui_y:
-                top-left side of the graphical user interfaces.
-                NOTE: This is NOT the coordinate of the GUi frame. This is the coordinate of the inner area.
-        """
-        render_character_name(console=console, x=gui_x, y=gui_y, character=self.player)
-
-        render_health_bar(
-            console=console,
-            x=gui_x,
-            y=gui_y+2,
-            current_value=self.player.status.hp,
-            maximum_value=self.player.status.max_hp,
-            total_width=26,
-        )
-
-        render_mana_bar(
-            console=console,
-            x=gui_x,
-            y=gui_y+3,
-            current_value=self.player.status.mp,
-            maximum_value=self.player.status.max_mp,
-            total_width=26,
-        )
-
-        render_character_status(console=console, x=gui_x, y=gui_y + 5, character=self.player, draw_frame=True)
-
-        render_character_state(engine=self, x=gui_x, y=gui_y + 14, height=10, character=self.player, draw_frame=True)
-
     def render_visible_entities(self, console: Console, gui_x: int, gui_y: int, height: int, draw_frame: bool=False) -> None:
         x = gui_x
         num = gui_y
@@ -744,6 +711,44 @@ class Engine:
         # draw frame
         if draw_frame:
             console.draw_frame(x=gui_x-1, y=gui_y-1, width=28, height=height, title="시야 내 정보", clear=False, fg=color.gui_frame_fg, bg=color.gui_frame_bg)
+
+    def render_rightside(self, console: Console, gui_x: int, gui_y: int) -> None:
+        """
+        Handles the GUI about players status.
+        This includes player status, and player's status effects.
+        Args:
+            gui_x, gui_y:
+                top-left side of the graphical user interfaces.
+                NOTE: This is NOT the coordinate of the GUi frame. This is the coordinate of the inner area.
+        """
+
+        render_character_status(
+            console=console, 
+            x=gui_x, 
+            y=gui_y, 
+            width=self.config["rside_width"], 
+            height=self.config["status_height"], 
+            character=self.player, 
+            draw_frame=True
+            )
+
+        render_character_state(
+            engine=self, 
+            x=gui_x, 
+            y=gui_y + self.config["status_height"] - 2, 
+            height=self.config["state_height"], 
+            character=self.player, 
+            draw_frame=True
+            )
+
+        self.render_visible_entities(
+            console, 
+            gui_x, 
+            gui_y + self.config["status_height"] + self.config["state_height"], 
+            height=self.config["sight_info_height"], 
+            draw_frame=True
+            )
+
     def draw_window(
             self,
             console: Console,
@@ -777,12 +782,11 @@ class Engine:
         """
         Handles rendering all the graphical user interfaces.
         """
-        # Values are hard-coded.
-        self.message_log.render(console=console, x=1, y=48, width=70, height=9, draw_frame=True)
-        render_gameinfo(console=console, x=1, y=58, depth=self.depth, game_turn=self.game_turn)
-        self.render_playerinfo(console=console, gui_x=73, gui_y=1)
-        self.render_visible_entities(console=console, gui_x=73, gui_y=28, height=31, draw_frame=True)
-
+        # Some values are hard-coded.
+        self.message_log.render(console=console, x=1, y=self.config["camera_height"]+2, width=self.config["camera_width"], height=self.config["msg_log_height"], draw_frame=True)
+        render_gameinfo(console=console, x=1, y=self.config["camera_height"] + self.config["msg_log_height"] + 4, depth=self.depth, game_turn=self.game_turn)
+        self.render_rightside(console=console, gui_x=self.config["camera_width"] + 2, gui_y=1)
+    
     def render(self, console: Console) -> None:
         """
         Handles rendering everything from the game.
@@ -791,4 +795,4 @@ class Engine:
         self.camera.render(console, draw_frame=True)
         self.render_gui(console=console)
 
-        render_names_at_mouse_location(console=console, x=3, y=46, engine=self)
+        render_names_at_mouse_location(console=console, x=1, y=0, engine=self)

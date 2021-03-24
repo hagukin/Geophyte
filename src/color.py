@@ -76,3 +76,6 @@ gui_action_fg = (0xf0, 0xf0, 0xf0)
 
 gui_status_text = (0xf5, 0x98, 0x42)
 #bg = inventory_bg
+
+gui_mouse_tile = white
+gui_mouse_entity = yellow

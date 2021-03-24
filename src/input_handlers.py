@@ -969,7 +969,7 @@ class InventorySplitHandler(AskUserEventHandler):
         player = self.engine.player
         key = event.sym
 
-        if key == tcod.event.K_PLUS or key == tcod.event.K_KP_PLUS:
+        if key == tcod.event.K_PLUS or key == tcod.event.K_KP_PLUS or key == tcod.event.K_EQUALS:
             if self.split_amount < self.item.stack_count - 1:
                 self.split_amount += 1
             else:

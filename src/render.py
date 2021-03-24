@@ -47,6 +47,7 @@ def get_names_at_location(x: int, y: int, game_map: GameMap, display_id: bool=Fa
                 names.append(entity.name)
 
     names = ", ".join(names)
+    names = names[0:game_map.engine.config["camera_width"] - 7]
 
     return names.capitalize()
 
@@ -109,27 +110,49 @@ def sign(num: int):
 
 
 def render_character_status(
-    console: Console, x: int, y: int, character: Actor, draw_frame:bool = True,
+    console: Console, x: int, y: int, width: int, height: int, character: Actor, draw_frame:bool = True,
 ) -> None:
     """NOTE: x, y coordinates is the position of the letter S of the word Str(strength)"""
+
+    render_character_name(console=console, x=x, y=y, character=character)
+
+    render_health_bar(
+        console=console,
+        x=x,
+        y=y+2,
+        current_value=character.status.hp,
+        maximum_value=character.status.max_hp,
+        total_width=26,
+    )
+
+    render_mana_bar(
+        console=console,
+        x=x,
+        y=y+3,
+        current_value=character.status.mp,
+        maximum_value=character.status.max_mp,
+        total_width=26,
+    )
+
     stat = character.status.changed_status
+    y_span = 5
 
     # Status
-    console.print(x=x, y=y, string=f"힘: {stat['strength']}", fg=color.light_gray)
-    console.print(x=x+13, y=y, string=f"손재주: {stat['dexterity']}", fg=color.light_gray)
-    console.print(x=x, y=y+1, string=f"활력: {stat['constitution']}", fg=color.light_gray)
-    console.print(x=x+13, y=y+1, string=f"민첩: {stat['agility']}", fg=color.light_gray)
-    console.print(x=x, y=y+2, string=f"지능: {stat['intelligence']}", fg=color.light_gray)
-    console.print(x=x+13, y=y+2, string=f"매력: {stat['charm']}", fg=color.light_gray)
+    console.print(x=x, y=y+y_span, string=f"힘: {stat['strength']}", fg=color.light_gray)
+    console.print(x=x+13, y=y+y_span, string=f"손재주: {stat['dexterity']}", fg=color.light_gray)
+    console.print(x=x, y=y+y_span+1, string=f"활력: {stat['constitution']}", fg=color.light_gray)
+    console.print(x=x+13, y=y+y_span+1, string=f"민첩: {stat['agility']}", fg=color.light_gray)
+    console.print(x=x, y=y+y_span+2, string=f"지능: {stat['intelligence']}", fg=color.light_gray)
+    console.print(x=x+13, y=y+y_span+2, string=f"매력: {stat['charm']}", fg=color.light_gray)
 
     # Armor
-    console.print(x=x, y=y+4, string=f"보호도: {stat['protection']}", fg=color.white)
-    console.print(x=x, y=y+6, string=f"기본 공격력: {stat['base_melee']}", fg=color.white)
-    console.print(x=x, y=y+7, string=f"추가 공격력: 0 ~ {stat['additional_melee']}", fg=color.white)
+    console.print(x=x, y=y+y_span+4, string=f"보호도: {stat['protection']}", fg=color.white)
+    console.print(x=x, y=y+y_span+6, string=f"기본 공격력: {stat['base_melee']}", fg=color.white)
+    console.print(x=x, y=y+y_span+7, string=f"추가 공격력: 0 ~ {stat['additional_melee']}", fg=color.white)
 
     # border for status gui
     if draw_frame:
-        console.draw_frame(x=x-1, y=y-6, width=28, height=15, title="스테이터스", clear=False, fg=color.gui_frame_fg, bg=color.gui_frame_bg)
+        console.draw_frame(x=x-1, y=y-1, width=width, height=height, title="스테이터스", clear=False, fg=color.gui_frame_fg, bg=color.gui_frame_bg)
 
 
 def render_character_state(
@@ -299,14 +322,15 @@ def render_names_at_mouse_location(
     mouse_x, mouse_y = engine.mouse_location
 
     names_at_mouse_location = get_names_at_location(x=mouse_x, y=mouse_y, game_map=engine.game_map, display_id=False)
-
     tile_name_at_location = get_tile_name_at_location(x=mouse_x, y=mouse_y, game_map=engine.game_map)
 
-    console.print(x=x, y=y, string=tile_name_at_location, fg=color.white)
-    console.print(x=x, y=y+1, string=names_at_mouse_location, fg=color.yellow)
+    console.print(x=x, y=y, string=tile_name_at_location, fg=color.gui_mouse_tile)
+    console.print(x=x, y=y+engine.config["camera_height"]+1, string=names_at_mouse_location, fg=color.gui_mouse_entity)
+
 
 def insert_string(origin: str, insert: str, insert_loc: int) -> str:
     return origin[:insert_loc] + insert + origin[insert_loc:]
+
 
 def render_message_window(
     console: Console, 

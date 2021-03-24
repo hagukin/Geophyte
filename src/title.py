@@ -1,11 +1,13 @@
 from loader.initialization import init_game_variables
 from loader.data_loader import load_game
 from render import render_img
+from loader.data_loader import quit_game
 
 import color
 import tcod
 import time
 import random
+import option
 
 
 class TitleInputHandler(tcod.event.EventDispatch[None]):
@@ -17,6 +19,8 @@ class TitleInputHandler(tcod.event.EventDispatch[None]):
             return "new_game"
         elif event.sym == tcod.event.K_l: # Load Game
             return "load_game"
+        elif event.sym == tcod.event.K_o: # Option
+            return "option"
         elif event.sym == tcod.event.K_q: # Quit Game
             return "quit_game"
         return None
@@ -48,7 +52,7 @@ def render_title_animation(console, x, y, frame):
         graphic1 = f.read()
     with open(f"resources\\f{g2frame[frame-1]}.txt", "r") as f:
         graphic2 = f.read()
-    torch = " \' \n\\-/\n\\#/\n # \n # \n # \n # \n # \n # \n # "
+    torch = " \' \n\\-/\n\\#/\n # \n # \n # \n # \n # \n # \n # \n # \n # "
     
     flame_color = (255, random.randint(100,255), 0)
 
@@ -73,7 +77,7 @@ def render_title_gui(console):
     # render
     from util import draw_thick_frame
     #draw_thick_frame(console, x, y, width=17, height=9, fg=color.title_gui_frame)
-    console.print(x+2, y+1, string="\nN - New Game\n\nL - Load Game\n\nQ - Quit Game\n", fg=color.white)
+    console.print(x+2, y+1, string="N - New Game\n\nL - Load Game\n\nO - Options\n\nC - Credits\n\nQ - Quit Game\n", fg=color.white)
 
     # Copyright Note, version mark
     console.print(width - 32, height - 4, string="Copyright (C) 2020 by Haguk Kim", fg=color.white)
@@ -109,6 +113,17 @@ def get_title_action(sec_per_frame):
             return None
 
 
+def render_title(console, context, anim_x:int, anim_y:int, anim_frame: int) -> None:
+    """
+    Render title screen.
+    """
+    console.clear(fg=color.black, bg=color.black)
+    render_img(console=console, dest_x = 5, dest_y = 5, img=tcod.image_load("resources\\title_img.png"))
+    render_title_gui(console=console)
+    render_title_animation(console=console, x=anim_x, y=anim_y, frame=anim_frame)
+    context.present(console, keep_aspect=True)
+
+
 def title_event_handler(console, context, cfg):
     """
     Core function that handles most of the things related to the title screen.
@@ -120,14 +135,9 @@ def title_event_handler(console, context, cfg):
     sec_per_frame = 0.2
     max_frame = 8
 
-    # Render Title Screen for the first time
-    render_img(console=console, dest_x = 5, dest_y = 5, img=tcod.image_load("resources\\title_img.png"))
-    render_title_gui(console=console)
+    # Render title for the first time
     animation_frame = 1
-    render_title_animation(console=console, x=title_animation_x, y=title_animation_y, frame=animation_frame)
-
-    # Present to console
-    context.present(console, keep_aspect=True)
+    render_title(console, context, title_animation_x, title_animation_y, animation_frame)
 
     # Title screen loop
     while True:
@@ -162,4 +172,9 @@ def title_event_handler(console, context, cfg):
                 console.print(5, 5, string="세이브 파일을 찾지 못했습니다.", fg=color.red)
                 context.present(console, keep_aspect=True)
                 continue
+        elif title_action == "option":
+            option.option_event_handler(console=console, context=context, game_started=False)
+            render_title(console, context, title_animation_x, title_animation_y, animation_frame)
+        elif title_action == "quit_game":
+            quit_game()
 

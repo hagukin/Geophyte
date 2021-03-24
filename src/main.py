@@ -1,12 +1,10 @@
 #!/usr/bin/env python3
 import traceback
-
-from tcod.context import RENDERER_SDL2
 import title
 import tcod
 import color
-
-from loader.initialization import get_game_config
+from tcod.context import RENDERER_SDL2
+from configuration import get_game_config
 
 def main() -> None:
     # Get Configuration
@@ -21,7 +19,11 @@ def main() -> None:
     with tcod.context.new(
         columns=cfg["screen_width"],
         rows=cfg["screen_height"],
-        tileset=tcod.tileset.load_truetype_font(path="./resources/tileset.ttf", tile_width=16, tile_height=16),#tcod.tileset.load_tilesheet(cfg["tileset_path"], 16, 16, tcod.tileset.CHARMAP_CP437),
+        tileset=tcod.tileset.load_truetype_font(
+            path=cfg["tileset_path"], 
+            tile_width=cfg["tile_width"], 
+            tile_height=cfg["tile_height"]
+        ), #tcod.tileset.load_tilesheet(cfg["tileset_path"], 16, 16, tcod.tileset.CHARMAP_CP437),
         title="Geophyte",
         sdl_window_flags=set_screen,
         vsync=False,
@@ -63,12 +65,9 @@ def main() -> None:
                 ### WRITE DEBUG FUNCTIONS HERE ###
                 # print("DEBUG")
 
-            # Handle exceptions in game
             except Exception:
-                # Print error to stderr
+                # Print error to stderr then print the error to the message log
                 traceback.print_exc()
-
-                # Then print the error to the message log
                 engine.message_log.add_message(traceback.format_exc(), color.error)
 
 
@@ -93,4 +92,5 @@ if __name__ == "__main__":
             p = pstats.Stats("output.dat", stream=f)
             p.sort_stats("calls").print_stats()
     else:
-        main()
+        while True:
+            main()

@@ -1,0 +1,19 @@
+{
+    "screen_width": 96,
+    "screen_height": 54,
+    "tile_width": 16,
+    "tile_height": 16,
+    "fullscreen": false,
+    "camera_width": 67,
+    "camera_height": 41,
+    "camera_xpos": 1,
+    "camera_ypos": 1,
+    "rside_width": 28,
+    "msg_log_height": 9,
+    "status_height": 15,
+    "state_height": 10,
+    "sight_info_height": 28,
+    "tileset_path": "resources\\tileset.ttf",
+    "world_depth": 25,
+    "lang": "ko"
+}

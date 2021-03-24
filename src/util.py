@@ -4,8 +4,19 @@ from tcod.map import compute_fov
 from tcod import Console
 
 import math
+import os
+import sys
 import numpy as np
 import copy
+
+def restart_game() -> None:
+    """
+    sys.executable: python executeable
+    os.path.abspath(__file__): python file
+    *sys.argv: remaining argument
+    NOTE: Function not working - 20210325
+    """
+    os.execl(sys.executable, os.path.abspath(__file__), *sys.argv) 
 
 def draw_circle(radius: int, fat_circles: bool = False):
     grid = np.zeros((radius*2 + 1, radius*2 + 1))
@@ -88,12 +99,18 @@ def draw_thick_frame(
         width: int,
         height: int,
         title: str = "",
+        char_type: int = 0,
         fg: Optional[Tuple[int, int, int]] = None,
         bg: Optional[Tuple[int, int, int]] = None,
     ) -> None:
-        #frame = ('','#','#','#','#','#','#','#','#','#',)
-        #frame = (' ','╚','═','╝','║',' ','║','╔','═','╗')
-        frame = (' ','┗','━','┛','┃',' ','┃','┏','━','┓')
+        if char_type == 0:
+            frame = ('','','','','','','','','','','','','',)
+        elif char_type == 1:
+            frame = ('','#','#','#','#','#','#','#','#','#',)
+        elif char_type == 2:
+            frame = (' ','┗','━','┛','┃',' ','┃','┏','━','┓')
+        elif char_type == 3:
+            frame = (' ','╚','═','╝','║',' ','║','╔','═','╗')
 
         for ypos in range(y, y+height):
             if ypos == y:
