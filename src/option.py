@@ -86,11 +86,10 @@ def render_display_option_gui(console: tcod.Console, context: tcod.context.Conte
     from util import draw_thick_frame
     console.clear(fg=color.black, bg=color.black)
     draw_thick_frame(console, x, y, width=width, height=height, fg=color.black, bg=color.green, title="디스플레이 설정", char_type=1)
-    console.print(x+2, y+2, string=f"\
-    <<---- 현재 디스플레이 정보 ---->>\
+    console.print(x+2, y+2, string=f"<<---- 현재 디스플레이 정보 ---->>\n\
     \n\n해상도: {cfg['screen_width'] * cfg['tile_width']} x {cfg['screen_height'] * cfg['tile_height']}\
     \n\n화면 모드: {fullscreen_str(cfg['fullscreen'])}\
-    \n\n\n\n\n\n<<---- 변경 ---->>\
+    \n\n\n\n\n\n<<---- 변경 ---->>\n\
     \n\n(+/-) - 디스플레이 해상도 증가/감소\
     \n\n(F) - 전체 화면 모드, 창 모드 전환\
     \n\n\n\n\n\n디스플레이 관련 설정은 게임을 다시 시작해야 적용됩니다.", fg=color.green)

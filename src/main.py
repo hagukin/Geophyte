@@ -23,7 +23,7 @@ def main() -> None:
             path=cfg["tileset_path"], 
             tile_width=cfg["tile_width"], 
             tile_height=cfg["tile_height"]
-        ), #tcod.tileset.load_tilesheet(cfg["tileset_path"], 16, 16, tcod.tileset.CHARMAP_CP437),
+        ),
         title="Geophyte",
         sdl_window_flags=set_screen,
         vsync=False,

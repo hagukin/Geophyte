@@ -8,6 +8,7 @@ import tcod
 import time
 import random
 import option
+import credits
 
 
 class TitleInputHandler(tcod.event.EventDispatch[None]):
@@ -21,6 +22,8 @@ class TitleInputHandler(tcod.event.EventDispatch[None]):
             return "load_game"
         elif event.sym == tcod.event.K_o: # Option
             return "option"
+        elif event.sym == tcod.event.K_c: # Credits
+            return "credits"
         elif event.sym == tcod.event.K_q: # Quit Game
             return "quit_game"
         return None
@@ -174,6 +177,9 @@ def title_event_handler(console, context, cfg):
                 continue
         elif title_action == "option":
             option.option_event_handler(console=console, context=context, game_started=False)
+            render_title(console, context, title_animation_x, title_animation_y, animation_frame)
+        elif title_action == "credits":
+            credits.credit_event_handler(console=console, context=context)
             render_title(console, context, title_animation_x, title_animation_y, animation_frame)
         elif title_action == "quit_game":
             quit_game()

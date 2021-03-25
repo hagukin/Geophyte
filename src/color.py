@@ -10,6 +10,7 @@ cyan = (0x0, 0xff, 0xff)
 brass = (181, 166, 66)
 brown = (101, 67, 33)
 yellow = (0xff, 0xff, 0x00)
+orange = (0xFF, 0xA5, 0x00)
 light_gray = (0xab, 0xab, 0xab)
 ice = (0xcf, 0xf7, 0xff)
 blue_ice = (0x01, 0x51, 0x80)
@@ -79,3 +80,7 @@ gui_status_text = (0xf5, 0x98, 0x42)
 
 gui_mouse_tile = white
 gui_mouse_entity = yellow
+
+credit_dev = green
+credit_special = orange
+credit_license = soothing_blue

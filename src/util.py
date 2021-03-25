@@ -1,7 +1,7 @@
 from __future__ import annotations
 from typing import Tuple, Optional, List
 from tcod.map import compute_fov
-from tcod import Console
+from tcod import Console, console_get_width
 
 import math
 import os
@@ -9,14 +9,15 @@ import sys
 import numpy as np
 import copy
 
+
 def restart_game() -> None:
     """
     sys.executable: python executeable
     os.path.abspath(__file__): python file
     *sys.argv: remaining argument
-    NOTE: Function not working - 20210325
+    NOTE: Under construction
     """
-    os.execl(sys.executable, os.path.abspath(__file__), *sys.argv) 
+    pass
 
 def draw_circle(radius: int, fat_circles: bool = False):
     grid = np.zeros((radius*2 + 1, radius*2 + 1))
@@ -27,6 +28,7 @@ def draw_circle(radius: int, fat_circles: bool = False):
             elif fat_circles and pow(y - radius, 2) + pow(x - radius, 2) <= pow(radius, 2) * 1.4:
                 grid[y,x] = 1
     return grid
+
 
 def calc_circle(engine, center_x: int, center_y: int, radius: int, fat_circles: bool = False):
     """
@@ -45,6 +47,7 @@ def calc_circle(engine, center_x: int, center_y: int, radius: int, fat_circles: 
             elif fat_circles and pow(xy[0], 2) + pow(xy[1], 2) <= pow(radius, 2) * 1.4:
                 res.append((map_x, map_y))
     return res
+
 
 def calc_explosion(engine, center_x: int, center_y: int, radius: int, fat_circles: bool = False, penetrate_wall: bool = True, only_in_sight: bool = False) -> List[Tuple(int,int)]:
     """
@@ -76,11 +79,14 @@ def calc_explosion(engine, center_x: int, center_y: int, radius: int, fat_circle
                 res.append((map_x, map_y))
     return res
 
+
 def get_distance(x1, y1, x2, y2) -> float:
     return math.sqrt(pow(x1 - x2, 2) + pow(y1 - y2, 2))
 
+
 def grayscale(rgb: Tuple(int,int,int)) -> int:
     return (rgb[0] + rgb[1] + rgb[2]) / 3
+
 
 def blueshift(rgb: Tuple(int,int,int)) -> Tuple(int,int,int): #WARN: FUNCTION NOT TESTED
     gs = grayscale(rgb) 
@@ -91,6 +97,7 @@ def blueshift(rgb: Tuple(int,int,int)) -> Tuple(int,int,int): #WARN: FUNCTION NO
     blue -= int(blue / (gs * 765))
 
     return (red, green, blue)
+
 
 def draw_thick_frame(
         console: Console,
@@ -128,3 +135,27 @@ def draw_thick_frame(
                 console.print(x+width-1, ypos, frame[6], fg, bg)
 
         console.print(int(width/2 - len(title)/2) - 1, y, string=title, fg=bg, bg=fg)
+
+
+def center_print(console, string: str, y: int, fg: Tuple[int,int,int] = None, bg: Tuple[int,int,int] = None) -> int:
+    """
+    Input: string
+    Output: x coordinates for the string to be written on the center of the screen.
+    """
+    console.print(x=int(console_get_width(console) / 2) - int(len(string) / 2), y=y, string=string, fg=fg, bg=bg)
+
+
+def draw_horizontal_line(
+    console: Console,
+    y: int, # top line
+    thickness: int = 0, # = height
+    title: str = "",
+    fg: Optional[Tuple[int, int, int]] = None,
+    bg: Optional[Tuple[int, int, int]] = None,
+) -> None:
+    for j in range(thickness):
+        for i in range(console.width):
+            console.print(x=i, y=y+j, string=" ", fg=fg, bg=bg)
+
+    if title:
+        center_print(console, title, y=int(thickness / 2) + y, fg=fg, bg=bg)
