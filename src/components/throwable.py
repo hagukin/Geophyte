@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Optional
+from typing import Optional, List
 from animation import Animation
 from components.base_component import BaseComponent
 from entity import Actor, SemiActor
@@ -118,6 +118,117 @@ class NormalThrowable(Throwable):
         """
         pass
 
+    def collided_with_thrower(self, thrower, target):
+        # set dmg (NOTE: Self-firing is undodgeable)
+        crit_multiplier = self.crit_calculation(thrower=thrower)
+        dmg = self.damage_calculation(target=thrower, crit_multiplier=crit_multiplier)
+
+        if dmg > 0:
+            self.engine.message_log.add_message(f"{g(thrower.name, '이')} {g(self.parent.name, '을')} 자신에게 던져 {dmg} 데미지를 입혔다!", target=thrower,)
+        else:
+            self.engine.message_log.add_message(f"{g(thrower.name, '이')} {g(self.parent.name, '을')} 자신에게 던졌다!", target=thrower,)
+        thrower.status.take_damage(amount=self.damage) # cannot trigger itself
+
+        # apply special effects (if the thrower survived the initial damage)
+        if not target.actor_state.is_dead:
+            self.effect_when_collided_with_actor(target=thrower)
+
+        # check destruction
+        self.break_calculation()
+        
+        # actual destruction / item dropping
+        if not self.shattered:
+            thrower.inventory.throw(item=self.parent, x=thrower.x, y=thrower.y, show_msg=False)
+        else:
+            from order import InventoryOrder
+            if self.parent.item_type == InventoryOrder.POTION:
+                self.engine.message_log.add_message(f"{g(self.parent.name, '이')} 깨졌다.", fg=color.gray, target=thrower)
+            else:
+                self.engine.message_log.add_message(f"{g(self.parent.name, '이')} 파괴되었다.", fg=color.gray, target=thrower)
+            self.parent.parent.remove_item(self.parent, remove_count=1)
+
+    def collided_with_actor(self, collided, thrower):
+        # Check dodged
+        if self.is_miss(thrower=thrower, target=collided):
+            if collided is self.engine.player:
+                self.engine.message_log.add_message(f"당신은 {g(self.parent.name, '을')} 피했다.", color.player_atk_missed)
+            else:
+                self.engine.message_log.add_message(f"{g(collided.name, '이')} {g(self.parent.name, '을')} 피했다.", color.player_atk_missed, target=collided,)
+        else:
+            # set dmg
+            crit_multiplier = self.crit_calculation(thrower=thrower)
+            dmg = self.damage_calculation(target=collided, crit_multiplier=crit_multiplier)
+
+            # log
+            if dmg > 0:
+                self.engine.message_log.add_message(f"{g(thrower.name, '이')} {g(self.parent.name, '을')} {collided.name}에게 던져 {dmg} 데미지를 입혔다.", target=thrower,)
+                collided.status.take_damage(amount=dmg, attacked_from=thrower)
+
+            # apply special effects (if the target survived the initial damage)
+            if not collided.actor_state.is_dead:
+                self.effect_when_collided_with_actor(target=collided)
+
+            # check destruction
+            self.break_calculation()
+
+    def collided_with_semiactor(self, collided, thrower) -> bool:
+        """Returns True if semiactor blocked the object, and the object dropped in front of the semiactor."""
+        # check destruction
+        self.break_calculation()
+
+        if not self.shattered:
+            # Open closed door if there is one
+            if collided.entity_id == "closed_door":
+                if not self.shattered:
+                    temp_x, temp_y = collided.x, collided.y
+                    collided.remove_self()
+                    semiactor_factories.opened_door.spawn(self.engine.game_map, temp_x, temp_y, -1)
+                # drop in front of the semiactor(NOTE: Not below the semiactor)
+                return False
+            else:
+                return True
+
+    def render_animation(self, path) -> Optional[List]:
+        frames = []
+        loc = None
+        while len(path) > 0:
+            loc = path.pop(0)
+
+            # Create new graphic depending on the object that are being thrown
+            throw_graphic = {"char":self.parent.char, "fg":self.parent.fg, "bg":self.parent.bg}
+
+            # Using relative coordinates for animation rendering
+            relative_x, relative_y = self.engine.camera.get_relative_coordinate(abs_x=loc[0], abs_y=loc[1])
+            frames.append([(relative_x, relative_y, throw_graphic, None)])
+
+        throw_animation = Animation(engine=self.engine, frames=frames, stack_frames=False, sec_per_frame=self.sec_per_frame, refresh_last_frame=False) # TODO : air resistance의 값에 따라 프레임당 소요시간 변경??
+        throw_animation.render()
+        if loc:
+            return loc # Last location of the thrown item's path
+        return None
+
+    def drop_thrown_item(self, collision_x: int, collision_y: int, thrower, loc: Optional[List]=None):
+        if not self.shattered:
+            # If collided with actor, drop it on the actor's location
+            if collision_x and collision_y:
+                thrower.inventory.throw(item=self.parent, x=collision_x, y=collision_y, show_msg=False)
+            else:
+                if loc: # if loc exists (if the object flied one or more tile)
+                    thrower.inventory.throw(item=self.parent, x=loc[0], y=loc[1], show_msg=False)
+                else: # if loc doesn't exists (e.g. thrown against the wall)
+                    thrower.inventory.throw(item=self.parent, x=thrower.x, y=thrower.y, show_msg=False)
+        else:# Destroyed
+            from order import InventoryOrder
+            if self.parent.item_type == InventoryOrder.POTION:
+                self.engine.message_log.add_message(f"{g(self.parent.name, '이')} 깨졌다.", fg=color.gray, target=thrower)
+            else:
+                self.engine.message_log.add_message(f"{g(self.parent.name, '이')} 파괴되었다.", fg=color.gray, target=thrower)
+            self.parent.parent.remove_item(self.parent, remove_count=1)
+
+            # throwable component is shared through the entire stack, so .shattered should be set back to False after the item was thrown
+            # (So that the rest of the item stack can work properly)
+            self.shattered = False
+
     def activate(self, action: actions.ThrowItem) -> None:
         thrower = action.entity
         target = None
@@ -132,7 +243,6 @@ class NormalThrowable(Throwable):
         collision_y = None
 
         path = []
-        targets = []
 
         ### A. Main loop ###
         while not self.shattered:
@@ -150,83 +260,22 @@ class NormalThrowable(Throwable):
                 break
 
             # 3. Collided with an entity
-            collided = self.engine.game_map.get_blocking_entity_at_location(dest_x, dest_y)
-
-            if collided:
+            for collided in self.engine.game_map.get_all_blocking_entities_at_location(dest_x, dest_y):
                 # 3-1. If collided with the thrower itself #NOTE TODO: Further debugging required
                 if collided == thrower:
-                    # set dmg (NOTE: Self-firing is undodgeable)
-                    crit_multiplier = self.crit_calculation(thrower=thrower)
-                    dmg = self.damage_calculation(target=thrower, crit_multiplier=crit_multiplier)
-
-                    if dmg > 0:
-                        self.engine.message_log.add_message(f"{g(thrower.name, '이')} {g(self.parent.name, '을')} 자신에게 던져 {dmg} 데미지를 입혔다!", target=thrower,)
-                    else:
-                        self.engine.message_log.add_message(f"{g(thrower.name, '이')} {g(self.parent.name, '을')} 자신에게 던졌다!", target=thrower,)
-                    thrower.status.take_damage(amount=self.damage) # cannot trigger itself
-
-                    # apply special effects (if the thrower survived the initial damage)
-                    if not collided.actor_state.is_dead:
-                        self.effect_when_collided_with_actor(target=thrower)
-
-                    # check destruction
-                    self.break_calculation()
-                    
-                    # actual destruction / item dropping
-                    if not self.shattered:
-                        thrower.inventory.throw(item=self.parent, x=thrower.x, y=thrower.y, show_msg=False)
-                    else:
-                        from order import InventoryOrder
-                        if self.parent.item_type == InventoryOrder.POTION:
-                            self.engine.message_log.add_message(f"{g(self.parent.name, '이')} 깨졌다.", fg=color.gray, target=thrower)
-                        else:
-                            self.engine.message_log.add_message(f"{g(self.parent.name, '이')} 파괴되었다.", fg=color.gray, target=thrower)
-                        self.parent.parent.remove_item(self.parent, remove_count=1)
-
+                    self.collided_with_thrower(target=target, thrower=thrower)
                     return 0
 
                 # 3-2. If collided with actor entity (beside thrower itself)
                 if isinstance(collided, Actor):
-                    # Check dodged
-                    if self.is_miss(thrower=thrower, target=collided):
-                        if collided is self.engine.player:
-                            self.engine.message_log.add_message(f"당신은 {g(self.parent.name, '을')} 피했다.", color.player_atk_missed)
-                        else:
-                            self.engine.message_log.add_message(f"{g(collided.name, '이')} {g(self.parent.name, '을')} 피했다.", color.player_atk_missed, target=collided,)
-                    else:
-                        # set dmg
-                        crit_multiplier = self.crit_calculation(thrower=thrower)
-                        dmg = self.damage_calculation(target=collided, crit_multiplier=crit_multiplier)
-
-                        # log
-                        if dmg > 0:
-                            self.engine.message_log.add_message(f"{g(thrower.name, '이')} {g(self.parent.name, '을')} {collided.name}에게 던져 {dmg} 데미지를 입혔다.", target=thrower,)
-                            collided.status.take_damage(amount=dmg, attacked_from=thrower)
-
-                        # apply special effects (if the target survived the initial damage)
-                        if not collided.actor_state.is_dead:
-                            self.effect_when_collided_with_actor(target=collided)
-
-                        # check destruction
-                        self.break_calculation()
+                    self.collided_with_actor(collided=collided, thrower=thrower)
                 
                 # 3-3. If collided with semiactor entity, and the entity.block_movement is True
                 if isinstance(collided, SemiActor):
-                    # check destruction
-                    self.break_calculation()
-
-                    if not self.shattered:
-                        # Open closed door if there is one
-                        if collided.entity_id == "closed_door":
-                            if not self.shattered:
-                                temp_x, temp_y = collided.x, collided.y
-                                collided.remove_self()
-                                semiactor_factories.opened_door.spawn(self.engine.game_map, temp_x, temp_y, -1)
-                        # drop in front of the semiactor(NOTE: Not below the semiactor)
-                        else:
-                            collision_x = dest_x - dx
-                            collision_y = dest_y - dy
-                            break
+                    if (self.collided_with_semiactor(collided=collided, thrower=thrower)):
+                        collision_x = dest_x - dx
+                        collision_y = dest_y - dy
+                        break
 
                 # Check penetration
                 if self.penetration == False:
@@ -244,41 +293,11 @@ class NormalThrowable(Throwable):
                 break
 
         ### B. Render animation ###
-        frames = []
-        while len(path) > 0:
-            loc = path.pop(0)
-
-            # Create new graphic depending on the object that are being thrown
-            throw_graphic = {"char":self.parent.char, "fg":self.parent.fg, "bg":self.parent.bg}
-
-            # Using relative coordinates for animation rendering
-            relative_x, relative_y = self.engine.camera.get_relative_coordinate(abs_x=loc[0], abs_y=loc[1])
-            frames.append([(relative_x, relative_y, throw_graphic, None)])
-
-        throw_animation = Animation(engine=self.engine, frames=frames, stack_frames=False, sec_per_frame=self.sec_per_frame, refresh_last_frame=False) # TODO : air resistance의 값에 따라 프레임당 소요시간 변경??
-        throw_animation.render()
+        loc = self.render_animation(path)
 
         ### C. Drop Item ###
-        if not self.shattered:
-            # If collided with actor, drop it on the actor's location
-            if collision_x and collision_y:
-                thrower.inventory.throw(item=self.parent, x=collision_x, y=collision_y, show_msg=False)
-            else:
-                try: # if loc exists (if the object flied one or more tile)
-                    thrower.inventory.throw(item=self.parent, x=loc[0], y=loc[1], show_msg=False)
-                except: # if loc doesn't exists (e.g. thrown against the wall)
-                    thrower.inventory.throw(item=self.parent, x=thrower.x, y=thrower.y, show_msg=False)
-        else:# Destroyed
-            from order import InventoryOrder
-            if self.parent.item_type == InventoryOrder.POTION:
-                self.engine.message_log.add_message(f"{g(self.parent.name, '이')} 깨졌다.", fg=color.gray, target=thrower)
-            else:
-                self.engine.message_log.add_message(f"{g(self.parent.name, '이')} 파괴되었다.", fg=color.gray, target=thrower)
-            self.parent.parent.remove_item(self.parent, remove_count=1)
-
-            # throwable component is shared through the entire stack, so .shattered should be set back to False after the item was thrown
-            # (So that the rest of the item stack can work properly)
-            self.shattered = False
+        self.drop_thrown_item(collision_x, collision_y, thrower, loc)
+        
 
 
 ###########################################################################################################################
@@ -310,12 +329,12 @@ class PotionOfParalysisThrowable(NormalThrowable):
             target.actor_state.apply_paralyzation([0, self.parent.quaffable.turn])
             
 
-class AcidGooThrowable(NormalThrowable):
+class ToxicGooThrowable(NormalThrowable):
     
     def effect_when_collided_with_actor(self, target: Actor):
-        if target.actor_state.is_melting == [0,0,0,0]:
+        if target.actor_state.is_poisoned == [0,0,0,0]:
             # Log
-            self.engine.message_log.add_message(f"{g(target.name, '은')} 산성 점액에 뒤덮였다.", color.white, target=target)
+            self.engine.message_log.add_message(f"{g(target.name, '은')} 독성 점액에 뒤덮였다.", color.white, target=target)
 
             # Poison
-            target.actor_state.apply_melting([4, 1, 0, 4])
+            target.actor_state.apply_poisoning([1, 1, 0, 3])

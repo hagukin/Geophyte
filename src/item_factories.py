@@ -2,6 +2,7 @@ from components import readable, quaffable, equipable, throwable
 from components.item_state import ItemState
 from entity import Item
 import anim_graphics
+import components.edible as edible
 
 from order import InventoryOrder
 
@@ -490,13 +491,13 @@ item_rarity.append(corpse.rarity) # All items should be appended regardless of i
 ################################# MISCS #################################
 #########################################################################
 
-### Acid Goo
-acid_goo = Item(
-    char="•",
+### toxic Goo
+toxic_goo = Item(
+    char="*",
     fg = (44, 23, 61),
-    name="산성 점액",
-    entity_id="acid_goo",
-    entity_desc="acid goo desc",
+    name="독성 점액",
+    entity_id="toxic_goo",
+    entity_desc="toxic goo desc",
     rarity=0,
     weight=0.1,
     price=0,
@@ -507,10 +508,8 @@ acid_goo = Item(
     corrodible=0,
     droppable=True,
     stackable=True,
-    throwable=throwable.AcidGooThrowable(base_throw=1, additional_throw=1, break_chance=1, air_friction=2),
-    edible=None
+    throwable=throwable.ToxicGooThrowable(base_throw=1, additional_throw=1, break_chance=1, air_friction=1),
+    edible=edible.BlackJellyEdible()
 )
-temp_items_lists.append(acid_goo)
-item_rarity.append(acid_goo.rarity)
-
-
+temp_items_lists.append(toxic_goo)
+item_rarity.append(toxic_goo.rarity)

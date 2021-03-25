@@ -1,9 +1,9 @@
 {
     "screen_width": 96,
     "screen_height": 54,
-    "tile_width": 20,
-    "tile_height": 20,
-    "fullscreen": true,
+    "tile_width": 14,
+    "tile_height": 14,
+    "fullscreen": false,
     "camera_width": 67,
     "camera_height": 41,
     "camera_xpos": 1,

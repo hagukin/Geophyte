@@ -6,13 +6,16 @@ import copy
 from numpy.core.shape_base import block
 import tcod
 
-from typing import List, Tuple
-from actions import Action, BumpAction, MeleeAction, WaitAction, ThrowItem
+from typing import List, Tuple, Optional
+from actions import Action, BumpAction, MeleeAction, WaitAction, ThrowItem, EatItem, PickupAction
 from components.base_component import BaseComponent
-from entity import Actor, SemiActor
+from entity import Actor, SemiActor, Entity
     
 
 class BaseAI(BaseComponent):
+    """
+    It is not recommeded to call any methods that are being called from .perform() outside of .perform() method.
+    """
     def __init__(
             self,
             alignment: str, 
@@ -28,6 +31,14 @@ class BaseAI(BaseComponent):
             hostile_id: set=set(),
             hostile_with: set=set(),
 
+            attracted_eat_type: set=set(),
+            attracted_eat_id: set=set(),
+            attracted_eat_with: set=set(),
+            
+            attracted_own_type: set=set(),
+            attracted_own_id: set=set(),
+            attracted_own_with: set=set(),
+
             owner: Actor = None,
         ):
         super().__init__()
@@ -35,6 +46,8 @@ class BaseAI(BaseComponent):
         self.parent = None
         self.attacked_from = None
         self.target = None
+        self.attraction = None # Either Item or SemiActor
+        self.do_what_to_attraction = None # What action does this ai wants to perform to its attraction (e.g. Eating)
         self.path: List[Tuple[int, int]] = []
         self.active: bool = False # whether to wait or wander during its idle state
         self.in_player_sight: bool = False
@@ -62,6 +75,16 @@ class BaseAI(BaseComponent):
         self.hostile_with = hostile_with # actor that is considered as an enemy
         self.hostile_id = hostile_id # monster type(monster_id) that is considered as an enemy
         self.hostile_type = hostile_type # species that is considered as an enemy
+
+        # Attraction - Ai wants to eat these
+        self.attracted_eat_type = attracted_eat_type # edible.edible_type (string)
+        self.attracted_eat_id = attracted_eat_id
+        self.attracted_eat_with = attracted_eat_with
+
+        # Attraction - Ai wants to own(possess) these
+        self.attracted_own_type = attracted_own_type # item.InventoryOrder (enum)
+        self.attracted_own_id = attracted_own_id
+        self.attracted_own_with = attracted_own_with
 
         # Owner
         self.owner = owner
@@ -98,6 +121,10 @@ class BaseAI(BaseComponent):
         """
         # active check
         self.check_active()
+
+        # update vision if ai's in player's sight due to performance issue
+        if self.active and self.gamemap.visible[self.parent.x, self.parent.y]:
+            self.update_vision()
 
         # immobility check
         if self.parent.check_for_immobility():
@@ -366,7 +393,7 @@ class BaseAI(BaseComponent):
         # return
         return direction
 
-    def check_if_enemy(self, actor: Actor):
+    def check_if_enemy(self, actor: Actor) -> bool:
         """
         Returns True if the given actor is considered as enemy.
         This does not mean the actor is currently set as a target.
@@ -399,9 +426,9 @@ class BaseAI(BaseComponent):
             # Check hostile types, ids, and entities.
             if actor.char in self.hostile_type:
                 return True
-            elif actor.entity_id in self.allied_id:
+            elif actor.entity_id in self.hostile_id:
                 return True
-            elif actor in self.allied_with:
+            elif actor in self.hostile_with:
                 return True
             else:
                 return False
@@ -420,16 +447,39 @@ class BaseAI(BaseComponent):
         elif self.alignment == "peaceful":
             return False
 
-    def set_target(self) -> None:
+    def check_if_attracted(self, entity: Entity) -> bool:
+        # Check hostile types, ids, and entities.
+        if entity.char in self.attracted_eat_type:
+            self.do_what_to_attraction = "eat"
+            return True
+        elif entity.entity_id in self.attracted_eat_id:
+            self.do_what_to_attraction = "eat"
+            return True
+        elif entity in self.attracted_eat_with:
+            self.do_what_to_attraction = "eat"
+            return True
+        elif entity in self.attracted_own_type:
+            self.do_what_to_attraction = "own"
+            return True
+        elif entity in self.attracted_own_id:
+            self.do_what_to_attraction = "own"
+            return True
+        elif entity in self.attracted_own_with:
+            self.do_what_to_attraction = "own"
+            return True
+        else:
+            return False
+
+    def get_target(self) -> None:
         if self.owner:
-            return self.set_target_pet()
+            return self.get_target_pet()
 
         if self.alignment == "hostile":
-            return self.set_target_hostile()
+            return self.get_target_hostile()
         elif self.alignment == "neutral":
-            return self.set_target_neutral()
+            return self.get_target_neutral()
         elif self.alignment == "allied":
-            return self.set_target_allied()
+            return self.get_target_allied()
         elif self.alignment == "peaceful":
             return None
 
@@ -450,78 +500,91 @@ class BaseAI(BaseComponent):
             radius=self.parent.status.changed_status["eyesight"],
         )
 
-    def set_target_hostile(self) -> None:
+    def set_attraction(self) -> None:
+        """
+        Set attraction only if the actor has no current target.
+        """
+        # The AI will start targeting only when its in player's sight due to performance issues.
+        # NOTE: Ai's vision is already up to date if it is active and in player's sight
+        if self.gamemap.visible[self.parent.x, self.parent.y]:
+            for entity in self.gamemap.entities:
+                if self.vision[entity.x, entity.y]:
+                    if self.check_if_attracted(entity):
+                        # Set to attraction if in sight
+                        self.attraction = entity
+                        break
+
+    def get_target_hostile(self) -> Optional[Actor]:
         """
         Set target only if the actor fits this ai's condition of being hostile to.
         If there is this ai has no hostile types, species, or entities, it will act peacefully.
+        Return: the target actor
         """
         # The AI will start targeting only when its in player's sight due to performance issues.
+        # NOTE: Ai's vision is already up to date if it is active and in player's sight
         if self.gamemap.visible[self.parent.x, self.parent.y]:
-            self.update_vision()
-
             for actor in self.gamemap.actors:
                 if self.check_if_enemy(actor):
                     # Set to target if in sight
                     if self.vision[actor.x, actor.y]:
-                        self.target = actor
-                        break
+                        return actor
 
-    def set_target_neutral(self) -> None:
+    def get_target_neutral(self) -> None:
         """
         AI will not set any target unless its attacked.
         """
-        pass
+        return None
 
-    def set_target_allied(self) -> None:
+    def get_target_allied(self) -> Optional[Actor]:
         """
         Set target if the actor does not fit this ai's condition of being allied to.
         If there is this ai has no allied types, species, or entities, it will act hostile to everyone.
         """
         # The AI will start targeting only when its in player's sight due to performance issues.
+        # NOTE: Ai's vision is already up to date if it is active and in player's sight
         if self.gamemap.visible[self.parent.x, self.parent.y]:
-            self.update_vision()
-
             for actor in self.gamemap.actors:
                 if self.check_if_enemy(actor):
                     # Set to target if in sight
                     if self.vision[actor.x, actor.y]:
-                        self.target = actor
-                        break
+                        return actor
         
         # NOTE: Allied actor will fight back if attacked from its ally, but this is due to attacked_from auto-targeting, thus the alliacne is still valid.
         # TODO: maybe this should be changed so that the alliance breaks? or break alliance if attacked twice?
 
-    def set_target_pet(self) -> None:
+    def get_target_pet(self) -> None:
         """
-        Act pretty much the same as set_target_allied, except that it will recalculate vision every turn if the pet is owned by the player.
+        Act pretty much the same as get_target_allied, except that it will recalculate vision every turn if the pet is owned by the player.
         """
         # Only the player pets will set targets even when they are out of player's sight.
-        set_target_this_turn = False
+        get_target_this_turn = False
 
         if self.owner == self.engine.player:
-            self.update_vision()
-            set_target_this_turn = True
-        else:
-            if self.gamemap.visible[self.parent.x, self.parent.y]:
-                self.update_vision()
-                set_target_this_turn = True
+            get_target_this_turn = True
+        elif self.gamemap.visible[self.parent.x, self.parent.y] or self.gamemap.visible[self.owner.x, self.owner.y]: # if either owner or ai itself is visible, set target this turn
+            get_target_this_turn = True
 
-        if set_target_this_turn:
+        if get_target_this_turn:
             for actor in self.gamemap.actors:
                 if self.check_if_enemy(actor):
                     # Set to target if in sight
                     if self.vision[actor.x, actor.y]:
-                        self.target = actor
-                        break
+                        return actor
+
+    def set_revenge_target(self) -> None:
+        """
+        If attacked, set the attacker as target.
+        """
+        # NOTE: attacked_from is initialized from status.take_damage()
+        if self.attacked_from:
+            if self.attacked_from != self.owner: #TODO: Make pet to fight back when they are attacked repetitively?
+                self.target = self.attacked_from
+                self.attacked_from = None
 
     def perform_hostile(self) -> None:
         # If attacked from other actors from that actor's turn, the ai will save that actor to self.attacked_from, and will set that actor as a target when this ai's turn arrives.
         # tl;dr Revenge when attacked.
-        # NOTE: attacked_from is initialized from status.take_damage()
-        if self.attacked_from:
-            if self.attacked_from != self.owner:
-                self.target = self.attacked_from
-                self.attacked_from = None
+        self.set_revenge_target()
 
         # If the target is alive find a path. Else choose new target.
         if self.target and not self.target.is_dead:
@@ -529,8 +592,11 @@ class BaseAI(BaseComponent):
             dy = self.target.y - self.parent.y
             distance = max(abs(dx), abs(dy))  # Chebyshev distance.
 
+            # forget attraction
+            self.attraction = None
+
             # Check if target is still in sight
-            self.update_vision()
+            # NOTE: vision already up to date since this function is(and shoud only be) called from perform()
             if self.vision[self.target.x, self.target.y]:
                 target_in_sight = True
             else:
@@ -539,7 +605,7 @@ class BaseAI(BaseComponent):
             if target_in_sight:
                 # Check if the ai can use any abilities
                 #TODO: Currently the ai will not use any abilities unless it has target set and the target is in sight.
-                # But the ai should use abilities such as healing regardless of target.
+                # But the ai should use abilities such as healing regardless of its target's location.
                 if self.use_ability:
                     # temp = (location, target, ability object to use)
                     temp = self.check_is_use_ability_possible(attacker=self.parent, target=self.target)
@@ -579,8 +645,28 @@ class BaseAI(BaseComponent):
             else:
                 self.target = None
 
-            # Reset the target
-            self.set_target()
+            # Reset the target, set attraction if there is no valid target nearby
+            tmp_target = self.get_target()
+            if tmp_target == None:
+                self.set_attraction()
+            else:
+                self.target = tmp_target
+
+            # If ai has an attraction, set new path
+            if self.attraction:
+                if self.attraction.x == self.parent.x and self.attraction.y == self.parent.y:
+                    if self.do_what_to_attraction == "eat":
+                        # Eat it
+                        EatItem(self.parent, self.attraction).perform()
+                        return None
+                    elif self.do_what_to_attraction == "own":
+                        # Pick it up
+                        PickupAction(self.parent).perform()
+                        return None
+                    else:
+                        raise Exception() # AI is attracted to something but has no idea what to do with it
+                else:
+                    self.path = self.get_path_to(self.attraction.x, self.attraction.y)
         
         # If there is already a path, follow the path
         if self.path:

@@ -51,7 +51,7 @@ def render_credit_gui(console: tcod.Console):
 
     draw_horizontal_line(console, y=y+9, thickness=3, title="Special thanks to", fg=color.black, bg=color.credit_special)
     center_print(console, string="Kyle Benesch / HexDecimal", y=y+14, fg=color.credit_special)
-    center_print(console, string="João F. Henriques / Jotaf", y=y+15, fg=color.credit_special)
+    center_print(console, string="Joao F. Henriques / Jotaf", y=y+15, fg=color.credit_special)
     center_print(console, string="Tyler Standridge / TStand90", y=y+16, fg=color.credit_special)
     center_print(console, string="hukseol", y=y+17, fg=color.credit_special)
 

@@ -1696,6 +1696,11 @@ class MainGameEventHandler(EventHandler):
             elif key == tcod.event.K_F9:#TODO DEBUG
                 self.engine.player.actor_state.is_burning = [5,5,0,-1]
                 print("ACTIVATED ALL ACTORS IN THIS LEVEL")
+            elif key == tcod.event.K_F8:#TODO DEBUG
+                import actor_factories
+                x = actor_factories.dog.spawn(self.engine.game_map, self.engine.player.x + 1, self.engine.player.y)
+                x.ai.activate()
+                print("SPAWNED DOG")
 
         # No valid key was pressed
         return action

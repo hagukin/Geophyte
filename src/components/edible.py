@@ -12,7 +12,7 @@ if TYPE_CHECKING:
 
 class Edible(BaseComponent):
     parent: Item
-    def __init__(self, nutrition: int, spoilage: int=0, is_cooked: bool=False, can_cook: bool=False, spoil_speed:int=1, cook_bonus: int = 0):
+    def __init__(self, nutrition: int, spoilage: int=0, is_cooked: bool=False, can_cook: bool=False, spoil_speed:int=1, cook_bonus: int = 0, edible_type: str = "food"):
         """
         Args:
             nutrition:
@@ -27,11 +27,21 @@ class Edible(BaseComponent):
                 2: bad
                 3: rotten
                 higher: rotted out (the food is gone)
+            edible_type:
+                Used for determining whether the ai likes certain food or not
+                Reference:
+                    food (e.g. Every ai who are willing to eat something will gladly eat "food" typed item.)
+                    meat
+                    insect
+                    fruit
+                    vegetable
+                    snack (e.g. candy bar)
         """
         self._nutrition = nutrition
         self.cook_bonus= cook_bonus
         self.spoil_speed = spoil_speed
         self.can_cook = can_cook
+        self.edible_type = edible_type
 
         # Values that need manual copying when copying the component
         self.time_after_spawned = 0 # passed time after the food(or the corpse) was generated on the dungeon. (NOTE: This DOES NOT indicate the turn passed. This is a relative value.)
@@ -59,7 +69,7 @@ class Edible(BaseComponent):
 
         # each 150 time passed, food's spoilage gets worse
         if self.time_after_spawned >= 150:
-            self.spoilage += 1
+            self.spoilage = min(self.spoilage + 1, 4)
             self.time_after_spawned = 0
 
         # foods will rot away if its too rotten
@@ -70,7 +80,8 @@ class Edible(BaseComponent):
             else:
                 if self.engine.game_map.visible[self.parent.x, self.parent.y]:
                     self.engine.message_log.add_message(f"{g(self.parent.name, '이')} 썩어 사라졌다.", color.gray, target=self.parent)
-            self.parent.remove_self()
+            if self.parent.stack_count > 0: # e.g. black jelly's toxic goo
+                self.parent.remove_self()
 
     def get_action(self, consumer: Actor) -> Optional[actions.Action]:
         """Try to return the action for this item."""
@@ -195,8 +206,8 @@ class RawMeatEdible(Edible):
     The consumer gains nutritions.
     Meat rots faster. (spoil_speed set to 3)
     """
-    def __init__(self, nutrition: int, spoilage: int=0, is_cooked: bool=False, can_cook: bool=True, spoil_speed: int=3, cook_bonus:int = None):
-        super().__init__(nutrition,spoilage,is_cooked,can_cook,spoil_speed,cook_bonus)
+    def __init__(self, nutrition: int, spoilage: int=0, is_cooked: bool=False, can_cook: bool=True, spoil_speed: int=3, cook_bonus:int = None, edible_type:str = "meat"):
+        super().__init__(nutrition,spoilage,is_cooked,can_cook,spoil_speed,cook_bonus,edible_type)
 
 
 
@@ -205,7 +216,10 @@ class RawMeatEdible(Edible):
 ###################### a - ants  ###################
 ####################################################
 
-class FireAntEdible(RawMeatEdible):
+class FireAntEdible(Edible):
+    def __init__(self, nutrition: int=10, spoilage: int=0, is_cooked: bool=False, can_cook: bool=False, spoil_speed: int=2, cook_bonus:int=5, edible_type:str = "insect"):
+        super().__init__(nutrition,spoilage,is_cooked,can_cook,spoil_speed,cook_bonus,edible_type)
+    
     def effect_uncooked(self, action: actions.EatItem):
         consumer = action.entity
         # Log
@@ -214,7 +228,10 @@ class FireAntEdible(RawMeatEdible):
         return super().effect_cooked()
 
 
-class VoltAntEdible(RawMeatEdible):
+class VoltAntEdible(Edible):
+    def __init__(self, nutrition: int=15, spoilage: int=0, is_cooked: bool=False, can_cook: bool=False, spoil_speed: int=2, cook_bonus:int=5, edible_type:str = "insect"):
+        super().__init__(nutrition,spoilage,is_cooked,can_cook,spoil_speed,cook_bonus,edible_type)
+
     def effect_uncooked(self, action: actions.EatItem):
         consumer = action.entity
         # Log
@@ -228,6 +245,9 @@ class VoltAntEdible(RawMeatEdible):
 ####################################################
 
 class FloatingEyeEdible(Edible):
+    def __init__(self, nutrition: int=50, spoilage: int=0, is_cooked: bool=False, can_cook: bool=False, spoil_speed: int=2, cook_bonus:int=5, edible_type:str = "meat"):
+        super().__init__(nutrition,spoilage,is_cooked,can_cook,spoil_speed,cook_bonus,edible_type)
+
     def effect_always(self, action: actions.EatItem):
         consumer = action.entity
 
@@ -244,12 +264,36 @@ class FloatingEyeEdible(Edible):
 ####################################################
 
 class GiantWaspEdible(Edible):
+    def __init__(self, nutrition: int=50, spoilage: int=0, is_cooked: bool=False, can_cook: bool=True, spoil_speed: int=2, cook_bonus:int=5, edible_type:str="insect"):
+        super().__init__(nutrition,spoilage,is_cooked,can_cook,spoil_speed,cook_bonus,edible_type)
+    
     def effect_uncooked(self, action: actions.EatItem):
         consumer = action.entity
 
         # Log
         if not consumer.actor_state.has_telepathy:
             if consumer == self.engine.player:
-                self.engine.message_log.add_message(f"혀에서 엄청난 고통이 느껴진다.", color.player_damaged)
-            consumer.actor_state.apply_poisoning([1, 0, 0, 8])
+                self.engine.message_log.add_message(f"입 안에 아무런 감각이 없다!", color.player_damaged)
+            consumer.actor_state.apply_poisoning([2, 0, 0, 13])
+        return super().effect_always(action)
+
+        
+
+
+####################################################
+############### j - jellies / slimes  ##############
+####################################################
+
+class BlackJellyEdible(Edible):
+    def __init__(self, nutrition: int = 15, spoilage: int=0, is_cooked: bool=False, can_cook: bool=False, spoil_speed: int=20, cook_bonus:int = None, edible_type="meat"):
+        super().__init__(nutrition,spoilage,is_cooked,can_cook,spoil_speed,cook_bonus,edible_type)
+
+    def effect_uncooked(self, action: actions.EatItem):
+        consumer = action.entity
+
+        # Log
+        if not consumer.actor_state.has_telepathy:
+            if consumer == self.engine.player:
+                self.engine.message_log.add_message(f"혀에서 엄청난 고통이 느껴진다!", color.player_damaged)
+            consumer.actor_state.apply_poisoning([8, 2, 0, 3])
         return super().effect_always(action)

@@ -784,7 +784,7 @@ class Engine:
         """
         # Some values are hard-coded.
         self.message_log.render(console=console, x=1, y=self.config["camera_height"]+2, width=self.config["camera_width"], height=self.config["msg_log_height"], draw_frame=True)
-        render_gameinfo(console=console, x=1, y=self.config["camera_height"] + self.config["msg_log_height"] + 4, depth=self.depth, game_turn=self.game_turn)
+        render_gameinfo(console=console, x=1, y=self.config["camera_height"] + self.config["msg_log_height"] + 3, depth=self.depth, game_turn=self.game_turn)
         self.render_rightside(console=console, gui_x=self.config["camera_width"] + 2, gui_y=1)
     
     def render(self, console: Console) -> None:

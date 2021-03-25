@@ -1,12 +1,13 @@
 import ai_factories
 import item_factories
+import copy
 import ability_factories
+import components.edible as edible
 from components.status import Status
 from components.inventory import Inventory
 from components.ability_inventory import AbilityInventory
 from components.equipments import Equipments
 from components.actor_state import ActorState
-from components.edible import GiantWaspEdible, RawMeatEdible, FireAntEdible, VoltAntEdible, FloatingEyeEdible
 from entity import Actor
 from order import RenderOrder
 
@@ -23,6 +24,7 @@ monster_rarity_for_each_difficulty = {
     11:[],12:[],13:[],14:[],15:[],16:[],17:[],18:[],19:[],20:[],
     21:[],22:[],23:[],24:[],25:[],26:[],27:[],28:[],29:[],30:[],
 }
+### NOTE: Rarity can have value between 0 and 20 ###
 
 
 ### Player
@@ -37,7 +39,7 @@ player = Actor(
     rarity=0,
     spawnable=False,
     growthable=True,
-    edible=RawMeatEdible(nutrition=300),
+    edible=edible.RawMeatEdible(nutrition=300),
     render_order=RenderOrder.PLAYER,
     ai_cls=None,
     status=Status(
@@ -56,7 +58,7 @@ player = Actor(
         eyesight=20,
         ),
     actor_state=ActorState(
-        hunger=-1,##DEBUG 1200 TODO
+        hunger=1200,
         heal_wounds=True,
         size=4,
         weight=70,
@@ -68,12 +70,13 @@ player = Actor(
         (item_factories.scroll_of_enchantment, 1, (1,5)), 
         (item_factories.scroll_of_identify, 1, (1,4)), 
         (item_factories.scroll_of_magic_mapping, 1, (88,99)), 
-        (item_factories.scroll_of_piercing_flame, 1, (1,4)),
+        (item_factories.toxic_goo, 1, (1,4)),
         (item_factories.scroll_of_tame, 1, (1,4)),
         (item_factories.scroll_of_meteor_storm, 1, (1,4)),
         (item_factories.potion_of_healing, 1, (1,4)),
         (item_factories.potion_of_paralysis, 1, (1,4)),
         (item_factories.potion_of_monster_detection, 1, (3,4)),
+        (item_factories.toxic_goo, 1, (1,5)), 
         ],
     initial_equipments=[
         (item_factories.leather_armor, 1),
@@ -92,7 +95,7 @@ DEBUG = Actor(
     entity_desc="DEBUG",
     rarity=0,
     spawnable=False,
-    edible=RawMeatEdible(nutrition=300),
+    edible=edible.RawMeatEdible(nutrition=300),
     ai_cls=ai_factories.DEBUG_ai,
     status=Status(
         hp=30,
@@ -138,9 +141,9 @@ ant = Actor(
         \n\
         \"생각해보라고, 좁아터진 개미굴에 비하면 놈들은 거대한 저택에 사는 거나 마찬가지라니까?\"\
         ",
-    rarity=9,
+    rarity=10,
     spawnable=True,
-    edible=RawMeatEdible(nutrition=5),
+    edible=edible.RawMeatEdible(nutrition=5),
     ai_cls=ai_factories.ant_ai,
     status=Status(
         hp=4,
@@ -189,11 +192,11 @@ fire_ant = Actor(
         이들이 턱에서 쏘는 작은 불꽃은 인간에게 크게 위협적이지는 않지만,\n\
         책이나 주문서를 가지고 다니는 마법사들에게는 큰 골칫거리로 여겨진다.\n\
         \n\
-        \"빌어먹을 불개미녀석들, 이번에는 400샤인짜리 주문서를 태워먹었다고 썅.\"\
+        \"썅, 빌어먹을 불개미녀석들, 이번에는 400샤인짜리 주문서를 태워먹었다고.\"\
         ",
-    rarity=5,
+    rarity=9,
     spawnable=True,
-    edible=FireAntEdible(nutrition=10, cook_bonus=5),
+    edible=edible.FireAntEdible(),
     ai_cls=ai_factories.fire_ant_ai,
     status=Status(
         hp=25,
@@ -242,9 +245,9 @@ volt_ant = Actor(
         \n\
         \"이놈들을 잔뜩 잡아서 안주로 팔면 대박이 날 거야, 암.\"\
         ",
-    rarity=5,
+    rarity=9,
     spawnable=True,
-    edible=VoltAntEdible(nutrition=10, cook_bonus=5),
+    edible=edible.VoltAntEdible(),
     ai_cls=ai_factories.volt_ant_ai,
     status=Status(
         hp=25,
@@ -294,13 +297,13 @@ bat = Actor(
     entity_desc="\
         박쥐는 공중에서 자유자재로 날아다닐 수 있는 비행능력을 보유하고 있다.\n\
         설치류와 조류 사이에 걸친 애매한 외형 때문에 이들은 오랜 시간 인간들에게 박해받아왔지만,\n\
-        대부분의 박쥐는 무해하며, 인간에게 먼저 공격을 거는 경우는 드물다고 한다.\n\
+        대부분의 박쥐는 무해하며, 오히려 인간에게 먼저 공격을 거는 경우가 드물다고 한다.\n\
         \n\
-        \"난 솔직히 걔들이 해를 주던 말던 관심없어. 생긴 게 징그럽잖아.\"\
+        \"난 솔직히 걔들이 어쨌던 관심없어. 생긴 게 징그럽잖아.\"\
         ",
-    rarity=5,
+    rarity=11,
     spawnable=True,
-    edible=RawMeatEdible(nutrition=13, cook_bonus=8),
+    edible=edible.RawMeatEdible(nutrition=13, cook_bonus=8),
     ai_cls=ai_factories.bat_ai,
     status=Status(
         hp=14,
@@ -357,9 +360,9 @@ kitten = Actor(
         \n\
         \"얼마 전 옆집 고양이가 새끼를 낳았다던데, 그 집 식구들이 건강해보이는 건 기분 탓인가?\"\
         ",
-    rarity=5,
+    rarity=6,
     spawnable=True,
-    edible=RawMeatEdible(nutrition=66, cook_bonus=30),
+    edible=edible.RawMeatEdible(nutrition=66, cook_bonus=30),
     ai_cls=ai_factories.kitten_ai,
     status=Status(
         hp=32,
@@ -404,14 +407,14 @@ cat = Actor(
     entity_id="cat",
     entity_desc="\
         고양이들은 게으르지만 맹수의 본능을 지닌 민첩한 사냥꾼들이다.\n\
-        이들은 잡식성이고 시력이 좋기 때문에 많은 모험꾼들에게 애완동물로 사랑받는다.\n\
+        이들은 잡식성이고 시력이 좋기 때문에 많은 모험가들에게 애완동물로 사랑받는다.\n\
         고양이들이 사람의 꿈을 조종하는 영적인 능력을 지녔다고 주장하는 학자들도 있지만, 명확히 밝혀진 것은 없다.\n\
         \n\
         \"그 녀석하고 눈이 마주친 날이면 난 항상 악몽을 꿔. 그런데도 왜일까, 녀석만 보면 자꾸 먹이를 주게 돼.\"\
         ",
     rarity=8,
     spawnable=True,
-    edible=RawMeatEdible(nutrition=83, cook_bonus=30),
+    edible=edible.RawMeatEdible(nutrition=83, cook_bonus=30),
     ai_cls=ai_factories.cat_ai,
     status=Status(
         hp=48,
@@ -460,9 +463,9 @@ large_cat = Actor(
         \n\
         \"이 흉터가 고양이 때문에 생겼다는 건 죽어도 비밀이다, 알겠지?\"\
         ",
-    rarity=3,
+    rarity=7,
     spawnable=True,
-    edible=RawMeatEdible(nutrition=110, cook_bonus=35),
+    edible=edible.RawMeatEdible(nutrition=110, cook_bonus=35),
     ai_cls=ai_factories.large_cat_ai,
     status=Status(
         hp=55,
@@ -512,13 +515,13 @@ puppy = Actor(
     entity_id="puppy",
     entity_desc="\
         강아지들은 호기심이 넘치는 존재이다.\n\
-        성체에 비하면 한참 뒤떨어지는 신체능력을 가졌지만, 넘치는 에너지 만큼은 성체를 압도한다.\n\
+        성체에 비해 한참 뒤떨어지는 신체능력을 가졌지만, 넘치는 에너지 만큼은 성체를 압도한다.\n\
         \n\
         \"포션술사는 절대 강아지를 길러선 안돼. 집이 언제 불바다가 될 지 모르거든.\"\
         ",
-    rarity=3,
+    rarity=6,
     spawnable=True,
-    edible=RawMeatEdible(nutrition=45, cook_bonus=10),
+    edible=edible.RawMeatEdible(nutrition=45, cook_bonus=10),
     ai_cls=ai_factories.puppy_ai,
     status=Status(
         hp=34,
@@ -567,10 +570,9 @@ dog = Actor(
         \n\
         \"가족이 날 버려도 너만은 함께 해주는구나, 토비.\"\
         ",
-    #TODO fix desc
-    rarity=8,
+    rarity=10,
     spawnable=True,
-    edible=RawMeatEdible(nutrition=80, cook_bonus=20),
+    edible=edible.RawMeatEdible(nutrition=80, cook_bonus=20),
     ai_cls=ai_factories.dog_ai,
     status=Status(
         hp=50,
@@ -619,9 +621,9 @@ large_dog = Actor(
         \n\
         \"사냥꾼의 가장 강력한 무기는 단검도, 활도 아니야. 그건 바로 녀석의 사냥개지.\"\
         ",
-    rarity=3,
+    rarity=7,
     spawnable=True,
-    edible=RawMeatEdible(nutrition=120, cook_bonus=30),
+    edible=edible.RawMeatEdible(nutrition=120, cook_bonus=30),
     ai_cls=ai_factories.large_dog_ai,
     status=Status(
         hp=70,
@@ -669,16 +671,16 @@ floating_eye = Actor(
     name="떠다니는 눈",
     entity_id="floating_eye",
     entity_desc="\
-        던전 안의 많은 생명체들은 그 정체가 베일에 감추어져 있다.\n\
-        그러나 그 중에서도 가장 기원을 알 수 없고, 알려진 게 없는 존재가 바로 '떠다니는 눈' 들이다.\n\
-        이들은 눈을 마주치는 것으로 생명체를 마비시킬 수 있는 강력한 힘을 가졌지만, 다행히 이들은 호전적이지 않을 뿐더러\n\
-        물리적으로는 전혀 위협이 되지 않는다.\n\
+        던전 안의 많은 생명체들은 그 정체가 베일에 가려져 있다.\n\
+        그러나 그 중에서도 가장 기원을 알 수 없고 아무 것도 알려진 게 없는 존재가 바로 '떠다니는 눈' 들이다.\n\
+        이들은 눈을 마주치는 것으로 생명체를 마비시킬 수 있는 강력한 힘을 가졌지만, \n\
+        다행히 이들은 호전적이지 않으며 물리적으로는 전혀 위협이 되지 못한다.\n\
         \n\
         \"마치 몸의 지배권을 빼앗기는 느낌이었어. 내가 녀석이 되고 녀석이 내가 되는 듯한 느낌이었지.\"\
         ",
-    rarity=4,
+    rarity=7,
     spawnable=True,
-    edible=FloatingEyeEdible(nutrition=20),#cannot be cooked
+    edible=edible.FloatingEyeEdible(),#cannot be cooked
     ai_cls=ai_factories.floating_eye_ai,
     status=Status(
         hp=50,
@@ -722,6 +724,58 @@ monster_difficulty[floating_eye.status.difficulty].append(floating_eye)
 ############### i = flying insects  ################
 ####################################################
 
+### fly
+fly = Actor(
+    char="i",
+    fg=(171, 63, 63),
+    name="파리",
+    entity_id="fly",
+    entity_desc="\
+        \'던전의 청소부\' 라는 이명으로도 불리는 이 파리들은,\n\
+        지상의 파리보다 몇 배는 더 큰 덩치에 걸맞는 왕성한 식욕을 보여준다.\n\
+        \n\
+        \"파리들이 죽으면 던전이 시체더미가 된다고는 하지만, 자기 식사 위에 달라붙은 파리를 죽이지 않을 놈이 몇이나 있을까?\"\
+        ",
+    rarity=1,
+    spawnable=True, # TODO: Maybe set to false depending on whether maggots are spawnable or not?
+    edible=edible.RawMeatEdible(nutrition=12, cook_bonus=2),
+    ai_cls=ai_factories.fly_ai,
+    status=Status(
+        hp=9,
+        mp=0,
+        strength=3,
+        dexterity=5,
+        agility=11,
+        intelligence=1,
+        constitution=2,
+        charm=1,
+        difficulty=2,
+        base_melee=1,
+        additional_melee=1,
+        protection=1,
+        eyesight=13,
+        poison_resistance=0.2,
+        ),
+    actor_state=ActorState(
+        size=1,
+        can_fly=True,
+        is_flying=True,
+        weight=0.08,
+        has_left_arm=False,
+        has_right_arm=False,
+        has_leg=True,
+        has_eye=True,
+        has_torso=True,
+        has_blood=True,
+        has_soul=False,
+    ),
+    inventory=Inventory(capacity=1),
+    ability_inventory=AbilityInventory(capacity=1),
+    equipments=Equipments(),
+)
+monster_difficulty[fly.status.difficulty].append(fly)
+
+
 ### giant wasp
 giant_wasp = Actor(
     char="i",
@@ -729,16 +783,14 @@ giant_wasp = Actor(
     name="거대 말벌",
     entity_id="giant_wasp",
     entity_desc="\
-        어릴 적 꿀벌을 잡으며 놀아본 적은 있을 것이다.\n\
-        하지만 꿀벌이 아니라 말벌이라면 이야기는 달라진다.\n\
-        거기에 독침이 사람 손가락 정도 크기라면,\n\
-        우리는 이들을 다른 종으로 분류해야 할 지도 모른다.\n\
+        던전의 기운을 받은 말벌들은 몸통 뿐 아니라 독침의 크기까지 거대하다.\n\
+        사람 손가락 만한 이들의 독침은, 독 없이 그 자체만으로도 치명상을 입히기 충분하다.\n\
         \n\
-        \"독이 묻은 단검에 찔린다고 생각해봐. 거기에 그 단검이 날아다니면서 너를 쫓아온다면 난 분명 오줌을 지릴거야.\"\
+        \"독이 묻은 단검을 생각해봐. 꽤 살벌하지? 그런데 그 단검이 날아다니면서 나를 쫓아온다면 난 분명 오줌을 지릴거야.\"\
         ",
-    rarity=5,
+    rarity=13,
     spawnable=True,
-    edible=GiantWaspEdible(nutrition=50, cook_bonus=5),
+    edible=edible.GiantWaspEdible(),
     ai_cls=ai_factories.giant_wasp_ai,
     status=Status(
         hp=50,
@@ -754,6 +806,7 @@ giant_wasp = Actor(
         additional_melee=8,
         protection=8,
         eyesight=20,
+        poison_resistance=0.4,
         ),
     actor_state=ActorState(
         size=3,
@@ -786,14 +839,20 @@ black_jelly = Actor(
     name="검정 덩어리",
     entity_id="black_jelly",
     entity_desc="\
-        TODO\n\
+        점액질로 이루어진 이 생명체들은 딱히 이렇다 할 외형적 특징을 가지고 있지 않아 \"덩어리\"라는 이름으로 불린다.\n\
+        그 중 검정색을 띄고 있는 개체들은 독성 점액질로 이루어져 있는데,\n\
+        이들은 신체 내에서 독성 가스를 압축한 뒤 터뜨려 자신의 점액질 일부를 적에게 발사하는 형식으로 적을 공격한다고 알려져 있다.\n\
+        독성 점액질은 본체에서 발사되고 얼마 지나지 않아 썩어 사라지며,\n\
+        본체 또한 마찬가지로, 많은 부분이 절단되거나 죽게 되면 순식간에 썩어 사라지는 특징을 보인다.\n\
+        \n\
+        \"이 놈들보다 비료로 쓰기 좋은 게 또 없지. 조금씩 잘라서 밭에다 적당히 던져놓으면 끝이거든.\"\
         ",
-    rarity=5,
+    rarity=11,
     spawnable=True,
-    edible=RawMeatEdible(nutrition=10), #TODO
+    edible=edible.BlackJellyEdible(),
     ai_cls=ai_factories.black_jelly_ai,
     status=Status(
-        hp=45,
+        hp=15,
         mp=0,
         strength=8,
         dexterity=6,
@@ -822,7 +881,7 @@ black_jelly = Actor(
     inventory=Inventory(capacity=1),
     ability_inventory=AbilityInventory(capacity=1),
     equipments=Equipments(),
-    initial_items=[(item_factories.acid_goo, 1, (-1,-1))],
+    initial_items=[(item_factories.toxic_goo, 1, (-1,-1))],
 )
 monster_difficulty[black_jelly.status.difficulty].append(black_jelly)
 
@@ -835,14 +894,19 @@ monster_difficulty[black_jelly.status.difficulty].append(black_jelly)
 nymph = Actor(
     char="n",
     fg=(63, 245, 39),
-    name="Nymph",
+    name="님프",
     entity_id="nymph",
     entity_desc="\
-        TODO\n\
+        아름다운 님프, 그리고 인간 남성이 사랑에 빠지는 일은 신화 뿐만 아니라 현실에서도 종종 일어나곤 한다.\n\
+        그러나 그 결말은 결코 같지 않다.\n\
+        님프의 아름다움에 홀린 남성들은 가진 것을 모두 내어주고, 종국에는 파멸에 이른다.\n\
+        아름다운 인간형 외모에 속아 방심한다면, 당신은 이들에게 가진 것 뿐만 아니라 목숨까지 내어주게 될 지도 모른다.\n\
+        \n\
+        \"전 가끔 녀석들이 흉측했으면 좋았겠다는 생각을 합니다. 목을 벨 때 일말의 동정심도 들지 않게 말이죠.\"\
         ",
-    rarity=99,
+    rarity=4,
     spawnable=True,
-    edible=RawMeatEdible(nutrition=230), #TODO
+    edible=edible.RawMeatEdible(nutrition=200),
     ai_cls=ai_factories.nymph_ai,
     status=Status(
         hp=73,
@@ -886,12 +950,21 @@ monster_difficulty[nymph.status.difficulty].append(nymph)
 sphere_of_acid = Actor(
     char="o",
     fg=(123, 255, 0),
-    name="Sphere of acid",
+    name="산성 구체",
     entity_id="sphere_of_acid",
     entity_desc="\
-        TODO\n\
+        산성 구체는 이름 그대로 산성을 띄는 가스들이 뭉친 구체이다.\n\
+        인간을 비롯한 일부 생명체에게만 반응하는 것을 보아 이들은 분명 인지 능력을 가지고는 있지만,\n\
+        시각 기관 없이 어떻게 주변을 인식하는지는 아직 밝혀지지 않았다. \n\
+        이들은 생명체 주변으로 다가가 자신을 폭발하는데, 당연하게도 스스로도 폭발로 인해 소멸한다.\n\
+        학자들 사이에선 스스로를 폭발시키는 이러한 행위가 공격이나 자기 보호의 의미가 아닌\n\
+        일종의 본능과도 같은 행위라는 의견이 지배적이다.\n\
+        \n\
+        \"폭발의 열기로 머리카락이 타버렸어. 그래도 목숨은 건졌구나 싶었는데,\n\
+        눈, 코, 귀가 차례대로 녹아내리기 시작하더군. 그 놈은 자길 죽여달라고 애원했지.\n\
+        내가 해줄 수 있는 거라고는...\"\
         ",
-    rarity=99, #TODO DEBUG
+    rarity=7,
     spawnable=True,
     edible=None,
     ai_cls=ai_factories.sphere_of_acid_ai,
@@ -904,7 +977,7 @@ sphere_of_acid = Actor(
         intelligence=8,
         constitution=16,
         charm=5,
-        difficulty=3,#TODO 6
+        difficulty=6,
         base_melee=0,
         additional_melee=0,
         protection=10,
@@ -940,14 +1013,18 @@ monster_difficulty[sphere_of_acid.status.difficulty].append(sphere_of_acid)
 jumping_spider = Actor(
     char="s",
     fg=(127, 235, 224),
-    name="Jumping Spider",
+    name="깡충거미",
     entity_id="jumping_spider",
     entity_desc="\
-        TODO\n\
+        손톱 정도 크기의 이 자그마한 거미들은, 자신보다 덩치 큰 생명체들의 몸에 사는 벼룩이나 빈대, 구더기 등을 잡아먹으며 살아간다.\n\
+        예로부터 몇몇 모험가들은 옷에 붙어있는 자그마한 벌레들을 잡기 위해 옷 속에 깡충거미를 집어넣기도 했으며,\n\
+        그 중 소수는 이들을 물약 병에 담아 기르기도 했다고 한다.\n\
+        \n\
+        \"딜런이 죽던 날은 내 생애 최악의 날이었어. 그 날 무심코 자켓 위에 앉지만 않았어도...\"\
         ",
-    rarity=5,
+    rarity=4,
     spawnable=True,
-    edible=RawMeatEdible(nutrition=10), #TODO
+    edible=edible.RawMeatEdible(nutrition=1),
     ai_cls=ai_factories.jumping_spider_ai,
     status=Status(
         hp=3,
@@ -991,29 +1068,34 @@ monster_difficulty[jumping_spider.status.difficulty].append(jumping_spider)
 earthworm = Actor(
     char="w",
     fg=(171, 108, 56),
-    name="Earthworm",
+    name="지렁이",
     entity_id="earthworm",
     entity_desc="\
-        TODO\n\
+        던전 속 식물들이 태양빛 없이도 자랄 수 있는 가장 큰 이유는, \n\
+        던전의 기운을 받은 지렁이들이 배출한 양분 덕분일 것이다.\n\
+        이들은 평범한 지렁이의 배 이상으로 토지를 기름지게 만들며, 식물들이 햇빛 없이도 자랄 수 있게 해 주는 알 수 없는 성분을 배출한다.\n\
+        던전 속에 사는 지렁이들을 지상에서 사육하는 법을 고안해낸다면 황제 폐하로부터 훈장을 수여받으리라는 말도 있을 정도다.\n\
+        \n\
+        \"내가 형씨였으면 모험이니 뭐니 할 거 없이 그 아래에서 농사나 지을 거야. 형씨도 지금보다 백 배는 많이 벌 수 있을텐데.\"\
         ",
-    rarity=5,
+    rarity=9,
     spawnable=True,
-    edible=RawMeatEdible(nutrition=10),
+    edible=edible.RawMeatEdible(nutrition=1),
     ai_cls=ai_factories.earthworm_ai,
     status=Status(
         hp=2,
         mp=0,
         strength=1,
         dexterity=1,
-        agility=3,
+        agility=1,
         intelligence=1,
-        constitution=4,
+        constitution=3,
         charm=1,
         difficulty=1,
         base_melee=0,
         additional_melee=0,
         protection=1,
-        eyesight=3,
+        eyesight=2,
         ),
     actor_state=ActorState(
         size=1,
@@ -1024,7 +1106,7 @@ earthworm = Actor(
         has_eye=False,
         has_torso=False,
         has_blood=True,
-        has_soul=True,
+        has_soul=False,
     ),
     inventory=Inventory(capacity=1),
     ability_inventory=AbilityInventory(capacity=1),
@@ -1036,14 +1118,14 @@ monster_difficulty[earthworm.status.difficulty].append(earthworm)
 maggot = Actor(
     char="w",
     fg=(222, 222, 222),
-    name="Maggot",
+    name="구더기",
     entity_id="maggot",
     entity_desc="\
-        TODO\n\
+        \n\
         ",
     rarity=1,
-    spawnable=False,# TODO : 인벤토리 외의 지형 위에 존재하는 시체 썩을 경우 일정 확률로 구더기 스폰(?)
-    edible=RawMeatEdible(nutrition=1), #TODO
+    spawnable=False,# TODO: Spawn maggots when food rots?
+    edible=edible.RawMeatEdible(nutrition=1),
     ai_cls=ai_factories.maggot_ai,
     status=Status(
         hp=1,
@@ -1152,7 +1234,7 @@ chatterbox = Actor(
         ",
     rarity=2,
     spawnable=True,
-    edible=RawMeatEdible(nutrition=280),
+    edible=edible.RawMeatEdible(nutrition=280),
     ai_cls=ai_factories.chatterbox_ai,
     status=Status(
         hp=83,
@@ -1205,7 +1287,7 @@ giant = Actor(
         ",
     rarity=5,
     spawnable=True,
-    edible=RawMeatEdible(nutrition=1200),
+    edible=edible.RawMeatEdible(nutrition=1200),
     ai_cls=ai_factories.giant_ai,
     status=Status(#TODO : 스텟조정
         hp=150,

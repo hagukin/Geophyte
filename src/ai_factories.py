@@ -15,6 +15,11 @@ class Melee_Neutral_Ai(ai.BaseAI):
     def __init__(self, alignment:str="neutral", do_melee_atk:bool=True, do_ranged_atk: bool=False,  use_ability: bool=False):
         super().__init__(alignment, do_melee_atk, use_ability, do_ranged_atk)
 
+class Test_Ai(ai.BaseAI):
+    """Pickup Eat testing"""
+    def __init__(self, alignment:str="hostile", do_melee_atk:bool=True, do_ranged_atk: bool=False, use_ability: bool=False, attracted_eat_type: set=set('meat')):
+        super().__init__(alignment, do_melee_atk, do_ranged_atk, use_ability, attracted_eat_type)
+
 
 ####################################################
 ###################### a - ants  ###################
@@ -98,8 +103,8 @@ class Black_Jelly_Ai(ai.BaseAI):
         super().__init__(alignment, do_melee_atk, do_ranged_atk, use_ability, hostile_type=hostile_type)
 
         # Poison dmg, 10%
-        self.melee_effects_var.append([1, 1, 0, 2])
-        self.melee_effects.append(("melt_target", 0.3))
+        self.melee_effects_var.append([2, 1, 0, 2])
+        self.melee_effects.append(("poison_target", 0.3))
 
     def check_is_ranged_atk_possible(self, attacker, target):
         # Check for ammo
@@ -162,6 +167,7 @@ class Nymph_Ai(ai.BaseAI):
         else:
             return False
 
+
 ####################################################
 #################### o - spheres  ##################
 ####################################################
@@ -177,6 +183,16 @@ class Sphere_Of_Acid_Ai(ai.BaseAI):
         """
         explosion_action.AcidExplodeAction(self.parent, False, True, radius=2, expl_dmg=50, dmg_reduction_by_dist=10, cause_fire=0).perform()
         self.parent.status.die()
+
+
+####################################################
+############# s - spiders & scorpions  #############
+####################################################
+
+class Jumping_Spider_Ai(ai.BaseAI):
+    """Only attacks earthworms"""
+    def __init__(self, alignment:str="hostile", do_melee_atk:bool=True, do_ranged_atk: bool=False, use_ability: bool=False, hostile_id=set('maggot')):
+        super().__init__(alignment, do_melee_atk, do_ranged_atk, use_ability, hostile_id=hostile_id)
 
 
 ####################################################
@@ -223,13 +239,14 @@ cat_ai = Melee_Ai()
 large_cat_ai = Melee_Ai()
 #d
 puppy_ai = Melee_Ai()
-dog_ai = Melee_Ai()
+dog_ai = Test_Ai()#DEBUG
 large_dog_ai = Melee_Ai()
 #e
 floating_eye_ai = Floating_Eye_Ai()
 #s
 jumping_spider_ai = Melee_Ai()
 #i
+fly_ai = Melee_Ai()
 giant_wasp_ai = Giant_Wasp_Ai()
 #j
 black_jelly_ai = Black_Jelly_Ai()
