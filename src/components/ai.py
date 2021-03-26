@@ -401,12 +401,14 @@ class BaseAI(BaseComponent):
 
     def check_if_enemy(self, actor: Actor) -> bool:
         """
-        Returns True if the given actor is considered as enemy.
-        This does not mean the actor is currently set as a target.
+        Returns True if the given actor is considered as an enemy.
+        This does not always mean the actor is currently set as a target.
         """
         # Actor will not target itself
         if actor == self.parent:
             return False
+        elif actor == self.target:
+            return True
 
         # If the actor has an owner
         if self.owner:

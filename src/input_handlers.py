@@ -7,7 +7,10 @@ from typing import Callable, Optional, Tuple, TYPE_CHECKING
 from order import InventoryOrder
 from actions import (
     Action,
-    BumpAction, DoorBreakAction, DoorOpenAction,
+    BumpAction, 
+    DoorBreakAction, 
+    DoorOpenAction, 
+    MeleeAction,
     PickupAction,
     WaitAction,
     DoorCloseAction,
@@ -103,8 +106,11 @@ class EventHandler(tcod.event.EventDispatch[Action]):
             action.perform()
         except exceptions.Impossible as exc:
             self.engine.message_log.add_message(exc.args[0], color.impossible)
+            print(f"ERROR OCCURED WHEN ACTOR PERFORMED AN ACTION : {exc.args[0]}")
             return False  # Skip enemy turn on exceptions.
 
+        if action.free_action:
+            return False
         return True
 
     def get_mouse_dir(self) -> None:
@@ -205,7 +211,7 @@ class ItemUseCancelHandler(AskUserEventHandler):
             self.engine.event_handler = MainGameEventHandler(self.engine)
             self.engine.message_log.add_message(f"아이템 사용 취소됨.", color.white, stack=False, show_once=True)
             return self.revert_callback(True)# passing True (action is cancelled)
-        else:
+        elif event.sym == tcod.event.K_n or event.sym == tcod.event.K_ESCAPE:
             return self.revert_callback(False)# passing False (action is not cancelled)
 
 
@@ -223,7 +229,7 @@ class SaveInputHandler(AskUserEventHandler):
             self.engine.event_handler = MainGameEventHandler(self.engine)
             self.engine.message_log.add_message(f"게임 저장됨.", color.lime, stack=False)
             save_game(player=player, engine=engine)
-        else:
+        elif event.sym == tcod.event.K_n or event.sym == tcod.event.K_ESCAPE:
             self.engine.message_log.add_message(f"저장 취소됨.", color.lime, stack=False)
         return super().ev_keydown(event)
 
@@ -1611,7 +1617,6 @@ class RayDirInputHandler(SelectDirectionHandler):
 
 
 class QuitInputHandler(AskUserEventHandler):
-
     def on_render(self, console: tcod.Console) -> None:
         super().on_render(console)
         self.engine.draw_window(console, text="정말 현재 게임을 종료하시겠습니까? 모든 저장하지 않은 내역은 지워집니다. (Y/N)", title="Quit", frame_fg=color.lime, frame_bg=color.gui_inventory_bg)
@@ -1624,8 +1629,26 @@ class QuitInputHandler(AskUserEventHandler):
             self.engine.event_handler = MainGameEventHandler(self.engine)
             save_game(player=player, engine=engine)
             quit_game()
-        else:
+        elif event.sym == tcod.event.K_n or event.sym == tcod.event.K_ESCAPE:
             self.engine.message_log.add_message(f"취소됨.", color.lime, stack=False)
+        return super().ev_keydown(event)
+
+
+class ForceAttackInputHandler(AskUserEventHandler):
+    def __init__(self, engine: Engine, melee_action: MeleeAction, revert_callback: Callable = None, ):
+        super().__init__(engine, revert_callback)
+        self.melee_action = melee_action
+
+    def on_render(self, console: tcod.Console) -> None:
+        super().on_render(console)
+        self.engine.draw_window(console, text="정말로 공격하시겠습니까? (Y/N)", title="공격 확인", frame_fg=color.red, frame_bg=color.gui_inventory_bg)
+
+    def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[Action]:
+        if event.sym == tcod.event.K_y or event.sym == tcod.event.K_KP_ENTER:
+            return self.melee_action
+        elif event.sym == tcod.event.K_n or event.sym == tcod.event.K_ESCAPE:
+            pass
+            #self.engine.message_log.add_message(f"취소됨.", color.lime, stack=False)
         return super().ev_keydown(event)
 
 

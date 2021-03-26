@@ -1,5 +1,4 @@
 from __future__ import annotations
-
 from typing import Optional, Tuple, List, TYPE_CHECKING
 
 import math
@@ -21,6 +20,7 @@ class Action:
     def __init__(self, entity: Actor) -> None:
         super().__init__()
         self.entity = entity
+        self.free_action = False # If manually set to True, the action will not cost a turn.
 
     @property
     def engine(self) -> Engine:
@@ -879,7 +879,7 @@ class ChestOpenAction(ActionWithDirection):
 
             # If the player is the actor, call input handler
             if self.entity == self.engine.player:
-                from input_handlers import ChestEventHandler##DEBUG
+                from input_handlers import ChestEventHandler
                 self.engine.event_handler = ChestEventHandler(self.engine, semiactor_on_dir.storage)
                 return None
             # If the AI is the actor, TODO
@@ -921,13 +921,22 @@ class BumpAction(ActionWithDirection):
             return None
 
         # Check for actors. If there is one, return MeleeAction.
-        # TODO Add force-attack system
         if self.target_actor:
             if self.entity == self.engine.player and self.target_actor.ai:
-                if self.target_actor.ai.owner == self.engine.player or not self.target_actor.ai.check_if_enemy(self.engine.player):
+                if self.target_actor.ai.owner == self.engine.player:
                     return PlaceSwapAction(self.entity, self.target_actor).perform()
+                elif not self.target_actor.ai.check_if_enemy(self.entity):
+                    from input_handlers import ForceAttackInputHandler
+                    self.engine.event_handler = ForceAttackInputHandler(self.engine, melee_action=MeleeAction(self.entity, self.dx, self.dy))
+                    self.free_action = True # Force this action to not cost a time so that yime passes after player decides whether to attack or not.
+                    return None
                 else:
                     return MeleeAction(self.entity, self.dx, self.dy).perform()
+            elif self.entity.ai and self.target_actor.ai:
+                if self.entity.ai.check_if_enemy(self.target_actor):
+                    return MeleeAction(self.entity, self.dx, self.dy).perform()
+                else:
+                    return WaitAction(self.entity).perform()
             else:
                 return MeleeAction(self.entity, self.dx, self.dy).perform()
         elif self.target_semiactor_bump:

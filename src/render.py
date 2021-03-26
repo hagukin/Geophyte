@@ -414,8 +414,8 @@ def render_message_window(
             msg_x, msg_y = x+1, y+1
 
     # draw frame
-    draw_thick_frame(console, x, y, width, height, title=title, fg=frame_fg, bg=frame_bg)
-    #console.draw_frame(x, y, width, height, title=title, clear=True, fg=frame_fg, bg=frame_bg)
+    #draw_thick_frame(console, x, y, width, height, title=title, fg=frame_fg, bg=frame_bg)
+    console.draw_frame(x, y, width, height, title=title, clear=True, fg=frame_fg, bg=frame_bg)
 
     # print msg
     console.print(msg_x, msg_y, msg, fg=text_fg)
