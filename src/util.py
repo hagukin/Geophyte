@@ -111,9 +111,9 @@ def draw_thick_frame(
         bg: Optional[Tuple[int, int, int]] = None,
     ) -> None:
         if char_type == 0:
-            frame = ('','','','','','','','','','','','','',)
+            frame = (' ',' ',' ',' ',' ',' ',' ',' ',' ',' ')
         elif char_type == 1:
-            frame = ('','#','#','#','#','#','#','#','#','#',)
+            frame = (' ','#','#','#','#','#','#','#','#','#')
         elif char_type == 2:
             frame = (' ','┗','━','┛','┃',' ','┃','┏','━','┓')
         elif char_type == 3:
@@ -134,7 +134,7 @@ def draw_thick_frame(
                 console.print(x, ypos, frame[4], fg, bg)
                 console.print(x+width-1, ypos, frame[6], fg, bg)
 
-        console.print(int(width/2 - len(title)/2) - 1, y, string=title, fg=bg, bg=fg)
+        console.print(x + int(width/2 - len(title)/2), y, string=title, fg=bg, bg=fg)
 
 
 def center_print(console, string: str, y: int, fg: Tuple[int,int,int] = None, bg: Tuple[int,int,int] = None) -> int:

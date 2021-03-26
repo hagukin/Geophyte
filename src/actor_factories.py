@@ -602,7 +602,7 @@ dog = Actor(
         has_blood=True,
         has_soul=True,
     ),
-    inventory=Inventory(capacity=5),
+    inventory=Inventory(capacity=1),
     ability_inventory=AbilityInventory(capacity=1),
     equipments=Equipments(),
 )

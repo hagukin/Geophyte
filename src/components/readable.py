@@ -129,7 +129,7 @@ class ScrollOfTameReadable(SelectTileReadable):
                 self.engine.message_log.add_message(f"{g(target.name, '은')} 이제 {g(consumer.name, '을')} 주인으로 섬긴다!", color.white, target=target)
 
             # Apply
-            target.ai.owner = consumer
+            target.ai.set_owner(consumer, forced=True)
 
 
 class SelectItemFromInventoryReadable(Readable):

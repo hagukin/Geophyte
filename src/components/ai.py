@@ -9,7 +9,7 @@ import tcod
 from typing import List, Tuple, Optional
 from actions import Action, BumpAction, MeleeAction, WaitAction, ThrowItem, EatItem, PickupAction
 from components.base_component import BaseComponent
-from entity import Actor, SemiActor, Entity
+from entity import Actor, SemiActor, Entity, Item
     
 
 class BaseAI(BaseComponent):
@@ -114,6 +114,12 @@ class BaseAI(BaseComponent):
 
             self.in_player_sight = False # NOTE: self.active remains True even after going out of player's sight
     
+    def set_owner(self, owner: Actor) -> None:
+        self.owner = owner
+        if owner == self.engine.player:
+            self.parent.actor_state.hunger = self.parent.actor_state.size * 25 * 12 # Set to "normal" hunger state.
+            # From now on, this actor can starve to death.
+
     def perform(self) -> None:
         """
         Check if this actor is in player's sight.
@@ -449,26 +455,30 @@ class BaseAI(BaseComponent):
 
     def check_if_attracted(self, entity: Entity) -> bool:
         # Check hostile types, ids, and entities.
-        if entity.char in self.attracted_eat_type:
-            self.do_what_to_attraction = "eat"
-            return True
-        elif entity.entity_id in self.attracted_eat_id:
-            self.do_what_to_attraction = "eat"
-            return True
-        elif entity in self.attracted_eat_with:
-            self.do_what_to_attraction = "eat"
-            return True
-        elif entity in self.attracted_own_type:
-            self.do_what_to_attraction = "own"
-            return True
-        elif entity in self.attracted_own_id:
-            self.do_what_to_attraction = "own"
-            return True
-        elif entity in self.attracted_own_with:
-            self.do_what_to_attraction = "own"
-            return True
-        else:
-            return False
+        if isinstance(entity, Item): #TODO: and if entity is hungry
+            if entity.edible:
+                if entity.edible.edible_type in self.attracted_eat_type:
+                    self.do_what_to_attraction = "eat"
+                    return True
+                elif entity.entity_id in self.attracted_eat_id:
+                    self.do_what_to_attraction = "eat"
+                    return True
+                elif entity in self.attracted_eat_with:
+                    self.do_what_to_attraction = "eat"
+                    return True
+            elif not self.parent.inventory.check_if_full(): # Only wishes for more if it's inventory isnt full
+                if entity.item_type in self.attracted_own_type:
+                    self.do_what_to_attraction = "own"
+                    return True
+                elif entity.entity_id in self.attracted_own_id:
+                    self.do_what_to_attraction = "own"
+                    return True
+                elif entity in self.attracted_own_with:
+                    self.do_what_to_attraction = "own"
+                    return True
+                else:
+                    return False
+        return False
 
     def get_target(self) -> None:
         if self.owner:
@@ -638,6 +648,34 @@ class BaseAI(BaseComponent):
             else:
                 # if target is still alive, but out of sight, keep following the path.
                 pass
+        elif self.attraction:
+
+            # Check if attraction is still in sight
+            # NOTE: vision already up to date since this function is(and shoud only be) called from perform()
+            if self.vision[self.attraction.x, self.attraction.y]:
+                # If ai has an attraction, set new path
+                if self.attraction.x == self.parent.x and self.attraction.y == self.parent.y:
+                    if self.do_what_to_attraction == "eat":
+                        # Eat it
+                        EatItem(self.parent, self.attraction).perform()
+                        self.attraction = None
+                        self.do_what_to_attraction = None
+                        self.path = None
+                        return None
+                    elif self.do_what_to_attraction == "own":
+                        # Pick it up
+                        PickupAction(self.parent).perform()
+                        self.attraction = None
+                        self.do_what_to_attraction = None
+                        self.path = None
+                        return None
+                    else:
+                        raise Exception() # AI is attracted to something but has no idea what to do with it
+                else:
+                    self.path = self.get_path_to(self.attraction.x, self.attraction.y)
+            else:
+                # attraction is out of sight, reset attraction
+                self.attraction = None
         else:
             if self.target: # If target died, reset the path
                 self.path = None
@@ -651,22 +689,6 @@ class BaseAI(BaseComponent):
                 self.set_attraction()
             else:
                 self.target = tmp_target
-
-            # If ai has an attraction, set new path
-            if self.attraction:
-                if self.attraction.x == self.parent.x and self.attraction.y == self.parent.y:
-                    if self.do_what_to_attraction == "eat":
-                        # Eat it
-                        EatItem(self.parent, self.attraction).perform()
-                        return None
-                    elif self.do_what_to_attraction == "own":
-                        # Pick it up
-                        PickupAction(self.parent).perform()
-                        return None
-                    else:
-                        raise Exception() # AI is attracted to something but has no idea what to do with it
-                else:
-                    self.path = self.get_path_to(self.attraction.x, self.attraction.y)
         
         # If there is already a path, follow the path
         if self.path:

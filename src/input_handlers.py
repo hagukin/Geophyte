@@ -1731,10 +1731,7 @@ class HistoryViewer(EventHandler):
         log_console = tcod.Console(console.width - 6, console.height - 6)
 
         # Draw a frame with a custom banner title.
-        log_console.draw_frame(0, 0, log_console.width, log_console.height)
-        log_console.print_box(
-            0, 0, log_console.width, 1, "게임 로그", alignment=tcod.CENTER
-        )
+        log_console.draw_frame(0, 0, log_console.width, log_console.height, title="게임 로그", fg=color.msg_log_frame, bg=color.msg_log_bg)
 
         # Render the message log using the cursor parameter.
         self.engine.message_log.render_messages(

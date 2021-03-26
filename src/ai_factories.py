@@ -3,6 +3,7 @@ import color
 import actions
 import explosion_action
 
+from order import InventoryOrder
 from korean import grammar as g
 
 class Melee_Ai(ai.BaseAI):
@@ -17,8 +18,8 @@ class Melee_Neutral_Ai(ai.BaseAI):
 
 class Test_Ai(ai.BaseAI):
     """Pickup Eat testing"""
-    def __init__(self, alignment:str="hostile", do_melee_atk:bool=True, do_ranged_atk: bool=False, use_ability: bool=False, attracted_eat_type: set=set('meat')):
-        super().__init__(alignment, do_melee_atk, do_ranged_atk, use_ability, attracted_eat_type)
+    def __init__(self, alignment:str="hostile", do_melee_atk:bool=True, do_ranged_atk: bool=False, use_ability: bool=False, attracted_eat_type: set=set(["meat"]), attracted_own_type: set=set([InventoryOrder.POTION])):
+        super().__init__(alignment, do_melee_atk, do_ranged_atk, use_ability, attracted_eat_type=attracted_eat_type, attracted_own_type=attracted_own_type)
 
 
 ####################################################
@@ -234,13 +235,13 @@ volt_ant_ai = Volt_Ant_Ai()
 #b
 bat_ai = Melee_Neutral_Ai()
 #c
-kitten_ai = Melee_Ai()
-cat_ai = Melee_Ai()
-large_cat_ai = Melee_Ai()
+kitten_ai = Test_Ai()
+cat_ai = Test_Ai()
+large_cat_ai = Test_Ai()
 #d
-puppy_ai = Melee_Ai()
+puppy_ai = Test_Ai()
 dog_ai = Test_Ai()#DEBUG
-large_dog_ai = Melee_Ai()
+large_dog_ai = Test_Ai()
 #e
 floating_eye_ai = Floating_Eye_Ai()
 #s

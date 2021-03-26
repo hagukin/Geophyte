@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from typing import Optional, Tuple, TYPE_CHECKING
+from util import draw_thick_frame
 from numpy.core.numeric import Inf
 from entity import Actor, Item
 
@@ -152,7 +153,8 @@ def render_character_status(
 
     # border for status gui
     if draw_frame:
-        console.draw_frame(x=x-1, y=y-1, width=width, height=height, title="스테이터스", clear=False, fg=color.gui_frame_fg, bg=color.gui_frame_bg)
+        draw_thick_frame(console, x=x-1, y=y-1, width=width, height=height, title="스테이터스", fg=color.gui_frame_fg, bg=color.gui_frame_bg)
+        #console.draw_frame(x=x-1, y=y-1, width=width, height=height, title="스테이터스", clear=False, fg=color.gui_frame_fg, bg=color.gui_frame_bg)
 
 
 def render_character_state(
@@ -300,7 +302,8 @@ def render_character_state(
 
     # border for state gui
     if draw_frame:
-        console.draw_frame(x=x-1, y=y, width=28, height=window_height+2, title="상태 이상", clear=False,  fg=color.gui_frame_fg, bg=color.gui_frame_bg)
+        draw_thick_frame(console, x=x-1, y=y, width=28, height=window_height+2, title="상태 이상", fg=color.gui_frame_fg, bg=color.gui_frame_bg)
+        #console.draw_frame(x=x-1, y=y, width=28, height=window_height+2, title="상태 이상", clear=False,  fg=color.gui_frame_fg, bg=color.gui_frame_bg)
 
 
 def render_character_equipments(
@@ -411,7 +414,8 @@ def render_message_window(
             msg_x, msg_y = x+1, y+1
 
     # draw frame
-    console.draw_frame(x, y, width, height, title=title, clear=True, fg=frame_fg, bg=frame_bg)
+    draw_thick_frame(console, x, y, width, height, title=title, fg=frame_fg, bg=frame_bg)
+    #console.draw_frame(x, y, width, height, title=title, clear=True, fg=frame_fg, bg=frame_bg)
 
     # print msg
     console.print(msg_x, msg_y, msg, fg=text_fg)

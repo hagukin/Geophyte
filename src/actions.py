@@ -62,9 +62,9 @@ class PickupAction(Action):
                 inventory.add_item(item)
 
                 if item.stack_count > 1:
-                    self.engine.message_log.add_message(f"{g(item.name, '을')} 주웠다. (x{item.stack_count})!")
+                    self.engine.message_log.add_message(f"{g(self.entity.name, '이')} {g(item.name, '을')} 주웠다. (x{item.stack_count}).", target=self.entity, fg=color.gray)
                 else:
-                    self.engine.message_log.add_message(f"{g(item.name, '을')} 주웠다.")
+                    self.engine.message_log.add_message(f"{g(self.entity.name, '이')} {g(item.name, '을')} 주웠다.", target=self.entity, fg=color.gray)
                 return #prevents picking up everything at once. # TODO : Add feature to pickup everything at once
 
         raise exceptions.Impossible("주울 만한 물건이 아무 것도 없습니다.")

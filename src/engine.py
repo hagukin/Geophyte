@@ -1,5 +1,6 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING, List, Optional, Tuple, Set
+from util import draw_thick_frame
 from tcod.path import SimpleGraph, Pathfinder
 from tcod.console import Console
 from tcod.map import compute_fov
@@ -710,7 +711,8 @@ class Engine:
         
         # draw frame
         if draw_frame:
-            console.draw_frame(x=gui_x-1, y=gui_y-1, width=28, height=height, title="시야 내 정보", clear=False, fg=color.gui_frame_fg, bg=color.gui_frame_bg)
+            draw_thick_frame(console, x=gui_x-1, y=gui_y-1, width=28, height=height, title="시야 내 정보", fg=color.gui_frame_fg, bg=color.gui_frame_bg)
+            #console.draw_frame(x=gui_x-1, y=gui_y-1, width=28, height=height, title="시야 내 정보", clear=False, fg=color.gui_frame_fg, bg=color.gui_frame_bg)
 
     def render_rightside(self, console: Console, gui_x: int, gui_y: int) -> None:
         """

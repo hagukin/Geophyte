@@ -78,8 +78,6 @@ def render_title_gui(console):
     x = int(width / 2) - 8
     y = height - 17
     # render
-    from util import draw_thick_frame
-    #draw_thick_frame(console, x, y, width=17, height=9, fg=color.title_gui_frame)
     console.print(x+2, y+1, string="N - New Game\n\nL - Load Game\n\nO - Options\n\nC - Credits\n\nQ - Quit Game\n", fg=color.white)
 
     # Copyright Note, version mark

@@ -297,6 +297,10 @@ class ActorState(BaseComponent):
                 self.parent.status.die(cause="starvation")
 
     def gain_nutrition(self, nutrition: int) -> None:
+        if self.parent.ai:
+            if self.parent.ai.owner == self.engine.player: # Among all monsters only player's pets can gain nutrition.
+                pass
+            return None
         self.hunger += nutrition
 
     def actor_heal_wounds(self):
@@ -309,7 +313,7 @@ class ActorState(BaseComponent):
             max_hp = self.parent.status.changed_status["max_hp"]
 
             heal_percent = 1 + math.log2(constitution + 1) # amount of healing indicated as a percentage of maximum health
-            heal_amount = int(max(1, max_hp * heal_percent * 0.01)) # absolute amount of healing
+            heal_amount = int(max(1, max_hp * heal_percent * 0.004)) # absolute amount of healing
             self.parent.status.heal(amount=heal_amount)
             self.heal_interval = round(250 / constitution)
         else:
