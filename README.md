@@ -29,7 +29,7 @@
 
 1. 인터프리터 언어의 속도 상의 한계
 2. GIL (Global Interpreter Lock)
-3. Dynamic typed language
+3. Dynamic typed language 특유의 명시적이지 못한 코드
 4. 포인터/레퍼런스의 부재 및 메모리 관리의 어려움
 5. Call By Assignment를 강제
 
