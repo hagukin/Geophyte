@@ -312,10 +312,10 @@ class ActorState(BaseComponent):
             constitution = self.parent.status.changed_status["constitution"]
             max_hp = self.parent.status.changed_status["max_hp"]
 
-            heal_percent = 1 + math.log2(constitution + 1) # amount of healing indicated as a percentage of maximum health
-            heal_amount = int(max(1, max_hp * heal_percent * 0.004)) # absolute amount of healing
+            heal_percent = (1 + math.log2(constitution + 1)) * 0.004 # amount of healing indicated as a percentage of maximum health
+            heal_amount = int(max(1, max_hp * heal_percent)) # absolute amount of healing
             self.parent.status.heal(amount=heal_amount)
-            self.heal_interval = round(250 / constitution)
+            self.heal_interval = round(500 / constitution)
         else:
             self.heal_interval -= 1
 
@@ -784,7 +784,7 @@ class ActorState(BaseComponent):
         ### FLOW ###
         # Am I burning eternally?
         # Yes)
-        #       Am I receiving a value to start burning eternally?
+        #       Am I receiving a value to start burn for eternity?
         #       Yes)
         #           Overwrite.
         #       No)
@@ -836,7 +836,7 @@ class ActorState(BaseComponent):
                     self.is_poisoned[0] = max(self.is_poisoned[0], value[0]) # set to higher dmg
                     self.is_poisoned[1] = max(self.is_poisoned[1], value[1]) # set to higher increment
                     # keep current turn unchanged
-                    self.is_poisoned[3] += value[3] # prolong poisoning
+                    self.is_poisoned[3] = max(self.is_poisoned[3], value[3]) # set to higher max turn
                 else:
                     self.is_poisoned = value
 
@@ -859,7 +859,7 @@ class ActorState(BaseComponent):
                     self.is_freezing[1] = max(self.is_freezing[1], value[1]) # set to higher agility decrement
                     self.is_freezing[2] = max(self.is_freezing[2], value[2]) # set to higher chance of being frozen
                     # keep current turn unchanged
-                    self.is_freezing[4] += value[4] # prolong freezing
+                    self.is_freezing[4] = max(self.is_freezing[4], value[4]) # set to higher max turn
                 else:
                     self.is_freezing = value
 

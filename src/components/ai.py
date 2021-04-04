@@ -87,7 +87,7 @@ class BaseAI(BaseComponent):
         self.attracted_own_with = attracted_own_with
 
         # Owner
-        self.owner = owner
+        self.owner: Actor = owner
     
     def init_vision(self) -> None:
         """Initialize this ai's vision"""

@@ -1705,8 +1705,9 @@ class MainGameEventHandler(EventHandler):
                 self.engine.event_handler = AbilityActivateHandler(self.engine)
 
             elif key == tcod.event.K_F12:
-                time_str = time.strftime('%Y_%m_%d_%H_%M_%S', time.localtime(time.time()))
-                pic_name = self.engine.player.name + "_" + time_str
+                time_str = time.strftime('%Y-%m-%d-%H-%M-%S', time.localtime(time.time()))
+                pic_name = time_str
+                #pic_name = self.engine.player.name + "-" + time_str # bugs occur when using certain unicode chars.
                 self.engine.context.save_screenshot(f"./screenshots/{pic_name}.png")
                 self.engine.message_log.add_message(f"Screenshot saved as {pic_name}.png", color.needs_target)
             elif key == tcod.event.K_F11:#TODO DEBUG
@@ -1717,13 +1718,20 @@ class MainGameEventHandler(EventHandler):
                     if actor.ai:
                         actor.ai.activate()
             elif key == tcod.event.K_F9:#TODO DEBUG
-                self.engine.player.actor_state.is_burning = [5,5,0,-1]
+                self.engine.player.actor_state.is_poisoned = [1,1,0,3]
                 print("ACTIVATED ALL ACTORS IN THIS LEVEL")
             elif key == tcod.event.K_F8:#TODO DEBUG
                 import actor_factories
                 x = actor_factories.dog.spawn(self.engine.game_map, self.engine.player.x + 1, self.engine.player.y)
                 x.ai.activate()
                 print("SPAWNED DOG")
+            elif key == tcod.event.K_F7:#TODO DEBUG
+                self.engine.player.status.experience.gain_strength_exp(10000)
+                self.engine.player.status.experience.gain_dexterity_exp(10000)
+                self.engine.player.status.experience.gain_agility_exp(10000)
+                self.engine.player.status.experience.gain_constitution_exp(10000)
+                self.engine.player.status.experience.gain_intelligence_exp(10000)
+                self.engine.player.status.experience.gain_charm_exp(10000)
 
         # No valid key was pressed
         return action

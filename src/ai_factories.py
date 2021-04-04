@@ -235,13 +235,13 @@ volt_ant_ai = Volt_Ant_Ai()
 #b
 bat_ai = Melee_Neutral_Ai()
 #c
-kitten_ai = Test_Ai()
-cat_ai = Test_Ai()
-large_cat_ai = Test_Ai()
+kitten_ai = Melee_Ai()
+cat_ai = Melee_Ai()
+large_cat_ai = Melee_Ai()
 #d
-puppy_ai = Test_Ai()
-dog_ai = Test_Ai()#DEBUG
-large_dog_ai = Test_Ai()
+puppy_ai = Melee_Ai()
+dog_ai = Melee_Ai()
+large_dog_ai = Melee_Ai()
 #e
 floating_eye_ai = Floating_Eye_Ai()
 #s

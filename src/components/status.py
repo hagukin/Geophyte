@@ -1,4 +1,5 @@
 from __future__ import annotations
+from components.experience import Experience
 
 from typing import List, TYPE_CHECKING
 
@@ -81,7 +82,7 @@ class Status(BaseComponent):
     ):
         self.difficulty = None
 
-        self.experience = None # If the actor has an experience component, it is initalized in Actor.__init__()
+        self.experience: Experience = None # If the actor has an experience component, it is initalized in Actor.__init__()
 
         self.max_hp = hp
         self._hp = hp
@@ -361,9 +362,9 @@ class Status(BaseComponent):
             if damage_type == "physical":
                 # if dmg type is physical, use protection to calculate reduction
                 protection = self.changed_status["protection"]
-                penetration = 1 + math.log2(penetration_constant/10 + 1) # y = log2(x/10 + 1) + 1 # TODO: adjust the constant 10
-                dmg_absorbed = random.randint(0, int(protection/penetration))
-                dmg_reduced = 1 + math.log2(protection/5 + 1) # y = 1 + log2(x/5 + 1)
+                penetration = 1 + math.log10(penetration_constant/10 + 1) # y = log2(x/10 + 1) + 1 # TODO: adjust the constant 10
+                dmg_absorbed = random.randint(0, int(protection * 0.3 /penetration))
+                dmg_reduced = 1 + protection * math.log2(protection / 700 + 1) # y = 1 + x*log2(x/700 + 1)
                 dmg = (dmg - dmg_absorbed) / dmg_reduced
             elif damage_type == "explosion":
                 # NOTE: explosion damages are exactly like physical damage, except that is ignores any penetration constants given.

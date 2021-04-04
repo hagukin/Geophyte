@@ -210,6 +210,9 @@ class ThrowItem(ItemAction):
                 self.engine.message_log.add_message(f"아무 것도 할 수 없다!", color.red)
             return None
 
+        if self.entity.growthable:
+            self.entity.status.experience.gain_dexterity_exp(1, 16, 200)
+
         self.item.throwable.activate(self)
 
 
@@ -220,6 +223,9 @@ class DropItem(ItemAction):
             if self.entity == self.engine.player:
                 self.engine.message_log.add_message(f"아무 것도 할 수 없다!", color.red)
             return None
+
+        if self.entity.growthable:
+            self.entity.status.experience.gain_dexterity_exp(1, 8, 100)
 
         self.entity.inventory.drop(self.item)
 
@@ -247,6 +253,9 @@ class ReadItem(ItemAction):
             if self.entity == self.engine.player:
                 self.engine.message_log.add_message(f"아무 것도 할 수 없다!", color.red)
             return None
+        
+        if self.entity.growthable:
+            self.entity.status.experience.gain_intelligence_exp(2, 0, 1500)
 
         self.item.readable.activate(self)
 
@@ -259,6 +268,9 @@ class QuaffItem(ItemAction):
                 self.engine.message_log.add_message(f"아무 것도 할 수 없다!", color.red)
             return None
 
+        if self.entity.growthable:
+            self.entity.status.experience.gain_constitution_exp(1, 20, 200, chance=0.5)
+
         self.item.quaffable.activate(self)
 
 
@@ -269,6 +281,9 @@ class EatItem(ItemAction):
             if self.entity == self.engine.player:
                 self.engine.message_log.add_message(f"아무 것도 할 수 없다!", color.red)
             return None
+
+        if self.entity.growthable:
+            self.entity.status.experience.gain_constitution_exp(1, chance=0.8) #no limit
 
         self.item.edible.activate(self)
 
@@ -311,6 +326,8 @@ class AbilityAction(Action):
             if self.entity == self.engine.player:
                 self.engine.message_log.add_message(f"아무 것도 할 수 없다!", color.red)
             return None
+
+        # gaining exp is handled in .activate()
 
         self.ability.activatable.activate(self)
 
@@ -439,7 +456,7 @@ class MeleeAction(ActionWithDirection):
         damage *= size_bonus
 
         # Apply strength bonus
-        strength_bonus =  1 + math.log10(strength + 1) # y = log2(x/5 + 1)
+        strength_bonus =  1 + math.log10(strength + 1) / 10 # y = 1 + log10(x + 1) / 10
         damage *= strength_bonus
 
         # Physical damage fall-off
@@ -472,7 +489,14 @@ class MeleeAction(ActionWithDirection):
             self.engine.message_log.add_message(
                 f"{g(self.entity.name, '이')} {g(target.name, '을')} 공격했지만 빗나갔다.", color.enemy_atk_missed, target=self.entity,
             )
+            if self.entity.growthable: # gain exp when attack was successful
+                self.entity.status.experience.gain_strength_exp(1, 12, 200)
+                self.entity.status.experience.gain_dexterity_exp(1, 12, 150)
             return None
+        else:
+            if self.entity.growthable: # gain exp when attack was successful
+                self.entity.status.experience.gain_strength_exp(1, 19, 500)
+                self.entity.status.experience.gain_dexterity_exp(1, 19, 300)
 
         # Calculate critical chance, multiplier
         critical_hit = False
@@ -565,6 +589,9 @@ class MovementAction(ActionWithDirection):
 
         self.entity.move(self.dx, self.dy)
 
+        if self.entity.growthable:
+            self.entity.status.experience.gain_agility_exp(0.2, 17, 500) # 1 exp per 5 tiles
+
 
 class DoorUnlockAction(ActionWithDirection):
     """
@@ -604,6 +631,9 @@ class DoorUnlockAction(ActionWithDirection):
             if random.random() <= chance_of_unlocking:
                 # Unlock succeded
                 self.engine.message_log.add_message(f"{g(self.entity.name, '이')} {g(item.name, '을')} 사용해 문의 잠금을 해제했다!", color.white, target=self.entity)
+
+                if self.entity.growthable:
+                    self.entity.status.experience.gain_dexterity_exp(1, 18, 500)
 
                 tmp = semiactor_factories.closed_door.spawn(self.engine.game_map, dest_x, dest_y, -1)
                 semiactor_on_dir.semiactor_info.move_self_to(tmp)
@@ -650,6 +680,9 @@ class DoorBreakAction(ActionWithDirection):
         elif break_fail * 2 <= strength: # if the strength value is higher than the break_fail * 2, break open the door (Minimum str req. for breaking the door: 20)
             self.engine.message_log.add_message(f"{g(self.entity.name, '이')} 문을 파괴했다!", color.invalid, target=self.entity)
             door.remove_self()
+
+            if self.entity.growthable:
+                self.entity.status.experience.gain_strength_exp(1, 18, 800)
             # TODO: drop the wooden door pieces?
         else: # Bust open the door but not break it
             self.engine.message_log.add_message(f"{g(self.entity.name, '이')} 문을 강제로 열었다!", color.invalid, target=self.entity)
@@ -658,6 +691,9 @@ class DoorBreakAction(ActionWithDirection):
             tmp = semiactor_factories.opened_door.spawn(self.engine.game_map, door.x, door.y, -1)
             door.semiactor_info.move_self_to(tmp)
             door.remove_self()
+
+            if self.entity.growthable:
+                self.entity.status.experience.gain_strength_exp(1, 20, 1000)
         
         from input_handlers import MainGameEventHandler
         self.engine.event_handler = MainGameEventHandler(self.engine)
@@ -731,6 +767,9 @@ class DoorOpenAction(ActionWithDirection):
         tmp = semiactor_factories.opened_door.spawn(self.engine.game_map, door.x, door.y, -1)
         door.semiactor_info.move_self_to(tmp)
         door.remove_self()
+
+        if self.entity.growthable:
+            self.entity.status.experience.gain_dexterity_exp(1, 12, 30)
 
         from input_handlers import MainGameEventHandler
         self.engine.event_handler = MainGameEventHandler(self.engine)

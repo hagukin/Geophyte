@@ -1,3 +1,4 @@
+from components import experience
 import ai_factories
 import item_factories
 import copy
@@ -43,7 +44,7 @@ player = Actor(
     render_order=RenderOrder.PLAYER,
     ai_cls=None,
     status=Status(
-        hp=80000,#80
+        hp=100,#100
         mp=1000,
         strength=15,
         dexterity=15,
@@ -52,7 +53,7 @@ player = Actor(
         constitution=15,
         charm=15,
         difficulty=0,
-        base_melee=8,
+        base_melee=5,
         additional_melee=5,
         protection=10,
         eyesight=20,
@@ -62,6 +63,7 @@ player = Actor(
         heal_wounds=True,
         size=4,
         weight=70,
+        has_telepathy=True,
     ),
     inventory=Inventory(capacity=52, is_fireproof=False),
     ability_inventory=AbilityInventory(capacity=10),
@@ -70,9 +72,8 @@ player = Actor(
         (item_factories.scroll_of_enchantment, 1, (1,5)), 
         (item_factories.scroll_of_identify, 1, (1,4)), 
         (item_factories.scroll_of_magic_mapping, 1, (88,99)), 
-        (item_factories.toxic_goo, 1, (1,4)),
         (item_factories.scroll_of_tame, 1, (1,4)),
-        (item_factories.scroll_of_meteor_storm, 1, (1,4)),
+        (item_factories.scroll_of_piercing_flame, 1, (1,4)),
         (item_factories.potion_of_healing, 1, (1,4)),
         (item_factories.potion_of_paralysis, 1, (1,4)),
         (item_factories.potion_of_monster_detection, 1, (3,4)),
@@ -299,7 +300,7 @@ bat = Actor(
         설치류와 조류 사이에 걸친 애매한 외형 때문에 이들은 오랜 시간 인간들에게 박해받아왔지만,\n\
         대부분의 박쥐는 무해하며, 오히려 인간에게 먼저 공격을 거는 경우가 드물다고 한다.\n\
         \n\
-        \"난 솔직히 걔들이 어쨌던 관심없어. 생긴 게 징그럽잖아.\"\
+        \"난 솔직히 걔들이 뭘 어쨌던 관심없어. 생긴 게 징그럽잖아.\"\
         ",
     rarity=11,
     spawnable=True,
@@ -358,7 +359,7 @@ kitten = Actor(
         작고 귀여운 동물,\n\
         혹은 영양가 넘치는 자그마한 고깃덩어리.\n\
         \n\
-        \"얼마 전 옆집 고양이가 새끼를 낳았다던데, 그 집 식구들이 건강해보이는 건 기분 탓인가?\"\
+        \"얼마 전 옆집 고양이가 새끼를 낳았다던데, 그 집 식구들이 유독 기운이 넘쳐보이는 건 기분 탓인가?\"\
         ",
     rarity=6,
     spawnable=True,
@@ -786,7 +787,7 @@ giant_wasp = Actor(
         던전의 기운을 받은 말벌들은 몸통 뿐 아니라 독침의 크기까지 거대하다.\n\
         사람 손가락 만한 이들의 독침은, 독 없이 그 자체만으로도 치명상을 입히기 충분하다.\n\
         \n\
-        \"독이 묻은 단검을 생각해봐. 꽤 살벌하지? 그런데 그 단검이 날아다니면서 나를 쫓아온다면 난 분명 오줌을 지릴거야.\"\
+        \"독이 묻은 단검을 떠올려 봐. 꽤 살벌하지? 그런데 그 단검이 날아다니면서 나를 쫓아온다면 난 분명 오줌을 지릴거야.\"\
         ",
     rarity=13,
     spawnable=True,
@@ -804,7 +805,7 @@ giant_wasp = Actor(
         difficulty=6,
         base_melee=5,
         additional_melee=8,
-        protection=8,
+        protection=10,#8
         eyesight=20,
         poison_resistance=0.4,
         ),
@@ -960,7 +961,7 @@ sphere_of_acid = Actor(
         학자들 사이에선 스스로를 폭발시키는 이러한 행위가 공격이나 자기 보호의 의미가 아닌\n\
         일종의 본능과도 같은 행위라는 의견이 지배적이다.\n\
         \n\
-        \"폭발의 열기로 머리카락이 타버렸어. 그래도 목숨은 건졌구나 싶었는데,\n\
+        \"폭발의 열기로 머리카락이 타버렸어. 그래도 목숨은 건졌구나 싶었는데\n\
         눈, 코, 귀가 차례대로 녹아내리기 시작하더군. 그 놈은 자길 죽여달라고 애원했지.\n\
         내가 해줄 수 있는 거라고는...\"\
         ",
@@ -1071,10 +1072,9 @@ earthworm = Actor(
     name="지렁이",
     entity_id="earthworm",
     entity_desc="\
-        던전 속 식물들이 태양빛 없이도 자랄 수 있는 가장 큰 이유는, \n\
-        던전의 기운을 받은 지렁이들이 배출한 양분 덕분일 것이다.\n\
-        이들은 평범한 지렁이의 배 이상으로 토지를 기름지게 만들며, 식물들이 햇빛 없이도 자랄 수 있게 해 주는 알 수 없는 성분을 배출한다.\n\
-        던전 속에 사는 지렁이들을 지상에서 사육하는 법을 고안해낸다면 황제 폐하로부터 훈장을 수여받으리라는 말도 있을 정도다.\n\
+        식물들이 던전 속에서 태양빛 없이 자랄 수 있는 가장 큰 이유는, 바로 지렁이들이 배출한 양분 덕분일 것이다.\n\
+        이들은 지상의 평범한 지렁이들의 배 이상으로 토지를 기름지게 만들며, 식물들이 햇빛 없이도 자랄 수 있게 해 주는 알 수 없는 성분을 배출한다.\n\
+        이들을 던전 밖에서 사육하는 법을 고안해낸다면, 황제 폐하로부터 훈장을 수여받으리라는 말도 있을 정도다.\n\
         \n\
         \"내가 형씨였으면 모험이니 뭐니 할 거 없이 그 아래에서 농사나 지을 거야. 형씨도 지금보다 백 배는 많이 벌 수 있을텐데.\"\
         ",
@@ -1168,28 +1168,33 @@ monster_difficulty[maggot.status.difficulty].append(maggot)
 ice_elemental = Actor(
     char="E",
     fg=(207, 247, 255),
-    name="Ice Elemental",
+    name="얼음 정령",
     entity_id="ice_elemental",
     entity_desc="\
-        Elementals are mystical beings. No human being truly understands the full story behind who created them.\n\
-        Some say they are the will of mother nature, while the other says they are a creation of ancient wizards.\n\
-        Despite all these mysteries, one thing remains clear: elementals are powerful.\n\
-        And sometimes, they are willing to handle these powers to one they admire, rarely even to humans.\
+        정령들의 존재는 익히 알려져 있지만, 그들의 기원을 두고는 무수한 추측만이 오갈 뿐이다.\n\
+        이들이 자연의 산물이라고 주장하는 자들이 있는가 하면, 고대의 마법사들의 창조물이라고 주장하는 자들도 있다.\n\
+        이처럼 불분명한 기원에도 불구하고 정령은 수 천년 이상 인간과 오랜 시간 공존해 왔고,\n\
+        아주 드문 경우 이들은 자신이 존경하는 인간을 위해 자신의 힘을 내어주기까지 했다.\n\
+        \n\
+        얼음 정령은 전신에서 생명체의 뼛 속까지 얼어붙일 수 있는 냉기를 내뿜는다.\n\
+        이들은 굉장히 위협적이며, 역사적으로도 얼음 정령을 길들인 정령술사는 손에 꼽을 정도로 적다.\n\
+        \n\
+        \"두꺼운 옷으로 꽁꽁 싸맨다고? 그런 건 자네의 얼어붙은 시체를 땅에 묻기 어렵게 만들 뿐이라네.\"\
         ",
-    rarity=4,#TODO
+    rarity=4,
     spawnable=True,
-    edible=None, # 시체 없음
+    edible=None,
     ai_cls=ai_factories.ice_elemental_ai,
-    status=Status(#TODO : 슽텟조정
-        hp=110,
+    status=Status(# TODO
+        hp=350,
         mp=50,
-        strength=16,
+        strength=43,
         dexterity=20,
         agility=15,
         intelligence=15,
         constitution=18,
-        charm=18,
-        difficulty=12,#TODO
+        charm=25,
+        difficulty=12,
         base_melee=8,
         additional_melee=8,
         protection=8,
@@ -1227,10 +1232,16 @@ monster_difficulty[ice_elemental.status.difficulty].append(ice_elemental)
 chatterbox = Actor(
     char="I",
     fg=(255, 230, 230),
-    name="Chatterbox",
+    name="수다꾼",
     entity_id="chatterbox",
     entity_desc="\
-        TODO\
+        던전에서 누군가 당신을 부르는 소리가 들린다면, 뒤를 돌아보기보다는 검을 뽑아드는 편이 더 현명한 선택일지도 모른다.\n\
+        '수다쟁이'라는 별칭으로 불리는 이 생명체는, 극단적으로 팔다리가 긴 여성 인간과 유사한 형태를 하고 있다.\n\
+        이들은 털이 없는 창백한 피부를 가졌으며, 머리에는 눈,코,귀 대신 '입'이 수 십여개 달려 있는 것이 특징이다.\n\
+        이들은 '입'을 통해 음식을 섭취하지는 않지만, 인간이나 다른 생명체들의 소리를 흉내내어 먹잇감을 유인한다.\n\
+        시각 기관의 부재로 인해 극단적으로 좋지 못한 시력에도 불구하고, 이들의 긴 팔과 날카로운 손톱은 가까운 거리의 인간을 갈기갈기 찢어 놓기에 충분하다.\n\
+        \n\
+        \"부탁이야... 말리지 말아줘... 이렇게라도 그녀의 목소리를 듣고 싶어...\"\
         ",
     rarity=2,
     spawnable=True,
@@ -1278,12 +1289,13 @@ monster_difficulty[chatterbox.status.difficulty].append(chatterbox)
 giant = Actor(
     char="T",
     fg=(150, 30, 190),
-    name="Giant",
+    name="자이언트",
     entity_id="giant",
     entity_desc="\
-        Giants are not the most sharp-minded entity in the dungeon, but they are also not the most hostile ones either.\n\
-        Giants tend to avoid conflicts, and they usually don't enjoy human flesh.\n\
-        When a giant gets angry, it smashes the opponent with its bare fists, often resulting in tremendous damage.\
+        자이언트는 그다지 명석하지 못한 두뇌의 소유자이다.\n\
+        거대한 인간과도 같은 외형 탓에 이들은 흔히 공포의 대상으로 여겨지지만, 대체적으로 이들은 인간을 먼저 공격하지는 않는다.\n\
+        \n\
+        \"저놈들을 잘 길들이면 우리 제국은 최강이 될 게야. 내 젊을 적의 영광을 다시 보는 날이 오면 좋겠구만.\"\
         ",
     rarity=5,
     spawnable=True,

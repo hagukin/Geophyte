@@ -308,6 +308,7 @@ class Actor(Entity):
 
         self.status = status
         self.status.parent = self
+        self.growthable = growthable
         if growthable:
             self.status.experience = Experience()
             self.status.experience.parent = self.status
