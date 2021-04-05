@@ -1617,3 +1617,17 @@
           > 경험치 노가다를 방지하기 위해 경험치 획득에 레벨 상한선과 경험치 상한선을 걸어둘 수 있음.
           > 초기 기획하던 지오파이트만의 경험치 시스템을 유지하는 것으로 결정내림.
 
+          액터들 전부 한글화 완료
+20210405 - 
+          상점 뼈대 제작 및 특수 Terrain들 뼈대 제작.
+          > Terrain들이 custom_gen 함수를 프로퍼티로 가지고 있을 경우 이 함수를 procgen의 terrain_generation에서 실행함.
+            이 함수에서는 특수 지형의 생성과 관련된 내용들을 처리함. 
+            e.g. 상점의 상점 아이템 생성
+          > Terrain에 wall_protected 추가.
+          > 해당 기능 구현을 위해 gamemap에 protectmap추가. protectmap == True인 지점은 다른 terrain 생성으로부터 영향받지 않음. (ex. 다른 terrain의 door convex나 water 등)
+          >> 간혹 한 칸씩 벽에 구멍이 나는 경우가 있는데, 아마 door convex와 관련된 문제로 추측됨. 일단 수정 보류.
+          > 상점은 여타 Terrain들과 마찬가지로 다양한 모양 다 가능하지만 혹시 모를 버그 방지를 위해 일단 기본값을 Rectangle 하나로만 지정해둠.
+
+          empty convex에 무언가를 제작할 수 있도록 함수 제작.
+          > 아직은 아무런 기능 없음.
+

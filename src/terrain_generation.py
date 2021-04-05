@@ -176,12 +176,13 @@ def make_shallow_water(
         else:# cannot spawn water at given location
             return -1
     else:
-        if tilemap[water_core[0]][water_core[1]] != TilemapOrder.MAP_BORDER.value:
+        if tilemap[water_core[0]][water_core[1]] != TilemapOrder.MAP_BORDER.value\
+            and not gamemap.protectmap[water_core[0]][water_core[1]]:
             tilemap[water_core[0]][water_core[1]] = TilemapOrder.WATER_CORE.value
         else:
             return -1
 
-    for n in range(scale):
+    for _ in range(scale):
         core_locations = zip(*np.where(tilemap == TilemapOrder.WATER_CORE.value))
 
         for loc in core_locations:
@@ -190,12 +191,13 @@ def make_shallow_water(
                 try:
                     if no_border:
                         if random.random() < density:
-                            if tilemap[loc[0] + direction[0]][loc[1] + direction[1]] != TilemapOrder.MAP_BORDER.value: # TODO: 만약 나중에 물이 생성되어서는 안되는 구역이 등장하면 (ex. 상점) 이 부분에 수정이 필요할 수 있음.
+                            if tilemap[loc[0] + direction[0]][loc[1] + direction[1]] != TilemapOrder.MAP_BORDER.value\
+                                and not gamemap.protectmap[loc[0] + direction[0]][loc[1] + direction[1]]:
                                 tilemap[loc[0] + direction[0]][loc[1] + direction[1]] = TilemapOrder.WATER.value
                         else:
                             continue # density-1/density chance of not generating
                     else:
-                        if tilemap[loc[0] + direction[0]][loc[1] + direction[1]] == TilemapOrder.ROOM_INNER.value:#TODO terrain겹침
+                        if tilemap[loc[0] + direction[0]][loc[1] + direction[1]] == TilemapOrder.ROOM_INNER.value:#TODO terrain collided
                             if random.random() < density:
                                 tilemap[loc[0] + direction[0]][loc[1] + direction[1]] = TilemapOrder.WATER.value
                             else:
@@ -208,12 +210,13 @@ def make_shallow_water(
                 try:
                     if no_border:
                         if random.random() < density:
-                            if tilemap[loc[0] + direction[0]][loc[1] + direction[1]] != TilemapOrder.MAP_BORDER.value:
+                            if tilemap[loc[0] + direction[0]][loc[1] + direction[1]] != TilemapOrder.MAP_BORDER.value\
+                            and not gamemap.protectmap[loc[0] + direction[0]][loc[1] + direction[1]]:
                                 tilemap[loc[0] + direction[0]][loc[1] + direction[1]] = TilemapOrder.WATER_CORE.value
                         else:
                             continue # density-1/density chance of not generating
                     else:
-                        if tilemap[loc[0] + direction[0]][loc[1] + direction[1]] == TilemapOrder.ROOM_INNER.value or tilemap[loc[0] + direction[0]][loc[1] + direction[1]] == TilemapOrder.WATER.value:#TODO terrain겹침
+                        if tilemap[loc[0] + direction[0]][loc[1] + direction[1]] == TilemapOrder.ROOM_INNER.value or tilemap[loc[0] + direction[0]][loc[1] + direction[1]] == TilemapOrder.WATER.value:#TODO terrain collided
                             if random.random() < density:
                                 tilemap[loc[0] + direction[0]][loc[1] + direction[1]] = TilemapOrder.WATER_CORE.value
                             else:
@@ -315,6 +318,13 @@ def generate_chest(gamemap: GameMap, room: Room) -> None:
 
     for loc in set(chest_coordinates):
         grow_chest(gamemap=gamemap, x=loc[0], y=loc[1], chest_id=chest_chosen, initial_items=room.terrain.gen_chests["initial_items"])
+
+
+def generate_on_empty_convex(gamemap: GameMap, x:int, y:int) -> None:
+    """
+    Generate a random terrain to the given empty convex location.
+    """
+    pass# TODO FIXME
 
 
 def adjust_obstacles(gamemap: GameMap):

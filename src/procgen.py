@@ -230,7 +230,7 @@ def adjust_convex(
     # Search for leftover, and use it as something else
     empty_convex = search_empty_convex(dungeon=dungeon)
     for cor in empty_convex:
-        dungeon.tiles[cor] = dungeon.tileset["t_DEBUG"]()# TODO: Add feature
+        terrain_generation.generate_on_empty_convex(dungeon, cor[0], cor[1])
 
 
 def generate_earth(
@@ -288,12 +288,16 @@ def door_generation(
         # generate door convex
         dungeon.tilemap[door_slice] = TilemapOrder.DOOR_CONVEX.value
         dungeon.tunnelmap[door_slice] = True
+        if room.terrain.wall_protected:
+            dungeon.protectmap[door_slice] = True
         dungeon.tiles[door_slice] = dungeon.tileset["t_floor"]()
         # generate door
         door_loc = door_slice[0].start + dx, door_slice[1].start + dy
         room.doors.append(door_loc)
         dungeon.tilemap[door_loc] = TilemapOrder.DOOR.value
         dungeon.tunnelmap[door_loc] = True
+        if room.terrain.wall_protected:
+            dungeon.protectmap[door_loc] = True
         dungeon.tiles[door_loc] = dungeon.tileset["t_floor"]()
         dungeon.tiles[door_slice] = dungeon.tileset["t_floor"]()
         # spawn door unless there is nothing on the location
@@ -355,12 +359,16 @@ def generate_rooms(
         for outer_slice in new_room.outer:
             dungeon.tilemap[outer_slice] = TilemapOrder.ROOM_WALL.value
             dungeon.tunnelmap[outer_slice] = False
+            if new_room.terrain.wall_protected:
+                dungeon.protectmap[outer_slice] = True
 
         # Dig out this rooms inner area.
         for inner_slice in new_room.inner:
             dungeon.tiles[inner_slice] = dungeon.tileset["t_floor"]()
             dungeon.tilemap[inner_slice] = TilemapOrder.ROOM_INNER.value
             dungeon.tunnelmap[inner_slice] = True
+            if new_room.terrain.wall_protected:
+                dungeon.protectmap[inner_slice] = True
 
         # choose the direction of the door
         doordir = []
@@ -409,6 +417,10 @@ def generate_terrain(
         # Generate chests/storages
         if room.terrain.gen_chests:
             terrain_generation.generate_chest(gamemap=dungeon, room=room)
+
+        # Call custom function if it has one
+        if room.terrain.custom_gen:
+            room.terrain.custom_gen(gamemap=dungeon, room=room)
 
         # Adjust map (delete awkwardly placed semiactors)
         terrain_generation.adjust_obstacles(gamemap=dungeon)
@@ -513,7 +525,7 @@ def generate_stair(
             
             # Check if both stairs are connected to one another
             connected = False
-            cost = np.array(dungeon.tiles["walkable"], dtype=np.int8) # tunnelmap은 void도 경로에 포함시키기 때문에 tunnelmap대신 새로운 cost 그리드를 생성해 pathfinder에 전달한다.
+            cost = np.array(dungeon.tiles["walkable"], dtype=np.int8) # tunnelmap includes "void" tiles as a valid path, so create a new cost grid and pass it to pathfinder
 
             # Avoid dangerous tiles
             dangerous_coordinates = zip(*np.where(dungeon.tiles["safe_to_walk"][:,:] == False))
@@ -625,6 +637,14 @@ def debug(dungeon):
             else:
                 print(" ", end=" ")
         print(end="\n")
+
+    for i in dungeon.protectmap:
+        for k in i:
+            if k:
+                print("1", end=" ")
+            else:
+                print("0", end=" ")
+        print(end='\n')
 
 
 def get_dungeon_biome(depth: int):

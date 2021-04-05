@@ -77,7 +77,7 @@ class Experience(BaseComponent):
             self.parent.engine.message_log.add_message(f"{g(self.parent.parent.name, '이')} 더 깊게 생각할 수 있게 되었다!", msg_color)
             self.parent.engine.message_log.add_message(f"{self.parent.parent.name}의 지능 수치가 상승했습니다.", msg_color)
         elif level_type == "charm":
-            self.parent.engine.message_log.add_message(f"{g(self.parent.parent.name, '이')} 더 매력적이게 되었다!", msg_color)
+            self.parent.engine.message_log.add_message(f"{g(self.parent.parent.name, '이')} 더 매력적인 모습이 되었다!", msg_color)
             self.parent.engine.message_log.add_message(f"{self.parent.parent.name}의 매력 수치가 상승했습니다.", msg_color)
 
     def level_up(self) -> bool:

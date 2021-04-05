@@ -8,7 +8,7 @@ rocky_dungeon = Biome(
     name="돌무더기",
     biome_id="rocky_dungeon",
     biome_desc="Desc of rocky dungeon biome (TEST)",
-    rarity=1,
+    rarity=99,
     map_width=80,
     map_height=80,
 )

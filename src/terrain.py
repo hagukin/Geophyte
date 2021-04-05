@@ -23,6 +23,7 @@ class Terrain:
         spawn_item: bool = True,
         spawn_monster: bool = True,
         has_wall: bool = True, #TODO: need to add feature
+        wall_protected: bool = False,
         has_door: bool = True,
         door_num_range = (1,2,3,4),
         door_num_weight = (3,7,2,1),
@@ -30,6 +31,7 @@ class Terrain:
         gen_water = None,
         gen_traps = None,
         gen_chests = None,
+        custom_gen = None,
     ):
         """
         Args:
@@ -41,6 +43,9 @@ class Terrain:
                 possible number of doors per room. This value should sync up with door_num_weight.
             door_num_weight:
                 chance of having certain number of doors
+            wall_protected:
+                whether the room that own's this terrain component has a wall that can be destroyed during procgen from other terrains' generation process
+                e.g. if set to true, ocean generation will not overlap with with this room's outer&inner area.
             gen_grass:
                 {
                     "core_num_range":Tuple(int,int), 
@@ -83,6 +88,10 @@ class Terrain:
                 initial_items:
                     A list that contains information about what kind of items will be generated in the chests that are spawned in this terrain.
                     If the value is set to None, the chest will use default values.
+            custom_gen:
+                Function. The function will generate an unique terrains that is specified to this room.
+                FUnction is called during procgen.generate_terrain().
+                Can be set to None.
         """
 
         self.name = name
@@ -102,6 +111,7 @@ class Terrain:
         self.spawn_monster = spawn_monster
 
         self.has_wall = has_wall
+        self.wall_protected = wall_protected
         self.has_door = has_door
         self.door_num_range = door_num_range
         self.door_num_weight = door_num_weight
@@ -110,3 +120,4 @@ class Terrain:
         self.gen_water = gen_water
         self.gen_traps = gen_traps
         self.gen_chests = gen_chests
+        self.custom_gen = custom_gen

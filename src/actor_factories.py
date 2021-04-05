@@ -28,6 +28,47 @@ monster_rarity_for_each_difficulty = {
 ### NOTE: Rarity can have value between 0 and 20 ###
 
 
+### DEBUG
+DEBUG = Actor(
+    char="?",
+    fg=(63, 127, 63),
+    name="DEBUG",
+    entity_id="DEBUG",
+    entity_desc="DEBUG",
+    rarity=0,
+    spawnable=False,
+    edible=edible.RawMeatEdible(nutrition=300),
+    ai_cls=ai_factories.DEBUG_ai,
+    status=Status(
+        hp=30,
+        mp=0,
+        strength=6,
+        dexterity=2,
+        agility=15,
+        intelligence=1,
+        constitution=4,
+        charm=1,
+        difficulty=0,
+        base_melee=3,
+        additional_melee=1,
+        protection=3,
+        eyesight=6,
+        ),
+    actor_state=ActorState(
+        size=4,
+        heal_wounds=True,
+    ),
+    inventory=Inventory(capacity=5),
+    ability_inventory=AbilityInventory(capacity=10),
+    equipments=Equipments(),
+)
+monster_difficulty[DEBUG.status.difficulty].append(DEBUG)
+
+
+####################################################
+################## @ - Humanoids  ##################
+####################################################
+
 ### Player
 player = Actor(
     char="@",
@@ -44,7 +85,7 @@ player = Actor(
     render_order=RenderOrder.PLAYER,
     ai_cls=None,
     status=Status(
-        hp=100,#100
+        hp=10000,#100
         mp=1000,
         strength=15,
         dexterity=15,
@@ -87,43 +128,65 @@ player = Actor(
     initial_abilities=[(ability_factories.lightning_bolt, 1), (ability_factories.steal, 1)],
 )
 
-### DEBUG
-DEBUG = Actor(
-    char="?",
-    fg=(63, 127, 63),
-    name="DEBUG",
-    entity_id="DEBUG",
-    entity_desc="DEBUG",
+
+### Shopkeeper
+shopkeeper = Actor(
+    char="@",
+    fg=(214, 181, 49),
+    name="상인",
+    entity_id="shopkeeper",
+    entity_desc="\
+        TODO\n\
+        ",
     rarity=0,
     spawnable=False,
+    growthable=False,
     edible=edible.RawMeatEdible(nutrition=300),
-    ai_cls=ai_factories.DEBUG_ai,
+    ai_cls=None,#TODO
     status=Status(
-        hp=30,
-        mp=0,
-        strength=6,
-        dexterity=2,
+        hp=350,#100
+        mp=125,
+        strength=15,
+        dexterity=15,
         agility=15,
-        intelligence=1,
-        constitution=4,
-        charm=1,
+        intelligence=15,
+        constitution=15,
+        charm=15,
         difficulty=0,
-        base_melee=3,
-        additional_melee=1,
-        protection=3,
-        eyesight=6,
+        base_melee=5,
+        additional_melee=5,
+        protection=10,
+        eyesight=20,
         ),
     actor_state=ActorState(
-        size=4,
+        hunger=1200,
         heal_wounds=True,
+        size=4,
+        weight=70,
+        has_telepathy=True,
     ),
-    inventory=Inventory(capacity=5),
+    inventory=Inventory(capacity=52, is_fireproof=False),
     ability_inventory=AbilityInventory(capacity=10),
     equipments=Equipments(),
+    initial_items=[
+        (item_factories.scroll_of_enchantment, 1, (1,5)), 
+        (item_factories.scroll_of_identify, 1, (1,4)), 
+        (item_factories.scroll_of_magic_mapping, 1, (88,99)), 
+        (item_factories.scroll_of_tame, 1, (1,4)),
+        (item_factories.scroll_of_piercing_flame, 1, (1,4)),
+        (item_factories.potion_of_healing, 1, (1,4)),
+        (item_factories.potion_of_paralysis, 1, (1,4)),
+        (item_factories.potion_of_monster_detection, 1, (3,4)),
+        (item_factories.toxic_goo, 1, (1,5)), 
+        ],
+    initial_equipments=[
+        (item_factories.leather_armor, 1),
+        (item_factories.shortsword, 1,),
+        (item_factories.amulet_of_kugah, 1),
+        ],
+    initial_abilities=[(ability_factories.lightning_bolt, 1), (ability_factories.steal, 1)],
 )
-monster_difficulty[DEBUG.status.difficulty].append(DEBUG)
-
-
+#TODO
 
 ####################################################
 ###################### a - ants  ###################
@@ -1239,7 +1302,7 @@ chatterbox = Actor(
         '수다쟁이'라는 별칭으로 불리는 이 생명체는, 극단적으로 팔다리가 긴 여성 인간과 유사한 형태를 하고 있다.\n\
         이들은 털이 없는 창백한 피부를 가졌으며, 머리에는 눈,코,귀 대신 '입'이 수 십여개 달려 있는 것이 특징이다.\n\
         이들은 '입'을 통해 음식을 섭취하지는 않지만, 인간이나 다른 생명체들의 소리를 흉내내어 먹잇감을 유인한다.\n\
-        시각 기관의 부재로 인해 극단적으로 좋지 못한 시력에도 불구하고, 이들의 긴 팔과 날카로운 손톱은 가까운 거리의 인간을 갈기갈기 찢어 놓기에 충분하다.\n\
+        시각 기관의 부재로 인한 극단적으로 좋지 못한 시력에도 불구하고, 이들의 긴 팔과 날카로운 손톱은 가까운 거리의 인간을 갈기갈기 찢어 놓기에 충분하다.\n\
         \n\
         \"부탁이야... 말리지 말아줘... 이렇게라도 그녀의 목소리를 듣고 싶어...\"\
         ",
@@ -1295,7 +1358,7 @@ giant = Actor(
         자이언트는 그다지 명석하지 못한 두뇌의 소유자이다.\n\
         거대한 인간과도 같은 외형 탓에 이들은 흔히 공포의 대상으로 여겨지지만, 대체적으로 이들은 인간을 먼저 공격하지는 않는다.\n\
         \n\
-        \"저놈들을 잘 길들이면 우리 제국은 최강이 될 게야. 내 젊을 적의 영광을 다시 보는 날이 오면 좋겠구만.\"\
+        \"저놈들을 잘 길들여 병사로 만들면 우리 제국은 최강이 될 게야. 내 젊을 적의 영광을 다시 보는 날이 오면 좋겠구만.\"\
         ",
     rarity=5,
     spawnable=True,

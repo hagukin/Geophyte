@@ -1,4 +1,5 @@
 from terrain import Terrain
+from unique_terrains.shop import ShopTerrain
 
 terrain_dict = {}
 terrain_rarity = []
@@ -84,7 +85,7 @@ ocean = Terrain(
     name="바다",
     terrain_id="Ocean",
     terrain_desc="Desc of ocean terrain (TEST)",
-    rarity=2,#FIXME
+    rarity=99,#FIXME
     spawn_item=True,
     spawn_monster=True,
     gen_traps={"checklist":{"spike_trap":1}, "max_traps_per_room":5, "spawn_chance":0.02, "forced_traps_gen_number":2},
@@ -111,3 +112,25 @@ swamp = Terrain(
 )
 terrain_dict[swamp.terrain_id] = swamp
 terrain_rarity.append(swamp.rarity)
+
+
+# General shop
+from custom_terrgen import generate_shop
+import item_factories
+shop = ShopTerrain(
+    name="잡동사니 상점",
+    terrain_id="general_shop",
+    terrain_desc="general shop desc",
+    rarity=99,
+    min_width=6,
+    max_width=10,
+    min_height=6,
+    max_height=10,
+    custom_gen=generate_shop,
+    sell_items={
+        item_factories.leather_armor : item_factories.leather_armor.rarity,
+        item_factories.potion_of_healing : item_factories.leather_armor.rarity,
+    },
+)
+terrain_dict[shop.terrain_id] = shop
+terrain_rarity.append(shop.rarity)

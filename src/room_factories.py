@@ -18,7 +18,7 @@ class Room:
         self.parent = parent
         self.tilemap = parent.tilemap
         self.terrain = terrain
-        self.doors = [] # door convex locations
+        self.doors = [] # door locations (not convex)
         
     @property
     def center(self) -> Tuple[int, int]:
@@ -52,6 +52,26 @@ class Room:
         
         return tile_coordinates
 
+    @property
+    def outer_tiles(self): #TODO TEST
+        """Return the list of all coordinates of this room's wall + inner tiles."""
+        tile_coordinates = []
+        for outer_slice in self.outer:
+            x1 = outer_slice[0].start
+            x2 = outer_slice[0].stop
+            y1 = outer_slice[1].start
+            y2 = outer_slice[1].stop
+            for x in range(x1, x2):
+                for y in range(y1, y2):
+                    tile_coordinates.append((x, y))
+        
+        return tile_coordinates
+
+    @property
+    def wall_tiles(self): #TODO NOT TESTED
+        """Return the list of all coordinates of this room's wall tiles."""
+        return list(set(self.outer_tiles) - set(self.inner_tiles))
+
     def intersects(self, other) -> bool: # other = other room
         """Return True if this room overlaps with another room of any type."""
         for tile_slice in self.outer:
@@ -59,6 +79,19 @@ class Room:
             if TilemapOrder.ROOM_INNER.value in self.tilemap[tile_slice] or TilemapOrder.TUNNEL.value in self.tilemap[tile_slice]:
                 return True
         return False
+
+    def get_door_dir(self, x: int, y: int) -> str:
+        """returns direction of the given location of the door convex."""
+        if x == self.x2:
+            return 'r'
+        elif x == self.x1:
+            return 'l'
+        elif y == self.y1:
+            return 'u'
+        elif y == self.y2:
+            return 'd'
+        else:
+            raise Exception() #Wrong coordinates
 
 
 class RectangularRoom(Room):

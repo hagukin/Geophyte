@@ -158,7 +158,7 @@ def render_character_status(
 
 
 def render_character_state(
-    engine: Engine, x: int, y: int, height: int, character: Actor, draw_frame: bool=True,
+    console: Console, engine: Engine, x: int, y: int, height: int, character: Actor, draw_frame: bool=True,
 ) -> None:
     """
     NOTE: Status effects' string length should be shorter than 13 characters. (including blanks)
@@ -171,7 +171,6 @@ def render_character_state(
     lane2_x = x+13 # x pos of the rightside lane #NOTE hard-coded
     window_height = height # This graphic ui's frame height (frame border spaces(2 tiles) are ignored)
     # Maximum amount of status effects that can be displayed at once is (window_height * 2).
-    console = engine.console
     hunger_text = character.actor_state.hunger_state
 
     #### Hunger ####

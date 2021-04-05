@@ -735,6 +735,7 @@ class Engine:
             )
 
         render_character_state(
+            console=console,
             engine=self, 
             x=gui_x, 
             y=gui_y + self.config["status_height"] - 2, 
