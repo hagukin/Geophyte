@@ -3,9 +3,11 @@ import actor_factories
 import camera
 
 from engine import Engine
+from tcod import Console
+from tcod.context import Context
 from configuration import get_game_config
 
-def init_game_variables(cfg):
+def init_game_variables(cfg, console: Console, context: Context):
     """
     Initialize game variables.(using the config data)
     """
@@ -24,7 +26,7 @@ def init_game_variables(cfg):
 
     # Generate Map
     engine.depth = 1
-    engine.world[1] = engine.generate_new_dungeon()
+    engine.world[1] = engine.generate_new_dungeon(console, context, depth=1)
     engine.game_map = engine.world[1]
     engine.player.parent = engine.world[engine.depth]
 

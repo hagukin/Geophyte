@@ -98,7 +98,7 @@ class DescendAction(Action):
                     self.engine.game_map = self.engine.world[goal_depth]
                     self.engine.depth = goal_depth
                 else: # GameMap Does not Exists, Generate new dungeon.
-                    self.engine.world[goal_depth] = self.engine.generate_new_dungeon(depth=goal_depth)
+                    self.engine.world[goal_depth] = self.engine.generate_new_dungeon(depth=goal_depth, console=self.engine.console, context=self.engine.context)
                     self.engine.game_map = self.engine.world[goal_depth]
                     self.engine.depth = goal_depth
 

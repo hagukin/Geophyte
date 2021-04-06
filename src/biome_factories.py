@@ -1,5 +1,6 @@
 from biome import Biome, tileset
 import tile_types
+import color
 
 biome_dict = {}
 biome_rarity = []
@@ -9,6 +10,7 @@ rocky_dungeon = Biome(
     biome_id="rocky_dungeon",
     biome_desc="Desc of rocky dungeon biome (TEST)",
     rarity=99,
+    biome_color=color.b_rocky_dungeon,
     map_width=80,
     map_height=80,
 )
@@ -20,6 +22,7 @@ desert_dungeon = Biome(
     biome_id="desert_dungeon",
     biome_desc="desert_dungeon (TEST)",
     rarity=1,
+    biome_color=color.b_desert_dungeon,
     map_width=80,
     map_height=80,
     tileset=tileset({
@@ -38,6 +41,7 @@ ancient_ruins = Biome(
     biome_id="ancient_ruins",
     biome_desc="ancient_ruins (TEST)",
     rarity=0,
+    biome_color=color.b_ancient_ruin,
     max_rooms=1,
     map_width=80,
     map_height=80,

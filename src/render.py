@@ -1,8 +1,9 @@
 from __future__ import annotations
+import random
+from main import main
 
 from typing import Optional, Tuple, TYPE_CHECKING
 from util import draw_thick_frame
-from numpy.core.numeric import Inf
 from entity import Actor, Item
 
 import tcod
@@ -11,9 +12,32 @@ import color
 if TYPE_CHECKING:
     from game_map import GameMap
     from tcod import Console
+    from tcod.context import Context
     from engine import Engine
     
+def descend_background(console: Console, context: Context, main_color: Tuple, diversity: int = 10) -> None:
+    """
+    Clear entire console and display graphics that are going to be shown during descending(dungeon generating) process.
 
+    Args:
+        diversity:
+            value used for shifting rgb value slightly.
+            Lower number = smoother screen
+    """
+    console.clear(bg=color.black)
+    for y in range(console.height):
+        for x in range(console.width):
+            console.print(
+                x=x,
+                y=y,
+                string=" ",
+                bg=( 
+                    max(0, min(255, main_color[0] + random.randint(-diversity, diversity))),
+                    max(0, min(255, main_color[1] + random.randint(-diversity, diversity))),
+                    max(0, min(255, main_color[2] + random.randint(-diversity, diversity)))
+                )
+            )
+    context.present(console, keep_aspect=True)
 
 def get_names_at_location(x: int, y: int, game_map: GameMap, display_id: bool=False) -> str:
     """

@@ -1,4 +1,6 @@
+from typing import Tuple
 import tile_types
+import color
 
 def tileset(
     adjustments: dict=None,
@@ -42,6 +44,7 @@ class Biome:
         biome_id: str = "<Undefined id>",
         biome_desc: str = "",
         rarity: int = 1,
+        biome_color: Tuple = color.black,
         max_rooms: int = 3000,
         map_width: int = 70, # min 70
         map_height: int = 45, # min 45
@@ -55,6 +58,10 @@ class Biome:
     ):
         """
         Args:
+            biome_color:
+                A color representation of this biome.
+                Can be used in many different visual aspects.
+                NOTE: It is highly recommended to use low contrast, dark tone colors since it is mainly used for background coloring.
             biome_desc:
                 Recommended not to write more than 5 lines.
                 Each lines should contain less than 110 characters. (Including blanks)
@@ -78,6 +85,7 @@ class Biome:
         self.biome_id = biome_id
         self.biome_desc = biome_desc
         self.rarity = rarity
+        self.biome_color = biome_color
         self.max_rooms = max_rooms
         self.map_width = map_width
         self.map_height = map_height

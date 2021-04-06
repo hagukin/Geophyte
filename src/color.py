@@ -20,6 +20,13 @@ grayish_blue = (0x49, 0x69, 0x80)
 soothing_blue = (0x03, 0x5D, 0x96)
 darkish_red = (0x49, 0x13, 0x09)
 
+procgen_bg = black
+procgen_fg = white
+
+b_rocky_dungeon = (94, 73, 30)
+b_desert_dungeon = (77, 66, 8)
+b_ancient_ruin = (57, 87, 83)
+
 logo_c1 = green
 title_gui_frame = brown
 gui_frame_fg = white

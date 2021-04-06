@@ -356,7 +356,7 @@ class Engine:
                 elif effects[n][0] == "levitate_target":
                     target.actor_state.apply_levitation(effects_var[n])
 
-    def generate_new_dungeon(self, depth=1) -> GameMap:
+    def generate_new_dungeon(self, console, context, depth=1) -> GameMap:
         """Generate new dungeon and return as gamemap object"""
         # Set temporary context, console values to prevent cffi error
         temp_console, temp_context = self.console, self.context
@@ -364,6 +364,8 @@ class Engine:
 
         # Generate regular dungeon
         new_dungeon = generate_dungeon(
+            console=console,
+            context=context,
             engine=self,
             depth=depth,
         )
