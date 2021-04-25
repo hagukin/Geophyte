@@ -1,6 +1,6 @@
 from __future__ import annotations
 from tcod.console import Console
-from tcod.context import Context
+from tcod.context import Context, new
 from biome import Biome
 
 import numpy as np
@@ -676,11 +676,8 @@ def generate_dungeon(
     render_start_time = time.time()
 
     if display_process:
-        descend_background(console, context, biome.biome_color)
-        console.print(screen_center_x - 5, screen_center_y, "던전을 내려가는 중", fg=color.procgen_fg)
-        context.present(console=console, keep_aspect=True)
-
-    if display_process:
+        descend_background(console, context, biome.biome_color, diversity=6)
+        console.print(screen_center_x - 5, screen_center_y, "던전을 내려가는 중", fg=color.procgen_fg, bg=color.procgen_bg)
         console.print(screen_center_x - 6, screen_center_y + 2, "토양 생성 중...", fg=color.procgen_fg)
         context.present(console=console, keep_aspect=True)
     print("Generating Earth...")
@@ -692,6 +689,8 @@ def generate_dungeon(
     )
 
     if display_process:
+        descend_background(console, context, biome.biome_color, diversity=5)
+        console.print(screen_center_x - 5, screen_center_y, "던전을 내려가는 중", fg=color.procgen_fg, bg=color.procgen_bg)
         console.print(screen_center_x - 6, screen_center_y + 2, "던전 공간 생성 중...", fg=color.procgen_fg)
         context.present(console=console, keep_aspect=True)
     print("Generating Dungeon Rooms...")
@@ -703,6 +702,8 @@ def generate_dungeon(
     )
 
     if display_process:
+        descend_background(console, context, biome.biome_color, diversity=4)
+        console.print(screen_center_x - 5, screen_center_y, "던전을 내려가는 중", fg=color.procgen_fg, bg=color.procgen_bg)
         console.print(screen_center_x - 6, screen_center_y + 2, "터널 생성 중...", fg=color.procgen_fg)
         context.present(console=console, keep_aspect=True)
     print("Generating Tunnels...")
@@ -712,6 +713,8 @@ def generate_dungeon(
     )
 
     if display_process:
+        descend_background(console, context, biome.biome_color, diversity=3)
+        console.print(screen_center_x - 5, screen_center_y, "던전을 내려가는 중", fg=color.procgen_fg, bg=color.procgen_bg)
         console.print(screen_center_x - 6, screen_center_y + 2, "터널 다듬는 중...", fg=color.procgen_fg)
         context.present(console=console, keep_aspect=True)
     print("Adjusting Tunnels...")
@@ -721,6 +724,8 @@ def generate_dungeon(
         )
 
     if display_process:
+        descend_background(console, context, biome.biome_color, diversity=2)
+        console.print(screen_center_x - 5, screen_center_y, "던전을 내려가는 중", fg=color.procgen_fg, bg=color.procgen_bg)
         console.print(screen_center_x - 6, screen_center_y + 2, "지형 생성 중...", fg=color.procgen_fg)
         context.present(console=console, keep_aspect=True)
     print("Generating Terrains...")
@@ -732,6 +737,8 @@ def generate_dungeon(
     )
 
     if display_process:
+        descend_background(console, context, biome.biome_color, diversity=1)
+        console.print(screen_center_x - 5, screen_center_y, "던전을 내려가는 중", fg=color.procgen_fg, bg=color.procgen_bg)
         console.print(screen_center_x - 6, screen_center_y + 2, "계단 생성 중...", fg=color.procgen_fg)
         context.present(console=console, keep_aspect=True)
     print("Generating Staircases...")
@@ -742,6 +749,8 @@ def generate_dungeon(
     )
 
     if display_process:
+        descend_background(console, context, biome.biome_color, diversity=0)
+        console.print(screen_center_x - 5, screen_center_y, "던전을 내려가는 중", fg=color.procgen_fg, bg=color.procgen_bg)
         console.print(screen_center_x - 6, screen_center_y + 2, "엔티티 생성 중...", fg=color.procgen_fg)
         context.present(console=console, keep_aspect=True)
     print("Spawning Entities...")

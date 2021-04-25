@@ -17,6 +17,7 @@ class Room:
         self.height = height
         self.parent = parent
         self.tilemap = parent.tilemap
+        self.protectmap = parent.protectmap
         self.terrain = terrain
         self.doors = [] # door locations (not convex)
         
@@ -76,7 +77,9 @@ class Room:
         """Return True if this room overlaps with another room of any type."""
         for tile_slice in self.outer:
             # Check for tiles that should not collide with other rooms
-            if TilemapOrder.ROOM_INNER.value in self.tilemap[tile_slice] or TilemapOrder.TUNNEL.value in self.tilemap[tile_slice]:
+            if TilemapOrder.ROOM_INNER.value in self.tilemap[tile_slice]\
+                or TilemapOrder.TUNNEL.value in self.tilemap[tile_slice]\
+                or 1 in self.protectmap[tile_slice]:
                 return True
         return False
 
