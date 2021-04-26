@@ -400,8 +400,7 @@ def generate_rooms(
         # Finally, append the new room to the list.
         rooms.append(new_room)
 
-        ##DEBUG
-        debug(dungeon, save_as_txt=True)
+        #debug(dungeon, save_as_txt=True)
 
     # NOTE: You can save the room data on GameMap by adding something here like "dungeon.rooms = rooms"
     return dungeon, rooms
@@ -797,7 +796,7 @@ def generate_dungeon(
         max_items_per_room=biome.max_items_per_room,
     )
 
-    # debug(dungeon=dungeon)
+    # debug(dungeon=dungeon, save_as_txt=True)
 
     if display_process:
         time.sleep(max(0, min_display_time - (time.time() - render_start_time)))

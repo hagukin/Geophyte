@@ -48,7 +48,7 @@ class ItemManager:
             ("은색",(192,192,192), None),
             ("회색",(128,128,128), None),
             ("검정색",(10,10,10), None),
-        ] # NOTE: Currently 24 colors available
+        ] # NOTE: Currently 24 colors available TODO: Multi lang support
         self.colors_for_scrolls = copy.copy(self.colors_for_potions)
 
         # shuffle color
@@ -100,14 +100,20 @@ class ItemManager:
             print(f"ERROR::Cannot randomize {item.name} of {item.item_type} type.")
             return None
 
-    def gen_randomized_string(self, string_length: int = 6) -> str:
+    def gen_randomized_string(self, string_length: int = 6, vowel_chance: float = 0.5, completely_random: bool = False) -> str:
         vowels = "aeiou"
         non_vowels = "bcdfghjklmnpqrstvwxyz"
         alphabet = "abcdefghijklmnopqrstuvwxyz"
         
         word = ""
         for _ in range(string_length):
-            word += alphabet[random.randint(0,25)]
+            if completely_random:
+                word += alphabet[random.randint(0,len(alphabet) - 1)]
+            else:
+                if random.random() < vowel_chance:
+                    word += vowels[random.randint(0,len(vowels) - 1)]
+                else:
+                    word += non_vowels[random.randint(0,len(non_vowels) - 1)]
         return word
 
     def gen_randomized_color(self, item_type):
