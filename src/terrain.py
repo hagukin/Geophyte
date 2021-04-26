@@ -23,8 +23,9 @@ class Terrain:
         spawn_item: bool = True,
         spawn_monster: bool = True,
         has_wall: bool = True, #TODO: need to add feature
-        wall_protected: bool = False,
+        protected: bool = False,
         has_door: bool = True,
+        can_have_stair: bool = True,
         door_num_range = (1,2,3,4),
         door_num_weight = (3,7,2,1),
         gen_grass = None,
@@ -111,8 +112,9 @@ class Terrain:
         self.spawn_monster = spawn_monster
 
         self.has_wall = has_wall
-        self.wall_protected = wall_protected
+        self.protected = protected
         self.has_door = has_door
+        self.can_have_stair = can_have_stair
         self.door_num_range = door_num_range
         self.door_num_weight = door_num_weight
 

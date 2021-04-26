@@ -15,7 +15,10 @@ def grow_shop_item(gamemap: GameMap, x: int, y: int, item_dict: dict) -> None:
 
 def generate_shop_item(gamemap: GameMap, room: Room) -> None:
     if len(room.doors) != 1:
-        raise Exception() # Shop has no door or more than two doors
+        print(f"WARNING::There should be 1 door, instead the room {room.terrain.terrain_id} has {len(room.doors)} door(s).\
+            \nIf there is 0 door attached to this room, the game might have canceled the door spawning if it collided with protected area of the gamemap.\
+            \nIf there are more than 1 doors attached to this room, something might have gone wrong.")
+        return None
     door_dir = room.get_door_dir(room.doors[0][0], room.doors[0][1])
 
     # keep one line as blank tile. (Nethack style shop)

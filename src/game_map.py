@@ -6,7 +6,7 @@ import random
 from numpy.lib.arraysetops import isin
 import tile_types
 
-from typing import Iterable, Iterator, Optional, TYPE_CHECKING
+from typing import Iterable, Iterator, Optional, Tuple, List, TYPE_CHECKING
 from entity import Actor, Item, SemiActor
 from order import TilemapOrder
 

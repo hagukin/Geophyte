@@ -197,7 +197,8 @@ def make_shallow_water(
                         else:
                             continue # density-1/density chance of not generating
                     else:
-                        if tilemap[loc[0] + direction[0]][loc[1] + direction[1]] == TilemapOrder.ROOM_INNER.value:#TODO terrain collided
+                        if tilemap[loc[0] + direction[0]][loc[1] + direction[1]] == TilemapOrder.ROOM_INNER.value\
+                            and not gamemap.protectmap[loc[0] + direction[0]][loc[1] + direction[1]]:#TODO terrain collided
                             if random.random() < density:
                                 tilemap[loc[0] + direction[0]][loc[1] + direction[1]] = TilemapOrder.WATER.value
                             else:
@@ -216,7 +217,8 @@ def make_shallow_water(
                         else:
                             continue # density-1/density chance of not generating
                     else:
-                        if tilemap[loc[0] + direction[0]][loc[1] + direction[1]] == TilemapOrder.ROOM_INNER.value or tilemap[loc[0] + direction[0]][loc[1] + direction[1]] == TilemapOrder.WATER.value:#TODO terrain collided
+                        if (tilemap[loc[0] + direction[0]][loc[1] + direction[1]] == TilemapOrder.ROOM_INNER.value or tilemap[loc[0] + direction[0]][loc[1] + direction[1]] == TilemapOrder.WATER.value)\
+                            and not gamemap.protectmap[loc[0] + direction[0]][loc[1] + direction[1]]:#TODO terrain collided
                             if random.random() < density:
                                 tilemap[loc[0] + direction[0]][loc[1] + direction[1]] = TilemapOrder.WATER_CORE.value
                             else:
@@ -234,6 +236,7 @@ def make_shallow_water(
 
     for loc in water_locations:
         gamemap.tiles[loc[0], loc[1]] = gamemap.tileset["t_shallow_water"]()
+        #gamemap.tiles[loc[0], loc[1]] = gamemap.tileset["t_DEBUG"]()
 
 
 def make_deep_water(

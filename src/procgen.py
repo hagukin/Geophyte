@@ -286,21 +286,35 @@ def door_generation(
         door_slices = room.door_right()
 
     for door_slice in door_slices:
+        # Get door location
+        door_loc = door_slice[0].start + dx, door_slice[1].start + dy
+        room.doors.append(door_loc)
+
+        # Check if door convex collides with protected areas.
+        if 1 in dungeon.protectmap[door_slice]:
+            continue # NOTE: Warning - Because of this line of code, the actual number of door being spawned can be smaller than the user-defined amount.
+        
+        if dungeon.protectmap[door_loc] == 1 and room.room_protectmap[door_loc] != 1:
+            print("DEBUG")
+            continue
+
         # generate door convex
         dungeon.tilemap[door_slice] = TilemapOrder.DOOR_CONVEX.value
         dungeon.tunnelmap[door_slice] = True
-        if room.terrain.wall_protected:
+        if room.terrain.protected:
             dungeon.protectmap[door_slice] = True
+            room.room_protectmap[door_slice] = True
         dungeon.tiles[door_slice] = dungeon.tileset["t_floor"]()
+        dungeon.tiles[door_slice] = dungeon.tileset["t_DEBUG"]()##DEBUG
+
         # generate door
-        door_loc = door_slice[0].start + dx, door_slice[1].start + dy
-        room.doors.append(door_loc)
         dungeon.tilemap[door_loc] = TilemapOrder.DOOR.value
         dungeon.tunnelmap[door_loc] = True
-        if room.terrain.wall_protected:
+        if room.terrain.protected:
             dungeon.protectmap[door_loc] = True
+            room.room_protectmap[door_loc] = True
         dungeon.tiles[door_loc] = dungeon.tileset["t_floor"]()
-        dungeon.tiles[door_slice] = dungeon.tileset["t_floor"]()
+
         # spawn door unless there is nothing on the location
         if not dungeon.get_any_entity_at_location(door_loc[0], door_loc[1]):
             semiactor_factories.closed_door.spawn(gamemap=dungeon, x=door_loc[0], y=door_loc[1], lifetime=-1)
@@ -357,16 +371,18 @@ def generate_rooms(
         for outer_slice in new_room.outer:
             dungeon.tilemap[outer_slice] = TilemapOrder.ROOM_WALL.value
             dungeon.tunnelmap[outer_slice] = False
-            if new_room.terrain.wall_protected:
+            if new_room.terrain.protected:
                 dungeon.protectmap[outer_slice] = True
+                new_room.room_protectmap[outer_slice] = True
 
         # Dig out this rooms inner area.
         for inner_slice in new_room.inner:
             dungeon.tiles[inner_slice] = dungeon.tileset["t_floor"]()
             dungeon.tilemap[inner_slice] = TilemapOrder.ROOM_INNER.value
             dungeon.tunnelmap[inner_slice] = True
-            if new_room.terrain.wall_protected:
+            if new_room.terrain.protected:
                 dungeon.protectmap[inner_slice] = True
+                new_room.room_protectmap[inner_slice] = True
 
         # choose the direction of the door
         doordir = []
@@ -383,6 +399,9 @@ def generate_rooms(
 
         # Finally, append the new room to the list.
         rooms.append(new_room)
+
+        ##DEBUG
+        debug(dungeon, save_as_txt=True)
 
     # NOTE: You can save the room data on GameMap by adding something here like "dungeon.rooms = rooms"
     return dungeon, rooms
@@ -467,6 +486,7 @@ def generate_tunnels(
         for x, y in path_between(dungeon.tunnelmap, (start_x, start_y), (end_x, end_y)):
             if dungeon.tilemap[x, y] == TilemapOrder.VOID.value:
                 dungeon.tiles[x, y] = dungeon.tileset["t_floor"]()
+                #dungeon.tiles[x, y] = dungeon.tileset["t_DEBUG"]()
                 dungeon.tilemap[x, y] = TilemapOrder.TUNNEL.value
                 dungeon.tunnelmap[x, y] = True
             else:
@@ -480,9 +500,14 @@ def stair_generation(
     rooms: List[Room],
     direction: int, #0 - up, 1 - down
     ):
+    """
+    Choose a random room, check if the room is suitable, choose a random tile, check if the tile is suitable, then return the tile.
+    """
     if direction == 0:
         while True:
             ascend_room = random.choice(rooms)
+            if not ascend_room.terrain.can_have_stair:
+                continue
             ascend_tile = random.choice(ascend_room.inner_tiles)
             if dungeon.get_any_entity_at_location(ascend_tile[0], ascend_tile[1]) or not dungeon.tiles[ascend_tile]["walkable"] or not dungeon.tiles[ascend_tile]["safe_to_walk"]:
                 continue
@@ -491,6 +516,8 @@ def stair_generation(
     elif direction == 1:
         while True:
             descend_room = random.choice(rooms)
+            if not descend_room.terrain.can_have_stair:
+                continue
             descend_tile = random.choice(descend_room.inner_tiles)
             if dungeon.get_any_entity_at_location(descend_tile[0], descend_tile[1]) or not dungeon.tiles[descend_tile]["walkable"] or not dungeon.tiles[descend_tile]["safe_to_walk"]:
                 continue
@@ -598,10 +625,16 @@ def generate_entities(
             spawn_items(room, dungeon, max_items_per_room)
 
 
-def debug(dungeon):
+def debug(dungeon, save_as_txt: bool = False):
     """
     prints out tilemap
     """
+    if save_as_txt:
+        import sys
+        sys.stdout = open('./procgen_debug.txt', 'a')
+    
+    print("\n")
+    
     for i in dungeon.tilemap:
         for k in i:
             if k == TilemapOrder.VOID.value:
@@ -627,10 +660,12 @@ def debug(dungeon):
     for i in dungeon.protectmap:
         for k in i:
             if k:
-                print("1", end=" ")
+                print("P", end=" ")
             else:
-                print("0", end=" ")
+                print(".", end=" ")
         print(end='\n')
+    
+    sys.stdout = sys.__stdout__ #stdout back to normal
 
 
 def get_dungeon_biome(depth: int):
