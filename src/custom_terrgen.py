@@ -4,10 +4,11 @@ from typing import TYPE_CHECKING
 from unique_terrains.shop import ShopTerrain
 from room_factories import Room
 from game_map import GameMap
+from entity import Actor
 import random
 
 if TYPE_CHECKING:
-    from entity import Item, Actor
+    pass
 
 
 def grow_shop_item(gamemap: GameMap, x: int, y: int, room: Room) -> None:
@@ -59,6 +60,14 @@ def spawn_shopkeeper(gamemap: GameMap, room: Room) -> None:
     """
     tmp = room.terrain.shopkeeper_type.spawn(gamemap, room.terrain.shopkeeper_loc[0], room.terrain.shopkeeper_loc[1])
     tmp.ai.room = room
+    return tmp
+
+def adjust_items(shopkeeper: Actor, room: Room) -> None:
+    """
+    Set shop items' item_state.is_being_sold_from to shopkeeper.
+    """
+    for item in room.terrain.items_on_stock:
+        item.item_state.is_being_sold_from = id(shopkeeper) #NOTE: Since this value is copied during deep copying an item entity, you should use integer instead of directly referencing the actor.
 
 def generate_shop(gamemap: GameMap, room: Room) -> None:
     """
@@ -66,7 +75,8 @@ def generate_shop(gamemap: GameMap, room: Room) -> None:
     """
     try:
         generate_shop_item(gamemap, room)
-        spawn_shopkeeper(gamemap, room)
+        shopkeeper = spawn_shopkeeper(gamemap, room)
+        adjust_items(shopkeeper, room)
     except AttributeError:
         print("ERROR::Tried to generate a shop onto a non-shop-terrain room. - custom_terrgen.generate_shop()")
 

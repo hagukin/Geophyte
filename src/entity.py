@@ -690,6 +690,7 @@ class Item(Entity):
         info["corrosion"] = self.item_state.corrosion
         info["BUC"] = self.item_state.BUC
         info["is_identified"] = self.item_state.is_identified
+        info["is_being_sold_from"] = self.item_state.is_being_sold_from
 
         # Copy the entire component if possible
         # NOTE: If something goes wrong, try copying the values manually like above.
@@ -724,6 +725,9 @@ class Item(Entity):
         self.item_state.is_burning = info["is_burning"]
         self.item_state.burntness = info["burntness"]
         self.item_state.corrosion = info["corrosion"]
+        self.item_state.BUC = info["BUC"]
+        self.item_state.is_identified = info["is_identified"]
+        self.item_state.is_being_sold_from = info["is_being_sold_from"]
 
         # components
         #NOTE: the parent variable must be changed.

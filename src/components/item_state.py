@@ -20,6 +20,7 @@ class ItemState(BaseComponent):
         BUC: int = 0,
         is_identified: int = 0,
         is_equipped: str = None,
+        is_being_sold_from: int = None,
     ):
         """
         Args:
@@ -43,6 +44,9 @@ class ItemState(BaseComponent):
                 2 - full-identified (You know the id(type) AND the BUC.)
             is_equipped:
                 string value that indicates the equip region this item if currently equipped on. (if there is one)
+            is_being_sold_from:
+                Integer. a memory location of a actor that is selling this item. This doesn't necesserily means the owner. (Warning: The value is a integer, not a reference.)
+                NOTE: use python id() to get id.
         """
         # parent: Item 
         self.parent = None
@@ -51,12 +55,13 @@ class ItemState(BaseComponent):
         self.was_burning = was_burning
         self.is_equipped = is_equipped
 
-        # values that are stored in item_state dictionaty
+        # values that are stored in item_state dictionaty (entity.Item.set_info())
         self.is_burning = is_burning
         self.burntness = burntness
         self.corrosion = corrosion
         self.BUC = BUC
         self.is_identified = is_identified
+        self.is_being_sold_from = is_being_sold_from
 
     def identify_self(self, identify_level: int=1):
         """
@@ -118,7 +123,8 @@ class ItemState(BaseComponent):
             if(
                 self.parent.item_state.burntness != comparing_item.item_state.burntness or
                 self.parent.item_state.is_burning != comparing_item.item_state.is_burning or
-                self.parent.item_state.corrosion != comparing_item.item_state.corrosion
+                self.parent.item_state.corrosion != comparing_item.item_state.corrosion or
+                self.parent.item_state.is_being_sold_from != comparing_item.item_state.is_being_sold_from
             ):
                 return False
             

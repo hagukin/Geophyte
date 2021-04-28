@@ -395,7 +395,8 @@ class Status(BaseComponent):
         return dmg
 
     def take_damage(self, amount, attacked_from:Actor=None) -> None:
-        """Reduce the health point by the exact given amount"""
+        """Reduce the health point by the exact given amount.
+        This function can be used for triggering certain actors."""
         # set attacker (trigger ai)
         if attacked_from:
             if self.parent.ai and attacked_from != self.parent: #Cannot target self

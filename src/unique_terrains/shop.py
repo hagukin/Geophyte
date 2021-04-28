@@ -79,6 +79,7 @@ class ShopTerrain(Terrain):
         """
         self.shopkeeper_loc = None # initialized during custom_terrgen.generate_shop_item()
         self.shopkeeper_type = shopkeeper_type
+        self.shopkeeper = None
         self.sell_items = sell_items
         self.items_on_stock = items_on_stock
 
