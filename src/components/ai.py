@@ -39,8 +39,15 @@ class BaseAI(BaseComponent):
             attracted_own_id: set=set(),
             attracted_own_with: set=set(),
 
+            tameable: int = 1,
             owner: Actor = None,
         ):
+        """
+        Vars:
+            tameable:
+                Integer. 0 means the ai is always tameable, and the higher the number is, the harder it becomes to tame it.
+                Negative values means that the ai cannot be tamed.
+        """
         super().__init__()
 
         self.parent = None
@@ -87,7 +94,8 @@ class BaseAI(BaseComponent):
         self.attracted_own_with = attracted_own_with
 
         # Owner
-        self.owner: Actor = owner
+        self.tameable = tameable
+        self.owner = owner
     
     def init_vision(self) -> None:
         """Initialize this ai's vision"""
@@ -120,6 +128,28 @@ class BaseAI(BaseComponent):
             self.parent.actor_state.hunger = self.parent.actor_state.size * 25 * 12 # Set to "normal" hunger state.
             # From now on, this actor can starve to death.
 
+    def try_tame(self, tamer: Actor, tame_power: int) -> bool:
+        """
+        Returns:
+            boolean. returns True if tamer successfully tamed this ai. return False if failed.
+        """
+        if self.tameable > 0 and self.tameable >= tame_power:
+            self.set_owner(tamer)
+            return True
+        else:
+            return False
+
+    def disable_targeting_ally(self) -> None:
+        """
+        Prevent ai to attack its owner or its ally.
+        """
+        if self.target and self.owner:
+            if self.target == self.owner:
+                self.target = None
+            elif self.target.ai:
+                if self.target.ai.owner == self.owner:
+                    self.target = None
+
     def perform(self) -> None:
         """
         Check if this actor is in player's sight.
@@ -137,12 +167,7 @@ class BaseAI(BaseComponent):
             return WaitAction(self.parent).perform()
         
         # target check
-        if self.target and self.owner:
-            if self.target == self.owner:
-                self.target = None
-            elif self.target.ai:
-                if self.target.ai.owner == self.owner:
-                    self.target = None
+        self.disable_targeting_ally()
 
         # return 
         if self.alignment == "hostile" or self.alignment == "neutral" or self.alignment == "allied" or self.owner:

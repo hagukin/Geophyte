@@ -142,7 +142,7 @@ shopkeeper = Actor(
     spawnable=False,
     growthable=False,
     edible=edible.RawMeatEdible(nutrition=300),
-    ai_cls=None,#TODO
+    ai_cls=ai_factories.shopkeeper_ai,#TODO
     status=Status(
         hp=350,#100
         mp=125,
@@ -159,34 +159,23 @@ shopkeeper = Actor(
         eyesight=20,
         ),
     actor_state=ActorState(
-        hunger=1200,
         heal_wounds=True,
         size=4,
         weight=70,
-        has_telepathy=True,
     ),
-    inventory=Inventory(capacity=52, is_fireproof=False),
+    inventory=Inventory(capacity=52, is_fireproof=True),
     ability_inventory=AbilityInventory(capacity=10),
     equipments=Equipments(),
     initial_items=[
-        (item_factories.scroll_of_enchantment, 1, (1,5)), 
-        (item_factories.scroll_of_identify, 1, (1,4)), 
-        (item_factories.scroll_of_magic_mapping, 1, (88,99)), 
-        (item_factories.scroll_of_tame, 1, (1,4)),
-        (item_factories.scroll_of_piercing_flame, 1, (1,4)),
         (item_factories.potion_of_healing, 1, (1,4)),
-        (item_factories.potion_of_paralysis, 1, (1,4)),
-        (item_factories.potion_of_monster_detection, 1, (3,4)),
-        (item_factories.toxic_goo, 1, (1,5)), 
         ],
     initial_equipments=[
         (item_factories.leather_armor, 1),
         (item_factories.shortsword, 1,),
-        (item_factories.amulet_of_kugah, 1),
         ],
-    initial_abilities=[(ability_factories.lightning_bolt, 1), (ability_factories.steal, 1)],
+    initial_abilities=[(ability_factories.lightning_bolt, 1),],
 )
-#TODO
+
 
 ####################################################
 ###################### a - ants  ###################
@@ -203,7 +192,7 @@ ant = Actor(
         그렇지만 개중에는 어두운 기운의 영향을 덜 받은 개체들도 있기 마련이다.\n\
         비교적 던전의 기운을 덜 받은 이 개미들은 기껏해야 사람 손가락 남짓한 크기로, 대체로 별 위협이 되지 않는다.\n\
         \n\
-        \"생각해보라고, 좁아터진 개미굴에 비하면 놈들은 거대한 저택에 사는 거나 마찬가지라니까?\"\
+        \"생각해보라고, 놈들은 음식이 넘쳐나는 거대한 저택에 사는 거나 마찬가지라니까?\"\
         ",
     rarity=10,
     spawnable=True,

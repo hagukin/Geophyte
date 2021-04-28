@@ -1,8 +1,9 @@
 from game_map import GameMap
 from terrain import Terrain
-from typing import Tuple
+from typing import Tuple, List
 from game_map import GameMap
 from order import TilemapOrder
+from entity import Actor
 import numpy as np
 
 class Room:
@@ -122,3 +123,24 @@ class Room:
     def door_down(self) -> Tuple[slice, slice]:
         """Randomly generate door convex location next to the lower wall, and return the location as a 2D array index."""
         raise NotImplementedError()
+
+    def get_actors_in_room(self) -> List[Actor]:
+        """
+        Returns a list of actors that are currently in the room.
+        Standing on the door is considered outside of the room.
+
+        TODO FIXME Function not tested yet
+        """
+        actors_in_room = []
+        for inner_slice in self.inner:
+            x1 = inner_slice[0].start
+            x2 = inner_slice[0].stop
+            y1 = inner_slice[1].start
+            y2 = inner_slice[1].stop
+            for actor in self.parent.actors:
+                if x1 <= actor.x < x2 and y1 <= actor.y < y2:
+                    actors_in_room.append(actor)
+        
+        return actors_in_room
+
+

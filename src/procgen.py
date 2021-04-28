@@ -59,7 +59,7 @@ def choose_terrain(
             k=1
             )[0]
 
-    return terrain_factories.terrain_dict[terrain_id]
+    return copy.deepcopy(terrain_factories.terrain_dict[terrain_id])
 
 
 def choose_monster_difficulty(depth: int, toughness: int=0) -> int:
@@ -294,8 +294,9 @@ def door_generation(
         if 1 in dungeon.protectmap[door_slice]:
             continue # NOTE: Warning - Because of this line of code, the actual number of door being spawned can be smaller than the user-defined amount.
         
+        # Check if door collides with protected areas.
         if dungeon.protectmap[door_loc] == 1 and room.room_protectmap[door_loc] != 1:
-            print("DEBUG")
+            print("SOMETHING WENT WRONG::DOOR COLLIDED WITH PROTECTED AREA(PROCGEN.PY)")
             continue
 
         # generate door convex
@@ -305,7 +306,7 @@ def door_generation(
             dungeon.protectmap[door_slice] = True
             room.room_protectmap[door_slice] = True
         dungeon.tiles[door_slice] = dungeon.tileset["t_floor"]()
-        dungeon.tiles[door_slice] = dungeon.tileset["t_DEBUG"]()##DEBUG
+        #dungeon.tiles[door_slice] = dungeon.tileset["t_DEBUG"]()
 
         # generate door
         dungeon.tilemap[door_loc] = TilemapOrder.DOOR.value

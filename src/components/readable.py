@@ -118,18 +118,23 @@ class ScrollOfTameReadable(SelectTileReadable):
             # Apply
             target.status.gain_constitution(1)
         else:
-            # Log
-            if consumer == self.engine.player:
-                self.engine.message_log.add_message(f"{g(target.name, '을')} 길들였다!", color.status_effect_applied, target=target)
-                if target.actor_state.can_talk:
-                    self.engine.message_log.add_message(f"{g(target.name, '이')} 당신에게 충성을 표했다.", color.status_effect_applied, target=target)
-                else:
-                    self.engine.message_log.add_message(f"{g(target.name, '이')} 당신에 대한 신뢰를 보였다.", color.status_effect_applied, target=target)
-            else:
-                self.engine.message_log.add_message(f"{g(target.name, '은')} 이제 {g(consumer.name, '을')} 주인으로 섬긴다!", color.white, target=target)
+            # Try taming
+            if target.ai.try_tame(consumer, 3): #TODO FIXME: Adjust tame power
 
-            # Apply
-            target.ai.set_owner(consumer)
+                # Log
+                if consumer == self.engine.player:
+                    self.engine.message_log.add_message(f"{g(target.name, '을')} 길들였다!", color.status_effect_applied, target=target)
+                    if target.actor_state.can_talk:
+                        self.engine.message_log.add_message(f"{g(target.name, '이')} 당신에게 충성을 표했다.", color.status_effect_applied, target=target)
+                    else:
+                        self.engine.message_log.add_message(f"{g(target.name, '이')} 당신에 대한 신뢰를 보였다.", color.status_effect_applied, target=target)
+                else:
+                    self.engine.message_log.add_message(f"{g(target.name, '은')} 이제 {g(consumer.name, '을')} 주인으로 섬긴다!", color.white, target=target)
+            else:
+                if consumer == self.engine.player:
+                    self.engine.message_log.add_message(f"{g(target.name, '은')} 당신의 정신적 지배에 저항했다!", color.player_damaged, target=target)
+                else:
+                    self.engine.message_log.add_message(f"{g(target.name, '은')} {consumer.name}의 명령을 거부했다!", color.white, target=target)
 
 
 class SelectItemFromInventoryReadable(Readable):

@@ -1,9 +1,10 @@
 from terrain import Terrain
 from typing import TYPE_CHECKING
+from entity import Actor
+from actor_factories import shopkeeper
 
 if TYPE_CHECKING:
     from room_factories import Room
-
 
 class ShopTerrain(Terrain):
     """
@@ -36,7 +37,9 @@ class ShopTerrain(Terrain):
         gen_traps = None,
         gen_chests = None,
         custom_gen = None, # Must have one
-        sell_items = {},
+        sell_items = dict(),
+        items_on_stock = list(),
+        shopkeeper_type: Actor = shopkeeper,
     ):
         super().__init__(
             name,
@@ -63,12 +66,20 @@ class ShopTerrain(Terrain):
             custom_gen,
         )
         """
-        Args:
+        Vars:
+            shopkeeper_loc:
+                Tuple(int, int).
+                Location where shopkeeper idles when there are no money to collect. (no customers / customer hasn't purchased anything yet)
             sell_items:
                 {
                     item object : chance of spawning(weight)
                 }
+            items_on_stock:
+                List of item objects that currently belongs to the shop.
         """
+        self.shopkeeper_loc = None # initialized during custom_terrgen.generate_shop_item()
+        self.shopkeeper_type = shopkeeper_type
         self.sell_items = sell_items
+        self.items_on_stock = items_on_stock
 
 
