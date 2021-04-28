@@ -1674,3 +1674,8 @@
             원인은 상점과 관련된 정보들이 ShopTerrain에 저장되어있는데, terrain들이 deepcopy가 아니라 원본틀로부터 레퍼런스로 참조하는 방식으로 room에 부착되어서 방들이 서로 정보를 공유하는 것 때문이었음. 
             즉 상점 terrain 내에 저장되고 또 게임 진행도중 변할 수 있는 정보 (ex. items_on_stock)들이 제대로 작동하지 않음.
             따라서 procgen의 choose_terrain에서 terrain오브젝트를 선택해 반환할 때 copy.deepcopy()를 추가해 deepcopy함.
+
+          TODO: 상인이 길 못찾고 헤메는 현상 발견, 원인 불명
+          상점에서 포션과 같이 stack가능한 아이템을 줍고 다시 떨궜을때 인식못하는 문제 존재.
+          상점 내 결제 기능 추가
+          피해를 줄 수 있는 아이템을 throw했음에도 trigger되지 않는 문제 (potion of paralysis) -> 추가완료

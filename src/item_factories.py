@@ -58,7 +58,7 @@ potion_of_paralysis = Item(
     corrodible=0,
     droppable=True,
     stackable=True,
-    throwable=throwable.PotionOfParalysisThrowable(break_chance=1, penetration=True),
+    throwable=throwable.PotionOfParalysisThrowable(break_chance=1, trigger_if_thrown_at=True),
     readable=None,
     quaffable=quaffable.PotionOfParalysisQuaffable(turn=10),
 )
@@ -508,7 +508,7 @@ toxic_goo = Item(
     corrodible=0,
     droppable=True,
     stackable=True,
-    throwable=throwable.ToxicGooThrowable(base_throw=1, additional_throw=1, break_chance=1, air_friction=1),
+    throwable=throwable.ToxicGooThrowable(base_throw=1, additional_throw=1, break_chance=1, air_friction=1, trigger_if_thrown_at=True),
     edible=edible.BlackJellyEdible()
 )
 temp_items_lists.append(toxic_goo)

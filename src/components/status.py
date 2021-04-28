@@ -398,7 +398,7 @@ class Status(BaseComponent):
         """Reduce the health point by the exact given amount"""
         # set attacker (trigger ai)
         if attacked_from:
-            if self.parent.ai:
+            if self.parent.ai and attacked_from != self.parent: #Cannot target self
                 self.parent.ai.attacked_from = attacked_from
         
         self.hp -= amount

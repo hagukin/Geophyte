@@ -4,7 +4,7 @@ from typing import Optional, List
 from animation import Animation
 from components.base_component import BaseComponent
 from entity import Actor, SemiActor
-from input_handlers import RayRangedInputHandler
+from input_handlers import ForceAttackInputHandler, RayRangedInputHandler
 from korean import grammar as g
 
 import semiactor_factories
@@ -15,7 +15,7 @@ import random
 
 class Throwable(BaseComponent):
 
-    def __init__(self, base_throw: int=0, additional_throw: int=0, penetration: bool=False, break_chance: float=0, air_friction: int=1, sec_per_frame:float=0.025):
+    def __init__(self, base_throw: int=0, additional_throw: int=0, penetration: bool=False, break_chance: float=0, air_friction: int=1, sec_per_frame:float=0.025, trigger_if_thrown_at: bool = False):
         self.parent = None # parent is intialized later
         self.penetration = penetration
         self.break_chance = break_chance # 0~1
@@ -24,6 +24,7 @@ class Throwable(BaseComponent):
         self.additional_throw = additional_throw
         self.sec_per_frame = sec_per_frame
         self.shattered = False # if True, item can be destroyed after being thrown (depending on the break_chance)
+        self.trigger_if_thrown_at = trigger_if_thrown_at
 
     def is_miss(self, thrower: Actor, target: Actor) -> bool:
         """return boolean indicating whether the attack is missed or not"""
@@ -110,13 +111,19 @@ class Throwable(BaseComponent):
 
 class NormalThrowable(Throwable):
 
-    def effect_when_collided_with_actor(self, target: Actor) -> None:
+    def effect_when_collided_with_actor(self, target: Actor, thrower: Actor, trigger: bool=False) -> None:
         """
         Can have additional effects when the throw was successful
         
         Target is always actor type since activate() will filter out other types of entities
+        
+        Args:
+            trigger:
+                if True, target/collided actor will consider the throw as an attack.
         """
-        pass
+        if trigger:
+            # Trigger target regardless of damage / lethality
+            target.status.take_damage(amount=0, attacked_from=thrower)
 
     def collided_with_thrower(self, thrower, target):
         # set dmg (NOTE: Self-firing is undodgeable)
@@ -166,7 +173,7 @@ class NormalThrowable(Throwable):
 
             # apply special effects (if the target survived the initial damage)
             if not collided.actor_state.is_dead:
-                self.effect_when_collided_with_actor(target=collided)
+                self.effect_when_collided_with_actor(target=collided, thrower=thrower, trigger=self.trigger_if_thrown_at)
 
             # check destruction
             self.break_calculation()
@@ -306,8 +313,11 @@ class NormalThrowable(Throwable):
 ###########################################################################################################################
 
 class PotionOfParalysisThrowable(NormalThrowable):
+    def __init__(self, base_throw: int=4, additional_throw: int=1, penetration: bool=False, break_chance: float=1, air_friction: int=1, sec_per_frame:float=0.025, trigger_if_thrown_at: bool = True):
+        super().__init__(base_throw, additional_throw, penetration, break_chance, air_friction, sec_per_frame, trigger_if_thrown_at)
     
-    def effect_when_collided_with_actor(self, target: Actor):
+    def effect_when_collided_with_actor(self, target: Actor, thrower: Actor, trigger: bool) -> None:
+        super().effect_when_collided_with_actor(target, thrower, trigger)
         if target.actor_state.is_paralyzing == [0,0]: # When the target wasn't paralyzed before
 
             # Log
@@ -330,8 +340,11 @@ class PotionOfParalysisThrowable(NormalThrowable):
             
 
 class ToxicGooThrowable(NormalThrowable):
+    def __init__(self, base_throw: int=4, additional_throw: int=1, penetration: bool=False, break_chance: float=1, air_friction: int=1, sec_per_frame:float=0.025, trigger_if_thrown_at: bool = True):
+        super().__init__(base_throw, additional_throw, penetration, break_chance, air_friction, sec_per_frame, trigger_if_thrown_at)
     
-    def effect_when_collided_with_actor(self, target: Actor):
+    def effect_when_collided_with_actor(self, target: Actor, thrower: Actor, trigger: bool) -> None:
+        super().effect_when_collided_with_actor(target, thrower, trigger)
         if target.actor_state.is_poisoned == [0,0,0,0]:
             # Log
             self.engine.message_log.add_message(f"{g(target.name, '은')} 독성 점액에 뒤덮였다.", color.white, target=target)
