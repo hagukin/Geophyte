@@ -1,4 +1,5 @@
 from __future__ import annotations
+from numpy import isin
 
 from numpy.lib.npyio import save
 from entity import SemiActor
@@ -7,10 +8,12 @@ from typing import Callable, Optional, Tuple, TYPE_CHECKING
 from order import InventoryOrder
 from actions import (
     Action,
-    BumpAction, 
+    BumpAction,
+    CashExchangeAction, 
     DoorBreakAction, 
     DoorOpenAction, 
     MeleeAction,
+    MovementAction,
     PickupAction,
     WaitAction,
     DoorCloseAction,
@@ -24,6 +27,7 @@ from actions import (
     DoorUnlockAction,
 )
 from loader.data_loader import save_game, quit_game
+from entity import Actor, Item, Entity
 from korean import grammar as g
 
 import tcod
@@ -33,7 +37,6 @@ import exceptions
 
 if TYPE_CHECKING:
     from engine import Engine
-    from entity import Actor, Item
     from ability import Ability
 
 
@@ -486,6 +489,10 @@ class StorageSelectEventHandler(AskUserEventHandler):
         """
         item_text = f"({item_key}) "
 
+        # if item is a cash, display amount in front of the name
+        if item.counter_at_front:
+            item_text += f"{item.stack_count} "
+
         if item.item_state.check_if_full_identified(): # Display BUC only if fully identified
             if item.item_state.BUC == 0:
                 item_text += "저주받지 않은 "
@@ -494,11 +501,17 @@ class StorageSelectEventHandler(AskUserEventHandler):
             if item.item_state.BUC <= -1:
                 item_text += "저주받은 "
 
-        item_text += f"{item.name}"
+        item_text += f"{item.name} "
+        item_count = ""
         item_damage_text = ""
         item_state_text = ""
         item_equip_text = ""
+        item_price_text = ""
         item_text_color = None
+
+        # Display item counts if it is greater than 1
+        if item.stack_count > 1 and not item.counter_at_front:
+            item_count += f"(x{item.stack_count}) "
 
         # Assign color of its type
         if item.item_type == InventoryOrder.POTION:
@@ -512,24 +525,20 @@ class StorageSelectEventHandler(AskUserEventHandler):
         if choose_multiple:
             if item in self.selected_items:
                 item_text_color = color.gui_selected_item #TODO: Maybe add a short string in front of item name? like (selected)
-        
-        # Display item counts if it is greater than 1
-        if item.stack_count > 1:
-            item_text += f" (x{item.stack_count})"
             
         # Display damage status if their is one
         if item.item_state.burntness == 1:
-            item_damage_text += " (다소 그을림)"
+            item_damage_text += "(다소 그을림) "
         elif item.item_state.burntness == 2:
-            item_damage_text += " (상당히 그을림)"
+            item_damage_text += "(상당히 그을림) "
         if item.item_state.corrosion == 1:
-            item_damage_text += " (다소 부식됨)"
+            item_damage_text += "(다소 부식됨) "
         elif item.item_state.corrosion == 2:
-            item_damage_text += " (심하게 부식됨)"
+            item_damage_text += "(심하게 부식됨) "
             
         # Display special states if it is true
         if item.item_state.is_burning:
-            item_state_text += " [불붙음]"
+            item_state_text += "[불붙음] "
 
         # Display equip info if it is true(if value isn't None)
         if self.engine.config["lang"] == "ko":
@@ -563,12 +572,42 @@ class StorageSelectEventHandler(AskUserEventHandler):
                 elif item.item_state.is_equipped == "right ring":
                     translated = "오른손 반지"
 
-                item_equip_text += f" [{translated}]"
+                item_equip_text += f"[{translated}에 장착] "
         else:
             if item.item_state.is_equipped:
-                item_equip_text += f" [equipped on {item.item_state.is_equipped}]"
+                item_equip_text += f"[equipped on {item.item_state.is_equipped}] "
 
-        return item_text, item_damage_text, item_state_text, item_equip_text, item_text_color
+        # Display the price of the item if it is currently being sold
+        if item.item_state.is_being_sold_from:
+            item_price_text += f"<{item.price_of(self.engine.player,1)}샤인, 미구매> " #discount set as 1 (hard-coded)
+
+        return item_text, item_count, item_damage_text, item_state_text, item_equip_text, item_price_text, item_text_color
+
+    def render_item(
+        self, 
+        xpos, ypos,
+        item_text: str,
+        item_count: str,
+        item_damage_text: str,
+        item_state_text: str, 
+        item_equip_text: str, 
+        item_price_text: str, 
+        item_text_color: Tuple[int,int,int], 
+        y_padding: int
+    ) -> None:
+
+        # Print
+        self.engine.console.print(xpos, ypos + y_padding, item_text, fg=item_text_color)
+        xpos += len(item_text)
+        self.engine.console.print(xpos, ypos + y_padding, item_count, fg=color.white)
+        xpos += len(item_count)
+        self.engine.console.print(xpos, ypos + y_padding, item_damage_text, fg=color.gray)
+        xpos += len(item_damage_text)
+        self.engine.console.print(xpos, ypos + y_padding, item_equip_text, fg=color.gui_item_equip)
+        xpos += len(item_equip_text)
+        self.engine.console.print(xpos, ypos + y_padding, item_state_text, fg=color.gui_item_state)
+        xpos += len(item_state_text)
+        self.engine.console.print(xpos, ypos + y_padding, item_price_text, fg=color.gui_item_price)
 
     def check_should_render_item(self, item: Item) -> bool:
         if self.show_if_satisfy_both:
@@ -669,7 +708,7 @@ class StorageSelectSingleEventHandler(StorageSelectEventHandler):
         )
 
         if number_of_valid_items > 0:
-            i = -1
+            y_padding = -1
 
             for item_key, item in self.inventory_component.item_hotkeys.items():
                 if item == None:
@@ -677,16 +716,13 @@ class StorageSelectSingleEventHandler(StorageSelectEventHandler):
 
                 if not self.check_should_render_item(item):
                     continue
+
+                y_padding += 1
                 
-                item_text, item_damage_text, item_state_text, item_equip_text, item_text_color = self.get_item_rendered_text(item, item_key, choose_multiple=False)
-
-                i += 1
-
-                # Print
-                console.print(x + x_space + 1, y + i + y_space + 1, item_text, fg=item_text_color)
-                console.print(x + x_space + 1 + len(item_text), y + i + y_space + 1, item_damage_text, fg=color.gray)
-                console.print(x + x_space + 1 + len(item_text) + len(item_damage_text), y + i + y_space + 1, item_equip_text, fg=color.gui_item_equip)
-                console.print(x + x_space + 1 + len(item_text) + len(item_damage_text) + len(item_equip_text), y + i + y_space + 1, item_state_text, fg=color.gui_item_state)
+                item_text, item_count, item_damage_text, item_state_text, item_equip_text, item_price_text, item_text_color = self.get_item_rendered_text(item, item_key, choose_multiple=False)
+                xpos = x + x_space + 1
+                ypos = y + y_space + 1
+                self.render_item(xpos, ypos, item_text, item_count, item_damage_text, item_state_text, item_equip_text, item_price_text, item_text_color, y_padding=y_padding)
         else:
             console.print(x + x_space + 1, y + y_space + 1, "(없음)", color.gray)
 
@@ -1047,7 +1083,7 @@ class StorageSelectMultipleEventHandler(StorageSelectEventHandler):
         )
 
         if number_of_valid_items > 0:
-            i = -1
+            y_padding = -1
             for item_key, item in self.inventory_component.item_hotkeys.items():
                 if item == None:
                     continue
@@ -1055,15 +1091,12 @@ class StorageSelectMultipleEventHandler(StorageSelectEventHandler):
                 if not self.check_should_render_item(item):
                     continue
                 
-                item_text, item_damage_text, item_state_text, item_equip_text, item_text_color = self.get_item_rendered_text(item, item_key, choose_multiple=True)
+                y_padding += 1
 
-                i += 1
-
-                # Print
-                console.print(x + x_space + 1, y + i + y_space + 1, item_text, fg=item_text_color)
-                console.print(x + x_space + 1 + len(item_text), y + i + y_space + 1, item_damage_text, fg=color.gray)
-                console.print(x + x_space + 1 + len(item_text) + len(item_damage_text), y + i + y_space + 1, item_equip_text, fg=color.gui_item_equip)
-                console.print(x + x_space + 1 + len(item_text) + len(item_damage_text) + len(item_equip_text), y + i + y_space + 1, item_state_text, fg=color.gui_item_state)
+                item_text, item_count, item_damage_text, item_state_text, item_equip_text, item_price_text, item_text_color = self.get_item_rendered_text(item, item_key, choose_multiple=True)
+                xpos = x + x_space + 1
+                ypos = y + y_space + 1
+                self.render_item(xpos, ypos, item_text, item_count, item_damage_text, item_state_text, item_equip_text, item_price_text, item_text_color, y_padding=y_padding)
         else:
             console.print(x + x_space + 1, y + y_space + 1, "(없음)", color.gray)
 
@@ -1236,6 +1269,118 @@ class ChestEventHandler(AskUserEventHandler):
             return None
         elif key == tcod.event.K_s:
             return PlaceSwapAction(self.engine.player, self.inventory_component.parent)
+        elif key == tcod.event.K_ESCAPE:
+            self.engine.event_handler = MainGameEventHandler(self.engine)
+            return None
+        else:
+            self.engine.message_log.add_message("잘못된 입력입니다.", color.invalid)
+            self.engine.event_handler = MainGameEventHandler(self.engine)
+            return None
+
+
+class NonHostileBumpHandler(AskUserEventHandler):
+    def __init__(self, engine, target: Entity):
+        """
+        Vars:
+            can_pay_shopkeeper:
+                인풋으로 받은 타겟이 shopkeeper이고, 또 플레이어가 현재 빚을 진 상태인 경우.
+        """
+        super().__init__(engine)
+        self.target = target
+        self.TITLE = "무엇을 하시겠습니까?"
+        self.can_pay_shopkeeper = False
+        self.update_pay_status()
+        
+    def update_pay_status(self):
+        if hasattr(self.target, "ai"):
+            if self.target.ai:
+                if hasattr(self.target.ai, "has_dept"):
+                    if self.target.ai.has_dept(self.engine.player):
+                        self.can_pay_shopkeeper = True
+        
+    def on_render(self, console: tcod.Console) -> None:
+        """
+        Render an action selection menu, which displays the possible actions of the selected item.
+        """
+        super().on_render(console)
+
+        height = 5 #TODO hard-coded
+        if not self.target.blocks_movement:
+            height += 2
+        if self.can_pay_shopkeeper: # pay
+            height += 2
+        if self.target.swappable: # swap
+            height += 2
+        if isinstance(self.target, Actor): # attack
+            height += 2
+        from chest_factories import ChestSemiactor
+        if isinstance(self.target, ChestSemiactor): # take, put
+            height += 4
+        if height <= 3: 
+            height = 3
+
+        x = 0
+        y = 0
+        x_space = 5 # per side
+        y_space = 3
+        width = self.engine.config["screen_width"] - (x_space * 2)
+
+        # draw frame
+        console.draw_frame(
+            x=x + x_space,
+            y=y + y_space,
+            width=width,
+            height=height,
+            title=self.TITLE,
+            clear=True,
+            fg=color.gui_action_fg,
+            bg=color.gui_inventory_bg,
+        )
+
+        # Message log
+        y_pad = 2
+        # Check if target is a shopkeeper
+        if isinstance(self.target, ChestSemiactor):
+            console.print(x + x_space + 1, y + y_space + y_pad, "(t) - 무언가를 꺼낸다", fg=color.white)
+            y_pad += 2
+            console.print(x + x_space + 1, y + y_space + y_pad, "(i) - 무언가를 넣는다", fg=color.white)
+            y_pad += 2
+        if not self.target.blocks_movement:
+            console.print(x + x_space + 1, y + y_space + y_pad, "(m) - 해당 칸으로 이동한다", fg=color.white)
+            y_pad += 2
+        if self.can_pay_shopkeeper:
+            console.print(x + x_space + 1, y + y_space + y_pad, "(p) - 소지중인 판매물품들을 구매한다", fg=color.white)
+            y_pad += 2
+        if self.target.swappable:
+            console.print(x + x_space + 1, y + y_space + y_pad, "(s) - 위치를 바꾼다", fg=color.white)
+            y_pad += 2
+        if isinstance(self.target, Actor):
+            console.print(x + x_space + 1, y + y_space + y_pad, "(a) - 공격한다", fg=color.white)
+            y_pad += 2
+        console.print(x + x_space + 1, y + y_space + y_pad, "ESC - 취소", fg=color.white)
+
+    def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[Action]:
+        from chest_factories import ChestSemiactor
+        key = event.sym
+        dx, dy = self.target.x - self.engine.player.x, self.target.y - self.engine.player.y
+
+        if not self.target.blocks_movement and key == tcod.event.K_m:
+            return MovementAction(self.engine.player, dx, dy)
+        elif self.can_pay_shopkeeper and key == tcod.event.K_p:
+            self.engine.event_handler = MainGameEventHandler(self.engine)
+            self.target.ai.sell_all_picked_ups(customer=self.engine.player)
+            return None
+        elif self.target.swappable and key == tcod.event.K_s:
+            return PlaceSwapAction(self.engine.player, self.target)
+        elif isinstance(self.target, Actor) and key == tcod.event.K_a:
+            self.engine.event_handler = ForceAttackInputHandler(self.engine, melee_action=MeleeAction(self.engine.player, dx, dy))
+            return None
+        elif key == tcod.event.K_t and isinstance(self.target, ChestSemiactor):
+            self.engine.event_handler = ChestTakeEventHandler(self.engine, self.target.storage)
+            return None
+        elif key == tcod.event.K_i and isinstance(self.target, ChestSemiactor):
+            self.engine.event_handler = ChestPutEventHandler(self.engine, self.engine.player.inventory, self.target.storage)
+            return None
         elif key == tcod.event.K_ESCAPE:
             self.engine.event_handler = MainGameEventHandler(self.engine)
             return None
@@ -1614,6 +1759,24 @@ class RayDirInputHandler(SelectDirectionHandler):
     def on_index_selected(self, x: int, y: int) -> Optional[Action]:
         self.engine.refresh_screen()
         return self.callback(self.dx, self.dy)
+
+
+class BuyInputHandler(AskUserEventHandler):
+    def on_render(self, console: tcod.Console) -> None:
+        super().on_render(console)
+        self.engine.draw_window(console, text="정말 현재 게임을 종료하시겠습니까? 모든 저장하지 않은 내역은 지워집니다. (Y/N)", title="Quit", frame_fg=color.lime, frame_bg=color.gui_inventory_bg)
+
+    def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[Action]:
+        player = self.engine.player
+        engine = self.engine
+
+        if event.sym == tcod.event.K_y or event.sym == tcod.event.K_KP_ENTER:
+            self.engine.event_handler = MainGameEventHandler(self.engine)
+            save_game(player=player, engine=engine)
+            quit_game()
+        elif event.sym == tcod.event.K_n or event.sym == tcod.event.K_ESCAPE:
+            self.engine.message_log.add_message(f"취소됨.", color.lime, stack=False)
+        return super().ev_keydown(event)
 
 
 class QuitInputHandler(AskUserEventHandler):

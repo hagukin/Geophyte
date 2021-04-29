@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import TYPE_CHECKING, List, Set, Tuple, Any
+from typing import Optional, TYPE_CHECKING, List, Set, Tuple, Any
 
 from numpy.core.fromnumeric import sort
 from components.base_component import BaseComponent
@@ -505,7 +505,7 @@ class ActorState(BaseComponent):
         
         return conn_actors
 
-    def actor_electrocuted(self):
+    def actor_electrocuted(self, source_actor: Optional[Actor] = None):
         """
         Electrocute this component's parent, and its connected actors.
         Damage can be decreased denpending on the chebyshenv distance between the electricity's starting location, and the actor's location.
@@ -519,6 +519,10 @@ class ActorState(BaseComponent):
         elec_value = copy.copy(self.is_electrocuting)
 
         for target in targets:
+            # If there is a source actor, trigger target to that source actor.
+            if source_actor:
+                target.status.take_damage(amount=0, attacked_from=source_actor)
+
             # Resistance
             if target.status.changed_status["shock_resistance"] >= 1:
                 self.engine.message_log.add_message(f"{g(target.name, '은')} 전격에 저항했다!", fg=color.white, target=target)

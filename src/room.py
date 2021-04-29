@@ -107,6 +107,13 @@ class Room:
             return 'd'
         else:
             raise Exception() #Wrong coordinates
+    
+    def check_if_in_room(self, x:int, y: int) -> bool:
+        """Check if the given coordinates is in this room's inner area."""
+        for cor in self.inner_tiles:
+            if cor[0] == x and cor[1] == y:
+                return True
+        return False
 
     def door_up(self) -> Tuple[slice, slice]:
         """Randomly generate door convex location next to the upper wall, and return the location as a 2D array index."""

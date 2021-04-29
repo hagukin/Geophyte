@@ -624,7 +624,7 @@ class BaseAI(BaseComponent):
         self.set_revenge_target()
 
         # If the target is alive find a path. Else choose new target.
-        if self.target and not self.target.is_dead:
+        if self.target and not self.target.actor_state.is_dead:
             dx = self.target.x - self.parent.x
             dy = self.target.y - self.parent.y
             distance = max(abs(dx), abs(dy))  # Chebyshev distance.

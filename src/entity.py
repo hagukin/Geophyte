@@ -1,4 +1,5 @@
 from __future__ import annotations
+from actions import WaitAction
 import copy
 import math
 import random
@@ -50,6 +51,7 @@ class Entity:
         action_speed: int = 0, # 0 to 60 (60 being fastest)
         spawnable: bool = False,
         walkable: Walkable = None,
+        swappable: bool = False,
         blocks_movement: bool = False,
         blocks_sight: bool = False,
         render_order: RenderOrder = RenderOrder.LOWEST,
@@ -71,6 +73,8 @@ class Entity:
                 ranges from 0 to 60.
             action_speed:
                 action points gained per turn.
+            swappable:
+                whether player can swap position with it or not.
         """
         self.indestructible = indestructible
         self.x = x
@@ -88,7 +92,7 @@ class Entity:
         self.walkable = walkable
         if self.walkable:
             self.walkable.parent = self
-
+        self.swappable = swappable
         self.blocks_movement = blocks_movement
         self.blocks_sight = blocks_sight
         self.render_order = render_order
@@ -242,6 +246,8 @@ class Actor(Entity):
         action_point: int = 60, # 0 to 60
         action_speed: int = 0, # 0 to 60
         spawnable: bool = False,
+        walkable: Walkable = None,
+        swappable: bool = True,
         growthable: bool = False,
         blocks_movement: bool = True,
         blocks_sight: bool = False,
@@ -295,6 +301,8 @@ class Actor(Entity):
             action_point=action_point,
             action_speed=action_speed,
             spawnable= spawnable,
+            walkable=walkable,
+            swappable=swappable,
             blocks_movement=blocks_movement,
             blocks_sight=blocks_sight,
             render_order=render_order,
@@ -495,6 +503,8 @@ class Item(Entity):
         blocks_movement: bool = False,
         blocks_sight: bool = False,
         spawnable: bool = False,
+        walkable: Walkable=None,
+        swappable: bool=False,
         flammable: float = 0, # 0 to 1, 1 being always flammable
         corrodible: float = 0, # 0 to 1, 1 being will always corrode
         droppable: bool = True,
@@ -506,6 +516,7 @@ class Item(Entity):
         equipable: Equipable = None,
         edible: Edible = None,
         lockpickable: Tuple[float, float] = (0, 0),
+        counter_at_front: bool = False,
         initial_BUC: dict = { 1: 0, 0: 1, -1: 0 },
         initial_identified: float = 0,
         initial_upgrades: List = [], #TODO
@@ -523,6 +534,8 @@ class Item(Entity):
             lockpickable:
                 0 to 1 OR -1, 1 being always successfully unlocking something when used by actor of dex 18 or higher, and -1 being ALWAYS unlocking regardless of the actor's status. 
                 0 to 1, 1 being item always being broken when used to lockpick/unlock things.
+            counter_at_front:
+                if True, display this item as 100 xxx instead of xxx (x100).
         """
         super().__init__(
             gamemap=gamemap,
@@ -539,6 +552,8 @@ class Item(Entity):
             action_point=action_point,
             action_speed=action_speed,
             spawnable=spawnable,
+            walkable=walkable,
+            swappable=swappable,
             blocks_movement=blocks_movement,
             blocks_sight=blocks_sight,
             render_order=RenderOrder.ITEM,
@@ -576,6 +591,8 @@ class Item(Entity):
             self.edible.parent = self
         
         self.lockpickable = lockpickable
+
+        self.counter_at_front = counter_at_front
 
         self.initial_BUC = initial_BUC
         self.initial_identified = initial_identified
@@ -626,6 +643,12 @@ class Item(Entity):
                 return entity_desc
             else:
                 return self._entity_desc
+
+    def price_of(self, buyer: Actor, discount: float=1) -> int:
+        """Return the price of the given item for given actor."""
+        if self.stack_count < 1:
+            return 0
+        return round(discount * self.price * self.stack_count) #TODO: Make charm affect the price
 
     def remove_self(self):
         super().remove_self()
@@ -813,6 +836,7 @@ class SemiActor(Entity):
         action_speed: int = 0, # 0 to 60
         semiactor_info: SemiactorInfo,
         walkable: Walkable = None,
+        swappable: bool = False,
         safe_to_move: bool = False,
         blocks_movement: bool = False,
         blocks_sight: bool = False,
@@ -849,6 +873,7 @@ class SemiActor(Entity):
             action_point=action_point,
             action_speed=action_speed,
             walkable=walkable,
+            swappable=swappable,
             blocks_movement=blocks_movement,
             blocks_sight=blocks_sight,
             render_order=render_order,

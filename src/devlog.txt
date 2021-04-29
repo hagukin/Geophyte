@@ -1682,7 +1682,20 @@
           이걸 액터 레퍼런스가 아닌 int로 저장하는 이유는, 아이템 복사 시 deep copy가 일어나기 때문임.
           메모리는 id()를 사용해 구할 수 있음.
 
-          상점 내 결제 기능 추가
+          상점 내 결제 기능 뼈대 제작
           
           피해를 줄 수 있는 아이템을 throw했음에도 trigger되지 않는 문제 (potion of paralysis) -> 추가완료 (throwable에 trigger_if_thrown_at 파라미터 추가.)
+20210429 - TODO: magic mapping 시 visual 오브젝트가 가리는 거 제거
+                magic mapping 시 스크롤 기능
+
+          전기 공격 시에도 이제 트리거가 제대로 작동함.
+
+          상자로 길을 막으면 ai가 지나가지 못하는 버그 -> 상자를 block하지 않게 만들고 ai가 상자와 bump할 경우 그 위로 moveaction하도록 수정.
+
+          BumpAction시 다양한 선택지를 표시해줄 수 있는 NonHostileBumpHandler 제작.
+          > 적대적인 액터를 제외한 모든 엔티티에 적용할 수 있음. 즉 여기에는 상자 같은 세미액터들, 상점주인같은 특수액터등이 포함됨.
+
+          너무 많은 걸 작성해서 데브로그에 누락된 사항은 커밋 로그 참고.
+
+          상점주인 AI 대폭 개선, 상점 주인의 판매기능 제작.
 

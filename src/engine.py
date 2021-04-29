@@ -269,7 +269,7 @@ class Engine:
         """
         self.game_map.respawn_monsters()
 
-    def add_special_effect_to_target(self, target: Actor, effects, effects_var) -> None:
+    def add_special_effect_to_target(self, target: Actor, effects, effects_var, caused_by: Optional[Actor]=None) -> None:
         """
         This method takes two lists, applies the status effects to the given actor.
 
@@ -291,6 +291,8 @@ class Engine:
                 If the effect doesn't need any parameter, an empty list is passed.
 
                 They are usually passed in from the AI component's __init__().
+            caused_by:
+                Actor who caused this special effect.
 
         Examples:
             the melee attack have 30% chance of giving burning effects and 50% chance of giving bleeding effects.
@@ -326,7 +328,7 @@ class Engine:
                     target.actor_state.apply_freezing(effects_var[n])
                 elif effects[n][0] == "electrocute_target":
                     target.actor_state.apply_electrocution(effects_var[n])
-                    target.actor_state.actor_electrocuted()
+                    target.actor_state.actor_electrocuted(source_actor=caused_by)
                 elif effects[n][0] == "bleed_target":
                     target.actor_state.apply_bleeding(effects_var[n])
                 elif effects[n][0] == "paralyze_target":
@@ -408,9 +410,9 @@ class Engine:
         Check if the actor can see(using telepathy) certain target.
         If it can, make the tile visible.
         """
+        from util import get_distance
         # Make actor type entities visible
         if actor == self.player:
-            from util import get_distance
             from visual import Visual
 
             # telepathy distance is affected by actor's intelligence. Max 8
@@ -421,14 +423,14 @@ class Engine:
                     if target.ai.owner == actor:
                         tele_color = color.green
                     elif target.ai.check_if_enemy(actor):
-                        if target.ai.alignment == "neutral":
-                            tele_color = color.yellow
-                        else:
-                            tele_color = color.red
+                        tele_color = color.red
                 
                 self.camera.visuals.append(Visual(target.x, target.y, char='?', fg=tele_color, bg=None, lifetime=1))
         else:
-            pass #TODO Make ai able to have telepathy
+            # AI can see
+            if hasattr(actor, "ai"):
+                if get_distance(actor.x, actor.y, target.x, target.y) < max(actor.status.changed_status["intelligence"] * 0.6, 15):
+                    visible[target.x, target.y] = True
 
     def detect_entities(self, actor: Actor, visible: np.ndarray, explored: Optional[np.ndarray]=None) -> None:
         # Make certain types of entities visible
@@ -498,7 +500,9 @@ class Engine:
 
             ## The game will not update every actor's vision/additional vision every turn due to performance issues
             # actor.ai.update_vision()
-            # self.update_additional_vision(actor=actor)
+            # if actor.actor_state.has_telepathy\
+            #     or actor.actor_state.is_detecting_obj[2]:
+            #     self.update_additional_vision(actor=actor)
 
     def set_player_path(self, dest_x: int, dest_y: int, ignore_unexplored: bool=True, ignore_dangerous_tiles: bool=True, ignore_blocking_entities: bool=True, ignore_semiactors: bool=True) -> None:
         """

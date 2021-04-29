@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import List, TYPE_CHECKING
+from typing import List, TYPE_CHECKING, Optional
 from components.base_component import BaseComponent
 from exceptions import Impossible
 from korean import grammar as g
@@ -22,7 +22,7 @@ class Inventory(BaseComponent):
             "A":None,"B":None,"C":None,"D":None,"E":None,"F":None,"G":None,"H":None,"I":None,"J":None,"K":None,"L":None,"M":None,"N":None,"O":None,"P":None,"Q":None,"R":None,"S":None,"T":None,"U":None,"V":None,"W":None,"X":None,"Y":None,"Z":None
         }
 
-    def check_if_in_inv(self, item_id: str):
+    def check_if_in_inv(self, item_id: str) -> Optional[Item]:
         """
         Check if the inventory has an item of a the given id.
         If so, return the item.
@@ -197,3 +197,19 @@ class Inventory(BaseComponent):
                 raise Impossible(f"최소한 하나 이상을 선택하세요.")
         else:
             raise Impossible(f"최대 {item.stack_count - 1}개 까지만 선택할 수 있습니다.")
+
+    def check_has_enough_money(self, amount: int) -> bool:
+        """check if there is enough money(shine) in this inventory component as given amount."""
+        cash = self.check_if_in_inv("shine")
+        if cash:
+            if cash.stack_count >= amount:
+                return True
+        return False
+
+    def get_total_price_to_pay(self) -> int:
+        """Return the price that the player owes to someone."""
+        price = 0
+        for item in self.items:
+            if item.item_state.is_being_sold_from:
+                price += item.price_of(self.parent)
+        return price

@@ -118,7 +118,8 @@ player = Actor(
         (item_factories.potion_of_healing, 1, (1,4)),
         (item_factories.potion_of_paralysis, 1, (1,4)),
         (item_factories.potion_of_monster_detection, 1, (3,4)),
-        (item_factories.toxic_goo, 1, (1,5)), 
+        (item_factories.toxic_goo, 1, (1,5)),
+        (item_factories.shine, 1, (1000, 1001))
         ],
     initial_equipments=[
         (item_factories.leather_armor, 1),
@@ -139,6 +140,7 @@ shopkeeper = Actor(
         TODO\n\
         ",
     rarity=0,
+    swappable=False, # Cannot swap
     spawnable=False,
     growthable=False,
     edible=edible.RawMeatEdible(nutrition=300),

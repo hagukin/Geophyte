@@ -5,7 +5,7 @@ import tcod
 import color
 
 from typing import Iterable, List, Reversible, Tuple
-from entity import Entity
+from entity import Entity, Actor
 
 
 class Message:
@@ -57,6 +57,16 @@ class MessageLog:
                 pass
             else:
                 self.messages.append(Message(text, fg))
+
+    def add_speech(
+        self, text: str, fg: Tuple[int, int, int] = color.msg_log_speech, *, speaker: Actor = None, stack: bool = True, show_once: bool = False,
+    ) -> None:
+        """Print a actor speaking."""
+        if speaker.actor_state.can_talk:
+            self.add_message(f"{speaker.name}({speaker.char}): ", speaker.fg, target=speaker, stack=stack, show_once=show_once)
+            self.add_message(text, fg, target=speaker, stack=stack, show_once=show_once)
+        else:
+            self.add_message(f"{speaker.name}({speaker.char}): " + "(알아들을 수 없음)", fg, target=speaker, stack=stack, show_once=show_once)
 
     def render(
         self, console: tcod.Console, x: int, y: int, width: int, height: int, draw_frame: bool=False

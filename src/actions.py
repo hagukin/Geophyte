@@ -489,6 +489,7 @@ class MeleeAction(ActionWithDirection):
             self.engine.message_log.add_message(
                 f"{g(self.entity.name, '이')} {g(target.name, '을')} 공격했지만 빗나갔다.", color.enemy_atk_missed, target=self.entity,
             )
+            target.status.take_damage(amount=0, attacked_from=self.entity) #Trigger
             if self.entity.growthable: # gain exp when attack was successful
                 self.entity.status.experience.gain_strength_exp(1, 12, 200)
                 self.entity.status.experience.gain_dexterity_exp(1, 12, 150)
@@ -539,11 +540,12 @@ class MeleeAction(ActionWithDirection):
                 self.engine.message_log.add_message(
                     f"{attack_desc}했지만 아무런 데미지도 주지 못했다.", color.gray
                 )
+                target.status.take_damage(amount=0, attacked_from=self.entity) #Trigger
         
         # If the target is alive after calculating the pure melee damage hit, apply melee status effects.
         # Status effects are still applied if the damage is zero
         if not target.actor_state.is_dead:
-            self.engine.add_special_effect_to_target(target=target, effects=self.effects, effects_var=self.effects_var)
+            self.engine.add_special_effect_to_target(target=target, effects=self.effects, effects_var=self.effects_var, caused_by=self.entity)
 
 
 class MovementAction(ActionWithDirection):
@@ -897,7 +899,7 @@ class DoorCloseAction(ActionWithDirection):
             raise exceptions.Impossible("이 곳에는 문이 없다.")
 
 
-class ChestOpenAction(ActionWithDirection):
+class ChestBumpAction(ActionWithDirection):
     def perform(self) -> None:
         import chest_factories
 
@@ -911,6 +913,10 @@ class ChestOpenAction(ActionWithDirection):
         dest_x, dest_y = self.dest_xy
         semiactor_on_dir = self.engine.game_map.get_semiactor_with_bumpaction_at_location(dest_x, dest_y)
 
+        # If non-player bumped, move towards the chest instead of opening. FIXME TODO
+        if self.entity != self.engine.player:
+            return MovementAction(self.entity, self.dx, self.dy).perform()
+
         if not semiactor_on_dir:
             raise exceptions.Impossible("아무 것도 들어있지 않다.")
         elif isinstance(semiactor_on_dir, chest_factories.ChestSemiactor):# Check if the semiactor is chest type
@@ -918,14 +924,26 @@ class ChestOpenAction(ActionWithDirection):
 
             # If the player is the actor, call input handler
             if self.entity == self.engine.player:
-                from input_handlers import ChestEventHandler
-                self.engine.event_handler = ChestEventHandler(self.engine, semiactor_on_dir.storage)
+                from input_handlers import NonHostileBumpHandler
+                self.engine.event_handler = NonHostileBumpHandler(self.engine, semiactor_on_dir)
                 return None
-            # If the AI is the actor, TODO
-            else:
-                print("DEBUG::AI OPENED THE CHEST")
         else:
             raise exceptions.Impossible("아무 것도 들어있지 않다.")
+
+
+class CashExchangeAction(Action):
+    def __init__(self, giver: Actor, taker: Actor, cash_amount: int):
+        super().__init__(entity=giver)
+        self.giver = giver
+        self.taker = taker
+        self.cash_amount = cash_amount
+
+    def perform(self) -> None:
+        """NOTE: The action will not care how much money each actor currently have.
+        You should check whether the transaction is valid BEFORE you perform the action."""
+        from item_factories import shines
+        self.taker.inventory.add_item(shines(self.cash_amount))
+        self.giver.inventory.remove_item(self.giver.inventory.check_if_in_inv("shine"), self.cash_amount)
 
 
 class PlaceSwapAction(Action):
@@ -947,6 +965,14 @@ class PlaceSwapAction(Action):
         self.entity.place(self.target.x, self.target.y)
         self.target.place(temp_x, temp_y)
 
+        # path doesn't sync up with current entity location so reset it.
+        if hasattr(self.entity, "ai"):
+            if self.entity.ai:
+                self.entity.ai.path = None
+        if hasattr(self.target, "ai"):
+            if self.target.ai:
+                self.target.ai.path = None
+
         if self.entity == self.engine.player:
             self.engine.message_log.add_message(f"당신은 {g(self.target.name, '와')} 자리를 바꾸었다.", color.white)
 
@@ -965,8 +991,8 @@ class BumpAction(ActionWithDirection):
                 if self.target_actor.ai.owner == self.engine.player:
                     return PlaceSwapAction(self.entity, self.target_actor).perform()
                 elif not self.target_actor.ai.check_if_enemy(self.entity):
-                    from input_handlers import ForceAttackInputHandler
-                    self.engine.event_handler = ForceAttackInputHandler(self.engine, melee_action=MeleeAction(self.entity, self.dx, self.dy))
+                    from input_handlers import NonHostileBumpHandler
+                    self.engine.event_handler = NonHostileBumpHandler(self.engine, self.target_actor)
                     self.free_action = True # Force this action to not cost a time so that yime passes after player decides whether to attack or not.
                     return None
                 else:

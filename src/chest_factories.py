@@ -5,7 +5,7 @@ from order import RenderOrder
 import random
 from typing import Tuple, List
 from entity import SemiActor
-from actions import ChestOpenAction
+from actions import ChestBumpAction
 
 class ChestSemiactor(SemiActor):
     def __init__(
@@ -23,9 +23,9 @@ class ChestSemiactor(SemiActor):
         action_point: int = 60,
         action_speed: int = 0,
         walkable = None,
-        safe_to_move: bool = False,
+        safe_to_move: bool = True,
         semiactor_info: SemiactorInfo,
-        blocks_movement: bool = True,
+        blocks_movement: bool = False,
         blocks_sight: bool = False,
         rule_cls = None,
         bump_action = None,
@@ -105,10 +105,10 @@ large_wooden_chest = ChestSemiactor(
         walkable=None,
         safe_to_move=True,
         semiactor_info=semiactor_info.Chest(),
-        blocks_movement=True,
+        blocks_movement=False,
         blocks_sight=False,
         rule_cls=None,
-        bump_action=ChestOpenAction,
+        bump_action=ChestBumpAction,
         storage=Inventory(capacity=52, is_fireproof=False),
         initial_items=[(item_factories.potion_of_healing, 1, (1,5))],
     )

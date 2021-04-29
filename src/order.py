@@ -26,7 +26,9 @@ class TilemapOrder(Enum):
     TRAP = auto()
     CHEST = auto()
 
+
 class InventoryOrder(Enum):
+    CASH = auto()
     MELEE_WEAPON = auto()
     THROWING_WEAPON = auto()
     ARMOR = auto()
@@ -39,6 +41,7 @@ class InventoryOrder(Enum):
     CORPSE = auto()
     TOOL = auto()
     MISC = auto()
+
 
 class AbilityOrder(Enum):
     """

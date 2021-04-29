@@ -1,6 +1,7 @@
 from components import readable, quaffable, equipable, throwable
 from components.item_state import ItemState
 from entity import Item
+import color
 import anim_graphics
 import components.edible as edible
 
@@ -513,3 +514,54 @@ toxic_goo = Item(
 )
 temp_items_lists.append(toxic_goo)
 item_rarity.append(toxic_goo.rarity)
+
+
+#########################################################################
+################################# CASH ##################################
+#########################################################################
+
+### Shine
+shine = Item(
+    char="$",
+    fg = color.gold,
+    name="샤인",
+    entity_id="shine",
+    entity_desc="shine desc",
+    rarity=0,
+    weight=0.01,
+    price=1,
+    item_type=InventoryOrder.CASH,
+    item_state=ItemState(is_identified=1),
+    spawnable=False,
+    flammable=0,
+    corrodible=0,
+    droppable=True,
+    stackable=True,
+    counter_at_front=True,
+    throwable=throwable.NormalThrowable(base_throw=1, additional_throw=1, break_chance=0, air_friction=1),
+    edible=None
+)
+temp_items_lists.append(shine)
+item_rarity.append(shine.rarity)
+
+shines = lambda amount: Item(
+    char="$",
+    fg = color.gold,
+    name="샤인",
+    entity_id="shine",
+    entity_desc="shine desc",
+    rarity=0,
+    weight=0.01,
+    price=1,
+    item_type=InventoryOrder.CASH,
+    item_state=ItemState(is_identified=1),
+    spawnable=False,
+    flammable=0,
+    corrodible=0,
+    droppable=True,
+    stackable=True,
+    counter_at_front=True,
+    stack_count=amount,
+    throwable=throwable.NormalThrowable(base_throw=1, additional_throw=1, break_chance=0, air_friction=1),
+    edible=None
+)

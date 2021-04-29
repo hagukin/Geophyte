@@ -184,6 +184,6 @@ class LightningStrikeActivatable(SpellActivateable):
 
             target.status.take_damage(amount=0, attacked_from=caster) # trigger target
             target.actor_state.apply_electrocution([self.damage, 0.5])
-            target.actor_state.actor_electrocuted()
+            target.actor_state.actor_electrocuted(source_actor=caster)
 
         self.spend_mana(caster=caster, amount=30)

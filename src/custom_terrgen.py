@@ -14,8 +14,10 @@ if TYPE_CHECKING:
 def grow_shop_item(gamemap: GameMap, x: int, y: int, room: Room) -> None:
     item = random.choices(tuple(room.terrain.sell_items.keys()), tuple(room.terrain.sell_items.values()), k=1)[0]
     tmp = item.spawn(gamemap, x, y)
+    tmp.stackable = False # Items in shops are spawned as nonstackable to prevent glitches and to clarify each item's indivisual prices.
+    # After purchasing it, the items becomes stackable again. (shopkeeper.remove_item_from_shop())
     room.terrain.items_on_stock.append(tmp)
-    
+
 
 def generate_shop_item(gamemap: GameMap, room: Room) -> None:
     if len(room.doors) != 1:

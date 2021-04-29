@@ -522,6 +522,6 @@ class ScrollOfThunderStormReadable(AutoTargetingReadable):
 
         # damage
         target.actor_state.apply_electrocution([self.damage, 0.5])
-        target.actor_state.actor_electrocuted()
+        target.actor_state.actor_electrocuted(source_actor=consumer)
 
         
