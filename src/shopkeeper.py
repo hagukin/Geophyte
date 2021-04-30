@@ -63,8 +63,8 @@ class Shopkeeper_Ai(ai.BaseAI):
         self.set_revenge_target()
 
         if self.target and not self.target.actor_state.is_dead:
-            # shopkeeper will stop chasing "attacked_from" target if it's out of sight,
-            # but will keep chase thieves until they die.
+            # shopkeeper will keep chase its target until they die.
+            # during this process, if anyone steals an item from their (unprotected) shop, they are going to become a target as well.
             return self.perform_hostile()
         else:
             self.target = self.get_target_shopkeeper()

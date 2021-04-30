@@ -637,7 +637,13 @@ class BaseAI(BaseComponent):
             if self.vision[self.target.x, self.target.y]:
                 target_in_sight = True
             else:
-                target_in_sight = False
+                # If target is out of sight currently, but the ai has special intrinsics available,
+                # calculate ai's additional vision and check if the target is still out of sight.
+                self.engine.update_additional_vision(self.parent)
+                if self.vision[self.target.x, self.target.y]:
+                    target_in_sight = True
+                else:
+                    target_in_sight = False
 
             if target_in_sight:
                 # Check if the ai can use any abilities
@@ -673,8 +679,7 @@ class BaseAI(BaseComponent):
                 # if none of the above works, set new path and approach to target.
                 self.path = self.get_path_to(self.target.x, self.target.y)
             else:
-                # if target is still alive, but out of sight, keep following the path.
-                pass
+                self.target_out_of_sight()
         elif self.attraction:
 
             # Check if attraction is still in sight
@@ -738,4 +743,10 @@ class BaseAI(BaseComponent):
         self.path = self.get_path_to(self.owner.x, self.owner.y) #TODO: Currently pet will follow whereever the owner is.
         self.path.pop() # Remove last coordinate from the path since the pet should move next to the owner, not on the owner.
 
-
+    def target_out_of_sight(self) -> None:
+        """
+        Things to do when the ai has a target but target is out of sight.
+        If target is still alive, but out of sight, ai will not automatically re-calculate the route since it doesn't know where the target is.
+        NOTE: This function is called when the target is not only out of sight, but also undetected by any intrinsic abilities this ai has.
+        """
+        pass
