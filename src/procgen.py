@@ -1,28 +1,23 @@
 from __future__ import annotations
-from tcod.console import Console
-from tcod.context import Context, new
 from biome import Biome
+from order import TilemapOrder
+from typing import Iterator, List, Tuple, TYPE_CHECKING
+from room_factories import Room, RectangularRoom, CircularRoom, PerpendicularRoom
+from game_map import GameMap
 
+import pygame.surface
 import numpy as np
 import copy
 import time
 import random
 import tcod
-import color
 import actor_factories, item_factories, semiactor_factories
 import terrain_factories
 import biome_factories
 import terrain_generation
 
-from order import TilemapOrder
-from typing import Iterator, List, Tuple, TYPE_CHECKING
-from room_factories import Room, RectangularRoom, CircularRoom, PerpendicularRoom
-from game_map import GameMap
-from render import descend_background
-
 if TYPE_CHECKING:
     from engine import Engine
-
 
 def choose_biome(
     biome_dicts: dict=None #if value is given, use it as population and weights
@@ -509,7 +504,7 @@ def stair_generation(
             if not ascend_room.terrain.can_have_stair:
                 continue
             ascend_tile = random.choice(ascend_room.inner_tiles)
-            if dungeon.get_any_entity_at_location(ascend_tile[0], ascend_tile[1]) or not dungeon.tiles[ascend_tile]["walkable"] or not dungeon.tiles[ascend_tile]["safe_to_walk"]:
+            if dungeon.get_any_entity_at_location(ascend_tile[0], ascend_tile[1]) or not dungeon.tiles[ascend_tile].walkable or not dungeon.tiles[ascend_tile].safe_to_walk:
                 continue
             else:
                 return ascend_tile
@@ -680,20 +675,15 @@ def get_dungeon_biome(depth: int):
 
 
 def generate_dungeon(
-    console: Console,
-    context: Context,
+    screen: pygame.surface.Surface,
     engine,
     depth,
     display_process: bool = True,
-    min_display_time: int = 2,
 ) -> GameMap:
     """
     Args:
         display_process:
             Whether to display current procgen process on the screen or not.
-        min_display_time:
-            Minimum length(seconds) of how long the game will display procgen process to the screen.
-            This argument does nothing if display_process is set to False.
     """
     player = engine.player
     rooms: List[Room] = []
@@ -703,7 +693,7 @@ def generate_dungeon(
     else:
         biome = choose_biome()
 
-    dungeon = GameMap(depth=depth, engine=engine, biome=biome, entities=[player]) #NOTE: tilemap initialization happens during  gamemap.__init__()
+    dungeon = GameMap(depth=depth, engine=engine, biome=biome, entities=[]) #NOTE: tilemap initialization happens during  gamemap.__init__()
 
     screen_center_x = int(engine.config["screen_width"] / 2)
     screen_center_y = int(engine.config["screen_height"] / 2)
@@ -711,10 +701,7 @@ def generate_dungeon(
     render_start_time = time.time()
 
     if display_process:
-        descend_background(console, context, biome.biome_color, diversity=6)
-        console.print(screen_center_x - 5, screen_center_y, "던전을 내려가는 중", fg=color.procgen_fg, bg=color.procgen_bg)
-        console.print(screen_center_x - 6, screen_center_y + 2, "토양 생성 중...", fg=color.procgen_fg)
-        context.present(console=console, keep_aspect=True)
+        pass #TODO
     print("Generating Earth...")
     generate_earth(
         dungeon=dungeon,
@@ -724,10 +711,7 @@ def generate_dungeon(
     )
 
     if display_process:
-        descend_background(console, context, biome.biome_color, diversity=5)
-        console.print(screen_center_x - 5, screen_center_y, "던전을 내려가는 중", fg=color.procgen_fg, bg=color.procgen_bg)
-        console.print(screen_center_x - 6, screen_center_y + 2, "던전 공간 생성 중...", fg=color.procgen_fg)
-        context.present(console=console, keep_aspect=True)
+        pass #TODO
     print("Generating Dungeon Rooms...")
     generate_rooms(
         dungeon=dungeon,
@@ -737,10 +721,7 @@ def generate_dungeon(
     )
 
     if display_process:
-        descend_background(console, context, biome.biome_color, diversity=4)
-        console.print(screen_center_x - 5, screen_center_y, "던전을 내려가는 중", fg=color.procgen_fg, bg=color.procgen_bg)
-        console.print(screen_center_x - 6, screen_center_y + 2, "터널 생성 중...", fg=color.procgen_fg)
-        context.present(console=console, keep_aspect=True)
+        pass #TODO
     print("Generating Tunnels...")
     generate_tunnels(
         dungeon=dungeon,
@@ -748,10 +729,7 @@ def generate_dungeon(
     )
 
     if display_process:
-        descend_background(console, context, biome.biome_color, diversity=3)
-        console.print(screen_center_x - 5, screen_center_y, "던전을 내려가는 중", fg=color.procgen_fg, bg=color.procgen_bg)
-        console.print(screen_center_x - 6, screen_center_y + 2, "터널 다듬는 중...", fg=color.procgen_fg)
-        context.present(console=console, keep_aspect=True)
+        pass #TODO
     print("Adjusting Tunnels...")
     adjust_convex(
         dungeon=dungeon,
@@ -759,10 +737,7 @@ def generate_dungeon(
         )
 
     if display_process:
-        descend_background(console, context, biome.biome_color, diversity=2)
-        console.print(screen_center_x - 5, screen_center_y, "던전을 내려가는 중", fg=color.procgen_fg, bg=color.procgen_bg)
-        console.print(screen_center_x - 6, screen_center_y + 2, "지형 생성 중...", fg=color.procgen_fg)
-        context.present(console=console, keep_aspect=True)
+        pass #TODO
     print("Generating Terrains...")
     generate_terrain(
         dungeon=dungeon,
@@ -772,10 +747,7 @@ def generate_dungeon(
     )
 
     if display_process:
-        descend_background(console, context, biome.biome_color, diversity=1)
-        console.print(screen_center_x - 5, screen_center_y, "던전을 내려가는 중", fg=color.procgen_fg, bg=color.procgen_bg)
-        console.print(screen_center_x - 6, screen_center_y + 2, "계단 생성 중...", fg=color.procgen_fg)
-        context.present(console=console, keep_aspect=True)
+        pass #TODO
     print("Generating Staircases...")
     generate_stair(
         dungeon=dungeon,
@@ -784,10 +756,7 @@ def generate_dungeon(
     )
 
     if display_process:
-        descend_background(console, context, biome.biome_color, diversity=0)
-        console.print(screen_center_x - 5, screen_center_y, "던전을 내려가는 중", fg=color.procgen_fg, bg=color.procgen_bg)
-        console.print(screen_center_x - 6, screen_center_y + 2, "엔티티 생성 중...", fg=color.procgen_fg)
-        context.present(console=console, keep_aspect=True)
+        pass #TODO
     print("Spawning Entities...")
     generate_entities(
         dungeon=dungeon,
@@ -799,7 +768,32 @@ def generate_dungeon(
 
     # debug(dungeon=dungeon, save_as_txt=True)
 
-    if display_process:
-        time.sleep(max(0, min_display_time - (time.time() - render_start_time)))
+    return dungeon
+
+def generate_dungeon_debug(
+    screen: pygame.surface.Surface,
+    engine,
+    depth,
+    display_process: bool = True,
+) -> GameMap:
+
+    player = engine.player
+    rooms: List[Room] = []
+    possible_biome = get_dungeon_biome(
+        depth)  # If there is certain list of biomes specified for certain depth, choose one from the specified biome list.
+    if possible_biome:
+        biome = choose_biome(possible_biome)
+    else:
+        biome = choose_biome()
+
+    dungeon = GameMap(depth=depth, engine=engine, biome=biome,
+                      entities=[]) # NOTE: tilemap initialization happens during  gamemap.__init__()
+    import tile_factories
+    dungeon.fill_tiles_with(tile_factories.debug_tile, True)
+
+    screen_center_x = int(engine.config["screen_width"] / 2)
+    screen_center_y = int(engine.config["screen_height"] / 2)
+
+    render_start_time = time.time()
 
     return dungeon

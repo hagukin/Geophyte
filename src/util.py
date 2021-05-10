@@ -8,6 +8,7 @@ import os
 import sys
 import numpy as np
 import copy
+import pygame
 
 
 def restart_game() -> None:
@@ -100,7 +101,7 @@ def blueshift(rgb: Tuple(int,int,int)) -> Tuple(int,int,int): #WARN: FUNCTION NO
 
 
 def draw_thick_frame(
-        console: Console,
+        engine,
         x: int,
         y: int,
         width: int,
@@ -110,31 +111,32 @@ def draw_thick_frame(
         fg: Optional[Tuple[int, int, int]] = None,
         bg: Optional[Tuple[int, int, int]] = None,
     ) -> None:
-        if char_type == 0:
-            frame = (' ',' ',' ',' ',' ',' ',' ',' ',' ',' ')
-        elif char_type == 1:
-            frame = (' ','#','#','#','#','#','#','#','#','#')
-        elif char_type == 2:
-            frame = (' ','┗','━','┛','┃',' ','┃','┏','━','┓')
-        elif char_type == 3:
-            frame = (' ','╚','═','╝','║',' ','║','╔','═','╗')
-
-        for ypos in range(y, y+height):
-            if ypos == y:
-                console.print(x, ypos, frame[7], fg, bg)
-                for xpos in range(x+1, x+width):
-                    console.print(xpos, ypos, frame[2], fg, bg)
-                console.print(x+width-1, ypos, frame[9], fg, bg)
-            elif ypos == y+height-1:
-                console.print(x, ypos, frame[1], fg, bg)
-                for xpos in range(x+1, x+width):
-                    console.print(xpos, ypos, frame[2], fg, bg)
-                console.print(x+width-1, ypos, frame[3], fg, bg)
-            else:
-                console.print(x, ypos, frame[4], fg, bg)
-                console.print(x+width-1, ypos, frame[6], fg, bg)
-
-        console.print(x + int(width/2 - len(title)/2), y, string=title, fg=bg, bg=fg)
+        raise NotImplementedError()
+        # if char_type == 0:
+        #     frame = (' ',' ',' ',' ',' ',' ',' ',' ',' ',' ')
+        # elif char_type == 1:
+        #     frame = (' ','#','#','#','#','#','#','#','#','#')
+        # elif char_type == 2:
+        #     frame = (' ','┗','━','┛','┃',' ','┃','┏','━','┓')
+        # elif char_type == 3:
+        #     frame = (' ','╚','═','╝','║',' ','║','╔','═','╗')
+        #
+        # for ypos in range(y, y+height):
+        #     if ypos == y:
+        #         console.print(x, ypos, frame[7], fg, bg)
+        #         for xpos in range(x+1, x+width):
+        #             console.print(xpos, ypos, frame[2], fg, bg)
+        #         console.print(x+width-1, ypos, frame[9], fg, bg)
+        #     elif ypos == y+height-1:
+        #         console.print(x, ypos, frame[1], fg, bg)
+        #         for xpos in range(x+1, x+width):
+        #             console.print(xpos, ypos, frame[2], fg, bg)
+        #         console.print(x+width-1, ypos, frame[3], fg, bg)
+        #     else:
+        #         console.print(x, ypos, frame[4], fg, bg)
+        #         console.print(x+width-1, ypos, frame[6], fg, bg)
+        #
+        # console.print(x + int(width/2 - len(title)/2), y, string=title, fg=bg, bg=fg)
 
 
 def center_print(console, string: str, y: int, fg: Tuple[int,int,int] = None, bg: Tuple[int,int,int] = None) -> int:
@@ -159,3 +161,10 @@ def draw_horizontal_line(
 
     if title:
         center_print(console, title, y=int(thickness / 2) + y, fg=fg, bg=bg)
+
+
+def create_surface_with_text(text, fg, bg, font: Optional[pygame.font.Font]) -> pygame.Surface:
+    """ Returns pygame surface with given text written."""
+    surface = font.render(text, True, fg, None) # NOTE: antialiasing True for better font readability
+    return surface.convert_alpha()
+

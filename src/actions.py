@@ -581,7 +581,7 @@ class MovementAction(ActionWithDirection):
                 self.engine.message_log.add_message(f"{g(self.entity.name, '은')} 구덩이에서 빠져나오려 했으나 실패했다.", color.gray, target=self.entity)
                 return None # Turn passes
 
-        if not self.engine.game_map.tiles["walkable"][dest_x, dest_y]:
+        if not self.engine.game_map.tiles[dest_x, dest_y].walkable:
             # Destination is blocked by a tile.
             raise exceptions.Impossible("길이 막혀 있다.")
             
@@ -593,6 +593,8 @@ class MovementAction(ActionWithDirection):
 
         if self.entity.growthable:
             self.entity.status.experience.gain_agility_exp(0.2, 17, 500) # 1 exp per 5 tiles
+
+        return None
 
 
 class DoorUnlockAction(ActionWithDirection):

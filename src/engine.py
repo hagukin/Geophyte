@@ -1,5 +1,8 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING, List, Optional, Tuple, Set
+
+import pygame.surface
+
 from util import draw_thick_frame
 from tcod.path import SimpleGraph, Pathfinder
 from tcod.console import Console
@@ -19,13 +22,6 @@ from procgen import generate_dungeon
 from input_handlers import MainGameEventHandler
 from message_log import MessageLog
 from render import (
-    render_character_name,
-    render_gameinfo,
-    render_health_bar,
-    render_mana_bar,
-    render_names_at_mouse_location,
-    render_character_status,
-    render_character_state,
     render_message_window,
 )
 from entity import Actor, Item, SemiActor
@@ -36,7 +32,7 @@ if TYPE_CHECKING:
 
 
 class Engine:
-    def __init__(self, player: Actor):
+    def __init__(self, player: Optional[Actor], screen):
         """
         Vars:
             player_path:
@@ -54,31 +50,35 @@ class Engine:
             world:
                 Collection of entire gamemaps created.
         """
+        self.screen = screen
         self.event_handler: EventHandler = MainGameEventHandler(self)
-        self.message_log = MessageLog(engine=self)
-        self.mouse_location = (0, 0)
         self.mouse_dir = (1, 1)
         self.player = player
         self.player_path = deque([])
         self.player_dir = None
-        self.actors_in_sight: Set(Actor) = set()
-        self.items_in_sight: Set(Item) = set()
-        self.prev_actors_in_sight: Set(Actor) = set()
-        self.prev_items_in_sight: Set(Item) = set()
+        self.actors_in_sight: Set[Actor] = set()
+        self.items_in_sight: Set[Item] = set()
+        self.prev_actors_in_sight: Set[Actor] = set()
+        self.prev_items_in_sight: Set[Item] = set()
         self.game_turn = 0
         self.config = None # Set from initialization
-        self.console = None
-        self.context = None
         self.camera = None
+        self.fonts = {} # Set from initialization
         self.world = {}
         self.game_map: GameMap = None
         self.depth: int = 0
         self.item_manager: ItemManager = None
+        self.message_log = None # Set from initialization
+        self.game_gui = None # Set from initialization
 
-    @property
-    def mouse_relative_location(self):
-        x, y = self.camera.get_relative_coordinate(abs_x=self.mouse_location[0], abs_y=self.mouse_location[1])
-        return x, y
+    def get_font(self, font_id: str, font_size: int) -> pygame.font.Font:
+        if font_id + "_" + str(font_size) not in self.fonts:
+            self.fonts[font_id + "_" + str(font_size)] = pygame.font.Font(self.config["fonts"][font_id], font_size)
+        return self.fonts[font_id + "_" + str(font_size)]
+
+    def adjustments_before_game(self) -> None:
+        from sprite import GameSprite
+        GameSprite.engine = self
 
     def adjustments_before_new_map(self, update_player_fov: bool=False):
         self.game_map.sort_entities()
@@ -358,22 +358,22 @@ class Engine:
                 elif effects[n][0] == "levitate_target":
                     target.actor_state.apply_levitation(effects_var[n])
 
-    def generate_new_dungeon(self, console, context, depth=1) -> GameMap:
+    def generate_new_dungeon(self, screen:pygame.surface.Surface, depth=1) -> GameMap:
         """Generate new dungeon and return as gamemap object"""
-        # Set temporary context, console values to prevent cffi error
-        temp_console, temp_context = self.console, self.context
-        self.console, self.context = None, None
+        # Set temporary screen
+        temp_screen = self.screen
+        self.screen = None
 
         # Generate regular dungeon
-        new_dungeon = generate_dungeon(
-            console=console,
-            context=context,
+        from procgen import generate_dungeon_debug
+        new_dungeon = generate_dungeon_debug(
+            screen=screen,
             engine=self,
             depth=depth,
         )
 
         # Get console, context info back.
-        self.console, self.context = temp_console, temp_context
+        self.screen = temp_screen
         return new_dungeon
 
     def update_entity_in_sight(self, is_initialization=False) -> None:
@@ -446,7 +446,7 @@ class Engine:
         Recompute the visible area based on the players point of view.
         + apply telepathy
         """
-        temp_vision = copy.copy(self.game_map.tiles["transparent"])
+        temp_vision = np.array([[tile.transparent == True for tile in row] for row in self.game_map.tiles])
 
         for entity in self.game_map.entities:
             if entity.blocks_sight:
@@ -574,7 +574,7 @@ class Engine:
         for index in path:
             self.player_path.appendleft((index[0], index[1]))
 
-    def do_player_queue_actions(self) -> None:
+    def do_player_queue_actions(self) -> bool:
         """
         The game will automatically do an action for the player based on the player_path, player_dir information.
         """
@@ -690,77 +690,38 @@ class Engine:
 
         return True # Turn passes after every actions like normal
 
-    def refresh_screen(self) -> None:
-        """Refresh current console and apply it to current context."""
-        self.render(self.console)
-        self.context.present(self.console)
-
-    def render_visible_entities(self, console: Console, gui_x: int, gui_y: int, height: int, draw_frame: bool=False) -> None:
+    def render_visible_entities(self, engine, gui_x: int, gui_y: int, height: int) -> None:
         x = gui_x
         num = gui_y
 
         for actor in self.actors_in_sight:
             if num - gui_y >= height - 3: # Out of border
-                console.print(x=x, y=num, string="...", fg=color.gray)
+                engine.print_str(x=x, y=num, string="...", fg=color.gray)
                 break
-            console.print(x=x, y=num, string=actor.char, fg=actor.fg)
-            console.print(x=x+2, y=num, string=actor.name, fg=color.light_gray)
+            engine.print_str(x=x, y=num, string=actor.char, fg=actor.fg)
+            engine.print_str(x=x+2, y=num, string=actor.name, fg=color.light_gray)
             num += 1
 
         for item in self.items_in_sight:
             if num - gui_y >= height - 3: # Out of border
-                console.print(x=x, y=num, string="...", fg=color.gray)
+                engine.print_str(x=x, y=num, string="...", fg=color.gray)
                 break
-            console.print(x=x, y=num, string=item.char, fg=item.fg)
-            console.print(x=x+2, y=num, string=item.name, fg=color.light_gray)
+            engine.print_str(x=x, y=num, string=item.char, fg=item.fg)
+            engine.print_str(x=x+2, y=num, string=item.name, fg=color.light_gray)
             num += 1
-        
-        # draw frame
-        if draw_frame:
-            draw_thick_frame(console, x=gui_x-1, y=gui_y-1, width=28, height=height, title="시야 내 정보", fg=color.gui_frame_fg, bg=color.gui_frame_bg)
-            #console.draw_frame(x=gui_x-1, y=gui_y-1, width=28, height=height, title="시야 내 정보", clear=False, fg=color.gui_frame_fg, bg=color.gui_frame_bg)
 
-    def render_rightside(self, console: Console, gui_x: int, gui_y: int) -> None:
-        """
-        Handles the GUI about players status.
-        This includes player status, and player's status effects.
-        Args:
-            gui_x, gui_y:
-                top-left side of the graphical user interfaces.
-                NOTE: This is NOT the coordinate of the GUi frame. This is the coordinate of the inner area.
-        """
-
-        render_character_status(
-            console=console, 
-            x=gui_x, 
-            y=gui_y, 
-            width=self.config["rside_width"], 
-            height=self.config["status_height"], 
-            character=self.player, 
-            draw_frame=True
-            )
-
-        render_character_state(
-            console=console,
-            engine=self, 
-            x=gui_x, 
-            y=gui_y + self.config["status_height"] - 2, 
-            height=self.config["state_height"], 
-            character=self.player, 
-            draw_frame=True
-            )
-
-        self.render_visible_entities(
-            console, 
-            gui_x, 
-            gui_y + self.config["status_height"] + self.config["state_height"], 
-            height=self.config["sight_info_height"], 
-            draw_frame=True
-            )
+    def print_str(self,
+                  string: str,
+                  x: int, y: int,
+                  fg: Tuple[int, int, int], bg: Tuple[int, int, int] = None,
+                  font_id: str = "default",
+                  font_size: int = 16,
+                  antialiasing: bool = True) -> None:
+        self.screen.blit(self.get_font(font_id, font_size).render(string, antialiasing, fg), (x, y))
 
     def draw_window(
             self,
-            console: Console,
+            screen: pygame.Surface,
             text: str,
             fixed_width: bool = False,
             x: Optional[int] = None,
@@ -787,21 +748,19 @@ class Engine:
                 text_fg=text_fg,
             )
 
-    def render_gui(self, console: Console) -> None:
+    def render_gui(self, screen) -> None:
         """
         Handles rendering all the graphical user interfaces.
         """
         # Some values are hard-coded.
-        self.message_log.render(console=console, x=1, y=self.config["camera_height"]+2, width=self.config["camera_width"], height=self.config["msg_log_height"], draw_frame=True)
-        render_gameinfo(console=console, x=1, y=self.config["camera_height"] + self.config["msg_log_height"] + 3, depth=self.depth, game_turn=self.game_turn)
-        self.render_rightside(console=console, gui_x=self.config["camera_width"] + 2, gui_y=1)
+        self.message_log.render()
+        self.game_gui.render()
     
-    def render(self, console: Console) -> None:
+    def render(self, screen) -> None:
         """
         Handles rendering everything from the game.
         """
         self.camera.adjust()
-        self.camera.render(console, draw_frame=True)
-        self.render_gui(console=console)
-
-        render_names_at_mouse_location(console=console, x=1, y=0, engine=self)
+        self.camera.update_frame(0.025, 0.05)
+        self.camera.render(screen, draw_frame=True)
+        self.render_gui(screen)

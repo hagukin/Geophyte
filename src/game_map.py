@@ -1,10 +1,7 @@
 from __future__ import annotations
-
 import numpy as np  # type: ignore
 import random
-
-from numpy.lib.arraysetops import isin
-import tile_types
+import tile_factories
 
 from typing import Iterable, Iterator, Optional, Tuple, List, TYPE_CHECKING
 from entity import Actor, Item, SemiActor
@@ -14,21 +11,33 @@ if TYPE_CHECKING:
     from engine import Engine
     from entity import Entity
     from biome import Biome
+    from tile import Tile
 
 
 class GameMap:
     def __init__(
         self, depth: int, engine: Engine, biome: Biome, entities: Iterable[Entity] = (),
     ):
+        """
+        Vars:
+            tiles:
+                Tile objects mapped to x,y coordinates.
+            sprites:
+                Current sprite objects mapped to x,y coordinates.
+            NOTE: Tiles stores the gamemap data, and sprites stores the graphical information.
+        """
         self.depth = depth
         self.engine = engine
         self.biome = biome
         self.width, self.height = biome.map_width, biome.map_height
+
         self.entities = list(entities)
 
         self.tileset = biome.tileset # initialized at procgen
 
-        self.tiles = np.full((biome.map_width, biome.map_height), fill_value=tile_types.DEBUG(), order="F")
+        self.tiles = np.full((biome.map_width, biome.map_height), fill_value=tile_factories.debug_tile(), order="F")
+        self.sprites = np.full((biome.map_width, biome.map_height), fill_value=tile_factories.shroud().skin.light(), order="F")
+
         self.tilemap = np.full((biome.map_width, biome.map_height), fill_value=TilemapOrder.VOID.value, order="F")
         self.tunnelmap = np.full((biome.map_width, biome.map_height), fill_value=True, order="F")# Set to True=tunnel can be built on that location
         self.protectmap = np.full((biome.map_width, biome.map_height), fill_value=False, order="F")# Set to True=terrain cannot overwrite(generate onto) that location
@@ -51,7 +60,15 @@ class GameMap:
     def gamemap(self) -> GameMap:
         return self
 
-    def is_type(self, entity: Entity, types: Tuple(str)) -> bool:
+    def __deepcopy__(self, memo):
+        return self ##TODO TEST Disabled deepcopy
+
+    def fill_tiles_with(self, tile_function, randomize: bool):
+        for x in range(len(self.tiles)):
+            for y in range(len(self.tiles[0])):
+                self.tiles[x,y] = tile_function(randomize)
+
+    def is_type(self, entity: Entity, types: Tuple[str]) -> bool:
         for t in types:
             if t == "actor" and isinstance(entity, Actor) and not entity.is_dead:
                 return True
@@ -61,7 +78,7 @@ class GameMap:
                 return True
         return False
     
-    def typed_entities(self, types: List(str)) -> Iterator[Entity]:
+    def typed_entities(self, types: List[str]) -> Iterator[Entity]:
         """Iterate over this maps entities of given types."""
         yield from (
             entity
@@ -83,7 +100,7 @@ class GameMap:
         yield from (entity for entity in reversed(self.entities) if isinstance(entity, Item))
 
     @property
-    def semiactors(self) -> Iterator[Actor]:
+    def semiactors(self) -> Iterator[SemiActor]:
         """Iterate over this maps active semiactors, and return in list."""
         yield from (
             entity
@@ -123,7 +140,7 @@ class GameMap:
 
         return None
 
-    def get_all_actors_at_location(self, x: int, y: int) -> Optional[Actor]:
+    def get_all_actors_at_location(self, x: int, y: int) -> Optional[List]:
         tmp = []
         for actor in self.actors:
             if actor.x == x and actor.y == y:
@@ -132,7 +149,7 @@ class GameMap:
             return tmp
         return None
 
-    def get_all_items_at_location(self, x: int, y: int) -> Optional[Item]:
+    def get_all_items_at_location(self, x: int, y: int) -> Optional[List[Item]]:
         tmp = []
         for item in self.items:
             if item.x == x and item.y == y:
@@ -162,7 +179,7 @@ class GameMap:
         
         return None
 
-    def get_all_semiactors_at_location(self, x: int, y: int) -> Optional[SemiActor]:
+    def get_all_semiactors_at_location(self, x: int, y: int) -> Optional[List[SemiActor]]:
         tmp = []
         for semiactor in self.semiactors:
             if semiactor.x == x and semiactor.y == y:
@@ -242,3 +259,49 @@ class GameMap:
                         break
         # Add turn
         self.respawn_turn_left += 1
+
+    def get_names_at_location(self, tile_x: int, tile_y: int, display_id: bool = False) -> str:
+        """
+        Display entity's name that are at the mouse cursor location. (Only when the location is visible)
+        """
+        if not self.engine.camera.abs_in_bounds(tile_x, tile_y) or not self.visible[tile_x, tile_y]:
+            return ""
+
+        names = []
+
+        for entity in reversed(self.entities):
+            if entity.x == tile_x and entity.y == tile_y:
+                if display_id:
+                    names.append(f"{id(entity)}:{entity.name}")
+                    continue
+
+                if isinstance(entity, Item):
+                    # If entity is a item, display stack_count as well
+                    if entity.stack_count > 1:
+                        names.append(f"{entity.name} x{entity.stack_count}")
+                    else:
+                        names.append(entity.name)
+                elif isinstance(entity, Actor):
+                    if entity.ai:
+                        if entity.ai.owner == self.engine.player:
+                            names.append(f"펫 {entity.name}")
+                        else:
+                            names.append(entity.name)
+                    else:
+                        names.append(entity.name)
+                else:
+                    names.append(entity.name)
+
+        names = ", ".join(names)
+        names = names[0:self.engine.config["render_on_mouse_entity_letter_width"]]
+
+        return names.capitalize()
+
+    def get_tile_name_at_location(self, tile_x: int, tile_y: int) -> str:
+        """
+        Display tile's name that are at the mouse cursor location. (Only when the location is explored)
+        """
+        if not self.engine.camera.abs_in_bounds(tile_x, tile_y) or not self.explored[tile_x, tile_y]:
+            return ""
+
+        return self.tiles[tile_x, tile_y].tile_name.capitalize()

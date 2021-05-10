@@ -1,9 +1,8 @@
-
 import textwrap
-from util import draw_thick_frame
-import tcod
+import copy
 import color
 
+from util import draw_thick_frame
 from typing import Iterable, List, Reversible, Tuple
 from entity import Entity, Actor
 
@@ -23,9 +22,58 @@ class Message:
 
 
 class MessageLog:
-    def __init__(self, engine) -> None:
-        self.messages: List[Message] = []
+    def __init__(self, engine, font_id: str="default-bold", font_size: int=16) -> None:
+        """
+        NOTE: MessageLog must use square fonts. (fonts with same width and height)
+        """
         self.engine = engine
+        self.font_id = font_id
+        self.font_size = font_size
+        self.font = engine.get_font(font_id, font_size)
+        self.width = int(engine.config["camera_width"] * engine.config["msg_log_width_ratio_to_camera_width"])
+        self.height = engine.config["screen_height"] - engine.config["camera_height"] - self.font_size * 2
+        self.display_x = engine.config["camera_display_x"] + self.font_size
+        self.display_y = engine.config["camera_display_y"] + engine.config["camera_height"] + self.font_size
+        self.messages: List[Message] = []
+
+    def __deepcopy__(self, memo):
+        # Backup pygame surfaces
+        tmp = self.font
+        self.font = None
+
+        # deepcopy rest
+        new_obj = MessageLog(self.engine, self.font_id, self.font_size)
+        for name, attr in self.__dict__.items():
+            if name == "font":
+                continue
+            else:
+                new_obj.__dict__[name] = copy.deepcopy(attr)
+
+        self.font = tmp
+        new_obj.font = tmp
+        return new_obj
+
+    @property
+    def letter_height(self):
+        """returns how many letters can fit in this message log's height."""
+        return int(self.height / self.font_size)
+
+    @property
+    def letter_width(self):
+        """returns how many letters can fit in this message log's width."""
+        return int(self.width / self.font_size)
+
+    @property
+    def screen(self):
+        return self.engine.screen
+
+    @staticmethod
+    def wrap(string: str, width: int) -> Iterable[str]:
+        """Return a wrapped text message."""
+        for line in string.splitlines():  # Handle newlines in messages.
+            yield from textwrap.wrap(
+                line, width, expand_tabs=True,
+            )
 
     def add_message(
         self, text: str, fg: Tuple[int, int, int] = color.white, *, target: Entity = None, stack: bool = True, show_once: bool = False,
@@ -68,45 +116,17 @@ class MessageLog:
         else:
             self.add_message(f"{speaker.name}({speaker.char}): " + "(알아들을 수 없음)", fg, target=speaker, stack=stack, show_once=show_once)
 
-    def render(
-        self, console: tcod.Console, x: int, y: int, width: int, height: int, draw_frame: bool=False
-    ) -> None:
-        """
-        Render the message log over the given area.
-        """
-        self.render_messages(console, x, y, width, height, self.messages)
+    def render(self) -> None:
+        """Render the message log over the given area."""
+        self.render_messages()
 
-        if draw_frame:
-            draw_thick_frame(console, x=x-1, y=y-1, width=width+2, height=height+2, fg=color.gui_frame_fg, bg=color.gui_frame_bg)
-            #console.draw_frame(x=x-1, y=y-1, width=width+2, height=height+2, clear=False, fg=color.gui_frame_fg, bg=color.gui_frame_bg)
+    def render_messages(self) -> None:
+        """Render messages."""
+        y_offset = self.height - self.font_size
 
-    @staticmethod
-    def wrap(string: str, width: int) -> Iterable[str]:
-        """Return a wrapped text message."""
-        for line in string.splitlines():  # Handle newlines in messages.
-            yield from textwrap.wrap(
-                line, width, expand_tabs=True,
-            )
-
-    @classmethod
-    def render_messages(
-        cls,
-        console: tcod.Console,
-        x: int,
-        y: int,
-        width: int,
-        height: int,
-        messages: Reversible[Message],
-    ) -> None:
-        """
-        Render the messages provided.
-        The `messages` are rendered starting at the last message and working backwards.
-        """
-        y_offset = height - 1
-
-        for message in reversed(messages):
-            for line in reversed(list(cls.wrap(message.full_text, width))):
-                console.print(x=x, y=y + y_offset, string=line, fg=message.fg)
-                y_offset -= 1
+        for message in reversed(self.messages):
+            for line in reversed(list(self.wrap(message.full_text, self.letter_width))):
+                self.screen.blit(self.font.render(line, True, message.fg), (self.display_x, self.display_y + y_offset))
+                y_offset -= self.font_size
                 if y_offset < 0:
                     return  # No more space to print messages.

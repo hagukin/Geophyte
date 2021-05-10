@@ -2,7 +2,12 @@ from loader.initialization import init_game_variables
 from loader.data_loader import load_game
 from render import render_img
 from loader.data_loader import quit_game
+from input_handlers import InputHandler
+from typing import Optional, Any
+from interactables import MouseInteractable
+from util import create_surface_with_text
 
+import pygame
 import color
 import tcod
 import time
@@ -10,175 +15,97 @@ import random
 import option
 import credits
 
-
-class TitleInputHandler(tcod.event.EventDispatch[None]):
+class TitleInputHandler(InputHandler):
     """
     Handles every inputs that are made in the title screen.
     """
-    def ev_keydown(self, event):
-        if event.sym == tcod.event.K_n: # New Game
+    def __init__(self, screen):
+        super().__init__(screen=screen)
+        center_x = screen.get_width() // 2
+        center_y = screen.get_height() // 2
+        font_size = 32
+        font = pygame.font.Font("./resources/fonts/NanumMyeongjo.ttf", font_size)
+        font_enhanced = pygame.font.Font("./resources/fonts/NanumMyeongjo.ttf", int(font_size * 1.25))
+
+        self.add_mouse_interactable(MouseInteractable((center_x, center_y), {
+            "default": create_surface_with_text("New Game", color.white, None, font),
+            "mouse_on": create_surface_with_text("New Game", color.white, None, font_enhanced)}, None, mouse_down_return="new_game"))
+        self.add_mouse_interactable(MouseInteractable((center_x, center_y + font_size * 2), {
+            "default": create_surface_with_text("Load Game", color.white, None, font),
+            "mouse_on": create_surface_with_text("Load Game", color.white, None, font_enhanced)}, None, mouse_down_return="load_game"))
+        self.add_mouse_interactable(MouseInteractable((center_x, center_y + font_size * 4), {
+            "default": create_surface_with_text("Options", color.white, None, font),
+            "mouse_on": create_surface_with_text("Options", color.white, None, font_enhanced)}, None, mouse_down_return="options"))
+        self.add_mouse_interactable(MouseInteractable((center_x, center_y + font_size * 6), {
+            "default": create_surface_with_text("Credits", color.white, None, font),
+            "mouse_on": create_surface_with_text("Credits", color.white, None, font_enhanced)}, None, mouse_down_return="credits"))
+        self.add_mouse_interactable(MouseInteractable((center_x, center_y + font_size * 8), {
+            "default": create_surface_with_text("Quit Game", color.white, None, font),
+            "mouse_on": create_surface_with_text("Quit Game", color.white, None, font_enhanced)}, None, mouse_down_return="quit_game"))
+
+    def ev_keydown(self, event: pygame.event.Event, pressed) -> Optional[str]:
+        if event.key == pygame.K_n:  # New Game
             return "new_game"
-        elif event.sym == tcod.event.K_l: # Load Game
+        elif event.key == pygame.K_l:  # Load Game
             return "load_game"
-        elif event.sym == tcod.event.K_o: # Option
-            return "option"
-        elif event.sym == tcod.event.K_c: # Credits
+        elif event.key == pygame.K_o:  # Option
+            return "options"
+        elif event.key == pygame.K_c:  # Credits
             return "credits"
-        elif event.sym == tcod.event.K_q: # Quit Game
+        elif event.key == pygame.K_q:  # Quit Game
             return "quit_game"
         return None
 
-
-def render_title_animation(console, x, y, frame):
-    """
-    Render animations for the title screen.
-    """
-    # Title Logo Color changes every loop
-    # num = random.randint(0,1)
-    # if num == 0:
-    #     text_color = color.white
-    # else:
-    #     text_color = color.red
-
-    text_color = color.logo_c1
-
-    # Get title graphic
-    with open("resources\\geophyte_title.txt", "r") as f:
-        title = f.read()
-    
-    # render
-    console.print(x, y, string=title, fg=text_color)
-
-    # Get animation graphic
-    g2frame = (3,4,5,6,7,8,1,2) #differs the frame to make more non-synchronized feeleing
-    with open(f"resources\\f{frame}.txt", "r") as f:
-        graphic1 = f.read()
-    with open(f"resources\\f{g2frame[frame-1]}.txt", "r") as f:
-        graphic2 = f.read()
-    torch = " \' \n\\-/\n\\#/\n # \n # \n # \n # \n # \n # \n # \n # \n # "
-    
-    flame_color = (255, random.randint(100,255), 0)
-
-    width = tcod.console_get_width(console)
-    height = tcod.console_get_height(console)
-    anim_x = int(width / 2) - 9
-    anim_y = height - 18
-    console.print(anim_x - 2, anim_y - 2, string=graphic1, fg=flame_color)
-    console.print(anim_x - 2, anim_y, string=torch, fg=color.brown)
-    console.print(anim_x + 18, anim_y - 2, string=graphic2, fg=flame_color)
-    console.print(anim_x + 18, anim_y, string=torch, fg=color.brown)
+    def handle_title_event(self, event_id: str, screen, cfg) -> Any:
+        if event_id == "new_game":
+            player, engine = init_game_variables(screen, cfg)
+            engine.message_log.add_message(f"{player.name}님, 지오파이트의 세계에 오신 것을 환영합니다!", color.welcome_text)
+            return player, engine
+        elif event_id == "load_game":
+            try:
+                player, engine = load_game(cfg)
+                engine.message_log.add_message(f"{player.name}님, 지오파이트의 세계에 돌아오신 것을 환영합니다!", color.welcome_text)
+                return player, engine
+            except:
+                # console.print(5, 5, string="세이브 파일을 찾지 못했습니다.", fg=color.red)
+                return None
+        elif event_id == "options":
+            # TODO
+            # option.option_event_handler(console=console, context=context, game_started=False)
+            render_title(screen)
+        elif event_id == "credits":
+            # TODO
+            # credits.credit_event_handler(console=console, context=context)
+            render_title(screen)
+        elif event_id == "quit_game":
+            quit_game()
 
 
-def render_title_gui(console):
-    """
-    Renders GUI for the title screen.
-    """
-    width = tcod.console_get_width(console)
-    height = tcod.console_get_height(console)
-    x = int(width / 2) - 8
-    y = height - 17
-    # render
-    console.print(x+2, y+1, string="N - New Game\n\nL - Load Game\n\nO - Options\n\nC - Credits\n\nQ - Quit Game\n", fg=color.white)
-
-    # Copyright Note, version mark
-    console.print(width - 32, height - 4, string="Copyright (C) 2020 by Haguk Kim", fg=color.white)
-    console.print(width - 24, height - 2, string="Geophyte Pre-Alpha v1.0", fg=color.white)
+def render_titlescreen(eventhandler, screen) -> None:
+    eventhandler.render_interactables(pygame.mouse.get_pos())
+    pygame.display.update()
+    screen.fill((0, 0, 0))
 
 
-def get_title_action(sec_per_frame):
-    """
-    Get input from the player using TitleInputHandler, and return the coresspondent action in a string form.
-    """
-    # Set Input Handler
-    title_input_handler = TitleInputHandler()
-
-    start_time = time.time()
-    
-    is_time_over = False
-
-    # Get input
-    while True:
-        end_time = time.time()
-        if end_time - start_time >= sec_per_frame:
-            #print(end_time - start_time) #NOTE: time consumed for each loop
-            is_time_over = True
-            return None
-
-        for event in tcod.event.wait(timeout=0.01):#NOTE: increasing the timeout value might cause each loop to consume longer time.
-            title_action = title_input_handler.dispatch(event)
-
-            if title_action:
-                return title_action
-
-        if is_time_over:
-            return None
-
-
-def render_title(console, context, anim_x:int, anim_y:int, anim_frame: int) -> None:
-    """
-    Render title screen.
-    """
-    console.clear(fg=color.black, bg=color.black)
-    render_img(console=console, dest_x = 5, dest_y = 5, img=tcod.image_load("resources\\title_img.png"))
-    render_title_gui(console=console)
-    render_title_animation(console=console, x=anim_x, y=anim_y, frame=anim_frame)
-    context.present(console, keep_aspect=True)
-
-
-def title_event_handler(console, context, cfg):
+def title_event_handler(screen, cfg) -> Optional:
     """
     Core function that handles most of the things related to the title screen.
     Title screen loop is handled here.
     """
-    title_animation_x = int(tcod.console_get_width(console) / 2) - 41
-    title_animation_y = 15
-
-    sec_per_frame = 0.2
-    max_frame = 8
-
-    # Render title for the first time
-    animation_frame = 1
-    render_title(console, context, title_animation_x, title_animation_y, animation_frame)
-
     # Title screen loop
+    title_input_handler = TitleInputHandler(screen=screen)
+
     while True:
-        # Get Input from title + timeoout when this animation frame is overs next animation
-        title_action = get_title_action(sec_per_frame=sec_per_frame)
-    
-        # Render Title GUI
-        render_title_gui(console=console)
+        render_titlescreen(title_input_handler, screen)
+        pressed = pygame.key.get_pressed()
+        for event in pygame.event.get():
+            title_action = title_input_handler.handle_title_event(title_input_handler.dispatch_event(event, pressed), screen, cfg)
+            if title_action:
+                return title_action
 
-        # Add frame
-        if animation_frame >= max_frame:
-            animation_frame = 1
-        else:
-            animation_frame += 1
 
-        render_title_animation(console=console, x=title_animation_x, y=title_animation_y, frame=animation_frame)
-
-        # Present to console
-        context.present(console, keep_aspect=True)
-
-        # Get input from title screen
-        if title_action == "new_game":
-            player, engine = init_game_variables(cfg, console, context)
-            engine.message_log.add_message(f"{player.name}님, 지오파이트의 세계에 오신 것을 환영합니다!", color.welcome_text)
-            return player, engine
-        elif title_action == "load_game":
-            try:
-                player, engine = load_game()
-                engine.message_log.add_message(f"{player.name}님, 지오파이트의 세계에 돌아오신 것을 환영합니다!", color.welcome_text)
-                return player, engine
-            except:
-                console.print(5, 5, string="세이브 파일을 찾지 못했습니다.", fg=color.red)
-                context.present(console, keep_aspect=True)
-                continue
-        elif title_action == "option":
-            option.option_event_handler(console=console, context=context, game_started=False)
-            render_title(console, context, title_animation_x, title_animation_y, animation_frame)
-        elif title_action == "credits":
-            credits.credit_event_handler(console=console, context=context)
-            render_title(console, context, title_animation_x, title_animation_y, animation_frame)
-        elif title_action == "quit_game":
-            quit_game()
-
+def render_title(screen) -> None:
+    """
+    Render title screen.
+    """
+    pass

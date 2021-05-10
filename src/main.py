@@ -1,41 +1,33 @@
 #!/usr/bin/env python3
 import traceback
 import title
-import tcod
+import pygame
 import color
-from tcod.context import RENDERER_SDL2
 from configuration import get_game_config
 
 def main() -> None:
-    # Get Configuration
-    cfg = get_game_config()
+    game_on = True
+    while game_on: #TODO reboot game after cfg change
+        # Get Configuration
+        cfg = get_game_config()
 
-    # Toggle Fullscreen
-    if cfg["fullscreen"]:
-        set_screen = tcod.context.SDL_WINDOW_FULLSCREEN_DESKTOP
-    else:
-        set_screen = None
+        # init pygame
+        pygame.init()
+        clock = pygame.time.Clock()
+        width, height = pygame.display.Info().current_w, pygame.display.Info().current_h
 
-    with tcod.context.new(
-        columns=cfg["screen_width"],
-        rows=cfg["screen_height"],
-        tileset=tcod.tileset.load_truetype_font(
-            path=cfg["tileset_path"], 
-            tile_width=cfg["tile_width"], 
-            tile_height=cfg["tile_height"]
-        ),
-        title="Geophyte",
-        sdl_window_flags=set_screen,
-        vsync=False,
-    ) as context:
-        root_console = tcod.Console(cfg["screen_width"], cfg["screen_height"], order="F")
+        if cfg["fullscreen"]:
+            screen = pygame.display.set_mode((cfg["screen_width"], cfg["screen_height"]), pygame.FULLSCREEN)
+        else:
+            screen = pygame.display.set_mode((cfg["screen_width"], cfg["screen_height"]))
+        pygame.display.set_caption('Geophyte')
+        pygame.display.update()
 
         # Title Screen Loop
-        player, engine = title.title_event_handler(console=root_console, context=context, cfg=cfg)
+        player, engine = title.title_event_handler(screen, cfg=cfg)
         
         # Final adjustments before starting the game loop
-        engine.console = root_console
-        engine.context = context
+        engine.adjustments_before_game()
         engine.adjustments_before_new_map(update_player_fov=True)
 
         # Main Game Loop
@@ -45,30 +37,26 @@ def main() -> None:
                     turn_pass = engine.do_player_queue_actions()
                     engine.game_map.sort_entities() # rearranging entities to prevent rendering issues
                     engine.handle_world(turn_pass=turn_pass)
-
-                    # Render game
-                    root_console.clear()
-                    engine.event_handler.on_render(console=root_console) #refreshing graphics for the root console
-                    context.present(root_console, keep_aspect=True)
                 else:
-                    for event in tcod.event.wait(timeout=None):# set to None = wait indefinitly for any events
-                        context.convert_event(event)
-                        turn_pass = engine.event_handler.handle_events(event)# returns True if player does any action that costs a in-game turn
+                    for event in pygame.event.get():# set to None = wait indefinitly for any events
+                        pressed = pygame.key.get_pressed()
+                        turn_pass = engine.event_handler.handle_event(engine.event_handler.dispatch_event(event, pressed)) # returns True if player does any action that costs a in-game turn
                         engine.game_map.sort_entities()
                         engine.handle_world(turn_pass=turn_pass)
 
-                        # Render game
-                        root_console.clear()
-                        engine.event_handler.on_render(console=root_console) #refreshing graphics for the root console
-                        context.present(root_console, keep_aspect=True)
-                
+                screen.fill((40, 40, 20))
+                engine.event_handler.on_render(mouse_pos=pygame.mouse.get_pos())
+                pygame.display.update()
+
                 ### WRITE DEBUG FUNCTIONS HERE ###
-                # print("DEBUG")
 
             except Exception:
                 # Print error to stderr then print the error to the message log
                 traceback.print_exc()
                 engine.message_log.add_message(traceback.format_exc(), color.error)
+
+            pygame.display.flip()
+            clock.tick(20) #framerate
 
 
 if __name__ == "__main__":
@@ -77,7 +65,6 @@ if __name__ == "__main__":
     performance_debug = False
 
     if performance_debug:
-
         import cProfile
         import pstats
         from pstats import SortKey
@@ -94,4 +81,3 @@ if __name__ == "__main__":
     else:
         while True:
             main()
-    

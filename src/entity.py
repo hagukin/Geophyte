@@ -1,12 +1,10 @@
 from __future__ import annotations
-from actions import WaitAction
 import copy
 import math
 import random
-import numpy as np
+import skin_factories
 
 from typing import Optional, Tuple, Type, TypeVar, TYPE_CHECKING, List
-from numpy.core.shape_base import block
 from order import RenderOrder, InventoryOrder
 from components.experience import Experience
 from korean import grammar as g
@@ -26,9 +24,9 @@ if TYPE_CHECKING:
     from components.item_state import ItemState
     from components.actor_state import ActorState
     from components.semiactor_info import SemiactorInfo
+    from components.skin import Skin
     from game_map import GameMap
 
-T = TypeVar("T", bound="Entity")
 
 class Entity:
     """
@@ -40,6 +38,7 @@ class Entity:
         indestructible: bool = False,
         x: int = 0,
         y: int = 0,
+        skin: Optional[Skin] = skin_factories.skin_transparent,
         _char: str = "?",
         _fg: Tuple[int, int, int] = (255, 255, 255),
         _bg: Tuple[int, int, int] = None,
@@ -60,7 +59,7 @@ class Entity:
         Args:
             indestructible:
                 If true, this entity cannot be destroyed by remove_self().
-            entity_desc:
+            _entity_desc:
                 Recommended not to write more than 5 lines.
                 Each lines should contain less than 110 characters. (Including blanks)
             rarity:
@@ -79,6 +78,7 @@ class Entity:
         self.indestructible = indestructible
         self.x = x
         self.y = y
+        self.skin = skin
         self._char = _char
         self._fg = _fg
         self._bg = _bg
@@ -137,14 +137,14 @@ class Entity:
         (e.g. teleporting on traps will still activate the traps.)
         """
         # When entity is on a grass
-        if self.gamemap.tiles[self.x, self.y]["tile_id"] == "dense_grass":
+        if self.gamemap.tiles[self.x, self.y].tile_id == "dense_grass":
             self.gamemap.tiles[self.x, self.y] = self.gamemap.tileset["t_sparse_grass"]()
 
         # When entity is on a water
-        if self.gamemap.tiles[self.x, self.y]["tile_id"] == "shallow_water":
+        if self.gamemap.tiles[self.x, self.y].tile_id == "shallow_water":
             self.gamemap.tiles[self.x, self.y] = self.gamemap.tileset["t_shallow_water"]()
             change_water_color = True
-        elif self.gamemap.tiles[self.x, self.y]["tile_id"] == "deep_water":
+        elif self.gamemap.tiles[self.x, self.y].tile_id == "deep_water":
             self.gamemap.tiles[self.x, self.y] = self.gamemap.tileset["t_deep_water"]()
             change_water_color = True
         else:
@@ -154,9 +154,9 @@ class Entity:
         if change_water_color:
             for x_add in range(3):
                 for y_add in range(3):
-                    if self.gamemap.tiles[self.x-1+x_add, self.y-1+y_add]["tile_id"] == "shallow_water":
+                    if self.gamemap.tiles[self.x-1+x_add, self.y-1+y_add].tile_id == "shallow_water":
                         self.gamemap.tiles[self.x-1+x_add, self.y-1+y_add] = self.gamemap.tileset["t_shallow_water"]()
-                    elif self.gamemap.tiles[self.x-1+x_add, self.y-1+y_add]["tile_id"] == "deep_water":
+                    elif self.gamemap.tiles[self.x-1+x_add, self.y-1+y_add].tile_id == "deep_water":
                         self.gamemap.tiles[self.x-1+x_add, self.y-1+y_add] = self.gamemap.tileset["t_deep_water"]()
 
     def gain_action_point(self):
@@ -236,6 +236,7 @@ class Actor(Entity):
         indestructible: bool = False,
         x: int = 0,
         y: int = 0,
+        skin: Optional[Skin] = skin_factories.skin_transparent,
         char: str = "?",
         fg: Tuple[int, int, int] = (255, 255, 255),
         bg: Tuple[int, int, int] = None,
@@ -291,6 +292,7 @@ class Actor(Entity):
             indestructible=indestructible,
             x=x,
             y=y,
+            skin=skin,
             _char=char,
             _fg=fg,
             _bg=bg,
@@ -366,7 +368,7 @@ class Actor(Entity):
         ### A. Tile related ###
         if not self.actor_state.is_flying:
             ### 1. Deep pit
-            if self.gamemap.tiles[self.x, self.y]["tile_id"] == "deep_pit":
+            if self.gamemap.tiles[self.x, self.y].tile_id == "deep_pit":
                 if not self.actor_state.is_in_deep_pit:
                     pass#TODO: Add an effect that happens only right after when the actor fell into the pit
 
@@ -375,7 +377,7 @@ class Actor(Entity):
                 self.actor_state.is_in_deep_pit = False
             
             ### 2. Shallow pit
-            if self.gamemap.tiles[self.x, self.y]["tile_id"] == "shallow_pit":
+            if self.gamemap.tiles[self.x, self.y].tile_id == "shallow_pit":
                 self.actor_state.is_in_shallow_pit = True
             else:
                 self.actor_state.is_in_shallow_pit = False
@@ -384,13 +386,13 @@ class Actor(Entity):
             # copy is_submerged to was_submerged
             self.actor_state.was_submerged = self.actor_state.is_submerged
 
-            if self.gamemap.tiles[self.x, self.y]["tile_id"] == "deep_water":
+            if self.gamemap.tiles[self.x, self.y].tile_id == "deep_water":
                 self.actor_state.is_submerged = True
 
                 # Actor that is bigger than size 7 does not fully sink in the water.
                 if self.actor_state.size < 7:
                     self.actor_state.is_underwater = True
-            elif self.gamemap.tiles[self.x, self.y]["tile_id"] == "shallow_water":
+            elif self.gamemap.tiles[self.x, self.y].tile_id == "shallow_water":
                 self.actor_state.is_submerged = True
 
                 # Actor that is smaller than size 1 will fully sink in the water even if its shallow.
@@ -444,7 +446,8 @@ class Actor(Entity):
         Spawn a copy of this instance at the given location.
         """
         clone = super().spawn(gamemap, x, y)
-        clone.initialize_actor()#NOTE: initialize_actor() should be called AFTER super().spawn(), so that the actor's gamemap is set.
+        if isinstance(clone, Actor):
+            clone.initialize_actor()#NOTE: initialize_actor() should be called AFTER super().spawn(), so that the actor's gamemap is set.
         return clone
 
     def check_for_immobility(self):
@@ -486,6 +489,7 @@ class Item(Entity):
         indestructible: bool = False,
         x: int = 0,
         y: int = 0,
+        skin: Optional[Skin] = skin_factories.skin_transparent,
         should_randomize: bool = False,
         char: str = "?",
         fg: Tuple[int, int, int] = (255, 255, 255),
@@ -542,6 +546,7 @@ class Item(Entity):
             indestructible=indestructible,
             x=x,
             y=y,
+            skin=skin,
             _char=char,
             _fg=fg,
             _bg=bg,
@@ -825,6 +830,7 @@ class SemiActor(Entity):
         indestructible: bool = False,
         x: int = 0,
         y: int = 0,
+        skin: Optional[Skin] = skin_factories.skin_transparent,
         char: str = "?",
         fg: Tuple[int, int, int] = (255, 255, 255),
         bg: Tuple[int, int, int] = None,
@@ -864,6 +870,7 @@ class SemiActor(Entity):
             indestructible=indestructible,
             x=x,
             y=y,
+            skin=skin,
             _char=char,
             _fg=fg,
             _bg=bg,

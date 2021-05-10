@@ -1,6 +1,7 @@
 from components import experience
 import ai_factories
 import item_factories
+import skin_factories
 import copy
 import ability_factories
 import components.edible as edible
@@ -71,6 +72,7 @@ monster_difficulty[DEBUG.status.difficulty].append(DEBUG)
 
 ### Player
 player = Actor(
+    skin=skin_factories.skin_player(True),
     char="@",
     fg=(0, 255, 0),
     name="갬장장이",
@@ -97,7 +99,7 @@ player = Actor(
         base_melee=5,
         additional_melee=5,
         protection=10,
-        eyesight=20,
+        eyesight=3,
         ),
     actor_state=ActorState(
         hunger=1200,

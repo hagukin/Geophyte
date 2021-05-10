@@ -1,15 +1,11 @@
 from __future__ import annotations
-from numpy import isin
-
-from numpy.lib.npyio import save
 from entity import SemiActor
 from components.inventory import Inventory
-from typing import Callable, Optional, Tuple, TYPE_CHECKING
+from typing import Callable, Optional, Tuple, TYPE_CHECKING, Any
 from order import InventoryOrder
 from actions import (
     Action,
     BumpAction,
-    CashExchangeAction, 
     DoorBreakAction, 
     DoorOpenAction, 
     MeleeAction,
@@ -28,8 +24,11 @@ from actions import (
 )
 from loader.data_loader import save_game, quit_game
 from entity import Actor, Item, Entity
+from util import create_surface_with_text
 from korean import grammar as g
+from interactables import MouseInteractable
 
+import pygame.key
 import tcod
 import time
 import color
@@ -39,63 +38,148 @@ if TYPE_CHECKING:
     from engine import Engine
     from ability import Ability
 
-
 MOVE_KEYS = {
     # Arrow keys.
-    tcod.event.K_UP: (0, -1),
-    tcod.event.K_DOWN: (0, 1),
-    tcod.event.K_LEFT: (-1, 0),
-    tcod.event.K_RIGHT: (1, 0),
-    tcod.event.K_HOME: (-1, -1),
-    tcod.event.K_END: (-1, 1),
-    tcod.event.K_PAGEUP: (1, -1),
-    tcod.event.K_PAGEDOWN: (1, 1),
+    pygame.K_UP: (0, -1),
+    pygame.K_DOWN: (0, 1),
+    pygame.K_LEFT: (-1, 0),
+    pygame.K_RIGHT: (1, 0),
+    pygame.K_HOME: (-1, -1),
+    pygame.K_END: (-1, 1),
+    pygame.K_PAGEUP: (1, -1),
+    pygame.K_PAGEDOWN: (1, 1),
     # Numpad keys.
-    tcod.event.K_KP_1: (-1, 1),
-    tcod.event.K_KP_2: (0, 1),
-    tcod.event.K_KP_3: (1, 1),
-    tcod.event.K_KP_4: (-1, 0),
-    tcod.event.K_KP_6: (1, 0),
-    tcod.event.K_KP_7: (-1, -1),
-    tcod.event.K_KP_8: (0, -1),
-    tcod.event.K_KP_9: (1, -1),
+    pygame.K_KP_1: (-1, 1),
+    pygame.K_KP_2: (0, 1),
+    pygame.K_KP_3: (1, 1),
+    pygame.K_KP_4: (-1, 0),
+    pygame.K_KP_6: (1, 0),
+    pygame.K_KP_7: (-1, -1),
+    pygame.K_KP_8: (0, -1),
+    pygame.K_KP_9: (1, -1),
     # Vi keys.
-    tcod.event.K_h: (-1, 0),
-    tcod.event.K_j: (0, 1),
-    tcod.event.K_k: (0, -1),
-    tcod.event.K_l: (1, 0),
-    tcod.event.K_y: (-1, -1),
-    tcod.event.K_u: (1, -1),
-    tcod.event.K_b: (-1, 1),
-    tcod.event.K_n: (1, 1),
+    pygame.K_h: (-1, 0),
+    pygame.K_j: (0, 1),
+    pygame.K_k: (0, -1),
+    pygame.K_l: (1, 0),
+    pygame.K_y: (-1, -1),
+    pygame.K_u: (1, -1),
+    pygame.K_b: (-1, 1),
+    pygame.K_n: (1, 1),
 }
 
 WAIT_KEYS = {
-    tcod.event.K_PERIOD,
-    tcod.event.K_KP_5,
-    tcod.event.K_CLEAR,
+    pygame.K_PERIOD,
+    pygame.K_KP_5,
+    pygame.K_CLEAR,
 }
 
 CONFIRM_KEYS = {
-    tcod.event.K_RETURN,
-    tcod.event.K_KP_ENTER,
+    pygame.K_RETURN,
+    pygame.K_KP_ENTER,
 }
 
+class InputHandler():
+    def __init__(self, engine: Optional[Engine]=None, screen=None):
+        self.engine = engine
+        if screen:
+            self.screen = screen
+        else:
+            self.screen = self.engine.screen
+        self.mouse_interactables = [] # List of interactables
 
-class EventHandler(tcod.event.EventDispatch[Action]):
+    def ev_mousemotion(self, event: pygame.event.Event, pressed) -> None:
+        pass
+
+    def ev_quit(self, event: pygame.event.Event, pressed) -> Optional[Action]:
+        raise SystemExit()
+
+    def ev_keydown(self, event: pygame.event.Event, pressed) -> None:
+        pass
+
+    def ev_keyup(self, event: pygame.event.Event, pressed) -> None:
+        pass
+
+    def m_lclicked(self, pressed) -> Any:
+        for interactable in self.mouse_interactables:
+            interactable.update_mouse_status(pygame.mouse.get_pos())
+            if interactable.mouse_on:
+                return interactable.mouse_down_return
+        return None
+
+    def m_rclicked(self, pressed) -> None:
+        pass
+
+    def ev_mousebuttondown(self, event: pygame.event.Event, pressed) -> None:
+        # Get the x, y coordinates of the mouse cursor.
+        mouse_map_x, mouse_map_y = pygame.mouse.get_pos()
+
+        if event.button == 1: #left
+            return self.m_lclicked(pressed)
+        elif event.button == 3: #right
+            return self.m_rclicked(pressed)
+
+    def ev_mousebuttonup(self, event: pygame.event.Event, pressed):
+        pass
+
+    def ev_mousewheel(self, event: pygame.event.Event, pressed):
+        pass
+
+    def dispatch_event(self, event: pygame.event.Event, pressed) -> Optional[str]:
+        if event.type == pygame.MOUSEMOTION:
+            return self.ev_mousemotion(event, pressed)
+        elif event.type == pygame.KEYDOWN:
+            return self.ev_keydown(event, pressed)
+        elif event.type == pygame.MOUSEBUTTONDOWN:
+            return self.ev_mousebuttondown(event, pressed)
+        elif event.type == pygame.KEYUP:
+            return self.ev_keyup(event, pressed)
+        elif event.type == pygame.MOUSEBUTTONUP:
+            return self.ev_mousebuttonup(event, pressed)
+        elif event.type == pygame.MOUSEWHEEL:
+            return self.ev_mousewheel(event, pressed)
+        # X button / alt-f4
+        if event.type == pygame.QUIT:
+            return
+
+    def add_mouse_interactable(self, interactable: MouseInteractable):
+        self.mouse_interactables.append(interactable)
+
+    def render_interactables(self, mouse_pos):
+        """Render all interactable objects attached to the eventhandler."""
+        for interactable in self.mouse_interactables:
+            interactable.render(self.screen, mouse_pos)
+
+    def on_render(self, mouse_pos) -> None:
+        self.render_interactables(mouse_pos)
+
+class EventHandler(InputHandler):
     def __init__(self, engine: Engine, revert_callback: Callable = None):
         """
         Args:
             revert_callback:
-                If there is a value(lambda function), 
-                this event will call that function when the item usage has been cancelled. 
-                (Howeever, items will still get consumed)
+                If there is a value(lambda function),
+                this event will call that function when the item usage has been cancelled.
+                (However, items will still get consumed)
         """
-        self.engine = engine
+        super().__init__(engine)
         self.revert_callback = revert_callback
 
-    def handle_events(self, event: tcod.event.Event) -> None:
-        return self.handle_action(self.dispatch(event))
+    @property
+    def center_x(self):
+        return self.screen.get_width() // 2
+
+    @property
+    def center_y(self):
+        return self.screen.get_height() // 2
+
+    def handle_event(self, event_id: str) -> bool:
+        """Handles actual implementation of each event.
+        Returns:
+            boolean that indicates whether the event costs a player turn or not."""
+        # e.g. if event_id == "attack":
+        #           self.engine.player.attack(xxx) ...
+        pass
 
     def handle_action(self, action: Optional[Action]) -> bool:
         """
@@ -109,59 +193,36 @@ class EventHandler(tcod.event.EventDispatch[Action]):
             action.perform()
         except exceptions.Impossible as exc:
             self.engine.message_log.add_message(exc.args[0], color.impossible)
-            print(f"ERROR OCCURED WHEN ACTOR PERFORMED AN ACTION : {exc.args[0]}")
-            return False  # Skip enemy turn on exceptions.
+            print(f"Impossible action : {exc.args[0]}")
+            return False # Trying to do something impossible will not cost a turn
+        except Exception as exc:
+            self.engine.message_log.add_message(exc.args[0], color.red)
+            print(f"ERROR::an error has occurred during processing the following: {exc.args[0]} - input_handlers - handle_action")
+            raise exc
+            #TODO: return False  # Skip enemy turn on exceptions.
 
         if action.free_action:
             return False
         return True
 
-    def get_mouse_dir(self) -> None:
-        dx = self.engine.mouse_location[0] - self.engine.player.x 
-        dy = self.engine.mouse_location[1] - self.engine.player.y
-        if dx == 0: dir_x = 0
-        else: dir_x = int(dx / abs(dx))
-        if dy == 0: dir_y = 0
-        else: dir_y = int(dy / abs(dy))
-
-        self.engine.mouse_dir = dir_x, dir_y
-
-    def ev_mousemotion(self, event: tcod.event.MouseMotion) -> None:
-        temp_x, temp_y = self.engine.camera.get_absolute_coordinate(relative_x=event.tile.x, relative_y=event.tile.y)
-        if self.engine.camera.in_bounds(temp_x, temp_y):
-            self.engine.mouse_location = temp_x, temp_y
-            self.get_mouse_dir()
-
-    def ev_mousebuttondown(self, event: tcod.event.MouseButtonDown) -> None:
-        # Get the x, y coordinates of the mouse cursor.
-        mouse_map_x, mouse_map_y = self.engine.camera.get_absolute_coordinate(relative_x=event.tile.x, relative_y=event.tile.y)
-
-        # Check if the mouse is in bounds
-        if not self.engine.camera.in_bounds(abs_x=mouse_map_x, abs_y=mouse_map_y):
-            return None
-        
-        # LClick
-        if event.button == tcod.event.BUTTON_LEFT:
-            dx = mouse_map_x - self.engine.player.x
-            dy = mouse_map_y - self.engine.player.y
-
-            if abs(dx) <= 1 and abs(dy) <= 1:# If clicked nearby
-                self.engine.player_dir = (dx, dy)
-            else: 
-                self.engine.set_player_path(dest_x=mouse_map_x, dest_y=mouse_map_y)
-
-        # This will not advacne a turn
-        return None
-
-    def ev_quit(self, event: tcod.event.Quit) -> Optional[Action]:
-        raise SystemExit()
-
-    def on_render(self, console: tcod.Console) -> None:
-        self.engine.render(console)
+    def on_render(self, mouse_pos) -> None:
+        self.engine.render(self.screen) # Render game first
+        super().on_render(mouse_pos)
 
 
 class AskUserEventHandler(EventHandler):
     """Handles user input for actions which require special input."""
+    def handle_event(self, event_id: str) -> bool:
+        if event_id == "cancel":
+            self.on_exit()
+            return False
+        elif event_id == "item_cancel":
+            self.engine.event_handler = ItemUseCancelHandler(self.engine, self.revert_callback)
+            return False
+        elif event_id == "invalid":
+            self.engine.message_log.add_message("잘못된 입력입니다.", color.invalid)
+            self.engine.event_handler = MainGameEventHandler(self.engine)
+            return False
 
     def handle_action(self, action: Optional[Action]) -> bool:
         """Return to the main event handler when a valid action was performed."""
@@ -170,29 +231,18 @@ class AskUserEventHandler(EventHandler):
             return True
         return False
 
-    def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[Action]:
+    def ev_keydown(self, event: pygame.event.Event, pressed) -> Optional[str]:
         """By default any key exits this input handler."""
-        if event.sym in {  # Ignore modifier keys.
-            tcod.event.K_LSHIFT,
-            tcod.event.K_RSHIFT,
-            tcod.event.K_LCTRL,
-            tcod.event.K_RCTRL,
-            tcod.event.K_LALT,
-            tcod.event.K_RALT,
-        }:
-            return None
-        # ESC
         if self.revert_callback is None:
-            return self.on_exit()
+            return "cancel"
         else:
-            self.engine.event_handler = ItemUseCancelHandler(self.engine, self.revert_callback)
-            return None
+            return "item_cancel"
 
-    def ev_mousebuttondown(self, event: tcod.event.MouseButtonDown) -> Optional[Action]:
+    def ev_mousebuttondown(self, event: pygame.event.Event, pressed) -> str:
         """By default any mouse click exits this input handler."""
-        return self.on_exit()
+        return "cancel"
 
-    def on_exit(self) -> Optional[Action]:
+    def on_exit(self) -> None:
         """
         Called when the user is trying to exit or cancel an action.
         By default this returns to the main event handler.
@@ -202,45 +252,80 @@ class AskUserEventHandler(EventHandler):
 
 
 class ItemUseCancelHandler(AskUserEventHandler):
-    def __init__(self, engine, revert_callback: Callable):
+    def __init__(self, engine, revert_callback: Callable = None):
         super().__init__(engine, revert_callback)
 
-    def on_render(self, console: tcod.Console,) -> None:
-        super().on_render(console)
-        self.engine.draw_window(console, text="정말 아이템 사용을 취소하시겠습니까? 아이템은 여전히 소모됩니다. (Y/N)", title="아이템 사용 취소", frame_fg=color.lime, frame_bg=color.gui_inventory_bg)
+        self.add_mouse_interactable(MouseInteractable((self.center_x, self.center_y), {
+            "default": create_surface_with_text("정말 아이템 사용을 취소하시겠습니까? 아이템은 여전히 소모됩니다.",
+                                                color.gui_item_action, None, self.engine.get_font("default", 16))}))
+        self.add_mouse_interactable(MouseInteractable((self.center_x, self.center_y + 20*2), {
+            "default": create_surface_with_text("Yes", color.white, None, self.engine.get_font("default", 16)),
+            "mouse_on": create_surface_with_text("Yes", color.white, None, self.engine.get_font("default", 20))}, None,
+                                                      mouse_down_return="confirm_cancel"))
+        self.add_mouse_interactable(MouseInteractable((self.center_x + 20*2, self.center_y + 20*2), {
+            "default": create_surface_with_text("No", color.white, None, self.engine.get_font("default", 16)),
+            "mouse_on": create_surface_with_text("No", color.white, None, self.engine.get_font("default", 20))}, None,
+                                                      mouse_down_return="decline_cancel"))
 
-    def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[Action]:
-        if event.sym == tcod.event.K_y or event.sym == tcod.event.K_KP_ENTER:
+    def handle_event(self, event_id: str) -> bool:
+        tmp = super().handle_event(event_id)
+        if tmp != None:
+            return tmp
+
+        if event_id == "confirm_cancel":
             self.engine.event_handler = MainGameEventHandler(self.engine)
             self.engine.message_log.add_message(f"아이템 사용 취소됨.", color.white, stack=False, show_once=True)
-            return self.revert_callback(True)# passing True (action is cancelled)
-        elif event.sym == tcod.event.K_n or event.sym == tcod.event.K_ESCAPE:
+            return self.revert_callback(True)  # passing True (action is cancelled)
+        elif event_id == "decline_cancel":
             return self.revert_callback(False)# passing False (action is not cancelled)
+
+    def on_render(self, mouse_pos) -> None:
+        super().on_render(mouse_pos)
+        self.engine.draw_window(console, text="", title="아이템 사용 취소", frame_fg=color.lime, frame_bg=color.gui_inventory_bg)
+
+    def ev_keydown(self, event: pygame.event.Event, pressed) -> Optional[str]:
+        if event.key == pygame.K_y or event.key == pygame.K_KP_ENTER:
+            return "confirm_cancel"
+        elif event.key == pygame.K_n or event.key == pygame.K_ESCAPE:
+            return "decline_cancel"
 
 
 class SaveInputHandler(AskUserEventHandler):
+    def handle_event(self, event_id: str) -> bool:
+        tmp = super().handle_event(event_id)
+        if tmp != None:
+            return tmp
 
-    def on_render(self, console: tcod.Console) -> None:
-        super().on_render(console)
-        self.engine.draw_window(console, text="정말 현재 게임을 저장하시겠습니까? (Y/N)", title="저장", frame_fg=color.lime, frame_bg=color.gui_inventory_bg)
-
-    def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[Action]:
-        player = self.engine.player
-        engine = self.engine
-
-        if event.sym == tcod.event.K_y or event.sym == tcod.event.K_KP_ENTER:
+        if event_id == "confirm_save":
             self.engine.event_handler = MainGameEventHandler(self.engine)
             self.engine.message_log.add_message(f"게임 저장됨.", color.lime, stack=False)
-            save_game(player=player, engine=engine)
-        elif event.sym == tcod.event.K_n or event.sym == tcod.event.K_ESCAPE:
+            save_game(player=self.engine.player, engine=self.engine)
+            return False
+        elif event_id == "decline_save":
             self.engine.message_log.add_message(f"저장 취소됨.", color.lime, stack=False)
-        return super().ev_keydown(event)
+            return False
+
+    def on_render(self, mouse_pos) -> None:
+        super().on_render(mouse_pos)
+        self.engine.draw_window(console, text="정말 현재 게임을 저장하시겠습니까? (Y/N)", title="저장", frame_fg=color.lime, frame_bg=color.gui_inventory_bg)
+
+    def ev_keydown(self, event: pygame.event.Event, pressed) -> Optional[str]:
+        if event.key == pygame.K_y or event.key == pygame.K_KP_ENTER:
+            return "confirm_save"
+        elif event.key == pygame.K_n or event.key == pygame.K_ESCAPE:
+            return "decline_save"
+        return super().ev_keydown(event, pressed)
 
 
 class GameClearInputHandler(AskUserEventHandler): #TODO Unfinished
+    def handle_event(self, event_id: str) -> bool:
+        tmp = super().handle_event(event_id)
+        if tmp != None:
+            return tmp
+        #TODO
 
-    def on_render(self, console: tcod.Console) -> None:
-        super().on_render(console)
+    def on_render(self, mouse_pos) -> None:
+        super().on_render(mouse_pos)
         self.engine.draw_window(
             self.engine.console,
             text="쿠가의 아뮬렛을 탈환했다!",
@@ -259,11 +344,20 @@ class AbilityEventHandler(AskUserEventHandler):
         super().__init__(engine)
         self.TITLE = "능력"
 
-    def on_render(self, console: tcod.Console) -> None:
+    def handle_event(self, event_id: str) -> bool:
+        tmp = super().handle_event(event_id)
+        if tmp != None:
+            return tmp
+
+        if event_id == "sort_inventory":
+            self.engine.player.inventory.sort_inventory()
+            return False
+
+    def on_render(self, mouse_pos) -> None:
         """
         Render an ability inventory menu, which displays the abilities in the inventory, and the alphabet key to select them.
         """
-        super().on_render(console)
+        super().on_render(mouse_pos)
         number_of_abilities_in_inventory = len(self.engine.player.ability_inventory.abilities)
 
         height = number_of_abilities_in_inventory + 2
@@ -308,45 +402,33 @@ class AbilityEventHandler(AskUserEventHandler):
         console.print(x + x_space + 1, height + 3, "\"/\"키: - 인벤토리 정렬", color.gui_inventory_fg)
 
 
-    def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[Action]:
+    def ev_keydown(self, event: pygame.event.Event, pressed) -> Optional[str]:
         player = self.engine.player
 
-        if event.sym in {  # Ignore modifier keys.
-            tcod.event.K_LSHIFT,
-            tcod.event.K_RSHIFT,
-            tcod.event.K_LCTRL,
-            tcod.event.K_RCTRL,
-            tcod.event.K_LALT,
-            tcod.event.K_RALT,
-        }:
-            return None
-
         # Sort inventory
-        if event.sym == tcod.event.K_SLASH or event.sym == tcod.event.K_KP_DIVIDE: # Sort Inventory by type
-            player.inventory.sort_inventory()
-            return None
-        elif event.sym == tcod.event.K_ESCAPE: # Escape inventory window
-            return super().ev_keydown(event)
+        if event.key == pygame.K_SLASH or event.key == pygame.K_KP_DIVIDE: # Sort Inventory by type
+            return "sort_inventory"
+        elif event.key == pygame.K_ESCAPE: # Escape inventory window
+            return "cancel"
 
         # Check modifier
-        if event.mod & tcod.event.K_LSHIFT:
+        if pressed[pygame.K_LSHIFT] or pressed[pygame.K_RSHIFT]:
             alphabet = {
-                tcod.event.K_a:"A",tcod.event.K_b:"B",tcod.event.K_c:"C",tcod.event.K_d:"D",tcod.event.K_e:"E",tcod.event.K_f:"F",tcod.event.K_g:"G",tcod.event.K_h:"H",tcod.event.K_i:"I",tcod.event.K_j:"J",tcod.event.K_k:"K",tcod.event.K_l:"L",tcod.event.K_m:"M",tcod.event.K_n:"N",tcod.event.K_o:"O",tcod.event.K_p:"P",tcod.event.K_q:"Q",tcod.event.K_r:"R",tcod.event.K_s:"S",tcod.event.K_t:"T",tcod.event.K_u:"U",tcod.event.K_v:"V",tcod.event.K_w:"W",tcod.event.K_x:"X",tcod.event.K_y:"Y",tcod.event.K_z:"Z",
+                pygame.K_a:"A",pygame.K_b:"B",pygame.K_c:"C",pygame.K_d:"D",pygame.K_e:"E",pygame.K_f:"F",pygame.K_g:"G",pygame.K_h:"H",pygame.K_i:"I",pygame.K_j:"J",pygame.K_k:"K",pygame.K_l:"L",pygame.K_m:"M",pygame.K_n:"N",pygame.K_o:"O",pygame.K_p:"P",pygame.K_q:"Q",pygame.K_r:"R",pygame.K_s:"S",pygame.K_t:"T",pygame.K_u:"U",pygame.K_v:"V",pygame.K_w:"W",pygame.K_x:"X",pygame.K_y:"Y",pygame.K_z:"Z",
             }
         else:
             alphabet = {
-                tcod.event.K_a:"a",tcod.event.K_b:"b",tcod.event.K_c:"c",tcod.event.K_d:"d",tcod.event.K_e:"e",tcod.event.K_f:"f",tcod.event.K_g:"g",tcod.event.K_h:"h",tcod.event.K_i:"i",tcod.event.K_j:"j",tcod.event.K_k:"k",tcod.event.K_l:"l",tcod.event.K_m:"m",tcod.event.K_n:"n",tcod.event.K_o:"o",tcod.event.K_p:"p",tcod.event.K_q:"q",tcod.event.K_r:"r",tcod.event.K_s:"s",tcod.event.K_t:"t",tcod.event.K_u:"u",tcod.event.K_v:"v",tcod.event.K_w:"w",tcod.event.K_x:"x",tcod.event.K_y:"y",tcod.event.K_z:"z",
+                pygame.K_a:"a",pygame.K_b:"b",pygame.K_c:"c",pygame.K_d:"d",pygame.K_e:"e",pygame.K_f:"f",pygame.K_g:"g",pygame.K_h:"h",pygame.K_i:"i",pygame.K_j:"j",pygame.K_k:"k",pygame.K_l:"l",pygame.K_m:"m",pygame.K_n:"n",pygame.K_o:"o",pygame.K_p:"p",pygame.K_q:"q",pygame.K_r:"r",pygame.K_s:"s",pygame.K_t:"t",pygame.K_u:"u",pygame.K_v:"v",pygame.K_w:"w",pygame.K_x:"x",pygame.K_y:"y",pygame.K_z:"z",
             }
 
         # Select ability to cast/use
         try:
-            key = alphabet[event.sym]
+            key = alphabet[event.key]
             selected_ability = player.ability_inventory.ability_hotkeys[key]
             return self.on_ability_selected(selected_ability)
         except Exception as e:
             print(e)
-            self.engine.message_log.add_message("잘못된 입력입니다.", color.invalid)
-            return None
+            return "invalid"
 
     def on_ability_selected(self, ability: Ability) -> Optional[Action]:
         """Called when the user selects a valid ability."""
@@ -355,7 +437,6 @@ class AbilityEventHandler(AskUserEventHandler):
 
 class AbilityActivateHandler(AbilityEventHandler):
     """Handle using an ability called from inventory."""
-
     def __init__(self, engine: Engine):
         super().__init__(engine)
         self.TITLE = "능력"
@@ -368,24 +449,32 @@ class AbilityActivateHandler(AbilityEventHandler):
 
 class AbilityActionSelectHandler(AskUserEventHandler):
     """Handle choosing the action for selected ability."""
-
     def __init__(self, engine, ability: Ability):
         super().__init__(engine)
         self.ability = ability
         self.TITLE = f"{self.ability.name}"
 
-    def on_render(self, console: tcod.Console) -> None:
+    def handle_event(self, event_id: str) -> bool:
+        tmp = super().handle_event(event_id)
+        if tmp != None:
+            return tmp
+
+        if event_id == "cast_or_conduct":
+            return self.handle_action(self.ability.activatable.get_action(self.engine.player))
+
+
+    def on_render(self, mouse_pos) -> None:
         """
         Renders an action selection menu, which displays the possible actions of the selected item.
         """
-        super().on_render(console)
+        super().on_render(mouse_pos)
 
         self.possible_actions = []
         self.possible_keys = []
 
         if self.ability.activatable:
             self.possible_actions.append("cast/conduct")
-            self.possible_keys.append(tcod.event.K_c)
+            self.possible_keys.append(pygame.K_c)
 
         # get ability description height
         desc_height = self.ability.ability_desc.count('\n') + 1
@@ -421,26 +510,22 @@ class AbilityActionSelectHandler(AskUserEventHandler):
 
         # print possible actions
         for i, action in enumerate(self.possible_actions):
-            
             if action == "cast/conduct":
                 console.print(x + x_space + 1, y + i + desc_height + 2 + y_space, "(c) 마법/기술 사용", fg=color.gui_item_action)
             else:
                 console.print(x + x_space + 1, y + desc_height + 2 + y_space, "(없음)")
 
-    def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[Action]:
+    def ev_keydown(self, event: pygame.event.Event, pressed) -> Optional[str]:
         player = self.engine.player
-        key = event.sym
+        key = event.key
 
         if key in self.possible_keys:
-            if key == tcod.event.K_c:
-                return self.ability.activatable.get_action(self.engine.player)
-        elif key == tcod.event.K_ESCAPE:
-            self.engine.event_handler = MainGameEventHandler(self.engine)
-            return None
+            if key == pygame.K_c:
+                return "cast_or_conduct"
+        elif key == pygame.K_ESCAPE:
+            return "cancel"
         else:
-            self.engine.message_log.add_message("잘못된 입력입니다.", color.invalid)
-            self.engine.event_handler = MainGameEventHandler(self.engine)
-            return None
+            return "invalid"
 
 
 class StorageSelectEventHandler(AskUserEventHandler):
@@ -448,8 +533,8 @@ class StorageSelectEventHandler(AskUserEventHandler):
             self, 
             engine: Engine, 
             inventory_component: Inventory, 
-            show_only_types: Tuple(InventoryOrder)=None, 
-            show_only_status: Tuple(str) = None,
+            show_only_types: Tuple[InventoryOrder]=None,
+            show_only_status: Tuple[str] = None,
             show_if_satisfy_both: bool = True,
             revert_callback: Callable = None,
             ):
@@ -477,12 +562,25 @@ class StorageSelectEventHandler(AskUserEventHandler):
         self.show_only_types = show_only_types
         self.show_only_status = show_only_status
         self.show_if_satisfy_both = show_if_satisfy_both
+        self.selected_items = [] # Can be unused
         if hasattr(self.inventory_component.parent, "name"):
             self.TITLE = f"{self.inventory_component.parent.name}"
         else:
             self.TITLE = ""
 
-    def get_item_rendered_text(self, item: Item, item_key, choose_multiple: bool) -> Optional[Tuple(str, str, str, str, Tuple(int,int,int))]:
+    def handle_event(self, event_id: str) -> bool:
+        tmp = super().handle_event(event_id)
+        if tmp != None:
+            return tmp
+
+        if event_id == "sort_inventory":
+            self.inventory_component.sort_inventory()
+            return False
+
+    def choice_confirmed(self) -> bool:
+        raise NotImplementedError()
+
+    def get_item_rendered_text(self, item: Item, item_key, choose_multiple: bool) -> Optional[Tuple]:
         """
         Returns:
             item_text, item_damage_text, item_state_text, item_equip_text, item_text_color
@@ -665,8 +763,8 @@ class StorageSelectEventHandler(AskUserEventHandler):
         else:
             return True
 
-    def on_render(self, console: tcod.Console) -> None:
-        return super().on_render(console)
+    def on_render(self, mouse_pos) -> None:
+        return super().on_render(mouse_pos)
 
 
 class StorageSelectSingleEventHandler(StorageSelectEventHandler):
@@ -674,11 +772,20 @@ class StorageSelectSingleEventHandler(StorageSelectEventHandler):
     Inherit this class if the action requires selecting one single itme.
     e.g. Item inventory
     """
-    def on_render(self, console: tcod.Console) -> None:
+    def handle_event(self, event_id: str) -> bool:
+        tmp = super().handle_event(event_id)
+        if tmp != None:
+            return tmp
+
+        if event_id == "confirm_selected":
+            return self.choice_confirmed()
+
+
+    def on_render(self, mouse_pos) -> None:
         """
         Render an inventory menu, which displays the items in the inventory, and the letter to select them.
         """
-        super().on_render(console)
+        super().on_render(mouse_pos)
 
         # Get valid item number
         number_of_valid_items = 0
@@ -727,51 +834,38 @@ class StorageSelectSingleEventHandler(StorageSelectEventHandler):
             console.print(x + x_space + 1, y + y_space + 1, "(없음)", color.gray)
 
         console.print(x + x_space + 1, height + 4, "\"/\"키 - 아이템 정렬", color.gui_inventory_fg)
-        
-    def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[Action]:
-        if event.sym in {  # Ignore modifier keys.
-            tcod.event.K_LSHIFT,
-            tcod.event.K_RSHIFT,
-            tcod.event.K_LCTRL,
-            tcod.event.K_RCTRL,
-            tcod.event.K_LALT,
-            tcod.event.K_RALT,
-        }:
-            return None
 
+    def ev_keydown(self, event: pygame.event.Event, pressed) -> Optional[str]:
         # Sort inventory
-        if event.sym == tcod.event.K_SLASH or event.sym == tcod.event.K_KP_DIVIDE: # Sort Inventory by type
-            self.inventory_component.sort_inventory()
-            return None
-        elif event.sym == tcod.event.K_ESCAPE: # Escape inventory window
-            return super().ev_keydown(event)
-        elif event.sym == tcod.event.K_KP_ENTER or event.sym == tcod.event.K_RETURN: # Confirm choices
-            return self.choice_confirmed()
+        if event.key == pygame.K_SLASH or event.key == pygame.K_KP_DIVIDE: # Sort Inventory by type
+            return "sort_inventory"
+        elif event.key == pygame.K_ESCAPE: # Escape inventory window
+            return "cancel"
+        elif event.key == pygame.K_KP_ENTER or event.key == pygame.K_RETURN: # Confirm choices
+            return "confirm_selected"
 
         # Check modifier
-        if event.mod & tcod.event.K_LSHIFT:
+        if pressed[pygame.K_LSHIFT] or pressed[pygame.K_RSHIFT]:
             alphabet = {
-                tcod.event.K_a:"A",tcod.event.K_b:"B",tcod.event.K_c:"C",tcod.event.K_d:"D",tcod.event.K_e:"E",tcod.event.K_f:"F",tcod.event.K_g:"G",tcod.event.K_h:"H",tcod.event.K_i:"I",tcod.event.K_j:"J",tcod.event.K_k:"K",tcod.event.K_l:"L",tcod.event.K_m:"M",tcod.event.K_n:"N",tcod.event.K_o:"O",tcod.event.K_p:"P",tcod.event.K_q:"Q",tcod.event.K_r:"R",tcod.event.K_s:"S",tcod.event.K_t:"T",tcod.event.K_u:"U",tcod.event.K_v:"V",tcod.event.K_w:"W",tcod.event.K_x:"X",tcod.event.K_y:"Y",tcod.event.K_z:"Z",
+                pygame.K_a:"A",pygame.K_b:"B",pygame.K_c:"C",pygame.K_d:"D",pygame.K_e:"E",pygame.K_f:"F",pygame.K_g:"G",pygame.K_h:"H",pygame.K_i:"I",pygame.K_j:"J",pygame.K_k:"K",pygame.K_l:"L",pygame.K_m:"M",pygame.K_n:"N",pygame.K_o:"O",pygame.K_p:"P",pygame.K_q:"Q",pygame.K_r:"R",pygame.K_s:"S",pygame.K_t:"T",pygame.K_u:"U",pygame.K_v:"V",pygame.K_w:"W",pygame.K_x:"X",pygame.K_y:"Y",pygame.K_z:"Z",
             }
         else:
             alphabet = {
-                tcod.event.K_a:"a",tcod.event.K_b:"b",tcod.event.K_c:"c",tcod.event.K_d:"d",tcod.event.K_e:"e",tcod.event.K_f:"f",tcod.event.K_g:"g",tcod.event.K_h:"h",tcod.event.K_i:"i",tcod.event.K_j:"j",tcod.event.K_k:"k",tcod.event.K_l:"l",tcod.event.K_m:"m",tcod.event.K_n:"n",tcod.event.K_o:"o",tcod.event.K_p:"p",tcod.event.K_q:"q",tcod.event.K_r:"r",tcod.event.K_s:"s",tcod.event.K_t:"t",tcod.event.K_u:"u",tcod.event.K_v:"v",tcod.event.K_w:"w",tcod.event.K_x:"x",tcod.event.K_y:"y",tcod.event.K_z:"z",
+                pygame.K_a:"a",pygame.K_b:"b",pygame.K_c:"c",pygame.K_d:"d",pygame.K_e:"e",pygame.K_f:"f",pygame.K_g:"g",pygame.K_h:"h",pygame.K_i:"i",pygame.K_j:"j",pygame.K_k:"k",pygame.K_l:"l",pygame.K_m:"m",pygame.K_n:"n",pygame.K_o:"o",pygame.K_p:"p",pygame.K_q:"q",pygame.K_r:"r",pygame.K_s:"s",pygame.K_t:"t",pygame.K_u:"u",pygame.K_v:"v",pygame.K_w:"w",pygame.K_x:"x",pygame.K_y:"y",pygame.K_z:"z",
             }
 
         # Choose item
         try:
-            key = alphabet[event.sym]
+            key = alphabet[event.key]
             selected_item = self.inventory_component.item_hotkeys[key]
             if not self.check_should_render_item(selected_item):
                 raise Exception()
             if selected_item:
                 return self.on_item_selected(selected_item)
             else:
-                self.engine.message_log.add_message(f"잘못된 입력입니다.", color.invalid)
-                return None
+                return "invalid"
         except:
-            self.engine.message_log.add_message("잘못된 입력입니다.", color.invalid)
-            return None
+            return "invalid"
 
     def on_item_selected(self, item: Item) -> Optional[Action]:
         raise NotImplementedError()
@@ -789,8 +883,8 @@ class InventoryChooseItemAndCallbackHandler(StorageSelectSingleEventHandler):
             inventory_component: Inventory, 
             callback: Callable,
             title: str = "인벤토리",
-            show_only_types: Tuple(InventoryOrder)=None, 
-            show_only_status: Tuple(str) = None,
+            show_only_types: Tuple[InventoryOrder]=None,
+            show_only_status: Tuple[str] = None,
             show_if_satisfy_both: bool = True,
             revert_callback: Callable = None,
         ):
@@ -812,8 +906,8 @@ class InventoryEventHandler(StorageSelectSingleEventHandler):
             self, 
             engine: Engine, 
             inventory_component: Inventory,
-            show_only_types: Tuple(InventoryOrder)=None, 
-            show_only_status: Tuple(str) = None, 
+            show_only_types: Tuple[InventoryOrder]=None,
+            show_only_status: Tuple[str] = None,
             show_if_satisfy_both: bool = True,
         ):
         super().__init__(engine, inventory_component, show_only_types, show_only_status, show_if_satisfy_both)
@@ -836,39 +930,70 @@ class InventoryActionSelectHandler(AskUserEventHandler):
         else:
             self.TITLE = f"{self.item.name}"
 
-    def on_render(self, console: tcod.Console) -> None:
+    def handle_event(self, event_id: str) -> bool:
+        tmp = super().handle_event(event_id)
+        if tmp != None:
+            return tmp
+
+        if event_id == "read_item":
+            return self.handle_action(self.item.readable.get_action(self.engine.player))
+        elif event_id == "quaff_item":
+            return self.handle_action(self.item.quaffable.get_action(self.engine.player))
+        elif event_id == "eat_item":
+            return self.handle_action(self.item.edible.get_action(self.engine.player))
+        elif event_id == "equip_item":
+            return self.handle_action(EquipItem(self.engine.player, self.item))
+        elif event_id == "unequip_item":
+            return self.handle_action(UnequipItem(self.engine.player, self.item))
+        elif event_id == "split_item":
+            self.engine.event_handler = InventorySplitHandler(self.engine, self.item)
+            return False
+        elif event_id == "throw_item":
+            if self.item.item_state.is_equipped:
+                self.engine.message_log.add_message("장착하고 있는 아이템을 던질 수 없습니다.", color.invalid)
+                self.engine.event_handler = MainGameEventHandler(self.engine)
+                return False
+            return self.handle_action(self.item.throwable.get_action(self.engine.player))
+        elif event_id == "drop_item":
+            if self.item.item_state.is_equipped:
+                self.engine.message_log.add_message("장착하고 있는 아이템을 떨어뜨릴 수 없습니다.", color.invalid)
+                self.engine.event_handler = MainGameEventHandler(self.engine)
+                return False
+            return self.handle_action(DropItem(self.engine.player, self.item))
+
+    def on_render(self, mouse_pos) -> None:
         """
         Render an action selection menu, which displays the possible actions of the selected item.
         """
-        super().on_render(console)
+        super().on_render(mouse_pos)
 
         self.possible_actions = []
         self.possible_keys = []
 
         if self.item.readable:
             self.possible_actions.append("read")
-            self.possible_keys.append(tcod.event.K_r)
+            self.possible_keys.append(pygame.K_r)
         if self.item.quaffable:
             self.possible_actions.append("quaff")
-            self.possible_keys.append(tcod.event.K_q)
+            self.possible_keys.append(pygame.K_q)
         if self.item.edible:
             self.possible_actions.append("eat")
-            self.possible_keys.append(tcod.event.K_a)
+            self.possible_keys.append(pygame.K_a)
         if self.item.equipable and self.item.item_state.is_equipped == None:
             self.possible_actions.append("equip")
-            self.possible_keys.append(tcod.event.K_e)
+            self.possible_keys.append(pygame.K_e)
         if self.item.equipable and self.item.item_state.is_equipped != None:
             self.possible_actions.append("unequip")
-            self.possible_keys.append(tcod.event.K_u)
+            self.possible_keys.append(pygame.K_u)
         if self.item.stackable and self.item.stack_count > 1:
             self.possible_actions.append("split")
-            self.possible_keys.append(tcod.event.K_s)
+            self.possible_keys.append(pygame.K_s)
         if self.item.throwable:
             self.possible_actions.append("throw")
-            self.possible_keys.append(tcod.event.K_t)
+            self.possible_keys.append(pygame.K_t)
         if self.item.droppable:
             self.possible_actions.append("drop")
-            self.possible_keys.append(tcod.event.K_d)
+            self.possible_keys.append(pygame.K_d)
 
         # get item description height
         desc_height = self.item.entity_desc.count('\n') + 1
@@ -924,42 +1049,31 @@ class InventoryActionSelectHandler(AskUserEventHandler):
             else:
                 console.print(x + x_space + 1, y + desc_height + 2 + y_space, "(없음)")
 
-    def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[Action]:
+    def ev_keydown(self, event: pygame.event.Event, pressed) -> Optional[str]:
         player = self.engine.player
-        key = event.sym
+        key = event.key
 
         if key in self.possible_keys:
-            if key == tcod.event.K_r:
-                return self.item.readable.get_action(self.engine.player)
-            elif key == tcod.event.K_q:
-                return self.item.quaffable.get_action(self.engine.player)
-            elif key == tcod.event.K_a:
-                return self.item.edible.get_action(self.engine.player)
-            elif key == tcod.event.K_e:
-                return EquipItem(self.engine.player, self.item)
-            elif key == tcod.event.K_u:
-                return UnequipItem(self.engine.player, self.item)
-            elif key == tcod.event.K_s:
-                self.engine.event_handler = InventorySplitHandler(self.engine, self.item)
-            elif key == tcod.event.K_t:
-                if self.item.item_state.is_equipped:
-                    self.engine.message_log.add_message("장착하고 있는 아이템을 던질 수 없습니다.", color.invalid)
-                    self.engine.event_handler = MainGameEventHandler(self.engine)
-                    return None
-                return self.item.throwable.get_action(self.engine.player)
-            elif key == tcod.event.K_d:
-                if self.item.item_state.is_equipped:
-                    self.engine.message_log.add_message("장착하고 있는 아이템을 떨어뜨릴 수 없습니다.", color.invalid)
-                    self.engine.event_handler = MainGameEventHandler(self.engine)
-                    return None
-                return DropItem(self.engine.player, self.item)
-        elif key == tcod.event.K_ESCAPE:
-            self.engine.event_handler = MainGameEventHandler(self.engine)
-            return None
+            if key == pygame.K_r:
+                return "read_item"
+            elif key == pygame.K_q:
+                return "quaff_item"
+            elif key == pygame.K_a:
+                return "eat_item"
+            elif key == pygame.K_e:
+                return "equip_item"
+            elif key == pygame.K_u:
+                return "unequip_item"
+            elif key == pygame.K_s:
+                return "split_item"
+            elif key == pygame.K_t:
+                return "throw_item"
+            elif key == pygame.K_d:
+                return "drop_item"
+        elif key == pygame.K_ESCAPE:
+            return "cancel"
         else:
-            self.engine.message_log.add_message("잘못된 입력입니다.", color.invalid)
-            self.engine.event_handler = MainGameEventHandler(self.engine)
-            return None
+            return "invalid"
 
 
 class InventorySplitHandler(AskUserEventHandler):
@@ -974,8 +1088,28 @@ class InventorySplitHandler(AskUserEventHandler):
             self.TITLE = f"{self.item.name}"
         self.split_amount = 1
 
-    def on_render(self, console: tcod.Console) -> None:
-        super().on_render(console)
+    def handle_event(self, event_id: str) -> bool:
+        tmp = super().handle_event(event_id)
+        if tmp != None:
+            return tmp
+
+        if event_id == "split_plus":
+            if self.split_amount < self.item.stack_count - 1:
+                self.split_amount += 1
+            else:
+                self.engine.message_log.add_message("나눌 수 있는 수의 최대치에 도달하였습니다.", color.invalid, show_once=True)
+            return False
+        elif event_id == "split_minus":
+            if self.split_amount > 1:
+                self.split_amount -= 1
+            else:
+                self.engine.message_log.add_message("1 이상을 선택하셔야 합니다.", color.invalid, show_once=True)
+        elif event_id == "confirm_split":
+            return self.handle_action(SplitItem(self.engine.player, self.item, self.split_amount))
+
+
+    def on_render(self, mouse_pos) -> None:
+        super().on_render(mouse_pos)
 
         # get item description height
         desc_height = self.item.entity_desc.count('\n') + 1
@@ -1003,33 +1137,27 @@ class InventorySplitHandler(AskUserEventHandler):
         )
 
         # Texts
-        console.print(x + x_space + 1, height + 3, "+, - 키를 사용해 나누고 싶은 아이템의 수를 선택하세요.", color.gui_inventory_fg)
+        console.print(x + x_space + 1, height + 3, "마우스 휠 또는 +,- 키를 사용해 나누고 싶은 아이템의 수를 선택하고 ENTER 키로 확인하세요.", color.gui_inventory_fg)
         console.print(x + x_space + 1, y + y_space + 1, self.item.entity_desc, fg=color.gui_item_description)
         console.print(x + x_space + 1, y + y_space + 3, f"{self.split_amount}개 선택됨.", fg=color.gui_item_description)
 
-    def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[Action]:
-        player = self.engine.player
-        key = event.sym
+    def ev_mousewheel(self, event: pygame.event.Event, pressed):
+        raise NotImplementedError() #TODO
 
-        if key == tcod.event.K_PLUS or key == tcod.event.K_KP_PLUS or key == tcod.event.K_EQUALS:
-            if self.split_amount < self.item.stack_count - 1:
-                self.split_amount += 1
-            else:
-                self.engine.message_log.add_message("나눌 수 있는 수의 최대치에 도달하였습니다.", color.invalid, show_once=True)
-        elif key == tcod.event.K_MINUS or key == tcod.event.K_KP_MINUS:
-            if self.split_amount > 1:
-                self.split_amount -= 1
-            else:
-                self.engine.message_log.add_message("1 이상을 선택하셔야 합니다.", color.invalid, show_once=True)
-        elif key == tcod.event.K_ESCAPE:
-            self.engine.event_handler = MainGameEventHandler(self.engine)
-            return None
-        elif key == tcod.event.K_RETURN:
-            return SplitItem(self.engine.player, self.item, self.split_amount)
+    def ev_keydown(self, event: pygame.event.Event, pressed) -> Optional[str]:
+        player = self.engine.player
+        key = event.key
+
+        if key == pygame.K_PLUS or key == pygame.K_KP_PLUS or key == pygame.K_EQUALS:
+            return "split_plus"
+        elif key == pygame.K_MINUS or key == pygame.K_KP_MINUS:
+            return "split_minus"
+        elif key == pygame.K_ESCAPE:
+            return "cancel"
+        elif key == pygame.K_RETURN:
+            return "confirm_split"
         else:
-            self.engine.message_log.add_message("잘못된 입력입니다.", color.invalid)
-            self.engine.event_handler = MainGameEventHandler(self.engine)
-            return None
+            return "invalid"
 
 
 class StorageSelectMultipleEventHandler(StorageSelectEventHandler):
@@ -1043,18 +1171,26 @@ class StorageSelectMultipleEventHandler(StorageSelectEventHandler):
             self, 
             engine: Engine, 
             inventory_component: Inventory, 
-            show_only_types: Tuple(InventoryOrder)=None, 
-            show_only_status: Tuple(str) = None,
+            show_only_types: Tuple[InventoryOrder]=None,
+            show_only_status: Tuple[str] = None,
             show_if_satisfy_both: bool = True,
             ):
         super().__init__(engine, inventory_component, show_only_types, show_only_status, show_if_satisfy_both)
         self.selected_items = set()
 
-    def on_render(self, console: tcod.Console) -> None:
+    def handle_event(self, event_id: str) -> bool:
+        tmp = super().handle_event(event_id)
+        if tmp != None:
+            return tmp
+
+        if event_id == "confirm_selected":
+            return False
+
+    def on_render(self, mouse_pos) -> None:
         """
         Render an inventory menu, which displays the items in the inventory, and the letter to select them.
         """
-        super().on_render(console)
+        super().on_render(mouse_pos)
         # Get valid item number
         number_of_valid_items = 0
         for item in self.inventory_component.items:
@@ -1100,56 +1236,32 @@ class StorageSelectMultipleEventHandler(StorageSelectEventHandler):
         else:
             console.print(x + x_space + 1, y + y_space + 1, "(없음)", color.gray)
 
-        console.print(x + x_space + 1, height + 4, "\"/\"키 - 아이템 정렬 | 엔터 키- 선택 확인", color.gui_inventory_fg)
-
-    def choice_confirmed(self):
-        raise NotImplementedError()
+        console.print(x + x_space + 1, height + 4, "\"/\"키 - 아이템 정렬 | ENTER 키- 선택 확인", color.gui_inventory_fg)
         
-    def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[Action]:
-        if event.sym in {  # Ignore modifier keys.
-            tcod.event.K_LSHIFT,
-            tcod.event.K_RSHIFT,
-            tcod.event.K_LCTRL,
-            tcod.event.K_RCTRL,
-            tcod.event.K_LALT,
-            tcod.event.K_RALT,
-        }:
-            return None
-
-        # Sort inventory
-        if event.sym == tcod.event.K_SLASH or event.sym == tcod.event.K_KP_DIVIDE: # Sort Inventory by type
-            self.inventory_component.sort_inventory()
-            return None
-        elif event.sym == tcod.event.K_ESCAPE: # Escape inventory window
-            return super().ev_keydown(event)
-        elif event.sym == tcod.event.K_KP_ENTER or event.sym == tcod.event.K_RETURN: # Confirm choices
-            return self.choice_confirmed()
-
+    def ev_keydown(self, event: pygame.event.Event, pressed) -> Optional[str]:
         # Check modifier
-        if event.mod & tcod.event.K_LSHIFT:
+        if pressed[pygame.K_LSHIFT] or pressed[pygame.K_RSHIFT]:
             alphabet = {
-                tcod.event.K_a:"A",tcod.event.K_b:"B",tcod.event.K_c:"C",tcod.event.K_d:"D",tcod.event.K_e:"E",tcod.event.K_f:"F",tcod.event.K_g:"G",tcod.event.K_h:"H",tcod.event.K_i:"I",tcod.event.K_j:"J",tcod.event.K_k:"K",tcod.event.K_l:"L",tcod.event.K_m:"M",tcod.event.K_n:"N",tcod.event.K_o:"O",tcod.event.K_p:"P",tcod.event.K_q:"Q",tcod.event.K_r:"R",tcod.event.K_s:"S",tcod.event.K_t:"T",tcod.event.K_u:"U",tcod.event.K_v:"V",tcod.event.K_w:"W",tcod.event.K_x:"X",tcod.event.K_y:"Y",tcod.event.K_z:"Z",
+                pygame.K_a:"A",pygame.K_b:"B",pygame.K_c:"C",pygame.K_d:"D",pygame.K_e:"E",pygame.K_f:"F",pygame.K_g:"G",pygame.K_h:"H",pygame.K_i:"I",pygame.K_j:"J",pygame.K_k:"K",pygame.K_l:"L",pygame.K_m:"M",pygame.K_n:"N",pygame.K_o:"O",pygame.K_p:"P",pygame.K_q:"Q",pygame.K_r:"R",pygame.K_s:"S",pygame.K_t:"T",pygame.K_u:"U",pygame.K_v:"V",pygame.K_w:"W",pygame.K_x:"X",pygame.K_y:"Y",pygame.K_z:"Z",
             }
         else:
             alphabet = {
-                tcod.event.K_a:"a",tcod.event.K_b:"b",tcod.event.K_c:"c",tcod.event.K_d:"d",tcod.event.K_e:"e",tcod.event.K_f:"f",tcod.event.K_g:"g",tcod.event.K_h:"h",tcod.event.K_i:"i",tcod.event.K_j:"j",tcod.event.K_k:"k",tcod.event.K_l:"l",tcod.event.K_m:"m",tcod.event.K_n:"n",tcod.event.K_o:"o",tcod.event.K_p:"p",tcod.event.K_q:"q",tcod.event.K_r:"r",tcod.event.K_s:"s",tcod.event.K_t:"t",tcod.event.K_u:"u",tcod.event.K_v:"v",tcod.event.K_w:"w",tcod.event.K_x:"x",tcod.event.K_y:"y",tcod.event.K_z:"z",
+                pygame.K_a:"a",pygame.K_b:"b",pygame.K_c:"c",pygame.K_d:"d",pygame.K_e:"e",pygame.K_f:"f",pygame.K_g:"g",pygame.K_h:"h",pygame.K_i:"i",pygame.K_j:"j",pygame.K_k:"k",pygame.K_l:"l",pygame.K_m:"m",pygame.K_n:"n",pygame.K_o:"o",pygame.K_p:"p",pygame.K_q:"q",pygame.K_r:"r",pygame.K_s:"s",pygame.K_t:"t",pygame.K_u:"u",pygame.K_v:"v",pygame.K_w:"w",pygame.K_x:"x",pygame.K_y:"y",pygame.K_z:"z",
             }
 
         # Choose item
         try:
-            key = alphabet[event.sym]
+            key = alphabet[event.key]
             selected_item = self.inventory_component.item_hotkeys[key]
             if selected_item:
                 self.on_item_selected(selected_item)
-                return None
+                return "confirm_selected"
             else:
-                self.engine.message_log.add_message(f"잘못된 입력입니다.", color.invalid)
-                return None
+                return "invalid"
         except:
-            self.engine.message_log.add_message("잘못된 입력입니다.", color.invalid)
-            return None
+            return "invalid"
 
-    def on_item_selected(self, item: Item) -> Optional[Action]:
+    def on_item_selected(self, item: Item) -> None:
         """Called when the user selects a valid item."""
         if item in self.selected_items:
             self.selected_items.remove(item)
@@ -1163,11 +1275,25 @@ class LockedDoorEventHandler(AskUserEventHandler):
         self.door = door
         self.TITLE = "문이 잠겨 있습니다. 무엇을 하시겠습니까?"
 
-    def on_render(self, console: tcod.Console) -> None:
+    def handle_event(self, event_id: str) -> bool:
+        tmp = super().handle_event(event_id)
+        if tmp != None:
+            return tmp
+
+        if event_id == "unlock_door":
+            return self.handle_action(DoorUnlockAction(self.engine.player, self.door.x - self.engine.player.x,
+                             self.door.y - self.engine.player.y))
+        elif event_id == "break_door":
+            DoorBreakAction(self.engine.player, self.door.x - self.engine.player.x, self.door.y - self.engine.player.y) \
+                .break_door(self.door, self.engine.player.status.changed_status["strength"])
+            return True
+
+
+    def on_render(self, mouse_pos) -> None:
         """
         Render an action selection menu, which displays the possible actions of the selected item.
         """
-        super().on_render(console)
+        super().on_render(mouse_pos)
 
         height = 7 #TODO hard-coded
         if height <= 3:
@@ -1196,23 +1322,17 @@ class LockedDoorEventHandler(AskUserEventHandler):
         console.print(x + x_space + 1, y + y_space + 4, "(b) - 파괴", fg=color.white)
         console.print(x + x_space + 1, y + y_space + 6, "ESC - 취소", fg=color.white)
 
-    def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[Action]:
-        key = event.sym
+    def ev_keydown(self, event: pygame.event.Event, pressed) -> Optional[str]:
+        key = event.key
 
-        if key == tcod.event.K_u:
-            DoorUnlockAction(self.engine.player, self.door.x - self.engine.player.x, self.door.y - self.engine.player.y).perform()
-            return None
-        elif key == tcod.event.K_b:
-            DoorBreakAction(self.engine.player, self.door.x - self.engine.player.x, self.door.y - self.engine.player.y)\
-                .break_door(self.door, self.engine.player.status.changed_status["strength"])
-            return None
-        elif key == tcod.event.K_ESCAPE:
-            self.engine.event_handler = MainGameEventHandler(self.engine)
-            return None
+        if key == pygame.K_u:
+            return "unlock_door"
+        elif key == pygame.K_b:
+            return "break_door"
+        elif key == pygame.K_ESCAPE:
+            return "cancel"
         else:
-            self.engine.message_log.add_message("잘못된 입력입니다.", color.invalid)
-            self.engine.event_handler = MainGameEventHandler(self.engine)
-            return None
+            return "invalid"
 
 
 class ChestEventHandler(AskUserEventHandler):
@@ -1224,11 +1344,26 @@ class ChestEventHandler(AskUserEventHandler):
         else:
             self.TITLE = "무엇을 하시겠습니까?"
 
-    def on_render(self, console: tcod.Console) -> None:
+    def handle_event(self, event_id: str) -> bool:
+        tmp = super().handle_event(event_id)
+        if tmp != None:
+            return tmp
+
+        if event_id == "take_out":
+            self.engine.event_handler = ChestTakeEventHandler(self.engine, self.inventory_component)
+            return False
+        elif event_id == "put_in":
+            self.engine.event_handler = ChestPutEventHandler(self.engine, self.engine.player.inventory,self.inventory_component)
+            return False
+        elif event_id == "swap_position":
+            return self.handle_action(PlaceSwapAction(self.engine.player, self.inventory_component.parent))
+
+
+    def on_render(self, mouse_pos) -> None:
         """
         Render an action selection menu, which displays the possible actions of the selected item.
         """
-        super().on_render(console)
+        super().on_render(mouse_pos)
 
         height = 9 #TODO hard-coded
         if height <= 3:
@@ -1254,28 +1389,23 @@ class ChestEventHandler(AskUserEventHandler):
 
         # Message log
         console.print(x + x_space + 1, y + y_space + 2, "(t) - 무언가를 꺼낸다", fg=color.white)
-        console.print(x + x_space + 1, y + y_space + 4, "(p) - 무언가를 넣는다", fg=color.white)
+        console.print(x + x_space + 1, y + y_space + 4, "(i) - 무언가를 넣는다", fg=color.white)
         console.print(x + x_space + 1, y + y_space + 6, "(s) - 위치를 바꾼다", fg=color.white)
         console.print(x + x_space + 1, y + y_space + 8, "ESC - 취소", fg=color.white)
 
-    def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[Action]:
-        key = event.sym
+    def ev_keydown(self, event: pygame.event.Event, pressed) -> Optional[str]:
+        key = event.key
 
-        if key == tcod.event.K_t:
-            self.engine.event_handler = ChestTakeEventHandler(self.engine, self.inventory_component)
-            return None
-        elif key == tcod.event.K_p:
-            self.engine.event_handler = ChestPutEventHandler(self.engine, self.engine.player.inventory, self.inventory_component)
-            return None
-        elif key == tcod.event.K_s:
-            return PlaceSwapAction(self.engine.player, self.inventory_component.parent)
-        elif key == tcod.event.K_ESCAPE:
-            self.engine.event_handler = MainGameEventHandler(self.engine)
-            return None
+        if key == pygame.K_t:
+            return "take_out"
+        elif key == pygame.K_i:
+            return "put_in"
+        elif key == pygame.K_s:
+            return "swap_position"
+        elif key == pygame.K_ESCAPE:
+            return "cancel"
         else:
-            self.engine.message_log.add_message("잘못된 입력입니다.", color.invalid)
-            self.engine.event_handler = MainGameEventHandler(self.engine)
-            return None
+            return "invalid"
 
 
 class NonHostileBumpHandler(AskUserEventHandler):
@@ -1289,7 +1419,31 @@ class NonHostileBumpHandler(AskUserEventHandler):
         self.target = target
         self.TITLE = "무엇을 하시겠습니까?"
         self.can_pay_shopkeeper = False
+        self.dx, self.dy = self.target.x - self.engine.player.x, self.target.y - self.engine.player.y
         self.update_pay_status()
+
+    def handle_event(self, event_id: str) -> bool:
+        tmp = super().handle_event(event_id)
+        if tmp != None:
+            return tmp
+
+        if event_id == "move":
+            return self.handle_action(MovementAction(self.engine.player, self.dx, self.dy))
+        elif event_id == "pay":
+            self.engine.event_handler = MainGameEventHandler(self.engine)
+            self.target.ai.sell_all_picked_ups(customer=self.engine.player)
+            return False
+        elif event_id == "swap":
+            return self.handle_action(PlaceSwapAction(self.engine.player, self.target))
+        elif event_id == "attack":
+            self.engine.event_handler = ForceAttackInputHandler(self.engine,melee_action=MeleeAction(self.engine.player, dx, dy))
+            return False
+        elif event_id == "take_out":
+            self.engine.event_handler = ChestTakeEventHandler(self.engine, self.target.storage)
+            return False
+        elif event_id == "put_in":
+            self.engine.event_handler = ChestPutEventHandler(self.engine, self.engine.player.inventory,self.target.storage)
+            return False
         
     def update_pay_status(self):
         if hasattr(self.target, "ai"):
@@ -1298,11 +1452,11 @@ class NonHostileBumpHandler(AskUserEventHandler):
                     if self.target.ai.has_dept(self.engine.player):
                         self.can_pay_shopkeeper = True
         
-    def on_render(self, console: tcod.Console) -> None:
+    def on_render(self, mouse_pos) -> None:
         """
         Render an action selection menu, which displays the possible actions of the selected item.
         """
-        super().on_render(console)
+        super().on_render(mouse_pos)
 
         height = 5 #TODO hard-coded
         if not self.target.blocks_movement:
@@ -1359,35 +1513,26 @@ class NonHostileBumpHandler(AskUserEventHandler):
             y_pad += 2
         console.print(x + x_space + 1, y + y_space + y_pad, "ESC - 취소", fg=color.white)
 
-    def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[Action]:
+    def ev_keydown(self, event: pygame.event.Event, pressed) -> Optional[str]:
         from chest_factories import ChestSemiactor
-        key = event.sym
-        dx, dy = self.target.x - self.engine.player.x, self.target.y - self.engine.player.y
+        key = event.key
 
-        if not self.target.blocks_movement and key == tcod.event.K_m:
-            return MovementAction(self.engine.player, dx, dy)
-        elif self.can_pay_shopkeeper and key == tcod.event.K_p:
-            self.engine.event_handler = MainGameEventHandler(self.engine)
-            self.target.ai.sell_all_picked_ups(customer=self.engine.player)
-            return None
-        elif self.target.swappable and key == tcod.event.K_s:
-            return PlaceSwapAction(self.engine.player, self.target)
-        elif isinstance(self.target, Actor) and key == tcod.event.K_a:
-            self.engine.event_handler = ForceAttackInputHandler(self.engine, melee_action=MeleeAction(self.engine.player, dx, dy))
-            return None
-        elif key == tcod.event.K_t and isinstance(self.target, ChestSemiactor):
-            self.engine.event_handler = ChestTakeEventHandler(self.engine, self.target.storage)
-            return None
-        elif key == tcod.event.K_i and isinstance(self.target, ChestSemiactor):
-            self.engine.event_handler = ChestPutEventHandler(self.engine, self.engine.player.inventory, self.target.storage)
-            return None
-        elif key == tcod.event.K_ESCAPE:
-            self.engine.event_handler = MainGameEventHandler(self.engine)
-            return None
+        if not self.target.blocks_movement and key == pygame.K_m:
+            return "move"
+        elif self.can_pay_shopkeeper and key == pygame.K_p:
+            return "pay"
+        elif self.target.swappable and key == pygame.K_s:
+            return "swap"
+        elif isinstance(self.target, Actor) and key == pygame.K_a:
+            return "attack"
+        elif key == pygame.K_t and isinstance(self.target, ChestSemiactor):
+            return "take_out"
+        elif key == pygame.K_i and isinstance(self.target, ChestSemiactor):
+            return "put_in"
+        elif key == pygame.K_ESCAPE:
+            return "cancel"
         else:
-            self.engine.message_log.add_message("잘못된 입력입니다.", color.invalid)
-            self.engine.event_handler = MainGameEventHandler(self.engine)
-            return None
+            return "invalid"
 
 
 class ChestTakeEventHandler(StorageSelectMultipleEventHandler):    
@@ -1404,8 +1549,8 @@ class ChestTakeEventHandler(StorageSelectMultipleEventHandler):
             else:
                 self.engine.message_log.add_message(f"{g(item.name, '을')} 얻었다. (x{item.stack_count})", color.white)
 
-        return self.on_exit() #NOTE: game turn is already passed at the moment player opened the chest, so taking something wont cost additional turn.
-
+        self.on_exit() #NOTE: game turn is already passed at the moment player opened the chest, so taking something wont cost additional turn.
+        return False
 
 class ChestPutEventHandler(StorageSelectMultipleEventHandler):
     """Handle putting in an inventory item to a chest."""
@@ -1435,8 +1580,8 @@ class ChestPutEventHandler(StorageSelectMultipleEventHandler):
             else:
                 self.engine.message_log.add_message(f"{g(item.name, '을')} {self.chest_inv.parent.name}에 넣었다. (x{item.stack_count})", color.gray)
 
-        return self.on_exit() #NOTE: game turn is already passed at the moment player opened the chest, so putting something in wont cost additional turn.
-
+        self.on_exit() #NOTE: game turn is already passed at the moment player opened the chest, so putting something in wont cost additional turn.
+        return True
 
 class InventoryDropHandler(StorageSelectMultipleEventHandler):
     """Handle dropping an inventory item."""
@@ -1455,35 +1600,45 @@ class InventoryDropHandler(StorageSelectMultipleEventHandler):
                 continue
             DropItem(self.engine.player, item).perform()
 
-        self.engine.event_handler = MainGameEventHandler(self.engine)
+        self.on_exit()
+        return True
 
 
 class SelectIndexHandler(AskUserEventHandler):
     """Handles asking the user for an index on the map."""
-
     def __init__(self, engine: Engine, revert_callback: Callable = None):
         """Sets the cursor to the player when this handler is constructed."""
         super().__init__(engine, revert_callback)
         player = self.engine.player
         engine.mouse_location = player.x, player.y
 
-    def on_render(self, console: tcod.Console) -> None:
+    def handle_event(self, event_id: str) -> bool:
+        tmp = super().handle_event(event_id)
+        if tmp != None:
+            return tmp
+        if event_id == "move_index":
+            return False
+        if event_id == "confirm_index":
+            self.on_index_selected(*self.engine.mouse_location)
+            return False
+
+    def on_render(self, mouse_pos) -> None:
         """Highlight the tile under the cursor."""
-        super().on_render(console)
+        super().on_render(mouse_pos)
         x, y = self.engine.mouse_relative_location
         console.tiles_rgb["bg"][x, y] = color.white
         console.tiles_rgb["fg"][x, y] = color.black
 
-    def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[Action]:
+    def ev_keydown(self, event: pygame.event.Event, pressed) -> Optional[str]:
         """Check for key movement or confirmation keys."""
-        key = event.sym
+        key = event.key
         if key in MOVE_KEYS:
             modifier = 1  # Holding modifier keys will speed up key movement.
-            if event.mod & (tcod.event.KMOD_LSHIFT | tcod.event.KMOD_RSHIFT):
+            if pressed[pygame.K_LSHIFT] or pressed[pygame.K_RSHIFT]:
                 modifier *= 5
-            if event.mod & (tcod.event.KMOD_LCTRL | tcod.event.KMOD_RCTRL):
+            if pressed[pygame.K_LCTRL] or pressed[pygame.K_RCTRL]:
                 modifier *= 10
-            if event.mod & (tcod.event.KMOD_LALT | tcod.event.KMOD_RALT):
+            if pressed[pygame.K_LALT] or pressed[pygame.K_RALT]:
                 modifier *= 20
 
             x, y = self.engine.mouse_location
@@ -1498,16 +1653,16 @@ class SelectIndexHandler(AskUserEventHandler):
             self.engine.mouse_location = x, y
             self.get_mouse_dir()
 
-            return None
+            return "move_index"
         elif key in CONFIRM_KEYS:
-            return self.on_index_selected(*self.engine.mouse_location)
-        return super().ev_keydown(event)
+            return "cofirm_index"
+        return super().ev_keydown(event, pressed)
 
-    def ev_mousebuttondown(self, event: tcod.event.MouseButtonDown) -> Optional[Action]:
+    def ev_mousebuttondown(self, event: pygame.MouseButtonDown) -> Optional[str]:
         """Left click confirms a selection."""
         if self.engine.camera.in_bounds(*event.tile):
             if event.button == 1:
-                return self.on_index_selected(*self.engine.camera.get_absolute_coordinate(relative_x=event.tile.x, relative_y=event.tile.y))
+                return self.on_index_selected(*self.engine.camera.abs_cor(event.tile.x, event.tile.y))
         return super().ev_mousebuttondown(event)
 
     def on_index_selected(self, x: int, y: int) -> Optional[Action]:
@@ -1520,11 +1675,20 @@ class LookHandler(SelectIndexHandler):
 
     def on_index_selected(self, x: int, y: int) -> None:
         """Return to main handler."""
-        self.engine.event_handler = MainGameEventHandler(self.engine)
+        self.on_exit()
 
 
 class SelectDirectionHandler(AskUserEventHandler):
     """Handles asking the user for an index on the map."""
+    def handle_event(self, event_id: str) -> bool:
+        tmp = super().handle_event(event_id)
+        if tmp != None:
+            return tmp
+        if event_id == "move_direction":
+            return False
+        elif event_id == "confirm_direction":
+            self.on_index_selected(*self.engine.mouse_location)
+            return False
 
     def __init__(self, engine: Engine, revert_callback: Callable = None):
         """Sets the cursor to the player when this handler is constructed."""
@@ -1532,16 +1696,16 @@ class SelectDirectionHandler(AskUserEventHandler):
         player = self.engine.player
         engine.mouse_location = player.x, player.y
 
-    def on_render(self, console: tcod.Console) -> None:
+    def on_render(self, mouse_pos) -> None:
         """Highlight the tile under the cursor."""
-        super().on_render(console)
+        super().on_render(mouse_pos)
         x, y = self.engine.mouse_relative_location
         console.tiles_rgb["bg"][x, y] = color.white
         console.tiles_rgb["fg"][x, y] = color.black
 
-    def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[Action]:
+    def ev_keydown(self, event: pygame.event.Event, pressed) -> Optional[str]:
         """Check for key movement or confirmation keys."""
-        key = event.sym
+        key = event.key
         if key in MOVE_KEYS:
             dx, dy = MOVE_KEYS[key]
             x = self.engine.player.x
@@ -1552,19 +1716,21 @@ class SelectDirectionHandler(AskUserEventHandler):
             # Clamp the cursor index to the map size.
             x = max(self.engine.camera.xpos, min(x, self.engine.camera.biggest_x - 1))
             y = max(self.engine.camera.ypos, min(y, self.engine.camera.biggest_y - 1))
+
             self.engine.mouse_location = x, y
             self.get_mouse_dir()
-            return None
+            return "move_direction"
         elif key in CONFIRM_KEYS:
-            return self.on_index_selected(*self.engine.mouse_location)
-        return super().ev_keydown(event)
+            return "confirm_direction"
+        return super().ev_keydown(event, pressed)
 
-    def ev_mousebuttondown(self, event: tcod.event.MouseButtonDown) -> Optional[Action]:
+    def m_lclicked(self, pressed) -> Optional[Action]:
         """Left click confirms a selection."""
-        if self.engine.camera.in_bounds(*event.tile):
-            if event.button == 1:
-                return self.on_index_selected(*self.engine.camera.get_absolute_coordinate(relative_x=event.tile.x, relative_y=event.tile.y))
-        return super().ev_mousebuttondown(event)
+        #TODO
+        # if self.engine.camera.in_bounds(*event.tile):
+        #     if event.button == 1: #left
+        #         return self.on_index_selected(*self.engine.camera.get_absolute_coordinate(relative_x=event.tile.x, relative_y=event.tile.y))
+        # return super().ev_mousebuttondown(event)
 
     def on_index_selected(self, x: int, y: int) -> Optional[Action]:
         """Called when an index is selected."""
@@ -1577,13 +1743,13 @@ class MagicMappingLookHandler(AskUserEventHandler):
         self, engine: Engine, callback: Callable[[Tuple[int, int]], Optional[Action]]
     ):
         super().__init__(engine)
-
         self.callback = callback
 
-    def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[Action]:
+    def ev_keydown(self, event: pygame.event.Event, pressed) -> Optional[str]:
         """By default any key exits this input handler."""
-        if event.sym == tcod.event.K_ESCAPE:
-            return self.on_exit()
+        if event.key == pygame.K_ESCAPE:
+            return "cancel"
+        #TODO Scroll map
 
     def on_exit(self) -> Optional[Action]:
         """Called when the user is trying to exit or cancel an action."""
@@ -1615,9 +1781,9 @@ class AreaRangedAttackHandler(SelectIndexHandler):
         self.radius = radius
         self.callback = callback
 
-    def on_render(self, console: tcod.Console) -> None:
+    def on_render(self, mouse_pos) -> None:
         """Highlight the tile under the cursor."""
-        super().on_render(console)
+        super().on_render(mouse_pos)
 
         # Use relative coordinates for rendering
         x, y = self.engine.mouse_relative_location
@@ -1652,9 +1818,9 @@ class RayRangedInputHandler(SelectDirectionHandler):
         self.callback = callback
         self.target = None
 
-    def on_render(self, console: tcod.Console) -> None:
+    def on_render(self, mouse_pos) -> None:
         """Highlight the tile under the cursor."""
-        super().on_render(console)
+        super().on_render(mouse_pos)
         dx, dy = self.engine.mouse_dir
         dest_x, dest_y = self.actor.x + dx, self.actor.y + dy
         path = []
@@ -1715,9 +1881,9 @@ class RayDirInputHandler(SelectDirectionHandler):
                 "방향을 선택하세요. (1~9)", color.needs_target
             )
 
-    def on_render(self, console: tcod.Console) -> None:
+    def on_render(self, mouse_pos) -> None:
         """Highlight the tile under the cursor."""
-        super().on_render(console)
+        super().on_render(mouse_pos)
 
         dx, dy = self.engine.mouse_dir
         dest_x, dest_y = self.actor.x + dx, self.actor.y + dy
@@ -1758,43 +1924,32 @@ class RayDirInputHandler(SelectDirectionHandler):
 
     def on_index_selected(self, x: int, y: int) -> Optional[Action]:
         self.engine.refresh_screen()
-        return self.callback(self.dx, self.dy)
-
-
-class BuyInputHandler(AskUserEventHandler):
-    def on_render(self, console: tcod.Console) -> None:
-        super().on_render(console)
-        self.engine.draw_window(console, text="정말 현재 게임을 종료하시겠습니까? 모든 저장하지 않은 내역은 지워집니다. (Y/N)", title="Quit", frame_fg=color.lime, frame_bg=color.gui_inventory_bg)
-
-    def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[Action]:
-        player = self.engine.player
-        engine = self.engine
-
-        if event.sym == tcod.event.K_y or event.sym == tcod.event.K_KP_ENTER:
-            self.engine.event_handler = MainGameEventHandler(self.engine)
-            save_game(player=player, engine=engine)
-            quit_game()
-        elif event.sym == tcod.event.K_n or event.sym == tcod.event.K_ESCAPE:
-            self.engine.message_log.add_message(f"취소됨.", color.lime, stack=False)
-        return super().ev_keydown(event)
+        return self.callback((self.dx, self.dy))
 
 
 class QuitInputHandler(AskUserEventHandler):
-    def on_render(self, console: tcod.Console) -> None:
-        super().on_render(console)
+    def on_render(self, mouse_pos) -> None:
+        super().on_render(mouse_pos)
         self.engine.draw_window(console, text="정말 현재 게임을 종료하시겠습니까? 모든 저장하지 않은 내역은 지워집니다. (Y/N)", title="Quit", frame_fg=color.lime, frame_bg=color.gui_inventory_bg)
 
-    def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[Action]:
+    def handle_event(self, event_id: str) -> bool:
+        tmp = super().handle_event(event_id)
+        if tmp != None:
+            return tmp
+
+        if event_id == "confirm_quit":
+            self.engine.event_handler = MainGameEventHandler(self.engine)
+            quit_game()
+
+    def ev_keydown(self, event: pygame.event.Event, pressed) -> Optional[str]:
         player = self.engine.player
         engine = self.engine
 
-        if event.sym == tcod.event.K_y or event.sym == tcod.event.K_KP_ENTER:
-            self.engine.event_handler = MainGameEventHandler(self.engine)
-            save_game(player=player, engine=engine)
-            quit_game()
-        elif event.sym == tcod.event.K_n or event.sym == tcod.event.K_ESCAPE:
-            self.engine.message_log.add_message(f"취소됨.", color.lime, stack=False)
-        return super().ev_keydown(event)
+        if event.key == pygame.K_y or event.key == pygame.K_KP_ENTER:
+            return "confirm_quit"
+        elif event.key == pygame.K_n or event.key == pygame.K_ESCAPE:
+            return "cancel"
+        return super().ev_keydown(event, pressed)
 
 
 class ForceAttackInputHandler(AskUserEventHandler):
@@ -1802,126 +1957,178 @@ class ForceAttackInputHandler(AskUserEventHandler):
         super().__init__(engine, revert_callback)
         self.melee_action = melee_action
 
-    def on_render(self, console: tcod.Console) -> None:
-        super().on_render(console)
+    def on_render(self, mouse_pos) -> None:
+        super().on_render(mouse_pos)
         self.engine.draw_window(console, text="정말로 공격하시겠습니까? (Y/N)", title="공격 확인", frame_fg=color.red, frame_bg=color.gui_inventory_bg)
 
-    def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[Action]:
-        if event.sym == tcod.event.K_y or event.sym == tcod.event.K_KP_ENTER:
+    def ev_keydown(self, event: pygame.event.Event, pressed) -> Optional[Action]:
+        if event.key == pygame.K_y or event.key == pygame.K_KP_ENTER:
             return self.melee_action
-        elif event.sym == tcod.event.K_n or event.sym == tcod.event.K_ESCAPE:
+        elif event.key == pygame.K_n or event.key == pygame.K_ESCAPE:
             pass
             #self.engine.message_log.add_message(f"취소됨.", color.lime, stack=False)
-        return super().ev_keydown(event)
+        return super().ev_keydown(event, pressed)
 
 
 class MainGameEventHandler(EventHandler):
-    def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[Action]:
+    def __init__(self, engine: Engine, revert_callback: Callable = None):
+        super().__init__(engine, revert_callback)
+        self.dx = None
+        self.dy = None
+
+    def handle_event(self, event_id: str) -> bool:
+        tmp = super().handle_event(event_id)
+        if tmp != None:
+            return tmp
+
+        if event_id == "descend":
+            return self.handle_action(DescendAction(self.engine.player))
+        elif event_id == "ascend":
+            return self.handle_action(AscendAction(self.engine.player))
+        elif event_id == "quit":
+            self.engine.event_handler = QuitInputHandler(self.engine)
+        elif event_id == "save":
+            self.engine.event_handler = SaveInputHandler(self.engine)
+        elif event_id == "move":
+            return self.handle_action(BumpAction(self.engine.player, self.dx, self.dy))
+        elif event_id == "wait":
+            return self.handle_action(WaitAction(self.engine.player))
+        elif event_id == "view_history":
+            self.engine.event_handler = HistoryViewer(self.engine)
+            return False
+        elif event_id == "pickup":
+            return self.handle_action(PickupAction(self.engine.player))
+        elif event_id == "inventory":
+            self.engine.event_handler = InventoryEventHandler(self.engine, self.engine.player.inventory)
+            return False
+        elif event_id == "drop":
+            self.engine.event_handler = InventoryDropHandler(self.engine, self.engine.player.inventory)
+            return False
+        elif event_id == "look":
+            self.engine.event_handler = LookHandler(self.engine)
+            return False
+        elif event_id == "close_door":
+            self.engine.event_handler = RayDirInputHandler(
+                engine=self.engine,
+                actor=self.engine.player,
+                max_range=1,
+                callback=lambda dx, dy: DoorCloseAction(self.engine.player, dx, dy)
+            )
+            return False
+        elif event_id == "open_door":
+            self.engine.event_handler = RayDirInputHandler(
+                engine=self.engine,
+                actor=self.engine.player,
+                max_range=1,
+                callback=lambda dx, dy: DoorOpenAction(self.engine.player, dx, dy)
+            )
+            return False
+        elif event_id == "use_ability":
+            self.engine.event_handler = AbilityActivateHandler(self.engine)
+            return False
+        elif event_id == "take_screenshot":
+            time_str = time.strftime('%Y-%m-%d-%H-%M-%S', time.localtime(time.time()))
+            pic_name = time_str
+            # pic_name = self.engine.player.name + "-" + time_str # bugs occur when using certain unicode chars.
+            self.engine.context.save_screenshot(f"./screenshots/{pic_name}.png")
+            self.engine.message_log.add_message(f"Screenshot saved as {pic_name}.png", color.needs_target)
+
+    def ev_keydown(self, event: pygame.event.Event, pressed) -> Optional[str]:
         action: Optional[Action] = None
-        key = event.sym
+        key = event.key
         player = self.engine.player
 
-        if event.mod & tcod.event.K_LSHIFT: # Check Shift Modifier
-            if key == tcod.event.K_PERIOD:
-                action = DescendAction(player)
-            elif key == tcod.event.K_COMMA:
-                action = AscendAction(player)
-            
-            elif key == tcod.event.K_q:
-                self.engine.event_handler = QuitInputHandler(self.engine)
-            elif key == tcod.event.K_s:
-                self.engine.event_handler = SaveInputHandler(
-                    engine=self.engine
-                )
+        if pressed[pygame.K_LSHIFT] or pressed[pygame.K_RSHIFT]: # Check Shift Modifier
+            if key == pygame.K_PERIOD:
+                return "descend"
+            elif key == pygame.K_COMMA:
+                return "ascend"
+            elif key == pygame.K_q:
+                return "quit"
+            elif key == pygame.K_s:
+                return "save"
         else:
             if key in MOVE_KEYS:
-                dx, dy = MOVE_KEYS[key]
-                action = BumpAction(player, dx, dy)
+                self.dx, self.dy = MOVE_KEYS[key]
+                return "move"
             elif key in WAIT_KEYS:
-                action = WaitAction(player)
-
-            elif key == tcod.event.K_v:
-                self.engine.event_handler = HistoryViewer(self.engine)
-            elif key == tcod.event.K_g:
-                action = PickupAction(player)
-            elif key == tcod.event.K_i:
-                self.engine.event_handler = InventoryEventHandler(self.engine, self.engine.player.inventory)
-            elif key == tcod.event.K_d:
-                self.engine.event_handler = InventoryDropHandler(self.engine, self.engine.player.inventory)
-            elif event.sym == tcod.event.K_SLASH or event.sym == tcod.event.K_KP_DIVIDE:
-                self.engine.event_handler = LookHandler(self.engine)
-            elif key == tcod.event.K_c:
-                self.engine.event_handler = RayDirInputHandler(
-                    engine=self.engine,
-                    actor=player,
-                    max_range=1,
-                    callback=lambda dx, dy: DoorCloseAction(player, dx, dy)
-                    )
-            elif key == tcod.event.K_o:
-                self.engine.event_handler = RayDirInputHandler(
-                    engine=self.engine,
-                    actor=player,
-                    max_range=1,
-                    callback=lambda dx, dy: DoorOpenAction(player, dx, dy)
-                    )
-            elif key == tcod.event.K_a:
-                self.engine.event_handler = AbilityActivateHandler(self.engine)
-
-            elif key == tcod.event.K_F12:
-                time_str = time.strftime('%Y-%m-%d-%H-%M-%S', time.localtime(time.time()))
-                pic_name = time_str
-                #pic_name = self.engine.player.name + "-" + time_str # bugs occur when using certain unicode chars.
-                self.engine.context.save_screenshot(f"./screenshots/{pic_name}.png")
-                self.engine.message_log.add_message(f"Screenshot saved as {pic_name}.png", color.needs_target)
-            elif key == tcod.event.K_F11:#TODO DEBUG
+                return "wait"
+            elif key == pygame.K_v:
+                return "view_history"
+            elif key == pygame.K_g:
+                return "pickup"
+            elif key == pygame.K_i:
+                return "inventory"
+            elif key == pygame.K_d:
+                return "drop"
+            elif event.key == pygame.K_SLASH or event.key == pygame.K_KP_DIVIDE:
+                return "look"
+            elif key == pygame.K_c:
+                return "close_door"
+            elif key == pygame.K_o:
+                return "open_door"
+            elif key == pygame.K_a:
+                return "use_ability"
+            elif key == pygame.K_F12:
+                return "take_screenshot"
+            elif key == pygame.K_F11:#TODO DEBUG
                 from explosion_action import ExplodeAction
                 ExplodeAction(self.engine.player, False, True, radius=50, expl_dmg=3000, cause_fire=5).perform()
-            elif key == tcod.event.K_F10:#TODO DEBUG
+                return "cancel"
+            elif key == pygame.K_F10:#TODO DEBUG
                 for actor in self.engine.game_map.actors:
                     if actor.ai:
                         actor.ai.activate()
-            elif key == tcod.event.K_F9:#TODO DEBUG
+                return "cancel"
+            elif key == pygame.K_F9:#TODO DEBUG
                 self.engine.player.actor_state.is_poisoned = [1,1,0,3]
                 print("ACTIVATED ALL ACTORS IN THIS LEVEL")
-            elif key == tcod.event.K_F8:#TODO DEBUG
+                return "cancel"
+            elif key == pygame.K_F8:#TODO DEBUG
                 import actor_factories
                 x = actor_factories.dog.spawn(self.engine.game_map, self.engine.player.x + 1, self.engine.player.y)
                 x.ai.activate()
                 print("SPAWNED DOG")
-            elif key == tcod.event.K_F7:#TODO DEBUG
-                self.engine.player.status.experience.gain_strength_exp(10000)
-                self.engine.player.status.experience.gain_dexterity_exp(10000)
-                self.engine.player.status.experience.gain_agility_exp(10000)
-                self.engine.player.status.experience.gain_constitution_exp(10000)
-                self.engine.player.status.experience.gain_intelligence_exp(10000)
-                self.engine.player.status.experience.gain_charm_exp(10000)
-
-        # No valid key was pressed
-        return action
+                return "cancel"
+            elif key == pygame.K_F7:#TODO DEBUG
+                return "cancel"
+            elif key == pygame.K_KP_PLUS:#TODO DEBUG
+                self.engine.camera.zoom_in()
+                return "cancel"
+            elif key == pygame.K_KP_MINUS:#TODO DEBUG
+                self.engine.camera.zoom_out()
+                return "cancel"
 
 
 class GameOverEventHandler(EventHandler):
-    def ev_keydown(self, event: tcod.event.KeyDown) -> None:
-        if event.sym == tcod.event.K_ESCAPE:
+    def handle_event(self, event_id: str) -> bool:
+        tmp = super().handle_event(event_id)
+        if tmp != None:
+            return tmp
+        if event_id == "quit":
             raise SystemExit()
 
+    def ev_keydown(self, event: pygame.event.Event, pressed) -> Optional[str]:
+        if event.key == pygame.K_ESCAPE:
+            return "quit"
+
 CURSOR_Y_KEYS = {
-    tcod.event.K_UP: -1,
-    tcod.event.K_DOWN: 1,
-    tcod.event.K_PAGEUP: -10,
-    tcod.event.K_PAGEDOWN: 10,
+    pygame.K_UP: -1,
+    pygame.K_DOWN: 1,
+    pygame.K_PAGEUP: -10,
+    pygame.K_PAGEDOWN: 10,
 }
 
+#TODO
 class HistoryViewer(EventHandler):
     """Print the history on a larger window which can be navigated."""
-
     def __init__(self, engine: Engine):
         super().__init__(engine)
         self.log_length = len(engine.message_log.messages)
         self.cursor = self.log_length - 1
 
-    def on_render(self, console: tcod.Console) -> None:
-        super().on_render(console)  # Draw the main state as the background.
+    def on_render(self, mouse_pos) -> None:
+        super().on_render(mouse_pos)  # Draw the main state as the background.
         log_console = tcod.Console(console.width - 6, console.height - 6)
 
         # Draw a frame with a custom banner title.
@@ -1938,9 +2145,9 @@ class HistoryViewer(EventHandler):
         )
         log_console.blit(console, 3, 3)
 
-    def ev_keydown(self, event: tcod.event.KeyDown) -> None:
-        if event.sym in CURSOR_Y_KEYS:
-            adjust = CURSOR_Y_KEYS[event.sym]
+    def ev_keydown(self, event: pygame.event.Event, pressed) -> None:
+        if event.key in CURSOR_Y_KEYS:
+            adjust = CURSOR_Y_KEYS[event.key]
             if adjust < 0 and self.cursor == 0:
                 # Only move from the top to the bottom when you're on the edge.
                 self.cursor = self.log_length - 1
@@ -1950,9 +2157,9 @@ class HistoryViewer(EventHandler):
             else:
                 # Otherwise move while staying clamped to the bounds of the history log.
                 self.cursor = max(0, min(self.cursor + adjust, self.log_length - 1))
-        elif event.sym == tcod.event.K_HOME:
+        elif event.key == pygame.K_HOME:
             self.cursor = 0  # Move directly to the top message.
-        elif event.sym == tcod.event.K_END:
+        elif event.key == pygame.K_END:
             self.cursor = self.log_length - 1  # Move directly to the last message.
         else:  # Any other key moves back to the main game state.
             self.engine.event_handler = MainGameEventHandler(self.engine)
