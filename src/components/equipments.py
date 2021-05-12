@@ -104,7 +104,7 @@ class Equipments(BaseComponent):
 
         # Remove item that was equipped on the region you are currently trying to equip
         if self.equipments[item.equipable.equip_region]:
-            self.remove_equipment(item.equipable.equip_region)
+            self.remove_equipment(item.equipable.equip_region, forced)
 
         # Equip item, gain bonuses
         self.equipments[item.equipable.equip_region] = item

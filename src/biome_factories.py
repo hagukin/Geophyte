@@ -1,5 +1,5 @@
 from biome import Biome, tileset
-import tile_types
+import tile_factories
 import color
 
 biome_dict = {}
@@ -26,10 +26,10 @@ desert_dungeon = Biome(
     map_width=80,
     map_height=80,
     tileset=tileset({
-        "t_wall":tile_types.wall_desert,
-        "t_floor":tile_types.floor_desert,
-        "t_dense_grass":tile_types.dense_grass_desert,
-        "t_sparse_grass":tile_types.sparse_grass_desert,
+        "t_wall":tile_factories.sandstone_wall,
+        "t_floor":tile_factories.sand_floor(),
+        "t_dense_grass":tile_factories.dense_grass_desert,
+        "t_sparse_grass":tile_factories.sparse_grass_desert,
     }),
     terrain = {"trap_field":5,},#TODO
 )
@@ -49,8 +49,8 @@ ancient_ruins = Biome(
     max_monsters_per_room=0,
     max_items_per_room=0,
     tileset=tileset({
-        "t_wall":tile_types.wall_ancient_ruins,
-        "t_floor":tile_types.floor_ancient_ruins,
+        "t_wall":tile_factories.quartz_wall,
+        "t_floor":tile_factories.quartz_floor,
     }),
     terrain = {"dungeon_chamber":1},
 )

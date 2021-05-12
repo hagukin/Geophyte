@@ -514,7 +514,7 @@ def stair_generation(
             if not descend_room.terrain.can_have_stair:
                 continue
             descend_tile = random.choice(descend_room.inner_tiles)
-            if dungeon.get_any_entity_at_location(descend_tile[0], descend_tile[1]) or not dungeon.tiles[descend_tile]["walkable"] or not dungeon.tiles[descend_tile]["safe_to_walk"]:
+            if dungeon.get_any_entity_at_location(descend_tile[0], descend_tile[1]) or not dungeon.tiles[descend_tile].walkable or not dungeon.tiles[descend_tile].safe_to_walk:
                 continue
             else:
                 return descend_tile
@@ -536,10 +536,11 @@ def generate_stair(
             
             # Check if both stairs are connected to one another
             connected = False
-            cost = np.array(dungeon.tiles["walkable"], dtype=np.int8) # tunnelmap includes "void" tiles as a valid path, so create a new cost grid and pass it to pathfinder
+            cost = np.array([[tile.walkable == True for tile in row] for row in dungeon.tiles])# tunnelmap includes "void" tiles as a valid path, so create a new cost grid and pass it to pathfinder
 
             # Avoid dangerous tiles
-            dangerous_coordinates = zip(*np.where(dungeon.tiles["safe_to_walk"][:,:] == False))
+            tmp = np.array([[tile.safe_to_walk == True for tile in row] for row in dungeon.tiles])
+            dangerous_coordinates = zip(*np.where(tmp[:, :] == False))
             for cor in dangerous_coordinates:
                 cost[cor] = 0
             
@@ -572,7 +573,7 @@ def generate_stair(
     # If depth 1, spawn player
     if dungeon.engine.depth == 1:
         dungeon.engine.player.gamemap = dungeon
-        dungeon.engine.player.place(ascend_tile[0], ascend_tile[1])
+        dungeon.engine.player.place(ascend_tile[0], ascend_tile[1], dungeon)
 
     return None
 
@@ -584,9 +585,7 @@ def generate_entities(
     max_monsters_per_room: int,
     max_items_per_room: int,
     ) -> None:
-
-    # Initialize player if depth 1
-    if depth == 1:
+    if depth == 1: #TODO: NOT SURE THIS IS A GOOD WAY OF DOING THIS
         dungeon.engine.player.initialize_actor()
 
     for room in rooms:
@@ -781,10 +780,8 @@ def generate_dungeon_debug(
     rooms: List[Room] = []
     possible_biome = get_dungeon_biome(
         depth)  # If there is certain list of biomes specified for certain depth, choose one from the specified biome list.
-    if possible_biome:
-        biome = choose_biome(possible_biome)
-    else:
-        biome = choose_biome()
+
+    biome = choose_biome()
 
     dungeon = GameMap(depth=depth, engine=engine, biome=biome,
                       entities=[]) # NOTE: tilemap initialization happens during  gamemap.__init__()
@@ -795,5 +792,44 @@ def generate_dungeon_debug(
     screen_center_y = int(engine.config["screen_height"] / 2)
 
     render_start_time = time.time()
+
+    player.place(30, 30, dungeon)
+
+    print("Generating Earth...")
+    generate_earth(
+        dungeon=dungeon,
+        map_width=biome.map_width,
+        map_height=biome.map_height,
+        engine=engine
+    )
+
+    print("Generating Dungeon Rooms...")
+    generate_rooms(
+        dungeon=dungeon,
+        rooms=rooms,
+        max_rooms=biome.max_rooms,
+        engine=engine
+    )
+
+    print("Generating Tunnels...")
+    generate_tunnels(
+        dungeon=dungeon,
+        rooms=rooms,
+    )
+
+    print("Adjusting Tunnels...")
+    adjust_convex(
+        dungeon=dungeon,
+        rooms=rooms,
+        )
+
+    print("Generating Terrains...")
+    generate_terrain(
+        dungeon=dungeon,
+        rooms=rooms,
+        map_width=biome.map_width,
+        map_height=biome.map_height,
+    )
+
 
     return dungeon

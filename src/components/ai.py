@@ -6,7 +6,7 @@ import copy
 from numpy.core.shape_base import block
 import tcod
 
-from typing import List, Tuple, Optional
+from typing import List, Tuple, Optional, Set
 from actions import Action, BumpAction, MeleeAction, WaitAction, ThrowItem, EatItem, PickupAction
 from components.base_component import BaseComponent
 from entity import Actor, SemiActor, Entity, Item
@@ -23,21 +23,21 @@ class BaseAI(BaseComponent):
             do_ranged_atk: bool,
             use_ability: bool,
 
-            allied_type: set=set(),
-            allied_id: set=set(),
-            allied_with: set=set(),
+            allied_type: Optional[Set]=None,
+            allied_id: Optional[Set]=None,
+            allied_with: Optional[Set]=None,
 
-            hostile_type: set=set(),
-            hostile_id: set=set(),
-            hostile_with: set=set(),
+            hostile_type: Optional[Set]=None,
+            hostile_id: Optional[Set]=None,
+            hostile_with: Optional[Set]=None,
 
-            attracted_eat_type: set=set(),
-            attracted_eat_id: set=set(),
-            attracted_eat_with: set=set(),
+            attracted_eat_type: Optional[Set]=None,
+            attracted_eat_id: Optional[Set]=None,
+            attracted_eat_with: Optional[Set]=None,
             
-            attracted_own_type: set=set(),
-            attracted_own_id: set=set(),
-            attracted_own_with: set=set(),
+            attracted_own_type: Optional[Set]=None,
+            attracted_own_id: Optional[Set]=None,
+            attracted_own_with: Optional[Set]=None,
 
             tameable: int = 1,
             owner: Actor = None,
@@ -75,23 +75,47 @@ class BaseAI(BaseComponent):
 
         # Alliance
         self.allied_with = allied_with # actor that is alligned with
-        self.allied_id = allied_id # monster type(monster_id) that are alligned with (e.g. fire_ant)
-        self.allied_type = allied_type # species that are alligned with (e.g. char "a")
+        if allied_with is None:
+            self.allied_with = set()
+        self.allied_id = allied_id  # monster type(monster_id) that are alligned with (e.g. fire_ant)
+        if allied_id is None:
+            self.allied_id = set()
+        self.allied_type = allied_type  # species that are alligned with (e.g. char "a")
+        if allied_type is None:
+            self.allied_type = set()
 
         # Enemy
         self.hostile_with = hostile_with # actor that is considered as an enemy
+        if hostile_with is None:
+            self.hostile_with = set()
         self.hostile_id = hostile_id # monster type(monster_id) that is considered as an enemy
+        if hostile_id is None:
+            self.hostile_id = set()
         self.hostile_type = hostile_type # species that is considered as an enemy
+        if hostile_type is None:
+            self.hostile_type = set()
 
         # Attraction - Ai wants to eat these
         self.attracted_eat_type = attracted_eat_type # edible.edible_type (string)
+        if attracted_eat_type is None:
+            self.attracted_eat_type = set()
         self.attracted_eat_id = attracted_eat_id
+        if attracted_eat_id is None:
+            self.attracted_eat_id = set()
         self.attracted_eat_with = attracted_eat_with
+        if attracted_eat_with is None:
+            self.attracted_eat_with = set()
 
         # Attraction - Ai wants to own(possess) these
         self.attracted_own_type = attracted_own_type # item.InventoryOrder (enum)
+        if attracted_own_type is None:
+            self.attracted_own_type = set()
         self.attracted_own_id = attracted_own_id
+        if attracted_own_id is None:
+            self.attracted_own_id = set()
         self.attracted_own_with = attracted_own_with
+        if attracted_own_with is None:
+            self.attracted_own_with = set()
 
         # Owner
         self.tameable = tameable
@@ -185,7 +209,7 @@ class BaseAI(BaseComponent):
         random_x = random.randint(3, self.gamemap.width - 3)
         random_y = random.randint(3, self.gamemap.height - 3)
 
-        if self.gamemap.tiles[random_x, random_y]["walkable"]:
+        if self.gamemap.tiles[random_x, random_y].walkable:
             self.path = self.get_path_to(random_x, random_y)
 
     def idle_action(self) -> Action:
@@ -209,7 +233,7 @@ class BaseAI(BaseComponent):
         If there is no valid path then returns an empty list.
         """
         # Copy the walkable array.
-        cost = np.array(self.parent.gamemap.tiles["walkable"], dtype=np.int8)
+        cost = np.array([[tile.walkable == True for tile in row] for row in self.parent.gamemap.tiles])
 
         for parent in self.parent.gamemap.entities:
             # Check that an enitiy blocks movement and the cost isn't zero (blocking.)
@@ -227,15 +251,16 @@ class BaseAI(BaseComponent):
             # 1. If the AI is not flying, raise costs for safe_to_walk = False tiles.
             # NOTE: The reason for not entirely removing dangerous tiles from path is, to prevent ai "stuck" between dangerous tiles. (It can't generate path to get out if its surrounded)
             if not self.parent.actor_state.is_flying:
-                dangerous_coordinates = zip(*np.where(self.gamemap.tiles["safe_to_walk"][:,:] == False))
+                tmp = np.array([[tile.safe_to_walk == False for tile in row] for row in self.gamemap.tiles])
+                dangerous_coordinates = zip(*np.where(tmp[:,:] == False))
                 for cor in dangerous_coordinates:
                     # If the actor is already on dangerous tile, same types of tiles will be considered safe. 
                     # (Thus, the ai will be able to find its way out from the middle of giant pool of water.)
-                    if self.gamemap.tiles[cor]["tile_id"] == self.gamemap.tiles[self.parent.x, self.parent.y]["tile_id"]:
+                    if self.gamemap.tiles[cor].tile_id == self.gamemap.tiles[self.parent.x, self.parent.y].tile_id:
                         continue
 
                     # If the tile is deep water, but the ai is able to swim, its considered safe.
-                    if self.parent.actor_state.can_swim and self.gamemap.tiles[cor]["tile_id"] == "deep_water":
+                    if self.parent.actor_state.can_swim and self.gamemap.tiles[cor].tile_id == "deep_water":
                         break
                     else:# TODO: Add logics besides just deep water. (e.g. actors with fire res 100% will ignore lava pools.)
                         cost[cor] += 50
@@ -524,7 +549,7 @@ class BaseAI(BaseComponent):
         """
         Updates this ai's vision.
         """
-        temp_vision = copy.copy(self.parent.gamemap.tiles["transparent"])
+        temp_vision = np.array([[tile.transparent == True for tile in row] for row in self.gamemap.tiles])
 
         for entity in self.parent.gamemap.entities:
             if entity.blocks_sight:

@@ -1,9 +1,12 @@
 from ast import walk
+import random
+import skin_factories
+
 from components import semiactor_info
 from components.semiactor_info import SemiactorInfo
 from order import RenderOrder
-import random
-from typing import Tuple, List
+from components.skin import Skin
+from typing import Tuple, List, Optional
 from entity import SemiActor
 from actions import ChestBumpAction
 
@@ -13,6 +16,7 @@ class ChestSemiactor(SemiActor):
         *,
         x: int = 0,
         y: int = 0,
+        skin: Optional[Skin] = skin_factories.skin_transparent(False),
         char: str = "?",
         fg: Tuple[int, int, int] = (255, 255, 255),
         bg: Tuple[int, int, int] = None,
@@ -30,7 +34,7 @@ class ChestSemiactor(SemiActor):
         rule_cls = None,
         bump_action = None,
         storage = None,
-        initial_items = [],
+        initial_items = None,
     ):
         """
         Args:
@@ -48,6 +52,7 @@ class ChestSemiactor(SemiActor):
         super().__init__(
             x=x,
             y=y,
+            skin=skin,
             char=char,
             fg=fg,
             bg=bg,
@@ -70,6 +75,8 @@ class ChestSemiactor(SemiActor):
         if self.storage:
             self.storage.parent = self
         self.initial_items = initial_items
+        if self.initial_items is None:
+            self.initial_items = []
 
     def spawn(self, gamemap, x: int, y: int, lifetime=-1, initial_items: List=None):
         """Spawn a copy of this instance at the given location."""
@@ -93,8 +100,10 @@ class ChestSemiactor(SemiActor):
 
 from components.inventory import Inventory
 import item_factories
+import skin_factories
 
 large_wooden_chest = ChestSemiactor(
+        skin=skin_factories.skin_large_wooden_chest(False),
         char="▣",
         fg=(191, 128, 0),
         bg=None,

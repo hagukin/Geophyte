@@ -122,7 +122,7 @@ def quartz_floor(randomize=False):
 ################# WALLS ###################
 ###########################################
 
-def cave_wall(randomize=False):
+def cave_wall(randomize=True):
     tile = Tile(
         skin=skin_factories.skin_cave_wall(randomize),
         walkable=False,

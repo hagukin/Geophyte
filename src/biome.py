@@ -1,9 +1,11 @@
-from typing import Tuple
-import tile_types
+from __future__ import annotations
+from typing import Optional, Dict, Tuple
+
+import tile_factories
 import color
 
 def tileset(
-    adjustments: dict=None,
+    adjustments: Optional[Dict]=None,
 ):
     """
     Args:
@@ -12,19 +14,19 @@ def tileset(
             if any adjustments value is given, this function will modify the default tilesets as given.
     """
     tileset = {
-        "t_wall":tile_types.wall,
-        "t_border":tile_types.vintronium,
-        "t_floor":tile_types.floor,
-        "t_dense_grass":tile_types.dense_grass,
-        "t_sparse_grass":tile_types.sparse_grass,
-        "t_ascending_stair":tile_types.ascending_stair,
-        "t_descending_stair":tile_types.descending_stair,
-        "t_burnt_floor":tile_types.burnt_floor,
-        "t_deep_pit":tile_types.deep_pit,
-        "t_shallow_pit":tile_types.shallow_pit,
-        "t_deep_water":tile_types.deep_water,
-        "t_shallow_water":tile_types.shallow_water,
-        "t_DEBUG":tile_types.DEBUG,
+        "t_wall":tile_factories.cave_wall,
+        "t_border":tile_factories.epithelium,
+        "t_floor":tile_factories.stone_floor,
+        "t_dense_grass":tile_factories.dense_grass,
+        "t_sparse_grass":tile_factories.sparse_grass,
+        "t_ascending_stair":tile_factories.ascending_stair,
+        "t_descending_stair":tile_factories.descending_stair,
+        "t_burnt_floor":tile_factories.stone_floor_burnt,
+        "t_deep_pit":tile_factories.deep_pit,
+        "t_shallow_pit":tile_factories.shallow_pit,
+        "t_deep_water":tile_factories.deep_water,
+        "t_shallow_water":tile_factories.shallow_water,
+        "t_DEBUG":tile_factories.debug_tile,
     }
 
     if adjustments:
@@ -52,8 +54,8 @@ class Biome:
         respawn_time: float = 50,
         max_monsters_per_room: int = 4,
         max_items_per_room: int = 4,
-        tileset: dict = tileset(),
-        terrain: dict = None,
+        tileset: Optional[Dict] = tileset(),
+        terrain: Dict = None,
         # TODO Add biome-differentiated monster generating system feature
     ):
         """

@@ -1,5 +1,6 @@
 from entity import SemiActor
 from actions import DoorOpenAction, DoorUnlockAction
+import skin_factories
 import components.rule_factories as rule
 import components.walkable as walkable
 import components.semiactor_info as semiactor_info
@@ -54,6 +55,7 @@ spike_trap = SemiActor(
 ##########################################################################
 
 closed_door = SemiActor(
+    skin=skin_factories.skin_wooden_door_closed(False),
     char="+",
     fg=(10, 10, 10),
     bg=(170, 140, 75),
@@ -71,6 +73,7 @@ closed_door = SemiActor(
 )
 
 opened_door = SemiActor(
+    skin=skin_factories.skin_wooden_door_opened(False),
     char="-",
     fg=(170, 140, 75),
     bg=None,

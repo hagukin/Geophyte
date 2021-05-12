@@ -99,14 +99,14 @@ player = Actor(
         base_melee=5,
         additional_melee=5,
         protection=10,
-        eyesight=3,
+        eyesight=5,
         ),
     actor_state=ActorState(
         hunger=1200,
         heal_wounds=True,
         size=4,
         weight=70,
-        has_telepathy=True,
+        has_telepathy=False, #TODO: Make visible objects
     ),
     inventory=Inventory(capacity=52, is_fireproof=False),
     ability_inventory=AbilityInventory(capacity=10),
@@ -134,6 +134,7 @@ player = Actor(
 
 ### Shopkeeper
 shopkeeper = Actor(
+    skin=skin_factories.skin_shopkeeper(True),
     char="@",
     fg=(214, 181, 49),
     name="상인",
@@ -188,6 +189,7 @@ shopkeeper = Actor(
 
 ### ant
 ant = Actor(
+    skin=skin_factories.skin_ant(True),
     char="a",
     fg=(26, 33, 0),
     name="개미",
@@ -240,6 +242,7 @@ monster_difficulty[ant.status.difficulty].append(ant)
 
 ### fire ant
 fire_ant = Actor(
+    skin=skin_factories.skin_fire_ant(True),
     char="a",
     fg=(255, 0, 0),
     name="불개미",
@@ -293,6 +296,7 @@ monster_difficulty[fire_ant.status.difficulty].append(fire_ant)
 
 ### volt ant
 volt_ant = Actor(
+    skin=skin_factories.skin_volt_ant(True),
     char="a",
     fg=(99, 255, 193),
     name="스파크 개미",
@@ -348,6 +352,7 @@ monster_difficulty[volt_ant.status.difficulty].append(volt_ant)
 
 ### Bat
 bat = Actor(
+    skin=skin_factories.skin_bat(True),
     char="b",
     fg=(94, 0, 122),
     name="박쥐",
@@ -357,7 +362,7 @@ bat = Actor(
         설치류와 조류 사이에 걸친 애매한 외형 때문에 이들은 오랜 시간 인간들에게 박해받아왔지만,\n\
         대부분의 박쥐는 무해하며, 오히려 인간에게 먼저 공격을 거는 경우가 드물다고 한다.\n\
         \n\
-        \"난 솔직히 걔들이 뭘 어쨌던 관심없어. 생긴 게 징그럽잖아.\"\
+        \"왜 싫어하냐고? 그냥 생긴 게 징그럽잖아.\"\
         ",
     rarity=11,
     spawnable=True,
@@ -407,6 +412,7 @@ monster_difficulty[bat.status.difficulty].append(bat)
 
 ### Kitten
 kitten = Actor(
+    skin=skin_factories.skin_kitten(True),
     char="c",
     fg=(222, 208, 169),
     name="새끼고양이",
@@ -459,6 +465,7 @@ monster_difficulty[kitten.status.difficulty].append(kitten)
 
 ### Cat
 cat = Actor(
+    skin=skin_factories.skin_cat(True),
     char="c",
     fg=(217, 184, 91),
     name="고양이",
@@ -511,6 +518,7 @@ monster_difficulty[cat.status.difficulty].append(cat)
 
 ### Large Cat
 large_cat = Actor(
+    skin=skin_factories.skin_large_cat(True),
     char="c",
     fg=(230, 169, 0),
     name="큰 고양이",
@@ -567,6 +575,7 @@ monster_difficulty[large_cat.status.difficulty].append(large_cat)
 
 ### puppy
 puppy = Actor(
+    skin=skin_factories.skin_puppy(True),
     char="d",
     fg=(196, 220, 255),
     name="강아지",
@@ -618,6 +627,7 @@ monster_difficulty[puppy.status.difficulty].append(puppy)
 
 ### Dog
 dog = Actor(
+    skin=skin_factories.skin_dog(True),
     char="d",
     fg=(105, 165, 255),
     name="개",
@@ -669,6 +679,7 @@ monster_difficulty[dog.status.difficulty].append(dog)
 
 ### Large Dog
 large_dog = Actor(
+    skin=skin_factories.skin_large_dog(True),
     char="d",
     fg=(0, 102, 255),
     name="큰 개",
@@ -724,6 +735,7 @@ monster_difficulty[large_dog.status.difficulty].append(large_dog)
 
 ### floating eye
 floating_eye = Actor(
+    skin=skin_factories.skin_floating_eye(True),
     char="e",
     fg=(255, 255, 255),
     name="떠다니는 눈",
@@ -784,6 +796,7 @@ monster_difficulty[floating_eye.status.difficulty].append(floating_eye)
 
 ### fly
 fly = Actor(
+    skin=skin_factories.skin_fly(True),
     char="i",
     fg=(171, 63, 63),
     name="파리",
@@ -834,21 +847,22 @@ fly = Actor(
 monster_difficulty[fly.status.difficulty].append(fly)
 
 
-### giant wasp
-giant_wasp = Actor(
+### giant bee
+giant_bee = Actor(
+    skin=skin_factories.skin_giant_bee(True),
     char="i",
     fg=(250, 250, 0),
-    name="거대 말벌",
-    entity_id="giant_wasp",
+    name="거대 벌",
+    entity_id="giant_bee",
     entity_desc="\
-        던전의 기운을 받은 말벌들은 몸통 뿐 아니라 독침의 크기까지 거대하다.\n\
-        사람 손가락 만한 이들의 독침은, 독 없이 그 자체만으로도 치명상을 입히기 충분하다.\n\
+        던전의 기운을 받은 벌들은 몸통 뿐 아니라 독침의 크기까지 거대하다.\n\
+        사람 손가락 만한 이들의 독침은 독 없이 그 자체만으로도 치명상을 입히기 충분하다.\n\
         \n\
         \"독이 묻은 단검을 떠올려 봐. 꽤 살벌하지? 그런데 그 단검이 날아다니면서 나를 쫓아온다면 난 분명 오줌을 지릴거야.\"\
         ",
     rarity=13,
     spawnable=True,
-    edible=edible.GiantWaspEdible(),
+    edible=edible.GiantBeeEdible(),
     ai_cls=ai_factories.giant_wasp_ai,
     status=Status(
         hp=50,
@@ -883,7 +897,7 @@ giant_wasp = Actor(
     ability_inventory=AbilityInventory(capacity=1),
     equipments=Equipments(),
 )
-monster_difficulty[giant_wasp.status.difficulty].append(giant_wasp)
+monster_difficulty[giant_bee.status.difficulty].append(giant_bee)
 
 
 ####################################################
@@ -892,6 +906,7 @@ monster_difficulty[giant_wasp.status.difficulty].append(giant_wasp)
 
 ### black jelly
 black_jelly = Actor(
+    skin=skin_factories.skin_black_jelly(True),
     char="j",
     fg=(10, 20, 10),
     name="검정 덩어리",
@@ -950,12 +965,13 @@ monster_difficulty[black_jelly.status.difficulty].append(black_jelly)
 
 ### nymph
 nymph = Actor(
+    skin=skin_factories.skin_nymph(True),
     char="n",
     fg=(63, 245, 39),
     name="님프",
     entity_id="nymph",
     entity_desc="\
-        아름다운 님프, 그리고 인간 남성이 사랑에 빠지는 일은 신화 뿐만 아니라 현실에서도 종종 일어나곤 한다.\n\
+        인간 남성이 아름다운 님프와 사랑에 빠지는 일은 신화 뿐만 아니라 현실에서도 종종 일어나곤 한다.\n\
         그러나 그 결말은 결코 같지 않다.\n\
         님프의 아름다움에 홀린 남성들은 가진 것을 모두 내어주고, 종국에는 파멸에 이른다.\n\
         아름다운 인간형 외모에 속아 방심한다면, 당신은 이들에게 가진 것 뿐만 아니라 목숨까지 내어주게 될 지도 모른다.\n\
@@ -1006,6 +1022,7 @@ monster_difficulty[nymph.status.difficulty].append(nymph)
 #################### o - spheres ###################
 ####################################################
 sphere_of_acid = Actor(
+    skin=skin_factories.skin_sphere_of_acid(True),
     char="o",
     fg=(123, 255, 0),
     name="산성 구체",
@@ -1069,6 +1086,7 @@ monster_difficulty[sphere_of_acid.status.difficulty].append(sphere_of_acid)
 
 ### jumping spider
 jumping_spider = Actor(
+    skin=skin_factories.skin_jumping_spider(True),
     char="s",
     fg=(127, 235, 224),
     name="깡충거미",
@@ -1124,6 +1142,7 @@ monster_difficulty[jumping_spider.status.difficulty].append(jumping_spider)
 
 ### earthworm
 earthworm = Actor(
+    skin=skin_factories.skin_earthworm(True),
     char="w",
     fg=(171, 108, 56),
     name="지렁이",
@@ -1173,6 +1192,7 @@ monster_difficulty[earthworm.status.difficulty].append(earthworm)
 
 ### maggot
 maggot = Actor(
+    skin=skin_factories.skin_maggot(True),
     char="w",
     fg=(222, 222, 222),
     name="구더기",
@@ -1223,6 +1243,7 @@ monster_difficulty[maggot.status.difficulty].append(maggot)
 
 ### Ice Elemental
 ice_elemental = Actor(
+    skin=skin_factories.skin_ice_elemental(True),
     char="E",
     fg=(207, 247, 255),
     name="얼음 정령",
@@ -1286,17 +1307,17 @@ monster_difficulty[ice_elemental.status.difficulty].append(ice_elemental)
 ####################################################
 
 ### Chatterbox
-chatterbox = Actor(
+chatterbox = Actor(#TODO : ADD SPRITES
     char="I",
     fg=(255, 230, 230),
     name="수다꾼",
     entity_id="chatterbox",
     entity_desc="\
-        던전에서 누군가 당신을 부르는 소리가 들린다면, 뒤를 돌아보기보다는 검을 뽑아드는 편이 더 현명한 선택일지도 모른다.\n\
-        '수다쟁이'라는 별칭으로 불리는 이 생명체는, 극단적으로 팔다리가 긴 여성 인간과 유사한 형태를 하고 있다.\n\
+        던전에서 누군가 당신을 부르는 소리가 들린다면 뒤를 돌아보기보다는 검을 뽑아드는 게 좋다.\n\
+        '수다쟁이'라는 별칭으로 불리는 이 생명체는 극단적으로 팔다리가 긴 여성 인간과 유사한 형태를 하고 있다.\n\
         이들은 털이 없는 창백한 피부를 가졌으며, 머리에는 눈,코,귀 대신 '입'이 수 십여개 달려 있는 것이 특징이다.\n\
         이들은 '입'을 통해 음식을 섭취하지는 않지만, 인간이나 다른 생명체들의 소리를 흉내내어 먹잇감을 유인한다.\n\
-        시각 기관의 부재로 인한 극단적으로 좋지 못한 시력에도 불구하고, 이들의 긴 팔과 날카로운 손톱은 가까운 거리의 인간을 갈기갈기 찢어 놓기에 충분하다.\n\
+        시각 기관의 부재로 인한 극단적으로 좋지 못한 인지능력에도 불구하고, 이들의 긴 팔과 날카로운 손톱은 가까운 거리의 인간을 갈기갈기 찢어 놓기에 충분하다.\n\
         \n\
         \"부탁이야... 말리지 말아줘... 이렇게라도 그녀의 목소리를 듣고 싶어...\"\
         ",
@@ -1344,6 +1365,7 @@ monster_difficulty[chatterbox.status.difficulty].append(chatterbox)
 
 ### Giant
 giant = Actor(
+    skin=skin_factories.skin_giant(True),
     char="T",
     fg=(150, 30, 190),
     name="자이언트",

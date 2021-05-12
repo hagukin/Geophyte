@@ -109,7 +109,19 @@ def skin_quartz_floor(randomize: bool):
 def skin_cave_wall(randomize: bool):
     skin = TileSkin(
         sprites_set=[{
-            "light":sprite_factories.t_cave_wall_light,
+            "light":sprite_factories.t_cave_wall_light1,
+            "dark":sprite_factories.t_cave_wall_dark,
+        }, {
+            "light":sprite_factories.t_cave_wall_light2,
+            "dark":sprite_factories.t_cave_wall_dark,
+        }, {
+            "light":sprite_factories.t_cave_wall_light3,
+            "dark":sprite_factories.t_cave_wall_dark,
+        }, {
+            "light":sprite_factories.t_cave_wall_light4,
+            "dark":sprite_factories.t_cave_wall_dark,
+        }, {
+            "light":sprite_factories.t_cave_wall_light5,
             "dark":sprite_factories.t_cave_wall_dark,
         }]
     )
@@ -293,11 +305,341 @@ def skin_transparent(randomize: bool):
         skin = skin.randomize()
     return skin
 
-### 1. Actor Skins
+"""
+############################### Actor Skins ############################
+"""
+################## @ - Humanoids  ##################
 def skin_player(randomize: bool):
     skin = EntitySkin(
         sprites_set=[{
             "default":sprite_factories.e_player_default,
+        }]
+    )
+    if randomize:
+        skin = skin.randomize()
+    return skin
+
+def skin_shopkeeper(randomize: bool):
+    skin = EntitySkin(
+        sprites_set=[{
+            "default":sprite_factories.e_shopkeeper_default,
+        }]
+    )
+    if randomize:
+        skin = skin.randomize()
+    return skin
+
+
+
+###################### a - ants  ###################
+def skin_ant(randomize: bool):
+    skin = EntitySkin(
+        sprites_set=[{
+            "default":sprite_factories.e_ant_default,
+        }]
+    )
+    if randomize:
+        skin = skin.randomize()
+    return skin
+
+
+def skin_fire_ant(randomize: bool):
+    skin = EntitySkin(
+        sprites_set=[{
+            "default":sprite_factories.e_fire_ant_default,
+        }]
+    )
+    if randomize:
+        skin = skin.randomize()
+    return skin
+
+
+def skin_volt_ant(randomize: bool):
+    skin = EntitySkin(
+        sprites_set=[{
+            "default":sprite_factories.e_volt_ant_default,
+        }]
+    )
+    if randomize:
+        skin = skin.randomize()
+    return skin
+
+
+
+#################  b- bats / birds  ################
+def skin_bat(randomize: bool):
+    skin = EntitySkin(
+        sprites_set=[{
+            "default":sprite_factories.e_bat_default,
+        }]
+    )
+    if randomize:
+        skin = skin.randomize()
+    return skin
+
+
+#####################  c- cats  ####################
+def skin_kitten(randomize: bool):
+    skin = EntitySkin(
+        sprites_set=[{
+            "default":sprite_factories.e_kitten_default,
+        }]
+    )
+    if randomize:
+        skin = skin.randomize()
+    return skin
+
+
+def skin_cat(randomize: bool):
+    skin = EntitySkin(
+        sprites_set=[{
+            "default":sprite_factories.e_cat_default,
+        }]
+    )
+    if randomize:
+        skin = skin.randomize()
+    return skin
+
+
+def skin_large_cat(randomize: bool):
+    skin = EntitySkin(
+        sprites_set=[{
+            "default":sprite_factories.e_large_cat_default,
+        }]
+    )
+    if randomize:
+        skin = skin.randomize()
+    return skin
+
+
+
+####################  d - dogs  ####################
+def skin_puppy(randomize: bool):
+    skin = EntitySkin(
+        sprites_set=[{
+            "default":sprite_factories.e_puppy_default,
+        }]
+    )
+    if randomize:
+        skin = skin.randomize()
+    return skin
+
+
+def skin_dog(randomize: bool):
+    skin = EntitySkin(
+        sprites_set=[{
+            "default":sprite_factories.e_dog_default,
+        }]
+    )
+    if randomize:
+        skin = skin.randomize()
+    return skin
+
+
+def skin_large_dog(randomize: bool):
+    skin = EntitySkin(
+        sprites_set=[{
+            "default":sprite_factories.e_large_dog_default,
+        }]
+    )
+    if randomize:
+        skin = skin.randomize()
+    return skin
+
+
+################  e - eyes & brains  ###############
+def skin_floating_eye(randomize: bool):
+    skin = EntitySkin(
+        sprites_set=[{
+            "default":sprite_factories.e_floating_eye_default,
+        }]
+    )
+    if randomize:
+        skin = skin.randomize()
+    return skin
+
+
+############### i = flying insects  ################
+def skin_fly(randomize: bool):
+    skin = EntitySkin(
+        sprites_set=[{
+            "default":sprite_factories.e_fly_default,
+        }]
+    )
+    if randomize:
+        skin = skin.randomize()
+    return skin
+
+
+def skin_giant_bee(randomize: bool):
+    skin = EntitySkin(
+        sprites_set=[{
+            "default":sprite_factories.e_giant_bee_default,
+        }]
+    )
+    if randomize:
+        skin = skin.randomize()
+    return skin
+
+
+############### j - jellies / slimes  ##############
+def skin_black_jelly(randomize: bool):
+    skin = EntitySkin(
+        sprites_set=[{
+            "default":sprite_factories.e_black_jelly_default,
+        }]
+    )
+    if randomize:
+        skin = skin.randomize()
+    return skin
+
+
+#################### n - nymphs  ###################
+def skin_nymph(randomize: bool):
+    skin = EntitySkin(
+        sprites_set=[{
+            "default":sprite_factories.e_nymph_default,
+        }]
+    )
+    if randomize:
+        skin = skin.randomize()
+    return skin
+
+
+#################### o - spheres ###################
+def skin_sphere_of_acid(randomize: bool):
+    skin = EntitySkin(
+        sprites_set=[{
+            "default":sprite_factories.e_sphere_of_acid_default,
+        }]
+    )
+    if randomize:
+        skin = skin.randomize()
+    return skin
+
+
+############# s - spiders & scorpions  #############
+def skin_jumping_spider(randomize: bool):
+    skin = EntitySkin(
+        sprites_set=[{
+            "default":sprite_factories.e_jumping_spider_default,
+        }]
+    )
+    if randomize:
+        skin = skin.randomize()
+    return skin
+
+
+#####################  w - worms  ##################
+def skin_earthworm(randomize: bool):
+    skin = EntitySkin(
+        sprites_set=[{
+            "default":sprite_factories.e_earthworm_default,
+        }]
+    )
+    if randomize:
+        skin = skin.randomize()
+    return skin
+
+
+def skin_maggot(randomize: bool):
+    skin = EntitySkin(
+        sprites_set=[{
+            "default":sprite_factories.e_maggot_default,
+        }]
+    )
+    if randomize:
+        skin = skin.randomize()
+    return skin
+
+
+################## E - ELEMENTALS  #################
+def skin_ice_elemental(randomize: bool):
+    skin = EntitySkin(
+        sprites_set=[{
+            "default":sprite_factories.e_ice_elemental_default,
+        }]
+    )
+    if randomize:
+        skin = skin.randomize()
+    return skin
+
+
+################### I - IMPOSTERS  #################
+def skin_chatterbox(randomize: bool):
+    skin = EntitySkin(
+        sprites_set=[{
+            "default":sprite_factories.e_chatterbox_default,
+        }]
+    )
+    if randomize:
+        skin = skin.randomize()
+    return skin
+
+
+################ T - GIANTS & TITANS  ##############
+def skin_giant(randomize: bool):
+    skin = EntitySkin(
+        sprites_set=[{
+            "default":sprite_factories.e_giant_default,
+        }]
+    )
+    if randomize:
+        skin = skin.randomize()
+    return skin
+
+
+"""
+############################### Semiactor Skins ############################
+"""
+########################## SEMIACTORS WITH AI ############################
+
+################################ CHESTS ##################################
+def skin_wooden_chest(randomize: bool):
+    skin = EntitySkin(
+        sprites_set=[{
+            "default":sprite_factories.e_wooden_chest_closed,
+            "opened":sprite_factories.e_wooden_chest_opened,
+            "closed":sprite_factories.e_wooden_chest_closed
+        }]
+    )
+    skin.curr_sprite_state = "closed"
+    if randomize:
+        skin = skin.randomize()
+    return skin
+
+
+def skin_large_wooden_chest(randomize: bool):
+    skin = EntitySkin(
+        sprites_set=[{
+            "default":sprite_factories.e_large_wooden_chest_closed,
+            "opened":sprite_factories.e_large_wooden_chest_opened,
+            "closed":sprite_factories.e_large_wooden_chest_closed
+        }]
+    )
+    skin.curr_sprite_state = "closed"
+    if randomize:
+        skin = skin.randomize()
+    return skin
+
+################################# TRAPS ##################################
+
+################ INTERACTABLE SEMIACTORS WITH NO AI ######################
+def skin_wooden_door_opened(randomize: bool):
+    skin = EntitySkin(
+        sprites_set=[{
+            "default":sprite_factories.e_wooden_door_opened,
+        }]
+    ) #NOTE: Since closed doors and opened doors are two entire different entities, we seperate the skin components as well.
+    if randomize:
+        skin = skin.randomize()
+    return skin
+
+
+def skin_wooden_door_closed(randomize: bool):
+    skin = EntitySkin(
+        sprites_set=[{
+            "default":sprite_factories.e_wooden_door_closed,
         }]
     )
     if randomize:

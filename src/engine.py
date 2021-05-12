@@ -366,7 +366,7 @@ class Engine:
 
         # Generate regular dungeon
         from procgen import generate_dungeon_debug
-        new_dungeon = generate_dungeon_debug(
+        new_dungeon = generate_dungeon(
             screen=screen,
             engine=self,
             depth=depth,

@@ -52,7 +52,10 @@ class GameSprite():
         self.tick = 0.0 # indicates current animation status
         self.images = []
         for n in range(1,frame_len+1):# Auto-adding sprites
-            self.images.append(pygame.image.load(f"./resources/sprites/{sprite_category}/{sprite_id}/{str(n)}.png"))
+            try:
+                self.images.append(pygame.image.load(f"./resources/sprites/{sprite_category}/{sprite_id}/{str(n)}.png"))
+            except FileNotFoundError:
+                print(f"ERROR::Cannot find ./resources/sprites/{sprite_category}/{sprite_id}/{str(n)}.png")
 
     @property
     def curr_frame(self):
@@ -71,25 +74,19 @@ class GameSprite():
         return GameSprite.engine.screen
 
     def __deepcopy__(self, memo):
-        # Backup pygame surfaces
-        new_images = []
-        for img in self.images:
-            new_images.append(img.copy())
-        tmp = self.images
-        self.images = None
-
         # deepcopy rest
         new_obj = GameSprite(self.sprite_category, self.sprite_id, self.is_animating)
         for name, attr in self.__dict__.items():
             if name == "images":
-                continue
+                new_images = list()
+                for img in self.images:
+                    new_images.append(img.copy())
+                new_obj.__dict__[name] = new_images
             elif name == "engine":
                 new_obj.__dict__[name] = copy.copy(GameSprite.engine)
             else:
                 new_obj.__dict__[name] = copy.deepcopy(attr)
 
-        self.images = tmp
-        new_obj.images = new_images
         return new_obj
 
     def set_tick(self, tick: float) -> None:
@@ -101,12 +98,16 @@ class GameSprite():
             self.tick += speed
             if self.tick > 1:
                 self.tick -= 1
-        self.image = self.images[self.curr_frame]
+        try:
+            self.image = self.images[self.curr_frame]
+        except:
+            pass
         return None
 
-    def render(self, xy: Tuple[int,int]) -> None:
-        """Render curr_frame sprite to engine.screen."""
-        self.screen.blit(source=self.images[self.curr_frame], dest=(xy[0], xy[1]))
+    def render(self, screen: pygame.Surface, xy: Tuple[int,int]) -> None:
+        """Render curr_frame sprite to engine.screen.
+        NOTE: Scaling is not applied."""
+        self.screen.blit(source=self.curr_img, dest=(xy[0], xy[1]))
 
     def render_frame(self, xy: Tuple[int,int], frame: int) -> None:
         if frame >= self.frame_len:

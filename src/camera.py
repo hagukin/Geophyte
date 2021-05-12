@@ -2,9 +2,7 @@ from engine import Engine
 from typing import List, Any, Tuple
 
 import copy
-import tile_factories
 import pygame.surface
-import numpy as np
 from collections import deque
 
 class Camera:
@@ -50,17 +48,14 @@ class Camera:
         self.ypos = ypos
         self.display_x = display_x # pixel position on display
         self.display_y = display_y
-        self.display_y = display_y
-        self.origin_tile_size = 48
+
         self.zoom_ratio = zoom_ratio
         self.zoom_index = 1 # x1
         self.zoom_ratios = (0.5,1,1.75,2,3.5)
+        self.origin_tile_size = self.engine.config["origin_tile_size"]
         self.tile_size = int(self.origin_tile_size * self.zoom_ratio)
         self.show_all = show_all # TODO : Add feature and make it work properly with magic mapping
         self.global_tick = 0.0
-        self.visuals =  deque() # List of visual objects that are going to be rendered this turn.
-        self.prev_visuals = deque()
-        self.prev_gameturn = 1 # Keeps track of game turn to determine whether the camera should decrease the lifetime of the visual objects or not.
 
     def __deepcopy__(self, memo):
         return self #TODO DISABLED DEEPCOPY
@@ -85,27 +80,10 @@ class Camera:
     def half_tile_height(self):
         return int(self.tile_height / 2)
 
-    def resize_sprites(self, tile_size: int) -> None:
-        import sprite_factories
-        for sprite in sprite_factories.tile_sprites:
-            for i in range(len(sprite.images)):
-                sprite.images[i] = pygame.transform.scale(sprite.images[i], (tile_size, tile_size))
-
-        for sprite in sprite_factories.entity_sprites:
-            for i in range(len(sprite.images)):
-                sprite.images[i] = pygame.transform.scale(sprite.images[i], (tile_size, tile_size))
-
-    def reset_zoom(self) -> None:
-        self.zoom_ratio = 1
-        self.resize_sprites(self.origin_tile_size)
-
     def change_zoom_to(self, zoom_ratio: float) -> None:
         """Resize every in-game sprites relative to given zoom_ratio."""
-        import sprite_factories
-        self.reset_zoom() # Reset zoom before zooming in to prevent distortion
         self.zoom_ratio = zoom_ratio
         self.tile_size = int(self.origin_tile_size * self.zoom_ratio)
-        self.resize_sprites(self.tile_size)
 
     def zoom_in(self):
         self.zoom_index = min(self.zoom_index + 1, len(self.zoom_ratios) - 1)
@@ -172,43 +150,6 @@ class Camera:
         self.xpos = min(max(0, self.xpos), self.engine.game_map.width - self.tile_width)
         self.ypos = min(max(0, self.ypos), self.engine.game_map.height - self.tile_height)
 
-    # def render_visuals(self, console) -> None:
-    #     """
-    #     Render visual objects.
-    #
-    #     NOTE: Visual objects can be rendered multiple times between one game turn and next game turn,
-    #     since multiple gameloops can exist between them.
-    #     """
-    #     if self.engine.game_turn > self.prev_gameturn:
-    #         self.prev_visuals.clear()
-    #         tmp_len = len(self.visuals)
-    #         for _ in range(tmp_len):
-    #             curr = self.visuals.pop()
-    #             if self.xpos <= curr.x < self.xpos + self.width and self.ypos <= curr.y < self.ypos + self.height:
-    #                 console.print(
-    #                     x=curr.x - self.xpos + self.display_x,
-    #                     y=curr.y - self.ypos + self.display_y,
-    #                     string=curr.char,
-    #                     fg=curr.fg,
-    #                     bg=curr.bg,
-    #                 )
-    #             self.prev_visuals.append(curr)
-    #             curr.lifetime -= 1
-    #             if curr.lifetime > 0:
-    #                 self.visuals.append(curr)
-    #
-    #         self.prev_gameturn = self.engine.game_turn
-    #     elif self.engine.game_turn == self.prev_gameturn:
-    #         for curr in self.prev_visuals:
-    #             if self.xpos <= curr.x < self.xpos + self.width and self.ypos <= curr.y < self.ypos + self.height:
-    #                 console.print(
-    #                     x=curr.x - self.xpos + self.display_x,
-    #                     y=curr.y - self.ypos + self.display_y,
-    #                     string=curr.char,
-    #                     fg=curr.fg,
-    #                     bg=curr.bg,
-    #                 )
-
     def update_tick(self, speed:float):
         self.global_tick += speed
         if self.global_tick > 1:
@@ -247,12 +188,14 @@ class Camera:
         for entity in self.engine.game_map.entities:
             if self.engine.game_map.visible[entity.x, entity.y]:
                 if self.abs_in_bounds(entity.x, entity.y):
-                    screen.blit(entity.skin.curr_sprite.curr_img, self.abs_display_cor(entity.x, entity.y))
+                    screen.blit(pygame.transform.scale(entity.skin.curr_sprite.curr_img, (self.tile_size, self.tile_size)),
+                                self.abs_display_cor(entity.x, entity.y))
 
     def render_tiles(self, screen) -> None:
         for x in range(self.xpos, self.xpos + self.tile_width):
             for y in range(self.ypos, self.ypos + self.tile_height):
-                self.gamemap.sprites[x,y].render(self.abs_display_cor(x,y))
+                screen.blit(pygame.transform.scale(self.gamemap.sprites[x,y].curr_img, (self.tile_size, self.tile_size)),
+                            self.abs_display_cor(x, y))
 
     def update_frame(self, tile_speed: float, entity_speed: float):
         """
@@ -260,8 +203,6 @@ class Camera:
         """
         self.update_tiles(tile_speed)
         self.update_entities(entity_speed)
-        # # Render visual objects
-        # self.update_visuals()
 
     def render(self, screen, draw_frame:bool=False) -> None:
         """
@@ -269,10 +210,3 @@ class Camera:
         """
         self.render_tiles(screen)
         self.render_entities(screen)
-
-        # Draw frame around the camera
-        #TODO
-        # if draw_frame:l;
-        #     import util
-        #     util.draw_thick_frame(console, x=self.display_x-1, y=self.display_y-1, width=self.width+2, height=self.height+2, fg=color.camera_frame_fg, bg=color.camera_frame_bg)
-

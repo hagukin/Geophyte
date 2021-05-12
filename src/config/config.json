@@ -2,6 +2,7 @@
     "screen_width": 1536,
     "screen_height": 864,
     "fullscreen": false,
+    "origin_tile_size": 48,
     "camera_width": 1200,
     "camera_height": 672,
     "camera_display_x": 0,

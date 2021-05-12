@@ -53,13 +53,14 @@ def render_credit_gui(console: tcod.Console):
     center_print(console, string="Kyle Benesch / HexDecimal", y=y+14, fg=color.credit_special)
     center_print(console, string="Joao F. Henriques / Jotaf", y=y+15, fg=color.credit_special)
     center_print(console, string="Tyler Standridge / TStand90", y=y+16, fg=color.credit_special)
-    center_print(console, string="hukseol", y=y+17, fg=color.credit_special)
+    center_print(console, string="DragonDePlatino & DawnBringer", y=y + 17, fg=color.credit_special)
+    center_print(console, string="hukseol", y=y+18, fg=color.credit_special)
 
-    draw_horizontal_line(console, y=y+21, thickness=1, bg=color.credit_license)
-    center_print(console, string="MIT-style license:", y=y+23, fg=color.white)
-    center_print(console, string="White Rabbit font by Matthew Welch", y=y+24, fg=color.credit_license)
-    center_print(console, string="OFL license:", y=y+26, fg=color.white)
-    center_print(console, string="Nanumfont", y=y+27, fg=color.credit_license)
+    draw_horizontal_line(console, y=y+22, thickness=1, bg=color.credit_license)
+    center_print(console, string="MIT-style license:", y=y+24, fg=color.white)
+    center_print(console, string="White Rabbit font by Matthew Welch", y=y+25, fg=color.credit_license)
+    center_print(console, string="OFL license:", y=y+27, fg=color.white)
+    center_print(console, string="Nanumfont", y=y+28, fg=color.credit_license)
 
 
 def get_credit_action(sec_per_frame):

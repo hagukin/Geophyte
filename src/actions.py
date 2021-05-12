@@ -84,7 +84,7 @@ class DescendAction(Action):
                 self.engine.message_log.add_message(f"아무 것도 할 수 없다!", color.red)
             return None
 
-        if self.engine.game_map.tiles[self.entity.x, self.entity.y]["tile_id"] == "descending_stair":
+        if self.engine.game_map.tiles[self.entity.x, self.entity.y].tile_id == "descending_stair":
             ### Player Level Descending
             if self.entity == self.engine.player:
                 if depth == None:
@@ -98,7 +98,7 @@ class DescendAction(Action):
                     self.engine.game_map = self.engine.world[goal_depth]
                     self.engine.depth = goal_depth
                 else: # GameMap Does not Exists, Generate new dungeon.
-                    self.engine.world[goal_depth] = self.engine.generate_new_dungeon(depth=goal_depth, console=self.engine.console, context=self.engine.context)
+                    self.engine.world[goal_depth] = self.engine.generate_new_dungeon(screen=self.engine.screen, depth=goal_depth)
                     self.engine.game_map = self.engine.world[goal_depth]
                     self.engine.depth = goal_depth
 
@@ -116,7 +116,7 @@ class DescendAction(Action):
             # Set entity gamemap
             self.entity.gamemap = self.engine.game_map
 
-        elif self.engine.game_map.tiles[self.entity.x, self.entity.y]["tile_id"] == "ascending_stair":
+        elif self.engine.game_map.tiles[self.entity.x, self.entity.y].tile_id == "ascending_stair":
             raise exceptions.Impossible("이 계단은 위로만 향한다.")
         else:
             raise exceptions.Impossible("올라갈 수 없다.")
@@ -133,7 +133,7 @@ class AscendAction(Action):
                 self.engine.message_log.add_message(f"아무 것도 할 수 없다!", color.red)
             return None
 
-        if self.engine.game_map.tiles[self.entity.x, self.entity.y]["tile_id"] == "ascending_stair":
+        if self.engine.game_map.tiles[self.entity.x, self.entity.y].tile_id == "ascending_stair":
             ### Player Level Ascending
             if self.entity == self.engine.player:
                 if depth == None:
@@ -164,7 +164,7 @@ class AscendAction(Action):
 
             # Set entity gamemap
             self.entity.gamemap = self.engine.game_map
-        elif self.engine.game_map.tiles[self.entity.x, self.entity.y]["tile_id"] == "descending_stair":
+        elif self.engine.game_map.tiles[self.entity.x, self.entity.y].tile_id == "descending_stair":
             raise exceptions.Impossible("이 계단은 아래로만 향한다.")
         else:
             raise exceptions.Impossible("내려갈 수 없다.")
@@ -568,7 +568,7 @@ class MovementAction(ActionWithDirection):
         if self.entity.actor_state.is_in_deep_pit:
 
             # There are no "crawl out failure" when the actor is moving between different depth of pits.
-            if self.engine.game_map.tiles[dest_x, dest_y]["tile_id"] == "deep_pit" or self.engine.game_map.tiles[dest_x, dest_y]["tile_id"] == "shallow_pit":
+            if self.engine.game_map.tiles[dest_x, dest_y].tile_id == "deep_pit" or self.engine.game_map.tiles[dest_x, dest_y].tile_id == "shallow_pit":
                 crawl_out_chance = 1
             else:
                 # If the actor is big enough, it can crawl out freely

@@ -1479,18 +1479,6 @@ class NonHostileBumpHandler(AskUserEventHandler):
         y_space = 3
         width = self.engine.config["screen_width"] - (x_space * 2)
 
-        # draw frame
-        console.draw_frame(
-            x=x + x_space,
-            y=y + y_space,
-            width=width,
-            height=height,
-            title=self.TITLE,
-            clear=True,
-            fg=color.gui_action_fg,
-            bg=color.gui_inventory_bg,
-        )
-
         # Message log
         y_pad = 2
         # Check if target is a shopkeeper

@@ -1726,6 +1726,24 @@
 
            TODO: Tile 클래스에 activate_when_stepped_on() 메소드 달아서 기존 방식말고 밟을 경우 해당 메소드를 호출하는 형식으로 변경할것.
 
+            TODO: 카메라에서 줌인 줌아웃을 반복하면 transform.scale()이 반복됨에 따라 타일의 해상도가 낮아지는 현상 발견
+            > sprite_factories에서 원본(48*48) 스프라이트들을 별도 저장하는 것으로 해결 시도, 아직 미해결
+
+            TODO: 줌인 시 엔티티 스프라이트 줌 안되는 문제
+20210512 - 카메라의 줌 방식 수정
+           > 연산속도 문제때문에 원래는 카메라에서 줌이 될 때마다 모든 스프라이트들에 pygame.transform.scale()을 시행해 그 결과값을 메모리상에 올려두는 방식을 사용하려 했으나,
+           메모리를 너무 많이 차지하고, 또 원래 생각했던 방식(매 gameloop마다 하나하나 스프라이트들을 scale하는 것)이 생각만큼 연산이 많이 필요치 않아 수정함.
+
+            NOTE: temp_vision = np.array([[tile.transparent == True for tile in row] for row in self.game_map.tiles])
+            cost = np.array([[tile.walkable == True for tile in row] for row in self.parent.gamemap.tiles])
+
+           액터, 세미액터들의 여러 스프라이트들 추가.
+           > DawnHack 스프라이트를 사용하기로 결정함. 가시성도 좋고 유사한 스타일로 새로운 스프라이트를 만들어내기도 어렵지 않으며 라이선스가 없음.
+
+           pygame으로 변경하면서 procgen 과정에서 발생하는 사소한 여러 문제들 해결. 대체적으로 코드 구문만 조금 변형하면 해결되는 문제들이었음.
+
+
+
 
 
 

@@ -263,7 +263,7 @@ class FloatingEyeEdible(Edible):
 ############### i = flying insects  ################
 ####################################################
 
-class GiantWaspEdible(Edible):
+class GiantBeeEdible(Edible):
     def __init__(self, nutrition: int=50, spoilage: int=0, is_cooked: bool=False, can_cook: bool=True, spoil_speed: int=2, cook_bonus:int=5, edible_type:str="insect"):
         super().__init__(nutrition,spoilage,is_cooked,can_cook,spoil_speed,cook_bonus,edible_type)
     
