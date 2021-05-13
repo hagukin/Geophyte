@@ -69,14 +69,35 @@ class TileSkin(Skin):
 class EntitySkin(Skin):
     """Skin component for entities."""
 
-    def __init__(self, sprites_set: Optional[List[Dict]] = None):
+    def __init__(self, sprites_set: Optional[List[Dict]] = None, curr_sprite_state: str="default"):
         """
         Vars:
             current_sprite_state:
                 string. indicates the current state this skin component is on.
         """
         super().__init__(sprites_set)
-        self.curr_sprite_state: str = "default"
+        self.curr_sprite_state: str = curr_sprite_state
+
+    @property
+    def default_sprite(self):
+        return self.curr_sprite_set["default"]
+
+    @property
+    def curr_sprite(self):
+        return self.curr_sprite_set[self.curr_sprite_state]
+
+
+class VisualSkin(Skin):
+    """Skin component for visual objects."""
+
+    def __init__(self, sprites_set: Optional[List[Dict]] = None, curr_sprite_state: str="default"):
+        """
+        Vars:
+            current_sprite_state:
+                string. indicates the current state this skin component is on.
+        """
+        super().__init__(sprites_set)
+        self.curr_sprite_state: str = curr_sprite_state
 
     @property
     def curr_sprite(self):

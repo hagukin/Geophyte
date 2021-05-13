@@ -1,8 +1,9 @@
 from components import readable, quaffable, equipable, throwable
 from components.item_state import ItemState
 from entity import Item
+import skin_factories
 import color
-import anim_graphics
+import visual_factories
 import components.edible as edible
 
 from order import InventoryOrder
@@ -215,7 +216,7 @@ scroll_of_magic_missile = Item(
     droppable=True,
     stackable=True,
     throwable=throwable.NormalThrowable(air_friction=20),
-    readable=readable.ScrollOfMagicMissileReadable(anim_graphic=anim_graphics.magic_missile, damage=20, penetration=False),
+    readable=readable.ScrollOfMagicMissileReadable(visual_obj=visual_factories.v_magic_missile, damage=20, penetration=False),
     quaffable=None,
 )
 temp_items_lists.append(scroll_of_magic_missile)
@@ -266,7 +267,7 @@ scroll_of_piercing_flame = Item(
     droppable=True,
     stackable=True,
     throwable=throwable.NormalThrowable(air_friction=20),
-    readable=readable.ScrollOfPiercingFlameReadable(anim_graphic=anim_graphics.piercing_flame, damage=20, penetration=True),
+    readable=readable.ScrollOfPiercingFlameReadable(visual_obj=visual_factories.v_piercing_flame, damage=20, penetration=True),
     quaffable=None,
 )
 temp_items_lists.append(scroll_of_piercing_flame)
@@ -494,6 +495,7 @@ item_rarity.append(corpse.rarity) # All items should be appended regardless of i
 
 ### toxic Goo
 toxic_goo = Item(
+    skin=skin_factories.skin_ice_elemental(False),##TODO FIXME
     char="*",
     fg = (44, 23, 61),
     name="독성 점액",

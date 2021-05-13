@@ -536,13 +536,13 @@ def generate_stair(
             
             # Check if both stairs are connected to one another
             connected = False
-            cost = np.array([[tile.walkable == True for tile in row] for row in dungeon.tiles])# tunnelmap includes "void" tiles as a valid path, so create a new cost grid and pass it to pathfinder
+            cost = np.array([[tile.walkable for tile in row] for row in dungeon.tiles])# tunnelmap includes "void" tiles as a valid path, so create a new cost grid and pass it to pathfinder
 
             # Avoid dangerous tiles
-            tmp = np.array([[tile.safe_to_walk == True for tile in row] for row in dungeon.tiles])
+            tmp = np.array([[tile.safe_to_walk for tile in row] for row in dungeon.tiles])
             dangerous_coordinates = zip(*np.where(tmp[:, :] == False))
             for cor in dangerous_coordinates:
-                cost[cor] = 0
+                cost[cor] = False
             
             for x, y in path_between(cost, ascend_tile, descend_tile):
                 if x != descend_tile[0] or y != descend_tile[1]:

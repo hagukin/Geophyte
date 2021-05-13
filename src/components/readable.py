@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Optional, TYPE_CHECKING
+from typing import Optional, TYPE_CHECKING, Callable
 from animation import Animation
 from entity import Actor
 from components.base_component import BaseComponent
@@ -383,8 +383,8 @@ class AutoTargetingReadable(Readable):
 
 
 class RayReadable(Readable):
-    def __init__(self, anim_graphic, damage: int=0, penetration: bool=False, max_range: int=1000):
-        self.anim_graphic = anim_graphic
+    def __init__(self, visual_obj: Callable, damage: int=0, penetration: bool=False, max_range: int=1000):
+        self.visual_obj = visual_obj
         self.damage = damage
         self.penetration = penetration
         self.max_range = max_range
@@ -468,15 +468,14 @@ class RayReadable(Readable):
             loc = path.pop(0)
 
             # Using relative coordinates for rendering animations
-            relative_x, relative_y = self.engine.camera.get_relative_coordinate(abs_x=loc[0], abs_y=loc[1])
-            frames.append([(relative_x, relative_y, self.anim_graphic, None)])
+            frames.append([(self.visual_obj(x=loc[0], y=loc[1]), None)])
 
             # effects on the paths
             self.effects_on_path(x=loc[0], y=loc[1])
 
         # instantiate animation and render it
-        ray_animation = Animation(engine=self.engine, frames=frames, stack_frames=True) # sec_per_frames = default(0.1s)
-        ray_animation.render()
+        anim = Animation(engine=self.engine, frames=frames, stack_frames=True) # sec_per_frames = default(0.1s)
+        anim.render()
 
         # effects on the entities
         for target in targets:

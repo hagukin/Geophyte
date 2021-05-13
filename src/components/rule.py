@@ -98,7 +98,7 @@ class FireRule(BaseRule):
                     entity.collided_with_fire()
 
         # Remove entity if floor is not flammable
-        if self.engine.game_map.tiles[self.parent.x, self.parent.y]["flammable"] == False:
+        if not self.engine.game_map.tiles[self.parent.x, self.parent.y].flammable:
             self.parent.remove_self()
             return None
 
@@ -107,7 +107,7 @@ class FireRule(BaseRule):
         memoization = []
 
         for direction in spread_dir:
-            if self.engine.game_map.tiles[self.parent.x + direction[0], self.parent.y + direction[1]]["flammable"]:
+            if self.engine.game_map.tiles[self.parent.x + direction[0], self.parent.y + direction[1]].flammable:
                 # Check if there is any other fire semiactor on the tile
                 if (self.parent.x + direction[0], self.parent.y + direction[1]) in memoization\
                     or self.engine.game_map.check_if_id_at_location("fire", self.parent.x + direction[0], self.parent.y + direction[1]):
@@ -116,7 +116,7 @@ class FireRule(BaseRule):
                     continue
 
                 # chance of catching fire depends on "flammable"
-                if random.random() <= self.engine.game_map.tiles[self.parent.x + direction[0], self.parent.y + direction[1]]["flammable"]:
+                if random.random() <= self.engine.game_map.tiles[self.parent.x + direction[0], self.parent.y + direction[1]].flammable:
                     semiactor_factories.fire.spawn(self.engine.game_map, self.parent.x + direction[0], self.parent.y + direction[1], 6)
 
 

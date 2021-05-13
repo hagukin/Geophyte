@@ -746,3 +746,43 @@ e_wooden_door_closed = GameSprite(
 )
 entity_sprites.append(e_wooden_door_closed)
 
+
+
+############################################
+################### VISUALS ################
+############################################
+
+v_magic_missile = GameSprite(
+    sprite_category="visuals",
+    sprite_id="magic_missile/default",
+    is_animating=False,
+    frame_len=1,
+)
+entity_sprites.append(v_magic_missile)
+
+
+v_piercing_flame = GameSprite(
+    sprite_category="visuals",
+    sprite_id="piercing_flame/default",
+    is_animating=False,
+    frame_len=1,
+)
+entity_sprites.append(v_piercing_flame)
+
+
+v_explosion = GameSprite(
+    sprite_category="visuals",
+    sprite_id="explosion/default",
+    is_animating=False,
+    frame_len=1,
+)
+entity_sprites.append(v_explosion)
+
+
+v_acid_explosion = GameSprite(
+    sprite_category="visuals",
+    sprite_id="acid_explosion/default",
+    is_animating=False,
+    frame_len=1,
+)
+entity_sprites.append(v_acid_explosion)

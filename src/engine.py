@@ -446,7 +446,7 @@ class Engine:
         Recompute the visible area based on the players point of view.
         + apply telepathy
         """
-        temp_vision = np.array([[tile.transparent == True for tile in row] for row in self.game_map.tiles])
+        temp_vision = np.array([[tile.transparent for tile in row] for row in self.game_map.tiles])
 
         for entity in self.game_map.entities:
             if entity.blocks_sight:
@@ -756,11 +756,24 @@ class Engine:
         self.message_log.render()
         self.game_gui.render()
     
-    def render(self, screen) -> None:
+    def render(self, screen=None) -> None:
         """
         Handles rendering everything from the game.
         """
+        if screen is None:
+            screen = self.screen
         self.camera.adjust()
         self.camera.update_frame(0.025, 0.05)
         self.camera.render(screen, draw_frame=True)
         self.render_gui(screen)
+
+    def refresh_camera(self) -> None:
+        """Refresh camera."""
+        self.camera.render(self.screen)
+        pygame.display.update()
+
+    def refresh_screen(self) -> None:
+        """Refresh self.screen."""
+        self.screen.fill(color.game_screen_fill)
+        self.render()
+        pygame.display.update()

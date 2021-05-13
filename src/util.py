@@ -57,7 +57,7 @@ def calc_explosion(engine, center_x: int, center_y: int, radius: int, fat_circle
     """
     grid = [[(i - radius, j - radius) for i in range(radius*2 + 1)] for j in range(radius*2 + 1)]
     res = []
-    mask = copy.copy(engine.game_map.tiles["walkable"][:])
+    mask = np.array([[int(tile.walkable) for tile in row] for row in engine.game_map.tiles])
     expl_range = compute_fov(
         mask,
         (center_x, center_y),

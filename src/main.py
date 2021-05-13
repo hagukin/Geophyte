@@ -44,7 +44,7 @@ def main() -> None:
                         engine.game_map.sort_entities()
                         engine.handle_world(turn_pass=turn_pass)
 
-                screen.fill((40, 40, 20))
+                screen.fill(color.game_screen_fill)
                 engine.event_handler.on_render(mouse_pos=pygame.mouse.get_pos())
                 pygame.display.update()
 

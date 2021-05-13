@@ -920,7 +920,7 @@ black_jelly = Actor(
         \n\
         \"이 놈들보다 비료로 쓰기 좋은 게 또 없지. 조금씩 잘라서 밭에다 적당히 던져놓으면 끝이거든.\"\
         ",
-    rarity=11,
+    rarity=99,#TODO 11
     spawnable=True,
     edible=edible.BlackJellyEdible(),
     ai_cls=ai_factories.black_jelly_ai,
@@ -933,7 +933,7 @@ black_jelly = Actor(
         intelligence=2,
         constitution=20,
         charm=3,
-        difficulty=5,
+        difficulty=4, #TODO 5
         base_melee=2,
         additional_melee=5,
         protection=7,
@@ -1031,7 +1031,7 @@ sphere_of_acid = Actor(
         산성 구체는 이름 그대로 산성을 띄는 가스들이 뭉친 구체이다.\n\
         인간을 비롯한 일부 생명체에게만 반응하는 것을 보아 이들은 분명 인지 능력을 가지고는 있지만,\n\
         시각 기관 없이 어떻게 주변을 인식하는지는 아직 밝혀지지 않았다. \n\
-        이들은 생명체 주변으로 다가가 자신을 폭발하는데, 당연하게도 스스로도 폭발로 인해 소멸한다.\n\
+        이들은 생명체 주변으로 다가가 자신을 폭발하는데, 스스로도 폭발로 인해 소멸한다.\n\
         학자들 사이에선 스스로를 폭발시키는 이러한 행위가 공격이나 자기 보호의 의미가 아닌\n\
         일종의 본능과도 같은 행위라는 의견이 지배적이다.\n\
         \n\

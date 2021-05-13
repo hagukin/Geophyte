@@ -1,5 +1,5 @@
 from __future__ import annotations
-
+from visual import Visual
 from typing import Optional, List
 from animation import Animation
 from components.base_component import BaseComponent
@@ -200,16 +200,10 @@ class NormalThrowable(Throwable):
         loc = None
         while len(path) > 0:
             loc = path.pop(0)
+            frames.append([(Visual(x=loc[0], y=loc[1], char=self.parent.char, skin=self.parent.skin), None)])
 
-            # Create new graphic depending on the object that are being thrown
-            throw_graphic = {"char":self.parent.char, "fg":self.parent.fg, "bg":self.parent.bg}
-
-            # Using relative coordinates for animation rendering
-            relative_x, relative_y = self.engine.camera.get_relative_coordinate(abs_x=loc[0], abs_y=loc[1])
-            frames.append([(relative_x, relative_y, throw_graphic, None)])
-
-        throw_animation = Animation(engine=self.engine, frames=frames, stack_frames=False, sec_per_frame=self.sec_per_frame, refresh_last_frame=False) # TODO : air resistance의 값에 따라 프레임당 소요시간 변경??
-        throw_animation.render()
+        anim = Animation(engine=self.engine, frames=frames, stack_frames=False, sec_per_frame=self.sec_per_frame, refresh_last_frame=False) # TODO : air resistance의 값에 따라 프레임당 소요시간 변경??
+        anim.render()
         if loc:
             return loc # Last location of the thrown item's path
         return None
@@ -261,7 +255,7 @@ class NormalThrowable(Throwable):
                 break
 
             # 2. Collided with a wall
-            if not self.engine.game_map.tiles["walkable"][dest_x, dest_y]:
+            if not self.engine.game_map.tiles[dest_x, dest_y].walkable:
                 # Destination is blocked by a tile.
                 self.break_calculation()
                 break

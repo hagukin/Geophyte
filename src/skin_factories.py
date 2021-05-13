@@ -645,3 +645,55 @@ def skin_wooden_door_closed(randomize: bool):
     if randomize:
         skin = skin.randomize()
     return skin
+
+
+
+
+############################################
+###############VISUAL SKINS ################
+############################################
+
+def skin_magic_missile(randomize: bool):
+    skin = EntitySkin(
+        sprites_set=[{
+            "default":sprite_factories.v_magic_missile,
+        }]
+    )
+    if randomize:
+        skin = skin.randomize()
+    return skin
+
+
+def skin_piercing_flame(randomize: bool):
+    skin = EntitySkin(
+        sprites_set=[{
+            "default":sprite_factories.v_piercing_flame,
+        }]
+    )
+    if randomize:
+        skin = skin.randomize()
+    return skin
+
+
+def skin_explosion(randomize: bool):
+    skin = EntitySkin(
+        sprites_set=[{
+            "default":sprite_factories.v_explosion,
+        }]
+    )
+    if randomize:
+        skin = skin.randomize()
+    return skin
+
+
+def skin_acid_explosion(randomize: bool):
+    skin = EntitySkin(
+        sprites_set=[{
+            "default":sprite_factories.v_acid_explosion,
+        }]
+    )
+    if randomize:
+        skin = skin.randomize()
+    return skin
+
+

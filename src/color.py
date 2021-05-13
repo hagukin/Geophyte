@@ -35,6 +35,8 @@ gui_frame_bg = (0x25, 0x2e, 0x27)
 camera_frame_fg = white
 camera_frame_bg = gui_frame_bg
 
+game_screen_fill = (40, 40, 20)
+
 player_atk = white
 player_crit = yellow
 player_atk_missed = white

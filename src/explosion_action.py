@@ -1,12 +1,12 @@
 from __future__ import annotations
-from typing import List, Optional
+from typing import List, Optional, Callable
 from tcod.map import compute_fov
 from entity import Entity, Actor, Item
 from util import get_distance
 from korean import grammar as g
 from actions import Action
 
-import anim_graphics
+import visual_factories
 import color
 import util
 import copy
@@ -81,7 +81,7 @@ class ExplodeAction(RadiusAction):
         affect_items: bool, 
         affect_actors: bool,
         radius: int=1,
-        graphic_function: dict = anim_graphics.explosion,
+        visual_object: Callable = visual_factories.v_explosion,
         explosion_speed: int=1,
         expl_dmg: int=0,
         dmg_reduction_by_dist: int=1,
@@ -103,7 +103,7 @@ class ExplodeAction(RadiusAction):
         """
         super().__init__(entity, affect_items, affect_actors, radius)
         self.explosion_speed = explosion_speed
-        self.graphic_function = graphic_function
+        self.visual_object = visual_object
         self.expl_dmg = expl_dmg
         self.dmg_reduction_by_dist = dmg_reduction_by_dist
         self.growing_expl_anim = growing_expl_anim
@@ -152,10 +152,7 @@ class ExplodeAction(RadiusAction):
             path = self.tiles
             while len(path):
                 loc = path.pop(0)
-
-                # Using relative coordinates for rendering animations
-                relative_x, relative_y = self.engine.camera.get_relative_coordinate(abs_x=loc[0], abs_y=loc[1])
-                frame.append((relative_x, relative_y, self.graphic_function(), None))
+                frame.append((self.visual_object(x=loc[0], y=loc[1]), None))
 
             if frame:
                 frames.append(frame)
@@ -163,8 +160,8 @@ class ExplodeAction(RadiusAction):
             curr_radius += 1
 
         # instantiate animation and render it
-        ray_animation = Animation(engine=self.engine, frames=frames, stack_frames=True, sec_per_frame=self.expl_anim_frame_len)
-        ray_animation.render()
+        anim = Animation(engine=self.engine, frames=frames, stack_frames=True, sec_per_frame=self.expl_anim_frame_len)
+        anim.render()
 
     def perform(self):
         self.animation()
@@ -178,21 +175,21 @@ class AcidExplodeAction(ExplodeAction):
         affect_items: bool, 
         affect_actors: bool,
         radius: int=1,
-        graphic_function: dict = anim_graphics.acid_explosion,
+        visual_object: Callable = visual_factories.v_acid_explosion,
         explosion_speed: int=1,
         expl_dmg: int=0,
         dmg_reduction_by_dist: int=1,
         growing_expl_anim: bool = True,
         expl_anim_frame_len: float = None, # if None, the game chooses the optimal value
         cause_fire: int = 0,
-        acid: List(int, int, int, int) = [8, 2, 0, 6]
+        acid: Optional[List[int, int, int, int]] = None
     ):
         super().__init__(
             entity, 
             affect_items, 
             affect_actors, 
             radius, 
-            graphic_function, 
+            visual_object,
             explosion_speed, 
             expl_dmg, 
             dmg_reduction_by_dist, 
@@ -201,6 +198,8 @@ class AcidExplodeAction(ExplodeAction):
             cause_fire
             )
         self.acid = acid
+        if acid is None:
+            self.acid = [8, 2, 0, 6]
 
     def actor_in_radius_action(self, actor: Actor):
         super().actor_in_radius_action(actor)

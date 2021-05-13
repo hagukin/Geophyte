@@ -233,7 +233,7 @@ class BaseAI(BaseComponent):
         If there is no valid path then returns an empty list.
         """
         # Copy the walkable array.
-        cost = np.array([[tile.walkable == True for tile in row] for row in self.parent.gamemap.tiles])
+        cost = np.array([[int(tile.walkable) for tile in row] for row in self.parent.gamemap.tiles])
 
         for parent in self.parent.gamemap.entities:
             # Check that an enitiy blocks movement and the cost isn't zero (blocking.)
@@ -251,7 +251,7 @@ class BaseAI(BaseComponent):
             # 1. If the AI is not flying, raise costs for safe_to_walk = False tiles.
             # NOTE: The reason for not entirely removing dangerous tiles from path is, to prevent ai "stuck" between dangerous tiles. (It can't generate path to get out if its surrounded)
             if not self.parent.actor_state.is_flying:
-                tmp = np.array([[tile.safe_to_walk == False for tile in row] for row in self.gamemap.tiles])
+                tmp = np.array([[tile.safe_to_walk for tile in row] for row in self.gamemap.tiles])
                 dangerous_coordinates = zip(*np.where(tmp[:,:] == False))
                 for cor in dangerous_coordinates:
                     # If the actor is already on dangerous tile, same types of tiles will be considered safe. 
@@ -260,7 +260,7 @@ class BaseAI(BaseComponent):
                         continue
 
                     # If the tile is deep water, but the ai is able to swim, its considered safe.
-                    if self.parent.actor_state.can_swim and self.gamemap.tiles[cor].tile_id == "deep_water":
+                    if self.parent.actor_state.can_swim and self.gamemap.tiles[cor].tile_id == "deep_water": #TODO : make function - is_tile_dangerous_to_this_ai(Tile)
                         break
                     else:# TODO: Add logics besides just deep water. (e.g. actors with fire res 100% will ignore lava pools.)
                         cost[cor] += 50
@@ -433,7 +433,7 @@ class BaseAI(BaseComponent):
             blocking_actor = attacker.gamemap.get_actor_at_location(attacker.x + i * direction[0], attacker.y + i * direction[1])
 
             # Non-walkable tile is blocking
-            if not attacker.gamemap.tiles["walkable"][attacker.x + i * direction[0], attacker.y + i * direction[1]]:
+            if not attacker.gamemap.tiles[attacker.x + i * direction[0], attacker.y + i * direction[1]].walkable:
                 return None
             # if actor is blocking, check if that actor is also considered as enemy.
             # (preventing friendly fire)
@@ -549,7 +549,7 @@ class BaseAI(BaseComponent):
         """
         Updates this ai's vision.
         """
-        temp_vision = np.array([[tile.transparent == True for tile in row] for row in self.gamemap.tiles])
+        temp_vision = np.array([[tile.transparent for tile in row] for row in self.gamemap.tiles])
 
         for entity in self.parent.gamemap.entities:
             if entity.blocks_sight:
