@@ -51,7 +51,7 @@ class Camera:
 
         self.zoom_ratio = zoom_ratio
         self.zoom_index = 1 # x1
-        self.zoom_ratios = (0.5,1,1.75,2,3.5)
+        self.zoom_ratios = (0.5,1,1.5,2,3.5)
         self.origin_tile_size = self.engine.config["origin_tile_size"]
         self.tile_size = int(self.origin_tile_size * self.zoom_ratio)
         self.show_all = show_all # TODO : Add feature and make it work properly with magic mapping

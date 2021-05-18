@@ -27,7 +27,7 @@ desert_dungeon = Biome(
     map_height=80,
     tileset=tileset({
         "t_wall":tile_factories.sandstone_wall,
-        "t_floor":tile_factories.sand_floor(),
+        "t_floor":tile_factories.sand_floor,
         "t_dense_grass":tile_factories.dense_grass_desert,
         "t_sparse_grass":tile_factories.sparse_grass_desert,
     }),
@@ -44,7 +44,7 @@ ancient_ruins = Biome(
     biome_color=color.b_ancient_ruin,
     max_rooms=1,
     map_width=80,
-    map_height=80,
+    map_height=70,
     respawn_ratio=0,
     max_monsters_per_room=0,
     max_items_per_room=0,

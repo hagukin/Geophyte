@@ -373,7 +373,9 @@ def generate_rooms(
 
         # Dig out this rooms inner area.
         for inner_slice in new_room.inner:
-            dungeon.tiles[inner_slice] = dungeon.tileset["t_floor"]()
+            for x in range(inner_slice[0].start, inner_slice[0].stop):
+                for y in range(inner_slice[1].start, inner_slice[1].stop):
+                    dungeon.tiles[x,y] = dungeon.tileset["t_floor"]()
             dungeon.tilemap[inner_slice] = TilemapOrder.ROOM_INNER.value
             dungeon.tunnelmap[inner_slice] = True
             if new_room.terrain.protected:
@@ -619,6 +621,42 @@ def generate_entities(
             spawn_items(room, dungeon, max_items_per_room)
 
 
+def adjust_graphics(dungeon) -> None:
+    """
+    Generate bitmap for every dynamic tile skins in this gamemap.
+    """
+    from order import TilemapOrder
+    width = dungeon.width
+    height = dungeon.height
+    for i in range(width):
+        for j in range(height):
+            if not dungeon.tiles[i,j].skin.is_dynamic:
+                continue
+
+            bitmap = ""
+            # up
+            if j-1 >= 0 and dungeon.tiles[i, j].skin.check_bitmap_condition(gamemap=dungeon, x=i, y=j-1):
+                bitmap += "1"
+            else:
+                bitmap += "0"
+            # down
+            if j + 1 < height and dungeon.tiles[i, j].skin.check_bitmap_condition(gamemap=dungeon, x=i, y=j+1):
+                bitmap += "1"
+            else:
+                bitmap += "0"
+            # left
+            if i-1 >= 0 and dungeon.tiles[i, j].skin.check_bitmap_condition(gamemap=dungeon, x=i-1, y=j):
+                bitmap += "1"
+            else:
+                bitmap += "0"
+            # right
+            if i+1 < width and dungeon.tiles[i, j].skin.check_bitmap_condition(gamemap=dungeon, x=i+1, y=j):
+                bitmap += "1"
+            else:
+                bitmap += "0"
+
+            dungeon.tiles[i,j].skin.change_bitmap(bitmap)
+
 def debug(dungeon, save_as_txt: bool = False):
     """
     prints out tilemap
@@ -765,71 +803,11 @@ def generate_dungeon(
         max_items_per_room=biome.max_items_per_room,
     )
 
+    if display_process:
+        pass #TODO
+    print("Adjusting Graphics...")
+    adjust_graphics(dungeon=dungeon)
+
     # debug(dungeon=dungeon, save_as_txt=True)
-
-    return dungeon
-
-def generate_dungeon_debug(
-    screen: pygame.surface.Surface,
-    engine,
-    depth,
-    display_process: bool = True,
-) -> GameMap:
-
-    player = engine.player
-    rooms: List[Room] = []
-    possible_biome = get_dungeon_biome(
-        depth)  # If there is certain list of biomes specified for certain depth, choose one from the specified biome list.
-
-    biome = choose_biome()
-
-    dungeon = GameMap(depth=depth, engine=engine, biome=biome,
-                      entities=[]) # NOTE: tilemap initialization happens during  gamemap.__init__()
-    import tile_factories
-    dungeon.fill_tiles_with(tile_factories.debug_tile, True)
-
-    screen_center_x = int(engine.config["screen_width"] / 2)
-    screen_center_y = int(engine.config["screen_height"] / 2)
-
-    render_start_time = time.time()
-
-    player.place(30, 30, dungeon)
-
-    print("Generating Earth...")
-    generate_earth(
-        dungeon=dungeon,
-        map_width=biome.map_width,
-        map_height=biome.map_height,
-        engine=engine
-    )
-
-    print("Generating Dungeon Rooms...")
-    generate_rooms(
-        dungeon=dungeon,
-        rooms=rooms,
-        max_rooms=biome.max_rooms,
-        engine=engine
-    )
-
-    print("Generating Tunnels...")
-    generate_tunnels(
-        dungeon=dungeon,
-        rooms=rooms,
-    )
-
-    print("Adjusting Tunnels...")
-    adjust_convex(
-        dungeon=dungeon,
-        rooms=rooms,
-        )
-
-    print("Generating Terrains...")
-    generate_terrain(
-        dungeon=dungeon,
-        rooms=rooms,
-        map_width=biome.map_width,
-        map_height=biome.map_height,
-    )
-
 
     return dungeon

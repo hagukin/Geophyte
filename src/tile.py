@@ -1,11 +1,11 @@
 from __future__ import annotations
 from typing import Optional, List
-from components.skin import Skin
+from components.skin import TileSkin
 
 
 class Tile():
     def __init__(self,
-                 skin: Skin,
+                 skin: TileSkin,
                  walkable: bool,
                  safe_to_walk: bool,
                  flammable: float,

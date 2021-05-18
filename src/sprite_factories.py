@@ -3,8 +3,109 @@ import copy
 import pygame
 import json
 
-tile_sprites = []
-entity_sprites = []
+
+
+def dynamic_tile_constructor(sprite_id_no_bit: str, is_animating: bool, frame_len: int):
+    b0000 = GameSprite(
+        sprite_category="tiles",
+        sprite_id=f"{sprite_id_no_bit}/0000",
+        is_animating=is_animating,
+        frame_len=frame_len,
+    )
+    b0001 = GameSprite(
+        sprite_category="tiles",
+        sprite_id=f"{sprite_id_no_bit}/0001",
+        is_animating=is_animating,
+        frame_len=frame_len,
+    )
+    b0010 = GameSprite(
+        sprite_category="tiles",
+        sprite_id=f"{sprite_id_no_bit}/0010",
+        is_animating=is_animating,
+        frame_len=frame_len,
+    )
+    b0011 = GameSprite(
+        sprite_category="tiles",
+        sprite_id=f"{sprite_id_no_bit}/0011",
+        is_animating=is_animating,
+        frame_len=frame_len,
+    )
+    b0100 = GameSprite(
+        sprite_category="tiles",
+        sprite_id=f"{sprite_id_no_bit}/0100",
+        is_animating=is_animating,
+        frame_len=frame_len,
+    )
+    b0101 = GameSprite(
+        sprite_category="tiles",
+        sprite_id=f"{sprite_id_no_bit}/0101",
+        is_animating=is_animating,
+        frame_len=frame_len,
+    )
+    b0110 = GameSprite(
+        sprite_category="tiles",
+        sprite_id=f"{sprite_id_no_bit}/0110",
+        is_animating=is_animating,
+        frame_len=frame_len,
+    )
+    b0111 = GameSprite(
+        sprite_category="tiles",
+        sprite_id=f"{sprite_id_no_bit}/0111",
+        is_animating=is_animating,
+        frame_len=frame_len,
+    )
+    b1000 = GameSprite(
+        sprite_category="tiles",
+        sprite_id=f"{sprite_id_no_bit}/1000",
+        is_animating=is_animating,
+        frame_len=frame_len,
+    )
+    b1001 = GameSprite(
+        sprite_category="tiles",
+        sprite_id=f"{sprite_id_no_bit}/1001",
+        is_animating=is_animating,
+        frame_len=frame_len,
+    )
+    b1010 = GameSprite(
+        sprite_category="tiles",
+        sprite_id=f"{sprite_id_no_bit}/1010",
+        is_animating=is_animating,
+        frame_len=frame_len,
+    )
+    b1011 = GameSprite(
+        sprite_category="tiles",
+        sprite_id=f"{sprite_id_no_bit}/1011",
+        is_animating=is_animating,
+        frame_len=frame_len,
+    )
+    b1100 = GameSprite(
+        sprite_category="tiles",
+        sprite_id=f"{sprite_id_no_bit}/1100",
+        is_animating=is_animating,
+        frame_len=frame_len,
+    )
+    b1101 = GameSprite(
+        sprite_category="tiles",
+        sprite_id=f"{sprite_id_no_bit}/1101",
+        is_animating=is_animating,
+        frame_len=frame_len,
+    )
+    b1110 = GameSprite(
+        sprite_category="tiles",
+        sprite_id=f"{sprite_id_no_bit}/1110",
+        is_animating=is_animating,
+        frame_len=frame_len,
+    )
+    b1111 = GameSprite(
+        sprite_category="tiles",
+        sprite_id=f"{sprite_id_no_bit}/1111",
+        is_animating=is_animating,
+        frame_len=frame_len,
+    )
+    return b0000, b0001, b0010, b0011, b0100, b0101, b0110, b0111, b1000, b1001, b1010, b1011, b1100, b1101, b1110, b1111
+
+
+
 
 ############################################
 ############### TILE SPRITES ###############
@@ -17,10 +118,8 @@ t_shroud_light = GameSprite(
     is_animating=False,
     frame_len=1,
 )
-tile_sprites.append(t_shroud_light)
 t_shroud_dark = copy.copy(t_shroud_light)
 t_shroud_dark.sprite_id = "shroud/dark"
-tile_sprites.append(t_shroud_dark)
 
 # debug tile
 t_debug_tile_light = GameSprite(
@@ -29,14 +128,12 @@ t_debug_tile_light = GameSprite(
     is_animating=True,
     frame_len=4,
 )
-tile_sprites.append(t_debug_tile_light)
 t_debug_tile_dark = GameSprite(
     sprite_category="tiles",
     sprite_id="debug_tile/dark",
     is_animating=True,
     frame_len=4,
 )
-tile_sprites.append(t_debug_tile_dark)
 
 # epithelium
 t_epithelium_light = GameSprite(
@@ -60,14 +157,44 @@ t_stone_floor_light = GameSprite(
     is_animating=False,
     frame_len=1,
 )
-tile_sprites.append(t_stone_floor_light)
+t_stone_floor_light0000,\
+t_stone_floor_light0001,\
+t_stone_floor_light0010,\
+t_stone_floor_light0011,\
+t_stone_floor_light0100,\
+t_stone_floor_light0101,\
+t_stone_floor_light0110,\
+t_stone_floor_light0111,\
+t_stone_floor_light1000,\
+t_stone_floor_light1001,\
+t_stone_floor_light1010,\
+t_stone_floor_light1011,\
+t_stone_floor_light1100,\
+t_stone_floor_light1101,\
+t_stone_floor_light1110,\
+t_stone_floor_light1111 = dynamic_tile_constructor("stone_floor/light", False, 1)
 t_stone_floor_dark = GameSprite(
     sprite_category="tiles",
     sprite_id="stone_floor/dark",
     is_animating=False,
     frame_len=1,
 )
-tile_sprites.append(t_stone_floor_dark)
+t_stone_floor_dark0000,\
+t_stone_floor_dark0001,\
+t_stone_floor_dark0010,\
+t_stone_floor_dark0011,\
+t_stone_floor_dark0100,\
+t_stone_floor_dark0101,\
+t_stone_floor_dark0110,\
+t_stone_floor_dark0111,\
+t_stone_floor_dark1000,\
+t_stone_floor_dark1001,\
+t_stone_floor_dark1010,\
+t_stone_floor_dark1011,\
+t_stone_floor_dark1100,\
+t_stone_floor_dark1101,\
+t_stone_floor_dark1110,\
+t_stone_floor_dark1111 = dynamic_tile_constructor("stone_floor/dark", False, 1)
 
 
 # stone floor burnt
@@ -77,14 +204,12 @@ t_stone_floor_burnt_light = GameSprite(
     is_animating=False,
     frame_len=1,
 )
-tile_sprites.append(t_stone_floor_burnt_light)
 t_stone_floor_burnt_dark = GameSprite(
     sprite_category="tiles",
     sprite_id="stone_floor_burnt/dark",
     is_animating=False,
     frame_len=1,
 )
-tile_sprites.append(t_stone_floor_burnt_dark)
 
 
 # sand floor
@@ -94,14 +219,12 @@ t_sand_floor_light = GameSprite(
     is_animating=False,
     frame_len=1,
 )
-tile_sprites.append(t_sand_floor_light)
 t_sand_floor_dark = GameSprite(
     sprite_category="tiles",
     sprite_id="sand_floor/dark",
     is_animating=False,
     frame_len=1,
 )
-tile_sprites.append(t_sand_floor_dark)
 
 
 # sand floor burnt
@@ -111,14 +234,12 @@ t_sand_floor_burnt_light = GameSprite(
     is_animating=False,
     frame_len=1,
 )
-tile_sprites.append(t_sand_floor_burnt_light)
 t_sand_floor_burnt_dark = GameSprite(
     sprite_category="tiles",
     sprite_id="sand_floor_burnt/dark",
     is_animating=False,
     frame_len=1,
 )
-tile_sprites.append(t_sand_floor_burnt_dark)
 
 
 # quartz floor
@@ -128,14 +249,12 @@ t_quartz_floor_light = GameSprite(
     is_animating=False,
     frame_len=1,
 )
-tile_sprites.append(t_quartz_floor_light)
 t_quartz_floor_dark = GameSprite(
     sprite_category="tiles",
     sprite_id="quartz_floor/dark",
     is_animating=False,
     frame_len=1,
 )
-tile_sprites.append(t_quartz_floor_dark)
 
 
 
@@ -148,14 +267,12 @@ t_cave_wall_light1 = GameSprite(
     is_animating=False,
     frame_len=1,
 )
-tile_sprites.append(t_cave_wall_light1)
 t_cave_wall_dark = GameSprite(
     sprite_category="tiles",
     sprite_id="cave_wall/dark",
     is_animating=False,
     frame_len=1,
 )
-tile_sprites.append(t_cave_wall_dark)
 
 t_cave_wall_light2 = GameSprite(
     sprite_category="tiles",
@@ -163,28 +280,24 @@ t_cave_wall_light2 = GameSprite(
     is_animating=False,
     frame_len=1,
 )
-tile_sprites.append(t_cave_wall_light2)
 t_cave_wall_light3 = GameSprite(
     sprite_category="tiles",
     sprite_id="cave_wall/light3",
     is_animating=False,
     frame_len=1,
 )
-tile_sprites.append(t_cave_wall_light3)
 t_cave_wall_light4 = GameSprite(
     sprite_category="tiles",
     sprite_id="cave_wall/light4",
     is_animating=False,
     frame_len=1,
 )
-tile_sprites.append(t_cave_wall_light4)
 t_cave_wall_light5 = GameSprite(
     sprite_category="tiles",
     sprite_id="cave_wall/light5",
     is_animating=False,
     frame_len=1,
 )
-tile_sprites.append(t_cave_wall_light5)
 
 
 #sandstone wall
@@ -194,14 +307,12 @@ t_sandstone_wall_light = GameSprite(
     is_animating=False,
     frame_len=1,
 )
-tile_sprites.append(t_sandstone_wall_light)
 t_sandstone_wall_dark = GameSprite(
     sprite_category="tiles",
     sprite_id="sandstone_wall/dark",
     is_animating=False,
     frame_len=1,
 )
-tile_sprites.append(t_sandstone_wall_dark)
 
 
 #quartz wall
@@ -211,14 +322,12 @@ t_quartz_wall_light = GameSprite(
     is_animating=False,
     frame_len=1,
 )
-tile_sprites.append(t_quartz_wall_light)
 t_quartz_wall_dark = GameSprite(
     sprite_category="tiles",
     sprite_id="quartz_wall/dark",
     is_animating=False,
     frame_len=1,
 )
-tile_sprites.append(t_quartz_wall_dark)
 
 
 
@@ -230,14 +339,12 @@ t_dense_grass_light = GameSprite(
     is_animating=False,
     frame_len=1,
 )
-tile_sprites.append(t_dense_grass_light)
 t_dense_grass_dark = GameSprite(
     sprite_category="tiles",
     sprite_id="dense_grass/dark",
     is_animating=False,
     frame_len=1,
 )
-tile_sprites.append(t_dense_grass_dark)
 
 
 t_dense_grass_desert_light = GameSprite(
@@ -246,14 +353,12 @@ t_dense_grass_desert_light = GameSprite(
     is_animating=False,
     frame_len=1,
 )
-tile_sprites.append(t_dense_grass_desert_light)
 t_dense_grass_desert_dark = GameSprite(
     sprite_category="tiles",
     sprite_id="dense_grass_desert/dark",
     is_animating=False,
     frame_len=1,
 )
-tile_sprites.append(t_dense_grass_desert_dark)
 
 
 t_sparse_grass_light = GameSprite(
@@ -262,14 +367,12 @@ t_sparse_grass_light = GameSprite(
     is_animating=False,
     frame_len=1,
 )
-tile_sprites.append(t_sparse_grass_light)
 t_sparse_grass_dark = GameSprite(
     sprite_category="tiles",
     sprite_id="sparse_grass/dark",
     is_animating=False,
     frame_len=1,
 )
-tile_sprites.append(t_sparse_grass_dark)
 
 
 t_sparse_grass_desert_light = GameSprite(
@@ -278,14 +381,12 @@ t_sparse_grass_desert_light = GameSprite(
     is_animating=False,
     frame_len=1,
 )
-tile_sprites.append(t_sparse_grass_desert_light)
 t_sparse_grass_desert_dark = GameSprite(
     sprite_category="tiles",
     sprite_id="sparse_grass_desert/dark",
     is_animating=False,
     frame_len=1,
 )
-tile_sprites.append(t_sparse_grass_desert_dark)
 
 
 
@@ -297,14 +398,12 @@ t_ascending_stair_light = GameSprite(
     is_animating=False,
     frame_len=1,
 )
-tile_sprites.append(t_ascending_stair_light)
 t_ascending_stair_dark = GameSprite(
     sprite_category="tiles",
     sprite_id="ascending_stair/dark",
     is_animating=False,
     frame_len=1,
 )
-tile_sprites.append(t_ascending_stair_dark)
 
 
 t_descending_stair_light = GameSprite(
@@ -313,14 +412,12 @@ t_descending_stair_light = GameSprite(
     is_animating=False,
     frame_len=1,
 )
-tile_sprites.append(t_descending_stair_light)
 t_descending_stair_dark = GameSprite(
     sprite_category="tiles",
     sprite_id="descending_stair/dark",
     is_animating=False,
     frame_len=1,
 )
-tile_sprites.append(t_descending_stair_dark)
 
 
 
@@ -332,14 +429,12 @@ t_hole_light = GameSprite(
     is_animating=False,
     frame_len=1,
 )
-tile_sprites.append(t_hole_light)
 t_hole_dark = GameSprite(
     sprite_category="tiles",
     sprite_id="hole/dark",
     is_animating=False,
     frame_len=1,
 )
-tile_sprites.append(t_hole_dark)
 
 
 t_deep_pit_light = GameSprite(
@@ -348,14 +443,12 @@ t_deep_pit_light = GameSprite(
     is_animating=False,
     frame_len=1,
 )
-tile_sprites.append(t_deep_pit_light)
 t_deep_pit_dark = GameSprite(
     sprite_category="tiles",
     sprite_id="deep_pit/dark",
     is_animating=False,
     frame_len=1,
 )
-tile_sprites.append(t_deep_pit_dark)
 
 
 t_shallow_pit_light = GameSprite(
@@ -364,14 +457,12 @@ t_shallow_pit_light = GameSprite(
     is_animating=False,
     frame_len=1,
 )
-tile_sprites.append(t_shallow_pit_light)
 t_shallow_pit_dark = GameSprite(
     sprite_category="tiles",
     sprite_id="shallow_pit/dark",
     is_animating=False,
     frame_len=1,
 )
-tile_sprites.append(t_shallow_pit_dark)
 
 
 
@@ -383,14 +474,12 @@ t_deep_water_light = GameSprite(
     is_animating=True,
     frame_len=5,
 )
-tile_sprites.append(t_deep_water_light)
 t_deep_water_dark = GameSprite(
     sprite_category="tiles",
     sprite_id="deep_water/dark",
     is_animating=False,
     frame_len=1,
 )
-tile_sprites.append(t_deep_water_dark)
 
 
 t_shallow_water_light = GameSprite(
@@ -399,14 +488,12 @@ t_shallow_water_light = GameSprite(
     is_animating=True,
     frame_len=5,
 )
-tile_sprites.append(t_shallow_water_light)
 t_shallow_water_dark = GameSprite(
     sprite_category="tiles",
     sprite_id="shallow_water/dark",
     is_animating=False,
     frame_len=1,
 )
-tile_sprites.append(t_shallow_water_dark)
 
 
 
@@ -421,7 +508,6 @@ e_transparent_default = GameSprite(
     is_animating=False,
     frame_len=1,
 )
-entity_sprites.append(e_transparent_default)
 
 e_debug_entity_default = GameSprite(
     sprite_category="miscs",
@@ -429,7 +515,6 @@ e_debug_entity_default = GameSprite(
     is_animating=True,
     frame_len=4,
 )
-entity_sprites.append(e_debug_entity_default)
 
 
 e_debug_actor_default = GameSprite(
@@ -438,7 +523,6 @@ e_debug_actor_default = GameSprite(
     is_animating=False,
     frame_len=1,
 )
-entity_sprites.append(e_debug_actor_default)
 
 """
 #############  ACTORS ################
@@ -450,7 +534,6 @@ e_player_default = GameSprite(
     is_animating=True,
     frame_len=2,
 )
-entity_sprites.append(e_player_default)
 
 
 e_shopkeeper_default = GameSprite(
@@ -459,7 +542,6 @@ e_shopkeeper_default = GameSprite(
     is_animating=True,
     frame_len=2,
 )
-entity_sprites.append(e_shopkeeper_default)
 
 
 
@@ -470,8 +552,6 @@ e_ant_default = GameSprite(
     is_animating=True,
     frame_len=2,
 )
-entity_sprites.append(e_ant_default)
-
 
 e_fire_ant_default = GameSprite(
     sprite_category="actors",
@@ -479,7 +559,6 @@ e_fire_ant_default = GameSprite(
     is_animating=True,
     frame_len=2,
 )
-entity_sprites.append(e_fire_ant_default)
 
 
 e_volt_ant_default = GameSprite(
@@ -488,7 +567,6 @@ e_volt_ant_default = GameSprite(
     is_animating=True,
     frame_len=2,
 )
-entity_sprites.append(e_volt_ant_default)
 
 
 
@@ -499,7 +577,6 @@ e_bat_default = GameSprite(
     is_animating=True,
     frame_len=2,
 )
-entity_sprites.append(e_bat_default)
 
 
 
@@ -510,7 +587,6 @@ e_kitten_default = GameSprite(
     is_animating=True,
     frame_len=2,
 )
-entity_sprites.append(e_kitten_default)
 
 
 e_cat_default = GameSprite(
@@ -519,8 +595,6 @@ e_cat_default = GameSprite(
     is_animating=True,
     frame_len=2,
 )
-entity_sprites.append(e_cat_default)
-
 
 e_large_cat_default = GameSprite(
     sprite_category="actors",
@@ -528,7 +602,6 @@ e_large_cat_default = GameSprite(
     is_animating=True,
     frame_len=2,
 )
-entity_sprites.append(e_large_cat_default)
 
 
 ####################  d - dogs  ####################
@@ -538,7 +611,6 @@ e_puppy_default = GameSprite(
     is_animating=True,
     frame_len=2,
 )
-entity_sprites.append(e_kitten_default)
 
 
 e_dog_default = GameSprite(
@@ -547,7 +619,6 @@ e_dog_default = GameSprite(
     is_animating=True,
     frame_len=2,
 )
-entity_sprites.append(e_dog_default)
 
 
 e_large_dog_default = GameSprite(
@@ -556,7 +627,6 @@ e_large_dog_default = GameSprite(
     is_animating=True,
     frame_len=2,
 )
-entity_sprites.append(e_large_dog_default)
 
 
 
@@ -567,7 +637,6 @@ e_floating_eye_default = GameSprite(
     is_animating=True,
     frame_len=2,
 )
-entity_sprites.append(e_floating_eye_default)
 
 
 
@@ -578,7 +647,6 @@ e_fly_default = GameSprite(
     is_animating=True,
     frame_len=2,
 )
-entity_sprites.append(e_fly_default)
 
 
 e_giant_bee_default = GameSprite(
@@ -587,7 +655,6 @@ e_giant_bee_default = GameSprite(
     is_animating=True,
     frame_len=2,
 )
-entity_sprites.append(e_giant_bee_default)
 
 
 
@@ -598,7 +665,6 @@ e_black_jelly_default = GameSprite(
     is_animating=True,
     frame_len=2,
 )
-entity_sprites.append(e_black_jelly_default)
 
 
 
@@ -609,7 +675,6 @@ e_nymph_default = GameSprite(
     is_animating=True,
     frame_len=2,
 )
-entity_sprites.append(e_nymph_default)
 
 
 
@@ -620,7 +685,6 @@ e_sphere_of_acid_default = GameSprite(
     is_animating=True,
     frame_len=2,
 )
-entity_sprites.append(e_sphere_of_acid_default)
 
 
 
@@ -631,7 +695,6 @@ e_jumping_spider_default = GameSprite(
     is_animating=True,
     frame_len=2,
 )
-entity_sprites.append(e_jumping_spider_default)
 
 
 
@@ -642,7 +705,6 @@ e_earthworm_default = GameSprite(
     is_animating=True,
     frame_len=2,
 )
-entity_sprites.append(e_earthworm_default)
 
 
 e_maggot_default = GameSprite(
@@ -651,7 +713,6 @@ e_maggot_default = GameSprite(
     is_animating=True,
     frame_len=2,
 )
-entity_sprites.append(e_maggot_default)
 
 
 
@@ -662,7 +723,6 @@ e_ice_elemental_default = GameSprite(
     is_animating=True,
     frame_len=2,
 )
-entity_sprites.append(e_ice_elemental_default)
 
 
 ################### I - IMPOSTERS  #################
@@ -672,7 +732,6 @@ e_chatterbox_default = GameSprite(
     is_animating=True,
     frame_len=2,
 )
-entity_sprites.append(e_chatterbox_default)
 
 
 ################ T - GIANTS & TITANS  ##############
@@ -682,7 +741,6 @@ e_giant_default = GameSprite(
     is_animating=True,
     frame_len=2,
 )
-entity_sprites.append(e_giant_default)
 
 
 
@@ -700,7 +758,6 @@ e_wooden_chest_closed = GameSprite(
     is_animating=False,
     frame_len=1,
 )
-entity_sprites.append(e_wooden_chest_closed)
 
 e_wooden_chest_opened = GameSprite(
     sprite_category="semiactors",
@@ -708,7 +765,6 @@ e_wooden_chest_opened = GameSprite(
     is_animating=False,
     frame_len=1,
 )
-entity_sprites.append(e_wooden_chest_opened)
 
 
 e_large_wooden_chest_closed = GameSprite(
@@ -717,7 +773,6 @@ e_large_wooden_chest_closed = GameSprite(
     is_animating=False,
     frame_len=1,
 )
-entity_sprites.append(e_large_wooden_chest_closed)
 
 e_large_wooden_chest_opened = GameSprite(
     sprite_category="semiactors",
@@ -725,7 +780,6 @@ e_large_wooden_chest_opened = GameSprite(
     is_animating=False,
     frame_len=1,
 )
-entity_sprites.append(e_large_wooden_chest_opened)
 
 
 ################ INTERACTABLE SEMIACTORS WITH NO AI ######################
@@ -735,7 +789,6 @@ e_wooden_door_opened = GameSprite(
     is_animating=False,
     frame_len=1,
 )
-entity_sprites.append(e_wooden_door_opened)
 
 
 e_wooden_door_closed = GameSprite(
@@ -744,7 +797,6 @@ e_wooden_door_closed = GameSprite(
     is_animating=False,
     frame_len=1,
 )
-entity_sprites.append(e_wooden_door_closed)
 
 
 
@@ -758,7 +810,6 @@ v_magic_missile = GameSprite(
     is_animating=False,
     frame_len=1,
 )
-entity_sprites.append(v_magic_missile)
 
 
 v_piercing_flame = GameSprite(
@@ -767,7 +818,6 @@ v_piercing_flame = GameSprite(
     is_animating=False,
     frame_len=1,
 )
-entity_sprites.append(v_piercing_flame)
 
 
 v_explosion = GameSprite(
@@ -776,7 +826,6 @@ v_explosion = GameSprite(
     is_animating=False,
     frame_len=1,
 )
-entity_sprites.append(v_explosion)
 
 
 v_acid_explosion = GameSprite(
@@ -785,4 +834,3 @@ v_acid_explosion = GameSprite(
     is_animating=False,
     frame_len=1,
 )
-entity_sprites.append(v_acid_explosion)

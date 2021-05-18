@@ -55,14 +55,83 @@ class Skin():
 
 class TileSkin(Skin):
     """Skin component for entities."""
-    def __init__(self, sprites_set: Optional[List[Dict]] = None):
+    def __init__(self,
+                 sprites_set: Optional[List[Dict]] = None,
+                 is_dynamic: bool=False,
+                 bitmap_true_when_not_walkable: bool = False,
+                 bitmap_true_when_walkable: bool = False,
+                 bitmap_true_when_not_water: bool = False,
+                 bitmap_true_when_water: bool = False,
+                 ):
+        """
+        NOTE:
+            if the tile uses dynamic feature, tile_id should follow the following form.
+            light/dark + bitmap number
+            e.g. l
+
+        Args:
+            is_dynamic:
+                whether this tile uses different sprites depending on the walls location or not.
+        Vars:
+            bitmap:
+                handles nearby blocking tiles information. NOTE: udlr 0000
+                NOTE: Warning) Bitmap will stay True for ALL BLOCKING TILES including walls, etc.
+                NOTE: For most situations, self.bitmap value should remain constant after initialization.
+                This is to prevent tile graphics from constantly changing after the initial procgen.
+            bitmap_true_when_not_walkable:
+                if True, the tile will set its bitmap value to 1 when there is non-walkable tile nearby.
+
+            e.g. A Floor tile will have
+            bitmap_true_when_not_walkable = True
+            bitmap_true_when_walkable = False
+            bitmap_true_when_not_water = False
+            bitmap_true_when_water = True
+        """
         super().__init__(sprites_set)
         self.parent = None
+        self.is_dynamic = is_dynamic
+        if is_dynamic:
+            self._bitmap: str = "0000" # No walls nearby
+            self.bitmap_true_when_not_walkable = bitmap_true_when_not_walkable
+            self.bitmap_true_when_walkable = bitmap_true_when_walkable
+            self.bitmap_true_when_not_water = bitmap_true_when_not_water
+            self.bitmap_true_when_water = bitmap_true_when_water
+
+
+    @property
+    def bitmap(self) -> str:
+        return self._bitmap
+
+    def change_bitmap(self, value: str) -> None:
+        """NOTE: Generally you shouldn't change the bitmap of a tile."""
+        self._bitmap = value
+
+    def check_bitmap_condition(self, gamemap, x, y) -> bool:
+        """If the given coordinates satisfy this TileSkin's bitmap toggle condition, return True.
+        e.g. stone_floor.check_if_bitmap_true() will return True if the given x, y is not walkable."""
+        if self.bitmap_true_when_not_walkable and not gamemap.tiles[x,y].walkable:
+            return True
+        if self.bitmap_true_when_walkable and gamemap.tiles[x,y].walkable:
+            return True
+        if self.bitmap_true_when_not_water \
+                and gamemap.tiles[x,y].tile_id != "deep_water"\
+                and gamemap.tiles[x,y].tile_id != "shallow_water":
+            return True
+        if self.bitmap_true_when_water \
+                and (gamemap.tiles[x,y].tile_id == "deep_water"\
+                or gamemap.tiles[x,y].tile_id == "shallow_water"):
+            return True
+
+        return False
 
     def light(self) -> GameSprite:
+        if self.is_dynamic:
+            return self.curr_sprite_set["light"+self.bitmap]
         return self.curr_sprite_set["light"]
 
     def dark(self) -> GameSprite:
+        if self.is_dynamic:
+            return self.curr_sprite_set["dark"+self.bitmap]
         return self.curr_sprite_set["dark"]
 
 

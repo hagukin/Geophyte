@@ -49,6 +49,7 @@ class GameSprite():
         self.sprite_id = sprite_id
         self.is_animating = is_animating
         self.frame_len = frame_len
+        self.easing = easing #TODO UNUSED
         self.tick = 0.0 # indicates current animation status
         self.images = []
         for n in range(1,frame_len+1):# Auto-adding sprites
@@ -75,7 +76,7 @@ class GameSprite():
 
     def __deepcopy__(self, memo):
         # deepcopy rest
-        new_obj = GameSprite(self.sprite_category, self.sprite_id, self.is_animating)
+        new_obj = GameSprite(self.sprite_category, self.sprite_id, self.is_animating, self.frame_len, self.easing)
         for name, attr in self.__dict__.items():
             if name == "images":
                 new_images = list()
@@ -121,10 +122,27 @@ class TileSprite(GameSprite):
                  sprite_id: str,
                  is_animating: bool,
                  frame_len: int = 1,
-                 sprite_zoom_ratio: float = 1,
                  easing: str = "linear",
                  ):
         super().__init__(sprite_category, sprite_id, is_animating, frame_len, easing)
+
+    def __deepcopy__(self, memo):
+        # deepcopy rest
+        new_obj = TileSprite(self.sprite_category, self.sprite_id, self.is_animating, self.frame_len, easing=self.easing)
+        for name, attr in self.__dict__.items():
+            if name == "images":
+                new_images = list()
+                for img in self.images:
+                    new_images.append(img.copy())
+                new_obj.__dict__[name] = new_images
+            elif name == "engine":
+                new_obj.__dict__[name] = copy.copy(GameSprite.engine)
+            else:
+                new_obj.__dict__[name] = copy.deepcopy(attr)
+
+        return new_obj
+
+
 
 
 class ActorSprite(GameSprite):
@@ -133,7 +151,22 @@ class ActorSprite(GameSprite):
                  sprite_id: str,
                  is_animating: bool,
                  frame_len: int = 1,
-                 sprite_zoom_ratio: float = 1,
                  easing: str = "linear",
                  ):
         super().__init__(sprite_category, sprite_id, is_animating, frame_len, easing)
+
+    def __deepcopy__(self, memo):
+        # deepcopy rest
+        new_obj = ActorSprite(self.sprite_category, self.sprite_id, self.is_animating, self.frame_len, easing=self.easing)
+        for name, attr in self.__dict__.items():
+            if name == "images":
+                new_images = list()
+                for img in self.images:
+                    new_images.append(img.copy())
+                new_obj.__dict__[name] = new_images
+            elif name == "engine":
+                new_obj.__dict__[name] = copy.copy(GameSprite.engine)
+            else:
+                new_obj.__dict__[name] = copy.deepcopy(attr)
+
+        return new_obj

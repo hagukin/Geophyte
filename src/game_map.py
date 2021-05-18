@@ -304,4 +304,9 @@ class GameMap:
         if not self.engine.camera.abs_in_bounds(tile_x, tile_y) or not self.explored[tile_x, tile_y]:
             return ""
 
-        return self.tiles[tile_x, tile_y].tile_name.capitalize()
+        #TODO: TESTING
+        try:
+            return self.tiles[tile_x, tile_y].skin.bitmap
+        except:
+            return "has no bitmap"
+        #return self.tiles[tile_x, tile_y].tile_name.capitalize()
