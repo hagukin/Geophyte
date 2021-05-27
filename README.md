@@ -1,13 +1,13 @@
 # **지오파이트(Geophyte)**
 
 ![ezgif com-gif-maker](https://user-images.githubusercontent.com/63915665/112706472-b4646500-8ee7-11eb-8d6e-3274e2ce52b5.gif)
-<prealpha v1.0 타이틀 화면>
+###<prealpha v1.0 타이틀 화면>
 
-![image](https://user-images.githubusercontent.com/63915665/119745941-32ce8a80-beca-11eb-9cfb-1a39d355729b.png){: width="600" height="400"}
-<prealpha v1.0 게임플레이 화면>
+![image](https://user-images.githubusercontent.com/63915665/119745941-32ce8a80-beca-11eb-9cfb-1a39d355729b.png){: width="100%" height="100%"}
+###<prealpha v1.0 게임플레이 화면>
 
-![image](https://user-images.githubusercontent.com/63915665/119745805-db301f00-bec9-11eb-8326-f1e210cdf4fd.png){: width="600" height="400"}
-<prealpha v2.0 게임플레이 구상도(UI를 제외한 부분은 구현되었습니다)>
+![image](https://user-images.githubusercontent.com/63915665/119745805-db301f00-bec9-11eb-8326-f1e210cdf4fd.png){: width="100%" height="100%"}
+###<prealpha v2.0 게임플레이 구상도(UI를 제외한 부분은 구현되었습니다)>
 
 
 ### 게임에 대한 자세한 정보는  링크를 참고해주세요!
