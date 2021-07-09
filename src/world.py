@@ -11,7 +11,7 @@ class World():
         self,
         engine,
         seed,
-        max_depth:int=999
+        max_depth:int=999 #TODO: Unused value
     ):
         """
         Represents the game world.
