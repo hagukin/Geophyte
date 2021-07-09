@@ -97,7 +97,7 @@ player = Actor(
         base_melee=5,
         additional_melee=5,
         protection=10,
-        eyesight=20,
+        eyesight=8,
         ),
     actor_state=ActorState(
         hunger=1200,

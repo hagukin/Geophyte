@@ -1,5 +1,6 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING, List, Optional, Tuple, Set
+from world import World
 from util import draw_thick_frame
 from tcod.path import SimpleGraph, Pathfinder
 from tcod.console import Console
@@ -28,7 +29,7 @@ from render import (
     render_character_state,
     render_message_window,
 )
-from entity import Actor, Item, SemiActor
+from entity import Actor, Entity, Item, SemiActor
 
 if TYPE_CHECKING:
     from game_map import GameMap
@@ -52,7 +53,7 @@ class Engine:
             game_map:
                 Current gamemap that player is in.
             world:
-                Collection of entire gamemaps created.
+                Represents the entire game world.
         """
         self.event_handler: EventHandler = MainGameEventHandler(self)
         self.message_log = MessageLog(engine=self)
@@ -70,7 +71,7 @@ class Engine:
         self.console = None
         self.context = None
         self.camera = None
-        self.world = {}
+        self.world: World = None
         self.game_map: GameMap = None
         self.depth: int = 0
         self.item_manager: ItemManager = None
@@ -80,19 +81,52 @@ class Engine:
         x, y = self.camera.get_relative_coordinate(abs_x=self.mouse_location[0], abs_y=self.mouse_location[1])
         return x, y
 
-    def adjustments_before_new_map(self, update_player_fov: bool=False):
-        self.game_map.sort_entities()
-        if update_player_fov:
-            self.update_fov()
-        self.update_enemy_fov(is_initialization=True)
-        self.update_entity_in_sight(is_initialization=True)
-
     def initialize_item_manager(self):
         if self.item_manager == None:
             self.item_manager = ItemManager()
             self.item_manager.initialize_data()
 
         return None
+
+    def change_gamemap_depth(self, depth: int) -> None:
+        """Change the current floor as given depth. Generate new gamemap if there are no gamemap of the given depth.
+        NOTE: Calling this method solely is not recommended. Try using DescendAction.perform()"""
+        goal_depth = depth
+        if not self.world.check_has_map(goal_depth):
+            raise Exception("ERROR::engine.change_gamemap_depth() - gamemap not generated")
+
+        if not self.world.check_has_map(goal_depth+1): # Check if gamemap below the goal depth already exists. (Pre-generating a level for falling down to next level and stuffs)
+            self.world.set_map(self.generate_new_dungeon(depth=goal_depth+1, console=self.console, context=self.context), goal_depth+1)
+        
+        self.game_map = self.world.get_map(goal_depth)
+        self.depth = goal_depth
+
+        # Optimize memory
+        self.world.optimize()
+
+        # Adjust things (AI's vision is initialized here)
+        self.game_map.adjustments_before_new_map(update_player_fov=False)##TEST TODO
+
+    def change_entity_depth(self, entity: Entity, depth: int, xpos: int, ypos: int) -> None:
+        """This function does not prevent entity from falling onto a wall.
+        This means entity can get stuck after falling(going down a level), 
+        so you should calculate the appropriate xpos, ypos in advance and pass it to this function.
+        """
+        if not self.world.check_has_map(depth): # If there is no level below current level, generate new level.
+            print("WARNING::Something went wrong, Pre-generated level missing!")
+            self.world.set_map(self.generate_new_dungeon(depth=depth, console=self.console, context=self.context, display_process=False), depth)
+
+        if entity == self.player:
+            self.change_gamemap_depth(depth)
+
+        if entity.gamemap:
+            entity.gamemap.entities.remove(entity)# Remove entity from previous gamemap if it has one
+
+        curr_gamemap = self.world.get_map(depth)
+        curr_gamemap.entities.append(entity)
+        curr_gamemap.sort_entities()
+        entity.place(xpos, ypos, curr_gamemap)
+        entity.gamemap = curr_gamemap
 
     def handle_world(self, turn_pass: bool) -> None:
         """
@@ -116,7 +150,7 @@ class Engine:
             self.handle_semiactor_states()
             self.handle_gamemap_states()
             self.update_fov()
-            self.update_enemy_fov()
+            self.game_map.update_enemy_fov()
             self.update_entity_in_sight()
 
     def time_pass(self) -> None:
@@ -358,7 +392,7 @@ class Engine:
                 elif effects[n][0] == "levitate_target":
                     target.actor_state.apply_levitation(effects_var[n])
 
-    def generate_new_dungeon(self, console, context, depth=1) -> GameMap:
+    def generate_new_dungeon(self, console, context, depth=1, display_process=True) -> GameMap:
         """Generate new dungeon and return as gamemap object"""
         # Set temporary context, console values to prevent cffi error
         temp_console, temp_context = self.console, self.context
@@ -370,6 +404,7 @@ class Engine:
             context=context,
             engine=self,
             depth=depth,
+            display_process=display_process
         )
 
         # Get console, context info back.
@@ -487,22 +522,7 @@ class Engine:
             for target in set(self.game_map.actors):
                 self.apply_telepathy(actor, target, visible=visible)
 
-    def update_enemy_fov(self, is_initialization: bool=False) -> None:
-        """
-        Recomputes the vision of actors besides player.
-        This function is called every turn, but the actual update might not be called every turn due to perf. issues.
-        """
-        for actor in set(self.game_map.actors):
-            # initialize actors vision
-            if is_initialization:
-                if actor.ai:
-                    actor.ai.init_vision()
-
-            ## The game will not update every actor's vision/additional vision every turn due to performance issues
-            # actor.ai.update_vision()
-            # if actor.actor_state.has_telepathy\
-            #     or actor.actor_state.is_detecting_obj[2]:
-            #     self.update_additional_vision(actor=actor)
+    
 
     def set_player_path(self, dest_x: int, dest_y: int, ignore_unexplored: bool=True, ignore_dangerous_tiles: bool=True, ignore_blocking_entities: bool=True, ignore_semiactors: bool=True) -> None:
         """

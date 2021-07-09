@@ -24,7 +24,7 @@ class GameMap:
         self.engine = engine
         self.biome = biome
         self.width, self.height = biome.map_width, biome.map_height
-        self.entities = list(entities)
+        self.entities = list()
 
         self.tileset = biome.tileset # initialized at procgen
 
@@ -194,6 +194,30 @@ class GameMap:
         self.entities = sorted(
             self.entities, key=lambda x: (x.render_order.value, -x.entity_order)
         )
+
+    def update_enemy_fov(self, is_initialization: bool=False) -> None:
+        """
+        Recomputes the vision of actors on this gamemap (besides player)
+        This function is called every turn, but the actual update might not be called every turn due to perf. issues.
+        """
+        for actor in set(self.actors):
+            # initialize actors vision
+            if is_initialization:
+                if actor.ai:
+                    actor.ai.init_vision()
+
+            ## The game will not update every actor's vision/additional vision every turn due to performance issues
+            # actor.ai.update_vision()
+            # if actor.actor_state.has_telepathy\
+            #     or actor.actor_state.is_detecting_obj[2]:
+            #     self.update_additional_vision(actor=actor)
+
+    def adjustments_before_new_map(self, update_player_fov: bool=False):
+        self.sort_entities()
+        if update_player_fov:
+            self.engine.update_fov()
+            self.engine.update_entity_in_sight(is_initialization=True)
+        self.update_enemy_fov(is_initialization=True)
 
     def respawn_monsters(self) -> None:
         """
