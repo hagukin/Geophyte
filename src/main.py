@@ -58,7 +58,7 @@ def main() -> None:
                         context.present(root_console, keep_aspect=True)
                 
                 ### WRITE DEBUG FUNCTIONS HERE ###
-                # print("DEBUG")
+                # print("Hi")
 
             except Exception:
                 # Print error to stderr then print the error to the message log

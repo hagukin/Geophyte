@@ -100,17 +100,22 @@ class ItemState(BaseComponent):
         """
         self.BUC = 0
 
-    def check_if_identical(self, comparing_item: Item) -> bool:
+    def check_if_identical(self, comparing_item: Item, compare_stack_count: bool = False) -> bool:
         """
         Check if the two items received as arguments are the "same". (they might have different memory address)
         We only care about certain status that could affect the item's in-game abilities.
         This includes:
         name, item_state, upgrades, etc.
 
-        NOTE: This function will only check the item_state component.
+        NOTE: This function will only check the item_state component, meaning xpos, ypos, etc. is ignored.
         ALL ITEMS THAT ARE UPGRADABLE OR EDIBLE SHOULD NEVER BE IDENTICAL WITH OTHER ITEMS.
         THIS IS THE REASON WHY THEY ARE NOT STACKABLE FROM THE BEGINNING.
+
         """
+        # 0. Compare stack id
+        if compare_stack_count and self.parent.stack_count  != comparing_item.stack_count:
+            return False
+
         # 1. Compare names
         if self.parent.name == comparing_item.name and self.parent.entity_id == comparing_item.entity_id:
 

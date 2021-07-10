@@ -2,23 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="d5939325-7c35-4fc6-a3f9-e7dbdd574b2c" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/biome.py" beforeDir="false" afterPath="$PROJECT_DIR$/biome.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/components/actor_state.py" beforeDir="false" afterPath="$PROJECT_DIR$/components/actor_state.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/components/ai.py" beforeDir="false" afterPath="$PROJECT_DIR$/components/ai.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/components/throwable.py" beforeDir="false" afterPath="$PROJECT_DIR$/components/throwable.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/components/walkable.py" beforeDir="false" afterPath="$PROJECT_DIR$/components/walkable.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/devlog.txt" beforeDir="false" afterPath="$PROJECT_DIR$/devlog.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/entity.py" beforeDir="false" afterPath="$PROJECT_DIR$/entity.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/explosion_action.py" beforeDir="false" afterPath="$PROJECT_DIR$/explosion_action.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/input_handlers.py" beforeDir="false" afterPath="$PROJECT_DIR$/input_handlers.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/order.py" beforeDir="false" afterPath="$PROJECT_DIR$/order.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/procgen.py" beforeDir="false" afterPath="$PROJECT_DIR$/procgen.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/terrain.py" beforeDir="false" afterPath="$PROJECT_DIR$/terrain.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/terrain_factories.py" beforeDir="false" afterPath="$PROJECT_DIR$/terrain_factories.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/terrain_generation.py" beforeDir="false" afterPath="$PROJECT_DIR$/terrain_generation.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tile_types.py" beforeDir="false" afterPath="$PROJECT_DIR$/tile_types.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/unique_terrains/shop.py" beforeDir="false" afterPath="$PROJECT_DIR$/unique_terrains/shop.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -88,9 +72,27 @@
         </entry>
       </map>
     </option>
+    <option name="oldMeFiltersMigrated" value="true" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/game_map.py</url>
+          <line>211</line>
+          <option name="timeStamp" value="24" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/game_map.py</url>
+          <line>192</line>
+          <option name="timeStamp" value="25" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/main.py</url>
+          <line>1</line>
+          <option name="timeStamp" value="26" />
+        </line-breakpoint>
+      </breakpoints>
       <default-breakpoints>
         <breakpoint type="python-exception">
           <properties notifyOnTerminate="true" exception="BaseException">

@@ -171,6 +171,53 @@ class GameMap:
             return tmp
         return None
 
+    def get_random_tile(
+            self,
+            should_no_entity: bool = False,
+            should_walkable: bool = False,
+            should_safe_to_walk: bool = False,
+            should_transparent: bool = False,
+            should_not_walkable: bool = False,
+            should_not_safe_to_walk: bool = False,
+            should_not_transparent: bool = False,
+            threshold: Optional[int] = 5000,
+            return_random_location_if_not_found: bool = True,
+    ) -> Tuple[int,int]:
+        """
+        Args:
+            threshold:
+                Max try count.
+                If None, try indefinitely.
+        """
+        t = -1
+        while (threshold == None) or (threshold != None and t < threshold):
+            t += 1
+            x = random.randint(1, self.width - 1)
+            y = random.randint(1, self.height - 1)
+
+            if should_no_entity and self.get_any_entity_at_location(x,y) != None:
+                continue
+            if should_walkable and not self.tiles[x,y]["walkable"]:
+                continue
+            if should_safe_to_walk and not self.tiles[x,y]["safe_to_walk"]:
+                continue
+            if should_transparent and not self.tiles[x,y]["transparent"]:
+                continue
+            if should_not_walkable and self.tiles[x,y]["safe_to_walk"]:
+                continue
+            if should_not_safe_to_walk and self.tiles[x,y]["safe_to_walk"]:
+                continue
+            if should_not_transparent and self.tiles[x,y]["transparent"]:
+                continue
+            return (x,y)
+
+        if return_random_location_if_not_found:
+            x = random.randint(1, self.width - 1)
+            y = random.randint(1, self.height - 1)
+            return (x,y)
+        else:
+            return (0,0)
+
     def check_if_id_at_location(self, entity_id: str, x: int, y: int) -> bool:
         for entity in self.entities:
             if (entity.x == x and entity.y == y and entity.entity_id == entity_id):
