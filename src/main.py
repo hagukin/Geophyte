@@ -65,6 +65,9 @@ def main() -> None:
                 traceback.print_exc()
                 engine.message_log.add_message(traceback.format_exc(), color.error)
 
+            for i in engine.player.inventory.items:
+                print(f"{i}, {id(i)}, {i.name}")
+
 
 if __name__ == "__main__":
     # Set this to True when testing performance

@@ -190,28 +190,34 @@ class Entity:
         But by making this as an entity's method, the game is able to apply environmental effects regardless of the type of the movements.
         (e.g. teleporting on traps will still activate the traps.)
         """
-        # When entity is on a grass
-        if self.gamemap.tiles[self.x, self.y]["tile_id"] == "dense_grass":
-            self.gamemap.tiles[self.x, self.y] = self.gamemap.tileset["t_sparse_grass"]()
+        if not self.is_on_air:
+            # When entity is on a hole
+            if self.gamemap.tiles[self.x, self.y]["tile_id"] == "hole":
+                x, y = self.gamemap.get_random_tile(should_no_entity=True, should_walkable=True)
+                self.engine.change_entity_depth(entity=self, depth=self.gamemap.depth+1, xpos=x, ypos=y)
 
-        # When entity is on a water
-        if self.gamemap.tiles[self.x, self.y]["tile_id"] == "shallow_water":
-            self.gamemap.tiles[self.x, self.y] = self.gamemap.tileset["t_shallow_water"]()
-            change_water_color = True
-        elif self.gamemap.tiles[self.x, self.y]["tile_id"] == "deep_water":
-            self.gamemap.tiles[self.x, self.y] = self.gamemap.tileset["t_deep_water"]()
-            change_water_color = True
-        else:
-            change_water_color = False
+            # When entity is on a grass
+            if self.gamemap.tiles[self.x, self.y]["tile_id"] == "dense_grass":
+                self.gamemap.tiles[self.x, self.y] = self.gamemap.tileset["t_sparse_grass"]()
 
-        # Change the color of the water this entity is on (to simulate basic water movements)
-        if change_water_color:
-            for x_add in range(3):
-                for y_add in range(3):
-                    if self.gamemap.tiles[self.x-1+x_add, self.y-1+y_add]["tile_id"] == "shallow_water":
-                        self.gamemap.tiles[self.x-1+x_add, self.y-1+y_add] = self.gamemap.tileset["t_shallow_water"]()
-                    elif self.gamemap.tiles[self.x-1+x_add, self.y-1+y_add]["tile_id"] == "deep_water":
-                        self.gamemap.tiles[self.x-1+x_add, self.y-1+y_add] = self.gamemap.tileset["t_deep_water"]()
+            # When entity is on a water
+            if self.gamemap.tiles[self.x, self.y]["tile_id"] == "shallow_water":
+                self.gamemap.tiles[self.x, self.y] = self.gamemap.tileset["t_shallow_water"]()
+                change_water_color = True
+            elif self.gamemap.tiles[self.x, self.y]["tile_id"] == "deep_water":
+                self.gamemap.tiles[self.x, self.y] = self.gamemap.tileset["t_deep_water"]()
+                change_water_color = True
+            else:
+                change_water_color = False
+
+            # Change the color of the water this entity is on (to simulate basic water movements)
+            if change_water_color:
+                for x_add in range(3):
+                    for y_add in range(3):
+                        if self.gamemap.tiles[self.x-1+x_add, self.y-1+y_add]["tile_id"] == "shallow_water":
+                            self.gamemap.tiles[self.x-1+x_add, self.y-1+y_add] = self.gamemap.tileset["t_shallow_water"]()
+                        elif self.gamemap.tiles[self.x-1+x_add, self.y-1+y_add]["tile_id"] == "deep_water":
+                            self.gamemap.tiles[self.x-1+x_add, self.y-1+y_add] = self.gamemap.tileset["t_deep_water"]()
 
     def gain_action_point(self):
         """Gain action points every game time."""
@@ -817,11 +823,34 @@ class Item(Entity):
 
         return info
 
-    def set_info(self, info:dict) -> None:
+    def update_component_parent_to(self, item: Item) -> None:
+        if self.equipable:
+            self.equipable.parent = item
+        if self.edible:
+            self.edible.parent = item
+        if self.throwable:
+            self.throwable.parent = item
+        if self.readable:
+            self.readable.parent = item
+        if self.quaffable:
+            self.quaffable.parent = item
+        if self.equipable:
+            self.equipable.parent = item
+        if self.edible:
+            self.edible.parent = item
+        if self.throwable:
+            self.throwable.parent = item
+        if self.readable:
+            self.readable.parent = item
+        if self.quaffable:
+            self.quaffable.parent = item
+
+    def set_info(self, item: Item) -> None:
         """
         Get values from the get_info(), and set this item's values with those.
         """
         # Entity
+        info = item.get_info()
         self.gamemap = info["gamemap"]
         self.parent = info["parent"]
         self._char = info["char"]
@@ -845,26 +874,19 @@ class Item(Entity):
         self.item_state.is_being_sold_from = info["is_being_sold_from"]
 
         # components
-        #NOTE: the parent variable must be changed.
+        #NOTE: the 'parent' variable must be changed!!!!!!!!! Look duplicate_self() for reference.
+        # THIS COULD CAUSE A TON OF ISSUES SO PLEASE DONT FORGET TO CHANGE THE PARENT WHEN YOU ARE COPYING
         self.equipable = info["equipable"]
-        if self.equipable:
-            self.equipable.parent = self
-
         self.edible = info["edible"]
-        if self.edible:
-            self.edible.parent = self
-
         self.throwable = info["throwable"]
-        if self.throwable:
-            self.throwable.parent = self
-
         self.readable = info["readable"]
-        if self.readable:
-            self.readable.parent = self
-
         self.quaffable = info["quaffable"]
-        if self.quaffable:
-            self.quaffable.parent = self
+        self.equipable = info["equipable"]
+        self.edible = info["edible"]
+        self.throwable = info["throwable"]
+        self.readable = info["readable"]
+        self.quaffable = info["quaffable"]
+        self.update_component_parent_to(item=self)
 
     def duplicate_self(self, quantity:int=None):
         """
@@ -881,8 +903,8 @@ class Item(Entity):
             if i.entity_id == self.entity_id:
                 dup_item = copy.deepcopy(i)
 
-                # Copy item informations
-                dup_item.set_info(info=self.get_info())
+                # Copy item informations and UPDATE PARENT INFORMATION (IMPORTANT)
+                dup_item.set_info(item=dup_item)
                 break
         if dup_item == None:
             print(f"DEBUG::ITEM {self.name} FAILED TO DUPLICATE ITSELF. - ITEM.DUPLICATE_SELF()")

@@ -143,6 +143,13 @@ class EventHandler(tcod.event.EventDispatch[Action]):
             self.engine.event_handler = ItemUseCancelHandler(self.engine, self.item_cancel_callback)
             return None
 
+    def on_exit(self) -> Optional[Action]:
+        """
+        Called when the user is trying to exit or cancel an action.
+        By default this returns to the main event handler.
+        """
+        raise NotImplementedError()
+
     def ev_quit(self, event: tcod.event.Quit) -> Optional[Action]:
         raise SystemExit()
 
@@ -672,6 +679,10 @@ class StorageSelectSingleEventHandler(StorageSelectEventHandler):
     Inherit this class if the action requires selecting one single itme.
     e.g. Item inventory
     """
+    def choice_confirmed(self):
+        """There is no 'Choice' in single selection, so this function does nothing."""
+        return None
+
     def on_render(self, console: tcod.Console) -> None:
         """
         Render an inventory menu, which displays the items in the inventory, and the letter to select them.
