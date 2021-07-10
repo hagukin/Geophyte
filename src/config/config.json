@@ -1,8 +1,8 @@
 {
     "screen_width": 96,
     "screen_height": 54,
-    "tile_width": 15,
-    "tile_height": 15,
+    "tile_width": 20,
+    "tile_height": 20,
     "fullscreen": false,
     "camera_width": 67,
     "camera_height": 41,
@@ -13,7 +13,7 @@
     "status_height": 15,
     "state_height": 10,
     "sight_info_height": 28,
-    "ignore_enemy_spotted_during_mouse_movement":true,
+    "ignore_enemy_spotted_during_mouse_movement": false,
     "tileset_path": "resources\\tileset.ttf",
     "world_depth": 25,
     "lang": "ko"

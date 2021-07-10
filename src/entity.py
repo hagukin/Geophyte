@@ -874,8 +874,8 @@ class Item(Entity):
         self.item_state.is_being_sold_from = info["is_being_sold_from"]
 
         # components
-        #NOTE: the 'parent' variable must be changed!!!!!!!!! Look duplicate_self() for reference.
-        # THIS COULD CAUSE A TON OF ISSUES SO PLEASE DONT FORGET TO CHANGE THE PARENT WHEN YOU ARE COPYING
+        #NOTE: the 'parent' variable must be changed!!!!!!!!! update_component_parent_to() is doing the job
+        # IF YOU FORGET THIS IT COULD CAUSE A TONS OF ISSUES
         self.equipable = info["equipable"]
         self.edible = info["edible"]
         self.throwable = info["throwable"]

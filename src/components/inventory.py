@@ -132,15 +132,6 @@ class Inventory(BaseComponent):
                 self.item_hotkeys[key] = item
                 break
 
-    def delete_item(self, item: Item) -> Item:
-        # remove from item_hotkey
-        for key, value in self.item_hotkeys.items():
-            if value is item:
-                print(f"DEBUG::deleted {value} from inv.")
-                self.item_hotkeys[key] = None
-            return value
-        raise Exception("FATAL ERROR::tried to delete item that is not in inventory")
-
     def remove_item(self, item: Item, remove_count: int=1) -> None:
         """
         Remove item from inventory.
@@ -148,16 +139,16 @@ class Inventory(BaseComponent):
         You can remove multiple items at once by giving this function a "remove_count" value.
         If item is stacked, stack_count will decrease instead of removing the item from inventory.
         """
-        for inv_item in self.item_hotkeys.values():
+        for key, inv_item in self.item_hotkeys.items():
             if inv_item == None:
                 continue
             if item.item_state.check_if_identical(inv_item, compare_stack_count=True):
                 if remove_count == -1:# if -1, remove entire stack
-                    self.delete_item(inv_item)
+                    self.item_hotkeys[key] = None
                 else:
                     inv_item.stack_count -= remove_count # Stack item
                     if inv_item.stack_count == 0:
-                        self.delete_item(inv_item)
+                        self.item_hotkeys[key] = None
                     elif inv_item.stack_count < 0:# If remove_count is set to negative, do nothing. This feature exist in case of using an item infinitly. (e.g. black jelly throwing a toxic goo)
                         return None
                 return None

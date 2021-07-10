@@ -47,19 +47,19 @@ def render_credit_gui(console: tcod.Console):
     y = 1
     console.clear(fg=color.black, bg=color.black)
     draw_horizontal_line(console, y=y-1, thickness=3, title="Developed By", fg=color.black, bg=color.credit_dev)
-    center_print(console, string="Haguk Kim / 김하국", y=y+5, fg=color.credit_dev)
+    center_print(console, string="Gamesmith / 김하국", y=y+5, fg=color.credit_dev)
 
     draw_horizontal_line(console, y=y+9, thickness=3, title="Special thanks to", fg=color.black, bg=color.credit_special)
-    center_print(console, string="Kyle Benesch / HexDecimal", y=y+14, fg=color.credit_special)
-    center_print(console, string="Joao F. Henriques / Jotaf", y=y+15, fg=color.credit_special)
-    center_print(console, string="Tyler Standridge / TStand90", y=y+16, fg=color.credit_special)
-    center_print(console, string="hukseol", y=y+17, fg=color.credit_special)
+    center_print(console, string="Kyle Benesch / HexDecimal", y=y+15, fg=color.credit_special)
+    center_print(console, string="Joao F. Henriques / Jotaf", y=y+16, fg=color.credit_special)
+    center_print(console, string="Tyler Standridge / TStand90", y=y+17, fg=color.credit_special)
+    center_print(console, string="hukseol", y=y+18, fg=color.credit_special)
 
-    draw_horizontal_line(console, y=y+21, thickness=1, bg=color.credit_license)
-    center_print(console, string="MIT-style license:", y=y+23, fg=color.white)
-    center_print(console, string="White Rabbit font by Matthew Welch", y=y+24, fg=color.credit_license)
-    center_print(console, string="OFL license:", y=y+26, fg=color.white)
-    center_print(console, string="Nanumfont", y=y+27, fg=color.credit_license)
+    draw_horizontal_line(console, y=y+22, thickness=3, title="License", bg=color.credit_license)
+    center_print(console, string="MIT-style license:", y=y+26, fg=color.white)
+    center_print(console, string="White Rabbit font by Matthew Welch", y=y+27, fg=color.credit_license)
+    center_print(console, string="OFL license:", y=y+29, fg=color.white)
+    center_print(console, string="Nanumfont", y=y+30, fg=color.credit_license)
 
 
 def get_credit_action(sec_per_frame):
