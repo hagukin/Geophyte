@@ -42,6 +42,7 @@ class Entity:
         indestructible: bool = False,
         x: int = 0,
         y: int = 0,
+        is_on_air: bool = False,
         _char: str = "?",
         _fg: Tuple[int, int, int] = (255, 255, 255),
         _bg: Tuple[int, int, int] = None,
@@ -60,9 +61,11 @@ class Entity:
     ):
         """
         Args:
+            is_on_air:
+                Whether this entity is physically on air or not.
             indestructible:
                 If true, this entity cannot be destroyed by remove_self().
-            entity_desc:
+            _entity_desc:
                 Recommended not to write more than 5 lines.
                 Each lines should contain less than 110 characters. (Including blanks)
             rarity:
@@ -91,6 +94,7 @@ class Entity:
         self.indestructible = indestructible
         self.x = x
         self.y = y
+        self.is_on_air = is_on_air
         self._char = _char
         self._fg = _fg
         self._bg = _bg
@@ -136,6 +140,18 @@ class Entity:
     @property
     def entity_desc(self):
         return self._entity_desc
+
+    def float(self, start_floating: bool) -> None:
+        """
+        Args:
+            start_floating:
+                if True, try making this entity go on air.
+                if False, try making this entity go down to the ground.
+        """
+        if start_floating:
+            self.is_on_air = True
+        else:
+            self.is_on_air = False
 
     def how_many_bump_action_possible(self) -> int:
         """Returns the amount of different bump actions this entity can do."""
@@ -402,6 +418,15 @@ class Actor(Entity):
         self.action_speed = self.status.agility
         return self.action_speed
 
+    def float(self, start_floating: bool) -> None:
+        super().float(start_floating)
+        if start_floating:
+            self.is_on_air = True
+        else:
+            # Actor can go down only when actor is not flying and not levitating.
+            if self.actor_state.is_flying == False and self.actor_state.is_levitating != [0, 0]:
+                self.is_on_air = False
+
     def remove_self(self):
         super().remove_self()
 
@@ -413,7 +438,11 @@ class Actor(Entity):
         super().do_environmental_effects()
 
         ### A. Tile related ###
-        if not self.actor_state.is_flying:
+        if not self.is_on_air:
+            # Prevent any error (Mainly prevent flying actor not being on air when first initialized.)
+            if self.actor_state.is_flying or self.actor_state.is_levitating != [0, 0]:
+                self.float(True)
+
             ### 1. Deep pit
             if self.gamemap.tiles[self.x, self.y]["tile_id"] == "deep_pit":
                 if not self.actor_state.is_in_deep_pit:
@@ -475,13 +504,22 @@ class Actor(Entity):
             if random.random() <= item[1]:
                 temp = item[0].spawn(gamemap=self.gamemap, x=0, y=0)
                 temp.stack_count = random.randint(item[2][0], item[2][1])
+
+                # Remove the item from current gamemap
+                self.gamemap.entities.remove(temp)
+                temp.parent = self.inventory
                 self.inventory.add_item(temp)
         
         for equipment in self.initial_equipments:
             if equipment != None:
                 if random.random() <= equipment[1]:
                     eq = equipment[0].spawn(gamemap=self.gamemap, x=0, y=0)
+
+                    # Remove the item from current gamemap
+                    self.gamemap.entities.remove(eq)
+                    eq.parent = self.inventory
                     self.inventory.add_item(eq)
+
                     self.equipments.equip_equipment(item=eq, forced=True)
 
         for ability in self.initial_abilities:

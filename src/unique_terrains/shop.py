@@ -20,50 +20,51 @@ class ShopTerrain(Terrain):
         max_width: int = 10,
         min_height: int = 6, # min 6
         max_height: int = 10,
-        shape: dict = {
-            "rectangular":1, #Shops can be in any shape, but rectangular is most stable
-            "perpendicular":99,
-        },
+        shape: dict = None,
         spawn_item: bool = False,
         spawn_monster: bool = False,
         has_wall: bool = True, #TODO: need to add feature
-        wall_protected: bool = True,
+        protected: bool = True,
         has_door: bool = True,
         can_have_stair: bool = False,
         door_num_range = (1,),
         door_num_weight = (1,),
         gen_grass = None,
+        gen_holes=None,
         gen_water = None,
+        gen_pits = None,
         gen_traps = None,
         gen_chests = None,
         custom_gen = None, # Must have one
-        sell_items = dict(),
-        items_on_stock = list(),
+        sell_items = None,
+        items_on_stock = None,
         shopkeeper_type: Actor = shopkeeper,
     ):
         super().__init__(
-            name,
-            terrain_id,
-            terrain_desc,
-            rarity,
-            min_width,
-            max_width,
-            min_height,
-            max_height,
-            shape,
-            spawn_item,
-            spawn_monster,
-            has_wall,
-            wall_protected,
-            has_door,
-            can_have_stair,
-            door_num_range,
-            door_num_weight,
-            gen_grass,
-            gen_water,
-            gen_traps,
-            gen_chests,
-            custom_gen,
+            name=name,
+            terrain_id=terrain_id,
+            terrain_desc=terrain_desc,
+            rarity=rarity,
+            min_width=min_width,
+            max_width=max_width,
+            min_height=min_height,
+            max_height=max_height,
+            shape=shape,
+            spawn_item=spawn_item,
+            spawn_monster=spawn_monster,
+            has_wall=has_wall,
+            protected=protected,
+            has_door=has_door,
+            can_have_stair=can_have_stair,
+            door_num_range=door_num_range,
+            door_num_weight=door_num_weight,
+            gen_grass=gen_grass,
+            gen_holes=gen_holes,
+            gen_water=gen_water,
+            gen_pits=gen_pits,
+            gen_traps=gen_traps,
+            gen_chests=gen_chests,
+            custom_gen=custom_gen,
         )
         """
         Vars:
@@ -77,10 +78,26 @@ class ShopTerrain(Terrain):
             items_on_stock:
                 List of item objects that currently belongs to the shop.
         """
+        if shape == None:
+            self.shape = {
+            "rectangular":1, #Shops can be in any shape, but rectangular is most stable
+            "perpendicular":99,
+        }
+        else:
+            self.shape = shape
+
         self.shopkeeper_loc = None # initialized during custom_terrgen.generate_shop_item()
         self.shopkeeper_type = shopkeeper_type
         self.shopkeeper = None
-        self.sell_items = sell_items
-        self.items_on_stock = items_on_stock
+
+        if sell_items == None:
+            self.sell_items = {}
+        else:
+            self.sell_items = sell_items
+
+        if items_on_stock == None:
+            self.items_on_stock = []
+        else:
+            self.items_on_stock = items_on_stock
 
 

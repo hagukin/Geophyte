@@ -15,11 +15,7 @@ class Terrain:
         max_width: int = 16,
         min_height: int = 6, # min 6
         max_height: int = 16,
-        shape: dict = {
-            "rectangular":2,
-            "circular":4,
-            "perpendicular":4,
-        },
+        shape: dict = None,
         spawn_item: bool = True,
         spawn_monster: bool = True,
         has_wall: bool = True, #TODO: need to add feature
@@ -29,7 +25,9 @@ class Terrain:
         door_num_range = (1,2,3,4),
         door_num_weight = (3,7,2,1),
         gen_grass = None,
+        gen_holes = None,
         gen_water = None,
+        gen_pits = None,
         gen_traps = None,
         gen_chests = None,
         custom_gen = None,
@@ -44,7 +42,7 @@ class Terrain:
                 possible number of doors per room. This value should sync up with door_num_weight.
             door_num_weight:
                 chance of having certain number of doors
-            wall_protected:
+            protected:
                 whether the room that own's this terrain component has a wall that can be destroyed during procgen from other terrains' generation process
                 e.g. if set to true, ocean generation will not overlap with with this room's outer&inner area.
             gen_grass:
@@ -53,6 +51,8 @@ class Terrain:
                     "scale_range":Tuple(int,int), 
                     "density":int
                 }
+            gen_holes:
+                same as gen_grass.
             gen_water:
                 {
                     "core_num_range":Tuple(int,int), 
@@ -62,6 +62,8 @@ class Terrain:
                 }
                 no_border:
                     Boolean value that indicates whether the water can spread across different rooms or not
+            gen_pits:
+                Same as gen_water.
             gen_traps:
                 {
                     "checklist":dict{id : name}, 
@@ -106,7 +108,14 @@ class Terrain:
         self.min_height = min_height
         self.max_height = max_height
 
-        self.shape = shape
+        if shape == None:
+            self.shape = {
+            "rectangular":2,
+            "circular":4,
+            "perpendicular":4,
+        }
+        else:
+            self.shape = shape
 
         self.spawn_item = spawn_item
         self.spawn_monster = spawn_monster
@@ -119,7 +128,9 @@ class Terrain:
         self.door_num_weight = door_num_weight
 
         self.gen_grass = gen_grass
+        self.gen_holes = gen_holes
         self.gen_water = gen_water
+        self.gen_pits = gen_pits
         self.gen_traps = gen_traps
         self.gen_chests = gen_chests
         self.custom_gen = custom_gen

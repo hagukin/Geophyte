@@ -93,6 +93,88 @@ def generate_grass(gamemap: GameMap, room: Room) -> None:
         grow_grass(gamemap=gamemap, grass_tile=gamemap.tileset["t_dense_grass"], grass_core=loc, scale=scale, density=room.terrain.gen_grass["density"])
 
 
+def grow_hole(
+        gamemap: GameMap, hole_tile, hole_core: Tuple[int, int], scale: int = 2, density: float = 0.6,
+) -> None:
+    """
+    Create hole around nearby tiles from hole_core.
+    4 of the newly created hole tiles becomes new hole_core, and repeat the process again.
+    Reapeat for amount of scale value received.
+    Args:
+        scale:
+            Integer. Indicates how many time will the hole generating loop repeats.
+    """
+    tilemap = gamemap.tilemap
+
+    # Set directions
+    spawn_core_dir = ((1, 0), (-1, 0), (0, 1), (0, -1))  # duplicate core in cross-directions
+    spawn_hole_dir = ((1, 1), (1, -1), (-1, 1), (-1, -1))  # generate hole in X-directions
+
+    # Create hole_core at given location
+    # NOTE: You have to manually write what types of terrains that the hole can overwrite
+    # Currently the hole only grows on ROON_INNER.
+    if tilemap[hole_core[0]][hole_core[1]] == TilemapOrder.ROOM_INNER.value:
+        tilemap[hole_core[0]][hole_core[1]] = TilemapOrder.HOLE_CORE.value
+    else:  # cannot spawn hole at given location
+        return -1
+
+    for _ in range(scale):
+        core_locations = zip(*np.where(tilemap == TilemapOrder.HOLE_CORE.value))
+
+        for loc in core_locations:
+            # Spawn hole
+            for direction in spawn_hole_dir:
+                try:
+                    if tilemap[loc[0] + direction[0]][
+                        loc[1] + direction[1]] == TilemapOrder.ROOM_INNER.value:  # TODO terrain겹침
+                        if random.random() < density:
+                            tilemap[loc[0] + direction[0]][loc[1] + direction[1]] = TilemapOrder.HOLE.value
+                        else:
+                            continue  # density-1/density chance of not generating anything (NOTE: this feature will randomize and diversify holefield shapes)
+                except:
+                    continue
+
+            # Spawn new hole core
+            for direction in spawn_core_dir:
+                try:
+                    if tilemap[loc[0] + direction[0]][loc[1] + direction[1]] == TilemapOrder.ROOM_INNER.value or \
+                            tilemap[loc[0] + direction[0]][
+                                loc[1] + direction[1]] == TilemapOrder.HOLE.value:  # TODO terrain겹침
+                        if random.random() < density:
+                            tilemap[loc[0] + direction[0]][loc[1] + direction[1]] = TilemapOrder.HOLE_CORE.value
+                        else:
+                            continue  # density-1/density chance of not generating anything
+                except:
+                    continue
+
+    # Change leftover hole_cores into regular hole
+    leftcore_locations = zip(*np.where(tilemap == TilemapOrder.HOLE_CORE.value))
+    for loc in leftcore_locations:
+        tilemap[loc[0]][loc[1]] = TilemapOrder.HOLE.value
+
+    # Make hole tiles
+    hole_locations = zip(*np.where(tilemap == TilemapOrder.HOLE.value))
+
+    for loc in hole_locations:
+        gamemap.tiles[loc[0], loc[1]] = hole_tile()
+
+
+def generate_hole(gamemap: GameMap, room: Room) -> None:
+    core_num_range = room.terrain.gen_holes["core_num_range"]
+    core_count = random.randint(core_num_range[0], core_num_range[1])
+
+    possible_gen_tiles = room.inner_tiles
+    core_coordinates = random.choices(possible_gen_tiles, k=core_count)
+
+    for loc in set(core_coordinates):
+        scale_range = room.terrain.gen_holes["scale_range"]
+        scale = random.randint(scale_range[0], scale_range[1])
+
+        # For every single hole cores, run hole generating algorithm
+        grow_hole(gamemap=gamemap, hole_tile=gamemap.tileset["t_hole"], hole_core=loc, scale=scale,
+                   density=room.terrain.gen_holes["density"])
+
+
 def grow_trap(gamemap, x, y, trap_id:str, lifetime=-1) -> None:
     """Spawn a SemiActor instance of a given name at given location."""
 
@@ -279,6 +361,137 @@ def generate_water(gamemap: GameMap, room: Room) -> None:
 
     # Generate deep water (change all shallow water to deep water except for water pool boundaries
     make_deep_water(gamemap=gamemap)
+
+
+def make_shallow_pit(
+        gamemap: GameMap, pit_core: Tuple[int, int], scale: int = 2, density: float = 0.6, no_border: bool = False,
+):
+    """
+    NOTE: This function was created based on the grow_grass function
+    """
+    tilemap = gamemap.tilemap
+
+    # Set directions
+    spawn_core_dir = ((1, 0), (-1, 0), (0, 1), (0, -1))  # duplicate core in cross-directions
+    spawn_pit_dir = ((1, 1), (1, -1), (-1, 1), (-1, -1))  # generate grass in X-directions
+
+    # Create pit_core at given location
+    # NOTE: You have to manually write what types of terrains that pits can overwrite
+    # Currently the pit only generates on ROON_INNER, unless it has no_border parameter set to True.
+    if not no_border:
+        if tilemap[pit_core[0]][pit_core[1]] == TilemapOrder.ROOM_INNER.value:
+            tilemap[pit_core[0]][pit_core[1]] = TilemapOrder.PIT_CORE.value
+        else:  # cannot spawn pit at given location
+            return -1
+    else:
+        if tilemap[pit_core[0]][pit_core[1]] != TilemapOrder.MAP_BORDER.value \
+                and not gamemap.protectmap[pit_core[0]][pit_core[1]]:
+            tilemap[pit_core[0]][pit_core[1]] = TilemapOrder.PIT_CORE.value
+        else:
+            return -1
+
+    for _ in range(scale):
+        core_locations = zip(*np.where(tilemap == TilemapOrder.PIT_CORE.value))
+
+        for loc in core_locations:
+            # Spawn pit
+            for direction in spawn_pit_dir:
+                try:
+                    if no_border:
+                        if random.random() < density:
+                            if tilemap[loc[0] + direction[0]][loc[1] + direction[1]] != TilemapOrder.MAP_BORDER.value \
+                                    and not gamemap.protectmap[loc[0] + direction[0]][loc[1] + direction[1]]:
+                                tilemap[loc[0] + direction[0]][loc[1] + direction[1]] = TilemapOrder.PIT.value
+                        else:
+                            continue  # density-1/density chance of not generating
+                    else:
+                        if tilemap[loc[0] + direction[0]][loc[1] + direction[1]] == TilemapOrder.ROOM_INNER.value \
+                                and not gamemap.protectmap[loc[0] + direction[0]][
+                            loc[1] + direction[1]]:  # TODO terrain collided
+                            if random.random() < density:
+                                tilemap[loc[0] + direction[0]][loc[1] + direction[1]] = TilemapOrder.PIT.value
+                            else:
+                                continue  # density-1/density chance of not generating
+                except:
+                    continue
+
+            # Spawn new pit core
+            for direction in spawn_core_dir:
+                try:
+                    if no_border:
+                        if random.random() < density:
+                            if tilemap[loc[0] + direction[0]][loc[1] + direction[1]] != TilemapOrder.MAP_BORDER.value \
+                                    and not gamemap.protectmap[loc[0] + direction[0]][loc[1] + direction[1]]:
+                                tilemap[loc[0] + direction[0]][loc[1] + direction[1]] = TilemapOrder.PIT_CORE.value
+                        else:
+                            continue  # density-1/density chance of not generating
+                    else:
+                        if (tilemap[loc[0] + direction[0]][loc[1] + direction[1]] == TilemapOrder.ROOM_INNER.value or
+                            tilemap[loc[0] + direction[0]][loc[1] + direction[1]] == TilemapOrder.PIT.value) \
+                                and not gamemap.protectmap[loc[0] + direction[0]][
+                            loc[1] + direction[1]]:  # TODO terrain collided
+                            if random.random() < density:
+                                tilemap[loc[0] + direction[0]][loc[1] + direction[1]] = TilemapOrder.PIT_CORE.value
+                            else:
+                                continue  # density-1/density chance of not generating
+                except:
+                    continue
+
+    # Change leftover pit_cores into regular pit
+    leftcore_locations = zip(*np.where(tilemap == TilemapOrder.PIT_CORE.value))
+    for loc in leftcore_locations:
+        tilemap[loc[0], loc[1]] = TilemapOrder.PIT.value
+
+    # Make shallow_pit tile at every TilemapORder.PIT locations
+    pit_locations = zip(*np.where(tilemap == TilemapOrder.PIT.value))
+
+    for loc in pit_locations:
+        gamemap.tiles[loc[0], loc[1]] = gamemap.tileset["t_shallow_pit"]()
+        # gamemap.tiles[loc[0], loc[1]] = gamemap.tileset["t_DEBUG"]()
+
+
+def make_deep_pit(
+        gamemap: GameMap,
+) -> None:
+    # Search for locations where deep pit needs to be placed
+    pit_locations = zip(*np.where(gamemap.tilemap == TilemapOrder.PIT.value))
+    deep_pit_locations = []
+
+    for cor in pit_locations:
+        nearby_pit_count = 0
+        for x_add in range(3):
+            for y_add in range(3):
+                try:
+                    if gamemap.tilemap[cor[0] - 1 + x_add, cor[1] - 1 + y_add] == TilemapOrder.PIT.value:
+                        nearby_pit_count += 1
+                except IndexError:  # Out of map border (TODO: Find a better way of dealing this)
+                    continue
+        if nearby_pit_count >= 8:  # Generate deep pit if there are 8 surrounding pit tiles nearby
+            deep_pit_locations.append(cor)
+
+    for loc in deep_pit_locations:
+        gamemap.tiles[loc[0], loc[1]] = gamemap.tileset["t_deep_pit"]()
+
+
+def generate_pits(gamemap: GameMap, room: Room) -> None:
+    core_num_range = room.terrain.gen_pits["core_num_range"]
+    core_count = random.randint(core_num_range[0], core_num_range[1])
+
+    possible_gen_tiles = room.inner_tiles
+    core_coordinates = random.choices(possible_gen_tiles, k=core_count)
+
+    # Generate shallow pits
+    for loc in set(core_coordinates):
+        scale_range = room.terrain.gen_pits["scale_range"]
+        scale = random.randint(scale_range[0], scale_range[1])
+
+        # For each core run pit gen algorithm
+        make_shallow_pit(gamemap=gamemap, pit_core=loc, scale=scale, density=room.terrain.gen_pits["density"],
+                           no_border=room.terrain.gen_pits["no_border"])
+
+    # Generate deep pit (change all shallow pit to deep pit except for pit pool boundaries
+    make_deep_pit(gamemap=gamemap)
+
 
 
 def grow_chest(gamemap, x, y, chest_id:str, lifetime=-1, initial_items: List=None) -> None:

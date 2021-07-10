@@ -101,7 +101,7 @@ class SpikeTrapWalkable(TrapWalkable):
             return None
 
         # No effects when levitating(flying)
-        if target.actor_state.is_flying:
+        if target.is_on_air:
             if self.gamemap.visible[target.x, target.y]:
                 self.engine.message_log.add_message(f"{g(target.name, '이')} 가시 함정 위를 넘어갔다.", target=target)
 

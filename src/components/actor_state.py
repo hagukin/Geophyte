@@ -18,6 +18,7 @@ class ActorState(BaseComponent):
     Values that are directly related to the actor's state of being are stored here.
     """
     def __init__(self,
+        parent: Actor = None,
         ### Hunger
         # Negative value indicates not being hungry at all.
         # 1 points of hunger is about 5 kcal irl, and if the actor will consume 1 points of hunger each turn. TODO: Maybe make some actions costs hunger more?
@@ -98,7 +99,7 @@ class ActorState(BaseComponent):
         # Value: [Damage per turn(Percentage of maximum health, range from 0~1), Current turn, Max lasting turn]
         is_sick: list = [0.0, 0, 0],
         # Actor is floating unwillingly
-        # NOTE: To check whether the actor is on air or not, use is_flying instead.
+        # NOTE: To check whether the actor is on air or not, use entity.is_on_air instead.
         # is_levitating value's sole purpose is to give actor a status effect of floation.
         # Value: [Current turn, Max lasting turn]
         is_levitating: list = [0, 0],
@@ -126,6 +127,7 @@ class ActorState(BaseComponent):
 
         ### Spatial states
         # Actor is on air (whether willingly or unwillingly)
+        # NOTE: all flying actors' entity.is_on_air must be True
         is_flying: bool = False,
         # Actor is in a deep pit
         is_in_deep_pit: bool = False,
@@ -162,7 +164,7 @@ class ActorState(BaseComponent):
         can_think: bool = True, # Has ability to make the most basic level of logical decision (e.g. feels pain -> moves away)
         can_talk: bool = True, # Is capable of speaking a language
     ):
-        self.parent = None
+        self.parent = parent
 
         self.hunger = hunger
         self.previous_hunger_state = None
@@ -199,6 +201,8 @@ class ActorState(BaseComponent):
         self.is_detecting_obj = is_detecting_obj
 
         self.is_flying = is_flying
+        if is_flying:
+            self.actor_fly()
         self.is_in_deep_pit = is_in_deep_pit
         self.is_in_shallow_pit = is_in_shallow_pit
         self.is_submerged = is_submerged
@@ -302,6 +306,18 @@ class ActorState(BaseComponent):
                 pass
             return None
         self.hunger += nutrition
+
+    def actor_fly(self) -> None:
+        self.is_flying = True
+        if self.parent != None: # Actor State might not have parent when first initialized.
+            # If it doesn't have a parent, entity.do_environment_effects() will make the actor float instead.
+            self.parent.float(start_floating=True)
+
+    def actor_stop_fly(self) -> None:
+        self.is_flying = False
+        if self.parent != None:
+            # If it doesn't have a parent, entity.do_environment_effects() will make the actor float instead.
+            self.parent.float(start_floating=False)
 
     def actor_heal_wounds(self):
         """
@@ -777,7 +793,7 @@ class ActorState(BaseComponent):
         self.is_detecting_obj = [0, 0, []]
         if include_spatial_states:
             # spatial states
-            self.is_flying = False
+            self.actor_stop_fly()
             self.is_in_deep_pit = False
             self.is_in_shallow_pit = False
             self.is_submerged = False
@@ -1032,11 +1048,13 @@ class ActorState(BaseComponent):
         if self.is_levitating[1] < 0:
             raise NotImplementedError("ERROR::You should not be able to obtain levitation state eternally. Consider using is_flying instead.")
         if self.is_levitating != [0,0] and value != [0,0]:
-            # keep current turn unchanged
+            # keep current turn unchanged and prolong the max time
             self.is_levitating[1] += value[1]
         else:
             self.is_levitating = value
-    
+            if value != [0,0]:
+                self.parent.float(True)
+
     def apply_drowning(self, value: List[int,int]) -> None:
         if self.is_drowning != [0,0] and value != [0,0]:
             # keep current turn unchanged

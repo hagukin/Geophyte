@@ -205,7 +205,7 @@ class NormalThrowable(Throwable):
             throw_graphic = {"char":self.parent.char, "fg":self.parent.fg, "bg":self.parent.bg}
 
             # Using relative coordinates for animation rendering
-            relative_x, relative_y = self.engine.camera.get_relative_coordinate(abs_x=loc[0], abs_y=loc[1])
+            relative_x, relative_y = self.engine.camera.abs_to_rel(abs_x=loc[0], abs_y=loc[1])
             frames.append([(relative_x, relative_y, throw_graphic, None)])
 
         throw_animation = Animation(engine=self.engine, frames=frames, stack_frames=False, sec_per_frame=self.sec_per_frame, refresh_last_frame=False) # TODO : air resistance의 값에 따라 프레임당 소요시간 변경??

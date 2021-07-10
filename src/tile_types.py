@@ -499,14 +499,14 @@ def deep_pit():
         phaseable=True,
         transparent=True,
         dark=(
-            ord(" "),
+            ord("·"),
             (0, 0, 0),
             (0, 0, 0)
         ),
         light=(
-            ord(" "),
+            ord("·"),
             (0, 0, 0),
-            (15, 15, 15)
+            (31, 27, 24)
         ),
         tile_name="깊은 구덩이",
         tile_id="deep_pit",
@@ -522,14 +522,14 @@ def shallow_pit():
         phaseable=True,
         transparent=True,
         dark=(
-            ord(" "),
+            ord("·"),
             (0, 0, 0),
             (10, 10, 10)
         ),
         light=(
-            ord(" "),
+            ord("·"),
             (0, 0, 0),
-            (36, 36, 36)
+            (56, 46, 38)
         ),
         tile_name="얕은 구덩이",
         tile_id="shallow_pit",

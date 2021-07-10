@@ -420,10 +420,18 @@ def generate_terrain(
         if room.terrain.gen_water:
             terrain_generation.generate_water(gamemap=dungeon, room=room)
 
+        # Generate pits
+        if room.terrain.gen_pits:
+            terrain_generation.generate_pits(gamemap=dungeon, room=room)
+
+        # Generate Holes
+        if room.terrain.gen_holes:
+            terrain_generation.generate_hole(gamemap=dungeon, room=room)
+
         # Generate grass
         if room.terrain.gen_grass:
             terrain_generation.generate_grass(gamemap=dungeon, room=room)
-    
+
         # Generate trap
         if room.terrain.gen_traps:
             terrain_generation.generate_trap(gamemap=dungeon, room=room)
@@ -786,9 +794,14 @@ def generate_dungeon(
         max_items_per_room=biome.max_items_per_room,
     )
 
+    # Error check
+    check_spawn_err = dungeon.get_any_entity_at_location(location_x=0, location_y=0)
+    if check_spawn_err != None:
+        print(f"WARNING::{check_spawn_err.name} spawned at (0,0)")
+
     # debug(dungeon=dungeon, save_as_txt=True)
 
     if display_process:
-        time.sleep(max(0, min_display_time - (time.time() - render_start_time)))
+        time.sleep(max(0.0, min_display_time - (time.time() - render_start_time)))
 
     return dungeon

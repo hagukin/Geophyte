@@ -1819,8 +1819,8 @@ class MainGameEventHandler(EventHandler):
                 self.engine.player.status.experience.gain_intelligence_exp(10000)
                 self.engine.player.status.experience.gain_charm_exp(10000)
             elif key == tcod.event.K_F1:
-                print("F1")
-                self.engine.camera.move(dx=1, dy=1)
+                print("You flied")
+                self.engine.player.actor_state.actor_fly()
 
         # No valid key was pressed
         return action

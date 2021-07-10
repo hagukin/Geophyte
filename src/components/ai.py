@@ -226,7 +226,7 @@ class BaseAI(BaseComponent):
 
             # 1. If the AI is not flying, raise costs for safe_to_walk = False tiles.
             # NOTE: The reason for not entirely removing dangerous tiles from path is, to prevent ai "stuck" between dangerous tiles. (It can't generate path to get out if its surrounded)
-            if not self.parent.actor_state.is_flying:
+            if not self.parent.is_on_air:
                 dangerous_coordinates = zip(*np.where(self.gamemap.tiles["safe_to_walk"][:,:] == False))
                 for cor in dangerous_coordinates:
                     # If the actor is already on dangerous tile, same types of tiles will be considered safe. 

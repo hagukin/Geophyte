@@ -154,7 +154,7 @@ class ExplodeAction(RadiusAction):
                 loc = path.pop(0)
 
                 # Using relative coordinates for rendering animations
-                relative_x, relative_y = self.engine.camera.get_relative_coordinate(abs_x=loc[0], abs_y=loc[1])
+                relative_x, relative_y = self.engine.camera.abs_to_rel(abs_x=loc[0], abs_y=loc[1])
                 frame.append((relative_x, relative_y, self.graphic_function(), None))
 
             if frame:

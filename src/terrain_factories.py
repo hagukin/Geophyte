@@ -37,7 +37,7 @@ trap_field = Terrain(
     name="함정 필드",
     terrain_id="trap_field",
     terrain_desc="Desc of trap_field terrain (TEST)",
-    rarity=5,
+    rarity=99,
     spawn_item=True,
     spawn_monster=True,
     gen_grass={"core_num_range":(1,6), "scale_range":(1,4), "density":0.3},
@@ -52,7 +52,7 @@ chest_room = Terrain(
     name="창고",
     terrain_id="chest_room",
     terrain_desc="chest room desc",
-    rarity=99,
+    rarity=5,
     spawn_item=False,
     spawn_monster=False,
     gen_chests={"checklist":{"large_wooden_chest" : 10}, "chest_num_range":(1,8), "initial_items":None},
@@ -79,13 +79,44 @@ large_lake = Terrain(
 terrain_dict[large_lake.terrain_id] = large_lake
 terrain_rarity.append(large_lake.rarity)
 
+# Large pit
+large_pit = Terrain(
+    name="큰 구덩이",
+    terrain_id="large_pit",
+    terrain_desc="Desc of large_pit terrain (TEST)",
+    rarity=5,#FIXME
+    min_width=12,
+    min_height=12,
+    max_width=16,
+    max_height=16,
+    spawn_item=True,
+    spawn_monster=True,
+    gen_pits={"core_num_range":(1,1), "scale_range":(7,11), "density":0.9, "no_border":False},
+)
+terrain_dict[large_pit.terrain_id] = large_pit
+terrain_rarity.append(large_pit.rarity)
+
+
+# Giant Hole
+giant_hole = Terrain(
+    name="큰 구멍",
+    terrain_id="giant_hole",
+    terrain_desc="Desc of giant_hole terrain (TEST)",
+    rarity=99,
+    spawn_item=False,
+    spawn_monster=False,
+    gen_holes={"core_num_range":(1,8), "scale_range":(1,4), "density":0.6},
+)
+terrain_dict[giant_hole.terrain_id] = giant_hole
+terrain_rarity.append(giant_hole.rarity)
+
 
 # Ocean
 ocean = Terrain(
     name="바다",
     terrain_id="Ocean",
     terrain_desc="Desc of ocean terrain (TEST)",
-    rarity=99,#FIXME
+    rarity=1,#FIXME
     spawn_item=True,
     spawn_monster=True,
     gen_traps={"checklist":{"spike_trap":1}, "max_traps_per_room":5, "spawn_chance":0.02, "forced_traps_gen_number":2},
@@ -121,7 +152,7 @@ shop = ShopTerrain(
     name="잡동사니 상점",
     terrain_id="general_shop",
     terrain_desc="general shop desc",
-    rarity=99,
+    rarity=5,
     min_width=6,
     max_width=10,
     min_height=6,

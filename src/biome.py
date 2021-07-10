@@ -22,6 +22,7 @@ def tileset(
         "t_burnt_floor":tile_types.burnt_floor,
         "t_deep_pit":tile_types.deep_pit,
         "t_shallow_pit":tile_types.shallow_pit,
+        "t_hole":tile_types.hole,
         "t_deep_water":tile_types.deep_water,
         "t_shallow_water":tile_types.shallow_water,
         "t_DEBUG":tile_types.DEBUG,
