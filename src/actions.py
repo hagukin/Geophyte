@@ -886,7 +886,7 @@ class ChestBumpAction(ActionWithDirection):
             return MovementAction(self.entity, self.dx, self.dy).perform()
 
         if not semiactor_on_dir:
-            raise exceptions.Impossible("아무 것도 들어있지 않다.")
+            raise exceptions.Impossible("해당 위치에 상자가 없다.")
         elif isinstance(semiactor_on_dir, chest_factories.ChestSemiactor):# Check if the semiactor is chest type
             self.engine.message_log.add_message(f"{g(self.entity.name, '이')} {g(semiactor_on_dir.name, '을')} 열었다.", color.invalid, target=self.entity)
 

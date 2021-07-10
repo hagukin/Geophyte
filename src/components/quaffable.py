@@ -53,7 +53,9 @@ class PotionOfHealingQuaffable(Quaffable):
             if consumer == self.engine.player:
                 self.engine.message_log.add_message(f"당신의 몸에 에너지가 넘친다!",color.health_recovered,)
 
-            consumer.status.max_hp += max(1, round(self.amount / 10))#TODO balance
+            amount = max(1, round(self.amount / 10))#TODO balance
+            consumer.status.max_hp += amount
+            consumer.status.heal(amount=amount)
         
         self.consume()
 

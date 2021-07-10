@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="d5939325-7c35-4fc6-a3f9-e7dbdd574b2c" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/profiles_settings.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/src.iml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/saves/worlds/0.1911312549040417.bak" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/saves/worlds/0.1911312549040417.dat" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/saves/worlds/0.1911312549040417.dir" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/saves/worlds/0.46157322486128216.bak" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/saves/worlds/0.46157322486128216.dat" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/saves/worlds/0.46157322486128216.dir" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/saves/worlds/0.7317785214801695.bak" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/saves/worlds/0.7317785214801695.dat" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/saves/worlds/0.7317785214801695.dir" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/actions.py" beforeDir="false" afterPath="$PROJECT_DIR$/actions.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/camera.py" beforeDir="false" afterPath="$PROJECT_DIR$/camera.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/components/quaffable.py" beforeDir="false" afterPath="$PROJECT_DIR$/components/quaffable.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/components/readable.py" beforeDir="false" afterPath="$PROJECT_DIR$/components/readable.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/components/semiactor_info.py" beforeDir="false" afterPath="$PROJECT_DIR$/components/semiactor_info.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/config/config.json" beforeDir="false" afterPath="$PROJECT_DIR$/config/config.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/config/config_default.json" beforeDir="false" afterPath="$PROJECT_DIR$/config/config_default.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/devlog.txt" beforeDir="false" afterPath="$PROJECT_DIR$/devlog.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/engine.py" beforeDir="false" afterPath="$PROJECT_DIR$/engine.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/entity.py" beforeDir="false" afterPath="$PROJECT_DIR$/entity.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/input_handlers.py" beforeDir="false" afterPath="$PROJECT_DIR$/input_handlers.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/message_log.py" beforeDir="false" afterPath="$PROJECT_DIR$/message_log.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/saves/save_file.bak" beforeDir="false" afterPath="$PROJECT_DIR$/saves/save_file.bak" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/saves/save_file.dat" beforeDir="false" afterPath="$PROJECT_DIR$/saves/save_file.dat" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/saves/save_file.dir" beforeDir="false" afterPath="$PROJECT_DIR$/saves/save_file.dir" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
+  </component>
+  <component name="ProjectId" id="1v7ia4bLYfS1iNDqH3tCtud9PXa" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">
+    <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
+    <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+  </component>
+  <component name="RunManager">
+    <configuration name="main" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="src" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/main.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Python.main" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="d5939325-7c35-4fc6-a3f9-e7dbdd574b2c" name="Default Changelist" comment="" />
+      <created>1625919587492</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1625919587492</updated>
+    </task>
+    <servers />
+  </component>
+</project>

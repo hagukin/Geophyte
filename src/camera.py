@@ -1,5 +1,4 @@
-from engine import Engine
-from typing import List
+from typing import List, Optional
 
 import tile_types
 import numpy as np
@@ -18,7 +17,7 @@ class Camera:
         location on the screen(console)
     """
     def __init__(self,
-        engine: Engine,
+        engine,
         width: int=40, 
         height: int=30,
         xpos: int=0,
@@ -34,6 +33,8 @@ class Camera:
                 Camera's location is its top leftmost corner.
             display_x:
                 position of the camera on game screen / console.
+            dx, dy:
+                cam x position = xpos + dx
         """
         self.engine = engine
         self.width = width
@@ -42,6 +43,8 @@ class Camera:
         self.half_height = int(height / 2)
         self.xpos = xpos # position on gamemap
         self.ypos = ypos
+        self.dx = 0
+        self.dy = 0
         self.display_x = display_x
         self.display_y = display_y
         self.show_all = show_all # TODO : Add feature and make it work properly with magic mapping
@@ -61,8 +64,21 @@ class Camera:
         self.adjust()
         return self.ypos + self.height
 
+    def move(self, dx: int=0, dy: int=0) -> None:
+        """Move the camera position."""
+        if 0 <= self.xpos + dx <= self.engine.game_map.width - self.width:
+            self.dx = self.dx + dx
+        if 0 <= self.ypos + dy <= self.engine.game_map.height - self.height:
+            self.dy = self.dy + dy
+
+    def reset_dxdy(self, adjust:bool=True) -> None:
+        self.dx = 0
+        self.dy = 0
+        if adjust:
+            self.adjust()
+
     def in_bounds(self, abs_x: int, abs_y: int) -> bool:
-        coor = self.get_relative_coordinate(abs_x=abs_x, abs_y=abs_y)
+        coor = self.abs_to_rel(abs_x=abs_x, abs_y=abs_y)
         if self.display_x <= coor[0] <= self.width + self.display_x - 1 and self.display_y <= coor[1] <= self.height + self.display_y - 1:
             return True
         else:
@@ -72,8 +88,8 @@ class Camera:
         """adjust camera position."""
         self.xpos = self.engine.player.x - self.half_width
         self.ypos = self.engine.player.y - self.half_height
-        self.xpos = min(max(0, self.xpos), self.engine.game_map.width - self.width)
-        self.ypos = min(max(0, self.ypos), self.engine.game_map.height - self.height)
+        self.xpos = min(max(0, self.xpos), self.engine.game_map.width - self.width) + self.dx
+        self.ypos = min(max(0, self.ypos), self.engine.game_map.height - self.height) + self.dy
 
     def render_visuals(self, console) -> None:
         """
@@ -113,7 +129,6 @@ class Camera:
                     )
 
     def render_entities(self, console) -> None:
-       
         for entity in self.engine.game_map.entities:
             if self.xpos <= entity.x < self.xpos + self.width and self.ypos <= entity.y < self.ypos + self.height:
                 if self.engine.game_map.visible[entity.x, entity.y]:
@@ -155,36 +170,36 @@ class Camera:
             util.draw_thick_frame(console, x=self.display_x-1, y=self.display_y-1, width=self.width+2, height=self.height+2, fg=color.camera_frame_fg, bg=color.camera_frame_bg)
             #console.draw_frame(x=self.display_x-1, y=self.display_y-1, width=self.width+2, height=self.height+2, clear=False, fg=color.camera_frame_fg, bg=color.camera_frame_bg)
 
-    def get_relative_coordinate(self, *, abs_x: int=None, abs_y: int=None) -> int:
+    def abs_to_rel(self, *, abs_x: int=None, abs_y: int=None) -> int:
         """
         Changes absolute coordinates into relative coordinates.
         Input : x coordinates on the map
         Output : x coordinates on camera
         """
         if abs_x != None and abs_y != None:
-            relative_x = abs_x - self.xpos + self.display_x
-            relative_y = abs_y - self.ypos + self.display_y
-            return relative_x, relative_y
+            rel_x = abs_x - self.xpos + self.display_x
+            rel_y = abs_y - self.ypos + self.display_y
+            return rel_x, rel_y
         elif abs_x != None:
-            relative_x = abs_x - self.xpos + self.display_x
-            return relative_x
-        else:
-            relative_y = abs_y - self.ypos + self.display_y
-            return relative_y
+            rel_x = abs_x - self.xpos + self.display_x
+            return rel_x
+        elif abs_y != None:
+            rel_y = abs_y - self.ypos + self.display_y
+            return rel_y
 
-    def get_absolute_coordinate(self, *, relative_x: int=None, relative_y: int=None) -> int:
+    def rel_to_abs(self, *, rel_x: int=None, rel_y: int=None) -> int:
         """
         Changes relative coordinates into absolute coordinates.
         Input : x coordinates on camera
         Output : x coordinates on the map
         """
-        if relative_x != None and relative_y != None:
-            abs_x = relative_x + self.xpos - self.display_x
-            abs_y = relative_y + self.ypos - self.display_y
+        if rel_x != None and rel_y != None:
+            abs_x = rel_x + self.xpos - self.display_x
+            abs_y = rel_y + self.ypos - self.display_y
             return abs_x, abs_y
-        elif relative_x != None:
-            abs_x = relative_x + self.xpos - self.display_x
+        elif rel_x != None:
+            abs_x = rel_x + self.xpos - self.display_x
             return abs_x
-        else:
-            abs_y = relative_y + self.ypos - self.display_y
+        elif rel_y != None:
+            abs_y = rel_y + self.ypos - self.display_y
             return abs_y

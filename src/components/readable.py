@@ -5,7 +5,7 @@ from animation import Animation
 from entity import Actor
 from components.base_component import BaseComponent
 from exceptions import Impossible
-from input_handlers import AreaRangedAttackHandler, SingleRangedAttackHandler, RayRangedInputHandler, MagicMappingLookHandler, StorageSelectSingleEventHandler, InventoryChooseItemAndCallbackHandler
+from input_handlers import AreaRangedAttackHandler, MagicMappingLookHandler, SingleRangedAttackHandler, RayRangedInputHandler, InventoryChooseItemAndCallbackHandler
 from order import InventoryOrder
 from korean import grammar as g
 
@@ -58,7 +58,7 @@ class SelectTileReadable(Readable):
         self.engine.event_handler = SingleRangedAttackHandler(
             self.engine,
             callback=lambda xy: actions.ReadItem(consumer, self.parent, xy),
-            revert_callback=lambda x: self.get_action(consumer, x),
+            item_cancel_callback=lambda x: self.get_action(consumer, x),
         )
         return None
     
@@ -151,7 +151,7 @@ class SelectItemFromInventoryReadable(Readable):
             inventory_component=consumer.inventory,
             show_only=None, # If item_type filter is needed, you should override this entire function.
             callback=lambda selected_item : actions.ReadItem(consumer, self.parent, (0,0), selected_item),
-            revert_callback=lambda x: self.get_action(consumer, x),
+            item_cancel_callback=lambda x: self.get_action(consumer, x),
         )
         return None
     
@@ -185,7 +185,7 @@ class ScrollOfEnchantmentReadable(SelectItemFromInventoryReadable):
                 InventoryOrder.WAND,
                 ),# Only display enchantable items.
             callback=lambda selected_item : actions.ReadItem(consumer, self.parent, (0,0), selected_item),
-            revert_callback=lambda x: self.get_action(consumer, x),
+            item_cancel_callback=lambda x: self.get_action(consumer, x),
         )
         return None
     
@@ -213,7 +213,7 @@ class ScrollOfIdentifyReadable(SelectItemFromInventoryReadable):
             inventory_component=consumer.inventory,
             show_only_status=("unidentified-all", "semi-identified-all"), # NOTE: WARNING - If you pass only one parameter, additional comma is needed inside tuple to prevent passing the data in string form
             callback=lambda selected_item : actions.ReadItem(consumer, self.parent, (0,0), selected_item),
-            revert_callback=lambda x: self.get_action(consumer, x),
+            item_cancel_callback=lambda x: self.get_action(consumer, x),
         )
         return None
     
@@ -236,7 +236,7 @@ class ScrollOfRemoveCurseReadable(SelectItemFromInventoryReadable):
             inventory_component=consumer.inventory,
             show_only_status=("unidentified-all", "semi-identified-all", "full-identified-cursed",),
             callback=lambda selected_item : actions.ReadItem(consumer, self.parent, (0,0), selected_item),
-            revert_callback=lambda x: self.get_action(consumer, x),
+            item_cancel_callback=lambda x: self.get_action(consumer, x),
         )
         return None
     
@@ -281,11 +281,10 @@ class ScrollOfMagicMappingReadable(Readable): #TODO: make parent class like othe
                 for x in range(len(self.engine.game_map.explored)):
                     self.engine.game_map.explored[x, y] = True
     
-        self.engine.message_log.add_message("맵 살펴보기를 중단하려면 ESC 키를 누르세요.", color.white,)
         self.engine.event_handler = MagicMappingLookHandler(
             self.engine,
             callback=lambda trash_value: actions.ReadItem(consumer, self.parent),
-        )#NOTE: Has no revert_callback parameter, since the item already has been consumed.
+        )#NOTE: Has no item_cancel_callback parameter, since the item already has been consumed.
         return None
 
 
@@ -305,7 +304,7 @@ class ScrollOfMeteorStormReadable(Readable): #TODO: Make parent class like other
             self.engine,
             radius=self.radius,
             callback=lambda xy: actions.ReadItem(consumer, self.parent, xy),
-            revert_callback=lambda x: self.get_action(consumer, x),
+            item_cancel_callback=lambda x: self.get_action(consumer, x),
         )
         return None
 
@@ -419,7 +418,7 @@ class RayReadable(Readable):
             actor=consumer,
             max_range=self.max_range,
             callback=lambda xy: actions.ReadItem(consumer, self.parent, xy),
-            revert_callback=lambda x: self.get_action(consumer, x),
+            item_cancel_callback=lambda x : self.get_action(consumer, x),
         )
         return None
 
@@ -468,7 +467,7 @@ class RayReadable(Readable):
             loc = path.pop(0)
 
             # Using relative coordinates for rendering animations
-            relative_x, relative_y = self.engine.camera.get_relative_coordinate(abs_x=loc[0], abs_y=loc[1])
+            relative_x, relative_y = self.engine.camera.abs_to_rel(abs_x=loc[0], abs_y=loc[1])
             frames.append([(relative_x, relative_y, self.anim_graphic, None)])
 
             # effects on the paths

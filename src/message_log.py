@@ -43,9 +43,12 @@ class MessageLog:
             show_once:
                 Boolean. It indicates whether the message should be shown once.
         """
+        if text == '':
+            return None
+
         if target:
             if not self.engine.game_map.visible[target.x, target.y]:
-                return None
+                return None #TODO: Maybe let player get every information on the dungeon under certain condition?
 
         if show_once == False:
             if stack and self.messages and text == self.messages[-1].plain_text:
@@ -54,7 +57,7 @@ class MessageLog:
                 self.messages.append(Message(text, fg))
         else:
             if text == self.messages[-1].plain_text:
-                pass
+                return None
             else:
                 self.messages.append(Message(text, fg))
 

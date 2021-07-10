@@ -1,4 +1,5 @@
 from __future__ import annotations
+from camera import Camera
 from typing import TYPE_CHECKING, List, Optional, Tuple, Set
 from world import World
 from util import draw_thick_frame
@@ -62,15 +63,15 @@ class Engine:
         self.player = player
         self.player_path = deque([])
         self.player_dir = None
-        self.actors_in_sight: Set(Actor) = set()
-        self.items_in_sight: Set(Item) = set()
-        self.prev_actors_in_sight: Set(Actor) = set()
-        self.prev_items_in_sight: Set(Item) = set()
+        self.actors_in_sight: Set[Actor] = set()
+        self.items_in_sight: Set[Item] = set()
+        self.prev_actors_in_sight: Set[Actor] = set()
+        self.prev_items_in_sight: Set[Item] = set()
         self.game_turn = 0
         self.config = None # Set from initialization
         self.console = None
         self.context = None
-        self.camera = None
+        self.camera: Camera = None
         self.world: World = None
         self.game_map: GameMap = None
         self.depth: int = 0
@@ -78,8 +79,14 @@ class Engine:
 
     @property
     def mouse_relative_location(self):
-        x, y = self.camera.get_relative_coordinate(abs_x=self.mouse_location[0], abs_y=self.mouse_location[1])
+        x, y = self.camera.abs_to_rel(abs_x=self.mouse_location[0], abs_y=self.mouse_location[1])
         return x, y
+
+    def clamp_mouse_on_map(self, x: int, y: int) -> Tuple[int, int]:
+        """Clamp the given x, y coordinates within the game map boundaries."""
+        nx = max(self.camera.xpos, min(x, self.camera.biggest_x - 1))
+        ny = max(self.camera.ypos, min(y, self.camera.biggest_y - 1))
+        return nx, ny
 
     def initialize_item_manager(self):
         if self.item_manager == None:
@@ -594,7 +601,7 @@ class Engine:
         for index in path:
             self.player_path.appendleft((index[0], index[1]))
 
-    def do_player_queue_actions(self) -> None:
+    def do_player_queue_actions(self) -> bool:
         """
         The game will automatically do an action for the player based on the player_path, player_dir information.
         """
@@ -602,12 +609,11 @@ class Engine:
         if self.player_path:
 
             # Check if there is any new actor spotted in sight
-            if self.prev_actors_in_sight != self.actors_in_sight:
+            if not self.config["ignore_enemy_spotted_during_mouse_movement"] and self.prev_actors_in_sight != self.actors_in_sight:
                 # If so, stop the movement.
-                # TODO: Add an option to not stop?
                 # TODO: Add a feature to stop ONLY if the actor is hostile to player?
                 self.update_entity_in_sight()# update actors only when it's necessary
-                self.player_path = deque([])
+                self.player_path.clear()
                 return False
 
             dest_xy = self.player_path[-1]
@@ -617,27 +623,31 @@ class Engine:
             # Check for semiactors
             collided_semiactor = self.game_map.get_semiactor_at_location(dest_xy[0], dest_xy[1])
             if collided_semiactor:
-                if collided_semiactor.entity_id == "closed_door":
-                    # We do not pop from the path, because the player has to first open the door and then move to the tile.
+                if collided_semiactor.entity_id == "opened_door":
                     BumpAction(self.player, dx, dy).perform()
+                    self.player_path.pop() # Don't clear the path since you can just move onto opened doors
+                    return True
+                else:
+                    BumpAction(self.player, dx, dy).perform()
+                    self.player_path.clear()
                     return True
             if self.game_map.get_actor_at_location(dest_xy[0], dest_xy[1]):
                 # If the monster is in the way, the game automatically attacks it.
                 # After the attack the game will delete the player's path.
                 BumpAction(self.player, dx, dy).perform()
-                self.player_path = deque([])
+                self.player_path.clear()
                 return True
             else:
-                # If something unexpectedly blocks the way, perform BumpAction and delete all paths.
-                #NOTE: This part of the code is meant to prevent unexpected circumstances crashing the game.
-                # So be aware that issues can be ignored here.
                 try:
                     BumpAction(self.player, dx, dy).perform()
                     self.player_path.pop()
                     return True
                 except Exception as e:
+                    # If something unexpectedly blocks the way, perform BumpAction and delete all paths.
+                    # NOTE: This part of the code is written to prevent unexpected circumstances crashing the game.
+                    # So be aware that issues can be ignored here.
                     print(f"DEBUG::{e}")
-                    self.player_path = deque([])
+                    self.player_path.clear()
                     return False
 
         ### B. If the player clicked one of nearby tiles (including the tile player is at)
@@ -645,6 +655,22 @@ class Engine:
 
             # B-1. Clicked the tile that player is currently at
             if self.player_dir == (0,0):
+
+                item_on_ground = self.game_map.get_item_at_location(self.player.x, self.player.y)
+                if item_on_ground:
+                    try:
+                        PickupAction(entity=self.player).perform()
+                        self.player_dir = None
+                        return True
+                    except exceptions.Impossible as exc:
+                        self.message_log.add_message(exc.args[0], color.impossible)
+                        self.player_dir = None
+                        return False
+                    except:
+                        traceback.print_exc()
+                        self.message_log.add_message(traceback.format_exc(), color.error)
+                        self.player_dir = None
+                        return False
                 # Check for descending stairs
                 if self.game_map.tiles[self.player.x, self.player.y]["tile_id"] == "descending_stair":
                     try:
@@ -664,22 +690,6 @@ class Engine:
                 elif self.game_map.tiles[self.player.x, self.player.y]["tile_id"] == "ascending_stair":
                     try:
                         AscendAction(entity=self.player).perform()
-                        self.player_dir = None
-                        return True
-                    except exceptions.Impossible as exc:
-                        self.message_log.add_message(exc.args[0], color.impossible)
-                        self.player_dir = None
-                        return False
-                    except:
-                        traceback.print_exc()
-                        self.message_log.add_message(traceback.format_exc(), color.error)
-                        self.player_dir = None
-                        return False
-                # If there is no stair, check for items.
-                # TODO: What if the item is dropped on the stair tile?
-                else:
-                    try:
-                        PickupAction(entity=self.player).perform()
                         self.player_dir = None
                         return True
                     except exceptions.Impossible as exc:

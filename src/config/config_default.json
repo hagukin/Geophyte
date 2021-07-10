@@ -13,6 +13,7 @@
     "status_height": 15,
     "state_height": 10,
     "sight_info_height": 28,
+    "ignore_enemy_spotted_during_mouse_movement":false,
     "tileset_path": "resources\\tileset.ttf",
     "world_depth": 25,
     "lang": "ko"

@@ -1,4 +1,6 @@
 from __future__ import annotations
+
+from tcod.tileset import get_default
 from actions import WaitAction
 import copy
 import math
@@ -75,6 +77,16 @@ class Entity:
                 action points gained per turn.
             swappable:
                 whether player can swap position with it or not.
+        Vars:
+           
+
+        NOTE: Current(20210710) list of in-game bump actions:
+            attack
+            move
+            takeout
+            putin
+            purchase (NOTE: "purchase" should not be added to the list.)
+            swap
         """
         self.indestructible = indestructible
         self.x = x
@@ -98,6 +110,7 @@ class Entity:
         self.render_order = render_order
         self.entity_order = 0
         self.gamemap = gamemap
+    
     @property
     def engine(self):
         return self.gamemap.engine
@@ -123,6 +136,31 @@ class Entity:
     @property
     def entity_desc(self):
         return self._entity_desc
+
+    def how_many_bump_action_possible(self) -> int:
+        """Returns the amount of different bump actions this entity can do."""
+        allactions = ("move","swap","attack","takeout","putin")
+        n = 0
+        for action in allactions:
+            if self.check_if_bump_action_possible(action):
+                n += 1
+        return n
+
+    def check_if_bump_action_possible(self, keyword: str) -> bool:
+        """Returns a default list of bump action that are available for this entity.
+        e.g. an entity that has blocks_movement = True will not get "move" bump action.
+        NOTE: "purchase" only exists as a form, and its active condition is decided during NonHostileBumpHandler."""
+
+        if keyword == "move" and not self.blocks_movement:
+            return True
+        if keyword == "swap" and self.swappable:
+            return True
+        if keyword == "attack" and hasattr(self, "status"):
+            return True
+        from chest_factories import ChestSemiactor
+        if (keyword == "takeout" or keyword == "putin") and isinstance(self, ChestSemiactor):
+            return True
+        return False
 
     def do_environmental_effects(self):
         """
@@ -259,9 +297,9 @@ class Actor(Entity):
         inventory: Inventory,
         ability_inventory: AbilityInventory,
         equipments: Equipments,
-        initial_items: List = [],
-        initial_abilities: List = [],
-        initial_equipments: List = [],
+        initial_items: List = None,
+        initial_abilities: List = None,
+        initial_equipments: List = None,
     ):
         """
         Args:
@@ -334,9 +372,20 @@ class Actor(Entity):
         if self.edible:
             self.edible.parent = None
 
-        self.initial_items = initial_items
-        self.initial_abilities = initial_abilities
-        self.initial_equipments = initial_equipments
+        if initial_items == None:
+            self.initial_items = []
+        else:
+            self.initial_items = initial_items
+
+        if initial_abilities == None:
+            self.initial_abilities = []
+        else:
+            self.initial_abilities = initial_abilities
+
+        if initial_equipments == None:
+            self.initial_equipments = []
+        else:
+            self.initial_equipments = initial_equipments
 
     @property
     def is_dead(self) -> bool:
@@ -519,7 +568,7 @@ class Item(Entity):
         counter_at_front: bool = False,
         initial_BUC: dict = { 1: 0, 0: 1, -1: 0 },
         initial_identified: float = 0,
-        initial_upgrades: List = [], #TODO
+        initial_upgrades: List = None, #TODO
     ):
         """
         Args:
@@ -596,7 +645,12 @@ class Item(Entity):
 
         self.initial_BUC = initial_BUC
         self.initial_identified = initial_identified
-        self.initial_upgrades = initial_upgrades
+
+        if initial_upgrades == None:
+            self.initial_upgrades = []
+        else:
+            self.initial_upgrades = initial_upgrades
+        
 
     @property
     def char(self):

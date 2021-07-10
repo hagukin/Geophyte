@@ -1,5 +1,4 @@
 from __future__ import annotations
-from entity import SemiActor
 from typing import TYPE_CHECKING
 from components.base_component import BaseComponent
 from korean import grammar as g
@@ -8,7 +7,7 @@ import random
 import color
 
 if TYPE_CHECKING:
-    from entity import Item, Actor
+    pass
 
 class SemiactorInfo(BaseComponent):
     """
@@ -89,7 +88,7 @@ class SemiactorInfo(BaseComponent):
         elif self.corrosion == 1:
             self.engine.message_log.add_message(f"{g(self.parent.name, '이')} 다소 부식되었다.", fg=color.white)
 
-    def move_self_to(self, semiactor: SemiActor) -> None:
+    def move_self_to(self, semiactor) -> None:
         """
         Copy self, and swap its parent to given semiactor.
         And set given semiactor's semiactor_info to this.
