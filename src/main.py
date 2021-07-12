@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 import traceback
-import title
 import tcod
 import color
 from tcod.context import RENDERER_SDL2
 from configuration import get_game_config
+from title import Title
 
 def main() -> None:
     # Get Configuration
@@ -31,7 +31,7 @@ def main() -> None:
         root_console = tcod.Console(cfg["screen_width"], cfg["screen_height"], order="F")
 
         # Title Screen Loop
-        player, engine = title.title_event_handler(console=root_console, context=context, cfg=cfg)
+        player, engine = Title.title_event_handler(console=root_console, context=context, cfg=cfg)
 
         # Main Game Loop
         while True:

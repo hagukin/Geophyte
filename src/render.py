@@ -1,6 +1,5 @@
 from __future__ import annotations
 import random
-from main import main
 
 from typing import Optional, Tuple, TYPE_CHECKING
 from util import draw_thick_frame

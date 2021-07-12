@@ -327,7 +327,7 @@ def generate_rooms(
     rooms: List,
     max_rooms: int,
     engine: Engine,
-) -> None:
+) -> Tuple[GameMap, list]:
     """Generate rooms, stairs, and doors."""
     # Generate rooms
     for r in range(max_rooms):
