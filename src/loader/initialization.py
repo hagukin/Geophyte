@@ -39,7 +39,7 @@ def init_game_variables(cfg, console: Console, context: Context):
     engine.world.set_map(engine.generate_new_dungeon(console, context, 1, False), 1)
     engine.change_gamemap_depth(1)
     engine.change_entity_depth(engine.player, 1, engine.game_map.ascend_loc[0], engine.game_map.ascend_loc[1])
-    engine.player.parent = engine.world.get_map(engine.depth)
+    engine.player.gamemap = engine.world.get_map(engine.depth)
     engine.game_map.adjustments_before_new_map(update_player_fov=True)
 
     # Initialize player (give initial items, skils, etc)

@@ -14,19 +14,20 @@ class AbilityInventory(BaseComponent):
     def __init__(self, capacity: int):
         self.parent = None
         self.capacity = capacity # max 52
-        self.abilities: List[Item] = []
         self.ability_hotkeys = {
             "a":None,"b":None,"c":None,"d":None,"e":None,"f":None,"g":None,"h":None,"i":None,"j":None,"k":None,"l":None,"m":None,"n":None,"o":None,"p":None,"q":None,"r":None,"s":None,"t":None,"u":None,"v":None,"w":None,"x":None,"y":None,"z":None,
             "A":None,"B":None,"C":None,"D":None,"E":None,"F":None,"G":None,"H":None,"I":None,"J":None,"K":None,"L":None,"M":None,"N":None,"O":None,"P":None,"Q":None,"R":None,"S":None,"T":None,"U":None,"V":None,"W":None,"X":None,"Y":None,"Z":None
         }
+
+    @property
+    def abilities(self):
+        return [x for x in self.ability_hotkeys.values() if x is not None]
 
     def sort_ability_inventory(self) -> None:
         """
         Sort inventory by type.
         Using enum from order.InventoryOrder
         """
-        self.abilities = sorted(self.abilities, key = lambda ability : ability.ability_type.value)
-
         def sort_hotkeys(ability):
             if ability[1]:
                 try:
@@ -38,7 +39,7 @@ class AbilityInventory(BaseComponent):
                 # If there is no ability stored, return -1.
                 return -1
         
-        self.ability_hotkeys = dict(sorted(self.item_hotkeys.items(), key=sort_hotkeys))
+        self.ability_hotkeys = dict(sorted(self.ability_hotkeys.items(), key=sort_hotkeys))
 
         return None
 

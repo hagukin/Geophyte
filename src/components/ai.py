@@ -7,6 +7,9 @@ from numpy.core.shape_base import block
 import tcod
 
 from typing import List, Tuple, Optional
+
+from ability import Ability
+from skill_ai import Skill_AI
 from actions import Action, BumpAction, MeleeAction, WaitAction, ThrowItem, EatItem, PickupAction
 from components.base_component import BaseComponent
 from entity import Actor, SemiActor, Entity, Item
@@ -333,7 +336,7 @@ class BaseAI(BaseComponent):
         else:
             return False
 
-    def check_is_use_ability_possible(self, attacker: Actor, target: Actor):
+    def check_is_use_ability_possible(self, target: Actor) -> Optional[Optional[Tuple[int,int]], Actor, Ability]:
         """
         Check if this ai is currently able to use ability, and return the result.
 
@@ -345,8 +348,27 @@ class BaseAI(BaseComponent):
                 Return None if there is no target.
             ability:
                 Return the ability object(not the id!) that are being used.
+
+        TODO: Currnetly this function only supports skills/spells with target entity. (or at least the ai has a target in mind. e.g. lightning strike)
         """
-        raise NotImplementedError()
+        for s in self.parent.ability_inventory.abilities:
+            ##########
+            # SKILLS #
+            ##########
+            if s.ability_id == "sk_steal": # Check if has skill/spell
+                ability_info = Skill_AI.skill_steal(actor=self.parent, target=target)
+                if ability_info[0]: # Check if can use skill/spell right now
+                    return ability_info[1], target, s
+
+            ##########
+            # SPELLS #
+            ##########
+            elif s.ability_id == "sp_lightning_bolt":
+                ability_info = Skill_AI.spell_lightning_bolt(actor=self.parent, target=target)
+                if ability_info[0]:
+                    return ability_info[1], target, s
+
+        return None
 
     def get_ranged_direction(self, attacker: Actor, target: Actor, valid_range: int=4):
         """
@@ -651,16 +673,14 @@ class BaseAI(BaseComponent):
                 # But the ai should use abilities such as healing regardless of its target's location.
                 if self.use_ability:
                     # temp = (location, target, ability object to use)
-                    temp = self.check_is_use_ability_possible(attacker=self.parent, target=self.target)
+                    temp = self.check_is_use_ability_possible(target=self.target)
                     if temp:
                         coordinate, target, selected_ability = temp
                         # If there is no coordinates given, set x,y to None
-                        if coordinate:
-                            x = coordinate[0]
-                            y = coordinate[1]
-                        else:
-                            x = None
-                            y = None
+                        x, y = None, None
+                        if coordinate != None:
+                            x, y = coordinate[0], coordinate[1]
+
 
                         return self.get_ability_action(x=x, y=y, target=target, ability=selected_ability)
 

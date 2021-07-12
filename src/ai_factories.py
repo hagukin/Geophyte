@@ -1,7 +1,6 @@
 import components.ai as ai
 import color
 import explosion_action
-
 from shopkeeper import Shopkeeper_Ai
 from order import InventoryOrder
 from korean import grammar as g
@@ -136,44 +135,6 @@ class Black_Jelly_Ai(ai.BaseAI):
 class Nymph_Ai(ai.BaseAI):
     def __init__(self, alignment:str="hostile", do_melee_atk:bool=True, do_ranged_atk: bool=False, use_ability: bool=True, hostile_type: set=set('@')):
         super().__init__(alignment, do_melee_atk, do_ranged_atk, use_ability, hostile_type=hostile_type)
-
-    def check_is_use_ability_possible(self, attacker, target):
-        ### FLOW
-        # 1. Check if the AI has the abilities that they can use.
-        # 2. Check for valid range, mana, etc.
-        # 3. If it all satisfies the conditions, return ability object from this AI's parent.
-        ###
-        ability_chosen = None
-        coordinate = None
-        
-        # A. Steal
-        if not ability_chosen:
-            if not self.parent.inventory.check_if_full():
-                # Check if this actor has the ability
-                steal = self.parent.ability_inventory.get_ability_by_id("sk_steal")
-                # Set the direction and check the range
-                dxdy = self.get_ranged_direction(attacker=attacker, target=target, valid_range=1)
-                if dxdy:
-                    coordinate = self.parent.x + dxdy[0], self.parent.y + dxdy[1]
-                # Ignore mana since this is a "Skill" not a "Spell"
-                if steal and coordinate:
-                    ability_chosen = steal
-
-        # B. Lightning Bolt
-        if not ability_chosen:
-            # Check if this actor has the ability
-            lightning_bolt = self.parent.ability_inventory.get_ability_by_id("m_lightning_bolt")
-            # Set the direction and check the range (Lightning bolt spell has no direction)
-            coordinate = None
-            # Check mana
-            if lightning_bolt and self.parent.status.changed_status["mp"] >= lightning_bolt.activatable.mana_cost:
-                ability_chosen = lightning_bolt
-
-        # Return coordinate, target, and ability object
-        if ability_chosen:
-            return coordinate, target, ability_chosen
-        else:
-            return False
 
 
 ####################################################

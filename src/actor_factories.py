@@ -960,7 +960,7 @@ nymph = Actor(
         \n\
         \"전 가끔 녀석들이 흉측했으면 좋았겠다는 생각을 합니다. 목을 벨 때 일말의 동정심도 들지 않게 말이죠.\"\
         ",
-    rarity=4,
+    rarity=99,#TODO DEBUG 4
     spawnable=True,
     edible=edible.RawMeatEdible(nutrition=200),
     ai_cls=ai_factories.nymph_ai,
@@ -973,7 +973,7 @@ nymph = Actor(
         intelligence=16,
         constitution=18,
         charm=40,
-        difficulty=7,
+        difficulty=3, ##TODO 7
         base_melee=2,
         additional_melee=8,
         protection=10,

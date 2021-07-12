@@ -770,7 +770,8 @@ class Item(Entity):
             self.item_state.identify_self()
         else:
             self.item_state.unidentify_self()
-        
+
+        self.item_state.parent = self
         self.item_state.BUC = random.choices(list(self.initial_BUC.keys()), list(self.initial_BUC.values()), k=1)[0]
 
         #TODO: upgrades initialization

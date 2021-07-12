@@ -2,25 +2,28 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="d5939325-7c35-4fc6-a3f9-e7dbdd574b2c" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/skill_ai.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/config/config.json" beforeDir="false" afterPath="$PROJECT_DIR$/config/config.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ability_factories.py" beforeDir="false" afterPath="$PROJECT_DIR$/ability_factories.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/actor_factories.py" beforeDir="false" afterPath="$PROJECT_DIR$/actor_factories.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ai_factories.py" beforeDir="false" afterPath="$PROJECT_DIR$/ai_factories.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/components/ability_inventory.py" beforeDir="false" afterPath="$PROJECT_DIR$/components/ability_inventory.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/components/ai.py" beforeDir="false" afterPath="$PROJECT_DIR$/components/ai.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/devlog.txt" beforeDir="false" afterPath="$PROJECT_DIR$/devlog.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/engine.py" beforeDir="false" afterPath="$PROJECT_DIR$/engine.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/entity.py" beforeDir="false" afterPath="$PROJECT_DIR$/entity.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/game_map.py" beforeDir="false" afterPath="$PROJECT_DIR$/game_map.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/git" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/output.dat" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/output_calls.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/output_time.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/saves/save_file.bak" beforeDir="false" afterPath="$PROJECT_DIR$/saves/save_file.bak" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/saves/save_file.dat" beforeDir="false" afterPath="$PROJECT_DIR$/saves/save_file.dat" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/saves/save_file.dir" beforeDir="false" afterPath="$PROJECT_DIR$/saves/save_file.dir" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/world.py" beforeDir="false" afterPath="$PROJECT_DIR$/world.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/loader/initialization.py" beforeDir="false" afterPath="$PROJECT_DIR$/loader/initialization.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Python Script" />
+      </list>
+    </option>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
