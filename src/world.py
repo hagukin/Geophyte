@@ -79,9 +79,10 @@ class World():
             else:
                 self.mem_world[depth] = None
 
-            for x, y in self.mem_world.items():
-                print(x, y)
-            print(f"engine.depth:{self.engine.depth}")
+            # DEBUG
+            # for x, y in self.mem_world.items():
+            #     print(x, y)
+            # print(f"engine.depth:{self.engine.depth}")
 
     def check_if_map_on_mem(self, depth: int) -> bool:
         if depth not in list(self.mem_world.keys()) or self.mem_world[depth] is None:

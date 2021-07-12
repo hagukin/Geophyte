@@ -181,7 +181,7 @@ class GameMap:
             should_not_safe_to_walk: bool = False,
             should_not_transparent: bool = False,
             threshold: Optional[int] = 5000,
-            return_random_location_if_not_found: bool = True,
+            return_random_location_if_not_found: bool = False,
     ) -> Tuple[int,int]:
         """
         Args:
@@ -196,26 +196,37 @@ class GameMap:
             y = random.randint(1, self.height - 1)
 
             if should_no_entity and self.get_any_entity_at_location(x,y) != None:
+                print(self.get_any_entity_at_location(x,y))
+                print("has entity")
                 continue
             if should_walkable and not self.tiles[x,y]["walkable"]:
+                print(self.tiles[x,y]["walkable"])
+                print("not walkable")
                 continue
             if should_safe_to_walk and not self.tiles[x,y]["safe_to_walk"]:
+                print(self.tiles[x, y]["safe_to_walk"])
+                print("not safe to walk")
                 continue
             if should_transparent and not self.tiles[x,y]["transparent"]:
                 continue
-            if should_not_walkable and self.tiles[x,y]["safe_to_walk"]:
+            if should_not_walkable and self.tiles[x,y]["walkable"]:
                 continue
             if should_not_safe_to_walk and self.tiles[x,y]["safe_to_walk"]:
                 continue
             if should_not_transparent and self.tiles[x,y]["transparent"]:
                 continue
+
+            print(t)
+            print(self.tiles[x,y]["walkable"])
             return (x,y)
 
         if return_random_location_if_not_found:
             x = random.randint(1, self.width - 1)
             y = random.randint(1, self.height - 1)
+            print("ERROR::CAN'T FIND APPROPRIATE TILE. RETURNING RANDOM TILE INSTEAD.")
             return (x,y)
         else:
+            print("ERROR::CAN'T FIND APPROPRIATE TILE. RETURNING (0,0) INSTEAD.")
             return (0,0)
 
     def check_if_id_at_location(self, entity_id: str, x: int, y: int) -> bool:

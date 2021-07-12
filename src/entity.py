@@ -178,7 +178,7 @@ class Entity:
             return True
         return False
 
-    def do_environmental_effects(self):
+    def do_environmental_effects(self) -> None:
         """
         Handle things that happens because of this entity's location.
         e.g. standing on traps, walking on grasses
@@ -193,8 +193,10 @@ class Entity:
         if not self.is_on_air:
             # When entity is on a hole
             if self.gamemap.tiles[self.x, self.y]["tile_id"] == "hole":
-                x, y = self.gamemap.get_random_tile(should_no_entity=True, should_walkable=True)
+                new_gamemap = self.engine.world.get_map(depth=self.gamemap.depth + 1)
+                x, y = new_gamemap.get_random_tile(should_no_entity=True, should_walkable=True, should_safe_to_walk=True)
                 self.engine.change_entity_depth(entity=self, depth=self.gamemap.depth+1, xpos=x, ypos=y)
+                return None
 
             # When entity is on a grass
             if self.gamemap.tiles[self.x, self.y]["tile_id"] == "dense_grass":

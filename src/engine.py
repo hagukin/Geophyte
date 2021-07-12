@@ -129,11 +129,11 @@ class Engine:
         if entity.gamemap:
             entity.gamemap.entities.remove(entity)# Remove entity from previous gamemap if it has one
 
-        curr_gamemap = self.world.get_map(depth)
-        curr_gamemap.entities.append(entity)
-        curr_gamemap.sort_entities()
-        entity.place(xpos, ypos, curr_gamemap)
-        entity.gamemap = curr_gamemap
+        new_gamemap = self.world.get_map(depth)
+        new_gamemap.entities.append(entity)
+        new_gamemap.sort_entities()
+        entity.place(xpos, ypos, new_gamemap)
+        entity.gamemap = new_gamemap
 
     def handle_world(self, turn_pass: bool) -> None:
         """
@@ -402,7 +402,7 @@ class Engine:
     def generate_new_dungeon(self, console, context, depth=1, display_process=True) -> GameMap:
         """Generate new dungeon and return as gamemap object"""
         # Set temporary context, console values to prevent cffi error
-        temp_console, temp_context = self.console, self.context
+        temp_console, temp_context, temp_handler = self.console, self.context, self.event_handler
         self.console, self.context = None, None
 
         # Generate regular dungeon
@@ -416,6 +416,7 @@ class Engine:
 
         # Get console, context info back.
         self.console, self.context = temp_console, temp_context
+        self.event_handler = temp_handler
         return new_dungeon
 
     def update_entity_in_sight(self, is_initialization=False) -> None:
