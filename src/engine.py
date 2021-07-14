@@ -264,6 +264,9 @@ class Engine:
             # Health point recovering
             if actor.actor_state.heal_wounds:
                 actor.actor_state.actor_heal_wounds()
+            if actor.actor_state.regain_mana:
+                actor.actor_state.actor_regain_mana()
+
             # Hunger
             if actor.actor_state.hunger >= 0:
                 actor.actor_state.actor_gets_hungry()

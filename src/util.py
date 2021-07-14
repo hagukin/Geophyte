@@ -134,7 +134,7 @@ def draw_thick_frame(
                 console.print(x, ypos, frame[4], fg, bg)
                 console.print(x+width-1, ypos, frame[6], fg, bg)
 
-        console.print(x + int(width/2 - len(title)/2), y, string=title, fg=bg, bg=fg)
+        console.print(x + int(width/2 - len(title)/2), y, string=title, fg=fg, bg=bg)
 
 
 def center_print(console, string: str, y: int, fg: Tuple[int,int,int] = None, bg: Tuple[int,int,int] = None) -> int:

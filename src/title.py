@@ -55,16 +55,16 @@ class Title():
             graphic1 = f.read()
         with open(f"resources\\a{frame}.txt", "r") as f: #g2frame[frame-1]
             graphic2 = f.read()
-        torch = " \' \n\\-/\n\\#/\n # \n # \n # \n # \n #"
+        torch = " \' \n\\\-//\n\\###/\n ### \n  #  \n  #  \n  #  \n  #  \n  #"
 
         width = tcod.console_get_width(console)
         height = tcod.console_get_height(console)
         anim_x = int(width / 2) - 9
         anim_y = height - 22
         console.print(anim_x - 11, anim_y - 1, string=graphic1, fg=(255, random.randint(100,180), 0))
-        console.print(anim_x - 5, anim_y + 8, string=torch, fg=color.brown)
+        console.print(anim_x - 6, anim_y + 8, string=torch, fg=color.brown)
         console.print(anim_x + 16, anim_y - 1, string=graphic2, fg=(255, random.randint(100,180), 0))
-        console.print(anim_x + 21, anim_y + 8, string=torch, fg=color.brown)
+        console.print(anim_x + 20, anim_y + 8, string=torch, fg=color.brown)
 
 
     @staticmethod

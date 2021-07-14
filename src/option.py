@@ -41,6 +41,37 @@ class DisplayInputHandler(tcod.event.EventDispatch[None]):
         elif event.sym == tcod.event.K_ESCAPE:
             return "escape"
 
+
+class ControlInputHandler(tcod.event.EventDispatch[None]):
+    """
+    Handles every inputs that are made in the title screen.
+    """
+    def ev_keydown(self, event):
+        if event.sym == tcod.event.K_ESCAPE:
+            return "escape"
+
+
+
+class LanguageInputHandler(tcod.event.EventDispatch[None]):
+    """
+    Handles every inputs that are made in the title screen.
+    """
+    def ev_keydown(self, event):
+        if event.sym == tcod.event.K_ESCAPE:
+            return "escape"
+
+
+
+class GameplayInputHandler(tcod.event.EventDispatch[None]):
+    """
+    Handles every inputs that are made in the title screen.
+    """
+    def ev_keydown(self, event):
+        if event.sym == tcod.event.K_ESCAPE:
+            return "escape"
+
+
+
 class ResetInputHandler(tcod.event.EventDispatch[None]):
     """
     Handles every inputs that are made in the title screen.
@@ -107,22 +138,22 @@ class Option():
         else:
             raise Exception("FATAL ERROR::option.render_gui - something went wrong.")
 
-        draw_thick_frame(console, x, y, width=width, height=height, fg=color.black, bg=color.green, title=opt_title,
-                         char_type=1)
+        draw_thick_frame(console, x, y, width=width, height=height, fg=color.option_bg, bg=color.option_fg, title=opt_title,
+                         char_type=0) # reversed fg,bg
         ypad = 2
         for s in texts:
-            console.print(x + 2, y + ypad + initial_y, string=s, fg=color.green)
+            console.print(x + 2, y + ypad + initial_y, string=s, fg=color.option_fg)
             ypad += 2
         context.present(console, keep_aspect=True)
 
     @staticmethod
     def display_option_gui(console: tcod.Console, context: tcod.context.Context):
-        console.clear(fg=color.black, bg=color.black)
+        console.clear(fg=color.option_bg, bg=color.option_bg)
         Option.render_gui_keys(console, context, 'option')
 
     @staticmethod
     def render_display_option_gui(console: tcod.Console, context: tcod.context.Context):
-        console.clear(fg=color.black, bg=color.black)
+        console.clear(fg=color.option_bg, bg=color.option_bg)
         with open("./config/config.json", "r") as f:
             cfg = json.load(f)
 
@@ -130,51 +161,51 @@ class Option():
         console.print(Option.opt_x + 2, Option.opt_y + 2, string=f"<<---- 현재 디스플레이 설정 ---->>\
         \n디스플레이 관련 설정은 게임을 다시 시작해야 적용됩니다.\
         \n\n해상도: {cfg['screen_width'] * cfg['tile_width']} x {cfg['screen_height'] * cfg['tile_height']}\
-        \n\n화면 모드: {fullscreen_str(cfg['fullscreen'])}", fg=color.green)
+        \n\n화면 모드: {fullscreen_str(cfg['fullscreen'])}", fg=color.option_fg)
         Option.render_gui_keys(console, context, 'display', initial_y=10) # TODO Hard-coded
         context.present(console, keep_aspect=True)
 
     @staticmethod
     def render_control_option_gui(console: tcod.Console, context: tcod.context.Context):
-        console.clear(fg=color.black, bg=color.black)
+        console.clear(fg=color.option_bg, bg=color.option_bg)
         with open("./config/config.json", "r") as f:
             cfg = json.load(f)
 
         console.print(Option.opt_x + 2, Option.opt_y + 2, string=f"<<---- 현재 컨트롤 설정 ---->>\
-                \n\nTODO", fg=color.green)
+                \n\nTODO", fg=color.option_fg)
         Option.render_gui_keys(console, context, 'control', initial_y=5)  # TODO Hard-coded
         context.present(console, keep_aspect=True)
 
     @staticmethod
     def render_language_option_gui(console: tcod.Console, context: tcod.context.Context):
-        console.clear(fg=color.black, bg=color.black)
+        console.clear(fg=color.option_bg, bg=color.option_bg)
         with open("./config/config.json", "r") as f:
             cfg = json.load(f)
 
         console.print(Option.opt_x + 2, Option.opt_y + 2, string=f"<<---- 현재 언어 설정 ---->>\
-                \n\nTODO", fg=color.green)
+                \n\nTODO", fg=color.option_fg)
         Option.render_gui_keys(console, context, 'language', initial_y=5)  # TODO Hard-coded
         context.present(console, keep_aspect=True)
 
     @staticmethod
     def render_gameplay_option_gui(console: tcod.Console, context: tcod.context.Context):
-        console.clear(fg=color.black, bg=color.black)
+        console.clear(fg=color.option_bg, bg=color.option_bg)
         with open("./config/config.json", "r") as f:
             cfg = json.load(f)
 
         console.print(Option.opt_x + 2, Option.opt_y + 2, string=f"<<---- 현재 게임플레이 설정 ---->>\
-                \n\nTODO", fg=color.green)
+                \n\nTODO", fg=color.option_fg)
         Option.render_gui_keys(console, context, 'gameplay', initial_y=5)  # TODO Hard-coded
         context.present(console, keep_aspect=True)
 
     @staticmethod
     def render_reset_option_gui(console: tcod.Console, context: tcod.context.Context):
-        console.clear(fg=color.black, bg=color.black)
+        console.clear(fg=color.option_bg, bg=color.option_bg)
         with open("./config/config.json", "r") as f:
             cfg = json.load(f)
 
         console.print(Option.opt_x + 2, Option.opt_y + 2, string=f"설정 초기화를 적용하려면 게임을 다시 시작해야 적용됩니다.\
-                \n\nTODO", fg=color.green)
+                \n\nTODO", fg=color.option_fg)
         Option.render_gui_keys(console, context, 'reset', initial_y=5)  # TODO Hard-coded
         context.present(console, keep_aspect=True)
 
@@ -208,6 +239,63 @@ class Option():
         elif display_action == "escape":
             return False
 
+        return True
+
+    @staticmethod
+    def handle_control_action(console: tcod.Console, context: tcod.context.Context, game_started: bool) -> bool:
+        """
+        Creates a display input handler, wait for any input, and apply the action.
+        Returns:
+            if return is False, the event handler that called this function will stop the loop.
+        """
+        with open("./config/config.json", "r") as f:
+            cfg = json.load(f)
+
+        # remove any leftover messages on the screen from previous changes
+        Option.render_control_option_gui(console, context)
+
+        #  Set Input Handler
+        display_action = Option.get_input_action(ControlInputHandler())
+        if display_action == "escape":
+            return False
+        return True
+
+    @staticmethod
+    def handle_language_action(console: tcod.Console, context: tcod.context.Context, game_started: bool) -> bool:
+        """
+        Creates a display input handler, wait for any input, and apply the action.
+        Returns:
+            if return is False, the event handler that called this function will stop the loop.
+        """
+        with open("./config/config.json", "r") as f:
+            cfg = json.load(f)
+
+        # remove any leftover messages on the screen from previous changes
+        Option.render_control_option_gui(console, context)
+
+        #  Set Input Handler
+        display_action = Option.get_input_action(LanguageInputHandler())
+        if display_action == "escape":
+            return False
+        return True
+
+    @staticmethod
+    def handle_gameplay_action(console: tcod.Console, context: tcod.context.Context, game_started: bool) -> bool:
+        """
+        Creates a display input handler, wait for any input, and apply the action.
+        Returns:
+            if return is False, the event handler that called this function will stop the loop.
+        """
+        with open("./config/config.json", "r") as f:
+            cfg = json.load(f)
+
+        # remove any leftover messages on the screen from previous changes
+        Option.render_gameplay_option_gui(console, context)
+
+        #  Set Input Handler
+        display_action = Option.get_input_action(GameplayInputHandler())
+        if display_action == "escape":
+            return False
         return True
 
     @staticmethod
@@ -265,6 +353,21 @@ class Option():
                 context.present(console, keep_aspect=True)
                 while Option.handle_display_action(console, context, game_started): # If false, finish session
                     pass
+            elif option_action == "control":
+                Option.render_control_option_gui(console, context)
+                context.present(console, keep_aspect=True)
+                while Option.handle_control_action(console, context, game_started): # If false, finish session
+                    pass
+            elif option_action == "language":
+                Option.render_language_option_gui(console, context)
+                context.present(console, keep_aspect=True)
+                while Option.handle_language_action(console, context, game_started): # If false, finish session
+                    pass
+            elif option_action == "gameplay":
+                Option.render_gameplay_option_gui(console, context)
+                context.present(console, keep_aspect=True)
+                while Option.handle_gameplay_action(console, context, game_started): # If false, finish session
+                    pass
             elif option_action == "reset":
                 Option.render_reset_option_gui(console, context)
                 context.present(console, keep_aspect=True)
@@ -272,4 +375,3 @@ class Option():
                     pass
             elif option_action == "escape":
                 return None
-

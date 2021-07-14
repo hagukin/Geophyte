@@ -9,6 +9,7 @@ lime = (0xbf, 0xff, 0x00)
 cyan = (0x0, 0xff, 0xff)
 brass = (181, 166, 66)
 brown = (101, 67, 33)
+light_brown = (171, 103, 0)
 yellow = (0xff, 0xff, 0x00)
 orange = (0xFF, 0xA5, 0x00)
 light_gray = (0xab, 0xab, 0xab)
@@ -34,6 +35,8 @@ gui_frame_fg = white
 gui_frame_bg = (0x25, 0x2e, 0x27)
 camera_frame_fg = white
 camera_frame_bg = gui_frame_bg
+option_bg = (0xD0, 0xCF, 0xD7)
+option_fg = black
 
 player_atk = white
 player_crit = yellow

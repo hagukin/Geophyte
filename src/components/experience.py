@@ -44,6 +44,7 @@ class Experience(BaseComponent):
         Only display log when the actor is player or player's pet.
         """
         flag = False
+        msg_color = color.white
         if self.parent.parent == self.parent.engine.player:
             flag = True
             msg_color = color.player_lvl_up
@@ -80,7 +81,7 @@ class Experience(BaseComponent):
             self.parent.engine.message_log.add_message(f"{g(self.parent.parent.name, '이')} 더 매력적인 모습이 되었다!", msg_color)
             self.parent.engine.message_log.add_message(f"{self.parent.parent.name}의 매력 수치가 상승했습니다.", msg_color)
 
-    def level_up(self) -> bool:
+    def level_up(self) -> None:
         """Check if certain status has enough exp to "level up", and if it has, increase the status points."""
 
         #TODO: Need to make adjustments for game balance

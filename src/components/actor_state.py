@@ -27,6 +27,7 @@ class ActorState(BaseComponent):
         ### Regeneration of health
         # If set to True, the actor will regenerate health in proportion to the actor's constitution.
         heal_wounds: bool = False,
+        regain_mana: bool = True,
 
         ### Death
         # This value indicates the whether the actor is completely out of the game or not.
@@ -171,6 +172,8 @@ class ActorState(BaseComponent):
 
         self.heal_wounds = heal_wounds
         self.heal_interval = 0 # Interval between health regenerations
+        self.regain_mana = regain_mana
+        self.regain_interval = 0 # Interval between mana regenerations
 
         self.is_dead = is_dead
     
@@ -334,6 +337,24 @@ class ActorState(BaseComponent):
             self.heal_interval = round(500 / constitution)
         else:
             self.heal_interval -= 1
+
+    def actor_regain_mana(self):
+        """
+        charisma(charm) will affect regain amount and intelligence will affect regain interval.
+        NOTE: Logical explantaion for why charisma affects mana regeneration
+        - Charisma is not merely a visual attractiveness of one. It is also related to the inner energy the person possess.
+        Thus, a man with higher charisma is more likely to heal its inner energy than who is not.
+        """
+        if self.regain_interval <= 0:
+            charm = self.parent.status.changed_status["charm"]
+            intelligence = self.parent.status.changed_status["intelligence"]
+            max_mp = self.parent.status.changed_status["max_mp"]
+            regain_percent = (1 + math.log2(charm + 1)) * 0.004 # amount of regaining indicated as a percentage of maximum mana
+            regain_amount = int(max(1, max_mp * regain_percent)) # absolute amount of healing
+            self.parent.status.gain_mana(amount=regain_amount)
+            self.regain_interval = round(500 / intelligence)
+        else:
+            self.regain_interval -= 1
 
     def actor_burn(self):
         if self.parent.status.changed_status["fire_resistance"] >= 1:
