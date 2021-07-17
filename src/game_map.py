@@ -9,6 +9,7 @@ import tile_types
 from typing import Iterable, Iterator, Optional, Tuple, List, TYPE_CHECKING
 from entity import Actor, Item, SemiActor
 from order import TilemapOrder
+from game import Game
 
 if TYPE_CHECKING:
     from engine import Engine
@@ -18,10 +19,9 @@ if TYPE_CHECKING:
 
 class GameMap:
     def __init__(
-        self, depth: int, engine: Engine, biome: Biome, entities: Iterable[Entity] = (),
+        self, depth: int, biome: Biome, entities: Iterable[Entity] = (),
     ):
         self.depth = depth
-        self.engine = engine
         self.biome = biome
         self.width, self.height = biome.map_width, biome.map_height
         self.entities = list()
@@ -50,6 +50,10 @@ class GameMap:
     @property
     def gamemap(self) -> GameMap:
         return self
+
+    @property
+    def engine(self) -> Engine:
+        return Game.engine
 
     def is_type(self, entity: Entity, types: Tuple(str)) -> bool:
         for t in types:
@@ -90,6 +94,22 @@ class GameMap:
             for entity in self.entities
             if isinstance(entity, SemiActor) and entity.is_active
         )
+
+    def remove_entity(self, entity: Entity) -> None:
+        """Removes all connection with the given entity.
+        Its recommended to use this method instead of doing gamemap.entities.remove(something)"""
+        try:
+            self.entities.remove(entity)
+        except ValueError:
+            raise Exception(f"ERROR::{entity.entity_id} is not in gamemap.entities.")
+
+    def check_tile_monster_spawnable(self, x:int, y:int, must_not_be_in_sight: bool=False):
+        if must_not_be_in_sight and self.visible[x, y]:
+            return False
+        if any(entity.x == x and entity.y == y for entity in self.entities) or not self.tiles["walkable"][x, y]:
+            return False
+        else:
+            return True
 
     def get_all_blocking_entities_at_location(self, location_x, location_y) -> Iterator[Entity]:
         yield from (entity for entity in reversed(self.entities) if (entity.blocks_movement and entity.x == location_x and entity.y == location_y))
@@ -303,15 +323,7 @@ class GameMap:
                 while try_count < 10:
                     random_x = random.randint(3, self.width - 3)
                     random_y = random.randint(3, self.height - 3)
-
-                    # A tile should not be visible currently, should be walkable, and there should be no entities on it.
-                    if self.visible[random_x, random_y]:
-                        try_count += 1
-                        continue
-                    elif not self.tiles["walkable"][random_x, random_y]:
-                        try_count += 1
-                        continue
-                    elif any(entity.x == random_x and entity.y == random_y for entity in self.entities):
+                    if not self.check_tile_monster_spawnable(random_x, random_y, must_not_be_in_sight=True):
                         try_count += 1
                         continue
                     else:

@@ -1,4 +1,6 @@
 import copy
+
+from game_map import GameMap
 from world import World
 import actor_factories
 import camera
@@ -24,7 +26,7 @@ def init_game_variables(cfg, console: Console, context: Context):
 
     # Generate Engine
     engine = Engine(player=player)
-    engine.world = World(engine, seed, max_depth=999)
+    engine.world = World(seed, max_depth=999)
     engine.console = console
     engine.context = context
 
@@ -36,6 +38,11 @@ def init_game_variables(cfg, console: Console, context: Context):
     
     # Generate Map
     engine.depth = 1
+
+    # Set GameMap.engine. All in-game access to engine object is handled using this class variable.
+    from game import Game
+    Game.engine = engine
+
     engine.world.set_map(engine.generate_new_dungeon(console, context, 1, False), 1)
     engine.change_gamemap_depth(1)
     engine.change_entity_depth(engine.player, 1, engine.game_map.ascend_loc[0], engine.game_map.ascend_loc[1])
@@ -48,7 +55,7 @@ def init_game_variables(cfg, console: Console, context: Context):
     # Generate Camea
     engine.camera = camera.Camera(engine, width=cfg["camera_width"], height=cfg["camera_height"], display_x=cfg["camera_xpos"], display_y=cfg["camera_ypos"])
 
-    return player, engine
+    return engine
 
 def update_game_variables(engine: Engine):
     """

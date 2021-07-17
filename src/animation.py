@@ -1,4 +1,5 @@
 from typing import List
+from game import Game
 import time
 
 class Animation:
@@ -33,7 +34,6 @@ class Animation:
                 If you want to transition from animation to game map smoothly without any "blinking", you should set this True.
                 e.g. Throwing animations have this value set to False
         """
-        self.engine = engine
         self.total_frames = len(frames)
         self.frames = frames
         self.stack_frames = stack_frames
@@ -41,6 +41,10 @@ class Animation:
         self.refresh_last_frame = refresh_last_frame
         self.current_frame_num = 0
         self.current_graphic_num = 0
+
+    @property
+    def engine(self):
+        return Game.engine
 
     @property
     def current_graphic(self):

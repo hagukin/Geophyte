@@ -2,6 +2,7 @@
 import traceback
 import tcod
 import color
+from game import Game
 from tcod.context import RENDERER_SDL2
 from configuration import get_game_config
 from title import Title
@@ -31,7 +32,10 @@ def main() -> None:
         root_console = tcod.Console(cfg["screen_width"], cfg["screen_height"], order="F")
 
         # Title Screen Loop
-        player, engine = Title.title_event_handler(console=root_console, context=context, cfg=cfg)
+        Game.engine = Title.title_event_handler(console=root_console, context=context, cfg=cfg)
+        engine = Game.engine
+        engine.console = root_console
+        engine.context = context
 
         # Main Game Loop
         while True:
@@ -56,7 +60,7 @@ def main() -> None:
                         root_console.clear()
                         engine.event_handler.on_render(console=root_console) #refreshing graphics for the root console
                         context.present(root_console, keep_aspect=True)
-                
+
                 ### WRITE DEBUG FUNCTIONS HERE ###
                 # print("Hi")
 

@@ -52,8 +52,6 @@ class BaseAI(BaseComponent):
                 Negative values means that the ai cannot be tamed.
         """
         super().__init__()
-
-        self.parent = None
         self.attacked_from = None
         self.target = None
         self.attraction = None # Either Item or SemiActor
@@ -102,12 +100,11 @@ class BaseAI(BaseComponent):
     
     def init_vision(self) -> None:
         """Initialize this ai's vision"""
-        self.vision = np.full((self.engine.game_map.width, self.engine.game_map.height), fill_value=False, order="F")
+        self.vision = np.full((self.parent.gamemap.width, self.parent.gamemap.height), fill_value=False, order="F")
         self.update_vision()
 
     def activate(self) -> None:
         """Activate this ai"""
-        self.init_vision()
         self.active = True
 
     def check_active(self) -> None:

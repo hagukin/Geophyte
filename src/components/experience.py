@@ -28,7 +28,8 @@ class Experience(BaseComponent):
         intelligence_exp: float=0,
         charm_exp: float=0,
     ):
-        self.parent: Status = None
+        super().__init__(None)
+        self.parent: Status = self.parent # NOTE: This line is for typing
         self.hp_exp = hp_exp
         self.mp_exp = mp_exp
         self.strength_exp = strength_exp

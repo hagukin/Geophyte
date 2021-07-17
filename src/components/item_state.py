@@ -48,8 +48,7 @@ class ItemState(BaseComponent):
                 Integer. a memory location of a actor that is selling this item. This doesn't necesserily means the owner. (Warning: The value is a integer, not a reference.)
                 NOTE: use python id() to get id.
         """
-        # parent: Item 
-        self.parent = None
+        super().__init__(None)
 
         # values that are not stored in item_state dictionaty
         self.was_burning = was_burning

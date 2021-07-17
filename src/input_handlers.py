@@ -1,6 +1,5 @@
 from __future__ import annotations
 from tcod import event
-
 from tcod.event_constants import K_KP_8
 from entity import SemiActor
 from components.inventory import Inventory
@@ -27,12 +26,14 @@ from actions import (
 )
 from loader.data_loader import save_game, quit_game
 from entity import Actor, Item, Entity
+from game import Game
 from korean import grammar as g
 
 import tcod
 import time
 import color
 import exceptions
+import traceback
 
 if TYPE_CHECKING:
     from engine import Engine
@@ -82,7 +83,7 @@ CONFIRM_KEYS = {
 
 
 class EventHandler(tcod.event.EventDispatch[Action]):
-    def __init__(self, engine: Engine, item_cancel_callback: Callable = None):
+    def __init__(self, item_cancel_callback: Callable = None):
         """
         Args:
             item_cancel_callback:
@@ -92,9 +93,12 @@ class EventHandler(tcod.event.EventDispatch[Action]):
                 (However, items will still get consumed)
         """
         self.help_msg = "" # message that will show up when user calls the handler.
-        self.help_msg_color = color.white
-        self.engine = engine
+        self.help_msg_color = color.help_msg
         self.item_cancel_callback = item_cancel_callback        
+
+    @property
+    def engine(self):
+        return Game.engine
 
     def handle_events(self, event: tcod.event.Event) -> Optional[bool]:
         return self.handle_action(self.dispatch(event))
@@ -111,8 +115,11 @@ class EventHandler(tcod.event.EventDispatch[Action]):
             action.perform()
         except exceptions.Impossible as exc:
             self.engine.message_log.add_message(exc.args[0], color.impossible)
-            print(f"ERROR OCCURED WHEN ACTOR PERFORMED AN ACTION : {exc.args[0]}")
+            print(f"WARNING::Tried to do something impossible - {exc.args[0]}")
             return False  # Skip enemy turn on exceptions.
+        except Exception as exc:
+            traceback.print_exc()
+            print(f"FATAL ERROR::input_handler.handle_action() - {exc.args[0]}")
 
         if action.free_action:
             return False
@@ -140,7 +147,7 @@ class EventHandler(tcod.event.EventDispatch[Action]):
         if self.item_cancel_callback is None:
             return self.on_exit()
         else:
-            self.engine.event_handler = ItemUseCancelHandler(self.engine, self.item_cancel_callback)
+            self.engine.event_handler = ItemUseCancelHandler(self.item_cancel_callback)
             return None
 
     def on_exit(self) -> Optional[Action]:
@@ -164,7 +171,7 @@ class AskUserEventHandler(EventHandler):
     def handle_action(self, action: Optional[Action]) -> bool:
         """Return to the main event handler when a valid action was performed."""
         if super().handle_action(action):
-            self.engine.event_handler = MainGameEventHandler(self.engine)
+            self.engine.event_handler = MainGameEventHandler()
             return True
         return False
 
@@ -183,7 +190,7 @@ class AskUserEventHandler(EventHandler):
         if self.item_cancel_callback is None:
             return self.on_exit()
         else:
-            self.engine.event_handler = ItemUseCancelHandler(self.engine, self.item_cancel_callback)
+            self.engine.event_handler = ItemUseCancelHandler(self.item_cancel_callback)
             return None
 
     def ev_mousebuttondown(self, event: tcod.event.MouseButtonDown) -> Optional[Action]:
@@ -192,7 +199,7 @@ class AskUserEventHandler(EventHandler):
         if self.item_cancel_callback is None:
             return self.on_exit()
         else:
-            self.engine.event_handler = ItemUseCancelHandler(self.engine, self.item_cancel_callback)
+            self.engine.event_handler = ItemUseCancelHandler(self.item_cancel_callback)
             return None
 
     def on_exit(self) -> Optional[Action]:
@@ -202,13 +209,13 @@ class AskUserEventHandler(EventHandler):
         """
         self.engine.camera.reset_dxdy() # reset camera position
         self.engine.update_fov() # Prevent any sort of visual effects lasting after taking an input. (e.g. magic mapping)
-        self.engine.event_handler = MainGameEventHandler(self.engine)
+        self.engine.event_handler = MainGameEventHandler()
         return None
 
 
 class ItemUseCancelHandler(AskUserEventHandler):
-    def __init__(self, engine, item_cancel_callback: Callable):
-        super().__init__(engine, item_cancel_callback)
+    def __init__(self, item_cancel_callback: Callable):
+        super().__init__(item_cancel_callback)
 
     def on_render(self, console: tcod.Console,) -> None:
         super().on_render(console)
@@ -216,7 +223,7 @@ class ItemUseCancelHandler(AskUserEventHandler):
 
     def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[Action]:
         if event.sym == tcod.event.K_y or event.sym == tcod.event.K_KP_ENTER:
-            self.engine.event_handler = MainGameEventHandler(self.engine)
+            self.engine.event_handler = MainGameEventHandler()
             self.engine.message_log.add_message(f"아이템 사용 취소됨.", color.white, stack=False, show_once=True)
             return self.item_cancel_callback(True)# passing True (action is cancelled)
         elif event.sym == tcod.event.K_n or event.sym == tcod.event.K_ESCAPE:
@@ -234,7 +241,7 @@ class SaveInputHandler(AskUserEventHandler):
         engine = self.engine
 
         if event.sym == tcod.event.K_y or event.sym == tcod.event.K_KP_ENTER:
-            self.engine.event_handler = MainGameEventHandler(self.engine)
+            self.engine.event_handler = MainGameEventHandler()
             self.engine.message_log.add_message(f"게임 저장됨.", color.lime, stack=False)
             save_game(player=player, engine=engine)
         elif event.sym == tcod.event.K_n or event.sym == tcod.event.K_ESCAPE:
@@ -260,8 +267,8 @@ class AbilityEventHandler(AskUserEventHandler):
     What happens then depends on the subclass.
     """
 
-    def __init__(self, engine: Engine):
-        super().__init__(engine)
+    def __init__(self):
+        super().__init__()
         self.TITLE = "능력"
 
     def on_render(self, console: tcod.Console) -> None:
@@ -304,7 +311,7 @@ class AbilityEventHandler(AskUserEventHandler):
 
                 # Assign color of its type
                 # TODO
-                
+
                 # Message log
                 console.print(x + x_space + 1, y + i + y_space + 1, ability_text, fg=ability_text_color)
         else:
@@ -360,21 +367,21 @@ class AbilityEventHandler(AskUserEventHandler):
 class AbilityActivateHandler(AbilityEventHandler):
     """Handle using an ability called from inventory."""
 
-    def __init__(self, engine: Engine):
-        super().__init__(engine)
+    def __init__(self):
+        super().__init__()
         self.TITLE = "능력"
 
     def on_ability_selected(self, ability: Ability) -> Optional[Action]:
         """Return the action for the selected item."""
-        self.engine.event_handler = AbilityActionSelectHandler(self.engine, ability)
+        self.engine.event_handler = AbilityActionSelectHandler(ability)
         return None
 
 
 class AbilityActionSelectHandler(AskUserEventHandler):
     """Handle choosing the action for selected ability."""
 
-    def __init__(self, engine, ability: Ability):
-        super().__init__(engine)
+    def __init__(self, ability: Ability):
+        super().__init__()
         self.ability = ability
         self.TITLE = f"{self.ability.name}"
 
@@ -425,7 +432,7 @@ class AbilityActionSelectHandler(AskUserEventHandler):
 
         # print possible actions
         for i, action in enumerate(self.possible_actions):
-            
+
             if action == "cast/conduct":
                 console.print(x + x_space + 1, y + i + desc_height + 2 + y_space, "(c) 마법/기술 사용", fg=color.gui_item_action)
             else:
@@ -439,19 +446,18 @@ class AbilityActionSelectHandler(AskUserEventHandler):
             if key == tcod.event.K_c:
                 return self.ability.activatable.get_action(self.engine.player)
         elif key == tcod.event.K_ESCAPE:
-            self.engine.event_handler = MainGameEventHandler(self.engine)
+            self.engine.event_handler = MainGameEventHandler()
             return None
         else:
             self.engine.message_log.add_message("잘못된 입력입니다.", color.invalid)
-            self.engine.event_handler = MainGameEventHandler(self.engine)
+            self.engine.event_handler = MainGameEventHandler()
             return None
 
 
 class StorageSelectEventHandler(AskUserEventHandler):
     def __init__(
-            self, 
-            engine: Engine, 
-            inventory_component: Inventory, 
+            self,
+            inventory_component: Inventory,
             show_only_types: Tuple[InventoryOrder] =None,
             show_only_status: Tuple[str] = None,
             show_if_satisfy_both: bool = True,
@@ -476,8 +482,8 @@ class StorageSelectEventHandler(AskUserEventHandler):
                 show item only if both types and status is satisfied.
                 if False, show items if they satisfy either one.
         """
-        super().__init__(engine, item_cancel_callback)
-        self.inventory_component = inventory_component 
+        super().__init__(item_cancel_callback)
+        self.inventory_component = inventory_component
         self.show_only_types = show_only_types
         self.show_only_status = show_only_status
         self.show_if_satisfy_both = show_if_satisfy_both
@@ -486,8 +492,7 @@ class StorageSelectEventHandler(AskUserEventHandler):
         else:
             self.TITLE = ""
 
-    def get_item_rendered_text(self, item: Item, item_key, choose_multiple: bool) -> Optional[
-        Tuple[str, str, str, str, Tuple[int, int, int]]]:
+    def get_item_rendered_text(self, item: Item, item_key, choose_multiple: bool):
         """
         Returns:
             item_text, item_damage_text, item_state_text, item_equip_text, item_text_color
@@ -530,7 +535,7 @@ class StorageSelectEventHandler(AskUserEventHandler):
         if choose_multiple:
             if item in self.selected_items:
                 item_text_color = color.gui_selected_item #TODO: Maybe add a short string in front of item name? like (selected)
-            
+
         # Display damage status if their is one
         if item.item_state.burntness == 1:
             item_damage_text += "(다소 그을림) "
@@ -540,7 +545,7 @@ class StorageSelectEventHandler(AskUserEventHandler):
             item_damage_text += "(다소 부식됨) "
         elif item.item_state.corrosion == 2:
             item_damage_text += "(심하게 부식됨) "
-            
+
         # Display special states if it is true
         if item.item_state.is_burning:
             item_state_text += "[불붙음] "
@@ -548,7 +553,7 @@ class StorageSelectEventHandler(AskUserEventHandler):
         # Display equip info if it is true(if value isn't None)
         if self.engine.config["lang"] == "ko":
             translated = ""
-            
+
             if item.item_state.is_equipped:
                 if item.item_state.is_equipped == "main hand":
                     translated = "메인 핸드"
@@ -589,15 +594,15 @@ class StorageSelectEventHandler(AskUserEventHandler):
         return item_text, item_count, item_damage_text, item_state_text, item_equip_text, item_price_text, item_text_color
 
     def render_item(
-        self, 
+        self,
         xpos, ypos,
         item_text: str,
         item_count: str,
         item_damage_text: str,
-        item_state_text: str, 
-        item_equip_text: str, 
-        item_price_text: str, 
-        item_text_color: Tuple[int,int,int], 
+        item_state_text: str,
+        item_equip_text: str,
+        item_price_text: str,
+        item_text_color: Tuple[int,int,int],
         y_padding: int
     ) -> None:
 
@@ -725,7 +730,7 @@ class StorageSelectSingleEventHandler(StorageSelectEventHandler):
                     continue
 
                 y_padding += 1
-                
+
                 item_text, item_count, item_damage_text, item_state_text, item_equip_text, item_price_text, item_text_color = self.get_item_rendered_text(item, item_key, choose_multiple=False)
                 xpos = x + x_space + 1
                 ypos = y + y_space + 1
@@ -733,7 +738,7 @@ class StorageSelectSingleEventHandler(StorageSelectEventHandler):
         else:
             console.print(x + x_space + 1, y + y_space + 1, "(없음)", color.gray)
         console.print(x + x_space + 1, height + 4, "\"/\"키 - 아이템 정렬", color.gui_inventory_fg)
-        
+
     def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[Action]:
         if event.sym in {  # Ignore modifier keys.
             tcod.event.K_LSHIFT,
@@ -775,9 +780,12 @@ class StorageSelectSingleEventHandler(StorageSelectEventHandler):
             else:
                 self.engine.message_log.add_message(f"잘못된 입력입니다.", color.invalid)
                 return None
-        except:
+        except KeyError:
             self.engine.message_log.add_message("잘못된 입력입니다.", color.invalid)
             return None
+        except:
+            import traceback
+            traceback.print_exc()
 
     def on_item_selected(self, item: Item) -> Optional[Action]:
         raise NotImplementedError()
@@ -790,9 +798,8 @@ class InventoryChooseItemAndCallbackHandler(StorageSelectSingleEventHandler):
     e.g. reading scroll of enchantment -> choosing an item to upgrade
     """
     def __init__(
-            self, 
-            engine: Engine, 
-            inventory_component: Inventory, 
+            self,
+            inventory_component: Inventory,
             callback: Callable,
             title: str = "인벤토리",
             show_only_types: Tuple[InventoryOrder] =None,
@@ -800,7 +807,7 @@ class InventoryChooseItemAndCallbackHandler(StorageSelectSingleEventHandler):
             show_if_satisfy_both: bool = True,
             item_cancel_callback: Callable = None,
         ):
-        super().__init__(engine, inventory_component, show_only_types, show_only_status, show_if_satisfy_both, item_cancel_callback)
+        super().__init__(inventory_component, show_only_types, show_only_status, show_if_satisfy_both, item_cancel_callback)
         self.TITLE = title
         self.selected_item = None
         self.callback = callback
@@ -814,27 +821,26 @@ class InventoryChooseItemAndCallbackHandler(StorageSelectSingleEventHandler):
 class InventoryEventHandler(StorageSelectSingleEventHandler):
 
     def __init__(
-            self, 
-            engine: Engine, 
+            self,
             inventory_component: Inventory,
             show_only_types: Tuple[InventoryOrder] =None,
             show_only_status: Tuple[str] = None,
             show_if_satisfy_both: bool = True,
         ):
-        super().__init__(engine, inventory_component, show_only_types, show_only_status, show_if_satisfy_both)
+        super().__init__(inventory_component, show_only_types, show_only_status, show_if_satisfy_both)
         self.TITLE = "인벤토리"
 
     def on_item_selected(self, item: Item) -> Optional[Action]:
         """Return the action for the selected item."""
-        self.engine.event_handler = InventoryActionSelectHandler(self.engine, item)
+        self.engine.event_handler = InventoryActionSelectHandler(item)
         return None
 
 
 class InventoryActionSelectHandler(AskUserEventHandler):
     """Handle choosing the action for selected item."""
 
-    def __init__(self, engine, item):
-        super().__init__(engine)
+    def __init__(self, item):
+        super().__init__()
         self.item = item
         if item.stack_count > 1:
             self.TITLE = f"{self.item.name} (x{self.item.stack_count})"
@@ -909,7 +915,7 @@ class InventoryActionSelectHandler(AskUserEventHandler):
 
         # print possible actions
         for i, action in enumerate(self.possible_actions):
-            
+
             if action == "read":
                 console.print(x + x_space + 1, y + i + desc_height + 2 + y_space, "(r) 읽기", fg=color.gui_item_action)
             elif action == "quaff":
@@ -945,33 +951,33 @@ class InventoryActionSelectHandler(AskUserEventHandler):
             elif key == tcod.event.K_u:
                 return UnequipItem(self.engine.player, self.item)
             elif key == tcod.event.K_s:
-                self.engine.event_handler = InventorySplitHandler(self.engine, self.item)
+                self.engine.event_handler = InventorySplitHandler(self.item)
             elif key == tcod.event.K_t:
                 if self.item.item_state.is_equipped:
                     self.engine.message_log.add_message("장착하고 있는 아이템을 던질 수 없습니다.", color.invalid)
-                    self.engine.event_handler = MainGameEventHandler(self.engine)
+                    self.engine.event_handler = MainGameEventHandler()
                     return None
                 return self.item.throwable.get_action(self.engine.player)
             elif key == tcod.event.K_d:
                 if self.item.item_state.is_equipped:
                     self.engine.message_log.add_message("장착하고 있는 아이템을 떨어뜨릴 수 없습니다.", color.invalid)
-                    self.engine.event_handler = MainGameEventHandler(self.engine)
+                    self.engine.event_handler = MainGameEventHandler()
                     return None
                 return DropItem(self.engine.player, self.item)
         elif key == tcod.event.K_ESCAPE:
-            self.engine.event_handler = MainGameEventHandler(self.engine)
+            self.engine.event_handler = MainGameEventHandler()
             return None
         else:
             self.engine.message_log.add_message("잘못된 입력입니다.", color.invalid)
-            self.engine.event_handler = MainGameEventHandler(self.engine)
+            self.engine.event_handler = MainGameEventHandler()
             return None
 
 
 class InventorySplitHandler(AskUserEventHandler):
     """Handle dropping an inventory item."""
 
-    def __init__(self, engine, item):
-        super().__init__(engine)
+    def __init__(self, item):
+        super().__init__()
         self.item = item
         if item.stack_count > 1:
             self.TITLE = f"{self.item.name} (x{self.item.stack_count})"
@@ -1027,13 +1033,13 @@ class InventorySplitHandler(AskUserEventHandler):
             else:
                 self.engine.message_log.add_message("1 이상을 선택하셔야 합니다.", color.invalid, show_once=True)
         elif key == tcod.event.K_ESCAPE:
-            self.engine.event_handler = MainGameEventHandler(self.engine)
+            self.engine.event_handler = MainGameEventHandler()
             return None
         elif key == tcod.event.K_RETURN:
             return SplitItem(self.engine.player, self.item, self.split_amount)
         else:
             self.engine.message_log.add_message("잘못된 입력입니다.", color.invalid)
-            self.engine.event_handler = MainGameEventHandler(self.engine)
+            self.engine.event_handler = MainGameEventHandler()
             return None
 
 
@@ -1045,14 +1051,13 @@ class StorageSelectMultipleEventHandler(StorageSelectEventHandler):
     A child of this class MUST modify the choice_confirmed() method to its use.
     """
     def __init__(
-            self, 
-            engine: Engine, 
-            inventory_component: Inventory, 
+            self,
+            inventory_component: Inventory,
             show_only_types: Tuple[InventoryOrder] =None,
             show_only_status: Tuple[str] = None,
             show_if_satisfy_both: bool = True,
             ):
-        super().__init__(engine, inventory_component, show_only_types, show_only_status, show_if_satisfy_both)
+        super().__init__(inventory_component, show_only_types, show_only_status, show_if_satisfy_both)
         self.selected_items = set()
 
     def on_render(self, console: tcod.Console) -> None:
@@ -1095,7 +1100,7 @@ class StorageSelectMultipleEventHandler(StorageSelectEventHandler):
 
                 if not self.check_should_render_item(item):
                     continue
-                
+
                 y_padding += 1
 
                 item_text, item_count, item_damage_text, item_state_text, item_equip_text, item_price_text, item_text_color = self.get_item_rendered_text(item, item_key, choose_multiple=True)
@@ -1109,7 +1114,7 @@ class StorageSelectMultipleEventHandler(StorageSelectEventHandler):
 
     def choice_confirmed(self):
         raise NotImplementedError()
-        
+
     def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[Action]:
         if event.sym in {  # Ignore modifier keys.
             tcod.event.K_LSHIFT,
@@ -1163,8 +1168,8 @@ class StorageSelectMultipleEventHandler(StorageSelectEventHandler):
 
 
 class LockedDoorEventHandler(AskUserEventHandler):
-    def __init__(self, engine, door: SemiActor):
-        super().__init__(engine)
+    def __init__(self, door: SemiActor):
+        super().__init__()
         self.door = door
         self.TITLE = "문이 잠겨 있습니다. 무엇을 하시겠습니까?"
 
@@ -1212,35 +1217,35 @@ class LockedDoorEventHandler(AskUserEventHandler):
                 .break_door(self.door, self.engine.player.status.changed_status["strength"])
             return None
         elif key == tcod.event.K_ESCAPE:
-            self.engine.event_handler = MainGameEventHandler(self.engine)
+            self.engine.event_handler = MainGameEventHandler()
             return None
         else:
             self.engine.message_log.add_message("잘못된 입력입니다.", color.invalid)
-            self.engine.event_handler = MainGameEventHandler(self.engine)
+            self.engine.event_handler = MainGameEventHandler()
             return None
 
 
 class NonHostileBumpHandler(AskUserEventHandler):
-    def __init__(self, engine, target: Entity):
+    def __init__(self, target: Entity):
         """
         Vars:
             can_pay_shopkeeper:
                 인풋으로 받은 타겟이 shopkeeper이고, 또 플레이어가 현재 빚을 진 상태인 경우.
-                만약 이 이벤트 핸들러가 상인이 아닌 다른 무언가에 의해 호출되었다면 이 값은 사용되지 않는다. 
+                만약 이 이벤트 핸들러가 상인이 아닌 다른 무언가에 의해 호출되었다면 이 값은 사용되지 않는다.
         """
-        super().__init__(engine)
+        super().__init__()
         self.target = target
         self.TITLE = "무엇을 하시겠습니까?"
         self.can_pay_shopkeeper = False
         self.update_pay_status()
-        
+
     def update_pay_status(self):
         if hasattr(self.target, "ai"):
             if self.target.ai:
                 if hasattr(self.target.ai, "has_dept"):
                     if self.target.ai.has_dept(self.engine.player):
                         self.can_pay_shopkeeper = True
-        
+
     def on_render(self, console: tcod.Console) -> None:
         """
         Render an action selection menu, which displays the possible actions of the selected item.
@@ -1297,7 +1302,7 @@ class NonHostileBumpHandler(AskUserEventHandler):
         if not self.target.blocks_movement and key == tcod.event.K_m:
             return MovementAction(self.engine.player, dx, dy)
         elif self.can_pay_shopkeeper and key == tcod.event.K_p:
-            self.engine.event_handler = MainGameEventHandler(self.engine)
+            self.engine.event_handler = MainGameEventHandler()
             if not hasattr(self.target, "ai"):
                 raise Exception("ERROR::NonHostileBumpHandler - Shopkeeper must have an AI.")
             self.target.ai.sell_all_picked_ups(customer=self.engine.player)
@@ -1305,24 +1310,24 @@ class NonHostileBumpHandler(AskUserEventHandler):
         elif self.target.swappable and key == tcod.event.K_s:
             return PlaceSwapAction(self.engine.player, self.target)
         elif isinstance(self.target, Actor) and key == tcod.event.K_a:
-            self.engine.event_handler = ForceAttackInputHandler(self.engine, melee_action=MeleeAction(self.engine.player, dx, dy))
+            self.engine.event_handler = ForceAttackInputHandler(melee_action=MeleeAction(self.engine.player, dx, dy))
             return None
         elif key == tcod.event.K_t and isinstance(self.target, ChestSemiactor):
-            self.engine.event_handler = ChestTakeEventHandler(self.engine, self.target.storage)
+            self.engine.event_handler = ChestTakeEventHandler(self.target.storage)
             return None
         elif key == tcod.event.K_i and isinstance(self.target, ChestSemiactor):
-            self.engine.event_handler = ChestPutEventHandler(self.engine, self.engine.player.inventory, self.target.storage)
+            self.engine.event_handler = ChestPutEventHandler(self.engine.player.inventory, self.target.storage)
             return None
         elif key == tcod.event.K_ESCAPE:
-            self.engine.event_handler = MainGameEventHandler(self.engine)
+            self.engine.event_handler = MainGameEventHandler()
             return None
         else:
             self.engine.message_log.add_message("잘못된 입력입니다.", color.invalid)
-            self.engine.event_handler = MainGameEventHandler(self.engine)
+            self.engine.event_handler = MainGameEventHandler()
             return None
 
 
-class ChestTakeEventHandler(StorageSelectMultipleEventHandler):    
+class ChestTakeEventHandler(StorageSelectMultipleEventHandler):
     def choice_confirmed(self):
         """
         Move the selected items to player's inventory.
@@ -1330,7 +1335,7 @@ class ChestTakeEventHandler(StorageSelectMultipleEventHandler):
         for item in self.selected_items:
             self.inventory_component.remove_item(item, -1) #TODO: Add feature to choose certain amounts
             self.engine.player.inventory.add_item(item)
-            
+
             if item.stack_count <= 1:
                 self.engine.message_log.add_message(f"{g(item.name, '을')} 얻었다.", color.white)
             else:
@@ -1341,8 +1346,8 @@ class ChestTakeEventHandler(StorageSelectMultipleEventHandler):
 
 class ChestPutEventHandler(StorageSelectMultipleEventHandler):
     """Handle putting in an inventory item to a chest."""
-    def __init__(self, engine: Engine, actor_inventory_component: Inventory, chest_inventory_component: Inventory):
-        super().__init__(engine, actor_inventory_component)
+    def __init__(self, actor_inventory_component: Inventory, chest_inventory_component: Inventory):
+        super().__init__(actor_inventory_component)
         if hasattr(chest_inventory_component.parent, "name"):
             self.TITLE = f"{chest_inventory_component.parent.name}에 넣을 아이템을 선택하세요."
         else:
@@ -1360,7 +1365,7 @@ class ChestPutEventHandler(StorageSelectMultipleEventHandler):
                 continue
             self.actor_inv.remove_item(item, -1) #TODO: Add feature to choose certain amounts
             self.chest_inv.add_item(item)
-            
+
             if item.stack_count > 1:
                 self.engine.message_log.add_message(f"{g(item.name, '을')} {self.chest_inv.parent.name}에 넣었다.", color.gray)
             else:
@@ -1371,8 +1376,8 @@ class ChestPutEventHandler(StorageSelectMultipleEventHandler):
 
 class InventoryDropHandler(StorageSelectMultipleEventHandler):
     """Handle dropping an inventory item."""
-    def __init__(self, engine: Engine, inventory_component: Inventory):
-        super().__init__(engine, inventory_component)
+    def __init__(self, inventory_component: Inventory):
+        super().__init__(inventory_component)
         self.TITLE = "Select items to drop"
 
     def choice_confirmed(self):
@@ -1385,17 +1390,17 @@ class InventoryDropHandler(StorageSelectMultipleEventHandler):
                 continue
             DropItem(self.engine.player, item).perform()
 
-        self.engine.event_handler = MainGameEventHandler(self.engine)
+        self.engine.event_handler = MainGameEventHandler()
 
 
 class SelectIndexHandler(AskUserEventHandler):
     """Handles asking the user for an index on the map."""
-    def __init__(self, engine: Engine, item_cancel_callback: Callable = None):
+    def __init__(self, item_cancel_callback: Callable = None):
         """Sets the cursor to the player when this handler is constructed."""
-        super().__init__(engine, item_cancel_callback)
+        super().__init__(item_cancel_callback)
         self.help_msg += "CTRL키를 누른 채로 카메라를 조작할 수 있습니다."
         player = self.engine.player
-        engine.mouse_location = player.x, player.y
+        self.engine.mouse_location = player.x, player.y
 
     def on_render(self, console: tcod.Console) -> None:
         """Highlight the tile under the cursor."""
@@ -1445,21 +1450,21 @@ class SelectIndexHandler(AskUserEventHandler):
 
 class LookHandler(SelectIndexHandler):
     """Lets the player look around using the keyboard."""
-    def __init__(self, engine: Engine, item_cancel_callback: Callable = None):
-        super().__init__(engine, item_cancel_callback)
+    def __init__(self, item_cancel_callback: Callable = None):
+        super().__init__(item_cancel_callback)
         self.help_msg += "\n맵 살펴보기를 중단하려면 ESC 키를 누르세요."
 
     def on_index_selected(self, x: int, y: int) -> None:
         """Return to main handler."""
-        self.engine.event_handler = MainGameEventHandler(self.engine)
+        self.engine.event_handler = MainGameEventHandler()
 
 
 class MagicMappingLookHandler(LookHandler):
     """Lets the player look around using the keyboard."""
     def __init__(
-        self, engine: Engine, callback: Callable[[Tuple[int, int]], Optional[Action]] #Has no revert callback parameter
+        self, callback: Callable[[Tuple[int, int]], Optional[Action]] #Has no revert callback parameter
     ):
-        super().__init__(engine)
+        super().__init__()
 
         self.callback = callback
 
@@ -1480,11 +1485,11 @@ class MagicMappingLookHandler(LookHandler):
 
 class SelectDirectionHandler(SelectIndexHandler):
     """Handles asking the user for an index on the map."""
-    def __init__(self, engine: Engine, item_cancel_callback: Callable = None):
+    def __init__(self, item_cancel_callback: Callable = None):
         """Sets the cursor to the player when this handler is constructed."""
-        super().__init__(engine, item_cancel_callback)
+        super().__init__(item_cancel_callback)
         player = self.engine.player
-        engine.mouse_location = player.x, player.y
+        self.engine.mouse_location = player.x, player.y
 
     def on_render(self, console: tcod.Console) -> None:
         """Highlight the tile under the cursor."""
@@ -1530,8 +1535,8 @@ class SelectDirectionHandler(SelectIndexHandler):
 
 class SingleRangedAttackHandler(SelectIndexHandler):
     """Handles targeting a single enemy. Only the enemy selected will be affected."""
-    def __init__(self, engine: Engine, callback: Callable[[Tuple[int, int]], Optional[Action]], item_cancel_callback: Callable = None):
-        super().__init__(engine, item_cancel_callback=item_cancel_callback)
+    def __init__(self, callback: Callable[[Tuple[int, int]], Optional[Action]], item_cancel_callback: Callable = None):
+        super().__init__(item_cancel_callback=item_cancel_callback)
         self.callback = callback
 
     def on_index_selected(self, x: int, y: int) -> Optional[Action]:
@@ -1542,12 +1547,11 @@ class AreaRangedAttackHandler(SelectIndexHandler):
     """Handles targeting an area within a given radius. Any entity within the area will be affected."""
     def __init__(
         self,
-        engine: Engine,
         radius: int,
         callback: Callable[[Tuple[int, int]], Optional[Action]],
         item_cancel_callback: Callable = None,
     ):
-        super().__init__(engine, item_cancel_callback)
+        super().__init__(item_cancel_callback)
         self.radius = radius
         self.callback = callback
 
@@ -1576,13 +1580,12 @@ class RayRangedInputHandler(SelectDirectionHandler):
     """Handles targeting an area within a given radius. Any entity within the area will be affected."""
     def __init__(
         self,
-        engine: Engine,
         actor: Actor,
         max_range: int,
         callback: Callable[[Tuple[int, int]], Optional[Action]],
         item_cancel_callback: Callable = None,
     ):
-        super().__init__(engine, item_cancel_callback)
+        super().__init__(item_cancel_callback)
         self.actor = actor
         self.max_range = max_range
         self.callback = callback
@@ -1624,7 +1627,7 @@ class RayRangedInputHandler(SelectDirectionHandler):
                 console.tiles_rgb["bg"][rel_x, rel_y] = color.ray_path
             else:
                 continue
-        
+
         self.dx = dx
         self.dy = dy
 
@@ -1637,18 +1640,17 @@ class RayDirInputHandler(SelectDirectionHandler):
     """Handles targeting an area within a given radius. Any entity within the area will be affected."""
     def __init__(
         self,
-        engine: Engine,
         actor: Actor,
         max_range: int,
         callback: Callable[[Tuple[int, int]], Optional[Action]],
     ):
-        super().__init__(engine)
+        super().__init__()
         self.actor = actor
         self.max_range = max_range
         self.callback = callback
         self.target = None
         self.engine.message_log.add_message(
-                "방향을 선택하세요. (1~9)", color.needs_target
+                "방향을 선택하세요. (1~9)", color.help_msg
             )
 
     def on_render(self, console: tcod.Console) -> None:
@@ -1688,7 +1690,7 @@ class RayDirInputHandler(SelectDirectionHandler):
                 console.tiles_rgb["bg"][rel_x, rel_y] = color.ray_path
             else:
                 continue
-        
+
         self.dx = dx
         self.dy = dy
 
@@ -1707,7 +1709,7 @@ class BuyInputHandler(AskUserEventHandler):
         engine = self.engine
 
         if event.sym == tcod.event.K_y or event.sym == tcod.event.K_KP_ENTER:
-            self.engine.event_handler = MainGameEventHandler(self.engine)
+            self.engine.event_handler = MainGameEventHandler()
             save_game(player=player, engine=engine)
             quit_game()
         elif event.sym == tcod.event.K_n or event.sym == tcod.event.K_ESCAPE:
@@ -1725,7 +1727,7 @@ class QuitInputHandler(AskUserEventHandler):
         engine = self.engine
 
         if event.sym == tcod.event.K_y or event.sym == tcod.event.K_KP_ENTER:
-            self.engine.event_handler = MainGameEventHandler(self.engine)
+            self.engine.event_handler = MainGameEventHandler()
             save_game(player=player, engine=engine)
             quit_game()
         elif event.sym == tcod.event.K_n or event.sym == tcod.event.K_ESCAPE:
@@ -1734,8 +1736,8 @@ class QuitInputHandler(AskUserEventHandler):
 
 
 class ForceAttackInputHandler(AskUserEventHandler):
-    def __init__(self, engine: Engine, melee_action: MeleeAction, item_cancel_callback: Callable = None, ):
-        super().__init__(engine, item_cancel_callback)
+    def __init__(self, melee_action: MeleeAction, item_cancel_callback: Callable = None, ):
+        super().__init__(item_cancel_callback)
         self.melee_action = melee_action
 
     def on_render(self, console: tcod.Console) -> None:
@@ -1762,11 +1764,11 @@ class MainGameEventHandler(EventHandler):
                 action = DescendAction(player)
             elif key == tcod.event.K_COMMA:
                 action = AscendAction(player)
-            
+
             elif key == tcod.event.K_q:
-                self.engine.event_handler = QuitInputHandler(self.engine)
+                self.engine.event_handler = QuitInputHandler()
             elif key == tcod.event.K_s:
-                self.engine.event_handler = SaveInputHandler(engine=self.engine)
+                self.engine.event_handler = SaveInputHandler()
         else:
             if key in MOVE_KEYS:
                 dx, dy = MOVE_KEYS[key]
@@ -1775,38 +1777,36 @@ class MainGameEventHandler(EventHandler):
                 action = WaitAction(player)
 
             elif key == tcod.event.K_v:
-                self.engine.event_handler = HistoryViewer(self.engine)
+                self.engine.event_handler = HistoryViewer()
             elif key == tcod.event.K_g:
                 action = PickupAction(player)
             elif key == tcod.event.K_i:
-                self.engine.event_handler = InventoryEventHandler(self.engine, self.engine.player.inventory)
+                self.engine.event_handler = InventoryEventHandler(self.engine.player.inventory)
             elif key == tcod.event.K_d:
-                self.engine.event_handler = InventoryDropHandler(self.engine, self.engine.player.inventory)
+                self.engine.event_handler = InventoryDropHandler(self.engine.player.inventory)
             elif event.sym == tcod.event.K_SLASH or event.sym == tcod.event.K_KP_DIVIDE:
-                self.engine.event_handler = LookHandler(self.engine)
+                self.engine.event_handler = LookHandler()
             elif key == tcod.event.K_c:
                 self.engine.event_handler = RayDirInputHandler(
-                    engine=self.engine,
                     actor=player,
                     max_range=1,
                     callback=lambda dx, dy: DoorCloseAction(player, dx, dy)
                     )
             elif key == tcod.event.K_o:
                 self.engine.event_handler = RayDirInputHandler(
-                    engine=self.engine,
                     actor=player,
                     max_range=1,
                     callback=lambda dx, dy: DoorOpenAction(player, dx, dy)
                     )
             elif key == tcod.event.K_a:
-                self.engine.event_handler = AbilityActivateHandler(self.engine)
+                self.engine.event_handler = AbilityActivateHandler()
 
             elif key == tcod.event.K_F12:
                 time_str = time.strftime('%Y-%m-%d-%H-%M-%S', time.localtime(time.time()))
                 pic_name = time_str
                 #pic_name = self.engine.player.name + "-" + time_str # bugs occur when using certain unicode chars.
                 self.engine.context.save_screenshot(f"./screenshots/{pic_name}.png")
-                self.engine.message_log.add_message(f"Screenshot saved as {pic_name}.png", color.needs_target)
+                self.engine.message_log.add_message(f"Screenshot saved as {pic_name}.png", color.help_msg)
             elif key == tcod.event.K_F11:#TODO DEBUG
                 from explosion_action import ExplodeAction
                 ExplodeAction(self.engine.player, False, True, radius=50, expl_dmg=3000, cause_fire=5).perform()
@@ -1844,7 +1844,7 @@ class MainGameEventHandler(EventHandler):
         # Check if the mouse is in bounds
         if not self.engine.camera.in_bounds(abs_x=mouse_map_x, abs_y=mouse_map_y):
             return None
-        
+
         # LClick
         if event.button == tcod.event.BUTTON_LEFT:
             dx = mouse_map_x - self.engine.player.x
@@ -1852,7 +1852,7 @@ class MainGameEventHandler(EventHandler):
 
             if abs(dx) <= 1 and abs(dy) <= 1:# If clicked nearby
                 self.engine.player_dir = (dx, dy)
-            else: 
+            else:
                 self.engine.set_player_path(dest_x=mouse_map_x, dest_y=mouse_map_y)
 
         # This will not advacne a turn
@@ -1878,9 +1878,9 @@ CURSOR_Y_KEYS = {
 class HistoryViewer(EventHandler):
     """Print the history on a larger window which can be navigated."""
 
-    def __init__(self, engine: Engine):
-        super().__init__(engine)
-        self.log_length = len(engine.message_log.messages)
+    def __init__(self):
+        super().__init__()
+        self.log_length = len(self.engine.message_log.messages)
         self.cursor = self.log_length - 1
 
     def on_render(self, console: tcod.Console) -> None:
@@ -1918,4 +1918,4 @@ class HistoryViewer(EventHandler):
         elif event.sym == tcod.event.K_END:
             self.cursor = self.log_length - 1  # Move directly to the last message.
         else:  # Any other key moves back to the main game state.
-            self.engine.event_handler = MainGameEventHandler(self.engine)
+            self.engine.event_handler = MainGameEventHandler()

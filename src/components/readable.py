@@ -17,7 +17,8 @@ if TYPE_CHECKING:
     from entity import Item
 
 class Readable(BaseComponent):
-    parent: Item
+    def __init__(self):
+        super().__init__(None)
         
     def get_action(self, consumer: Actor) -> Optional[actions.Action]:
         """Try to return the action for this item."""
@@ -48,15 +49,14 @@ class Readable(BaseComponent):
 
 class SelectTileReadable(Readable):
     def __init__(self):
-        pass
+        super().__init__()
         
     def get_action(self, consumer: Actor, cancelled: bool=False) -> Optional[actions.Action]:
         if cancelled:
             return self.item_use_cancelled(actor=consumer)
 
-        self.engine.message_log.add_message("목표 지점을 선택하세요.", color.needs_target)
+        self.engine.message_log.add_message("목표 지점을 선택하세요.", color.help_msg)
         self.engine.event_handler = SingleRangedAttackHandler(
-            self.engine,
             callback=lambda xy: actions.ReadItem(consumer, self.parent, xy),
             item_cancel_callback=lambda x: self.get_action(consumer, x),
         )
@@ -138,18 +138,15 @@ class ScrollOfTameReadable(SelectTileReadable):
 
 
 class SelectItemFromInventoryReadable(Readable):
-    def __init__(self):
-        pass
-
     def get_action(self, consumer: Actor, cancelled: bool=False) -> Optional[actions.Action]:
         if cancelled:
             return self.item_use_cancelled(actor=consumer)
 
-        self.engine.message_log.add_message("아이템을 선택하세요.", color.needs_target)
+        self.engine.message_log.add_message("아이템을 선택하세요.", color.help_msg)
         self.engine.event_handler = InventoryChooseItemAndCallbackHandler(
-            self.engine,
             inventory_component=consumer.inventory,
-            show_only=None, # If item_type filter is needed, you should override this entire function.
+            show_only_types=None, # If item_type filter is needed, you should override this entire function.
+            show_only_status=None,
             callback=lambda selected_item : actions.ReadItem(consumer, self.parent, (0,0), selected_item),
             item_cancel_callback=lambda x: self.get_action(consumer, x),
         )
@@ -172,9 +169,8 @@ class ScrollOfEnchantmentReadable(SelectItemFromInventoryReadable):
         if cancelled:
             return self.item_use_cancelled(actor=consumer)
 
-        self.engine.message_log.add_message("마법 강화할 아이템을 선택하세요.", color.needs_target)
+        self.engine.message_log.add_message("마법 강화할 아이템을 선택하세요.", color.help_msg)
         self.engine.event_handler = InventoryChooseItemAndCallbackHandler(
-            self.engine,
             inventory_component=consumer.inventory,
             show_only_types=(
                 InventoryOrder.MELEE_WEAPON,
@@ -207,9 +203,8 @@ class ScrollOfIdentifyReadable(SelectItemFromInventoryReadable):
         if cancelled:
             return self.item_use_cancelled(actor=consumer)
 
-        self.engine.message_log.add_message("감정할 아이템을 선택하세요.", color.needs_target)
+        self.engine.message_log.add_message("감정할 아이템을 선택하세요.", color.help_msg)
         self.engine.event_handler = InventoryChooseItemAndCallbackHandler(
-            self.engine,
             inventory_component=consumer.inventory,
             show_only_status=("unidentified-all", "semi-identified-all"), # NOTE: WARNING - If you pass only one parameter, additional comma is needed inside tuple to prevent passing the data in string form
             callback=lambda selected_item : actions.ReadItem(consumer, self.parent, (0,0), selected_item),
@@ -230,9 +225,8 @@ class ScrollOfRemoveCurseReadable(SelectItemFromInventoryReadable):
         if cancelled:
             return self.item_use_cancelled(actor=consumer)
 
-        self.engine.message_log.add_message("저주를 해제할 아이템을 선택하세요.", color.needs_target)
+        self.engine.message_log.add_message("저주를 해제할 아이템을 선택하세요.", color.help_msg)
         self.engine.event_handler = InventoryChooseItemAndCallbackHandler(
-            self.engine,
             inventory_component=consumer.inventory,
             show_only_status=("unidentified-all", "semi-identified-all", "full-identified-cursed",),
             callback=lambda selected_item : actions.ReadItem(consumer, self.parent, (0,0), selected_item),
@@ -260,6 +254,7 @@ class ScrollOfMagicMappingReadable(Readable): #TODO: make parent class like othe
     When input is reveived, this will return 0 to callback and finish the whole process. (0 is just a trash value it doesn't matter what you pass)
     """
     def __init__(self, tier:int=1):
+        super().__init__()
         self.tier = tier
 
     def activate(self, consumer) -> None:
@@ -282,7 +277,6 @@ class ScrollOfMagicMappingReadable(Readable): #TODO: make parent class like othe
                     self.engine.game_map.explored[x, y] = True
     
         self.engine.event_handler = MagicMappingLookHandler(
-            self.engine,
             callback=lambda trash_value: actions.ReadItem(consumer, self.parent),
         )#NOTE: Has no item_cancel_callback parameter, since the item already has been consumed.
         return None
@@ -290,6 +284,7 @@ class ScrollOfMagicMappingReadable(Readable): #TODO: make parent class like othe
 
 class ScrollOfMeteorStormReadable(Readable): #TODO: Make parent class like other readables
     def __init__(self, damage: int, radius: int):
+        super().__init__()
         self.damage = damage
         self.radius = radius
 
@@ -298,10 +293,9 @@ class ScrollOfMeteorStormReadable(Readable): #TODO: Make parent class like other
             return self.item_use_cancelled(actor=consumer)
 
         self.engine.message_log.add_message(
-            "목표 지점을 선택하세요.", color.needs_target
+            "목표 지점을 선택하세요.", color.help_msg
         )
         self.engine.event_handler = AreaRangedAttackHandler(
-            self.engine,
             radius=self.radius,
             callback=lambda xy: actions.ReadItem(consumer, self.parent, xy),
             item_cancel_callback=lambda x: self.get_action(consumer, x),
@@ -341,6 +335,7 @@ class ScrollOfMeteorStormReadable(Readable): #TODO: Make parent class like other
         
 class AutoTargetingReadable(Readable):
     def __init__(self, damage: int, maximum_range: int, tier: int=1):
+        super().__init__()
         self.tier = tier
         self.damage = damage
         self.maximum_range = maximum_range
@@ -383,6 +378,7 @@ class AutoTargetingReadable(Readable):
 
 class RayReadable(Readable):
     def __init__(self, anim_graphic, damage: int=0, penetration: bool=False, max_range: int=1000):
+        super().__init__()
         self.anim_graphic = anim_graphic
         self.damage = damage
         self.penetration = penetration
@@ -411,10 +407,9 @@ class RayReadable(Readable):
             return self.item_use_cancelled(actor=consumer)
 
         self.engine.message_log.add_message(
-            "방향을 선택하세요. (1~9)", color.needs_target
+            "방향을 선택하세요. (1~9)", color.help_msg
         )
         self.engine.event_handler = RayRangedInputHandler(
-            self.engine,
             actor=consumer,
             max_range=self.max_range,
             callback=lambda xy: actions.ReadItem(consumer, self.parent, xy),

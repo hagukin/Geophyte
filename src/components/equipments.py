@@ -16,6 +16,7 @@ class Equipments(BaseComponent):
     parent: Actor
 
     def __init__(self):
+        super().__init__()
         self.equipments = {# Save items
             "main hand":None, #NOTE: Every equipments that can be equipped on main hand can also be equipped on off hand
             "off hand":None,

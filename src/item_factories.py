@@ -33,7 +33,7 @@ potion_of_healing = Item(
     corrodible=0,
     droppable=True,
     stackable=True,
-    throwable=throwable.NormalThrowable(break_chance=1),
+    throwable=throwable.PotionQuaffAndThrowSameEffectThrowable(break_chance=1),
     readable=None,
     quaffable=quaffable.PotionOfHealingQuaffable(amount=10),
 )
@@ -59,7 +59,7 @@ potion_of_paralysis = Item(
     corrodible=0,
     droppable=True,
     stackable=True,
-    throwable=throwable.PotionOfParalysisThrowable(break_chance=1, trigger_if_thrown_at=True),
+    throwable=throwable.PotionQuaffAndThrowSameEffectThrowable(break_chance=1, trigger_if_thrown_at=True),
     readable=None,
     quaffable=quaffable.PotionOfParalysisQuaffable(turn=10),
 )
@@ -77,7 +77,7 @@ potion_of_monster_detection = Item(
     entity_desc="Potion of telepathy desc",
     rarity=6,
     weight=0.2,
-    price=80,
+    price=150,
     item_type=InventoryOrder.POTION,
     item_state=ItemState(),
     spawnable=True,
@@ -91,6 +91,162 @@ potion_of_monster_detection = Item(
 )
 temp_items_lists.append(potion_of_monster_detection)
 item_rarity.append(potion_of_monster_detection.rarity)
+
+
+### Potion of flame
+potion_of_flame = Item(
+    should_randomize=True,
+    char="!",
+    fg=(255, 0, 255),
+    name="화염의 물약",
+    entity_id="potion_of_flame",
+    entity_desc="Potion of flame desc",
+    rarity=6,
+    weight=0.2,
+    price=80,
+    item_type=InventoryOrder.POTION,
+    item_state=ItemState(),
+    spawnable=True,
+    flammable=0,
+    corrodible=0,
+    droppable=True,
+    stackable=True,
+    throwable=throwable.PotionQuaffAndThrowSameEffectThrowable(break_chance=1, trigger_if_thrown_at=True),
+    readable=None,
+    quaffable=quaffable.PotionOfFlameQuaffable(turn=10),
+)
+temp_items_lists.append(potion_of_flame)
+item_rarity.append(potion_of_flame.rarity)
+
+
+### Potion of acid
+potion_of_acid = Item(
+    should_randomize=True,
+    char="!",
+    fg=(255, 0, 255),
+    name="강산성 물약",
+    entity_id="potion_of_acid",
+    entity_desc="Potion of acid desc",
+    rarity=6,
+    weight=0.2,
+    price=100,
+    item_type=InventoryOrder.POTION,
+    item_state=ItemState(),
+    spawnable=True,
+    flammable=0,
+    corrodible=0,
+    droppable=True,
+    stackable=True,
+    throwable=throwable.PotionQuaffAndThrowSameEffectThrowable(break_chance=1, trigger_if_thrown_at=True),
+    readable=None,
+    quaffable=quaffable.PotionOfAcidQuaffable(turn=15),
+)
+temp_items_lists.append(potion_of_acid)
+item_rarity.append(potion_of_acid.rarity)
+
+
+### Potion of frost
+potion_of_frost = Item(
+    should_randomize=True,
+    char="!",
+    fg=(255, 0, 255),
+    name="냉기의 물약",
+    entity_id="potion_of_frost",
+    entity_desc="Potion of frost desc",
+    rarity=6,
+    weight=0.2,
+    price=100,
+    item_type=InventoryOrder.POTION,
+    item_state=ItemState(),
+    spawnable=True,
+    flammable=0,
+    corrodible=0,
+    droppable=True,
+    stackable=True,
+    throwable=throwable.PotionQuaffAndThrowSameEffectThrowable(break_chance=1, trigger_if_thrown_at=True),
+    readable=None,
+    quaffable=quaffable.PotionOfFrostQuaffable(turn=7),
+)
+temp_items_lists.append(potion_of_frost)
+item_rarity.append(potion_of_frost.rarity)
+
+
+### Potion of poison
+potion_of_poison = Item(
+    should_randomize=True,
+    char="!",
+    fg=(255, 0, 255),
+    name="맹독의 물약",
+    entity_id="potion_of_poison",
+    entity_desc="Potion of poison desc",
+    rarity=6,
+    weight=0.2,
+    price=100,
+    item_type=InventoryOrder.POTION,
+    item_state=ItemState(),
+    spawnable=True,
+    flammable=0,
+    corrodible=0,
+    droppable=True,
+    stackable=True,
+    throwable=throwable.PotionQuaffAndThrowSameEffectThrowable(break_chance=1, trigger_if_thrown_at=True),
+    readable=None,
+    quaffable=quaffable.PotionOfPoisonQuaffable(turn=16),
+)
+temp_items_lists.append(potion_of_poison)
+item_rarity.append(potion_of_poison.rarity)
+
+
+### Potion of levitation
+potion_of_levitation = Item(
+    should_randomize=True,
+    char="!",
+    fg=(255, 0, 255),
+    name="공중 부양의 물약",
+    entity_id="potion_of_levitation",
+    entity_desc="",
+    rarity=6,
+    weight=0.2,
+    price=100,
+    item_type=InventoryOrder.POTION,
+    item_state=ItemState(),
+    spawnable=True,
+    flammable=0,
+    corrodible=0,
+    droppable=True,
+    stackable=True,
+    throwable=throwable.PotionQuaffAndThrowSameEffectThrowable(break_chance=1, trigger_if_thrown_at=True),
+    readable=None,
+    quaffable=quaffable.PotionOfLevitationQuaffable(turn=15),
+)
+temp_items_lists.append(potion_of_levitation)
+item_rarity.append(potion_of_levitation.rarity)
+
+
+### Potion of liquified ants
+potion_of_liquified_ants = Item(
+    should_randomize=True,
+    char="!",
+    fg=(255, 0, 255),
+    name="액화 개미 물약",
+    entity_id="potion_of_liquified_ants",
+    entity_desc="",
+    rarity=6,
+    weight=0.2,
+    price=100,
+    item_type=InventoryOrder.POTION,
+    item_state=ItemState(),
+    spawnable=True,
+    flammable=0,
+    corrodible=0,
+    droppable=True,
+    stackable=True,
+    throwable=throwable.PotionQuaffAndThrowSameEffectThrowable(break_chance=1, trigger_if_thrown_at=True),
+    readable=None,
+    quaffable=quaffable.PotionOfLiquifiedAntsQuaffable(turn=5),
+)
+temp_items_lists.append(potion_of_liquified_ants)
+item_rarity.append(potion_of_liquified_ants.rarity)
 
 
 #########################################################################

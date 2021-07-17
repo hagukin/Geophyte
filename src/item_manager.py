@@ -1,6 +1,7 @@
 from entity import Item
 from order import InventoryOrder
 from korean import grammar as g
+from game import Game
 
 import random
 import copy
@@ -13,7 +14,6 @@ class ItemManager:
 
         e.g. identification, randomized color, randomized name, etc
         """
-        self.engine = None
         self.items_lists = None
         self.item_rarity = None
         self.items_identified = {}
@@ -54,6 +54,9 @@ class ItemManager:
         # shuffle color
         random.shuffle(self.colors_for_potions)
         random.shuffle(self.colors_for_scrolls)
+
+    def engine(self):
+        return Game.engine
 
     def identify_type(self, item_id:str, identify_level: int=1):
         """

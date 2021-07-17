@@ -14,11 +14,8 @@ if TYPE_CHECKING:
 def clamp(n, smallest, largest): return max(smallest, min(n, largest))
 
 class Equipable(BaseComponent):
-    parent: Item
-
     def __init__(
         self,
-
         equip_region: str,
         upgrade: int = 0,
         str_requirement: int = 0,

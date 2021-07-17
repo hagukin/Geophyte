@@ -12,9 +12,9 @@ if TYPE_CHECKING:
     from entity import Actor, Item
 
 class Inventory(BaseComponent):
-    parent: Actor
-
     def __init__(self, capacity: int, is_fireproof: bool=False):
+        super().__init__(None)
+        self.parent = None
         self.capacity = capacity # max 52
         self.is_fireproof = is_fireproof
         self.item_hotkeys = {
@@ -78,7 +78,8 @@ class Inventory(BaseComponent):
                 Whether to show a message to the log or not.
         """
         # Duplicate and place the item
-        spliten_item = item.duplicate_self(quantity=1)
+        spliten_item = item.copy(gamemap=item.gamemap)
+        spliten_item.stack_count = 1
         self.remove_item(item, remove_count=1)
         spliten_item.place(x, y, self.gamemap)
 
@@ -161,7 +162,8 @@ class Inventory(BaseComponent):
         if item.stack_count > split_amount:
             if  split_amount >= 1:
                 # Create new stack
-                spliten_item = item.duplicate_self(quantity=split_amount)
+                spliten_item = item.copy(gamemap=item.gamemap)
+                spliten_item.stack_count = split_amount
                 spliten_item.stackable = False
 
                 # Remove item from stack

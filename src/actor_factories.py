@@ -1,4 +1,3 @@
-from components import experience
 import ai_factories
 import item_factories
 import copy
@@ -110,21 +109,18 @@ player = Actor(
     ability_inventory=AbilityInventory(capacity=10),
     equipments=Equipments(),
     initial_items=[
-        (item_factories.scroll_of_enchantment, 1, (98,99)),
-        (item_factories.scroll_of_identify, 1, (1,4)),
-        (item_factories.scroll_of_magic_mapping, 1, (88,99)),
-        (item_factories.scroll_of_tame, 1, (1,4)),
-        (item_factories.scroll_of_piercing_flame, 1, (98,99)),
-        (item_factories.potion_of_healing, 1, (1,4)),
-        (item_factories.potion_of_paralysis, 1, (1,4)),
-        (item_factories.potion_of_monster_detection, 1, (3,4)),
-        (item_factories.toxic_goo, 1, (1,5)),
-        (item_factories.shine, 1, (1000, 1001))
+        (item_factories.potion_of_flame, 1, (98,99)),
+        (item_factories.potion_of_frost, 1, (98,99)),
+        (item_factories.potion_of_acid, 1, (98,99)),
+        (item_factories.potion_of_paralysis, 1, (98,99)),
+        (item_factories.potion_of_liquified_ants, 1, (98,99)),
+        (item_factories.potion_of_healing, 1, (98,99)),
+        (item_factories.potion_of_levitation, 1, (98,99)),
+        (item_factories.potion_of_monster_detection, 1, (98,99)),
+        (item_factories.potion_of_poison, 1, (98,99)),
         ],
     initial_equipments=[
-        (item_factories.leather_armor, 1),
-        (item_factories.shortsword, 1,),
-        (item_factories.amulet_of_kugah, 1),
+        #(item_factories.leather_armor, 1),
         ],
     initial_abilities=[(ability_factories.lightning_bolt, 1), (ability_factories.steal, 1)],
 )

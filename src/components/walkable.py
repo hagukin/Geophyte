@@ -10,9 +10,8 @@ from korean import grammar as g
 
 
 class Walkable(BaseComponent):
-    parent: Item
     def __init__(self):
-        pass
+        super().__init__(None) #parent: Entity
 
     def perform(self, target) -> None:
         raise NotImplementedError
@@ -87,7 +86,6 @@ class TrapWalkable(Walkable):
 class SpikeTrapWalkable(TrapWalkable):
     def __init__(self, trigger_once, untrap_chance, check_item, check_actor, continuous_effect, base_damage, add_damage):
         super().__init__(trigger_once, untrap_chance, check_item, check_actor, continuous_effect)
-
         self.base_damage = base_damage
         self.add_damage = add_damage
 

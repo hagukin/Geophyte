@@ -35,7 +35,8 @@ class Ability:
     def gamemap(self):
         return self.parent.parent.gamemap
 
-    def spawn(self):
+    def copy(self):
         """Spawn a copy of this instance at the given location."""
         clone = copy.deepcopy(self)
+        copy.parent = self.parent
         return clone

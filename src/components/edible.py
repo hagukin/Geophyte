@@ -37,6 +37,7 @@ class Edible(BaseComponent):
                     vegetable
                     snack (e.g. candy bar)
         """
+        super().__init__()
         self._nutrition = nutrition
         self.cook_bonus= cook_bonus
         self.spoil_speed = spoil_speed

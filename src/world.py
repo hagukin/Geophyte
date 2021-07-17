@@ -1,6 +1,7 @@
 from __future__ import annotations
 from typing import Optional, Tuple, Type, TypeVar, TYPE_CHECKING, List
-from game_map import GameMap
+from engine import Engine
+from game import Game
 
 import shelve
 import os
@@ -9,7 +10,6 @@ import copy
 class World():
     def __init__(
         self,
-        engine,
         seed,
         max_depth:int=999 #TODO: Unused value
     ):
@@ -22,7 +22,6 @@ class World():
                 List with integers inside. Contains a List of depths of generated levels that are available for the game to use whenever it wants.
         """
         self.__seed = seed
-        self.engine = engine
         self.max_depth = max_depth
         self.mem_world = {}
         self.manual_deallocating_gamemap = [] # List of depths of gamemaps that are ignored from the optimization process.
@@ -31,26 +30,26 @@ class World():
         self.mem_capacity = 1 # maximum number of (1 + mem_capacity*2) gamemaps will be on the memory. MIN: 2 
         #TODO DEBUG
         # NOTE: Change this number depending on the RAM size
-   
+    @property
+    def engine(self):
+        return Game.engine
+
     @property
     def seed(self):
-        return copy.deepcopy(self.__seed)
+        return copy.deepcopy(self.__seed) # Prevent passing a reference
 
     def check_has_map(self, depth: int) -> bool:
         if depth in self.saved_maps:
             return True
         return False
 
-    def save_map(self, gamemap:GameMap, depth:int) -> None:
+    def save_map(self, gamemap, depth:int) -> None:
         with shelve.open(os.getcwd()+f"\\saves\\worlds\\{self.seed}") as save_file:
             # prevent pickle lib error(cannot serialize c objects)
-            temp_engine = gamemap.engine
-            gamemap.engine = None
             save_file["depth"+str(depth)] = gamemap
-            gamemap.engine = temp_engine
             save_file.close()
 
-    def load_map(self, depth: int) -> GameMap:
+    def load_map(self, depth: int):
         if not self.check_has_map(depth=depth):
             raise Exception(f"ERROR::world.load_map() - Cannot find {depth} depth map.")
 
@@ -89,7 +88,7 @@ class World():
             return False
         return True
 
-    def get_map(self, depth:int) -> Optional[GameMap]:
+    def get_map(self, depth:int):
         """
         Use get() instead of directly accessing mem_world[].
         NOTE: load_map() loads the map from the data file, while get_map() get the map no matter its on memory or not.

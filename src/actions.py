@@ -57,7 +57,7 @@ class PickupAction(Action):
                     raise exceptions.Impossible("인벤토리가 가득 찼습니다.")
 
                 # Remove the item from current gamemap
-                self.engine.game_map.entities.remove(item)
+                self.engine.game_map.remove_entity(entity=item)
                 item.parent = self.entity.inventory
                 inventory.add_item(item)
 
@@ -123,7 +123,7 @@ class AscendAction(Action):
             # Temporary game ending
             if n_depth == 0 and self.engine.player.inventory.check_if_in_inv("amulet_of_kugah"):
                 from input_handlers import GameClearInputHandler
-                self.engine.event_handler = GameClearInputHandler(engine=self.engine)
+                self.engine.event_handler = GameClearInputHandler()
 
             # Move entity to other level
             self.engine.change_entity_depth(
@@ -618,7 +618,7 @@ class DoorUnlockAction(ActionWithDirection):
                 self.engine.message_log.add_message(f"잠금을 해제하는 과정에서 {g(item.name, '이')} 파괴되었다.", color.player_damaged, target=self.entity)
 
             from input_handlers import MainGameEventHandler
-            self.engine.event_handler = MainGameEventHandler(engine=self.engine)
+            self.engine.event_handler = MainGameEventHandler()
 
     def perform(self) -> None:
         # If the player is the actor, call input handler
@@ -626,7 +626,6 @@ class DoorUnlockAction(ActionWithDirection):
             from input_handlers import InventoryChooseItemAndCallbackHandler
             from order import InventoryOrder
             self.engine.event_handler = InventoryChooseItemAndCallbackHandler(
-                self.engine, 
                 self.engine.player.inventory, 
                 self.unlock,
                 title="잠금 해제에 사용할 아이템을 선택하세요.",
@@ -666,7 +665,7 @@ class DoorBreakAction(ActionWithDirection):
                 self.entity.status.experience.gain_strength_exp(1, 20, 1000)
         
         from input_handlers import MainGameEventHandler
-        self.engine.event_handler = MainGameEventHandler(self.engine)
+        self.engine.event_handler = MainGameEventHandler()
     
     def check_actor_condition(self, strength: int) -> bool:
         can_try_break_door = True
@@ -730,7 +729,7 @@ class DoorOpenAction(ActionWithDirection):
         if open_fail > dexterity: # check if the actor failed to open the door
             self.engine.message_log.add_message(f"{g(self.entity.name, '은')} 문을 여는 것에 실패했다!", color.invalid, target=self.entity)
             from input_handlers import MainGameEventHandler
-            self.engine.event_handler = MainGameEventHandler(self.engine)
+            self.engine.event_handler = MainGameEventHandler()
             return None
 
         import semiactor_factories
@@ -742,7 +741,7 @@ class DoorOpenAction(ActionWithDirection):
             self.entity.status.experience.gain_dexterity_exp(1, 12, 30)
 
         from input_handlers import MainGameEventHandler
-        self.engine.event_handler = MainGameEventHandler(self.engine)
+        self.engine.event_handler = MainGameEventHandler()
 
     def check_actor_condition(self, dexterity: int, intelligence: int) -> bool:
         can_open_door = True
@@ -804,7 +803,7 @@ class DoorOpenAction(ActionWithDirection):
             # If the player is the actor, call input handler to decide what to do
             if self.entity == self.engine.player:
                 from input_handlers import LockedDoorEventHandler##DEBUG
-                self.engine.event_handler = LockedDoorEventHandler(self.engine, semiactor_on_dir)
+                self.engine.event_handler = LockedDoorEventHandler(semiactor_on_dir)
                 return None
             # If the AI is the actor, It will break the door if it can. if not, it will re-route.
             else:
@@ -893,7 +892,7 @@ class ChestBumpAction(ActionWithDirection):
             # If the player is the actor, call input handler
             if self.entity == self.engine.player:
                 from input_handlers import NonHostileBumpHandler
-                self.engine.event_handler = NonHostileBumpHandler(self.engine, semiactor_on_dir)
+                self.engine.event_handler = NonHostileBumpHandler(semiactor_on_dir)
                 return None
         else:
             raise exceptions.Impossible("아무 것도 들어있지 않다.")
@@ -960,7 +959,7 @@ class BumpAction(ActionWithDirection):
                     return PlaceSwapAction(self.entity, self.target_actor).perform()
                 elif not self.target_actor.ai.check_if_enemy(self.entity):
                     from input_handlers import NonHostileBumpHandler
-                    self.engine.event_handler = NonHostileBumpHandler(self.engine, self.target_actor)
+                    self.engine.event_handler = NonHostileBumpHandler(self.target_actor)
                     self.free_action = True # Force this action to not cost a time so that yime passes after player decides whether to attack or not.
                     return None
                 else:

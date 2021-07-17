@@ -16,7 +16,7 @@ import random
 class Throwable(BaseComponent):
 
     def __init__(self, base_throw: int=0, additional_throw: int=0, penetration: bool=False, break_chance: float=0, air_friction: int=1, sec_per_frame:float=0.025, trigger_if_thrown_at: bool = False):
-        self.parent = None # parent is intialized later
+        super().__init__(None)
         self.penetration = penetration
         self.break_chance = break_chance # 0~1
         self.air_friction = air_friction
@@ -91,10 +91,9 @@ class Throwable(BaseComponent):
     def get_action(self, thrower: Actor) -> Optional[actions.Action]:
         """Try to return the action for this item."""
         self.engine.message_log.add_message(
-            "방향을 선택하세요.", color.needs_target
+            "방향을 선택하세요.", color.help_msg
         )
         self.engine.event_handler = RayRangedInputHandler(
-            self.engine,
             actor=thrower,
             max_range=self.throw_distance(thrower),
             callback=lambda xy: actions.ThrowItem(thrower, self.parent, xy),
@@ -312,32 +311,19 @@ class NormalThrowable(Throwable):
 ###########################################################################################################################
 ###########################################################################################################################
 
-class PotionOfParalysisThrowable(NormalThrowable):
+class PotionQuaffAndThrowSameEffectThrowable(NormalThrowable):
+    """Potion that applies the same effect when quaffed and when thrown(collided) should use this general throwable component.
+    If there is any difference between the two, you should override NormalThrowable class and make a new one."""
     def __init__(self, base_throw: int=4, additional_throw: int=1, penetration: bool=False, break_chance: float=1, air_friction: int=1, sec_per_frame:float=0.025, trigger_if_thrown_at: bool = True):
         super().__init__(base_throw, additional_throw, penetration, break_chance, air_friction, sec_per_frame, trigger_if_thrown_at)
-    
+
     def effect_when_collided_with_actor(self, target: Actor, thrower: Actor, trigger: bool) -> None:
         super().effect_when_collided_with_actor(target, thrower, trigger)
-        if target.actor_state.is_paralyzing == [0,0]: # When the target wasn't paralyzed before
+        if hasattr(self.parent, "quaffable"):
+            self.parent.quaffable.apply_effect(apply_to=target)
+        else:
+            print(f"WARNING::{self.parent.entity_id} has no quaffable but is using potion throwable.")
 
-            # Log
-            if target == self.engine.player:
-                self.engine.message_log.add_message(f"당신은 갑자기 몸을 움직일 수가 없게 되었다!",color.player_damaged,)
-            else:
-                if self.engine.game_map.visible[target.x, target.y]:
-                    self.engine.message_log.add_message(f"{g(target.name, '이')} 갑자기 모든 움직임을 멈추었다.", color.white, target=target)
-
-            # Paralyze
-            target.actor_state.apply_paralyzation([0, self.parent.quaffable.turn])
-        else: # When the target was paralyzed before
-
-            # Log
-            if target == self.engine.player:
-                self.engine.message_log.add_message(f"당신의 몸이 더 뻣뻣해졌다!",color.player_damaged,)
-
-            # If paralyzation is permanent, (is_paralyzing[0] is set to negative) prevent overwriting the turn left
-            target.actor_state.apply_paralyzation([0, self.parent.quaffable.turn])
-            
 
 class ToxicGooThrowable(NormalThrowable):
     def __init__(self, base_throw: int=4, additional_throw: int=1, penetration: bool=False, break_chance: float=1, air_friction: int=1, sec_per_frame:float=0.025, trigger_if_thrown_at: bool = True):

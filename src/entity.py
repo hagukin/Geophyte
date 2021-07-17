@@ -10,7 +10,6 @@ import numpy as np
 from typing import Optional, Tuple, Type, TypeVar, TYPE_CHECKING, List
 from numpy.core.shape_base import block
 from order import RenderOrder, InventoryOrder
-from components.experience import Experience
 from korean import grammar as g
 
 if TYPE_CHECKING:
@@ -243,12 +242,18 @@ class Entity:
             try:
                 self.gamemap.entities.remove(self)
             except ValueError:
-                print(f"ENTITY_REMOVE_SELF()::{self.name} HAS NO GAMEMAP. THIS MIGHT NOT BE A SERIOUS ISSUE.")
+                print(f"WARNING::entity.remove_self() - Tried to remove {self.name}, but its not in gamemap.entities. (It has self.gamemap)")
                 pass
 
-    def spawn(self: T, gamemap: GameMap, x: int, y: int) -> T:
-        """Spawn a copy of this instance at the given location."""
+    def copy(self, gamemap: GameMap):
         clone = copy.deepcopy(self)
+        clone.gamemap = gamemap
+        return clone
+
+    def spawn(self: T, gamemap: GameMap, x: int, y: int) -> T:
+        """Spawn a new copy of this instance at the given location.
+        NOTE: So technically you are not spawning THIS SPECIFIC ENTITY, instead you are copying this entity and spawning the copy."""
+        clone = self.copy(gamemap)
         clone.x = x
         clone.y = y
         clone.gamemap = gamemap
@@ -380,6 +385,7 @@ class Actor(Entity):
         self.status.parent = self
         self.growthable = growthable
         if growthable:
+            from components.experience import Experience
             self.status.experience = Experience()
             self.status.experience.parent = self.status
 
@@ -508,6 +514,9 @@ class Actor(Entity):
         Sets initial items, abilities, and equipments of this actor.
         This method is called from spawn().
         """
+        if self.ai:
+            self.ai.init_vision()
+
         for item in self.initial_items:
             if random.random() <= item[1]:
                 temp = item[0].spawn(gamemap=self.gamemap, x=0, y=0)
@@ -532,13 +541,15 @@ class Actor(Entity):
 
         for ability in self.initial_abilities:
             if random.random() <= ability[1]:
-                self.ability_inventory.add_ability(ability[0].spawn())
+                self.ability_inventory.add_ability(ability[0].copy())
 
-    def spawn(self: T, gamemap: GameMap, x: int, y: int) -> T:
+    def spawn(self: T, gamemap: GameMap, x: int, y: int, is_active: bool=False) -> T:
         """
         Spawn a copy of this instance at the given location.
         """
         clone = super().spawn(gamemap, x, y)
+        if is_active and clone.ai:
+            clone.ai.activate()
         clone.initialize_actor()#NOTE: initialize_actor() should be called AFTER super().spawn(), so that the actor's gamemap is set.
         return clone
 
@@ -776,6 +787,11 @@ class Item(Entity):
 
         #TODO: upgrades initialization
 
+    def copy(self, gamemap: GameMap, parent: Optional[Inventory]=None):
+        clone = super().copy(gamemap=gamemap)
+        clone.parent = parent
+        return clone
+
     def spawn(self: T, gamemap: GameMap, x: int, y: int) -> T:
         """
         Spawn a copy of this instance at the given location.
@@ -783,48 +799,6 @@ class Item(Entity):
         clone = super().spawn(gamemap, x, y)
         clone.initialize_item()#NOTE: initialize_item() should be called AFTER super().spawn(), so that the actor's gamemap is set.
         return clone
-
-    def get_info(self) -> dict:
-        """
-        Get values from this item's components, and return them as a single dictionary.
-        This method is used for item copying.
-
-        NOTE: This method should be constantly updated as the game grows.
-        """
-        info = {}
-
-        # Get variables from entity class that can be modified after generation.
-        info["gamemap"] = self.gamemap
-        info["parent"] = self.parent
-        info["char"] = self._char
-        info["fg"] = self._fg
-        info["bg"] = self._bg
-        info["name"] = self._name
-        info["entity_desc"] = self._entity_desc
-        info["weight"] = self.weight
-        info["price"] = self.price
-        info["flammable"] = self.flammable
-        info["droppable"] = self.droppable
-        info["action_speed"] = self.action_speed
-        info["action_point"] = self.action_point
-
-        # Get variables from item_state class that can be modified after generation.
-        info["is_burning"] = self.item_state.is_burning
-        info["burntness"] = self.item_state.burntness
-        info["corrosion"] = self.item_state.corrosion
-        info["BUC"] = self.item_state.BUC
-        info["is_identified"] = self.item_state.is_identified
-        info["is_being_sold_from"] = self.item_state.is_being_sold_from
-
-        # Copy the entire component if possible
-        # NOTE: If something goes wrong, try copying the values manually like above.
-        info["equipable"] = self.equipable
-        info["edible"] = self.edible
-        info["throwable"] = self.throwable
-        info["readable"] = self.readable
-        info["quaffable"] = self.quaffable
-
-        return info
 
     def update_component_parent_to(self, item: Item) -> None:
         if self.equipable:
@@ -847,79 +821,6 @@ class Item(Entity):
             self.readable.parent = item
         if self.quaffable:
             self.quaffable.parent = item
-
-    def set_info(self, item: Item) -> None:
-        """
-        Get values from the get_info(), and set this item's values with those.
-        """
-        # Entity
-        info = item.get_info()
-        self.gamemap = info["gamemap"]
-        self.parent = info["parent"]
-        self._char = info["char"]
-        self._fg = info["fg"]
-        self._bg = info["bg"]
-        self._name = info["name"]
-        self._entity_desc = info["entity_desc"]
-        self.weight = info["weight"]
-        self.price = info["price"]
-        self.flammable = info["flammable"]
-        self.droppable = info["droppable"]
-        self.action_speed = info["action_speed"]
-        self.action_point = info["action_point"]
-
-        # item_state
-        self.item_state.is_burning = info["is_burning"]
-        self.item_state.burntness = info["burntness"]
-        self.item_state.corrosion = info["corrosion"]
-        self.item_state.BUC = info["BUC"]
-        self.item_state.is_identified = info["is_identified"]
-        self.item_state.is_being_sold_from = info["is_being_sold_from"]
-
-        # components
-        #NOTE: the 'parent' variable must be changed!!!!!!!!! update_component_parent_to() is doing the job
-        # IF YOU FORGET THIS IT COULD CAUSE A TONS OF ISSUES
-        self.equipable = info["equipable"]
-        self.edible = info["edible"]
-        self.throwable = info["throwable"]
-        self.readable = info["readable"]
-        self.quaffable = info["quaffable"]
-        self.equipable = info["equipable"]
-        self.edible = info["edible"]
-        self.throwable = info["throwable"]
-        self.readable = info["readable"]
-        self.quaffable = info["quaffable"]
-        self.update_component_parent_to(item=self)
-
-    def duplicate_self(self, quantity:int=None):
-        """
-        Create and return new item that is a direct copy of this item.
-
-        Args:
-            quantity:
-                If set to None, the copied item's stack_count is copied from the original.
-                If it has any value, the method will use it instead.
-        """
-        # Create new item instance from item_factories
-        dup_item = None
-        for i in self.engine.item_manager.items_lists:
-            if i.entity_id == self.entity_id:
-                dup_item = copy.deepcopy(i)
-
-                # Copy item informations and UPDATE PARENT INFORMATION (IMPORTANT)
-                dup_item.set_info(item=dup_item)
-                break
-        if dup_item == None:
-            print(f"DEBUG::ITEM {self.name} FAILED TO DUPLICATE ITSELF. - ITEM.DUPLICATE_SELF()")
-            return None
-
-        # Set quantity
-        if quantity:
-            dup_item.stack_count = quantity
-        else:
-            dup_item.stack_count = self.stack_count
-        
-        return dup_item
 
     def collided_with_fire(self, fire=None):
         """
@@ -1024,12 +925,8 @@ class SemiActor(Entity):
         
     def spawn(self: T, gamemap: GameMap, x: int, y: int, lifetime: int=3) -> T:
         """Spawn a copy of this instance at the given location."""
-        clone = copy.deepcopy(self)
-        clone.x = x
-        clone.y = y
+        clone = super().spawn(gamemap, x, y)
         clone.lifetime = lifetime
-        clone.gamemap = gamemap
-        gamemap.entities.append(clone)
         return clone
 
     def collided_with_fire(self):

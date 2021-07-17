@@ -49,6 +49,7 @@ def get_names_at_location(x: int, y: int, game_map: GameMap, display_id: bool=Fa
 
     for entity in reversed(game_map.entities):
         if entity.x == x and entity.y == y:
+            name = entity.name
             if display_id:
                 names.append(f"{id(entity)}:{entity.name}")
                 continue
@@ -56,19 +57,16 @@ def get_names_at_location(x: int, y: int, game_map: GameMap, display_id: bool=Fa
             if isinstance(entity, Item):
                 # If entity is a item, display stack_count as well
                 if entity.stack_count > 1:
-                    names.append(f"{entity.name} x{entity.stack_count}")
-                else:
-                    names.append(entity.name)
+                    name += f" x{entity.stack_count}"
             elif isinstance(entity, Actor):
                 if entity.ai:
                     if entity.ai.owner == game_map.engine.player:
-                        names.append(f"펫 {entity.name}")
-                    else:
-                        names.append(entity.name)
-                else:
-                    names.append(entity.name)
-            else:
-                names.append(entity.name)
+                        name = f"펫 {entity.name}"
+
+            if entity.is_on_air:
+                name += " (공중에 떠 있음)"
+
+            names.append(name)
 
     names = ", ".join(names)
     names = names[0:game_map.engine.config["camera_width"] - 7]
@@ -285,6 +283,13 @@ def render_character_state(
         else:
             num1 += 1
             console.print(x=lane1_x, y=y+num1, string="중독", fg=color.purple)
+    if character.actor_state.is_levitating != [0,0]:
+        if num1 > window_height:
+            num2 += 1
+            console.print(x=lane2_x, y=y+num2, string="공중 부양", fg=color.white)
+        else:
+            num1 += 1
+            console.print(x=lane1_x, y=y+num1, string="공중 부양", fg=color.white)
     if character.actor_state.is_submerged:
         if character.actor_state.is_underwater:
             if num1 > window_height:

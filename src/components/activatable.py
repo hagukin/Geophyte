@@ -20,8 +20,8 @@ class Activatable(BaseComponent):
     When abilities are used, methods from this component are called.
     """
     def __init__(self):
-        self.parent = None
-        
+        super().__init__(None)
+
     def get_action(self, caster: Actor, x: int=None, y: int=None, target: Actor=None) -> Optional[actions.Action]:
         """
         NOTE: This function MUST be overriden indivisually.
@@ -55,9 +55,8 @@ class StealActivatable(Activatable):
     """
     def get_action(self, caster: Actor, x: int=None, y: int=None, target: Actor=None):
         if caster == self.engine.player:
-            self.engine.message_log.add_message("타겟의 위치를 선택하세요.", color.needs_target)
+            self.engine.message_log.add_message("타겟의 위치를 선택하세요.", color.help_msg)
             self.engine.event_handler = RayDirInputHandler(
-                engine=self.engine,
                 actor=caster,
                 max_range=1,
                 callback=lambda dx, dy: actions.AbilityAction(entity=caster, ability=self.parent, x=caster.x + dx, y=caster.y + dy, target=self.gamemap.get_actor_at_location(x=caster.x + dx, y=caster.y + dy)),
@@ -89,18 +88,16 @@ class StealActivatable(Activatable):
                 else:
                     item_count = random.randint(1,item.stack_count)
 
-                # If the selected item is equipped, remove it from it's owner. #TODO: Seperate this feature as "disarm"
+                # If the selected item is equipped, remove it from it's owner.
                 if item.equipable:
                     if item.equipable.parent == item:
                         item.parent.parent.equipments.remove_equipment(region=item.equipable.equip_region, forced=True)
 
                 # Make duplicate
-                dup_item = item.duplicate_self(quantity=item_count)
-
-                # Remove item from owner's inv
+                dup_item = item.copy(gamemap=item.gamemap)
+                dup_item.stack_count = item_count
                 target.inventory.remove_item(item=item, remove_count=item_count)
-                
-                # Add item to caster's inv. If inv is full, drop on caster's location.
+
                 if len(attacker.inventory.items) >= attacker.inventory.capacity:
                     dup_item.place(x=attacker.x, y=attacker.y, gamemap=attacker.gamemap)
                 else:

@@ -19,8 +19,6 @@ if TYPE_CHECKING:
 def clamp(n, smallest, largest): return max(smallest, min(n, largest))
 
 class Status(BaseComponent):
-    parent: Actor
-
     def __init__(self,
     hp,
     mp,
@@ -80,6 +78,7 @@ class Status(BaseComponent):
     bonus_shock_resistance: float=0,
     bonus_magic_resistance: float=0,
     ):
+        super().__init__(None)
         self.difficulty = None
 
         self.experience: Experience = None # If the actor has an experience component, it is initalized in Actor.__init__()
@@ -265,6 +264,30 @@ class Status(BaseComponent):
     def die(self, cause: str="low_hp") -> None:
         self.parent.actor_state.is_dead = True
 
+        # Drop Everything
+        drop_list = []
+        for item in self.parent.inventory.items:
+            drop_list.append(item)
+        for drop_item in drop_list:
+            self.parent.inventory.drop(item=drop_item, show_msg=False)
+
+        # Remove all actor state
+        self.parent.actor_state.remove_all_actor_states(include_spatial_states=True)
+
+        # Spawn corpse entity
+        if self.parent.edible: # if edible is None, no corpse is spawned.
+            new_corpse = item_factories.corpse.spawn(self.parent.gamemap, self.parent.x, self.parent.y)
+            new_corpse.weight = max(round(self.parent.actor_state.weight / 2, 2), 0.01)
+            new_corpse.change_name(self.parent.name + " 시체")
+            new_corpse.edible = self.parent.edible # copy edible value from parent
+            new_corpse.edible.parent = new_corpse
+
+            #TODO: might have to save self.parent to new_corpse (for resurrection feature)
+
+        # Remove all actor states to prevent bugs
+        self.parent.actor_state.remove_all_actor_states()
+
+        # death cause
         if cause == "low_hp":
             death_message = ""
         elif cause == "lack_of_strength":
@@ -279,36 +302,15 @@ class Status(BaseComponent):
         if self.engine.player is self.parent:
             death_message += "당신은 죽었다!"
             death_message_color = color.player_die
-            self.engine.event_handler = GameOverEventHandler(self.engine)
-        elif self.engine.game_map.visible[self.parent.x, self.parent.y]: # if dead entity is in player's visible range
+            self.engine.event_handler = GameOverEventHandler()
+        elif self.engine.game_map.visible[self.parent.x, self.parent.y]:  # if dead entity is in player's visible range
             death_message += f"{g(self.parent.name, '이')} 죽었다!"
             death_message_color = color.enemy_die
         else:
             death_message_color = color.white
-            pass # Show nothing if entity is not in visible radius.
-
-        # Drop Everything
-        drop_list = []
-        for item in self.parent.inventory.items:
-            drop_list.append(item)
-        for drop_item in drop_list:
-            self.parent.inventory.drop(item=drop_item, show_msg=False)
-
-        # Spawn corpse entity
-        if self.parent.edible: # if edible is None, no corpse is spawned.
-            new_corpse = copy.deepcopy(item_factories.corpse)
-            new_corpse.weight = max(round(self.parent.actor_state.weight / 2, 2), 0.01)
-            new_corpse.change_name(self.parent.name + " 시체")
-            new_corpse.edible = self.parent.edible # copy edible value from parent
-            new_corpse.edible.parent = new_corpse
-            new_corpse.spawn(self.parent.gamemap, self.parent.x, self.parent.y)
-            #TODO: might have to save self.parent to new_corpse (for resurrection feature)
-
+            pass  # Show nothing if entity is not in visible radius.
         # Add messagen to log
         self.engine.message_log.add_message(death_message, fg=death_message_color, target=self.parent)
-
-        # Remove all actor states to prevent bugs
-        self.parent.actor_state.remove_all_actor_states()
 
         # Delete dead entity
         self.parent.remove_self()

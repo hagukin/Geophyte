@@ -35,8 +35,7 @@ class SemiactorInfo(BaseComponent):
                 2 - severly corroded
                 3 - gone
         """
-        # parent: Semiactor
-        self.parent = None
+        super().__init__(None) #parent: SemiActor
 
         self.flammable = flammable
         self.corrodable = corrodable

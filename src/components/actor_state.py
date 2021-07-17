@@ -18,7 +18,6 @@ class ActorState(BaseComponent):
     Values that are directly related to the actor's state of being are stored here.
     """
     def __init__(self,
-        parent: Actor = None,
         ### Hunger
         # Negative value indicates not being hungry at all.
         # 1 points of hunger is about 5 kcal irl, and if the actor will consume 1 points of hunger each turn. TODO: Maybe make some actions costs hunger more?
@@ -165,7 +164,7 @@ class ActorState(BaseComponent):
         can_think: bool = True, # Has ability to make the most basic level of logical decision (e.g. feels pain -> moves away)
         can_talk: bool = True, # Is capable of speaking a language
     ):
-        self.parent = parent
+        super().__init__(None)
 
         self.hunger = hunger
         self.previous_hunger_state = None
@@ -285,7 +284,6 @@ class ActorState(BaseComponent):
 
     def actor_gets_hungry(self):
         self.hunger -= 1
-
         hunger_state = self.hunger_state
 
         if self.parent == self.engine.player: #Currently the message log will only print messages about player's hunger. (TODO: when pets are added, add pets' hunger)
@@ -381,7 +379,7 @@ class ActorState(BaseComponent):
                     dmg_color = color.player_damaged
                 else:
                     dmg_color = color.enemy_damaged
-                
+
                 self.engine.message_log.add_message(f"{g(self.parent.name, '은')} 화염으로부터 {fire_dmg} 데미지를 받았다.", fg=dmg_color, target=self.parent)
             
                 # Inventory on fire
@@ -671,6 +669,21 @@ class ActorState(BaseComponent):
         if random.random() <= (constitution / (constitution + 60)):
             self.is_bleeding[1] = self.is_bleeding[2] # The bleeding will stop next game loop.
 
+    def actor_levitating(self):
+        """
+        Actor is levitating.
+        """
+        if self.is_levitating[0] >= self.is_levitating[1]:
+            if self.parent == self.engine.player:
+                self.engine.message_log.add_message(f"당신은 더 이상 공중 부양 상태가 아니다.")
+            self.apply_levitation([0, 0])
+            self.parent.float(False)
+        elif self.is_levitating[0] >= 0:  # lasts forever if negative
+            self.is_levitating[0] += 1
+
+        if self.is_levitating != [0, 0]:
+            self.parent.float(True)
+
     def actor_poisoned(self):
         """
         Actor is poisoned.
@@ -791,30 +804,30 @@ class ActorState(BaseComponent):
         # regen
         self.heal_wounds = False
         # physical states
-        self.is_burning = [0, 0, 0, 0]
-        self.is_poisoned = [0, 0, 0, 0]
-        self.is_freezing = [0, 0, 0, 0, 0]
-        self.is_frozen = [0, 0, 0]
-        self.is_electrocuting = [0, 0]
-        self.is_invisible = [0, 0]
-        self.is_phasing = [0, 0]
-        self.is_paralyzing = [0, 0]
-        self.is_bleeding = [0, 0, 0]
-        self.is_acting_slower = [0, 0, 0]
-        self.is_acting_faster = [0, 0, 0]
-        self.is_melting = [0, 0, 0, 0]
-        self.is_sick = [0.0, 0, 0]
-        self.is_levitating = [0, 0]
-        self.is_drowning = [0, 0]
+        self.apply_burning([0, 0, 0, 0])
+        self.apply_poisoning([0, 0, 0, 0])
+        self.apply_freezing([0, 0, 0, 0, 0])
+        self.apply_frozen([0, 0, 0])
+        self.apply_electrocution([0, 0])
+        self.apply_invisibility([0, 0])
+        self.apply_phasing([0, 0])
+        self.apply_paralyzation([0, 0])
+        self.apply_bleeding([0, 0, 0])
+        self.apply_slowness([0, 0, 0])
+        self.apply_haste([0, 0, 0])
+        self.apply_melting([0, 0, 0, 0])
+        self.apply_sickness([0.0, 0, 0])
+        self.apply_levitation([0, 0])
+        self.apply_drowning([0, 0])
         # nonphysical states
-        self.is_sleeping = [0, 0]
-        self.is_angry = [0, 0]
-        self.is_confused = [0, 0]
-        self.is_hallucinating = [0, 0]
-        self.is_detecting_obj = [0, 0, []]
+        self.apply_sleeping([0, 0])
+        self.apply_anger([0, 0])
+        self.apply_confusion([0, 0])
+        self.apply_hallucination([0, 0])
+        self.apply_object_detection([0, 0, []])
         if include_spatial_states:
             # spatial states
-            self.actor_stop_fly()
+            self.actor_stop_fly() # NOTE: entity.is_on_air will remain its value since its technically not actor state.
             self.is_in_deep_pit = False
             self.is_in_shallow_pit = False
             self.is_submerged = False
@@ -1073,8 +1086,6 @@ class ActorState(BaseComponent):
             self.is_levitating[1] += value[1]
         else:
             self.is_levitating = value
-            if value != [0,0]:
-                self.parent.float(True)
 
     def apply_drowning(self, value: List[int,int]) -> None:
         if self.is_drowning != [0,0] and value != [0,0]:

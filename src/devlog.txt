@@ -1829,4 +1829,32 @@
 
             게임 뼈대/프레임워크 제작 완료.
             알파 출시를 위해 엔티티,지형 추가 + 게임 다듬기 시작.
+20210717 - 작업 계획
+
+           포션 -> 주문서 -> 액터 -> 어빌리티 -> 장착품들 -> 바이옴 -> 터레인 -> 세미액터(함정 등) -> 액터 벨런스 조정
+
+           포션 다량 추가
+           포션의 quaffable과 throwable을 분리하는 기존 방식은 굉장히 비효율적이라 판단하여 이를 통합하는 방법을 찾음.
+           > Throwable에서 collision이 발생할 경우 별도의 함수를 작성해주는 대신, Quaffable의 apply_effect()를 호출하는 방식으로 변경함.
+           Quaffable에서 activate() 하면 activate 내부에서 apply_effect()가 호출됨.
+           즉 apply_effect()는 마시거나 포션을 맞는 두 상황 모두에 사용됨.
+
+           actor_state 관련 최종 정비.
+
+           공중에 떠있을 경우 텍스트로 표기.
+
+           base_component 수정.
+
+           Entity.copy() 제작.
+           기존에는 Entity.spawn(), 혹은 아이템의 경우 Item.spawn(), Item.duplicate_self() 등 여러 함수들이 혼용되어왔는데,
+           모든 아이템 복사는 Entity.copy()로 통일. 이 과정에서 duplicate_self에서 쓰이던 Item.set_info()와 get_info()는 삭제함.
+           앞으로는 entity 오브젝트를 직접 deepcopy하는 일은 최대한 없어야 하며, deepcopy해야 할 경우 entity.copy()를 활용해야 함.
+           > 정리하면, 아이템 복사, engine 복사 문제 관련해서 확실하게 마무리지음. 이제 deepcopy할 때마다 engine=None으로 바꾸는 일을 해줄 필요가 없음.
+           > game.py(Game)을 제작해 Game오브젝트만이 engine과 직접적인 참조관계를 갖도록 만들었고, 그 이외의 모든 오브젝트들은 Game의 static variable을 접근만 하지 서로 참조하는 관계는 단하나도 없음.
+           > 고로 이제 Game, Engine 이 두 오브젝트를 제외한 모든 오브젝트를 자유롭게 deepcopy할 수 있음.
+           그러나 이떄 주의할 점은 엔티티를 deepcopy할때 항상 gamemap을 deepcopy를 해서는 안되는 상황이 자주 있다는 점임. (Item의 경우 gamemap에 더해 parent 오브젝트도 해당)
+           왜냐하면 A라는 아이템을 split해 B라는 copy를 만들었다면, A와 B는 같은 gamemap, parent를 가지고 있어야함.
+           그러나 그냥 생각없이 전체값을 다 deepcopy를 해버리면 완전히 새로운 게임맵, 그리고 인벤토리 컴포넌트가 생겨버려 문제가 발생함.
+           때문에 Entity.copy()와 Item.copy()는 gamemap(Item의 경우 parent도)을 인자로 받아서 gamemap은 deepcopy에서 제외함.
+           > 이 수정사항 때문에 InputHandler들중 engine을 인풋 파라미터로 받는 클래스들을 수정했음, 수정한 부분이 많기 때문에 게임 전반적으로 한번 테스트가 필요함.
 

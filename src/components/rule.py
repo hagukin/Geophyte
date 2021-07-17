@@ -12,6 +12,7 @@ from typing import List, Tuple
 
 class BaseRule(BaseComponent):
     def __init__(self):
+        super().__init__(None)
         self.parent = None
 
     def perform(self) -> None:

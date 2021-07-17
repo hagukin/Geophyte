@@ -680,7 +680,6 @@ def get_dungeon_biome(depth: int):
 def generate_dungeon(
     console: Console,
     context: Context,
-    engine,
     depth,
     display_process: bool,
     min_display_time: int = 2,
@@ -693,6 +692,8 @@ def generate_dungeon(
             Minimum length(seconds) of how long the game will display procgen process to the screen.
             This argument does nothing if display_process is set to False.
     """
+    from game import Game
+    engine = Game.engine
     rooms: List[Room] = []
     possible_biome = get_dungeon_biome(depth) # If there is certain list of biomes specified for certain depth, choose one from the specified biome list.
     if possible_biome:
@@ -700,7 +701,7 @@ def generate_dungeon(
     else:
         biome = choose_biome()
 
-    dungeon = GameMap(depth=depth, engine=engine, biome=biome) #NOTE: tilemap initialization happens during  gamemap.__init__()
+    dungeon = GameMap(depth=depth, biome=biome) #NOTE: tilemap initialization happens during  gamemap.__init__()
 
     screen_center_x = int(engine.config["screen_width"] / 2)
     screen_center_y = int(engine.config["screen_height"] / 2)

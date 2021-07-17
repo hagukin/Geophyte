@@ -44,7 +44,7 @@ player_atk_missed = white
 enemy_atk = gray
 enemy_crit = gray
 enemy_atk_missed = gray
-needs_target = (0x3F, 0xFF, 0xFF)
+help_msg = (0x3F, 0xFF, 0xFF)
 status_effect_applied = (0x3F, 0xFF, 0x3F)
 
 player_damaged = (0xff, 0x70, 0x03)

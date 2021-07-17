@@ -1,7 +1,6 @@
 from __future__ import annotations
 from camera import Camera
 from typing import TYPE_CHECKING, List, Optional, Tuple, Set
-from world import World
 from util import draw_thick_frame
 from tcod.path import SimpleGraph, Pathfinder
 from tcod.console import Console
@@ -56,7 +55,7 @@ class Engine:
             world:
                 Represents the entire game world.
         """
-        self.event_handler: EventHandler = MainGameEventHandler(self)
+        self.event_handler: EventHandler = MainGameEventHandler()
         self.message_log = MessageLog(engine=self)
         self.mouse_location = (0, 0)
         self.mouse_dir = (1, 1)
@@ -72,7 +71,7 @@ class Engine:
         self.console = None
         self.context = None
         self.camera: Camera = None
-        self.world: World = None
+        self.world = None
         self.game_map: GameMap = None
         self.depth: int = 0
         self.item_manager: ItemManager = None
@@ -216,7 +215,8 @@ class Engine:
         for actor in set(self.game_map.actors):
             # Bug prevention
             if actor.is_dead:
-                print("ERROR :: THE ACTOR IS DEAD BUT HANDLE_ACTOR_STATES() IS STILL RUNNING.")
+                print("WARNING::THE ACTOR IS DEAD BUT HANDLE_ACTOR_STATES() IS STILL RUNNING.")
+                continue
 
             ### Unique status effects ###
             # Burning
@@ -240,6 +240,9 @@ class Engine:
             # Melting from acid
             if actor.actor_state.is_melting != [0,0,0,0]:
                 actor.actor_state.actor_melting()
+            # Levitating
+            if actor.actor_state.is_levitating != [0,0]:
+                actor.actor_state.actor_levitating()
             # Poisoned
             if actor.actor_state.is_poisoned != [0,0,0,0]:
                 actor.actor_state.actor_poisoned()
@@ -352,7 +355,7 @@ class Engine:
 
             # Check if the effects param and effects var param are synced.
             if len(effects) != len(effects_var):
-                raise Exception("Adding Special Effects - Something went wrong. effects != effects_var")
+                raise Exception("ERROR::engine.add_special_effects - Something went wrong. effects != effects_var")
 
             # Apply status effects
             for n in range(len(effects)):
@@ -404,22 +407,13 @@ class Engine:
 
     def generate_new_dungeon(self, console, context, depth=1, display_process=True) -> GameMap:
         """Generate new dungeon and return as gamemap object"""
-        # Set temporary context, console values to prevent cffi error
-        temp_console, temp_context, temp_handler = self.console, self.context, self.event_handler
-        self.console, self.context = None, None
-
         # Generate regular dungeon
         new_dungeon = generate_dungeon(
             console=console,
             context=context,
-            engine=self,
             depth=depth,
             display_process=display_process
         )
-
-        # Get console, context info back.
-        self.console, self.context = temp_console, temp_context
-        self.event_handler = temp_handler
         return new_dungeon
 
     def update_entity_in_sight(self, is_initialization=False) -> None:

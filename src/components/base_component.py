@@ -1,15 +1,15 @@
 from __future__ import annotations
-
 from typing import TYPE_CHECKING
+from game_map import GameMap
+from game import Game
 
 if TYPE_CHECKING:
     from engine import Engine
-    from entity import Entity
-    from game_map import GameMap
 
 
 class BaseComponent:
-    parent: Entity  # Owning entity instance.
+    def __init__(self, parent=None):
+        self.parent = parent
 
     @property
     def gamemap(self) -> GameMap:
@@ -17,4 +17,6 @@ class BaseComponent:
 
     @property
     def engine(self) -> Engine:
-        return self.gamemap.engine
+        if self.parent.gamemap == None:
+            print(f"WARNING::{self.parent.entity_id} tried to access engine object from its component '{self}' without having a gamemap.")
+        return Game.engine

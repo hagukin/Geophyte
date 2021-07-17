@@ -6,6 +6,7 @@ import visual
 import copy
 import color
 from collections import deque
+from game import Game
 
 class Camera:
     """
@@ -36,7 +37,6 @@ class Camera:
             dx, dy:
                 cam x position = xpos + dx
         """
-        self.engine = engine
         self.width = width
         self.half_width = int(width / 2)
         self.height = height
@@ -51,6 +51,10 @@ class Camera:
         self.visuals =  deque() # List of visual objects that are going to be rendered this turn.
         self.prev_visuals = deque()
         self.prev_gameturn = 1 # Keeps track of game turn to determine whether the camera should decrease the lifetime of the visual objects or not.
+
+    @property
+    def engine(self):
+        return Game.engine
 
     @property
     def biggest_x(self):
