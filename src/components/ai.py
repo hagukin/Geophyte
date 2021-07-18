@@ -7,7 +7,7 @@ from numpy.core.shape_base import block
 import tcod
 
 from typing import List, Tuple, Optional
-
+from util import get_distance
 from ability import Ability
 from skill_ai import Skill_AI
 from actions import Action, BumpAction, MeleeAction, WaitAction, ThrowItem, EatItem, PickupAction
@@ -108,18 +108,19 @@ class BaseAI(BaseComponent):
         self.active = True
 
     def check_active(self) -> None:
-        # Set to active when this ai is in player's sight
-        if self.gamemap.visible[self.parent.x, self.parent.y] and self.vision[self.engine.player.x, self.engine.player.y]:
-            # prevent overwriting
-            if self.in_player_sight:
-                return None
+        if self.active: # prevent overwriting
+            return None
 
-            self.in_player_sight = True
-            self.activate()
+        # Set to active when this ai is in player's sight or player is in ai's sight
+        if self.gamemap.visible[self.parent.x, self.parent.y] or self.vision[self.engine.player.x, self.engine.player.y]:
+                self.activate()
+                return None
         else:
+            if get_distance(self.engine.player.x, self.engine.player.y, self.parent.x, self.parent.y) < self.engine.config["monster_activation_distance"]:
+                self.activate()
+
             if not self.in_player_sight:
                 return None
-
             self.in_player_sight = False # NOTE: self.active remains True even after going out of player's sight
     
     def set_owner(self, owner: Actor) -> None:

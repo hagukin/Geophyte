@@ -42,6 +42,9 @@ class Status(BaseComponent):
     # Eyesight(vision radius)
     eyesight=6,
 
+    # Hearing(listening radius)
+    hearing=15,
+
     # Bonus
     bonus_hp=0,
     bonus_max_hp=0,
@@ -57,6 +60,7 @@ class Status(BaseComponent):
     bonus_additional_melee=0,
     bonus_protection=0,
     bonus_eyesight=0,
+    bonus_hearing=0,
 
     # Resistances
     fire_resistance: float=0,
@@ -100,6 +104,7 @@ class Status(BaseComponent):
         self.difficulty = difficulty
 
         self.eyesight = eyesight
+        self.hearing = hearing
 
         self.bonus_hp = bonus_hp
         self.bonus_max_hp = bonus_max_hp
@@ -116,6 +121,7 @@ class Status(BaseComponent):
         self.bonus_protection = bonus_protection
 
         self.bonus_eyesight = bonus_eyesight
+        self.bonus_hearing = bonus_hearing
 
         self.fire_resistance = fire_resistance
         self.poison_resistance = poison_resistance
@@ -153,6 +159,7 @@ class Status(BaseComponent):
             "additional_melee":self.additional_melee,
             "protection":self.protection,
             "eyesight":self.eyesight,
+            "hearing":self.hearing,
             "fire_resistance":self.fire_resistance,
             "poison_resistance":self.poison_resistance,
             "cold_resistance":self.cold_resistance,
@@ -182,6 +189,7 @@ class Status(BaseComponent):
             "additional_melee":max(0, self.additional_melee + self.bonus_additional_melee),
             "protection":clamp(self.protection + self.bonus_protection, 1, 1000),
             "eyesight":max(1,self.eyesight + self.bonus_eyesight),
+            "hearing":max(1,self.hearing + self.bonus_hearing),
             "fire_resistance":clamp(self.fire_resistance + self.bonus_fire_resistance, 0, 1),
             "poison_resistance":clamp(self.poison_resistance + self.bonus_poison_resistance, 0, 1),
             "cold_resistance":clamp(self.cold_resistance + self.bonus_cold_resistance, 0, 1),

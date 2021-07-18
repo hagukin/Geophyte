@@ -1,9 +1,10 @@
-
+import random
 import textwrap
 from util import draw_thick_frame
 import tcod
 import color
 
+from util import get_distance
 from typing import Iterable, List, Reversible, Tuple
 from entity import Entity, Actor
 
@@ -65,11 +66,29 @@ class MessageLog:
         self, text: str, fg: Tuple[int, int, int] = color.msg_log_speech, *, speaker: Actor = None, stack: bool = True, show_once: bool = False,
     ) -> None:
         """Print a actor speaking."""
-        if speaker.actor_state.can_talk:
-            self.add_message(f"{speaker.name}({speaker.char}): ", speaker.fg, target=speaker, stack=stack, show_once=show_once)
-            self.add_message(text, fg, target=speaker, stack=stack, show_once=show_once)
-        else:
-            self.add_message(f"{speaker.name}({speaker.char}): " + "(알아들을 수 없음)", fg, target=speaker, stack=stack, show_once=show_once)
+        # Cannot listen to a speech from a far enough distance.
+        if self.engine.player.status.changed_status["hearing"] < get_distance(self.engine.player.x, self.engine.player.y, speaker.x, speaker.y):
+            return None #TODO: Maybe let player get every information on the dungeon under certain condition?
+
+        speaker_name = f"{speaker.name}({speaker.char})"
+        speak_text = text
+        speaker_fg = speaker.fg
+        if not self.engine.game_map.visible[speaker.x, speaker.y]:
+            speaker_name = "(시야에 없음)"
+            speaker_fg = color.white
+
+            # Will change some characters of the text to "?" to give a effect of not clearly hearing things that arew too far or out of sight.
+            cant_hear_letters_count = min(len(speak_text), max(0, int(20 / self.engine.player.status.changed_status["hearing"] - get_distance(
+                self.engine.player.x, self.engine.player.y, speaker.x, speaker.y))))
+            for i in range(max(0, len(speak_text)-2)): # ignore last letter to avoid confusion with the question marks in sentences.
+                if random.random() <= cant_hear_letters_count / len(speak_text): # Chance of changing the character: Total size / cant_hear_letters_count
+                    speak_text[i] = '?'
+
+        if not speaker.actor_state.can_talk:
+            speak_text = "(알아들을 수 없음)"
+
+        self.add_message(f"{speaker_name}: ", speaker_fg, target=speaker, stack=stack, show_once=show_once)
+        self.add_message(speak_text, fg, target=speaker, stack=stack, show_once=show_once)
 
     def render(
         self, console: tcod.Console, x: int, y: int, width: int, height: int, draw_frame: bool=False

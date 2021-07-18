@@ -1,7 +1,10 @@
-from typing import Tuple
+from typing import Tuple, Optional
+from game import Game
 
 import numpy as np  # type: ignore
 import random
+
+
 
 
 # Tile graphics structured type compatible with Console.tiles_rgb.
@@ -21,6 +24,8 @@ tile_dt = np.dtype(
         # This value us used when deciding whether to include this tile when pathfinding or not.
         # NOTE: if the tile is unwalkable, this value indicates if this tile is safe to phase into instead.
         ("flammable", np.float16), # chance of this tile catching on fire
+        ("freezable", np.float16), # chance of this tile freezing
+        ("unfreezable", np.float16), # chance of this tile melting(un-freezing)
         ("phaseable", np.bool), # whether the tile is phasable or not
         ("transparent", np.bool),  # True if this tile doesn't block FOV.
         ("dark", graphic_dt),  # Graphics for when this tile is not in FOV.
@@ -31,11 +36,57 @@ tile_dt = np.dtype(
 )
 
 
+class TileUtil:
+    """NOTE: These static method only handles the state-change of a tile.
+    Things such as stepping onto a tile and the tile changing as a result is not handled here, its handled in entity.do_environmental_effects."""
+    @staticmethod
+    def freeze(tile, power:int=0) -> np.dtype:
+        """
+        Args:
+            power:
+                gives additional chance of the event occuring.
+                Set power to 1 is you want to force this event on the tile.
+        """
+        if random.random() <= tile["freezable"] + power:
+            if tile["walkable"]:
+                n_tile = Game.engine.game_map.tileset["t_ice"]()
+                return n_tile
+            else:
+                print(f"WARNING::Tried to freeze a non-walkable tile {tile['tile_id']}")
+                return tile
+        return tile
+
+    @staticmethod
+    def unfreeze(tile, power:int=0) -> np.dtype:
+        """NOTE: using the word 'unfreeze' to differ from acid melting."""
+        if random.random() <= tile["unfreezable"] + power:
+            n_tile = Game.engine.game_map.tileset["t_shallow_water"]()
+            return n_tile
+        return tile
+
+    @staticmethod
+    def burn(tile, power:int=0) -> np.dtype:
+        n_tile = TileUtil.unfreeze(tile)
+        if tile != n_tile:
+            return TileUtil.unfreeze(tile) # Unfreeze the tile if it can
+
+        if random.random() <= tile["flammable"] + power:
+            if tile["walkable"]:
+                n_tile = Game.engine.game_map.tileset["t_burnt_floor"]()
+                return n_tile
+            else:
+                n_tile = Game.engine.game_map.tileset["t_burnt_floor"]() #TODO Maybe make a burnt wall?
+                return n_tile
+        return tile
+
+
 def new_tile(
     *,  # Enforce the use of keywords, so that parameter order doesn't matter.
     walkable: bool,
     safe_to_walk: bool,
     flammable: float,
+    freezable: float,
+    unfreezable: float,
     phaseable: bool,
     transparent: int,
     dark: Tuple[int, Tuple[int, int, int], Tuple[int, int, int]],
@@ -44,7 +95,7 @@ def new_tile(
     tile_id: str,
     ) -> np.ndarray:
     """Helper function for defining individual tile types """
-    return np.array((walkable, safe_to_walk, flammable, phaseable, transparent, dark, light, tile_name, tile_id), dtype=tile_dt)
+    return np.array((walkable, safe_to_walk, flammable, freezable, unfreezable, phaseable, transparent, dark, light, tile_name, tile_id), dtype=tile_dt)
 
 
 def new_tile_randomized(
@@ -52,6 +103,8 @@ def new_tile_randomized(
     walkable: bool,
     safe_to_walk: bool,
     flammable: float,
+    freezable: float,
+    unfreezable: float,
     phaseable: bool,
     transparent: bool,
     dark: Tuple[int, Tuple[int, int, int], Tuple[int, int, int]],
@@ -113,7 +166,7 @@ def new_tile_randomized(
     
     randomized_light = (light[0], fg, bg)
 
-    return np.array((walkable, safe_to_walk, flammable, phaseable, transparent, dark, randomized_light, tile_name, tile_id), dtype=tile_dt)
+    return np.array((walkable, safe_to_walk, flammable, freezable, unfreezable, phaseable, transparent, dark, randomized_light, tile_name, tile_id), dtype=tile_dt)
 
 # SHROUD represents unexplored, unseen tiles
 SHROUD = np.array((ord(" "), (255, 255, 255), (0, 0, 0)), dtype=graphic_dt)
@@ -134,6 +187,8 @@ def DEBUG():
     walkable=True,
     safe_to_walk=True,
     flammable=1,
+    freezable=1,
+    unfreezable=0,
     phaseable=True,
     transparent=True,
     dark=(
@@ -157,6 +212,8 @@ def vintronium():
         walkable=False,
         safe_to_walk=False,
         flammable=0,
+        freezable=0,
+        unfreezable=0,
         phaseable=False,
         transparent=False,
         dark=(
@@ -184,6 +241,8 @@ def floor():
         walkable=True,
         safe_to_walk=True,
         flammable=0,
+        freezable=0,
+        unfreezable=0,
         phaseable=True,
         transparent=True,
         dark=(
@@ -204,6 +263,8 @@ def floor_desert():
         walkable=True,
         safe_to_walk=True,
         flammable=False,
+        freezable=0,
+        unfreezable=0,
         phaseable=True,
         transparent=True,
         dark=(
@@ -224,6 +285,8 @@ def floor_ancient_ruins():
         walkable=True,
         safe_to_walk=True,
         flammable=False,
+        freezable=0,
+        unfreezable=0,
         phaseable=True,
         transparent=True,
         dark=(
@@ -246,6 +309,8 @@ def wall():
         walkable=False,
         safe_to_walk=True,
         flammable=0,
+        freezable=0,
+        unfreezable=0,
         phaseable=True,
         transparent=False,
         dark=(
@@ -268,6 +333,8 @@ def wall_desert():
         walkable=False,
         safe_to_walk=True,
         flammable=0,
+        freezable=0,
+        unfreezable=0,
         phaseable=True,
         transparent=False,
         dark=(
@@ -290,6 +357,8 @@ def wall_ancient_ruins():
         walkable=False,
         safe_to_walk=True,
         flammable=0,
+        freezable=0,
+        unfreezable=0,
         phaseable=True,
         transparent=False,
         dark=(
@@ -314,6 +383,8 @@ def dense_grass():
         walkable=True,
         safe_to_walk=True,
         flammable=1,
+        freezable=0.2,
+        unfreezable=0,
         phaseable=True,
         transparent=True,
         dark=(
@@ -336,6 +407,8 @@ def dense_grass_desert():
         walkable=True,
         safe_to_walk=True,
         flammable=1,
+        freezable=0,
+        unfreezable=0,
         phaseable=True,
         transparent=True,
         dark=(
@@ -361,6 +434,8 @@ def sparse_grass():
         walkable=True,
         safe_to_walk=True,
         flammable=0.9,
+        freezable=0.2,
+        unfreezable=0,
         phaseable=True,
         transparent=True,
         dark=(
@@ -381,6 +456,8 @@ def sparse_grass_desert():
         walkable=True,
         safe_to_walk=True,
         flammable=0.9,
+        freezable=0,
+        unfreezable=0,
         phaseable=True,
         transparent=True,
         dark=(
@@ -404,6 +481,8 @@ def burnt_floor():
         walkable=True,
         safe_to_walk=True,
         flammable=0,
+        freezable=0,
+        unfreezable=0,
         phaseable=True,
         transparent=True,
         dark=(
@@ -427,6 +506,8 @@ def ascending_stair():
         walkable=True,
         safe_to_walk=True,
         flammable=0,
+        freezable=0,
+        unfreezable=0,
         phaseable=True,
         transparent=True,
         dark=(
@@ -450,6 +531,8 @@ def descending_stair():
         walkable=True,
         safe_to_walk=True,
         flammable=0,
+        freezable=0,
+        unfreezable=0,
         phaseable=True,
         transparent=True,
         dark=(
@@ -473,6 +556,8 @@ def hole():
         walkable=True,
         safe_to_walk=False,
         flammable=0,
+        freezable=0,
+        unfreezable=0,
         phaseable=True,
         transparent=True,
         dark=(
@@ -496,6 +581,8 @@ def deep_pit():
         walkable=True,
         safe_to_walk=False,
         flammable=0,
+        freezable=0,
+        unfreezable=0,
         phaseable=True,
         transparent=True,
         dark=(
@@ -519,6 +606,8 @@ def shallow_pit():
         walkable=True,
         safe_to_walk=True,
         flammable=0,
+        freezable=0,
+        unfreezable=0,
         phaseable=True,
         transparent=True,
         dark=(
@@ -542,6 +631,8 @@ def deep_water():
         walkable=True,
         safe_to_walk=False,
         flammable=0,
+        freezable=1,
+        unfreezable=0,
         phaseable=True,
         transparent=True,
         dark=(
@@ -567,6 +658,8 @@ def shallow_water():
         walkable=True,
         safe_to_walk=True,
         flammable=0,
+        freezable=1,
+        unfreezable=0,
         phaseable=True,
         transparent=True,
         dark=(
@@ -585,3 +678,29 @@ def shallow_water():
         tile_id="shallow_water",
     )
 
+
+### Ice
+def ice():
+    return new_tile_randomized(
+        walkable=True,
+        safe_to_walk=True,
+        flammable=0,
+        freezable=0,
+        unfreezable=1,
+        phaseable=True,
+        transparent=True,
+        dark=(
+            ord("·"),
+            (0, 0, 0),
+            (30, 36, 36)
+        ),
+        light=(
+            ord("·"),
+            (32, 145, 142),
+            (219, 255, 254)
+        ),
+        darkest_bg_color=(94, 230, 226),
+        brightest_bg_color=(219, 255, 254),
+        tile_name="얼음",
+        tile_id="ice",
+    )

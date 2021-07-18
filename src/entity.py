@@ -11,6 +11,7 @@ from typing import Optional, Tuple, Type, TypeVar, TYPE_CHECKING, List
 from numpy.core.shape_base import block
 from order import RenderOrder, InventoryOrder
 from korean import grammar as g
+from tiles import TileUtil
 
 if TYPE_CHECKING:
     from components.ai import BaseAI
@@ -242,6 +243,9 @@ class Entity:
             try:
                 self.gamemap.entities.remove(self)
             except ValueError:
+                if isinstance(self, Item):
+                    if self.parent:
+                        return None
                 print(f"WARNING::entity.remove_self() - Tried to remove {self.name}, but its not in gamemap.entities. (It has self.gamemap)")
                 pass
 
@@ -329,6 +333,8 @@ class Actor(Entity):
         initial_items: List = None,
         initial_abilities: List = None,
         initial_equipments: List = None,
+        tile_effect_on_path: str = None,
+        actor_to_spawn_on_path: Actor = None,
     ):
         """
         Args:
@@ -374,6 +380,9 @@ class Actor(Entity):
             blocks_sight=blocks_sight,
             render_order=render_order,
         )
+        self.tile_effect_on_path = tile_effect_on_path
+        self.actor_to_spawn_on_path = actor_to_spawn_on_path
+
         self.ai = ai_cls
         if ai_cls:
             self.ai.parent = self
@@ -494,6 +503,9 @@ class Actor(Entity):
                 self.actor_state.is_submerged = False
                 self.actor_state.is_underwater = False
                 self.actor_state.is_drowning = [0,0]
+
+            # Apply special effects on the tile this actor is at
+            self.do_special_environmental_effect()
    
         ### B. Semiactor related ###
         semiactor_collided = self.gamemap.get_semiactor_at_location(self.x, self.y)
@@ -581,6 +593,26 @@ class Actor(Entity):
         if self.actor_state.is_burning == [0,0,0,0]: # was not already burning
             self.engine.message_log.add_message(f"{self.name}에 불이 붙었다!",target=self)
             self.actor_state.apply_burning([fire.rule.base_damage, fire.rule.add_damage, 0, fire.rule.fire_duration])
+
+    def change_tile_on_path(self):
+        """This method will apply some effect to the tile of this actor's location whenever the actor physically moves.
+        You should not directly override this function, instead edit actor.change_tile_to variable(which is a id to get value from the tileset) instead."""
+        if self.tile_effect_on_path != None:
+            if self.tile_effect_on_path == "freeze":
+                self.gamemap.tiles[self.x, self.y] = TileUtil.freeze(self.gamemap.tiles[self.x, self.y])
+            elif self.tile_effect_on_path == "unfreeze":
+                self.gamemap.tiles[self.x, self.y] = TileUtil.unfreeze(self.gamemap.tiles[self.x, self.y])
+            elif self.tile_effect_on_path == "burn":
+                self.gamemap.tiles[self.x, self.y] = TileUtil.burn(self.gamemap.tiles[self.x, self.y]) #NOTE: You are not spawning a fire, instead you are only burning the tile.
+
+    def spawn_actor_on_path(self):
+        if self.actor_to_spawn_on_path != None:
+            self.actor_to_spawn_on_path.spawn(self.gamemap, self.x, self.y, True)
+
+    def do_special_environmental_effect(self):
+        """NOTE: Do not override this method. Override actor_special_environmental_effect instead."""
+        self.change_tile_on_path()
+        self.spawn_actor_on_path()
 
 
 class Item(Entity):

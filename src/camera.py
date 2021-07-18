@@ -1,6 +1,6 @@
 from typing import List, Optional
 
-import tile_types
+import tiles
 import numpy as np
 import visual
 import copy
@@ -148,7 +148,7 @@ class Camera:
         console.tiles_rgb[self.display_x : self.width + self.display_x , self.display_y : self.height + self.display_y] = np.select(
             condlist=[self.engine.game_map.visible, self.engine.game_map.explored],
             choicelist=[self.engine.game_map.tiles["light"], self.engine.game_map.tiles["dark"]],
-            default=tile_types.SHROUD,
+            default=tiles.SHROUD,
         )[self.xpos : self.xpos+self.width, self.ypos : self.ypos+self.height]
 
     def render(self, console, draw_frame=False) -> None:

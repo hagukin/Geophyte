@@ -205,13 +205,13 @@ class Shopkeeper_Ai(ai.BaseAI):
 
         # Customer has insufficient money
         if not customer.inventory.check_has_enough_money(bill):
-            self.engine.message_log.add_speech(f"가지고 계신 돈이 부족한 것 같습니다.", speaker=self.parent, stack=False)
+            self.engine.message_log.add_speech(f"가지고 있는 샤인이 부족한 것 같다만.", speaker=self.parent, stack=False)
             return None
 
         # Purchase everything
         for buying in buyings:
             self.sell_item(customer, buying)
-        self.engine.message_log.add_speech("좋은 거래였습니다.", speaker=self.parent, stack=False)
+        self.engine.message_log.add_speech("좋은 거래였네.", speaker=self.parent, stack=False)
 
     def perform(self) -> None:
         """

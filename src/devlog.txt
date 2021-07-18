@@ -1858,3 +1858,15 @@
            때문에 Entity.copy()와 Item.copy()는 gamemap(Item의 경우 parent도)을 인자로 받아서 gamemap은 deepcopy에서 제외함.
            > 이 수정사항 때문에 InputHandler들중 engine을 인풋 파라미터로 받는 클래스들을 수정했음, 수정한 부분이 많기 때문에 게임 전반적으로 한번 테스트가 필요함.
 
+           포션 추가
+
+20210719 - 타일 상호작용 구조 수정. tile_types -> tiles로 변경, tiles.TileUtil 클래스와 staticmethod들 추가.
+            주문서 추가.
+
+            액터 스테이터스에 청력 추가.
+            청력거리 이후부터는 speech가 메시지 로그에 표시되지 않음.
+            chatterbox ai 기능 추가.
+
+            던전의 현실감을 위해 일정 범위 내의 액터들을 시야 여부와 관계없이 activate 시킴. 이 거리값은 콘픽에서 변경 가능. (현재는 30)
+            TODO: sleep 추가
+

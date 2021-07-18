@@ -97,6 +97,7 @@ player = Actor(
         additional_melee=5,
         protection=10,
         eyesight=8,
+        hearing=25,
         ),
     actor_state=ActorState(
         hunger=1200,
@@ -118,11 +119,14 @@ player = Actor(
         (item_factories.potion_of_levitation, 1, (98,99)),
         (item_factories.potion_of_monster_detection, 1, (98,99)),
         (item_factories.potion_of_poison, 1, (98,99)),
+        (item_factories.scroll_of_freezing_ray, 1, (98,99)),
+        (item_factories.scroll_of_scorching_ray, 1, (98,99)),
         ],
     initial_equipments=[
         #(item_factories.leather_armor, 1),
         ],
     initial_abilities=[(ability_factories.lightning_bolt, 1), (ability_factories.steal, 1)],
+    tile_effect_on_path="freeze",
 )
 
 
@@ -158,6 +162,7 @@ shopkeeper = Actor(
         ),
     actor_state=ActorState(
         heal_wounds=True,
+        can_talk=True,
         size=4,
         weight=70,
         has_telepathy=True,
@@ -1271,6 +1276,7 @@ ice_elemental = Actor(
     inventory=Inventory(capacity=5),
     ability_inventory=AbilityInventory(capacity=5),
     equipments=Equipments(),
+    tile_effect_on_path="freeze",
 )
 monster_difficulty[ice_elemental.status.difficulty].append(ice_elemental)
 
@@ -1283,18 +1289,18 @@ monster_difficulty[ice_elemental.status.difficulty].append(ice_elemental)
 chatterbox = Actor(
     char="I",
     fg=(255, 230, 230),
-    name="수다꾼",
+    name="수다쟁이 괴물",
     entity_id="chatterbox",
     entity_desc="\
         던전에서 누군가 당신을 부르는 소리가 들린다면, 뒤를 돌아보기보다는 검을 뽑아드는 편이 더 현명한 선택일지도 모른다.\n\
-        '수다쟁이'라는 별칭으로 불리는 이 생명체는, 극단적으로 팔다리가 긴 여성 인간과 유사한 형태를 하고 있다.\n\
+        '수다쟁이'라는 이름으로 불리는 이 생명체는, 극단적으로 팔다리가 긴 여성 인간과 유사한 형태를 하고 있다.\n\
+        시각 기관의 부재로 인한 극단적으로 좋지 못한 시력에도 불구하고, 이들의 긴 팔과 날카로운 손톱은 가까운 거리의 인간을 갈기갈기 찢어 놓기에 충분하다.\n\
         이들은 털이 없는 창백한 피부를 가졌으며, 머리에는 눈,코,귀 대신 '입'이 수 십여개 달려 있는 것이 특징이다.\n\
         이들은 '입'을 통해 음식을 섭취하지는 않지만, 인간이나 다른 생명체들의 소리를 흉내내어 먹잇감을 유인한다.\n\
-        시각 기관의 부재로 인한 극단적으로 좋지 못한 시력에도 불구하고, 이들의 긴 팔과 날카로운 손톱은 가까운 거리의 인간을 갈기갈기 찢어 놓기에 충분하다.\n\
-        \n\
-        \"부탁이야... 말리지 말아줘... 이렇게라도 그녀의 목소리를 듣고 싶어...\"\
+        이들은 성별, 인종, 나이에 관계없이 나양한 인간의 목소리를 낼 수 있으며, 이들이 자신들이 내뱉는 말들의 뜻을 이해하고 있는 것인지는 밝혀지지 않았다.\n\
+        \"부탁이야... 말리지 말아줘... 이렇게 해서라도 죽어버린 그녀의 목소리를 듣고 싶어...\"\
         ",
-    rarity=2,
+    rarity=99, #TODO
     spawnable=True,
     edible=edible.RawMeatEdible(nutrition=280),
     ai_cls=ai_factories.chatterbox_ai,

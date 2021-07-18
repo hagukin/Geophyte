@@ -4,7 +4,7 @@ import numpy as np  # type: ignore
 import random
 
 from numpy.lib.arraysetops import isin
-import tile_types
+import tiles
 
 from typing import Iterable, Iterator, Optional, Tuple, List, TYPE_CHECKING
 from entity import Actor, Item, SemiActor
@@ -28,7 +28,7 @@ class GameMap:
 
         self.tileset = biome.tileset # initialized at procgen
 
-        self.tiles = np.full((biome.map_width, biome.map_height), fill_value=tile_types.DEBUG(), order="F")
+        self.tiles = np.full((biome.map_width, biome.map_height), fill_value=tiles.DEBUG(), order="F")
         self.tilemap = np.full((biome.map_width, biome.map_height), fill_value=TilemapOrder.VOID.value, order="F")
         self.tunnelmap = np.full((biome.map_width, biome.map_height), fill_value=True, order="F")# Set to True=tunnel can be built on that location
         self.protectmap = np.full((biome.map_width, biome.map_height), fill_value=False, order="F")# Set to True=terrain cannot overwrite(generate onto) that location

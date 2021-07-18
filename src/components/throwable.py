@@ -3,9 +3,10 @@ from __future__ import annotations
 from typing import Optional, List
 from animation import Animation
 from components.base_component import BaseComponent
-from entity import Actor, SemiActor
+from entity import Actor, SemiActor, Entity
 from input_handlers import ForceAttackInputHandler, RayRangedInputHandler
 from korean import grammar as g
+from tiles import TileUtil
 
 import semiactor_factories
 import actions
@@ -109,6 +110,11 @@ class Throwable(BaseComponent):
 
 
 class NormalThrowable(Throwable):
+    def effect_when_collided_with_entity(self, target: Entity, thrower: Actor):
+        """
+        When collided withg the entity.
+        """
+        pass
 
     def effect_when_collided_with_actor(self, target: Actor, thrower: Actor, trigger: bool=False) -> None:
         """
@@ -120,6 +126,8 @@ class NormalThrowable(Throwable):
             trigger:
                 if True, target/collided actor will consider the throw as an attack.
         """
+        self.effect_when_collided_with_entity(target, thrower)
+
         if trigger:
             # Trigger target regardless of damage / lethality
             target.status.take_damage(amount=0, attacked_from=thrower)
@@ -323,6 +331,19 @@ class PotionQuaffAndThrowSameEffectThrowable(NormalThrowable):
             self.parent.quaffable.apply_effect(apply_to=target)
         else:
             print(f"WARNING::{self.parent.entity_id} has no quaffable but is using potion throwable.")
+
+
+class PotionOfFlameThrowable(PotionQuaffAndThrowSameEffectThrowable):
+    """Additional freezing tile effect."""
+    def effect_when_collided_with_entity(self, target: Entity, thrower: Actor):
+        semiactor_factories.fire.spawn(self.engine.game_map, target.x, target.y, 6)
+
+
+class PotionOfFrostThrowable(PotionQuaffAndThrowSameEffectThrowable):
+    """Additional freezing tile effect."""
+    def effect_when_collided_with_entity(self, target: Entity, thrower: Actor):
+        self.engine.game_map.tiles[target.x, target.y] = TileUtil.freeze(
+            self.engine.game_map.tiles[target.x, target.y])
 
 
 class ToxicGooThrowable(NormalThrowable):

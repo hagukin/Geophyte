@@ -7,11 +7,18 @@ magic_missile = {
     "bg":(255, 90, 90),
 }
 
-### Piercing Flame
-piercing_flame = {
+### Scorching ray
+scorching_ray = {
     "char":"*",
     "fg":(255, 89, 0),
     "bg":(255, 208, 0),
+}
+
+### Freezing Ray
+freezing_ray = {
+    "char":"*",
+    "fg":(66, 236, 255),
+    "bg":(196, 249, 255),
 }
 
 ### Explosion

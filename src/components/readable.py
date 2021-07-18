@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 from typing import Optional, TYPE_CHECKING
+
+import tiles
 from animation import Animation
 from entity import Actor
 from components.base_component import BaseComponent
@@ -8,6 +10,7 @@ from exceptions import Impossible
 from input_handlers import AreaRangedAttackHandler, MagicMappingLookHandler, SingleRangedAttackHandler, RayRangedInputHandler, InventoryChooseItemAndCallbackHandler
 from order import InventoryOrder
 from korean import grammar as g
+from tiles import TileUtil
 
 import semiactor_factories
 import actions
@@ -377,10 +380,11 @@ class AutoTargetingReadable(Readable):
 
 
 class RayReadable(Readable):
-    def __init__(self, anim_graphic, damage: int=0, penetration: bool=False, max_range: int=1000):
+    def __init__(self, anim_graphic, damage: int=0, effect_dmg: int=0, penetration: bool=False, max_range: int=1000):
         super().__init__()
         self.anim_graphic = anim_graphic
         self.damage = damage
+        self.effect_dmg = effect_dmg
         self.penetration = penetration
         self.max_range = max_range
 
@@ -482,26 +486,37 @@ class RayReadable(Readable):
 
 class ScrollOfMagicMissileReadable(RayReadable):
     def effects_on_collided_actor(self, consumer: Actor, target: Actor):
-        self.damage = target.status.calculate_dmg_reduction(damage=self.damage, damage_type="magic")
+        real_damage = target.status.calculate_dmg_reduction(damage=self.damage, damage_type="magic")
 
         # Log
-        self.engine.message_log.add_message(f"마법 광선이 {g(target.name, '을')} 강타해 {self.damage} 데미지를 입혔다.", target=target)
+        self.engine.message_log.add_message(f"마법 광선이 {g(target.name, '을')} 강타해 {real_damage} 데미지를 입혔다.", target=target)
+        target.status.take_damage(amount=real_damage, attacked_from=consumer)
 
-        target.status.take_damage(amount=self.damage, attacked_from=consumer)
 
-
-class ScrollOfPiercingFlameReadable(RayReadable):
+class ScrollOfScorchingRayReadable(RayReadable):
     def effects_on_collided_actor(self, consumer: Actor, target: Actor):
-        self.damage = target.status.calculate_dmg_reduction(damage=self.damage, damage_type="fire")
-
+        real_damage = target.status.calculate_dmg_reduction(damage=self.damage,
+                                                            damage_type="fire")  # No direct state effect applied since fire entity is about to spawn
         # Log
-        self.engine.message_log.add_message(f"화염 광선이 {g(target.name, '을')} 꿰뚫으며 {self.damage} 데미지를 입혔다.", target=target)
-
-        target.status.take_damage(amount=self.damage, attacked_from=consumer)
+        self.engine.message_log.add_message(f"화염 광선이 {g(target.name, '을')} 꿰뚫으며 {real_damage} 데미지를 입혔다.", target=target)
+        target.status.take_damage(amount=real_damage, attacked_from=consumer)
     
     def effects_on_path(self, x: int, y: int):
         # Create fire
         semiactor_factories.fire.spawn(self.engine.game_map, x, y, 6)
+
+
+class ScrollOfFreezingRayReadable(RayReadable):
+    def effects_on_collided_actor(self, consumer: Actor, target: Actor):
+        real_damage = target.status.calculate_dmg_reduction(damage=self.damage, damage_type="cold")
+        # Log
+        self.engine.message_log.add_message(f"얼음 광선이 {g(target.name, '을')} 꿰뚫으며 {real_damage} 데미지를 입혔다.", target=target)
+        target.actor_state.apply_freezing([self.effect_dmg, 5, 0.2, 0, 4])
+        target.status.take_damage(amount=real_damage, attacked_from=consumer)
+
+    def effects_on_path(self, x: int, y: int):
+        # Freeze water
+        self.engine.game_map.tiles[x, y] = TileUtil.freeze(self.engine.game_map.tiles[x, y])
 
 
 class ScrollOfThunderStormReadable(AutoTargetingReadable):

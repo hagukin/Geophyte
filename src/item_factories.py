@@ -111,7 +111,7 @@ potion_of_flame = Item(
     corrodible=0,
     droppable=True,
     stackable=True,
-    throwable=throwable.PotionQuaffAndThrowSameEffectThrowable(break_chance=1, trigger_if_thrown_at=True),
+    throwable=throwable.PotionOfFlameThrowable(break_chance=1, trigger_if_thrown_at=True),
     readable=None,
     quaffable=quaffable.PotionOfFlameQuaffable(turn=10),
 )
@@ -163,7 +163,7 @@ potion_of_frost = Item(
     corrodible=0,
     droppable=True,
     stackable=True,
-    throwable=throwable.PotionQuaffAndThrowSameEffectThrowable(break_chance=1, trigger_if_thrown_at=True),
+    throwable=throwable.PotionOfFrostThrowable(break_chance=1, trigger_if_thrown_at=True),
     readable=None,
     quaffable=quaffable.PotionOfFrostQuaffable(turn=7),
 )
@@ -268,6 +268,7 @@ scroll_of_confusion = Item(
     item_state=ItemState(),
     spawnable=True,
     flammable=0.5,
+    corrodible=0.3,
     droppable=True,
     stackable=True,
     throwable=throwable.NormalThrowable(air_friction=20),
@@ -293,6 +294,7 @@ scroll_of_meteor_storm = Item(
     item_state=ItemState(),
     spawnable=True,
     flammable=0.5,
+    corrodible=0.3,
     droppable=True,
     stackable=True,
     throwable=throwable.NormalThrowable(air_friction=20),
@@ -318,6 +320,7 @@ scroll_of_thunderstorm = Item(
     item_state=ItemState(),
     spawnable=True,
     flammable=0.5,
+    corrodible=0.3,
     droppable=True,
     stackable=True,
     throwable=throwable.NormalThrowable(air_friction=20),
@@ -343,6 +346,7 @@ scroll_of_lightning = Item(
     item_state=ItemState(),
     spawnable=True,
     flammable=0.5,
+    corrodible=0.3,
     droppable=True,
     stackable=True,
     throwable=throwable.NormalThrowable(air_friction=20),
@@ -368,6 +372,7 @@ scroll_of_magic_missile = Item(
     item_state=ItemState(),
     spawnable=True,
     flammable=0.5,
+    corrodible=0.3,
     droppable=True,
     stackable=True,
     throwable=throwable.NormalThrowable(air_friction=20),
@@ -393,6 +398,7 @@ scroll_of_magic_mapping = Item(
     item_state=ItemState(),
     spawnable=True,
     flammable=0.5,
+    corrodible=0.3,
     droppable=True,
     stackable=True,
     throwable=throwable.NormalThrowable(air_friction=20),
@@ -403,14 +409,14 @@ temp_items_lists.append(scroll_of_magic_mapping)
 item_rarity.append(scroll_of_magic_mapping.rarity)
 
 
-### Scroll of piercing flame
-scroll_of_piercing_flame = Item(
+### Scroll of scorching ray
+scroll_of_scorching_ray = Item(
     should_randomize=True,
     char="~",
     fg=(255, 0, 30),
-    name="작열하는 창의 주문서",
-    entity_id="scroll_of_piercing_flame",
-    entity_desc="Scroll of piercing flame desc",
+    name="맹렬한 화염 광선의 주문서",
+    entity_id="scroll_of_scorching_ray",
+    entity_desc="Scroll of scorching ray desc",
     rarity=4,
     weight=0.1,
     price=300,
@@ -418,15 +424,41 @@ scroll_of_piercing_flame = Item(
     item_state=ItemState(),
     spawnable=True,
     flammable=0,
-    corrodible=0,
+    corrodible=0.3,
     droppable=True,
     stackable=True,
     throwable=throwable.NormalThrowable(air_friction=20),
-    readable=readable.ScrollOfPiercingFlameReadable(anim_graphic=anim_graphics.piercing_flame, damage=20, penetration=True),
+    readable=readable.ScrollOfScorchingRayReadable(anim_graphic=anim_graphics.scorching_ray, damage=20, penetration=True),
     quaffable=None,
 )
-temp_items_lists.append(scroll_of_piercing_flame)
-item_rarity.append(scroll_of_piercing_flame.rarity)
+temp_items_lists.append(scroll_of_scorching_ray)
+item_rarity.append(scroll_of_scorching_ray.rarity)
+
+
+### Scroll of piercing flame
+scroll_of_freezing_ray = Item(
+    should_randomize=True,
+    char="~",
+    fg=(255, 0, 30),
+    name="얼어붙는 빙결 광선의 주문서",
+    entity_id="scroll_of_freezing_ray",
+    entity_desc="Scroll of freezing ray desc",
+    rarity=4,
+    weight=0.1,
+    price=300,
+    item_type=InventoryOrder.SCROLL,
+    item_state=ItemState(),
+    spawnable=True,
+    flammable=0.5,
+    corrodible=0.3,
+    droppable=True,
+    stackable=True,
+    throwable=throwable.NormalThrowable(air_friction=20),
+    readable=readable.ScrollOfFreezingRayReadable(anim_graphic=anim_graphics.freezing_ray, damage=10, effect_dmg=6, penetration=True),
+    quaffable=None,
+)
+temp_items_lists.append(scroll_of_freezing_ray)
+item_rarity.append(scroll_of_freezing_ray.rarity)
 
 
 ### Scroll of tame

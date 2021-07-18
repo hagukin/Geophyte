@@ -1,5 +1,5 @@
 from typing import Tuple
-import tile_types
+import tiles
 import color
 
 def tileset(
@@ -12,20 +12,21 @@ def tileset(
             if any adjustments value is given, this function will modify the default tilesets as given.
     """
     tileset = {
-        "t_wall":tile_types.wall,
-        "t_border":tile_types.vintronium,
-        "t_floor":tile_types.floor,
-        "t_dense_grass":tile_types.dense_grass,
-        "t_sparse_grass":tile_types.sparse_grass,
-        "t_ascending_stair":tile_types.ascending_stair,
-        "t_descending_stair":tile_types.descending_stair,
-        "t_burnt_floor":tile_types.burnt_floor,
-        "t_deep_pit":tile_types.deep_pit,
-        "t_shallow_pit":tile_types.shallow_pit,
-        "t_hole":tile_types.hole,
-        "t_deep_water":tile_types.deep_water,
-        "t_shallow_water":tile_types.shallow_water,
-        "t_DEBUG":tile_types.DEBUG,
+        "t_wall":tiles.wall,
+        "t_border":tiles.vintronium,
+        "t_floor":tiles.floor,
+        "t_dense_grass":tiles.dense_grass,
+        "t_sparse_grass":tiles.sparse_grass,
+        "t_ascending_stair":tiles.ascending_stair,
+        "t_descending_stair":tiles.descending_stair,
+        "t_burnt_floor":tiles.burnt_floor,
+        "t_deep_pit":tiles.deep_pit,
+        "t_shallow_pit":tiles.shallow_pit,
+        "t_hole":tiles.hole,
+        "t_deep_water":tiles.deep_water,
+        "t_shallow_water":tiles.shallow_water,
+        "t_ice":tiles.ice,
+        "t_DEBUG":tiles.DEBUG,
     }
 
     if adjustments:

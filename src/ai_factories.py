@@ -1,3 +1,5 @@
+import random
+
 import components.ai as ai
 import color
 import explosion_action
@@ -194,6 +196,30 @@ class Chatterbox_Ai(ai.BaseAI):
         # Bleed dmg, 30%
         self.melee_effects_var.append([1, 0, 4])
         self.melee_effects.append(("bleed_target", 0.3))
+
+    def lure_speech(self):
+        lure = random.choice(self.engine.item_manager.items_lists)
+        speech = random.choice(
+            [
+                "누가 좀 도와주세요! 거기 아무도 없어요?",
+                "살려줘! 이 괴물이 나를 공격하고 있어!",
+                "날 좀 도와주게... 답례는 충분히 하겠네...",
+                "살려주세요... 목숨만은 제발...",
+                "좋아, 이 정도 돈이면 충분하겠어.",
+                "거기 누구 있나요? 있다면 대답해주세요!",
+                "(노래를 흥얼거리는 소리)",
+                "오늘은 운수가 좋은 날이군, 이런 귀한 걸 얻게 되다니.",
+                "어이, 그래 당신, 이 쪽으로 잠깐 와봐."
+            ]
+        )
+        self.engine.message_log.add_speech(text=speech, speaker=self.parent, stack=False)
+
+    def move_path(self) -> None:
+        if random.random() < 0.05:
+            self.lure_speech()
+        super().move_path()
+
+
 
 #@
 shopkeeper_ai = Shopkeeper_Ai()

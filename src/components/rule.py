@@ -8,6 +8,7 @@ import semiactor_factories
 
 from components.base_component import BaseComponent
 from typing import List, Tuple
+from tiles import TileUtil
     
 
 class BaseRule(BaseComponent):
@@ -82,7 +83,7 @@ class FireRule(BaseRule):
 
         # Delete old entities
         if self.parent.lifetime == 0:
-            self.engine.game_map.tiles[self.parent.x, self.parent.y] = self.engine.game_map.tileset["t_burnt_floor"]()
+            self.engine.game_map.tiles[self.parent.x, self.parent.y] = TileUtil.burn(self.engine.game_map.tiles[self.parent.x, self.parent.y])
             self.parent.remove_self()
             return None
 
@@ -97,6 +98,9 @@ class FireRule(BaseRule):
                     entity.collided_with_fire(self.parent) # pass fire semiactor to calculate dmg
                 else:
                     entity.collided_with_fire()
+
+        # Try unfreezing
+        self.engine.game_map.tiles[self.parent.x, self.parent.y] = TileUtil.unfreeze(self.engine.game_map.tiles[self.parent.x, self.parent.y])
 
         # Remove entity if floor is not flammable
         if self.engine.game_map.tiles[self.parent.x, self.parent.y]["flammable"] == False:

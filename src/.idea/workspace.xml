@@ -2,52 +2,29 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="d5939325-7c35-4fc6-a3f9-e7dbdd574b2c" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/game.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/saves/worlds/0.2549536934573059.bak" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/saves/worlds/0.2549536934573059.dat" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/saves/worlds/0.2549536934573059.dir" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ability.py" beforeDir="false" afterPath="$PROJECT_DIR$/ability.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/actions.py" beforeDir="false" afterPath="$PROJECT_DIR$/actions.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/actor_factories.py" beforeDir="false" afterPath="$PROJECT_DIR$/actor_factories.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/animation.py" beforeDir="false" afterPath="$PROJECT_DIR$/animation.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ai_factories.py" beforeDir="false" afterPath="$PROJECT_DIR$/ai_factories.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/anim_graphics.py" beforeDir="false" afterPath="$PROJECT_DIR$/anim_graphics.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/biome.py" beforeDir="false" afterPath="$PROJECT_DIR$/biome.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/biome_factories.py" beforeDir="false" afterPath="$PROJECT_DIR$/biome_factories.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/camera.py" beforeDir="false" afterPath="$PROJECT_DIR$/camera.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/color.py" beforeDir="false" afterPath="$PROJECT_DIR$/color.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/components/ability_inventory.py" beforeDir="false" afterPath="$PROJECT_DIR$/components/ability_inventory.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/components/activatable.py" beforeDir="false" afterPath="$PROJECT_DIR$/components/activatable.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/components/actor_state.py" beforeDir="false" afterPath="$PROJECT_DIR$/components/actor_state.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/components/ai.py" beforeDir="false" afterPath="$PROJECT_DIR$/components/ai.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/components/base_component.py" beforeDir="false" afterPath="$PROJECT_DIR$/components/base_component.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/components/edible.py" beforeDir="false" afterPath="$PROJECT_DIR$/components/edible.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/components/equipable.py" beforeDir="false" afterPath="$PROJECT_DIR$/components/equipable.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/components/equipments.py" beforeDir="false" afterPath="$PROJECT_DIR$/components/equipments.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/components/experience.py" beforeDir="false" afterPath="$PROJECT_DIR$/components/experience.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/components/inventory.py" beforeDir="false" afterPath="$PROJECT_DIR$/components/inventory.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/components/item_state.py" beforeDir="false" afterPath="$PROJECT_DIR$/components/item_state.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/components/quaffable.py" beforeDir="false" afterPath="$PROJECT_DIR$/components/quaffable.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/components/readable.py" beforeDir="false" afterPath="$PROJECT_DIR$/components/readable.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/components/rule.py" beforeDir="false" afterPath="$PROJECT_DIR$/components/rule.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/components/semiactor_info.py" beforeDir="false" afterPath="$PROJECT_DIR$/components/semiactor_info.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/components/status.py" beforeDir="false" afterPath="$PROJECT_DIR$/components/status.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/components/throwable.py" beforeDir="false" afterPath="$PROJECT_DIR$/components/throwable.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/components/walkable.py" beforeDir="false" afterPath="$PROJECT_DIR$/components/walkable.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/config/config.json" beforeDir="false" afterPath="$PROJECT_DIR$/config/config.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/config/config_default.json" beforeDir="false" afterPath="$PROJECT_DIR$/config/config_default.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/devlog.txt" beforeDir="false" afterPath="$PROJECT_DIR$/devlog.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/engine.py" beforeDir="false" afterPath="$PROJECT_DIR$/engine.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/entity.py" beforeDir="false" afterPath="$PROJECT_DIR$/entity.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/game_map.py" beforeDir="false" afterPath="$PROJECT_DIR$/game_map.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/input_handlers.py" beforeDir="false" afterPath="$PROJECT_DIR$/input_handlers.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/item_factories.py" beforeDir="false" afterPath="$PROJECT_DIR$/item_factories.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/item_manager.py" beforeDir="false" afterPath="$PROJECT_DIR$/item_manager.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/loader/data_loader.py" beforeDir="false" afterPath="$PROJECT_DIR$/loader/data_loader.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/loader/initialization.py" beforeDir="false" afterPath="$PROJECT_DIR$/loader/initialization.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/procgen.py" beforeDir="false" afterPath="$PROJECT_DIR$/procgen.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/render.py" beforeDir="false" afterPath="$PROJECT_DIR$/render.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/saves/save_file.bak" beforeDir="false" afterPath="$PROJECT_DIR$/saves/save_file.bak" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/saves/save_file.dat" beforeDir="false" afterPath="$PROJECT_DIR$/saves/save_file.dat" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/saves/save_file.dir" beforeDir="false" afterPath="$PROJECT_DIR$/saves/save_file.dir" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/title.py" beforeDir="false" afterPath="$PROJECT_DIR$/title.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/world.py" beforeDir="false" afterPath="$PROJECT_DIR$/world.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/message_log.py" beforeDir="false" afterPath="$PROJECT_DIR$/message_log.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/shopkeeper.py" beforeDir="false" afterPath="$PROJECT_DIR$/shopkeeper.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/terrain_factories.py" beforeDir="false" afterPath="$PROJECT_DIR$/terrain_factories.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tile_types.py" beforeDir="false" afterPath="$PROJECT_DIR$/tiles.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
