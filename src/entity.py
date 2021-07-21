@@ -441,6 +441,30 @@ class Actor(Entity):
         self.action_speed = self.status.agility
         return self.action_speed
 
+    def drop_all_items(self) -> None:
+        """Drop all items this status' parent owns. Mainly used during die()"""
+        drop_list = []
+        for item in self.inventory.items:
+            drop_list.append(item)
+        for drop_item in drop_list:
+            self.inventory.drop(item=drop_item, show_msg=False)
+
+    def drop_corpse(self) -> None:
+        if self.edible:  # if edible is None, no corpse is spawned.
+            import item_factories
+            new_corpse = item_factories.corpse.spawn(self.gamemap, self.x, self.y)
+            new_corpse.weight = max(round(self.actor_state.weight / 2, 2), 0.01)
+            new_corpse.change_name(self.name + " 시체")
+            new_corpse.edible = self.edible  # copy edible value from parent
+            new_corpse.edible.parent = new_corpse
+
+    def die(self, cause:str="low_hp", drop_item: bool=True, drop_edible: bool=True):
+        if drop_item:
+            self.drop_all_items()
+        if drop_edible:
+            self.drop_corpse()
+        self.status.death(cause)
+
     def float(self, start_floating: bool) -> None:
         super().float(start_floating)
         if start_floating:
@@ -646,6 +670,7 @@ class Item(Entity):
         flammable: float = 0, # 0 to 1, 1 being always flammable
         corrodible: float = 0, # 0 to 1, 1 being will always corrode
         droppable: bool = True,
+        change_stack_count_when_dropped: Optional[Tuple[int,int]] = None, # (min, max) e.g. when black jelly drops toxic goo, it should only drop a few.
         stackable: bool = True,
         stack_count: int = 1,
         throwable: Throwable = None,
@@ -708,6 +733,7 @@ class Item(Entity):
         self.flammable = flammable
         self.corrodible = corrodible
         self.droppable = droppable
+        self.change_stack_count_when_dropped = change_stack_count_when_dropped
 
         self.stackable = stackable
         self.stack_count = stack_count

@@ -696,7 +696,8 @@ toxic_goo = Item(
     flammable=0,
     corrodible=0,
     droppable=True,
-    stackable=True,
+    change_stack_count_when_dropped=(1,1),
+    stackable=False,
     throwable=throwable.ToxicGooThrowable(base_throw=1, additional_throw=1, break_chance=1, air_friction=1, trigger_if_thrown_at=True),
     edible=edible.BlackJellyEdible()
 )

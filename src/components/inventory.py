@@ -50,6 +50,9 @@ class Inventory(BaseComponent):
         item.item_state.is_equipped = None
         
         self.remove_item(item=item, remove_count=-1) # remove all stack
+        if item.change_stack_count_when_dropped != None: # set new drop count if it has one. (e.g. toxic goo drop from black jelly)
+            new_stack_count = random.randint(item.change_stack_count_when_dropped[0], item.change_stack_count_when_dropped[1])
+            item.stack_count = new_stack_count
         item.place(self.parent.x, self.parent.y, self.gamemap)# self.gamemap belongs to BaseComponent, which is equivalent to self.parent.gamemap.
 
         if show_msg:

@@ -56,6 +56,19 @@ class Volt_Ant_Ai(ai.BaseAI):
 
 
 ####################################################
+#####################  d - dogs  ###################
+####################################################
+
+class Cerberus_Ai(ai.BaseAI):
+    def __init__(self, alignment:str="hostile", do_melee_atk:bool=True, do_ranged_atk: bool=False, use_ability: bool=False, hostile_type: set=set('@')):
+        super().__init__(alignment, do_melee_atk, do_ranged_atk, use_ability, hostile_type=hostile_type)
+
+        # Fire dmg, 50%
+        self.melee_effects_var.append((3, 1, 0, 6))
+        self.melee_effects.append(("burn_target", 0.2))
+
+
+####################################################
 ################  e - eyes & brains  ###############
 ####################################################
 
@@ -157,7 +170,7 @@ class Sphere_Of_Acid_Ai(ai.BaseAI):
         If the ai has any sort of special effects to its melee attack, its passed as a parameter.
         """
         explosion_action.AcidExplodeAction(self.parent, False, True, radius=2, expl_dmg=50, dmg_reduction_by_dist=10, cause_fire=0).perform()
-        self.parent.status.die()
+        self.parent.status.death()
 
 
 ####################################################
@@ -179,6 +192,14 @@ class Jumping_Spider_Ai(ai.BaseAI):
 ################## E - ELEMENTALS  #################
 ####################################################
 
+class Fire_Elemental_Ai(ai.BaseAI):
+    def __init__(self, alignment:str="hostile", do_melee_atk:bool=True, do_ranged_atk: bool=False, use_ability: bool=False, hostile_type: set=set('@')):
+        super().__init__(alignment, do_melee_atk, do_ranged_atk, use_ability, hostile_type=hostile_type)
+
+        # Fire dmg, 50%
+        self.melee_effects_var.append((5, 5, 0, 6)) # 20% chance of freezing target
+        self.melee_effects.append(("burn_target", 0.5))
+
 class Ice_Elemental_Ai(ai.BaseAI):
     def __init__(self, alignment:str="hostile", do_melee_atk:bool=True, do_ranged_atk: bool=False, use_ability: bool=False, hostile_type: set=set('@')):
         super().__init__(alignment, do_melee_atk, do_ranged_atk, use_ability, hostile_type=hostile_type)
@@ -186,6 +207,35 @@ class Ice_Elemental_Ai(ai.BaseAI):
         # Cold dmg, 50%
         self.melee_effects_var.append((2, 1, 0.2, 0, 3)) # 20% chance of freezing target
         self.melee_effects.append(("freeze_target", 0.5))
+
+class Earth_Elemental_Ai(ai.BaseAI):
+    def __init__(self, alignment:str="hostile", do_melee_atk:bool=True, do_ranged_atk: bool=False, use_ability: bool=False, hostile_type: set=set('@')):
+        super().__init__(alignment, do_melee_atk, do_ranged_atk, use_ability, hostile_type=hostile_type)
+        # No special melee effect
+
+class Acid_Elemental_Ai(ai.BaseAI):
+    def __init__(self, alignment:str="hostile", do_melee_atk:bool=True, do_ranged_atk: bool=False, use_ability: bool=False, hostile_type: set=set('@')):
+        super().__init__(alignment, do_melee_atk, do_ranged_atk, use_ability, hostile_type=hostile_type)
+
+        # Acid dmg, 50%
+        self.melee_effects_var.append((9, 1, 0, 6))
+        self.melee_effects.append(("melt_target", 0.5))
+
+class Poison_Elemental_Ai(ai.BaseAI):
+    def __init__(self, alignment:str="hostile", do_melee_atk:bool=True, do_ranged_atk: bool=False, use_ability: bool=False, hostile_type: set=set('@')):
+        super().__init__(alignment, do_melee_atk, do_ranged_atk, use_ability, hostile_type=hostile_type)
+
+        # Poison dmg, 20%
+        self.melee_effects_var.append((4, 2, 0, 10))
+        self.melee_effects.append(("poison_target", 0.2))
+
+class Lightning_Elemental_Ai(ai.BaseAI):
+    def __init__(self, alignment:str="hostile", do_melee_atk:bool=True, do_ranged_atk: bool=False, use_ability: bool=False, hostile_type: set=set('@')):
+        super().__init__(alignment, do_melee_atk, do_ranged_atk, use_ability, hostile_type=hostile_type)
+
+        # Electrical dmg, 100%
+        self.melee_effects_var.append((5, 0.7))
+        self.melee_effects.append(("electrocute_target", 1))
 
 
 ####################################################
@@ -262,6 +312,7 @@ large_cat_ai = Melee_Ai()
 puppy_ai = Melee_Ai()
 dog_ai = Melee_Ai()
 large_dog_ai = Melee_Ai()
+cerberus_ai = Cerberus_Ai()
 #e
 floating_eye_ai = Floating_Eye_Ai()
 #s
@@ -279,7 +330,12 @@ sphere_of_acid_ai = Sphere_Of_Acid_Ai()
 earthworm_ai = Melee_Neutral_Ai()
 maggot_ai = Melee_Neutral_Ai()
 #E
+fire_elemental_ai = Fire_Elemental_Ai()
 ice_elemental_ai = Ice_Elemental_Ai()
+earth_elemental_ai = Earth_Elemental_Ai()
+poison_elemental_ai = Poison_Elemental_Ai()
+acid_elemental_ai = Acid_Elemental_Ai()
+lightning_elemental_ai = Lightning_Elemental_Ai()
 #I
 chatterbox_ai = Chatterbox_Ai()
 #M

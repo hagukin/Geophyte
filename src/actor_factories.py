@@ -717,6 +717,56 @@ large_dog = Actor(
 monster_difficulty[large_dog.status.difficulty].append(large_dog)
 
 
+### Cerberus
+cerberus = Actor(
+    char="d",
+    fg=(227, 45, 0),
+    name="케르베로스",
+    entity_id="cerberus",
+    entity_desc="\
+        케르베로스\n\
+        \n\
+        \"ㅇ.\"\
+        ",
+    rarity=7,
+    spawnable=True,
+    edible=edible.RawMeatEdible(nutrition=120, cook_bonus=30),
+    ai_cls=ai_factories.cerberus_ai,
+    status=Status(
+        hp=70,
+        mp=9,
+        strength=15,
+        dexterity=16,
+        agility=17,
+        intelligence=11,
+        constitution=14,
+        charm=17,
+        difficulty=7,
+        base_melee=8,
+        additional_melee=4,
+        protection=12,
+        eyesight=21,
+        ),
+    actor_state=ActorState(
+        size=4,
+        weight=5,
+        can_swim=True,
+        can_talk=False,
+        has_left_arm=False,
+        has_right_arm=False,
+        has_leg=True,
+        has_eye=True,
+        has_torso=False,
+        has_blood=True,
+        has_soul=True,
+    ),
+    inventory=Inventory(capacity=15),
+    ability_inventory=AbilityInventory(capacity=2),
+    equipments=Equipments(),
+)
+monster_difficulty[large_dog.status.difficulty].append(cerberus)
+
+
 ####################################################
 ################  e - eyes & brains  ###############
 ####################################################
@@ -897,14 +947,14 @@ black_jelly = Actor(
     entity_id="black_jelly",
     entity_desc="\
         점액질로 이루어진 이 생명체들은 딱히 이렇다 할 외형적 특징을 가지고 있지 않아 \"덩어리\"라는 이름으로 불린다.\n\
-        그 중 검정색을 띄고 있는 개체들은 독성 점액질로 이루어져 있는데,\n\
+        이들 중 검정색을 띄고 있는 개체들은 독성 점액질로 이루어져 있는데,\n\
         이들은 신체 내에서 독성 가스를 압축한 뒤 터뜨려 자신의 점액질 일부를 적에게 발사하는 형식으로 적을 공격한다고 알려져 있다.\n\
         독성 점액질은 본체에서 발사되고 얼마 지나지 않아 썩어 사라지며,\n\
-        본체 또한 마찬가지로, 많은 부분이 절단되거나 죽게 되면 순식간에 썩어 사라지는 특징을 보인다.\n\
+        본체 또한 많은 부분이 절단되거나 죽게 되면 순식간에 썩어 사라지는 특징을 보인다.\n\
         \n\
         \"이 놈들보다 비료로 쓰기 좋은 게 또 없지. 조금씩 잘라서 밭에다 적당히 던져놓으면 끝이거든.\"\
         ",
-    rarity=11,
+    rarity=99, #FIXME TODO
     spawnable=True,
     edible=edible.BlackJellyEdible(),
     ai_cls=ai_factories.black_jelly_ai,
@@ -1220,6 +1270,67 @@ monster_difficulty[maggot.status.difficulty].append(maggot)
 ################## E - ELEMENTALS  #################
 ####################################################
 
+### Fire Elemental
+fire_elemental = Actor(
+    char="E",
+    fg=(255, 0, 0),
+    name="불의 정령",
+    entity_id="fire_elemental",
+    entity_desc="\
+        정령들의 존재는 익히 알려져 있지만, 그들의 기원을 두고는 무수한 추측만이 오갈 뿐이다.\n\
+        이들이 자연의 산물이라고 주장하는 자들이 있는가 하면, 고대의 마법사들의 창조물이라고 주장하는 자들도 있다.\n\
+        이처럼 불분명한 기원에도 불구하고 정령은 수 천년 이상 인간과 오랜 시간 공존해 왔고,\n\
+        아주 드문 경우 이들은 자신이 존경하는 인간을 위해 자신의 힘을 내어주기까지 했다.\n\
+        이들은 굉장히 위협적이며, 역사적으로도 얼음 정령을 길들인 정령술사는 손에 꼽을 정도로 적다.\n\
+        \n\
+        불의 정령은 생명체를 연소시켜버릴 수 있는 강렬한 불꽃을 내뿜는다.\n\
+        \n\
+        \"TODO\"\
+        ",
+    rarity=4,
+    spawnable=True,
+    edible=None,
+    ai_cls=ai_factories.fire_elemental_ai,
+    status=Status(# TODO
+        hp=350,
+        mp=50,
+        strength=43,
+        dexterity=20,
+        agility=15,
+        intelligence=15,
+        constitution=18,
+        charm=25,
+        difficulty=12,
+        base_melee=8,
+        additional_melee=8,
+        protection=8,
+        eyesight=20,
+        cold_resistance=1,
+        poison_resistance=1,
+        ),
+    actor_state=ActorState(
+        size=4,
+        weight=95,
+        sexuality="None",
+        can_breathe_underwater=True,
+        can_fly=True,
+        can_talk=True,
+        has_left_arm=True,
+        has_right_arm=True,
+        has_leg=False,
+        has_eye=True,
+        has_torso=True,
+        has_blood=False,
+        has_soul=True,
+    ),
+    inventory=Inventory(capacity=5),
+    ability_inventory=AbilityInventory(capacity=5),
+    equipments=Equipments(),
+    tile_effect_on_path="burn",
+)
+monster_difficulty[fire_elemental.status.difficulty].append(fire_elemental)
+
+
 ### Ice Elemental
 ice_elemental = Actor(
     char="E",
@@ -1231,9 +1342,9 @@ ice_elemental = Actor(
         이들이 자연의 산물이라고 주장하는 자들이 있는가 하면, 고대의 마법사들의 창조물이라고 주장하는 자들도 있다.\n\
         이처럼 불분명한 기원에도 불구하고 정령은 수 천년 이상 인간과 오랜 시간 공존해 왔고,\n\
         아주 드문 경우 이들은 자신이 존경하는 인간을 위해 자신의 힘을 내어주기까지 했다.\n\
+        이들은 굉장히 위협적이며, 역사적으로도 얼음 정령을 길들인 정령술사는 손에 꼽을 정도로 적다.\n\
         \n\
         얼음 정령은 전신에서 생명체의 뼛 속까지 얼어붙일 수 있는 냉기를 내뿜는다.\n\
-        이들은 굉장히 위협적이며, 역사적으로도 얼음 정령을 길들인 정령술사는 손에 꼽을 정도로 적다.\n\
         \n\
         \"두꺼운 옷으로 꽁꽁 싸맨다고? 그런 건 자네의 얼어붙은 시체를 땅에 묻기 어렵게 만들 뿐이라네.\"\
         ",
@@ -1279,6 +1390,246 @@ ice_elemental = Actor(
     tile_effect_on_path="freeze",
 )
 monster_difficulty[ice_elemental.status.difficulty].append(ice_elemental)
+
+
+### Earth Elemental
+earth_elemental = Actor(
+    char="E",
+    fg=(117, 52, 0),
+    name="땅의 정령",
+    entity_id="earth_elemental",
+    entity_desc="\
+        정령들의 존재는 익히 알려져 있지만, 그들의 기원을 두고는 무수한 추측만이 오갈 뿐이다.\n\
+        이들이 자연의 산물이라고 주장하는 자들이 있는가 하면, 고대의 마법사들의 창조물이라고 주장하는 자들도 있다.\n\
+        이처럼 불분명한 기원에도 불구하고 정령은 수 천년 이상 인간과 오랜 시간 공존해 왔고,\n\
+        아주 드문 경우 이들은 자신이 존경하는 인간을 위해 자신의 힘을 내어주기까지 했다.\n\
+        이들은 굉장히 위협적이며, 역사적으로도 얼음 정령을 길들인 정령술사는 손에 꼽을 정도로 적다.\n\
+        \n\
+        땅의 정령은 굉장히 강인하고 대부분의 속성 공격에 약간의 내성을 가지고 있다.\n\
+        \n\
+        \"두꺼운 옷으로 꽁꽁 싸맨다고? 그런 건 자네의 얼어붙은 시체를 땅에 묻기 어렵게 만들 뿐이라네.\"\
+        ",
+    rarity=4,
+    spawnable=True,
+    edible=None,
+    ai_cls=ai_factories.earth_elemental_ai,
+    status=Status(# TODO
+        hp=380,
+        mp=50,
+        strength=43,
+        dexterity=20,
+        agility=15,
+        intelligence=15,
+        constitution=18,
+        charm=25,
+        difficulty=12,
+        base_melee=8,
+        additional_melee=8,
+        protection=8,
+        eyesight=20,
+        cold_resistance=1,
+        poison_resistance=1,
+        ),
+    actor_state=ActorState(
+        size=4,
+        weight=95,
+        sexuality="None",
+        can_breathe_underwater=True,
+        can_fly=True,
+        can_talk=True,
+        has_left_arm=True,
+        has_right_arm=True,
+        has_leg=False,
+        has_eye=True,
+        has_torso=True,
+        has_blood=False,
+        has_soul=True,
+    ),
+    inventory=Inventory(capacity=5),
+    ability_inventory=AbilityInventory(capacity=5),
+    equipments=Equipments(),
+)
+monster_difficulty[ice_elemental.status.difficulty].append(earth_elemental)
+
+
+### Acid Elemental
+acid_elemental = Actor(
+    char="E",
+    fg=(155, 179, 0),
+    name="부식의 정령",
+    entity_id="acid_elemental_ai",
+    entity_desc="\
+        정령들의 존재는 익히 알려져 있지만, 그들의 기원을 두고는 무수한 추측만이 오갈 뿐이다.\n\
+        이들이 자연의 산물이라고 주장하는 자들이 있는가 하면, 고대의 마법사들의 창조물이라고 주장하는 자들도 있다.\n\
+        이처럼 불분명한 기원에도 불구하고 정령은 수 천년 이상 인간과 오랜 시간 공존해 왔고,\n\
+        아주 드문 경우 이들은 자신이 존경하는 인간을 위해 자신의 힘을 내어주기까지 했다.\n\
+        이들은 굉장히 위협적이며, 역사적으로도 얼음 정령을 길들인 정령술사는 손에 꼽을 정도로 적다.\n\
+        \n\
+        부식성 정령은 전신에서 유기체를 순식간에 녹여버릴 수 있는 강산을 내뿜는다.\n\
+        \n\
+        \"두꺼운 옷으로 꽁꽁 싸맨다고? 그런 건 자네의 얼어붙은 시체를 땅에 묻기 어렵게 만들 뿐이라네.\"\
+        ",
+    rarity=4,
+    spawnable=True,
+    edible=None,
+    ai_cls=ai_factories.acid_elemental_ai,
+    status=Status(# TODO
+        hp=350,
+        mp=50,
+        strength=43,
+        dexterity=20,
+        agility=15,
+        intelligence=15,
+        constitution=18,
+        charm=25,
+        difficulty=12,
+        base_melee=8,
+        additional_melee=8,
+        protection=8,
+        eyesight=20,
+        cold_resistance=1,
+        poison_resistance=1,
+        ),
+    actor_state=ActorState(
+        size=4,
+        weight=95,
+        sexuality="None",
+        can_breathe_underwater=True,
+        can_fly=True,
+        can_talk=True,
+        has_left_arm=True,
+        has_right_arm=True,
+        has_leg=False,
+        has_eye=True,
+        has_torso=True,
+        has_blood=False,
+        has_soul=True,
+    ),
+    inventory=Inventory(capacity=5),
+    ability_inventory=AbilityInventory(capacity=5),
+    equipments=Equipments(),
+)
+monster_difficulty[ice_elemental.status.difficulty].append(acid_elemental)
+
+
+### Poison Elemental
+poison_elemental = Actor(
+    char="E",
+    fg=(101, 0, 179),
+    name="맹독의 정령",
+    entity_id="poison_elemental",
+    entity_desc="\
+        정령들의 존재는 익히 알려져 있지만, 그들의 기원을 두고는 무수한 추측만이 오갈 뿐이다.\n\
+        이들이 자연의 산물이라고 주장하는 자들이 있는가 하면, 고대의 마법사들의 창조물이라고 주장하는 자들도 있다.\n\
+        이처럼 불분명한 기원에도 불구하고 정령은 수 천년 이상 인간과 오랜 시간 공존해 왔고,\n\
+        아주 드문 경우 이들은 자신이 존경하는 인간을 위해 자신의 힘을 내어주기까지 했다.\n\
+        이들은 굉장히 위협적이며, 역사적으로도 얼음 정령을 길들인 정령술사는 손에 꼽을 정도로 적다.\n\
+        \n\
+        맹독의 정령은 전신에서 극히 위험한 유독성 기체를 내뿜는다.\n\
+        \n\
+        \"두꺼운 옷으로 꽁꽁 싸맨다고? 그런 건 자네의 얼어붙은 시체를 땅에 묻기 어렵게 만들 뿐이라네.\"\
+        ",
+    rarity=4,
+    spawnable=True,
+    edible=None,
+    ai_cls=ai_factories.poison_elemental_ai,
+    status=Status(# TODO
+        hp=350,
+        mp=50,
+        strength=43,
+        dexterity=20,
+        agility=15,
+        intelligence=15,
+        constitution=18,
+        charm=25,
+        difficulty=12,
+        base_melee=8,
+        additional_melee=8,
+        protection=8,
+        eyesight=20,
+        cold_resistance=1,
+        poison_resistance=1,
+        ),
+    actor_state=ActorState(
+        size=4,
+        weight=95,
+        sexuality="None",
+        can_breathe_underwater=True,
+        can_fly=True,
+        can_talk=True,
+        has_left_arm=True,
+        has_right_arm=True,
+        has_leg=False,
+        has_eye=True,
+        has_torso=True,
+        has_blood=False,
+        has_soul=True,
+    ),
+    inventory=Inventory(capacity=5),
+    ability_inventory=AbilityInventory(capacity=5),
+    equipments=Equipments(),
+)
+monster_difficulty[ice_elemental.status.difficulty].append(poison_elemental)
+
+
+### Lightning Elemental
+lightning_elemental = Actor(
+    char="E",
+    fg=(221, 255, 0),
+    name="번개 정령",
+    entity_id="lightning_elemental",
+    entity_desc="\
+        정령들의 존재는 익히 알려져 있지만, 그들의 기원을 두고는 무수한 추측만이 오갈 뿐이다.\n\
+        이들이 자연의 산물이라고 주장하는 자들이 있는가 하면, 고대의 마법사들의 창조물이라고 주장하는 자들도 있다.\n\
+        이처럼 불분명한 기원에도 불구하고 정령은 수 천년 이상 인간과 오랜 시간 공존해 왔고,\n\
+        아주 드문 경우 이들은 자신이 존경하는 인간을 위해 자신의 힘을 내어주기까지 했다.\n\
+        이들은 굉장히 위협적이며, 역사적으로도 얼음 정령을 길들인 정령술사는 손에 꼽을 정도로 적다.\n\
+        \n\
+        번개 정령은 전신에서 강력한 전기를 뿜어내며, 항상 주변에 번개를 몰고 다닌다.\n\
+        \n\
+        \"두꺼운 옷으로 꽁꽁 싸맨다고? 그런 건 자네의 얼어붙은 시체를 땅에 묻기 어렵게 만들 뿐이라네.\"\
+        ",
+    rarity=4,
+    spawnable=True,
+    edible=None,
+    ai_cls=ai_factories.lightning_elemental_ai,
+    status=Status(# TODO
+        hp=350,
+        mp=50,
+        strength=43,
+        dexterity=20,
+        agility=15,
+        intelligence=15,
+        constitution=18,
+        charm=25,
+        difficulty=12,
+        base_melee=8,
+        additional_melee=8,
+        protection=8,
+        eyesight=20,
+        cold_resistance=1,
+        poison_resistance=1,
+        ),
+    actor_state=ActorState(
+        size=4,
+        weight=95,
+        sexuality="None",
+        can_breathe_underwater=True,
+        can_fly=True,
+        can_talk=True,
+        has_left_arm=True,
+        has_right_arm=True,
+        has_leg=False,
+        has_eye=True,
+        has_torso=True,
+        has_blood=False,
+        has_soul=True,
+    ),
+    inventory=Inventory(capacity=5),
+    ability_inventory=AbilityInventory(capacity=5),
+    equipments=Equipments(),
+)
+monster_difficulty[ice_elemental.status.difficulty].append(lightning_elemental)
 
 
 ####################################################
@@ -1349,17 +1700,14 @@ baby_phoenix = Actor(
     name="새끼 불사조",
     entity_id="baby_phoenix",
     entity_desc="\
-        불사조는 불사도, 새도 아니다.\n\
-        이들은 인류보다도 오랜 세월을 이 땅에서 살아온 환상의 존재들이며, 마치 거대한 독수리와 공작새를 합친 듯한 외형을 하고 있다.\n\
-        불사조는 살과 근육이 아닌 붉은 화염을 연상케 하는 무언가로 구성되어 있으며, 이 '화염'이 무엇인지에 대한 의견은 학자들마다 분분하다.\n\
-        학자들 사이에서 가장 지지받는 이론은 바로 이 '화염'이 마력 에너지의 일종이며,\n\
-        불사조는 사실 유기생명체가 아니라 막대한 양의 마력 에너지가 자아를 갖게 되면서 생겨난 존재라는 이론이다.\n\
-        불사조의 또 하나의 큰 특징은 바로 이들이 '죽지 않는다'는 점이다. 엄밀히 말해 이들을 죽이는 것은 가능하지만, 불사조는 생명을 다하는 순간 강렬한 불꽃과 함께 어린 불사조의 형태로 되살아난다.\n\
-        학자들 사이에서는 이 '부활'에 관해서도 여러 견해들이 있는데, 크게 불사조가 죽자 그 자리에 전혀 다른 새로운 불사조가 태어났을 뿐이라는 의견과, 죽었던 불사조가 새끼의 형태로 부활했다는 두 의견으로 나뉜다.\n\
-        어느 쪽이 옳은 지는 밝혀지지 않았으나, 불사조에게는 성별이 없으며, 이들은 생식 활동을 하지 않는다는 점 만큼은 모든 학자들이 동의하는 사실이다.\n\
-        \n\
-        \"절대 변하지 않는 것이 뭐냐고? 사랑? 우정? 다 틀렸어. 답은 바로 이 세상에 존재하는 불사조의 숫자야.\"\
-        ",
+            불사조는 불멸의 존재가 아니다.\n\
+            이들은 인류보다도 오랜 세월을 이 땅에서 살아온 환상의 존재들이며, 마치 거대한 독수리와 공작새를 합친 듯한 외형을 하고 있다.\n\
+            불사조는 살과 근육이 아닌 붉은 화염을 연상케 하는 무언가로 구성되어 있으며, 이 '화염'이 무엇인지에 대한 의견은 학자들마다 분분하다.\n\
+            학자들 사이에서 가장 지지받는 이론은 바로 이 '화염'이 마력 에너지의 일종이며,\n\
+            불사조는 사실 유기생명체가 아니라 막대한 양의 마력 에너지가 자아를 갖게 되면서 생겨난 존재라는 이론이다.\n\
+            \n\
+            \"TODO: 부활?\"\
+            ",
     rarity=99,#TODO
     spawnable=True,
     edible=None,
@@ -1421,16 +1769,13 @@ phoenix = Actor(
     name="불사조",
     entity_id="phoenix",
     entity_desc="\
-        불사조는 불사도, 새도 아니다.\n\
+        불사조는 불멸의 존재가 아니다.\n\
         이들은 인류보다도 오랜 세월을 이 땅에서 살아온 환상의 존재들이며, 마치 거대한 독수리와 공작새를 합친 듯한 외형을 하고 있다.\n\
         불사조는 살과 근육이 아닌 붉은 화염을 연상케 하는 무언가로 구성되어 있으며, 이 '화염'이 무엇인지에 대한 의견은 학자들마다 분분하다.\n\
         학자들 사이에서 가장 지지받는 이론은 바로 이 '화염'이 마력 에너지의 일종이며,\n\
         불사조는 사실 유기생명체가 아니라 막대한 양의 마력 에너지가 자아를 갖게 되면서 생겨난 존재라는 이론이다.\n\
-        불사조의 또 하나의 큰 특징은 바로 이들이 '죽지 않는다'는 점이다. 엄밀히 말해 이들을 죽이는 것은 가능하지만, 불사조는 생명을 다하는 순간 강렬한 불꽃과 함께 어린 불사조의 형태로 되살아난다.\n\
-        학자들 사이에서는 이 '부활'에 관해서도 여러 견해들이 있는데, 크게 불사조가 죽자 그 자리에 전혀 다른 새로운 불사조가 태어났을 뿐이라는 의견과, 죽었던 불사조가 새끼의 형태로 부활했다는 두 의견으로 나뉜다.\n\
-        어느 쪽이 옳은 지는 밝혀지지 않았으나, 불사조에게는 성별이 없으며, 이들은 생식 활동을 하지 않는다는 점 만큼은 모든 학자들이 동의하는 사실이다.\n\
         \n\
-        \"절대 변하지 않는 것이 뭐냐고? 사랑? 우정? 다 틀렸어. 답은 바로 이 세상에 존재하는 불사조의 숫자야.\"\
+        \"TODO: 부활?\"\
         ",
     rarity=99,#TODO
     spawnable=True,
@@ -1469,7 +1814,7 @@ phoenix = Actor(
         can_think=True,
         can_talk=False,
         can_revive_self=True,
-        revive_as=baby_phoenix,
+        revive_as=baby_phoenix, #TODO FIXME Unused
         has_left_arm=False,
         has_right_arm=False,
         has_leg=False,

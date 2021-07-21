@@ -75,13 +75,15 @@ class Edible(BaseComponent):
 
         # foods will rot away if its too rotten
         if self.spoilage > 3:
-            if self.parent.parent != None:
-                if self.parent.parent.parent == self.engine.player:
-                    self.engine.message_log.add_message(f"당신의 {g(self.parent.name, '이')} 썩어 사라졌다!", color.player_damaged,)
-            else:
-                if self.engine.game_map.visible[self.parent.x, self.parent.y]:
-                    self.engine.message_log.add_message(f"{g(self.parent.name, '이')} 썩어 사라졌다.", color.gray, target=self.parent)
             if self.parent.stack_count > 0: # e.g. black jelly's toxic goo
+                if self.parent.parent != None:
+                    if self.parent.parent.parent == self.engine.player:
+                        self.engine.message_log.add_message(f"당신의 {g(self.parent.name, '이')} 썩어 사라졌다!",
+                                                            color.player_damaged, )
+                else:
+                    if self.engine.game_map.visible[self.parent.x, self.parent.y]:
+                        self.engine.message_log.add_message(f"{g(self.parent.name, '이')} 썩어 사라졌다.", color.gray,
+                                                            target=self.parent)
                 self.parent.remove_self()
 
     def get_action(self, consumer: Actor) -> Optional[actions.Action]:

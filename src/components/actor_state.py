@@ -22,7 +22,7 @@ class ActorState(BaseComponent):
         # Negative value indicates not being hungry at all.
         # 1 points of hunger is about 5 kcal irl, and if the actor will consume 1 points of hunger each turn. TODO: Maybe make some actions costs hunger more?
         hunger: int = -1,
-       
+
         ### Regeneration of health
         # If set to True, the actor will regenerate health in proportion to the actor's constitution.
         heal_wounds: bool = False,
@@ -298,10 +298,10 @@ class ActorState(BaseComponent):
                 elif hunger_state == "fainting":
                     self.engine.message_log.add_message(f"당신은 배고픔에 허덕이고 있다!", fg=color.red)
                 elif hunger_state == "starved to death":
-                    self.parent.status.die(cause="starvation")
+                    self.parent.status.death(cause="starvation")
         else:
             if hunger_state == "starved to death":
-                self.parent.status.die(cause="starvation")
+                self.parent.status.death(cause="starvation")
 
     def gain_nutrition(self, nutrition: int) -> None:
         if self.parent.ai:
@@ -775,7 +775,7 @@ class ActorState(BaseComponent):
 
             # Check if the actor passed its limit
             if self.is_drowning[0] >= self.is_drowning[1]:
-                self.parent.status.die(cause="drowning")
+                self.parent.status.death(cause="drowning")
         else:
             self.apply_drowning([0, 0])
             return None

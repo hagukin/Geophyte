@@ -275,60 +275,9 @@ class Status(BaseComponent):
                 if item:
                     self.parent.equipments.add_equipable_bonuses(item)
 
-    def drop_all_items(self) -> None:
-        """Drop all items this status' parent owns. Mainly used during die()"""
-        drop_list = []
-        for item in self.parent.inventory.items:
-            drop_list.append(item)
-        for drop_item in drop_list:
-            self.parent.inventory.drop(item=drop_item, show_msg=False)
-
-    def drop_corpse(self) -> None:
-        if self.parent.edible:  # if edible is None, no corpse is spawned.
-            new_corpse = item_factories.corpse.spawn(self.parent.gamemap, self.parent.x, self.parent.y)
-            new_corpse.weight = max(round(self.parent.actor_state.weight / 2, 2), 0.01)
-            new_corpse.change_name(self.parent.name + " 시체")
-            new_corpse.edible = self.parent.edible  # copy edible value from parent
-            new_corpse.edible.parent = new_corpse
-
-            # TODO: might have to save self.parent to new_corpse (for resurrection feature)
-
-    def revive(self, gamemap: Optional[GameMap], x: Optional[int], y: Optional[int], cause="low_hp", drop_item: bool=False, drop_edible: bool=False, is_active=True) -> Actor:
-        """Is called instead of status.die() when the actor can revive.
-        TODO: 테스트 안됨."""
-        if self.parent.actor_state.revive_as != None:
-            if gamemap:
-                n_gamemap = gamemap
-            else:
-                n_gamemap = self.gamemap
-
-            if x:
-                nx = x
-            else:
-                nx = self.parent.x
-
-            if y:
-                ny = y
-            else:
-                ny = self.parent.y
-
-            revived = self.parent.actor_state.revive_as.spawn(n_gamemap, nx, ny, is_active)
-        else:
-            revived = self.parent.spawn(self.gamemap, self.parent.x, self.parent.y)  # If no actor is specified, when revival copy self and revive it.
-
-        # Reset everything? Or keep the original stat? There could be multiple cause of death so maybe we should reset all stats?
-        # TODO
-        self.die(cause=cause, drop_item=drop_item, drop_edible=drop_edible)
-        return revived
-
-    def die(self, cause: str="low_hp", drop_item: bool=True, drop_edible: bool=True) -> None:
+    def death(self, cause: str) -> None:
         self.parent.actor_state.is_dead = True
         self.parent.actor_state.remove_all_actor_states(include_spatial_states=True)
-
-        if drop_item:
-            self.drop_all_items()
-        if drop_edible:
-            self.drop_corpse()
 
         # death cause
         if cause == "low_hp":
@@ -367,7 +316,7 @@ class Status(BaseComponent):
     def hp(self, value) -> None:
         self._hp = max(0, min(value, self.max_hp))
         if self._hp == 0 and not self.parent.actor_state.has_immortality:
-            self.die()
+            self.parent.die("low_hp")
 
     def heal(self, amount) -> int:
         if self.hp == self.max_hp:
@@ -486,7 +435,7 @@ class Status(BaseComponent):
     def strength(self, value) -> None:
         self._strength = value
         if self._strength == 0 and self.parent.ai:
-            self.die("lack_of_strength")
+            self.parent.die("lack_of_strength")
 
     def gain_strength(self, amount):
         self._strength += amount
