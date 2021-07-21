@@ -1339,6 +1339,154 @@ monster_difficulty[chatterbox.status.difficulty].append(chatterbox)
 
 
 ####################################################
+################ M - Mythical Beasts  ##############
+####################################################]
+
+### Baby Phoenix
+baby_phoenix = Actor(
+    char="M",
+    fg=(255, 115, 0),
+    name="새끼 불사조",
+    entity_id="baby_phoenix",
+    entity_desc="\
+        불사조는 불사도, 새도 아니다.\n\
+        이들은 인류보다도 오랜 세월을 이 땅에서 살아온 환상의 존재들이며, 마치 거대한 독수리와 공작새를 합친 듯한 외형을 하고 있다.\n\
+        불사조는 살과 근육이 아닌 붉은 화염을 연상케 하는 무언가로 구성되어 있으며, 이 '화염'이 무엇인지에 대한 의견은 학자들마다 분분하다.\n\
+        학자들 사이에서 가장 지지받는 이론은 바로 이 '화염'이 마력 에너지의 일종이며,\n\
+        불사조는 사실 유기생명체가 아니라 막대한 양의 마력 에너지가 자아를 갖게 되면서 생겨난 존재라는 이론이다.\n\
+        불사조의 또 하나의 큰 특징은 바로 이들이 '죽지 않는다'는 점이다. 엄밀히 말해 이들을 죽이는 것은 가능하지만, 불사조는 생명을 다하는 순간 강렬한 불꽃과 함께 어린 불사조의 형태로 되살아난다.\n\
+        학자들 사이에서는 이 '부활'에 관해서도 여러 견해들이 있는데, 크게 불사조가 죽자 그 자리에 전혀 다른 새로운 불사조가 태어났을 뿐이라는 의견과, 죽었던 불사조가 새끼의 형태로 부활했다는 두 의견으로 나뉜다.\n\
+        어느 쪽이 옳은 지는 밝혀지지 않았으나, 불사조에게는 성별이 없으며, 이들은 생식 활동을 하지 않는다는 점 만큼은 모든 학자들이 동의하는 사실이다.\n\
+        \n\
+        \"절대 변하지 않는 것이 뭐냐고? 사랑? 우정? 다 틀렸어. 답은 바로 이 세상에 존재하는 불사조의 숫자야.\"\
+        ",
+    rarity=99,#TODO
+    spawnable=True,
+    edible=None,
+    ai_cls=ai_factories.baby_phoenix_ai,
+    status=Status(#TODO : 스텟조정
+        hp=68,
+        mp=110,
+        strength=18,
+        dexterity=20,
+        agility=20,
+        intelligence=16,
+        constitution=45,
+        charm=25,
+        difficulty=6,
+        base_melee=9,
+        additional_melee=6,
+        protection=12,
+        eyesight=30,
+        fire_resistance=1,
+        acid_resistance=1,
+        poison_resistance=1,
+        psychic_resistance=1,
+        sleep_resistance=1,
+        shock_resistance=1,
+        magic_resistance=0.2,
+        ),
+    actor_state=ActorState(
+        size=5,
+        can_fly=True,
+        heal_wounds=True,
+        regain_mana=True,
+        sexuality="None",
+        is_burning=[0,0,-1,0],
+        weight=1.4,
+        can_think=True,
+        can_talk=False,
+        can_revive_self=True,
+        revive_as=None,
+        has_left_arm=False,
+        has_right_arm=False,
+        has_leg=False,
+        has_eye=True,
+        has_torso=False,
+        has_blood=True,
+        has_soul=True,
+        is_flying=True,
+    ),
+    inventory=Inventory(capacity=8),
+    ability_inventory=AbilityInventory(capacity=7),
+    equipments=Equipments(),
+)
+monster_difficulty[baby_phoenix.status.difficulty].append(baby_phoenix)
+
+
+### Phoenix
+phoenix = Actor(
+    char="M",
+    fg=(255, 8, 0),
+    name="불사조",
+    entity_id="phoenix",
+    entity_desc="\
+        불사조는 불사도, 새도 아니다.\n\
+        이들은 인류보다도 오랜 세월을 이 땅에서 살아온 환상의 존재들이며, 마치 거대한 독수리와 공작새를 합친 듯한 외형을 하고 있다.\n\
+        불사조는 살과 근육이 아닌 붉은 화염을 연상케 하는 무언가로 구성되어 있으며, 이 '화염'이 무엇인지에 대한 의견은 학자들마다 분분하다.\n\
+        학자들 사이에서 가장 지지받는 이론은 바로 이 '화염'이 마력 에너지의 일종이며,\n\
+        불사조는 사실 유기생명체가 아니라 막대한 양의 마력 에너지가 자아를 갖게 되면서 생겨난 존재라는 이론이다.\n\
+        불사조의 또 하나의 큰 특징은 바로 이들이 '죽지 않는다'는 점이다. 엄밀히 말해 이들을 죽이는 것은 가능하지만, 불사조는 생명을 다하는 순간 강렬한 불꽃과 함께 어린 불사조의 형태로 되살아난다.\n\
+        학자들 사이에서는 이 '부활'에 관해서도 여러 견해들이 있는데, 크게 불사조가 죽자 그 자리에 전혀 다른 새로운 불사조가 태어났을 뿐이라는 의견과, 죽었던 불사조가 새끼의 형태로 부활했다는 두 의견으로 나뉜다.\n\
+        어느 쪽이 옳은 지는 밝혀지지 않았으나, 불사조에게는 성별이 없으며, 이들은 생식 활동을 하지 않는다는 점 만큼은 모든 학자들이 동의하는 사실이다.\n\
+        \n\
+        \"절대 변하지 않는 것이 뭐냐고? 사랑? 우정? 다 틀렸어. 답은 바로 이 세상에 존재하는 불사조의 숫자야.\"\
+        ",
+    rarity=99,#TODO
+    spawnable=True,
+    edible=None,
+    ai_cls=ai_factories.phoenix_ai,
+    status=Status(#TODO : 스텟조정
+        hp=68,
+        mp=110,
+        strength=18,
+        dexterity=20,
+        agility=20,
+        intelligence=16,
+        constitution=45,
+        charm=25,
+        difficulty=6,
+        base_melee=9,
+        additional_melee=6,
+        protection=12,
+        eyesight=30,
+        fire_resistance=1,
+        acid_resistance=1,
+        poison_resistance=1,
+        psychic_resistance=1,
+        sleep_resistance=1,
+        shock_resistance=1,
+        magic_resistance=0.2,
+        ),
+    actor_state=ActorState(
+        size=5,
+        can_fly=True,
+        heal_wounds=True,
+        regain_mana=True,
+        sexuality="None",
+        is_burning=[0,0,-1,0],
+        weight=13.2,
+        can_think=True,
+        can_talk=False,
+        can_revive_self=True,
+        revive_as=baby_phoenix,
+        has_left_arm=False,
+        has_right_arm=False,
+        has_leg=False,
+        has_eye=True,
+        has_torso=False,
+        has_blood=True,
+        has_soul=True,
+        is_flying=True,
+    ),
+    inventory=Inventory(capacity=10),
+    ability_inventory=AbilityInventory(capacity=10),
+    equipments=Equipments(),
+)
+monster_difficulty[phoenix.status.difficulty].append(phoenix)
+
+
+####################################################
 ################ T - GIANTS & TITANS  ##############
 ####################################################
 

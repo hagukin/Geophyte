@@ -368,42 +368,42 @@ class Engine:
 
                 # Negative status effects
                 if effects[n][0] == "burn_target":
-                    target.actor_state.apply_burning(effects_var[n])
+                    target.actor_state.apply_burning(list(effects_var[n]))
                 elif effects[n][0] == "poison_target":
-                    target.actor_state.apply_poisoning(effects_var[n])
+                    target.actor_state.apply_poisoning(list(effects_var[n]))
                 elif effects[n][0] == "freeze_target":
-                    target.actor_state.apply_freezing(effects_var[n])
+                    target.actor_state.apply_freezing(list(effects_var[n]))
                 elif effects[n][0] == "electrocute_target":
-                    target.actor_state.apply_electrocution(effects_var[n])
+                    target.actor_state.apply_electrocution(list(effects_var[n]))
                     target.actor_state.actor_electrocuted(source_actor=caused_by)
                 elif effects[n][0] == "bleed_target":
-                    target.actor_state.apply_bleeding(effects_var[n])
+                    target.actor_state.apply_bleeding(list(effects_var[n]))
                 elif effects[n][0] == "paralyze_target":
-                    target.actor_state.apply_paralyzation(effects_var[n])
+                    target.actor_state.apply_paralyzation(list(effects_var[n]))
                 elif effects[n][0] == "slow_target":
-                    target.actor_state.apply_slowness(effects_var[n])
+                    target.actor_state.apply_slowness(list(effects_var[n]))
                 elif effects[n][0] == "sleep_target":
-                    target.actor_state.apply_sleeping(effects_var[n])
+                    target.actor_state.apply_sleeping(list(effects_var[n]))
                 elif effects[n][0] == "melt_target":
-                    target.actor_state.apply_melting(effects_var[n])
+                    target.actor_state.apply_melting(list(effects_var[n]))
                 elif effects[n][0] == "sick_target":
-                    target.actor_state.apply_sickness(effects_var[n])
+                    target.actor_state.apply_sickness(list(effects_var[n]))
                 elif effects[n][0] == "anger_target":
-                    target.actor_state.apply_anger(effects_var[n])
+                    target.actor_state.apply_anger(list(effects_var[n]))
                 elif effects[n][0] == "confuse_target":
-                    target.actor_state.apply_confusion(effects_var[n])
+                    target.actor_state.apply_confusion(list(effects_var[n]))
                 elif effects[n][0] == "hallucinate_target":
-                    target.actor_state.apply_hallucination(effects_var[n])
+                    target.actor_state.apply_hallucination(list(effects_var[n]))
                 
                 # Other status effects
                 elif effects[n][0] == "fast_target":
-                    target.actor_state.apply_haste(effects_var[n])
+                    target.actor_state.apply_haste(list(effects_var[n]))
                 elif effects[n][0] == "invisible_target":
-                    target.actor_state.apply_invisibility(effects_var[n])
+                    target.actor_state.apply_invisibility(list(effects_var[n]))
                 elif effects[n][0] == "phase_target":
-                    target.actor_state.apply_phasing(effects_var[n])
+                    target.actor_state.apply_phasing(list(effects_var[n]))
                 elif effects[n][0] == "levitate_target":
-                    target.actor_state.apply_levitation(effects_var[n])
+                    target.actor_state.apply_levitation(list(effects_var[n]))
 
     def generate_new_dungeon(self, console, context, depth=1, display_process=True) -> GameMap:
         """Generate new dungeon and return as gamemap object"""

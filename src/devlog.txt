@@ -1869,4 +1869,11 @@
 
             던전의 현실감을 위해 일정 범위 내의 액터들을 시야 여부와 관계없이 activate 시킴. 이 거리값은 콘픽에서 변경 가능. (현재는 30)
             TODO: sleep 추가
+            TODO: 불사조 완성, actorstate의 canrevive구형, 독성점액 계속 썩는버그 방지(아마프리알파2에서 해결했을듯)
 
+20210720 - 불사조가 근접공격시불을 못붙이는버그 수정
+            > 원인은 밀리효과를 적용할 때 그냥 ai_factories의 ai에 저장된 list(mutable)을 그대로 전달해서임.
+              앞으로 밀리효과를 적을때는 항상 투플로 (1,0,0,4) 같은 꼴로 적어야 하며, 이를 넘길때만 list()로 둘러싸서 넘겨야함.
+              target.actor_state.apply_levitation(list(effects_var[n])) 이렇게 전달해야 됨.
+
+            status.revive()함수 제작중.

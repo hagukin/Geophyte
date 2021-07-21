@@ -3,14 +3,16 @@ import random
 import components.ai as ai
 import color
 import explosion_action
+import copy
 from shopkeeper import Shopkeeper_Ai
 from order import InventoryOrder
 from korean import grammar as g
 
 class Melee_Ai(ai.BaseAI):
     """Melee AI that only attacks humans."""
-    def __init__(self, alignment:str="hostile", do_melee_atk:bool=True, do_ranged_atk: bool=False, use_ability: bool=False, hostile_type: set=set('@')):
-        super().__init__(alignment, do_melee_atk, do_ranged_atk, use_ability, hostile_type=hostile_type)
+    def __init__(self, alignment:str="hostile", do_melee_atk:bool=True, do_ranged_atk: bool=False, use_ability: bool=False):
+        super().__init__(alignment, do_melee_atk, do_ranged_atk, use_ability)
+        self.hostile_type = set('@')
 
 class Melee_Neutral_Ai(ai.BaseAI):
     """Neutral melee AI."""
@@ -19,8 +21,10 @@ class Melee_Neutral_Ai(ai.BaseAI):
 
 class Test_Ai(ai.BaseAI):
     """Pickup Eat testing"""
-    def __init__(self, alignment:str="hostile", do_melee_atk:bool=True, do_ranged_atk: bool=False, use_ability: bool=False, attracted_eat_type: set=set(["meat"]), attracted_own_type: set=set([InventoryOrder.POTION])):
-        super().__init__(alignment, do_melee_atk, do_ranged_atk, use_ability, attracted_eat_type=attracted_eat_type, attracted_own_type=attracted_own_type)
+    def __init__(self, alignment:str="hostile", do_melee_atk:bool=True, do_ranged_atk: bool=False, use_ability: bool=False):
+        super().__init__(alignment, do_melee_atk, do_ranged_atk, use_ability)
+        self.attracted_eat_type = set(["meat"])
+        self.attracted_own_type = set([InventoryOrder.POTION])
 
 
 ####################################################
@@ -39,7 +43,7 @@ class Fire_Ant_Ai(ai.BaseAI):
         super().__init__(alignment, do_melee_atk, do_ranged_atk, use_ability, hostile_type=hostile_type)
 
         # Fire dmg, 50%
-        self.melee_effects_var.append([1, 0, 0, 4])
+        self.melee_effects_var.append((1, 0, 0, 4))
         self.melee_effects.append(("burn_target", 0.5))
 
 class Volt_Ant_Ai(ai.BaseAI):
@@ -47,7 +51,7 @@ class Volt_Ant_Ai(ai.BaseAI):
         super().__init__(alignment, do_melee_atk, do_ranged_atk, use_ability, hostile_type=hostile_type)
 
         # Elec dmg, 80%
-        self.melee_effects_var.append([2, 0.5])
+        self.melee_effects_var.append((2, 0.5))
         self.melee_effects.append(("electrocute_target", 0.8))
 
 
@@ -99,7 +103,7 @@ class Giant_Wasp_Ai(ai.BaseAI):
         super().__init__(alignment, do_melee_atk, do_ranged_atk, use_ability, hostile_type=hostile_type)
 
         # Poison dmg, 20%
-        self.melee_effects_var.append([1, 1, 0, 3])
+        self.melee_effects_var.append((1, 1, 0, 3))
         self.melee_effects.append(("poison_target", 0.2))
 
 
@@ -112,7 +116,7 @@ class Black_Jelly_Ai(ai.BaseAI):
         super().__init__(alignment, do_melee_atk, do_ranged_atk, use_ability, hostile_type=hostile_type)
 
         # Poison dmg, 10%
-        self.melee_effects_var.append([2, 1, 0, 2])
+        self.melee_effects_var.append((2, 1, 0, 2))
         self.melee_effects.append(("poison_target", 0.3))
 
     def check_is_ranged_atk_possible(self, attacker, target):
@@ -180,7 +184,7 @@ class Ice_Elemental_Ai(ai.BaseAI):
         super().__init__(alignment, do_melee_atk, do_ranged_atk, use_ability, hostile_type=hostile_type)
 
         # Cold dmg, 50%
-        self.melee_effects_var.append([2, 1, 0.2, 0, 3]) # 20% chance of freezing target
+        self.melee_effects_var.append((2, 1, 0.2, 0, 3)) # 20% chance of freezing target
         self.melee_effects.append(("freeze_target", 0.5))
 
 
@@ -194,7 +198,7 @@ class Chatterbox_Ai(ai.BaseAI):
         super().__init__(alignment, do_melee_atk, do_ranged_atk, use_ability, allied_id=allied_id)
 
         # Bleed dmg, 30%
-        self.melee_effects_var.append([1, 0, 4])
+        self.melee_effects_var.append((1, 0, 4))
         self.melee_effects.append(("bleed_target", 0.3))
 
     def lure_speech(self):
@@ -209,7 +213,7 @@ class Chatterbox_Ai(ai.BaseAI):
                 "거기 누구 있나요? 있다면 대답해주세요!",
                 "(노래를 흥얼거리는 소리)",
                 "오늘은 운수가 좋은 날이군, 이런 귀한 걸 얻게 되다니.",
-                "어이, 그래 당신, 이 쪽으로 잠깐 와봐."
+                "어이, 이 쪽으로 잠깐 와봐."
             ]
         )
         self.engine.message_log.add_speech(text=speech, speaker=self.parent, stack=False)
@@ -219,6 +223,27 @@ class Chatterbox_Ai(ai.BaseAI):
             self.lure_speech()
         super().move_path()
 
+
+####################################################
+################ M - Mythical Beasts  ##############
+####################################################)
+
+class Baby_Phoenix_Ai(ai.BaseAI):
+    def __init__(self, alignment:str="neutral", do_melee_atk:bool=True, do_ranged_atk: bool=False,  use_ability: bool=False):
+        super().__init__(alignment, do_melee_atk, do_ranged_atk, use_ability)
+
+        # Fire dmg, 90%
+        self.melee_effects_var.append((7, 2, 0, 4))
+        self.melee_effects.append(("burn_target", 0.8))
+
+
+class Phoenix_Ai(ai.BaseAI):
+    def __init__(self, alignment:str="neutral", do_melee_atk:bool=True, do_ranged_atk: bool=False,  use_ability: bool=False):
+        super().__init__(alignment, do_melee_atk, do_ranged_atk, use_ability)
+
+        # Fire dmg, 90%
+        self.melee_effects_var.append((10, 5, 0, 6))
+        self.melee_effects.append(("burn_target", 0.9))
 
 
 #@
@@ -257,6 +282,9 @@ maggot_ai = Melee_Neutral_Ai()
 ice_elemental_ai = Ice_Elemental_Ai()
 #I
 chatterbox_ai = Chatterbox_Ai()
+#M
+baby_phoenix_ai = Baby_Phoenix_Ai()
+phoenix_ai = Phoenix_Ai()
 #T
 giant_ai = Melee_Ai()
 

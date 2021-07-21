@@ -159,6 +159,7 @@ class ActorState(BaseComponent):
         has_immortality: bool = False,
         has_telepathy: bool = False,
         can_revive_self: bool = False, # can revive after actor dies
+        revive_as: Actor = None, # If set to None, and can_revive_self is True, revive as this actor.
 
         ### Mental capabilities
         can_think: bool = True, # Has ability to make the most basic level of logical decision (e.g. feels pain -> moves away)
@@ -229,6 +230,7 @@ class ActorState(BaseComponent):
         self.has_immortality = has_immortality
         self.has_telepathy = has_telepathy
         self.can_revive_self = can_revive_self
+        self.revive_as = revive_as
 
         self.can_think = can_think
         self.can_talk = can_talk
@@ -356,6 +358,8 @@ class ActorState(BaseComponent):
 
     def actor_burn(self):
         if self.parent.status.changed_status["fire_resistance"] >= 1:
+            if self.is_burning[2] < 0:
+                return None
             self.engine.message_log.add_message(f"{g(self.parent.name, '은')} 화염에 저항했다!", fg=color.white, target=self.parent)
             self.apply_burning([0, 0, 0, 0])
         else:
@@ -420,6 +424,8 @@ class ActorState(BaseComponent):
             return None
 
         if self.parent.status.changed_status["cold_resistance"] >= 1:
+            if self.is_freezing[3] < 0:
+                return None
             self.engine.message_log.add_message(f"{g(self.parent.name, '은')} 냉기에 저항했다!", fg=color.white, target=self.parent)
             self.apply_freezing([0, 0, 0, 0, 0])
             # Reset this actor's agility value

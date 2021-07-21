@@ -1,7 +1,7 @@
 from __future__ import annotations
 from components.experience import Experience
 
-from typing import List, TYPE_CHECKING
+from typing import List, TYPE_CHECKING, Optional
 
 import random
 import color
@@ -10,6 +10,7 @@ import copy
 import math
 
 from components.base_component import BaseComponent
+from game_map import GameMap
 from input_handlers import GameOverEventHandler
 from korean import grammar as g
 
@@ -208,6 +209,7 @@ class Status(BaseComponent):
         Args:
             status_types:
                 ex. ["bonus_strength", "bonus_agility"] to remove bonus for strength and agility
+                If you want to reset everything, pass "all"
         """
         # Get list of equipped items
         equipments_list = list(self.parent.equipments.equipments.values())
@@ -220,47 +222,51 @@ class Status(BaseComponent):
 
         # reset bonus
         for stat_type in status_types:
-            if stat_type == "bonus_hp":
+            if stat_type == "bonus_hp" or stat_type == "all":
                 self.bonus_hp = 0
-            elif stat_type == "bonus_mp":
+            if stat_type == "bonus_mp" or stat_type == "all":
                 self.bonus_mp = 0
-            elif stat_type == "bonus_max_hp":
+            if stat_type == "bonus_max_hp" or stat_type == "all":
                 self.bonus_max_hp = 0
-            elif stat_type == "bonus_max_mp":
+            if stat_type == "bonus_max_mp" or stat_type == "all":
                 self.bonus_max_mp = 0
-            elif stat_type == "bonus_strength":
+            if stat_type == "bonus_strength" or stat_type == "all":
                 self.bonus_strength = 0
-            elif stat_type == "bonus_dexterity":
+            if stat_type == "bonus_dexterity" or stat_type == "all":
                 self.bonus_dexterity = 0
-            elif stat_type == "bonus_intelligence":
+            if stat_type == "bonus_intelligence" or stat_type == "all":
                 self.bonus_intelligence = 0
-            elif stat_type == "bonus_agility":
+            if stat_type == "bonus_agility" or stat_type == "all":
                 self.bonus_agility = 0
-            elif stat_type == "bonus_charm":
+            if stat_type == "bonus_charm" or stat_type == "all":
                 self.bonus_charm = 0
-            elif stat_type == "bonus_constitution":
+            if stat_type == "bonus_constitution" or stat_type == "all":
                 self.bonus_constitution = 0
-            elif stat_type == "bonus_base_melee":
+            if stat_type == "bonus_base_melee" or stat_type == "all":
                 self.bonus_base_melee = 0
-            elif stat_type == "bonus_additional_melee":
+            if stat_type == "bonus_additional_melee" or stat_type == "all":
                 self.bonus_additional_melee = 0
-            elif stat_type == "bonus_protection":
+            if stat_type == "bonus_protection" or stat_type == "all":
                 self.bonus_protection = 0
-            elif stat_type == "bonus_fire_resistance":
+            if stat_type == "bonus_eyesight" or stat_type == "all":
+                self.bonus_eyesight = 0
+            if stat_type == "bonus_hearing" or stat_type == "all":
+                self.bonus_hearing = 0
+            if stat_type == "bonus_fire_resistance" or stat_type == "all":
                 self.bonus_fire_resistance = 0
-            elif stat_type == "bonus_poison_resistance":
+            if stat_type == "bonus_poison_resistance" or stat_type == "all":
                 self.bonus_poison_resistance = 0
-            elif stat_type == "bonus_acid_resistance":
+            if stat_type == "bonus_acid_resistance" or stat_type == "all":
                 self.bonus_acid_resistance = 0
-            elif stat_type == "bonus_cold_resistance":
+            if stat_type == "bonus_cold_resistance" or stat_type == "all":
                 self.bonus_cold_resistance = 0
-            elif stat_type == "bonus_psychic_resistance":
+            if stat_type == "bonus_psychic_resistance" or stat_type == "all":
                 self.bonus_psychic_resistance = 0
-            elif stat_type == "bonus_sleep_resistance":
+            if stat_type == "bonus_sleep_resistance" or stat_type == "all":
                 self.bonus_sleep_resistance = 0
-            elif stat_type == "bonus_shock_resistance":
+            if stat_type == "bonus_shock_resistance" or stat_type == "all":
                 self.bonus_shock_resistance = 0
-            elif stat_type == "bonus_magic_resistance":
+            if stat_type == "bonus_magic_resistance" or stat_type == "all":
                 self.bonus_magic_resistance = 0
 
         if equipments_list:
@@ -268,32 +274,61 @@ class Status(BaseComponent):
             for item in equipments_list:
                 if item:
                     self.parent.equipments.add_equipable_bonuses(item)
-    
-    def die(self, cause: str="low_hp") -> None:
-        self.parent.actor_state.is_dead = True
 
-        # Drop Everything
+    def drop_all_items(self) -> None:
+        """Drop all items this status' parent owns. Mainly used during die()"""
         drop_list = []
         for item in self.parent.inventory.items:
             drop_list.append(item)
         for drop_item in drop_list:
             self.parent.inventory.drop(item=drop_item, show_msg=False)
 
-        # Remove all actor state
-        self.parent.actor_state.remove_all_actor_states(include_spatial_states=True)
-
-        # Spawn corpse entity
-        if self.parent.edible: # if edible is None, no corpse is spawned.
+    def drop_corpse(self) -> None:
+        if self.parent.edible:  # if edible is None, no corpse is spawned.
             new_corpse = item_factories.corpse.spawn(self.parent.gamemap, self.parent.x, self.parent.y)
             new_corpse.weight = max(round(self.parent.actor_state.weight / 2, 2), 0.01)
             new_corpse.change_name(self.parent.name + " 시체")
-            new_corpse.edible = self.parent.edible # copy edible value from parent
+            new_corpse.edible = self.parent.edible  # copy edible value from parent
             new_corpse.edible.parent = new_corpse
 
-            #TODO: might have to save self.parent to new_corpse (for resurrection feature)
+            # TODO: might have to save self.parent to new_corpse (for resurrection feature)
 
-        # Remove all actor states to prevent bugs
-        self.parent.actor_state.remove_all_actor_states()
+    def revive(self, gamemap: Optional[GameMap], x: Optional[int], y: Optional[int], cause="low_hp", drop_item: bool=False, drop_edible: bool=False, is_active=True) -> Actor:
+        """Is called instead of status.die() when the actor can revive.
+        TODO: 테스트 안됨."""
+        if self.parent.actor_state.revive_as != None:
+            if gamemap:
+                n_gamemap = gamemap
+            else:
+                n_gamemap = self.gamemap
+
+            if x:
+                nx = x
+            else:
+                nx = self.parent.x
+
+            if y:
+                ny = y
+            else:
+                ny = self.parent.y
+
+            revived = self.parent.actor_state.revive_as.spawn(n_gamemap, nx, ny, is_active)
+        else:
+            revived = self.parent.spawn(self.gamemap, self.parent.x, self.parent.y)  # If no actor is specified, when revival copy self and revive it.
+
+        # Reset everything? Or keep the original stat? There could be multiple cause of death so maybe we should reset all stats?
+        # TODO
+        self.die(cause=cause, drop_item=drop_item, drop_edible=drop_edible)
+        return revived
+
+    def die(self, cause: str="low_hp", drop_item: bool=True, drop_edible: bool=True) -> None:
+        self.parent.actor_state.is_dead = True
+        self.parent.actor_state.remove_all_actor_states(include_spatial_states=True)
+
+        if drop_item:
+            self.drop_all_items()
+        if drop_edible:
+            self.drop_corpse()
 
         # death cause
         if cause == "low_hp":
