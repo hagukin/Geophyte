@@ -474,14 +474,15 @@ class MeleeAction(ActionWithDirection):
         if self.entity is self.engine.player:
             if critical_hit:
                 attack_color = color.player_crit
-                # TODO : 사운드
             else:
                 attack_color = color.player_atk
-        else:
+        elif target is self.engine.player:
             if critical_hit:
-                attack_color = color.enemy_crit
+                attack_color = color.red
             else:
-                attack_color = color.enemy_atk
+                attack_color = color.player_damaged
+        else:
+            attack_color = color.gray
 
         # If there is damage
         if damage > 0:
