@@ -275,7 +275,7 @@ class Status(BaseComponent):
                 if item:
                     self.parent.equipments.add_equipable_bonuses(item)
 
-    def death(self, cause: str) -> None:
+    def death(self, cause: str="low_hp") -> None:
         self.parent.actor_state.is_dead = True
         self.parent.actor_state.remove_all_actor_states(include_spatial_states=True)
 
@@ -333,7 +333,7 @@ class Status(BaseComponent):
 
         return amount_recovered
 
-    def calculate_dmg_reduction(self, damage: int, damage_type: str=None, ignore_reduction: bool = False, penetration_constant: float = 0) -> int:
+    def calculate_dmg_reduction(self, damage: int, damage_type: str=None, ignore_reduction: bool = False, penetration_constant:int=10,  round_dmg:bool = True) -> int:
         """
         Calculate the damage reduction, and return the actual damage that is applied.
 
@@ -347,6 +347,7 @@ class Status(BaseComponent):
 
             penetration_constant:
                 When additional values should be passed use this.
+                Attacker's Strength is generally passed here.
                 E.g. When calculating physical type damages, attacker's strength is passed to penetration_constant.
         """
         dmg = damage
@@ -356,15 +357,15 @@ class Status(BaseComponent):
             if damage_type == "physical":
                 # if dmg type is physical, use protection to calculate reduction
                 protection = self.changed_status["protection"]
-                penetration = 1 + math.log10(penetration_constant/10 + 1) # y = log2(x/10 + 1) + 1 # TODO: adjust the constant 10
-                dmg_absorbed = random.randint(0, int(protection * 0.3 /penetration))
-                dmg_reduced = 1 + protection * math.log2(protection / 700 + 1) # y = 1 + x*log2(x/700 + 1)
+                penetration = 1 + math.log10(penetration_constant/10 + 1)
+                dmg_absorbed = random.randint(int(protection * 0.3 /penetration), int(protection * 0.9 /penetration))
+                dmg_reduced = 1 + protection * math.log2(protection / 700 + 1)
                 dmg = (dmg - dmg_absorbed) / dmg_reduced
             elif damage_type == "explosion":
                 # NOTE: explosion damages are exactly like physical damage, except that is ignores any penetration constants given.
                 protection = self.changed_status["protection"]
                 dmg_absorbed = random.randint(0, int(protection))
-                dmg_reduced = 1 + math.log2(protection/5 + 1) # y = 1 + log2(x/5 + 1)
+                dmg_reduced = 1 + math.log2(protection/5 + 1)
                 dmg = (dmg - dmg_absorbed) / dmg_reduced
             elif damage_type == "fire":
                 dmg *= (1 - self.changed_status["fire_resistance"])
@@ -384,8 +385,10 @@ class Status(BaseComponent):
                 dmg_reduced = self.changed_status["magic_resistance"]
                 dmg = (dmg - dmg_absorbed) * (1 - dmg_reduced)
 
-        dmg = max(0, round(dmg))
-
+        if round_dmg:
+            dmg = max(0, round(dmg))
+        else:
+            dmg = max(0, dmg)
         return dmg
 
     def take_damage(self, amount, attacked_from:Actor=None) -> None:

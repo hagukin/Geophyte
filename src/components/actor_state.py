@@ -44,11 +44,7 @@ class ActorState(BaseComponent):
         # 5 : Under 4m height (Trolls, Small dragons)
         # 6 : Under 8m height (Nightwalkers, Adult dragons)
         # 7 : Over 8m height (Giant worm, Elder dragons)
-        size: int = 4, 
-
-        ### Weight
-        # measurement: kg
-        weight: float = 70,
+        size: int = 4,
 
         ### Sexuality
         # If it has a sexuality, save it as a string form. (ex. "male")
@@ -141,6 +137,7 @@ class ActorState(BaseComponent):
         is_underwater: bool = False,
 
         ### Physical states
+        has_head: int = 1,
         has_left_arm: bool = True,
         has_right_arm: bool = True,
         has_leg: bool = True, # has one or more leg
@@ -163,7 +160,7 @@ class ActorState(BaseComponent):
 
         ### Mental capabilities
         can_think: bool = True, # Has ability to make the most basic level of logical decision (e.g. feels pain -> moves away)
-        can_talk: bool = True, # Is capable of speaking a language
+        can_talk: bool = False, # Is capable of speaking a language
     ):
         super().__init__(None)
 
@@ -178,7 +175,6 @@ class ActorState(BaseComponent):
         self.is_dead = is_dead
     
         self.size = size
-        self.weight = weight
         self.sexuality = sexuality
 
         self.is_burning = is_burning
@@ -212,6 +208,7 @@ class ActorState(BaseComponent):
         self.was_submerged = was_submerged
         self.is_underwater = is_underwater
 
+        self.has_head = has_head
         self.has_left_arm = has_right_arm
         self.has_right_arm = has_left_arm
         self.has_leg = has_leg

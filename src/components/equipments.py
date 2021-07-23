@@ -52,6 +52,9 @@ class Equipments(BaseComponent):
 
         self.parent.status.bonus_protection += item.equipable.changed_status["eq_protection"]
 
+        self.parent.status.bonus_hearing += item.equipable.changed_status["eq_hearing"]
+        self.parent.status.bonus_eyesight += item.equipable.changed_status["eq_eyesight"]
+
         self.parent.status.bonus_fire_resistance += item.equipable.changed_status["eq_fire_resistance"]
         self.parent.status.bonus_poison_resistance += item.equipable.changed_status["eq_poison_resistance"]
         self.parent.status.bonus_acid_resistance += item.equipable.changed_status["eq_acid_resistance"]
@@ -81,6 +84,9 @@ class Equipments(BaseComponent):
 
         self.parent.status.bonus_protection -= item.equipable.changed_status["eq_protection"]
 
+        self.parent.status.bonus_hearing -= item.equipable.changed_status["eq_hearing"]
+        self.parent.status.bonus_eyesight -= item.equipable.changed_status["eq_eyesight"]
+
         self.parent.status.bonus_fire_resistance -= item.equipable.changed_status["eq_fire_resistance"]
         self.parent.status.bonus_poison_resistance -= item.equipable.changed_status["eq_poison_resistance"]
         self.parent.status.bonus_acid_resistance -= item.equipable.changed_status["eq_acid_resistance"]
@@ -109,7 +115,7 @@ class Equipments(BaseComponent):
 
         # Equip item, gain bonuses
         self.equipments[item.equipable.equip_region] = item
-        item.equipable.upgrade_stat_change()
+        item.equipable.update_stat()
         self.add_equipable_bonuses(item)
 
         if not forced:

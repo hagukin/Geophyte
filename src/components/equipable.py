@@ -39,7 +39,8 @@ class Equipable(BaseComponent):
         # Protections
         protection: int = 0,
 
-        # Eyesight
+        # Senses
+        hearing: int = 0,
         eyesight: int = 0,
 
         # Resistances (0 ~ 1)
@@ -80,6 +81,7 @@ class Equipable(BaseComponent):
         self.eq_base_melee = base_melee
         self.eq_additional_melee = additional_melee
         self.eq_protection = protection
+        self.eq_hearing = hearing
         self.eq_eyesight = eyesight
         self.eq_fire_resistance = fire_resistance
         self.eq_poison_resistance = poison_resistance
@@ -104,6 +106,7 @@ class Equipable(BaseComponent):
         self.add_base_melee = 0
         self.add_additional_melee = 0
         self.add_protection = 0
+        self.add_hearing = 0
         self.add_eyesight = 0
         self.add_fire_resistance = 0
         self.add_poison_resistance = 0
@@ -115,7 +118,7 @@ class Equipable(BaseComponent):
         self.add_magic_resistance = 0
 
         if upgrade > 0:
-            self.upgrade_stat_change()
+            self.update_stat()
 
     @property
     def origin_status(self):
@@ -134,6 +137,7 @@ class Equipable(BaseComponent):
             "eq_base_melee":self.eq_base_melee,
             "eq_additional_melee":self.eq_additional_melee,
             "eq_protection":self.eq_protection,
+            "eq_hearing": self.eq_hearing,
             "eq_eyesight":self.eq_eyesight,
             "eq_fire_resistance":self.eq_fire_resistance,
             "eq_poison_resistance":self.eq_poison_resistance,
@@ -163,6 +167,7 @@ class Equipable(BaseComponent):
             "eq_base_melee":max(0, self.eq_base_melee + self.add_base_melee),
             "eq_additional_melee":max(0, self.eq_additional_melee + self.add_additional_melee),
             "eq_protection":max(0, self.eq_protection + self.add_protection),
+            "eq_hearing": max(0, self.eq_hearing + self.add_hearing),
             "eq_eyesight":max(0, self.eq_eyesight + self.add_eyesight),
             "eq_fire_resistance":clamp(self.eq_fire_resistance + self.add_fire_resistance, 0, 1),
             "eq_poison_resistance":clamp(self.eq_poison_resistance + self.add_poison_resistance, 0, 1),
@@ -182,11 +187,11 @@ class Equipable(BaseComponent):
         except:
             return None # Has no owner
 
-    def upgrade_stat_change(self):
+    def update_stat(self) -> None:
         """
         Actual increase/decrease of equipper's status are handled here.
         """
-        raise NotImplementedError
+        return None
 
     def upgrade_this(self, amount:int):
         """
@@ -198,7 +203,7 @@ class Equipable(BaseComponent):
 
         # actual upgrading parts
         self.upgrade += amount
-        self.upgrade_stat_change()
+        self.update_stat()
 
         # add bonuses
         self.owner.equipments.add_equipable_bonuses(self.parent)
@@ -214,51 +219,68 @@ class LeatherArmorEquipable(Equipable):
             upgrade=upgrade,
             equip_region="torso",
             str_requirement=10,
-            protection=4,
+            protection=5,
             )
 
-    def upgrade_stat_change(self):
-        # upgrade bonus
-        self.add_protection = self.upgrade * 2
+    def update_stat(self):
+        super().update_stat()
+        self.add_protection = self.upgrade
 
-        if self.owner:
-            str_diff = self.str_requirement - self.owner.status.changed_status["strength"]
-            # lacks strength
-            if str_diff > 0:
-                # reduce protection bonus
-                self.add_protection -= str_diff
 
 
 #################################################
-################### WEAPONS #####################
+################ MELEE WEAPONS ##################
 #################################################
+
+################### BLADES ######################
+class IronDaggerEquipable(Equipable):
+    def __init__(self, upgrade=0):
+        super().__init__(
+            upgrade=upgrade,
+            equip_region="main hand",
+            str_requirement=10,
+            base_melee=6,
+            additional_melee=5,
+            )
+
+    def update_stat(self):
+        super().update_stat()
+        self.add_base_melee = round(self.upgrade * 1.1)
+        self.add_additional_melee = round(self.upgrade * 1.3)
+
 
 class ShortswordEquipable(Equipable):
     def __init__(self, upgrade=0):
         super().__init__(
             upgrade=upgrade,
             equip_region="main hand",
-            str_requirement=12,
-            base_melee=6,
+            str_requirement=13,
+            base_melee=8,
             additional_melee=3,
             )
 
-    def upgrade_stat_change(self):
-        # upgrade bonus
+    def update_stat(self):
+        super().update_stat()
         self.add_base_melee = self.upgrade
-        self.add_additional_melee = self.upgrade
+        self.add_additional_melee = round(self.upgrade * 1.3)
 
-        if self.owner:
-            str_diff = self.str_requirement - self.owner.status.changed_status["strength"]
-            # lacks strength
-            if str_diff > 0:
-                # reduce bonuses
-                self.add_base_melee -= str_diff
-                self.add_additional_melee -= str_diff
-            # strength bonus
-            elif str_diff < 3:
-                self.add_base_melee += min(3, str_diff * (-1) - 2)
-                self.add_additional_melee += min(3, str_diff * (-1) - 2)
+
+class LongswordEquipable(Equipable):
+    def __init__(self, upgrade=0):
+        super().__init__(
+            upgrade=upgrade,
+            equip_region="main hand",
+            str_requirement=15,
+            base_melee=10,
+            additional_melee=8,
+            )
+
+    def update_stat(self):
+        super().update_stat()
+        self.add_base_melee = round(self.upgrade * 1.3)
+        self.add_additional_melee = round(self.upgrade * 1.3)
+
+
 
 #################################################
 ################### AMULETS #####################
@@ -271,5 +293,5 @@ class AmuletOfKugahEquipable(Equipable):
             equip_region="amulet",
             )
 
-    def upgrade_stat_change(self):
-        return None #TODO
+    def update_stat(self):
+        super().update_stat()

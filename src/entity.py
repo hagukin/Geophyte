@@ -312,10 +312,13 @@ class Actor(Entity):
         bg: Tuple[int, int, int] = None,
         name: str = "<Unnamed>",
         entity_id: str = "<Undefined id>",
+        actor_type_desc: str = "",
         entity_desc: str = "<Undefined description>",
+        actor_quote: str = "",
         rarity: int = 0, # 1 to 10
         action_point: int = 60, # 0 to 60
         action_speed: int = 0, # 0 to 60
+        weight: float = 0,  # kg
         spawnable: bool = False,
         walkable: Walkable = None,
         swappable: bool = True,
@@ -380,6 +383,9 @@ class Actor(Entity):
             blocks_sight=blocks_sight,
             render_order=render_order,
         )
+        self.actor_type_desc = actor_type_desc
+        self.actor_quote = actor_quote
+        self.weight = weight
         self.tile_effect_on_path = tile_effect_on_path
         self.actor_to_spawn_on_path = actor_to_spawn_on_path
 
@@ -427,6 +433,10 @@ class Actor(Entity):
             self.initial_equipments = initial_equipments
 
     @property
+    def actor_desc(self):
+        return self.actor_type_desc + "\n" + self.entity_desc
+
+    @property
     def is_dead(self) -> bool:
         """Returns True as long as this actor can perform actions."""
         return self.actor_state.is_dead
@@ -453,7 +463,7 @@ class Actor(Entity):
         if self.edible:  # if edible is None, no corpse is spawned.
             import item_factories
             new_corpse = item_factories.corpse.spawn(self.gamemap, self.x, self.y)
-            new_corpse.weight = max(round(self.actor_state.weight / 2, 2), 0.01)
+            new_corpse.weight = max(float(self.actor_state.size * random.randint(10, 20)), 0.01)
             new_corpse.change_name(self.name + " 시체")
             new_corpse.edible = self.edible  # copy edible value from parent
             new_corpse.edible.parent = new_corpse
@@ -690,7 +700,7 @@ class Item(Entity):
                 Chance of this item spawning with certain BUC status.
                 { BUC number : chance of having that BUC number indicated as weight, ...)
                 e.g. { 1: 3, 0: 5, -1: 1 } -> Has highest chance of spawing as uncursed.
-            initial_identification:
+            initial_identified:
                 Chance of this item spawning as already identified. (semi-identified)
             initial_upgrades:
                 TODO

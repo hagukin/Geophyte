@@ -12,7 +12,7 @@ class Melee_Ai(ai.BaseAI):
     """Melee AI that only attacks humans."""
     def __init__(self, alignment:str="hostile", do_melee_atk:bool=True, do_ranged_atk: bool=False, use_ability: bool=False):
         super().__init__(alignment, do_melee_atk, do_ranged_atk, use_ability)
-        self.hostile_type = set('@')
+        self.hostile_type = {'@'}
 
 class Melee_Neutral_Ai(ai.BaseAI):
     """Neutral melee AI."""
@@ -23,8 +23,8 @@ class Test_Ai(ai.BaseAI):
     """Pickup Eat testing"""
     def __init__(self, alignment:str="hostile", do_melee_atk:bool=True, do_ranged_atk: bool=False, use_ability: bool=False):
         super().__init__(alignment, do_melee_atk, do_ranged_atk, use_ability)
-        self.attracted_eat_type = set(["meat"])
-        self.attracted_own_type = set([InventoryOrder.POTION])
+        self.attracted_eat_type = {"meat"}
+        self.attracted_own_type = {InventoryOrder.POTION}
 
 
 ####################################################
@@ -39,17 +39,17 @@ class Test_Ai(ai.BaseAI):
 ####################################################
 
 class Fire_Ant_Ai(ai.BaseAI):
-    def __init__(self, alignment:str="hostile", do_melee_atk:bool=True, do_ranged_atk: bool=False, use_ability: bool=False, hostile_type: set=set('@')):
-        super().__init__(alignment, do_melee_atk, do_ranged_atk, use_ability, hostile_type=hostile_type)
-
+    def __init__(self, alignment:str="hostile", do_melee_atk:bool=True, do_ranged_atk: bool=False, use_ability: bool=False):
+        super().__init__(alignment, do_melee_atk, do_ranged_atk, use_ability)
+        self.hostile_type = {'@'}
         # Fire dmg, 50%
         self.melee_effects_var.append((1, 0, 0, 4))
         self.melee_effects.append(("burn_target", 0.5))
 
 class Volt_Ant_Ai(ai.BaseAI):
-    def __init__(self, alignment:str="hostile", do_melee_atk:bool=True, do_ranged_atk: bool=False, use_ability: bool=False, hostile_type: set=set('@')):
-        super().__init__(alignment, do_melee_atk, do_ranged_atk, use_ability, hostile_type=hostile_type)
-
+    def __init__(self, alignment:str="hostile", do_melee_atk:bool=True, do_ranged_atk: bool=False, use_ability: bool=False):
+        super().__init__(alignment, do_melee_atk, do_ranged_atk, use_ability)
+        self.hostile_type = {'@'}
         # Elec dmg, 80%
         self.melee_effects_var.append((2, 0.5))
         self.melee_effects.append(("electrocute_target", 0.8))
@@ -60,9 +60,9 @@ class Volt_Ant_Ai(ai.BaseAI):
 ####################################################
 
 class Cerberus_Ai(ai.BaseAI):
-    def __init__(self, alignment:str="hostile", do_melee_atk:bool=True, do_ranged_atk: bool=False, use_ability: bool=False, hostile_type: set=set('@')):
-        super().__init__(alignment, do_melee_atk, do_ranged_atk, use_ability, hostile_type=hostile_type)
-
+    def __init__(self, alignment:str="hostile", do_melee_atk:bool=True, do_ranged_atk: bool=False, use_ability: bool=False):
+        super().__init__(alignment, do_melee_atk, do_ranged_atk, use_ability)
+        self.hostile_type = {'@'}
         # Fire dmg, 50%
         self.melee_effects_var.append((3, 1, 0, 6))
         self.melee_effects.append(("burn_target", 0.2))
@@ -112,9 +112,9 @@ class Floating_Eye_Ai(ai.BaseAI):
 ####################################################
 
 class Giant_Wasp_Ai(ai.BaseAI):
-    def __init__(self, alignment:str="hostile", do_melee_atk:bool=True, do_ranged_atk: bool=False, use_ability: bool=False, hostile_type: set=set('@')):
-        super().__init__(alignment, do_melee_atk, do_ranged_atk, use_ability, hostile_type=hostile_type)
-
+    def __init__(self, alignment:str="hostile", do_melee_atk:bool=True, do_ranged_atk: bool=False, use_ability: bool=False):
+        super().__init__(alignment, do_melee_atk, do_ranged_atk, use_ability)
+        self.hostile_type = {'@'}
         # Poison dmg, 20%
         self.melee_effects_var.append((1, 1, 0, 3))
         self.melee_effects.append(("poison_target", 0.2))
@@ -125,9 +125,9 @@ class Giant_Wasp_Ai(ai.BaseAI):
 ####################################################
 
 class Black_Jelly_Ai(ai.BaseAI):
-    def __init__(self, alignment:str="hostile", do_melee_atk:bool=True, do_ranged_atk: bool=True,  use_ability: bool=False, hostile_type: set=set('@')):
-        super().__init__(alignment, do_melee_atk, do_ranged_atk, use_ability, hostile_type=hostile_type)
-
+    def __init__(self, alignment:str="hostile", do_melee_atk:bool=True, do_ranged_atk: bool=True,  use_ability: bool=False):
+        super().__init__(alignment, do_melee_atk, do_ranged_atk, use_ability)
+        self.hostile_type = {'@'}
         # Poison dmg, 10%
         self.melee_effects_var.append((2, 1, 0, 2))
         self.melee_effects.append(("poison_target", 0.3))
@@ -152,17 +152,18 @@ class Black_Jelly_Ai(ai.BaseAI):
 ####################################################
 
 class Nymph_Ai(ai.BaseAI):
-    def __init__(self, alignment:str="hostile", do_melee_atk:bool=True, do_ranged_atk: bool=False, use_ability: bool=True, hostile_type: set=set('@')):
-        super().__init__(alignment, do_melee_atk, do_ranged_atk, use_ability, hostile_type=hostile_type)
-
+    def __init__(self, alignment:str="hostile", do_melee_atk:bool=True, do_ranged_atk: bool=False, use_ability: bool=True):
+        super().__init__(alignment, do_melee_atk, do_ranged_atk, use_ability)
+        self.hostile_type = {'@'}
 
 ####################################################
 #################### o - spheres  ##################
 ####################################################
 
 class Sphere_Of_Acid_Ai(ai.BaseAI):
-    def __init__(self, alignment:str="hostile", do_melee_atk:bool=True, do_ranged_atk: bool=False, use_ability: bool=False, hostile_type: set=set('@')):
-        super().__init__(alignment, do_melee_atk, do_ranged_atk, use_ability, hostile_type=hostile_type)
+    def __init__(self, alignment:str="hostile", do_melee_atk:bool=True, do_ranged_atk: bool=False, use_ability: bool=False):
+        super().__init__(alignment, do_melee_atk, do_ranged_atk, use_ability)
+        self.hostile_type = {'@'}
 
     def get_melee_action(self, dx, dy):
         """
@@ -179,9 +180,9 @@ class Sphere_Of_Acid_Ai(ai.BaseAI):
 
 class Jumping_Spider_Ai(ai.BaseAI):
     """Only attacks earthworms"""
-    def __init__(self, alignment:str="hostile", do_melee_atk:bool=True, do_ranged_atk: bool=False, use_ability: bool=False, hostile_id=set('maggot')):
-        super().__init__(alignment, do_melee_atk, do_ranged_atk, use_ability, hostile_id=hostile_id)
-
+    def __init__(self, alignment:str="hostile", do_melee_atk:bool=True, do_ranged_atk: bool=False, use_ability: bool=False):
+        super().__init__(alignment, do_melee_atk, do_ranged_atk, use_ability)
+        self.hostile_id = {'maggot'}
 
 ####################################################
 #####################  w - worms  ##################
@@ -193,45 +194,50 @@ class Jumping_Spider_Ai(ai.BaseAI):
 ####################################################
 
 class Fire_Elemental_Ai(ai.BaseAI):
-    def __init__(self, alignment:str="hostile", do_melee_atk:bool=True, do_ranged_atk: bool=False, use_ability: bool=False, hostile_type: set=set('@')):
-        super().__init__(alignment, do_melee_atk, do_ranged_atk, use_ability, hostile_type=hostile_type)
+    def __init__(self, alignment:str="hostile", do_melee_atk:bool=True, do_ranged_atk: bool=False, use_ability: bool=False):
+        super().__init__(alignment, do_melee_atk, do_ranged_atk, use_ability)
+        self.hostile_type = {'@'}
 
         # Fire dmg, 50%
         self.melee_effects_var.append((5, 5, 0, 6)) # 20% chance of freezing target
         self.melee_effects.append(("burn_target", 0.5))
 
 class Ice_Elemental_Ai(ai.BaseAI):
-    def __init__(self, alignment:str="hostile", do_melee_atk:bool=True, do_ranged_atk: bool=False, use_ability: bool=False, hostile_type: set=set('@')):
-        super().__init__(alignment, do_melee_atk, do_ranged_atk, use_ability, hostile_type=hostile_type)
+    def __init__(self, alignment:str="hostile", do_melee_atk:bool=True, do_ranged_atk: bool=False, use_ability: bool=False):
+        super().__init__(alignment, do_melee_atk, do_ranged_atk, use_ability)
+        self.hostile_type = {'@'}
 
         # Cold dmg, 50%
         self.melee_effects_var.append((2, 1, 0.2, 0, 3)) # 20% chance of freezing target
         self.melee_effects.append(("freeze_target", 0.5))
 
 class Earth_Elemental_Ai(ai.BaseAI):
-    def __init__(self, alignment:str="hostile", do_melee_atk:bool=True, do_ranged_atk: bool=False, use_ability: bool=False, hostile_type: set=set('@')):
-        super().__init__(alignment, do_melee_atk, do_ranged_atk, use_ability, hostile_type=hostile_type)
+    def __init__(self, alignment:str="hostile", do_melee_atk:bool=True, do_ranged_atk: bool=False, use_ability: bool=False):
+        super().__init__(alignment, do_melee_atk, do_ranged_atk, use_ability)
+        self.hostile_type = {'@'}
         # No special melee effect
 
 class Acid_Elemental_Ai(ai.BaseAI):
-    def __init__(self, alignment:str="hostile", do_melee_atk:bool=True, do_ranged_atk: bool=False, use_ability: bool=False, hostile_type: set=set('@')):
-        super().__init__(alignment, do_melee_atk, do_ranged_atk, use_ability, hostile_type=hostile_type)
+    def __init__(self, alignment:str="hostile", do_melee_atk:bool=True, do_ranged_atk: bool=False, use_ability: bool=False):
+        super().__init__(alignment, do_melee_atk, do_ranged_atk, use_ability)
+        self.hostile_type = {'@'}
 
         # Acid dmg, 50%
         self.melee_effects_var.append((9, 1, 0, 6))
         self.melee_effects.append(("melt_target", 0.5))
 
 class Poison_Elemental_Ai(ai.BaseAI):
-    def __init__(self, alignment:str="hostile", do_melee_atk:bool=True, do_ranged_atk: bool=False, use_ability: bool=False, hostile_type: set=set('@')):
-        super().__init__(alignment, do_melee_atk, do_ranged_atk, use_ability, hostile_type=hostile_type)
+    def __init__(self, alignment:str="hostile", do_melee_atk:bool=True, do_ranged_atk: bool=False, use_ability: bool=False):
+        super().__init__(alignment, do_melee_atk, do_ranged_atk, use_ability)
 
         # Poison dmg, 20%
         self.melee_effects_var.append((4, 2, 0, 10))
         self.melee_effects.append(("poison_target", 0.2))
 
 class Lightning_Elemental_Ai(ai.BaseAI):
-    def __init__(self, alignment:str="hostile", do_melee_atk:bool=True, do_ranged_atk: bool=False, use_ability: bool=False, hostile_type: set=set('@')):
-        super().__init__(alignment, do_melee_atk, do_ranged_atk, use_ability, hostile_type=hostile_type)
+    def __init__(self, alignment:str="hostile", do_melee_atk:bool=True, do_ranged_atk: bool=False, use_ability: bool=False):
+        super().__init__(alignment, do_melee_atk, do_ranged_atk, use_ability)
+        self.hostile_type = {'@'}
 
         # Electrical dmg, 100%
         self.melee_effects_var.append((5, 0.7))
@@ -244,8 +250,9 @@ class Lightning_Elemental_Ai(ai.BaseAI):
 
 class Chatterbox_Ai(ai.BaseAI):
     #TODO: make Chatterbox chatter
-    def __init__(self, alignment:str="allied", do_melee_atk:bool=True, do_ranged_atk: bool=False, use_ability: bool=False, allied_id:set = set("chatterbox")):
-        super().__init__(alignment, do_melee_atk, do_ranged_atk, use_ability, allied_id=allied_id)
+    def __init__(self, alignment:str="allied", do_melee_atk:bool=True, do_ranged_atk: bool=False, use_ability: bool=False):
+        super().__init__(alignment, do_melee_atk, do_ranged_atk, use_ability)
+        self.allied_id = {'chatterbox'}
 
         # Bleed dmg, 30%
         self.melee_effects_var.append((1, 0, 4))
@@ -296,6 +303,16 @@ class Phoenix_Ai(ai.BaseAI):
         self.melee_effects.append(("burn_target", 0.9))
 
 
+####################################################
+################ O - Orcs & Ogres ##################
+####################################################
+
+class Ogre_Ai(ai.BaseAI):
+    def __init__(self, alignment:str="allied", do_melee_atk:bool=True, do_ranged_atk: bool=False,  use_ability: bool=False):
+        super().__init__(alignment, do_melee_atk, do_ranged_atk, use_ability)
+        self.allied_id = {'ogre'}
+
+
 #@
 shopkeeper_ai = Shopkeeper_Ai()
 #a
@@ -341,6 +358,8 @@ chatterbox_ai = Chatterbox_Ai()
 #M
 baby_phoenix_ai = Baby_Phoenix_Ai()
 phoenix_ai = Phoenix_Ai()
+#O
+ogre_ai = Ogre_Ai()
 #T
 giant_ai = Melee_Ai()
 

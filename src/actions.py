@@ -382,15 +382,12 @@ class MeleeAction(ActionWithDirection):
                       
     def is_miss(self) -> bool:
         """Returns whether the attack was successful or not."""
-        dexterity = self.entity.status.changed_status["dexterity"] # Attacker's dexterity
-        agility = self.target_actor.status.changed_status["agility"] # Target's agility
-
-        # Apply size bonus
         # Your chance of successfully attacking will increas when fighting a bigger opponents. Vice versa.
-        size_bonus = 1 + (self.target_actor.actor_state.size - self.entity.actor_state.size) * 0.15
-        miss_constant = 10 # NOTE miss_constant : When you are balancing the game, ONLY change this constant and not the function itself.
+        size_bonus = 1 + (self.target_actor.actor_state.size - self.entity.actor_state.size) * 0.05
+        miss_constant = 1.8 # NOTE miss_constant : When you are balancing the game, ONLY change this constant and not the function itself.
 
-        if random.random() * (1.3**dexterity + 1) * size_bonus * miss_constant / agility < 1:
+        # Max Chance to miss: (1 / 1.1)
+        if random.random() * max((1.3**self.entity.status.changed_status["dexterity"] + 1) * size_bonus * miss_constant / self.target_actor.status.changed_status["agility"], 1.1) < 1:
             return True
         else:
             return False
@@ -419,16 +416,15 @@ class MeleeAction(ActionWithDirection):
         strength = self.entity.status.changed_status["strength"]
 
         # Apply size bonus
-        # 15% damage fall-off to bigger opponents. Vice versa
-        size_bonus = 1 + (self.entity.actor_state.size - self.target_actor.actor_state.size) * 0.15
+        size_bonus = 1 + (self.entity.actor_state.size - self.target_actor.actor_state.size) * 0.05
         damage *= size_bonus
 
         # Apply strength bonus
-        strength_bonus =  1 + math.log10(strength + 1) / 10 # y = 1 + log10(x + 1) / 10
+        strength_bonus =  1 + strength / 45
         damage *= strength_bonus
 
         # Physical damage fall-off
-        damage = target.status.calculate_dmg_reduction(damage=damage, damage_type="physical", ignore_reduction=False, penetration_constant=strength)
+        damage = target.status.calculate_dmg_reduction(damage=damage, damage_type="physical", ignore_reduction=False, penetration_constant=strength, round_dmg=False)
 
         # Apply critical multiplier
         damage *= crit_multiplier
@@ -447,8 +443,6 @@ class MeleeAction(ActionWithDirection):
 
         # Set target
         target = self.target_actor
-
-        # If there is no target
         if not target:
             raise exceptions.Impossible("공격 대상이 없다.")
 
@@ -495,20 +489,13 @@ class MeleeAction(ActionWithDirection):
                 self.engine.message_log.add_message(
                     f"{attack_desc}해 {damage} 데미지를 입혔다.", attack_color
                 )
-
-                # Gain strength experience point
-                # NOTE feature currently on progress
-                # if self.entity.status.experience:
-                #     self.entity.status.experience.gain_strength_exp(amount=100) ##DEBUG ##BETA
-
-            # Apply damage
             target.status.take_damage(amount=damage, attacked_from=self.entity)
         else:
             if self.engine.game_map.visible[self.entity.x, self.entity.y] or self.engine.game_map.visible[target.x, target.y]:
                 self.engine.message_log.add_message(
                     f"{attack_desc}했지만 아무런 데미지도 주지 못했다.", color.gray
                 )
-                target.status.take_damage(amount=0, attacked_from=self.entity) #Trigger
+            target.status.take_damage(amount=0, attacked_from=self.entity)  # Trigger
         
         # If the target is alive after calculating the pure melee damage hit, apply melee status effects.
         # Status effects are still applied if the damage is zero

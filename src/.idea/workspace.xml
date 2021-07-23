@@ -4,11 +4,13 @@
     <list default="true" id="d5939325-7c35-4fc6-a3f9-e7dbdd574b2c" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/.name" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.name" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/actions.py" beforeDir="false" afterPath="$PROJECT_DIR$/actions.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/actor_factories.py" beforeDir="false" afterPath="$PROJECT_DIR$/actor_factories.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/ai_factories.py" beforeDir="false" afterPath="$PROJECT_DIR$/ai_factories.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/components/actor_state.py" beforeDir="false" afterPath="$PROJECT_DIR$/components/actor_state.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/components/edible.py" beforeDir="false" afterPath="$PROJECT_DIR$/components/edible.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/components/inventory.py" beforeDir="false" afterPath="$PROJECT_DIR$/components/inventory.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/components/ai.py" beforeDir="false" afterPath="$PROJECT_DIR$/components/ai.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/components/equipable.py" beforeDir="false" afterPath="$PROJECT_DIR$/components/equipable.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/components/equipments.py" beforeDir="false" afterPath="$PROJECT_DIR$/components/equipments.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/components/status.py" beforeDir="false" afterPath="$PROJECT_DIR$/components/status.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/devlog.txt" beforeDir="false" afterPath="$PROJECT_DIR$/devlog.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/entity.py" beforeDir="false" afterPath="$PROJECT_DIR$/entity.py" afterDir="false" />

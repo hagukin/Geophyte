@@ -23,7 +23,7 @@ potion_of_healing = Item(
     name="회복의 물약",
     entity_id="potion_of_healing",
     entity_desc="Potion of healing desc",
-    rarity=60, #DEBUG
+    rarity=6,
     weight=0.2,
     price=100,
     item_type=InventoryOrder.POTION,
@@ -49,7 +49,7 @@ potion_of_paralysis = Item(
     name="마비 물약",
     entity_id="potion_of_paralysis",
     entity_desc="Potion of paralysis desc",
-    rarity=6,
+    rarity=2,
     weight=0.2,
     price=100,
     item_type=InventoryOrder.POTION,
@@ -75,7 +75,7 @@ potion_of_monster_detection = Item(
     name="생명체 탐지의 물약",
     entity_id="potion_of_monster_detection",
     entity_desc="Potion of telepathy desc",
-    rarity=6,
+    rarity=1,
     weight=0.2,
     price=150,
     item_type=InventoryOrder.POTION,
@@ -101,7 +101,7 @@ potion_of_flame = Item(
     name="화염의 물약",
     entity_id="potion_of_flame",
     entity_desc="Potion of flame desc",
-    rarity=6,
+    rarity=2,
     weight=0.2,
     price=80,
     item_type=InventoryOrder.POTION,
@@ -127,7 +127,7 @@ potion_of_acid = Item(
     name="강산성 물약",
     entity_id="potion_of_acid",
     entity_desc="Potion of acid desc",
-    rarity=6,
+    rarity=2,
     weight=0.2,
     price=100,
     item_type=InventoryOrder.POTION,
@@ -153,7 +153,7 @@ potion_of_frost = Item(
     name="냉기의 물약",
     entity_id="potion_of_frost",
     entity_desc="Potion of frost desc",
-    rarity=6,
+    rarity=2,
     weight=0.2,
     price=100,
     item_type=InventoryOrder.POTION,
@@ -179,7 +179,7 @@ potion_of_poison = Item(
     name="맹독의 물약",
     entity_id="potion_of_poison",
     entity_desc="Potion of poison desc",
-    rarity=6,
+    rarity=2,
     weight=0.2,
     price=100,
     item_type=InventoryOrder.POTION,
@@ -205,7 +205,7 @@ potion_of_levitation = Item(
     name="공중 부양의 물약",
     entity_id="potion_of_levitation",
     entity_desc="",
-    rarity=6,
+    rarity=3,
     weight=0.2,
     price=100,
     item_type=InventoryOrder.POTION,
@@ -231,7 +231,7 @@ potion_of_liquified_ants = Item(
     name="액화 개미 물약",
     entity_id="potion_of_liquified_ants",
     entity_desc="",
-    rarity=6,
+    rarity=2,
     weight=0.2,
     price=100,
     item_type=InventoryOrder.POTION,
@@ -261,7 +261,7 @@ scroll_of_confusion = Item(
     name="혼란의 주문서",
     entity_id="scroll_of_confusion",
     entity_desc="Scroll of confusion desc",
-    rarity=4,
+    rarity=3,
     weight=0.1,
     price=200,
     item_type=InventoryOrder.SCROLL,
@@ -287,7 +287,7 @@ scroll_of_meteor_storm = Item(
     name="운석 폭풍의 주문서",
     entity_id="scroll_of_meteor_storm",
     entity_desc="Scroll of meteor storm desc",
-    rarity=4,
+    rarity=2,
     weight=0.1,
     price=300,
     item_type=InventoryOrder.SCROLL,
@@ -313,7 +313,7 @@ scroll_of_thunderstorm = Item(
     name="천둥 폭풍의 주문서",
     entity_id="scroll_of_thunderstorm",
     entity_desc="Scroll of thunderstorm desc",
-    rarity=3,
+    rarity=1,
     weight=0.1,
     price=400,
     item_type=InventoryOrder.SCROLL,
@@ -339,7 +339,7 @@ scroll_of_lightning = Item(
     name="번개의 주문서",
     entity_id="scroll_of_lightning",
     entity_desc="Scroll of lightning desc",
-    rarity=6,
+    rarity=2,
     weight=0.1,
     price=200,
     item_type=InventoryOrder.SCROLL,
@@ -391,7 +391,7 @@ scroll_of_magic_mapping = Item(
     name="마법 지도의 주문서",
     entity_id="scroll_of_magic_mapping",
     entity_desc="Scroll of magic mapping desc",
-    rarity=99,#DEBUG
+    rarity=4,
     weight=0.1,
     price=250,
     item_type=InventoryOrder.SCROLL,
@@ -417,7 +417,7 @@ scroll_of_scorching_ray = Item(
     name="맹렬한 화염 광선의 주문서",
     entity_id="scroll_of_scorching_ray",
     entity_desc="Scroll of scorching ray desc",
-    rarity=4,
+    rarity=2,
     weight=0.1,
     price=300,
     item_type=InventoryOrder.SCROLL,
@@ -443,7 +443,7 @@ scroll_of_freezing_ray = Item(
     name="얼어붙는 빙결 광선의 주문서",
     entity_id="scroll_of_freezing_ray",
     entity_desc="Scroll of freezing ray desc",
-    rarity=4,
+    rarity=2,
     weight=0.1,
     price=300,
     item_type=InventoryOrder.SCROLL,
@@ -469,7 +469,7 @@ scroll_of_tame = Item(
     name="복종의 주문서",
     entity_id="scroll_of_tame",
     entity_desc="Scroll of tame desc",
-    rarity=4,
+    rarity=1,
     weight=0.1,
     price=400,
     item_type=InventoryOrder.SCROLL,
@@ -519,7 +519,7 @@ scroll_of_identify = Item(
     name="감정의 주문서",
     entity_id="scroll_of_identify",
     entity_desc="Scroll of identify desc",
-    rarity=4,
+    rarity=6,
     weight=0.1,
     price=50,
     item_type=InventoryOrder.SCROLL,
@@ -572,7 +572,7 @@ leather_armor = Item(
     name="가죽 갑옷",
     entity_id="leather_armor",
     entity_desc="Leather armor desc",
-    rarity=3,
+    rarity=2,
     weight=4.5,
     price=300,
     item_type=InventoryOrder.ARMOR,
@@ -589,8 +589,32 @@ item_rarity.append(leather_armor.rarity)
 
 
 #########################################################################
-############################### WEAPONS #################################
+######################### MELEE WEAPONS #################################
 #########################################################################
+
+### Iron Dagger
+iron_dagger = Item(
+    char=")",
+    fg=(255, 145, 0),
+    name="철제 단검",
+    entity_id="iron_dagger",
+    entity_desc="Irondagger desc",
+    rarity=1,
+    weight=0.4,
+    price=8,
+    item_type=InventoryOrder.MELEE_WEAPON,
+    item_state=ItemState(is_identified=1),
+    flammable=0,
+    corrodible=0.5,
+    spawnable=True,
+    droppable=True,
+    stackable=False,
+    throwable=throwable.NormalThrowable(base_throw=6, additional_throw=3, penetration=True, air_friction=1),
+    equipable=equipable.IronDaggerEquipable(),
+    lockpickable=(1,0.1),
+)
+temp_items_lists.append(iron_dagger)
+item_rarity.append(iron_dagger.rarity)
 
 ### Shortsword
 shortsword = Item(
@@ -599,9 +623,9 @@ shortsword = Item(
     name="숏소드",
     entity_id="shortsword",
     entity_desc="Shortsword desc",
-    rarity=3,
+    rarity=1,
     weight=1.5,
-    price=250,
+    price=25,
     item_type=InventoryOrder.MELEE_WEAPON,
     item_state=ItemState(is_identified=1),
     flammable=0,
@@ -611,10 +635,35 @@ shortsword = Item(
     stackable=False,
     throwable=throwable.NormalThrowable(base_throw=1, additional_throw=2, penetration=False, air_friction=15),
     equipable=equipable.ShortswordEquipable(),
-    lockpickable=(1,1),
+    lockpickable=(1,0.1),
 )
 temp_items_lists.append(shortsword)
 item_rarity.append(shortsword.rarity)
+
+
+### Longsword
+longsword = Item(
+    char=")",
+    fg=(152, 227, 226),
+    name="숏소드",
+    entity_id="shortsword",
+    entity_desc="Shortsword desc",
+    rarity=1,
+    weight=1.8,
+    price=75,
+    item_type=InventoryOrder.MELEE_WEAPON,
+    item_state=ItemState(is_identified=1),
+    flammable=0,
+    corrodible=0.4,
+    spawnable=True,
+    droppable=True,
+    stackable=False,
+    throwable=throwable.NormalThrowable(base_throw=1, additional_throw=2, penetration=False, air_friction=20),
+    equipable=equipable.LongswordEquipable(),
+    lockpickable=(0.8,0.1),
+)
+temp_items_lists.append(longsword)
+item_rarity.append(longsword.rarity)
 
 
 #########################################################################
