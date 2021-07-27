@@ -216,16 +216,10 @@ class GameMap:
             y = random.randint(1, self.height - 1)
 
             if should_no_entity and self.get_any_entity_at_location(x,y) != None:
-                print(self.get_any_entity_at_location(x,y))
-                print("has entity")
                 continue
             if should_walkable and not self.tiles[x,y]["walkable"]:
-                print(self.tiles[x,y]["walkable"])
-                print("not walkable")
                 continue
             if should_safe_to_walk and not self.tiles[x,y]["safe_to_walk"]:
-                print(self.tiles[x, y]["safe_to_walk"])
-                print("not safe to walk")
                 continue
             if should_transparent and not self.tiles[x,y]["transparent"]:
                 continue
@@ -235,9 +229,6 @@ class GameMap:
                 continue
             if should_not_transparent and self.tiles[x,y]["transparent"]:
                 continue
-
-            print(t)
-            print(self.tiles[x,y]["walkable"])
             return (x,y)
 
         if return_random_location_if_not_found:

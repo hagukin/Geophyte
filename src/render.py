@@ -14,7 +14,7 @@ if TYPE_CHECKING:
     from tcod.context import Context
     from engine import Engine
     
-def descend_background(console: Console, context: Context, main_color: Tuple, diversity: int = 10) -> None:
+def randomized_screen_paint(console: Console, context: Context, main_color: Tuple, diversity: int = 10) -> None:
     """
     Clear entire console and display graphics that are going to be shown during descending(dungeon generating) process.
 

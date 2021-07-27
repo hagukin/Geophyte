@@ -1,6 +1,4 @@
 from __future__ import annotations
-from tcod import event
-from tcod.event_constants import K_KP_8
 from entity import SemiActor
 from components.inventory import Inventory
 from typing import Callable, Optional, Tuple, TYPE_CHECKING
@@ -1468,15 +1466,6 @@ class MagicMappingLookHandler(LookHandler):
 
         self.callback = callback
 
-    def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[Action]:
-        """Any key exits this input handler."""
-        if event.sym == tcod.event.K_ESCAPE:
-            return self.on_exit()
-
-    def ev_mousebuttondown(self, event: tcod.event.MouseButtonDown) -> Optional[Action]:
-        """Any click exits this input handler."""
-        return self.on_exit()
-
     def on_exit(self) -> Optional[Action]:
         """Called when the user is trying to exit or cancel an action."""
         super().on_exit()
@@ -1829,6 +1818,11 @@ class MainGameEventHandler(EventHandler):
                 self.engine.player.status.experience.gain_constitution_exp(10000)
                 self.engine.player.status.experience.gain_intelligence_exp(10000)
                 self.engine.player.status.experience.gain_charm_exp(10000)
+            elif key == tcod.event.K_F2:
+                print("book")
+                import book
+                self.engine.event_handler = book.MonsterBookIndexHandler()
+                return None
             elif key == tcod.event.K_F1:
                 print("You flied")
                 self.engine.player.actor_state.actor_fly()

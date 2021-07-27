@@ -21,6 +21,7 @@ grayish_blue = (0x49, 0x69, 0x80)
 soothing_blue = (0x03, 0x5D, 0x96)
 darkish_red = (0x49, 0x13, 0x09)
 gold = (0xd4, 0xaf, 0x37)
+old_paper_yellow = (235, 213, 179)
 
 procgen_bg = None
 procgen_fg = white
@@ -103,6 +104,9 @@ gui_status_text = (0xf5, 0x98, 0x42)
 
 gui_mouse_tile = white
 gui_mouse_entity = yellow
+
+monster_book_fg = white
+monster_book_bg = brown
 
 credit_dev = green
 credit_special = orange

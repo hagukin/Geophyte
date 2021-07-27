@@ -3,6 +3,7 @@ import sys
 import shelve
 import copy
 
+
 def save_game(player, engine):
     with shelve.open(os.getcwd()+"\\saves\\save_file", "n") as save_file:
         # prevent pickle lib error(cannot serialize c objects)
@@ -36,3 +37,39 @@ def load_game():
 
 def quit_game():
     sys.exit()
+
+
+def save_actor_book(get_all_monsters: bool=False):
+    with shelve.open(os.getcwd() + "\\saves\\book\\book", "n") as f:
+        if get_all_monsters:
+            # reset and init dictionary
+            from book import monchar
+            temp = {"actors": {}}
+            for c in monchar:
+                temp["actors"][str(c)] = {
+                    "a":None,"b":None,"c":None,"d":None,"e":None,"f":None,"g":None,"h":None,"i":None,"j":None,"k":None,"l":None,"m":None,"n":None,"o":None,"p":None,"q":None,"r":None,"s":None,"t":None,"u":None,"v":None,"w":None,"x":None,"y":None,"z":None,
+                    "A":None,"B":None,"C":None,"D":None,"E":None,"F":None,"G":None,"H":None,"I":None,"J":None,"K":None,"L":None,"M":None,"N":None,"O":None,"P":None,"Q":None,"R":None,"S":None,"T":None,"U":None,"V":None,"W":None,"X":None,"Y":None,"Z":None
+                }
+
+            # Insert data
+            from actor_factories import monster_difficulty
+            for monllist in monster_difficulty.values():
+                if monllist:
+                    for m in monllist:
+                        for key, val in temp["actors"][m.char].items():
+                            if val == None:
+                                temp["actors"][m.char][key] = m.entity_id
+                                break
+
+            f = temp
+
+
+def load_book():
+    # Check if file exists (os.getcwd() = current folder directory)
+    if not os.path.isfile(os.getcwd() + "\\saves\\book\\book.dat"):
+        raise FileNotFoundError
+
+    import book
+    with shelve.open(os.getcwd() + "\\saves\\book\\book", "r") as b:
+        book.actor_db = b["actor"]
+    return book.actor_db

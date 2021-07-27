@@ -61,7 +61,7 @@ DEBUG = Actor(
     ability_inventory=AbilityInventory(capacity=10),
     equipments=Equipments(),
 )
-monster_difficulty[DEBUG.status.difficulty].append(DEBUG)
+#monster_difficulty[DEBUG.status.difficulty].append(DEBUG)
 
 
 ####################################################
@@ -109,7 +109,7 @@ player = Actor(
     ability_inventory=AbilityInventory(capacity=10),
     equipments=Equipments(),
     initial_items=[
-        (item_factories.scroll_of_enchantment, 1, (15,20)),
+        (item_factories.scroll_of_magic_mapping, 1, (15,20)),
         (item_factories.potion_of_flame, 1, (98,99)),
         (item_factories.potion_of_frost, 1, (98,99)),
         (item_factories.potion_of_acid, 1, (98,99)),
@@ -187,6 +187,7 @@ shopkeeper = Actor(
     initial_equipments=[],
     initial_abilities=[],
 )
+monster_difficulty[shopkeeper.status.difficulty].append(shopkeeper)
 
 
 ####################################################
@@ -1871,7 +1872,7 @@ ogre = Actor(
         이들은 지적으로 뛰어나지 못하며, 항상 피를 갈구하는 위험한 생명체이다.\n\
         일부 학자들은 오우거들은 사실 선한 심성을 가진 생명체라고 주장하지만, 학계에서는 이 이론은 아직 받아들여지고 있지 않다.\
         ",
-    actor_quote="가끔가다 오우거들이 사실은 착한 놈들이라느니 뭐니 하는 안경잽이 나부랭이들이 있는 모양인데, 내 앞에 보이면 눈알을 뽑아버릴 거라고 전해.\n죽어버린 동료들도 내가 그렇게 하길 원할 거야.",
+    actor_quote="오우거들이 사실은 착한 놈들이라느니 뭐니 하는 안경잽이 나부랭이들이 있는 모양인데, 내 앞에 보이면 눈알을 뽑아버릴 거야.",
     rarity=2,
     weight=1855,
     spawnable=True,
