@@ -275,7 +275,7 @@ class UnequipItem(ItemAction):
                 self.engine.message_log.add_message(f"아무 것도 할 수 없다!", color.red)
             return None
 
-        self.entity.equipments.remove_equipment(self.item.equipable.equip_region)
+        self.entity.equipments.remove_equipment(self.item.item_state.equipped_region)
 
 
 class AbilityAction(Action):

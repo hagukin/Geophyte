@@ -47,7 +47,7 @@ class Inventory(BaseComponent):
         Removes an item from the inventory and restores it to the game map, at the player's current location.
         """
         item.parent = None
-        item.item_state.is_equipped = None
+        item.item_state.equipped_region = None
         
         self.remove_item(item=item, remove_count=-1) # remove all stack
         if item.change_stack_count_when_dropped != None: # set new drop count if it has one. (e.g. toxic goo drop from black jelly)

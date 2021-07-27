@@ -52,6 +52,9 @@ class ActorState(BaseComponent):
         # If it has other sexuality besides male and female, save it as "GENDER_TYPE" (ex. "Helicopter")
         sexuality: str = random.choice(("male", "female")),
 
+        # Used in equipments.py
+        is_right_handed: bool = True,
+
         ### Status effects - Physical
         # NOTE: WARNING - If any of the default values of the status effects is changed, make sure to change actor_state.remove_all_actor_states() as well.
         # NOTE: 'Effect lasting for negative turns' are considered as lasting infinitly. = if max turn is negative, effects goes on forever
@@ -176,6 +179,7 @@ class ActorState(BaseComponent):
     
         self.size = size
         self.sexuality = sexuality
+        self.is_right_handed = is_right_handed
 
         self.is_burning = is_burning
         self.is_poisoned = is_poisoned
@@ -209,8 +213,8 @@ class ActorState(BaseComponent):
         self.is_underwater = is_underwater
 
         self.has_head = has_head
-        self.has_left_arm = has_right_arm
-        self.has_right_arm = has_left_arm
+        self.has_left_arm = has_left_arm
+        self.has_right_arm = has_right_arm
         self.has_leg = has_leg
         self.has_wing = has_wing
         self.has_eye = has_eye

@@ -645,9 +645,9 @@ item_rarity.append(shortsword.rarity)
 longsword = Item(
     char=")",
     fg=(152, 227, 226),
-    name="숏소드",
-    entity_id="shortsword",
-    entity_desc="Shortsword desc",
+    name="롱소드",
+    entity_id="longsword",
+    entity_desc="longsword desc",
     rarity=1,
     weight=1.8,
     price=75,
@@ -664,6 +664,31 @@ longsword = Item(
 )
 temp_items_lists.append(longsword)
 item_rarity.append(longsword.rarity)
+
+
+### Giant Wood Club
+giant_wood_club = Item(
+    char=")",
+    fg=(152, 227, 226),
+    name="통나무 곤봉",
+    entity_id="giant_wood_club",
+    entity_desc="giant_wood_club desc",
+    rarity=1,
+    weight=284,
+    price=5,
+    item_type=InventoryOrder.MELEE_WEAPON,
+    item_state=ItemState(is_identified=1),
+    flammable=0.2,
+    corrodible=0,
+    spawnable=False,
+    droppable=True,
+    stackable=False,
+    throwable=throwable.NormalThrowable(base_throw=1, additional_throw=2, penetration=False, air_friction=20),
+    equipable=equipable.GiantWoodClubEquipable(),
+    lockpickable=(0,0),
+)
+temp_items_lists.append(giant_wood_club)
+item_rarity.append(giant_wood_club.rarity)
 
 
 #########################################################################

@@ -161,7 +161,7 @@ def render_character_status(
 
     # Status
     console.print(x=x, y=y+y_span, string=f"힘: {stat['strength']}", fg=color.light_gray)
-    console.print(x=x+13, y=y+y_span, string=f"손재주: {stat['dexterity']}", fg=color.light_gray)
+    console.print(x=x+13, y=y+y_span, string=f"재주: {stat['dexterity']}", fg=color.light_gray)
     console.print(x=x, y=y+y_span+1, string=f"활력: {stat['constitution']}", fg=color.light_gray)
     console.print(x=x+13, y=y+y_span+1, string=f"민첩: {stat['agility']}", fg=color.light_gray)
     console.print(x=x, y=y+y_span+2, string=f"지능: {stat['intelligence']}", fg=color.light_gray)

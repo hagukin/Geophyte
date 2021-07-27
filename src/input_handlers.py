@@ -552,38 +552,12 @@ class StorageSelectEventHandler(AskUserEventHandler):
         if self.engine.config["lang"] == "ko":
             translated = ""
 
-            if item.item_state.is_equipped:
-                if item.item_state.is_equipped == "main hand":
-                    translated = "메인 핸드"
-                elif item.item_state.is_equipped == "off hand":
-                    translated = "오프 핸드"
-                elif item.item_state.is_equipped == "head":
-                    translated = "머리"
-                elif item.item_state.is_equipped == "face":
-                    translated = "얼굴"
-                elif item.item_state.is_equipped == "torso":
-                    translated = "상반신"
-                elif item.item_state.is_equipped == "hand":
-                    translated = "손"
-                elif item.item_state.is_equipped == "belt":
-                    translated = "허리춤"
-                elif item.item_state.is_equipped == "leg":
-                    translated = "다리"
-                elif item.item_state.is_equipped == "feet":
-                    translated = "발"
-                elif item.item_state.is_equipped == "cloak":
-                    translated = "망토"
-                elif item.item_state.is_equipped == "amulet":
-                    translated = "아뮬렛"
-                elif item.item_state.is_equipped == "left ring":
-                    translated = "왼손 반지"
-                elif item.item_state.is_equipped == "right ring":
-                    translated = "오른손 반지"
-
-                item_equip_text += f"[장착됨-{translated}] "
+            if item.item_state.equipped_region:
+                from util import equip_region_name_to_str
+                item_equip_text += f"[장착됨-{equip_region_name_to_str(item.item_state.equipped_region)}] "
         else:
-            if item.item_state.is_equipped:
-                item_equip_text += f"[equipped on {item.item_state.is_equipped}] "
+            if item.item_state.equipped_region:
+                item_equip_text += f"[equipped on {item.item_state.equipped_region}] "
 
         # Display the price of the item if it is currently being sold
         if item.item_state.is_being_sold_from:
@@ -863,10 +837,10 @@ class InventoryActionSelectHandler(AskUserEventHandler):
         if self.item.edible:
             self.possible_actions.append("eat")
             self.possible_keys.append(tcod.event.K_a)
-        if self.item.equipable and self.item.item_state.is_equipped == None:
+        if self.item.equipable and self.item.item_state.equipped_region == None:
             self.possible_actions.append("equip")
             self.possible_keys.append(tcod.event.K_e)
-        if self.item.equipable and self.item.item_state.is_equipped != None:
+        if self.item.equipable and self.item.item_state.equipped_region != None:
             self.possible_actions.append("unequip")
             self.possible_keys.append(tcod.event.K_u)
         if self.item.stackable and self.item.stack_count > 1:
@@ -951,13 +925,13 @@ class InventoryActionSelectHandler(AskUserEventHandler):
             elif key == tcod.event.K_s:
                 self.engine.event_handler = InventorySplitHandler(self.item)
             elif key == tcod.event.K_t:
-                if self.item.item_state.is_equipped:
+                if self.item.item_state.equipped_region:
                     self.engine.message_log.add_message("장착하고 있는 아이템을 던질 수 없습니다.", color.invalid)
                     self.engine.event_handler = MainGameEventHandler()
                     return None
                 return self.item.throwable.get_action(self.engine.player)
             elif key == tcod.event.K_d:
-                if self.item.item_state.is_equipped:
+                if self.item.item_state.equipped_region:
                     self.engine.message_log.add_message("장착하고 있는 아이템을 떨어뜨릴 수 없습니다.", color.invalid)
                     self.engine.event_handler = MainGameEventHandler()
                     return None
@@ -1358,7 +1332,7 @@ class ChestPutEventHandler(StorageSelectMultipleEventHandler):
         Move the selected items to chest's storage.
         """
         for item in self.selected_items:
-            if item.item_state.is_equipped:
+            if item.item_state.equipped_region:
                 self.engine.message_log.add_message("장착하고 있는 아이템을 넣을 수 없습니다.", color.invalid)
                 continue
             self.actor_inv.remove_item(item, -1) #TODO: Add feature to choose certain amounts
@@ -1383,7 +1357,7 @@ class InventoryDropHandler(StorageSelectMultipleEventHandler):
         Drop all the selected items.
         """
         for item in self.selected_items:
-            if item.item_state.is_equipped:
+            if item.item_state.equipped_region:
                 self.engine.message_log.add_message("장착하고 있는 아이템을 떨어뜨릴 수 없습니다.", color.invalid)
                 continue
             DropItem(self.engine.player, item).perform()

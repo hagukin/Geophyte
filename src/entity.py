@@ -327,7 +327,7 @@ class Actor(Entity):
         blocks_sight: bool = False,
         render_order: RenderOrder = RenderOrder.ACTOR,
         edible: Edible = None,
-        ai_cls: Type[BaseAI],
+        ai_cls: Optional[Type[BaseAI]],
         status: Status,
         actor_state: ActorState,
         inventory: Inventory,
@@ -565,24 +565,17 @@ class Actor(Entity):
 
         for item in self.initial_items:
             if random.random() <= item[1]:
-                temp = item[0].spawn(gamemap=self.gamemap, x=0, y=0)
+                temp = item[0].copy(gamemap=self.gamemap)
                 temp.stack_count = random.randint(item[2][0], item[2][1])
-
-                # Remove the item from current gamemap
-                self.gamemap.entities.remove(temp)
                 temp.parent = self.inventory
                 self.inventory.add_item(temp)
         
         for equipment in self.initial_equipments:
             if equipment != None:
                 if random.random() <= equipment[1]:
-                    eq = equipment[0].spawn(gamemap=self.gamemap, x=0, y=0)
-
-                    # Remove the item from current gamemap
-                    self.gamemap.entities.remove(eq)
+                    eq = equipment[0].copy(gamemap=self.gamemap)
                     eq.parent = self.inventory
                     self.inventory.add_item(eq)
-
                     self.equipments.equip_equipment(item=eq, forced=True)
 
         for ability in self.initial_abilities:

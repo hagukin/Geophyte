@@ -177,3 +177,34 @@ def multiline(
                 tmp += "\n" # prevent adding newline to the last sentence
                 line_cnt += 1
     return tmp, line_cnt
+
+
+def equip_region_name_to_str(region_name) -> str:
+    translated = None
+    if region_name == "main hand":
+        translated = "메인 핸드"
+    elif region_name == "off hand":
+        translated = "오프 핸드"
+    elif region_name == "head":
+        translated = "머리"
+    elif region_name == "face":
+        translated = "얼굴"
+    elif region_name == "torso":
+        translated = "상반신"
+    elif region_name == "fist":
+        translated = "손"
+    elif region_name == "belt":
+        translated = "허리춤"
+    elif region_name == "leg":
+        translated = "다리"
+    elif region_name == "feet":
+        translated = "발"
+    elif region_name == "cloak":
+        translated = "망토"
+    elif region_name == "amulet":
+        translated = "아뮬렛"
+    elif region_name == "left ring":
+        translated = "왼손 반지"
+    elif region_name == "right ring":
+        translated = "오른손 반지"
+    return translated

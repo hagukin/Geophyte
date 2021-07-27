@@ -52,7 +52,7 @@ class ItemState(BaseComponent):
 
         # values that are not stored in item_state dictionaty
         self.was_burning = was_burning
-        self.is_equipped = is_equipped
+        self.equipped_region = is_equipped
 
         # values that are stored in item_state dictionaty (entity.Item.set_info())
         self.is_burning = is_burning

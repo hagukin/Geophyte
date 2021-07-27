@@ -194,7 +194,7 @@ class ScrollOfEnchantmentReadable(SelectItemFromInventoryReadable):
         # Log
         if consumer == self.engine.player:
             self.engine.message_log.add_message(f"당신의 {g(selected_item.name, '이')} 밝은 빛을 내뿜었다!", color.status_effect_applied, target=consumer)
-            if selected_item.item_state.is_equipped:
+            if selected_item.item_state.equipped_region:
                 self.engine.message_log.add_message(f"당신의 {selected_item.name}에서 이전보다 더 강한 힘이 느껴진다.", color.status_effect_applied, target=consumer)
         else:
             self.engine.message_log.add_message(f"{consumer.name}의 {g(selected_item.name, '이')} 밝은 빛을 내뿜었다.", color.white, target=consumer)

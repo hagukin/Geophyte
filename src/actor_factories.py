@@ -115,6 +115,7 @@ player = Actor(
         size=4,
         can_talk=True,
         has_telepathy=True, #DEBUG
+        has_right_arm=True,  #DEBUG
     ),
     inventory=Inventory(capacity=52, is_fireproof=False),
     ability_inventory=AbilityInventory(capacity=10),
@@ -132,11 +133,15 @@ player = Actor(
         (item_factories.potion_of_poison, 1, (98,99)),
         (item_factories.scroll_of_freezing_ray, 1, (98,99)),
         (item_factories.scroll_of_scorching_ray, 1, (98,99)),
+        (item_factories.longsword, 1, (1,1)),
+        (item_factories.leather_armor, 1, (1,1)),
+        (item_factories.giant_wood_club, 1, (1,1)),
         ],
     initial_equipments=[
         (item_factories.leather_armor, 1),
         (item_factories.iron_dagger, 1),
         (item_factories.longsword, 1),
+        (item_factories.giant_wood_club, 1),
         ],
     initial_abilities=[(ability_factories.lightning_bolt, 1), (ability_factories.steal, 1)],
 )
@@ -1875,6 +1880,9 @@ ogre = Actor(
     inventory=Inventory(capacity=20),
     ability_inventory=AbilityInventory(capacity=2),
     equipments=Equipments(),
+    initial_equipments=[
+        (item_factories.giant_wood_club, 1),
+    ]
 )
 ActorDB.monster_difficulty[ogre.status.difficulty].append(ogre)
 

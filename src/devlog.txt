@@ -1892,4 +1892,12 @@
 20210728 - gitignore 추가, book 제작.
             lookhandler에서 액터 선택 시 바로 monsterinfohandler로 이동하도록 만듬.
 
+            equipments 시 신체 부위 및 신체 크기의 제약을 받도록 하는 기능 추가
+            메인핸드, 오프핸드 구분.
+            actor_state에 오른손잡이/왼손잡이 기록하는 변수 추가.
+            오프핸드,메인핸드의 방향은 이 값을 기준으로 결정됨.
+
+
+
+
 
