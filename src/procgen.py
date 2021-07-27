@@ -97,9 +97,9 @@ def spawn_monsters_by_difficulty(
             Boolean, Is this function called by the gamemap generation function?
             (=is this the first time that the monster is being generated to this dungeon?)
     """
-    rarity_list = actor_factories.monster_rarity_for_each_difficulty[difficulty]
+    rarity_list = actor_factories.ActorDB.monster_rarity_for_each_difficulty[difficulty]
     monster_to_spawn = random.choices(
-        population=actor_factories.monster_difficulty[difficulty],
+        population=actor_factories.ActorDB.monster_difficulty[difficulty],
         weights=rarity_list,
         k=1
         )[0]
@@ -611,7 +611,7 @@ def generate_entities(
                 # Choose difficulty
                 difficulty_chosen = choose_monster_difficulty(depth=depth, toughness=0)#TODO: Adjust toughness?
 
-                while not actor_factories.monster_difficulty[difficulty_chosen]:
+                while not actor_factories.ActorDB.monster_difficulty[difficulty_chosen]:
                     difficulty_chosen = choose_monster_difficulty(depth=depth, toughness=0)
 
                 # Spawn

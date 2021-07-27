@@ -1889,5 +1889,7 @@
 
 	인벤토리 컴포넌트 내부에 loot 항목 추가해서 아이템 소지품과는 별도로 죽어서 드랍할때만 떨구는 아이템 목록 만들기.
 20210724 - 몬스터 전체 정비. 스텟 정비. equipable 정비.
+20210728 - gitignore 추가, book 제작.
+            lookhandler에서 액터 선택 시 바로 monsterinfohandler로 이동하도록 만듬.
 
 

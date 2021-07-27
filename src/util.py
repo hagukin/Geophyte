@@ -159,3 +159,21 @@ def draw_horizontal_line(
 
     if title:
         center_print(console, title, y=int(thickness / 2) + y, fg=fg, bg=bg)
+
+
+def multiline(
+        string: str,
+        width: int,
+        newline_cnt: int=1
+) -> Tuple[str, int]:
+    x = 0
+    line_cnt = 0
+    tmp = ""
+    while x < len(string):
+        tmp += string[x:width + x]
+        x += width
+        if x < len(string):
+            for i in range(newline_cnt):
+                tmp += "\n" # prevent adding newline to the last sentence
+                line_cnt += 1
+    return tmp, line_cnt

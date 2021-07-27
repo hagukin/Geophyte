@@ -1,16 +1,15 @@
 from __future__ import annotations
-from input_handlers import AskUserEventHandler
+from input_handlers import AskUserEventHandler, MainGameEventHandler
 from entity import Actor
-from render import randomized_screen_paint
 from loader.data_loader import load_book
 from typing import Optional
 from actions import Action
+from util import multiline
 import actor_factories
-import copy
 import tcod
 import color
 
-monchar = "@abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+monchar = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ@"
 actor_db = {}
 
 class MonsterBookIndexHandler(AskUserEventHandler):
@@ -21,16 +20,21 @@ class MonsterBookIndexHandler(AskUserEventHandler):
                 { monster_char : { press_key : monster_actor }}
         """
         super().__init__()
-
-
-
-        from loader.data_loader import save_actor_book #DEBUG TODO
-        save_actor_book(get_all_monsters=True) # TODO
         load_book()
         if page == None:
-            self.page = 1
+            self.page = 0
         else:
             self.page = page
+
+    def next_page(self):
+        self.page = self.page + 1
+        if self.page >= len(monchar):
+            self.page = 0
+
+    def prev_page(self):
+        self.page = self.page - 1
+        if self.page < 0:
+            self.page = len(monchar) - 1
 
     def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[Action]:
         """By default any key exits this input handler."""
@@ -46,10 +50,10 @@ class MonsterBookIndexHandler(AskUserEventHandler):
             tcod.event.K_RALT,
         }:
             return None
-        if event.sym in (tcod.event.K_KP_6. tcod.event.K_RIGHT):
-            self.page += 1
+        if event.sym in (tcod.event.K_KP_6, tcod.event.K_RIGHT):
+            self.next_page()
         elif event.sym in (tcod.event.K_KP_4, tcod.event.K_LEFT):
-            self.page -= 1
+            self.prev_page()
 
         # Alphabets
         if event.mod & tcod.event.K_LSHIFT:
@@ -61,8 +65,8 @@ class MonsterBookIndexHandler(AskUserEventHandler):
                 tcod.event.K_a:"a",tcod.event.K_b:"b",tcod.event.K_c:"c",tcod.event.K_d:"d",tcod.event.K_e:"e",tcod.event.K_f:"f",tcod.event.K_g:"g",tcod.event.K_h:"h",tcod.event.K_i:"i",tcod.event.K_j:"j",tcod.event.K_k:"k",tcod.event.K_l:"l",tcod.event.K_m:"m",tcod.event.K_n:"n",tcod.event.K_o:"o",tcod.event.K_p:"p",tcod.event.K_q:"q",tcod.event.K_r:"r",tcod.event.K_s:"s",tcod.event.K_t:"t",tcod.event.K_u:"u",tcod.event.K_v:"v",tcod.event.K_w:"w",tcod.event.K_x:"x",tcod.event.K_y:"y",tcod.event.K_z:"z",
             }
         try:
-            monster = db[monchar[self.page]][alphabet[event.sym]]
-            self.engine.event_handler = MonsterInfoHandler(self.page, monster)
+            monster = actor_factories.ActorDB.get_actor_by_id(entity_id=actor_db[monchar[self.page]][alphabet[event.sym]])
+            self.engine.event_handler = MonsterInfoHandler(monster, self.page)
             return None
         except KeyError:
             self.engine.message_log.add_message("잘못된 입력입니다.", color.invalid)
@@ -75,56 +79,90 @@ class MonsterBookIndexHandler(AskUserEventHandler):
 
     def on_render(self, console: tcod.Console) -> None:
         """Render current page"""
-        randomized_screen_paint(console, self.engine.context, main_color=color.old_paper_yellow, diversity=2)
-        console.draw_frame(1, 1, console.width, console.height, "몬스터 도감", fg=color.black, bg=None)
+        console.draw_frame(0, 0, console.width, console.height, "던전 몬스터 도감", fg=color.monster_book_fg, bg=color.monster_book_bg)
+        console.draw_frame(1, 1, console.width - 2, console.height - 2, f"{monchar[self.page]}", fg=color.monster_book_fg, bg=color.monster_book_bg)
 
         start_x = 3
         start_y = 3
         xpad = 0
         ypad = 0
 
-        for presskey, m in db[monchar[self.page]].items():
+        for presskey, mon_id in actor_db[monchar[self.page]].items():
+            if mon_id == None:
+                continue
+            m = actor_factories.ActorDB.get_actor_by_id(entity_id=mon_id)
+
             key = f"({presskey})"
+            console.print(start_x + xpad, start_y+ypad, key, fg=color.white)
             xpad += len(key)
-            diffstr = f" 위험도 {m.status.difficulty} |"
-            console.print(start_x + xpad, start_y+ypad, diffstr, fg=color.white)
-            xpad += len(diffstr)
-            charstr = f" {m.char} |"
+
+            charstr = f" {m.char}"
             console.print(start_x + xpad, start_y+ypad, charstr, fg=m.fg)
             xpad += len(charstr)
-            console.print(start_x + xpad, start_y+ypad, f" {m.name}", fg=color.white)
-            ypad += 1
+            console.print(start_x + xpad, start_y+ypad, " |", fg=color.white)
+            xpad += 2
+
+            diffstr = f" 위험도 {m.status.difficulty}"
+            console.print(start_x + xpad, start_y + ypad, diffstr, fg=color.white)
+            xpad += len(diffstr)
+            console.print(start_x + xpad, start_y + ypad, " |", fg=color.white)
+            xpad += 2
+
+            namestr = f" {m.name}"
+            console.print(start_x + xpad, start_y + ypad, namestr, fg=color.white)
+            xpad += len(namestr)
+
+            # newline
             xpad = 0
+            ypad += 1
 
 
 class MonsterInfoHandler(AskUserEventHandler):
-    def __init__(self, page: int, monster: Actor):
+    width: int = 70
+    def __init__(self, monster: Actor, page: int=None):
         super().__init__()
         self.monster = monster
-        self.page = page
+        self.page = page # If this input handler is called from MonsterBookIndexHandler, pass in the page number so it could callback the indexhandler when cancelled.
 
     def on_render(self, console: tcod.Console) -> None:
-        randomized_screen_paint(console, self.engine.context, main_color=color.old_paper_yellow, diversity=2)
-        console.draw_frame(1, 1, console.width, console.height, f"{self.monster.name}", fg=color.black, bg=None)
+        console.draw_frame(0, 0, console.width, console.height, bg=color.monster_book_bg)
+        console.draw_frame(1, 1, console.width - 2, console.height - 2, f"{self.monster.name}", fg=color.monster_book_fg,
+                           bg=color.monster_book_bg)
 
         start_x = 3
         start_y = 3
         xpad = 0
         ypad = 0
 
-        console.print(start_x, start_y, self.monster.name, fg=color.black)
-        ypad += 2
-        if self.monster.actor_type_desc == None or self.monster.actor_type_desc == "":
-            pass
-        else:
-            console.print(start_x, start_y + ypad, self.monster.actor_type_desc, fg=color.black)
-            ypad += 1
-        console.print(start_x, start_y + ypad, self.monster.entity_desc, fg=color.black)
+        # Name
+        console.print(start_x, start_y, self.monster.name, fg=color.white)
         ypad += 4
-        console.print(start_x, start_y + ypad, self.monster.actor_quote, fg=color.black)
+
+        # Type Description
+        if self.monster.actor_type_desc != "":
+            text, line_cnt = multiline(self.monster.actor_type_desc, self.width, 2)
+            console.print(start_x, start_y + ypad, text, fg=color.white)
+            ypad += line_cnt
+
+        # Entity Description
+        if self.monster.entity_desc != "":
+            text, line_cnt = multiline(self.monster.entity_desc, self.width, 2)
+            console.print(start_x, start_y + ypad, text, fg=color.white)
+            ypad += line_cnt
+
+        ypad += 4
+
+        # Actor quote
+        if self.monster.actor_quote != "":
+            text, line_cnt = multiline(self.monster.actor_quote, self.width)
+            console.print(start_x, start_y + ypad, "\""+text+"\"", fg=color.white)
+            ypad += line_cnt
 
     def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[Action]:
         """By default any key exits this input handler."""
         if event.sym == tcod.event.K_ESCAPE:
-            self.engine.event_handler = MonsterBookIndexHandler(page=self.page)
+            if self.page != None:
+                self.engine.event_handler = MonsterBookIndexHandler(page=self.page)
+            else:
+                self.engine.event_handler = MainGameEventHandler()
         return None

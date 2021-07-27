@@ -9,21 +9,32 @@ from components.equipments import Equipments
 from components.actor_state import ActorState
 from entity import Actor
 from order import RenderOrder
+from typing import Optional
 
-monster_difficulty = {
-    0:[],
-    1:[],2:[],3:[],4:[],5:[],6:[],7:[],8:[],9:[],10:[],
-    11:[],12:[],13:[],14:[],15:[],16:[],17:[],18:[],19:[],20:[],
-    21:[],22:[],23:[],24:[],25:[],26:[],27:[],28:[],29:[],30:[],
-}
 
-monster_rarity_for_each_difficulty = {
-    0:[],
-    1:[],2:[],3:[],4:[],5:[],6:[],7:[],8:[],9:[],10:[],
-    11:[],12:[],13:[],14:[],15:[],16:[],17:[],18:[],19:[],20:[],
-    21:[],22:[],23:[],24:[],25:[],26:[],27:[],28:[],29:[],30:[],
-}
-### NOTE: Rarity can have value between 0 and 20 ###
+### NOTE: Rarity can have value between 0 and 10 ###
+class ActorDB:
+    monster_difficulty = {
+        0: [],
+        1: [], 2: [], 3: [], 4: [], 5: [], 6: [], 7: [], 8: [], 9: [], 10: [],
+        11: [], 12: [], 13: [], 14: [], 15: [], 16: [], 17: [], 18: [], 19: [], 20: [],
+        21: [], 22: [], 23: [], 24: [], 25: [], 26: [], 27: [], 28: [], 29: [], 30: [],
+    }
+
+    monster_rarity_for_each_difficulty = {
+        0: [],
+        1: [], 2: [], 3: [], 4: [], 5: [], 6: [], 7: [], 8: [], 9: [], 10: [],
+        11: [], 12: [], 13: [], 14: [], 15: [], 16: [], 17: [], 18: [], 19: [], 20: [],
+        21: [], 22: [], 23: [], 24: [], 25: [], 26: [], 27: [], 28: [], 29: [], 30: [],
+    }
+    
+    def get_actor_by_id(entity_id: str) -> Optional[Actor]:
+        for monslist in ActorDB.monster_difficulty.values():
+            for mon in monslist:
+                if mon.entity_id == entity_id:
+                    return mon
+        print(f"WARNING::Can't find {entity_id} from ActorDB.")
+        return None
 
 
 ### DEBUG
@@ -61,7 +72,7 @@ DEBUG = Actor(
     ability_inventory=AbilityInventory(capacity=10),
     equipments=Equipments(),
 )
-#monster_difficulty[DEBUG.status.difficulty].append(DEBUG)
+#ActorDB.monster_difficulty[DEBUG.status.difficulty].append(DEBUG)
 
 
 ####################################################
@@ -74,7 +85,7 @@ player = Actor(
     fg=(0, 255, 0),
     name="갬장장이",
     entity_id="player",
-    entity_desc="당신은 쿠가의 아뮬렛을 가져오라는 임무를 받고 끝이 보이지 않는 던전으로 발을 들였다.",
+    entity_desc=("당신은 쿠가의 아뮬렛을 가져오라는 임무를 받고 끝이 보이지 않는 던전으로 발을 들였다. "),
     rarity=0,
     weight = 70,
     spawnable=False,
@@ -137,8 +148,10 @@ shopkeeper = Actor(
     fg=(214, 181, 49),
     name="상인",
     entity_id="shopkeeper",
-    entity_desc="던전 속에서 장사를 하기 위해서는 많은 것들이 필요하다. \n고객을 사로잡는 화려한 언변, 값어치있는 물건을 알아보는 눈썰미, 물건을 감정하기 위한 폭 넓은 지식.\n그러나 무엇보다 중요한 건, 바로 상점을 지킬 힘이다.",
-    actor_quote="저 아래 괴물 소굴에서 장사하는 놈들은 둘 중에 하나야. 미쳤거나, 아니면 완전히 정신이 나갔거나.",
+    entity_desc=("던전 속에서 장사를 하기 위해서는 많은 것들이 필요하다. "
+    "고객을 사로잡는 화려한 언변, 값어치있는 물건을 알아보는 눈썰미, 물건을 감정하기 위한 폭 넓은 지식. "
+    "그러나 무엇보다 중요한 건, 바로 상점을 지킬 힘이다. "),
+    actor_quote=("저 아래 괴물 소굴에서 장사하는 놈들은 둘 중에 하나야. 미쳤거나, 아니면 완전히 정신이 나갔거나. "),
     rarity=0,
     weight = 75,
     swappable=False, # Cannot swap
@@ -187,7 +200,7 @@ shopkeeper = Actor(
     initial_equipments=[],
     initial_abilities=[],
 )
-monster_difficulty[shopkeeper.status.difficulty].append(shopkeeper)
+ActorDB.monster_difficulty[shopkeeper.status.difficulty].append(shopkeeper)
 
 
 ####################################################
@@ -200,11 +213,10 @@ ant = Actor(
     fg=(26, 33, 0),
     name="개미",
     entity_id="ant",
-    entity_desc="\
-        던전에서 뿜어나오는 어두운 기운은 동물은 물론 곤충들까지 거대하고 흉측한 괴수로 변이시켰다.\n\
-        그렇지만 개중에는 어두운 기운의 영향을 덜 받은 개체들도 있기 마련이다.\n\
-        비교적 던전의 기운을 덜 받은 이 개미들은 기껏해야 사람 손가락 남짓한 크기로, 대체로 별 위협이 되지 않는다.",
-    actor_quote="우리 엄마는 저보고 항상 개미같이 열심히 일하는 사람이 되라고 말했어요.",
+    entity_desc=("던전에서 뿜어나오는 어두운 기운은 동물은 물론 곤충들까지 거대하고 흉측한 괴수로 변이시켰다. "
+    "그렇지만 개중에는 어두운 기운의 영향을 덜 받은 개체들도 있기 마련이다. "
+    "비교적 던전의 기운을 덜 받은 이 개미들은 기껏해야 사람 손가락 남짓한 크기로, 대체로 별 위협이 되지 않는다. "),
+    actor_quote=("우리 엄마는 저보고 항상 개미같이 열심히 일하는 사람이 되라고 말했어요. "),
     rarity=10,
     weight = 0.07,
     spawnable=True,
@@ -243,7 +255,7 @@ ant = Actor(
     ability_inventory=AbilityInventory(capacity=1),
     equipments=Equipments(),
 )
-monster_difficulty[ant.status.difficulty].append(ant)
+ActorDB.monster_difficulty[ant.status.difficulty].append(ant)
 
 
 ### fire ant
@@ -252,12 +264,11 @@ fire_ant = Actor(
     fg=(255, 0, 0),
     name="불개미",
     entity_id="fire_ant",
-    entity_desc="\
-        던전의 불개미들은 만지면 따끔한 수준의 지상의 불개미들과는 차원이 다른 존재이다.\n\
-        성인 남성 주먹 정도의 크기인 이들은, 전신에 두른 약한 화염으로 자신을 방어한다.\n\
-        이들이 턱에서 쏘는 작은 불꽃은 인간에게 크게 위협적이지는 않지만,\n\
-        책이나 주문서를 가지고 다니는 마법사들에게는 큰 골칫거리로 여겨진다.",
-    actor_quote="썅, 빌어먹을 불개미녀석들, 이번에는 400샤인짜리 주문서를 태워먹었다고.",
+    entity_desc=("던전의 불개미들은 만지면 따끔한 수준의 지상의 불개미들과는 차원이 다른 존재이다. "
+    "성인 남성 주먹 정도의 크기인 이들은, 전신에 두른 약한 화염으로 자신을 방어한다. "
+    "이들이 턱에서 쏘는 작은 불꽃은 인간에게 크게 위협적이지는 않지만, "
+    "책이나 주문서를 가지고 다니는 마법사들에게는 큰 골칫거리로 여겨진다. "),
+    actor_quote=("썅, 빌어먹을 불개미녀석들, 이번에는 400샤인짜리 주문서를 태워먹었다고. "),
     rarity=7,
     weight=0.1,
     spawnable=True,
@@ -296,7 +307,7 @@ fire_ant = Actor(
     ability_inventory=AbilityInventory(capacity=1),
     equipments=Equipments(),
 )
-monster_difficulty[fire_ant.status.difficulty].append(fire_ant)
+ActorDB.monster_difficulty[fire_ant.status.difficulty].append(fire_ant)
 
 
 ### volt ant
@@ -305,10 +316,9 @@ volt_ant = Actor(
     fg=(99, 255, 193),
     name="스파크 개미",
     entity_id="volt_ant",
-    entity_desc="\
-        스파크 개미들은 몸에 두른 전류를 통해 적으로부터 자신을 보호한다.\n\
-        스파크 개미는 시큼텁텁한 맛이 나는 것으로 알려져 있으며, 일부 모험가들 사이에서는 별미로 꼽힌다.",
-    actor_quote="이놈들을 잔뜩 잡아서 안주로 팔면 대박이 날 거야.",
+    entity_desc=("스파크 개미들은 몸에 두른 전류를 통해 적으로부터 자신을 보호한다. "
+    "스파크 개미는 시큼텁텁한 맛이 나는 것으로 알려져 있으며, 일부 모험가들 사이에서는 별미로 꼽힌다. "),
+    actor_quote=("이놈들을 잔뜩 잡아서 안주로 팔면 대박이 날 거야. "),
     rarity=7,
     weight=0.1,
     spawnable=True,
@@ -347,7 +357,7 @@ volt_ant = Actor(
     ability_inventory=AbilityInventory(capacity=1),
     equipments=Equipments(),
 )
-monster_difficulty[volt_ant.status.difficulty].append(volt_ant)
+ActorDB.monster_difficulty[volt_ant.status.difficulty].append(volt_ant)
 
 
 ####################################################
@@ -360,11 +370,10 @@ bat = Actor(
     fg=(94, 0, 122),
     name="박쥐",
     entity_id="bat",
-    entity_desc="\
-        박쥐는 공중에서 자유자재로 날아다닐 수 있는 비행능력을 보유하고 있다.\n\
-        설치류와 조류 사이에 걸친 애매한 외형 때문에 이들은 오랜 시간 인간들에게 박해받아왔지만,\n\
-        대부분의 박쥐는 무해하며, 오히려 인간에게 먼저 공격을 거는 경우는 드물다고 한다.",
-    actor_quote="동굴에 사는 쬐끄만 박쥐들은 오래 보면 귀엽기라도 하단 말이야, 근데 던전에 사는 놈들은 몇 번을 봐도 적응이 안된단 말이지.",
+    entity_desc=("박쥐는 조류가 아님에도, 공중에서 자유자재로 날아다닐 수 있는 비행능력을 보유하고 있다. "
+    "특유의 혐오감을 주는 외형 때문에 이들은 오랜 시간 인간들에게 박해받아왔지만, "
+    "대부분의 박쥐는 무해하며, 오히려 인간에게 먼저 공격을 거는 경우는 드물다고 한다. "),
+    actor_quote=("동굴에 사는 쬐끄만 박쥐들은 오래 보면 귀엽기라도 하단 말이야. 근데 던전에 사는 놈들은 몇 번을 봐도 적응이 안된단 말이지. "),
     rarity=32,
     weight=3,
     spawnable=True,
@@ -406,7 +415,7 @@ bat = Actor(
     ability_inventory=AbilityInventory(capacity=1),
     equipments=Equipments(),
 )
-monster_difficulty[bat.status.difficulty].append(bat)
+ActorDB.monster_difficulty[bat.status.difficulty].append(bat)
 
 
 ####################################################
@@ -419,11 +428,10 @@ kitten = Actor(
     fg=(222, 208, 169),
     name="새끼고양이",
     entity_id="kitten",
-    entity_desc="\
-        던전 속에서 새끼고양이는 둘 중 하나로 취급된다.\n\
-        작고 귀여운 동물,\n\
-        혹은 영양가 넘치는 자그마한 고깃덩어리.",
-    actor_quote="얼마 전 옆집 고양이가 새끼를 낳았다던데, 그 집 식구들이 요즘 기운이 넘쳐보이는 건 기분 탓인가?",
+    entity_desc=("던전 속에서 새끼고양이는 둘 중 하나로 취급된다. "
+    "작고 귀여운 동물, "
+    "혹은 영양가 넘치는 자그마한 고깃덩어리. "),
+    actor_quote=("얼마 전 옆집 고양이가 새끼를 낳았다던데, 그 집 식구들이 요즘 기운이 넘쳐보이는 건 기분 탓인가? "),
     rarity=4,
     weight=3.3,
     spawnable=True,
@@ -461,7 +469,7 @@ kitten = Actor(
     ability_inventory=AbilityInventory(capacity=1),
     equipments=Equipments(),
 )
-monster_difficulty[kitten.status.difficulty].append(kitten)
+ActorDB.monster_difficulty[kitten.status.difficulty].append(kitten)
 
 
 ### Cat
@@ -470,11 +478,10 @@ cat = Actor(
     fg=(217, 184, 91),
     name="고양이",
     entity_id="cat",
-    entity_desc="\
-        고양이들은 게으르지만 맹수의 본능을 지닌 민첩한 사냥꾼들이다.\n\
-        이들은 잡식성이고 시력이 좋기 때문에 많은 모험가들에게 애완동물로 사랑받는다.\n\
-        고양이들이 사람의 꿈을 조종하는 영적인 능력을 지녔다고 주장하는 학자들도 있지만, 명확히 밝혀진 것은 없다.",
-    actor_quote="그 녀석하고 눈이 마주친 날이면 난 항상 악몽을 꿔. 그런데도 왜일까, 녀석만 보면 자꾸 먹이를 주게 돼.",
+    entity_desc=("고양이들은 게으르지만 맹수의 본능을 지닌 민첩한 사냥꾼들이다. "
+    "이들은 잡식성이고 시력이 좋기 때문에 많은 모험가들에게 애완동물로 사랑받는다. "
+    "고양이들이 사람의 꿈을 조종하는 영적인 능력을 지녔다고 주장하는 학자들도 있지만, 명확히 밝혀진 것은 없다. "),
+    actor_quote=("그 녀석하고 눈이 마주친 날이면 난 항상 악몽을 꿔. 그런데도 왜일까, 녀석만 보면 자꾸 먹이를 주게 돼. "),
     rarity=7,
     weight=6.5,
     spawnable=True,
@@ -512,7 +519,7 @@ cat = Actor(
     ability_inventory=AbilityInventory(capacity=4),
     equipments=Equipments(),
 )
-monster_difficulty[cat.status.difficulty].append(cat)
+ActorDB.monster_difficulty[cat.status.difficulty].append(cat)
 
 
 ### Large Cat
@@ -521,10 +528,9 @@ large_cat = Actor(
     fg=(230, 169, 0),
     name="큰 고양이",
     entity_id="large_cat",
-    entity_desc="\
-        던전의 기운을 받은 고양이들은 지상의 맹수에 가까운 크기로 자라기도 한다.\n\
-        이들은 결코 맹수는 아니지만, 무방비한 모험가에게는 충분한 위협이 될 수 있다.",
-    actor_quote="내 흉터가 고양이 때문에 생겼다는 건 죽어도 비밀이다, 알겠지?",
+    entity_desc=("던전의 기운을 받은 고양이들은 지상의 맹수에 가까운 크기로 자라기도 한다. " 
+        "이들은 결코 맹수는 아니지만, 무방비한 모험가에게는 충분한 위협이 될 수 있다. "),
+    actor_quote=("내 흉터가 고양이 때문에 생겼다는 건 죽어도 비밀이다, 알겠지? "),
     rarity=4,
     weight=18.5,
     spawnable=True,
@@ -562,7 +568,7 @@ large_cat = Actor(
     ability_inventory=AbilityInventory(capacity=8),
     equipments=Equipments(),
 )
-monster_difficulty[large_cat.status.difficulty].append(large_cat)
+ActorDB.monster_difficulty[large_cat.status.difficulty].append(large_cat)
 
 
 ####################################################
@@ -576,13 +582,11 @@ puppy = Actor(
     fg=(196, 220, 255),
     name="강아지",
     entity_id="puppy",
-    actor_type_desc="\
-        인간 최고의 친구라는 이명은 던전 안에서도 예외가 아니다.\n\
-        이들은 한 번 충성을 바친 주인에게는 무슨 일이 있어도 복종하며, 자신의 목숨을 바치는 데도 망설임이 없다.",
-    entity_desc="\
-        그 중 강아지들은 호기심이 넘치는 존재들이다.\n\
-        이들은 성체에 비해 한참 뒤떨어지는 신체능력을 가졌지만, 넘치는 에너지 만큼은 성체를 압도한다.",
-    actor_quote="포션술사는 절대 강아지를 길러선 안돼. 집이 언제 불바다가 될 지 모르거든.",
+    actor_type_desc=("인간 최고의 친구라는 이명은 던전 안에서도 예외가 아니다. "
+        "이들은 한 번 충성을 바친 주인에게는 무슨 일이 있어도 복종하며, 자신의 목숨을 바치는 데도 망설임이 없다. "),
+    entity_desc=("그 중 강아지들은 호기심이 넘치는 존재들이다. "
+        "이들은 성체에 비해 한참 뒤떨어지는 신체능력을 가졌지만, 넘치는 에너지 만큼은 성체를 압도한다. "),
+    actor_quote=("포션술사는 절대 강아지를 길러선 안돼. 집이 언제 불바다가 될 지 모르거든. "),
     rarity=5,
     weight=5.7,
     spawnable=True,
@@ -620,7 +624,7 @@ puppy = Actor(
     ability_inventory=AbilityInventory(capacity=1),
     equipments=Equipments(),
 )
-monster_difficulty[puppy.status.difficulty].append(puppy)
+ActorDB.monster_difficulty[puppy.status.difficulty].append(puppy)
 
 
 ### Dog
@@ -629,10 +633,9 @@ dog = Actor(
     fg=(105, 165, 255),
     name="개",
     entity_id="dog",
-    actor_type_desc="\
-        인간 최고의 친구라는 이명은 던전 안에서도 예외가 아니다.\n\
-        이들은 한 번 충성을 바친 주인에게는 무슨 일이 있어도 복종하며, 자신의 목숨을 바치는 데도 망설임이 없다.",
-    actor_quote="가족이 날 버려도 너만은 함께 해주는구나, 토비.",
+    actor_type_desc=("인간 최고의 친구라는 이명은 던전 안에서도 예외가 아니다. "
+        "이들은 한 번 충성을 바친 주인에게는 무슨 일이 있어도 복종하며, 자신의 목숨을 바치는 데도 망설임이 없다. "),
+    actor_quote=("가족이 날 버려도 너만은 함께 해주는구나, 토비. "),
     rarity=10,
     weight=38.5,
     spawnable=True,
@@ -670,7 +673,7 @@ dog = Actor(
     ability_inventory=AbilityInventory(capacity=1),
     equipments=Equipments(),
 )
-monster_difficulty[dog.status.difficulty].append(dog)
+ActorDB.monster_difficulty[dog.status.difficulty].append(dog)
 
 
 ### Large Dog
@@ -679,10 +682,9 @@ large_dog = Actor(
     fg=(0, 102, 255),
     name="큰 개",
     entity_id="large_dog",
-    actor_type_desc="\
-        인간 최고의 친구라는 이명은 던전 안에서도 예외가 아니다.\n\
-        ...적으로 마주치지만 않는다면.",
-    actor_quote="사냥꾼의 가장 강력한 무기는 단검도, 활도 아니야. 그건 바로 녀석의 사냥개지.",
+    actor_type_desc=("인간 최고의 친구라는 이명은 던전 안에서도 예외가 아니다. "
+        "...적으로 마주치지만 않는다면. "),
+    actor_quote=("사냥꾼의 가장 강력한 무기는 단검도, 활도 아니야. 그건 바로 녀석의 사냥개지. "),
     rarity=7,
     weight=55.3,
     spawnable=True,
@@ -720,7 +722,7 @@ large_dog = Actor(
     ability_inventory=AbilityInventory(capacity=2),
     equipments=Equipments(),
 )
-monster_difficulty[large_dog.status.difficulty].append(large_dog)
+ActorDB.monster_difficulty[large_dog.status.difficulty].append(large_dog)
 
 
 ### Cerberus
@@ -729,10 +731,9 @@ cerberus = Actor(
     fg=(227, 45, 0),
     name="케르베로스",
     entity_id="cerberus",
-    entity_desc="\
-        머리가 세 개 달린 커다란 개의 형상을 하고 있는 케르베로스는 예로부터 많은 사람들에게 공포의 대상으로 여겨졌다.\n\
-        이들은 일반적인 개들보다 뛰어난 신체 능력을 가지고 있으며, 세 개의 머리에서 약한 화염을 내뿜을 수 있다.\n\
-        세 개의 머리는 각각의 자아을 지니고 있으나, 몸의 지배권 또한 세 개로 나누어져 있는지는 밝혀지지 않았다.",
+    entity_desc=("머리가 세 개 달린 커다란 개의 형상을 하고 있는 케르베로스는 예로부터 많은 사람들에게 공포의 대상으로 여겨졌다. "
+        "이들은 일반적인 개들보다 뛰어난 신체 능력을 가지고 있으며, 세 개의 머리에서 약한 화염을 내뿜을 수 있다. "
+        "세 개의 머리는 각각 별도의 자아를 지니고 있으나, 몸의 지배권 또한 세 개로 나누어져 있는지는 밝혀지지 않았다. "),
     rarity=3,
     weight=165,
     spawnable=True,
@@ -770,7 +771,7 @@ cerberus = Actor(
     ability_inventory=AbilityInventory(capacity=8),
     equipments=Equipments(),
 )
-monster_difficulty[large_dog.status.difficulty].append(cerberus)
+ActorDB.monster_difficulty[large_dog.status.difficulty].append(cerberus)
 
 
 ####################################################
@@ -783,11 +784,10 @@ floating_eye = Actor(
     fg=(255, 255, 255),
     name="떠다니는 눈",
     entity_id="floating_eye",
-    entity_desc="\
-        던전 안의 많은 생명체들 중에서도 가장 기원을 알 수 없는 존재가 바로 '떠다니는 눈' 들이다.\n\
-        이들은 눈을 마주치는 것으로 생명체를 마비시킬 수 있는 강력한 힘을 가졌지만,\n\
-        다행히 이들은 호전적이지 않으며, 또 물리적으로는 아무런 위협이 되지 못한다.",
-    actor_quote="녀석의 눈을 바라봤을 때, 마치 몸의 지배권을 빼앗기는 느낌이었어. 내가 녀석이 되고 녀석이 내가 되는 듯한 느낌이었지.",
+    entity_desc=("던전 안의 많은 생명체들 중에서도 가장 기원을 알 수 없는 존재가 바로 '떠다니는 눈' 들이다. "
+        "이들은 눈을 마주치는 것으로 생명체를 마비시킬 수 있는 강력한 힘을 가졌지만, "
+        "다행히 이들은 호전적이지 않으며, 또 물리적으로는 아무런 위협이 되지 못한다. "),
+    actor_quote=("녀석의 눈을 바라봤을 때, 마치 몸의 지배권을 빼앗기는 느낌이었어. 내가 녀석이 되고 녀석이 내가 되는 듯한 느낌이었지. "),
     rarity=3,
     weight=255.8,
     spawnable=True,
@@ -831,7 +831,7 @@ floating_eye = Actor(
     ability_inventory=AbilityInventory(capacity=1),
     equipments=Equipments(),
 )
-monster_difficulty[floating_eye.status.difficulty].append(floating_eye)
+ActorDB.monster_difficulty[floating_eye.status.difficulty].append(floating_eye)
 
 
 ####################################################
@@ -844,10 +844,9 @@ fly = Actor(
     fg=(171, 63, 63),
     name="파리",
     entity_id="fly",
-    entity_desc="\
-        \'던전의 청소부\' 라는 이명으로도 불리는 이 파리들은, 지상의 파리보다 몇 십 배는 더 큰 덩치에 걸맞는 왕성한 식욕을 보여준다.\n\
-        이들은 던전 속 썩어가는 거대한 시체들을 모조리 먹어치우며, 그 시체에 알을 낳고 번식한다.",
-    actor_quote="파리들이 다 죽으면 던전이 시체더미가 된다고는 하지만, 그 징그럽게 생긴 날개를 보고서도 놈을 죽이지 않을 놈이 몇이나 있을까?",
+    entity_desc=("\'던전의 청소부\' 라는 이명으로도 불리는 이 파리들은, 지상의 파리보다 몇 십 배는 더 큰 덩치에 걸맞는 왕성한 식욕을 보여준다. "
+        "이들은 던전 속 썩어가는 거대한 시체들을 모조리 먹어치우며, 그 시체에 알을 낳고 번식한다. "),
+    actor_quote=("파리들이 다 죽으면 던전이 시체더미가 된다고는 하지만, 그 징그럽게 생긴 날개를 보고서도 놈을 죽이지 않을 놈이 몇이나 있을까? "),
     rarity=6,
     weight=0.07,
     spawnable=True,
@@ -888,7 +887,7 @@ fly = Actor(
     ability_inventory=AbilityInventory(capacity=1),
     equipments=Equipments(),
 )
-monster_difficulty[fly.status.difficulty].append(fly)
+ActorDB.monster_difficulty[fly.status.difficulty].append(fly)
 
 
 ### giant wasp
@@ -897,11 +896,10 @@ giant_wasp = Actor(
     fg=(250, 250, 0),
     name="거대 말벌",
     entity_id="giant_wasp",
-    entity_desc="\
-        성인 남성 손가락 만한 이들의 독침은, 독 없이 그 자체만으로도 치명상을 입히기 충분하다.\n\
-        거대 말벌들은 곡예에 가까운 비행 능력을 보여주며, 쏜살같은 속도로 목표물에게 날아들어 독침을 찔러넣는다.\n\
-        독침을 찔러 넣을 때는 눈, 생식기 등 급소를 노리는 것으로 알려져 있으며, 때문에 이들을 상대할 때는 갑옷을 입었다고 하더라도 큰 주의가 필요하다.",
-    actor_quote="독이 묻은 단검을 떠올려 봐. 꽤 살벌하지? 그런데 그 단검이 날아다니면서 너를 쫓아와 네 고간을 찌른다고 생각해봐. 대체 이보다 끔찍한 게 어디 있겠어?",
+    entity_desc=("성인 남성 손가락 만한 이들의 독침은, 독 없이 그 자체만으로도 치명상을 입히기 충분하다. "
+        "거대 말벌들은 곡예에 가까운 비행 능력을 보여주며, 쏜살같은 속도로 목표물에게 날아들어 독침을 찔러넣는다. "
+        "독침을 찔러 넣을 때는 눈, 생식기 등 급소를 노리는 것으로 알려져 있으며, 때문에 이들을 상대할 때는 갑옷을 입었다고 하더라도 큰 주의가 필요하다. "),
+    actor_quote=("독이 묻은 단검을 떠올려 봐. 꽤 살벌하지? 그런데 그 단검이 날아다니면서 너를 쫓아와 네 고간을 찌른다고 생각해봐. 대체 이보다 끔찍한 게 어디 있겠어? "),
     rarity=5,
     weight=1.5,
     spawnable=True,
@@ -940,7 +938,7 @@ giant_wasp = Actor(
     ability_inventory=AbilityInventory(capacity=1),
     equipments=Equipments(),
 )
-monster_difficulty[giant_wasp.status.difficulty].append(giant_wasp)
+ActorDB.monster_difficulty[giant_wasp.status.difficulty].append(giant_wasp)
 
 
 ####################################################
@@ -953,13 +951,10 @@ black_jelly = Actor(
     fg=(10, 20, 10),
     name="검정 덩어리",
     entity_id="black_jelly",
-    entity_desc="\
-        점액질로 이루어진 이 생명체들은 딱히 이렇다 할 외형적 특징을 가지고 있지 않아 \"덩어리\"라는 이름으로 불린다.\n\
-        이들 중 검정색을 띄고 있는 개체들은 독성 점액질로 이루어져 있는데,\n\
-        이들은 신체 내에서 독성 가스를 압축한 뒤 터뜨려 자신의 점액질 일부를 적에게 발사하는 형식으로 적을 공격한다고 알려져 있다.\n\
-        독성 점액질은 본체에서 발사되고 얼마 지나지 않아 썩어 사라지며,\n\
-        본체 또한 많은 부분이 절단되거나 죽게 되면 순식간에 썩어 사라지는 특징을 보인다.",
-    actor_quote="이 놈들만큼 비료로 쓰기 좋은 게 또 없어. 당나귀 똥처럼 냄새도 안나지, 썩기는 또 순식간에 썩지. 거기에 이놈들 살덩이는 잘라도 잘라도 계속 다시 자라나서 비료값 걱정도 할 필요 없다니깐?",
+    entity_desc=("점액질로 이루어진 이 생명체들은 딱히 이렇다 할 외형적 특징을 가지고 있지 않아 \"덩어리\"라는 이름으로 불린다. "
+                "이들 중 검정색을 띄고 있는 개체들은 독성 점액질로 이루어져 있는데, 이들은 신체 내에서 독성 가스를 압축한 뒤 터뜨려 자신의 점액질 일부를 적에게 발사하는 형식으로 적을 공격한다고 알려져 있다. "
+                "독성 점액질은 본체에서 분리되고 얼마 지나지 않아 썩어 사라지며, 본체 또한 많은 부분이 절단되면 순식간에 썩어 사라지는 특징을 보인다. "),
+    actor_quote=("이 놈들만큼 비료로 쓰기 좋은 게 또 없어. 당나귀 똥처럼 냄새도 안나지, 썩기는 또 순식간에 잘 썩지. 거기에 이놈들 살덩이는 잘라도 잘라도 계속 다시 자라나서 비료값 걱정도 할 필요 없다니깐? "),
     rarity=4,
     weight=187,
     spawnable=True,
@@ -1001,7 +996,7 @@ black_jelly = Actor(
     equipments=Equipments(),
     initial_items=[(item_factories.toxic_goo, 1, (-1,-1))],
 )
-monster_difficulty[black_jelly.status.difficulty].append(black_jelly)
+ActorDB.monster_difficulty[black_jelly.status.difficulty].append(black_jelly)
 
 
 ####################################################
@@ -1014,12 +1009,11 @@ nymph = Actor(
     fg=(63, 245, 39),
     name="님프",
     entity_id="nymph",
-    entity_desc="\
-        아름다운 님프와 인간 남성이 사랑에 빠지는 일은 현실에서도 종종 일어나곤 한다.\n\
-        그러나 그 결말은 신화 속 이야기처럼 아름답지 않다.\n\
-        님프의 아름다움에 홀린 남성들은 가진 것을 모두 내어주고, 종국에는 파멸에 이른다.\n\
-        아름다운 외모에 속아 방심한다면 당신은 이들에게 목숨까지 내어주게 될 지도 모른다.",
-    actor_quote="전 가끔 녀석들이 흉측했으면 좋았겠다는 생각을 합니다. 목을 벨 때 일말의 동정심도 들지 않게 말이죠.",
+    entity_desc=("아름다운 님프와 인간 남성이 사랑에 빠지는 일은 현실에서도 종종 일어나곤 한다. "
+        "그러나 그 결말은 신화 속 이야기처럼 아름답지 않다. "
+        "님프의 아름다움에 홀린 남성들은 가진 것을 모두 내어주고, 종국에는 파멸에 이른다. "
+        "아름다운 외모에 속아 방심한다면 당신은 이들에게 목숨까지 내어주게 될 지도 모른다. "),
+    actor_quote=("전 가끔 녀석들이 흉측했으면 좋았겠다는 생각을 합니다. 목을 벨 때 일말의 동정심도 들지 않게 말이죠. "),
     rarity=2,
     weight=53,
     spawnable=True,
@@ -1061,7 +1055,7 @@ nymph = Actor(
     initial_equipments=[],
     initial_abilities=[(ability_factories.steal, 1)]
 )
-monster_difficulty[nymph.status.difficulty].append(nymph)
+ActorDB.monster_difficulty[nymph.status.difficulty].append(nymph)
 
 
 ####################################################
@@ -1072,13 +1066,12 @@ sphere_of_acid = Actor(
     fg=(123, 255, 0),
     name="산성 구체",
     entity_id="sphere_of_acid",
-    entity_desc="\
-        산성 구체는 이름 그대로 산성을 띄는 가스들이 뭉친 구체이다.\n\
-        인간을 비롯한 일부 생명체에게만 반응하는 것을 보아 이들은 분명 인지 능력을 가지고는 있지만,\n\
-        특별한 생체 기관 없이 어떻게 주변을 인식하는지는 아직 밝혀지지 않았다.\n\
-        이들은 생명체 주변으로 다가가 자신을 폭발하는데, 당연하게도 스스로도 폭발로 인해 소멸한다.\n\
-        학자들 사이에선 스스로를 폭발시키는 이러한 행위가 공격이나 자기 보호의 의미가 아닌 일종의 본능과도 같은 행위라는 의견이 지배적이다.",
-    actor_quote="폭발의 열기로 머리카락이 타버렸어. 그래도 목숨은 건졌구나 싶었는데 눈, 코, 귀가 차례대로 녹아내리기 시작하더군. 걔는 자길 죽여달라고 애원했지. 내가 해줄 수 있는 거라고는...",
+    entity_desc=("산성 구체는 이름 그대로 산성을 띄는 가스들이 뭉친 구체이다. "
+        "인간을 비롯한 일부 생명체에게만 반응하는 것을 보아 이들은 분명 인지 능력을 가지고는 있지만, "
+        "특별한 생체 기관 없이 어떻게 주변을 인식하는지는 아직 밝혀지지 않았다. "
+        "이들은 생명체 주변으로 다가가 자신을 폭발하는데, 당연하게도 스스로도 폭발로 인해 소멸한다. "
+        "학자들 사이에선 스스로를 폭발시키는 이러한 행위가 공격이나 자기 보호의 수단이 아니라, 일종의 본능과도 같은 행위라는 의견이 지배적이다. "),
+    actor_quote=("폭발의 열기로 머리카락이 타버렸어. 그래도 목숨은 건졌구나 싶었는데 눈, 코, 귀가 차례대로 녹아내리기 시작하더군. 걔는 자길 죽여달라고 애원했지. 내가 해줄 수 있는 거라고는... "),
     rarity=4,
     weight=0.8,
     spawnable=True,
@@ -1122,7 +1115,7 @@ sphere_of_acid = Actor(
     ability_inventory=AbilityInventory(capacity=1),
     equipments=Equipments(),
 )
-monster_difficulty[sphere_of_acid.status.difficulty].append(sphere_of_acid)
+ActorDB.monster_difficulty[sphere_of_acid.status.difficulty].append(sphere_of_acid)
 
 
 ####################################################
@@ -1135,11 +1128,10 @@ jumping_spider = Actor(
     fg=(127, 235, 224),
     name="깡충거미",
     entity_id="jumping_spider",
-    entity_desc="\
-        손톱 정도 크기의 이 자그마한 거미들은 자신보다 덩치 큰 생명체들의 몸에 붙어 벼룩이나 빈대, 구더기 등을 잡아먹으며 살아간다.\n\
-        예로부터 몇몇 모험가들은 옷에 붙어있는 자그마한 벌레들을 잡기 위해 옷 속에 깡충거미를 집어넣기도 했다고 전해지며,\n\
-        그 중 일부는 이들을 물약 병 같은 곳에 담아 애지중지 기르기도 했다고 전해진다.",
-    actor_quote="딜런이 죽던 날은 내 생애 최악의 날이었어. 그 날 무심코 자켓 위에 앉지만 않았어도...",
+    entity_desc=("손톱 정도 크기의 이 자그마한 거미들은 자신보다 덩치 큰 생명체들의 몸에 붙어 벼룩이나 빈대, 구더기 등을 잡아먹으며 살아간다. "
+        "예로부터 몇몇 모험가들은 옷에 붙어있는 자그마한 벌레들을 잡기 위해 옷 속에 깡충거미를 집어넣기도 했다고 전해지며, "
+        "그 중 일부는 이들을 물약 병 같은 곳에 담아 애지중지 기르기도 했다고 전해진다. "),
+    actor_quote=("딜런이 죽던 날은 내 생애 최악의 날이었어. 그 날 무심코 자켓 위에 앉지만 않았어도... "),
     rarity=3,
     weight=0.01,
     spawnable=True,
@@ -1176,7 +1168,7 @@ jumping_spider = Actor(
     ability_inventory=AbilityInventory(capacity=1),
     equipments=Equipments(),
 )
-monster_difficulty[jumping_spider.status.difficulty].append(jumping_spider)
+ActorDB.monster_difficulty[jumping_spider.status.difficulty].append(jumping_spider)
 
 
 ####################################################
@@ -1189,12 +1181,12 @@ earthworm = Actor(
     fg=(171, 108, 56),
     name="지렁이",
     entity_id="earthworm",
-    entity_desc="\
-        던전 속 식물들이 태양빛 없이 자랄 수 있는 가장 큰 이유는 바로 지렁이들이 배출한 양분 덕분일 것이다.\n\
-        이들은 지상의 평범한 지렁이들의 수 십 배 이상으로 토지를 기름지게 만들며, 식물들이 햇빛 없이도 자랄 수 있게 해 주는 알 수 없는 성분을 배출한다.\n\
-        이 알 수 없는 성분은 던전에서 방출되는 \'던전의 기운\'과 연관이 있는 것으로 추정되며, 때문에 던전 속 지렁이들은 지상에서는 금새 말라 비틀어져 죽고 만다.\n\
-        때문에 이들을 던전 밖에서 사육하는 법을 고안해낸다면 훈장을 수여받으리라는 말도 떠돌곤 한다.",
-    actor_quote="내가 형씨였으면 모험이니 뭐니 할 거 없이 그 아래에서 농사나 지을 거야. 형씨도 지금보다 백 배는 많이 벌 수 있을텐데.",
+    entity_desc=("던전 속 식물들이 태양빛 없이 자랄 수 있는 가장 큰 이유는 바로 지렁이들이 배출한 양분 덕분일 것이다. "
+        "이들은 지상의 평범한 지렁이들의 수 십 배 이상으로 토지를 기름지게 만들며, 식물들이 햇빛 없이도 자랄 수 있게 해 주는 알 수 없는 성분을 배출한다. "
+        "이 알 수 없는 성분은 던전에서 방출되는 \'던전의 기운\'과 연관이 있는 것으로 추정되며, 때문에 던전 속 지렁이들은 지상의 토양에서는 금새 말라 비틀어져 죽고 만다. "
+        "이들을 지상에서 사육해 농사에 사용하려는 수많은 시도가 있었으나, 아직까지 성공한 사례는 없다. "
+        "때문에 이들을 던전 밖에서 사육하는 법을 고안해낸다면 황제로부터 훈장을 수여받으리라는 말도 떠돌곤 한다. "),
+    actor_quote=("내가 형씨였으면 모험이니 뭐니 할 거 없이 그 아래에서 농사나 지을 거야. 형씨도 지금보다 백 배는 많이 벌 수 있을텐데. "),
     rarity=9,
     weight=0.1,
     spawnable=True,
@@ -1231,7 +1223,7 @@ earthworm = Actor(
     ability_inventory=AbilityInventory(capacity=1),
     equipments=Equipments(),
 )
-monster_difficulty[earthworm.status.difficulty].append(earthworm)
+ActorDB.monster_difficulty[earthworm.status.difficulty].append(earthworm)
 
 ### maggot
 maggot = Actor(
@@ -1239,10 +1231,9 @@ maggot = Actor(
     fg=(222, 222, 222),
     name="구더기",
     entity_id="maggot",
-    entity_desc="\
-        모험가들이 가장 무서워하는 생물이 무엇일까? 고대의 정령들? 드래곤? 답은 바로 구더기이다.\n\
-        구더기들은 앞에 놓인 것이 무엇이든 간에 쉬지 않고 먹어치우며, 모험가들의 비상식량도 예외는 아니다.",
-    actor_quote="구더기가 가득한 고기가 싫다면, 고기 대신 치즈를 들고 다니면 돼. 구더기가 파먹은 치즈는 나름대로 별미거든.",
+    entity_desc=("모험가들이 가장 무서워하는 생물이 무엇일까? 고대의 정령들? 드래곤? 답은 바로 구더기이다. "
+        "구더기들은 앞에 놓인 것이 무엇이든 간에 쉬지 않고 먹어치우며, 모험가들의 비상식량도 예외는 아니다. "),
+    actor_quote=("구더기가 가득한 고기가 싫다면 고기 대신 치즈를 들고 다니면 돼. 구더기가 파먹은 치즈는 나름대로 별미거든. "),
     rarity=1,
     weight=0.01,
     spawnable=False, # NOTE: does not spawn naturally.
@@ -1278,7 +1269,7 @@ maggot = Actor(
     ability_inventory=AbilityInventory(capacity=1),
     equipments=Equipments(),
 )
-monster_difficulty[maggot.status.difficulty].append(maggot)
+ActorDB.monster_difficulty[maggot.status.difficulty].append(maggot)
 
 
 ####################################################
@@ -1291,16 +1282,13 @@ fire_elemental = Actor(
     fg=(255, 0, 0),
     name="불의 정령",
     entity_id="fire_elemental",
-    actor_type_desc="\
-        정령들의 존재는 익히 알려져 있지만, 그들의 기원을 두고는 무수한 추측만이 오갈 뿐이다.\n\
-        이들이 자연의 산물이라고 주장하는 자들이 있는가 하면, 고대의 마법사들의 창조물이라고 주장하는 자들도 있다.\n\
-        정령은 수 천년 이상 인간과 오랜 시간 공존해 왔고, 아주 드문 경우 이들은 자신들이 존경하는 인간을 위해 자신의 힘을 내어주기까지 했다.\n\
-        그러나 근 몇 백 년간 인류가 급격하게 자연을 파괴하기 시작하자 이들은 인간에게도 적대감을 드러내기 시작했고, 지금은 던전 속에서 위협적인 존재로 군림하고 있다.",
-    entity_desc="\
-        불의 정령은 신체의 대부분이 강렬한 화염으로 이루어져 있다.\n\
-        그러나 이들의 골격만큼은 불꽃이 아닌 알 수 없는 금속으로 이루어져 있으며, 이 금속은 정령이 소멸할 때 함께 기화되어 사라진다.\
-        ",
-    actor_quote="수 많은 산불을 겪어본 만큼 난 이거 하나만큼은 자신있게 말할 수 있었지. '불은 끄려면 물을 뿌려라'라고. 녀석을 만나기 전까지는 말이야.",
+    actor_type_desc=("정령들의 존재는 익히 알려져 있지만, 그들의 기원을 두고는 무수한 추측만이 오갈 뿐이다. "
+        "이들이 자연의 산물이라고 주장하는 자들이 있는가 하면, 고대의 마법사들의 창조물이라고 주장하는 자들도 있다. "
+        "정령은 수 천년 이상 인간과 오랜 시간 공존해 왔고, 아주 드문 경우 이들은 자신들이 존경하는 인간을 위해 자신의 힘을 내어주기까지 했다. "
+        "그러나 근 몇 백 년간 인류가 급격하게 자연을 파괴하기 시작하자 이들은 인간에게도 적대감을 드러내기 시작했고, 지금은 던전 속에서 위협적인 존재로 군림하고 있다. "),
+    entity_desc=("불의 정령은 신체의 대부분이 강렬한 화염으로 이루어져 있다. "
+        "그러나 이들의 골격만큼은 불꽃이 아닌 알 수 없는 금속으로 이루어져 있으며, 이 금속은 정령이 소멸할 때 함께 기화되어 사라진다. "),
+    actor_quote=("난 이거 하나만큼은 자신있게 말할 수 있었지. '불은 끄려면 물을 뿌려라'라고. 녀석을 만나기 전까지는 말이야. "),
     rarity=1,
     weight=203,
     spawnable=True,
@@ -1345,7 +1333,7 @@ fire_elemental = Actor(
     equipments=Equipments(),
     tile_effect_on_path="burn",
 )
-monster_difficulty[fire_elemental.status.difficulty].append(fire_elemental)
+ActorDB.monster_difficulty[fire_elemental.status.difficulty].append(fire_elemental)
 
 
 ### Ice Elemental
@@ -1354,16 +1342,13 @@ ice_elemental = Actor(
     fg=(207, 247, 255),
     name="얼음 정령",
     entity_id="ice_elemental",
-    actor_type_desc="\
-            정령들의 존재는 익히 알려져 있지만, 그들의 기원을 두고는 무수한 추측만이 오갈 뿐이다.\n\
-            이들이 자연의 산물이라고 주장하는 자들이 있는가 하면, 고대의 마법사들의 창조물이라고 주장하는 자들도 있다.\n\
-            정령은 수 천년 이상 인간과 오랜 시간 공존해 왔고, 아주 드문 경우 이들은 자신들이 존경하는 인간을 위해 자신의 힘을 내어주기까지 했다.\n\
-            그러나 근 몇 백 년간 인류가 급격하게 자연을 파괴하기 시작하자 이들은 인간에게도 적대감을 드러내기 시작했고, 지금은 던전 속에서 위협적인 존재로 군림하고 있다.",
-    entity_desc="\
-            얼음 정령은 푸른 얼음으로 이루어진 전신에서 생명체의 뼛 속까지 얼어붙일 수 있는 냉기를 내뿜는다.\n\
-            지금까지 이 얼음을 녹이려는 시도는 전부 실패했지만, 정령이 소멸할 때 얼음도 함꼐 기화되어 사라진다.\
-            ",
-    actor_quote="두꺼운 옷으로 꽁꽁 싸맨다고? 그런 건 자네의 얼어붙은 시체를 땅에 묻기 어렵게 만들 뿐이라네.",
+    actor_type_desc=("정령들의 존재는 익히 알려져 있지만, 그들의 기원을 두고는 무수한 추측만이 오갈 뿐이다. "
+                     "이들이 자연의 산물이라고 주장하는 자들이 있는가 하면, 고대의 마법사들의 창조물이라고 주장하는 자들도 있다. "
+                     "정령은 수 천년 이상 인간과 오랜 시간 공존해 왔고, 아주 드문 경우 이들은 자신들이 존경하는 인간을 위해 자신의 힘을 내어주기까지 했다. "
+                     "그러나 근 몇 백 년간 인류가 급격하게 자연을 파괴하기 시작하자 이들은 인간에게도 적대감을 드러내기 시작했고, 지금은 던전 속에서 위협적인 존재로 군림하고 있다. "),
+    entity_desc=("얼음 정령은 푸른 얼음으로 이루어진 전신에서 생명체의 뼛 속까지 얼어붙일 수 있는 냉기를 내뿜는다. "
+            "지금까지 이 얼음을 녹이려는 시도는 전부 실패했지만, 정령이 소멸할 때 얼음도 함꼐 기화되어 사라진다. "),
+    actor_quote=("두꺼운 옷으로 꽁꽁 싸맨다고? 그런 건 자네의 얼어붙은 시체를 땅에 묻기 어렵게 만들 뿐이라네. "),
     rarity=1,
     weight=461,
     spawnable=True,
@@ -1408,7 +1393,7 @@ ice_elemental = Actor(
     equipments=Equipments(),
     tile_effect_on_path="freeze",
 )
-monster_difficulty[ice_elemental.status.difficulty].append(ice_elemental)
+ActorDB.monster_difficulty[ice_elemental.status.difficulty].append(ice_elemental)
 
 
 ### Earth Elemental
@@ -1417,16 +1402,13 @@ earth_elemental = Actor(
     fg=(117, 52, 0),
     name="땅의 정령",
     entity_id="earth_elemental",
-    actor_type_desc="\
-                정령들의 존재는 익히 알려져 있지만, 그들의 기원을 두고는 무수한 추측만이 오갈 뿐이다.\n\
-                이들이 자연의 산물이라고 주장하는 자들이 있는가 하면, 고대의 마법사들의 창조물이라고 주장하는 자들도 있다.\n\
-                정령은 수 천년 이상 인간과 오랜 시간 공존해 왔고, 아주 드문 경우 이들은 자신들이 존경하는 인간을 위해 자신의 힘을 내어주기까지 했다.\n\
-                그러나 근 몇 백 년간 인류가 급격하게 자연을 파괴하기 시작하자 이들은 인간에게도 적대감을 드러내기 시작했고, 지금은 던전 속에서 위협적인 존재로 군림하고 있다.",
-    entity_desc="\
-                땅의 정령의 신체는 아직까지 밝혀지지 않은 종류의 암석으로 구성되어 있으며, 이 암석들은 보이지 않는 힘에 의해 서로 떨어지지 않고 하나의 형태를 유지하고 있다.\n\
-                이 암석은 열, 부식 등에 대해 놀라우리만큼 강한 저항성을 지니고 있으나, 정령이 소멸할 때 암석도 함꼐 기화되어 사라진다.\
-                ",
-    actor_quote="혹시나 해서 말하는데, 바위 골렘 같은 조잡한 돌덩어리라고 생각했다가는 넌 눈 깜빡할 사이에 곤죽이 될 거야.",
+    actor_type_desc=("정령들의 존재는 익히 알려져 있지만, 그들의 기원을 두고는 무수한 추측만이 오갈 뿐이다. "
+                     "이들이 자연의 산물이라고 주장하는 자들이 있는가 하면, 고대의 마법사들의 창조물이라고 주장하는 자들도 있다. "
+                     "정령은 수 천년 이상 인간과 오랜 시간 공존해 왔고, 아주 드문 경우 이들은 자신들이 존경하는 인간을 위해 자신의 힘을 내어주기까지 했다. "
+                     "그러나 근 몇 백 년간 인류가 급격하게 자연을 파괴하기 시작하자 이들은 인간에게도 적대감을 드러내기 시작했고, 지금은 던전 속에서 위협적인 존재로 군림하고 있다. "),
+    entity_desc=("땅의 정령의 신체는 아직까지 밝혀지지 않은 종류의 암석으로 구성되어 있으며, 이 암석들은 보이지 않는 힘에 의해 서로 떨어지지 않고 하나의 형태를 유지하고 있다. "
+                "이 암석은 열, 부식 등에 대해 놀라우리만큼 강한 저항성을 지니고 있으나, 정령이 소멸할 때 암석도 함꼐 기화되어 사라진다. "),
+    actor_quote=("혹시나 해서 말하는데, 바위 골렘 같은 조잡한 돌덩어리라고 생각했다가는 넌 눈 깜빡할 사이에 곤죽이 될 거야. "),
     rarity=1,
     weight=550,
     spawnable=True,
@@ -1474,7 +1456,7 @@ earth_elemental = Actor(
     ability_inventory=AbilityInventory(capacity=5),
     equipments=Equipments(),
 )
-monster_difficulty[earth_elemental.status.difficulty].append(earth_elemental)
+ActorDB.monster_difficulty[earth_elemental.status.difficulty].append(earth_elemental)
 
 
 ### Acid Elemental
@@ -1483,16 +1465,13 @@ acid_elemental = Actor(
     fg=(155, 179, 0),
     name="융해의 정령",
     entity_id="acid_elemental_ai",
-    actor_type_desc="\
-                    정령들의 존재는 익히 알려져 있지만, 그들의 기원을 두고는 무수한 추측만이 오갈 뿐이다.\n\
-                    이들이 자연의 산물이라고 주장하는 자들이 있는가 하면, 고대의 마법사들의 창조물이라고 주장하는 자들도 있다.\n\
-                    정령은 수 천년 이상 인간과 오랜 시간 공존해 왔고, 아주 드문 경우 이들은 자신들이 존경하는 인간을 위해 자신의 힘을 내어주기까지 했다.\n\
-                    그러나 근 몇 백 년간 인류가 급격하게 자연을 파괴하기 시작하자 이들은 인간에게도 적대감을 드러내기 시작했고, 지금은 던전 속에서 위협적인 존재로 군림하고 있다.",
-    entity_desc="\
-                융해의 정령의 신체는 알 수 없는 생명체의 뼈로 이루어져 있으며, 그 중 머리 부분은 인간의 두개골과 유사한 형상을 하고 있다.\n\
-                이들의 신체 전체는 점액성을 띄는 강산성 물질로 덮어져 있으며, 이 강산성 점액질은 현재까지 알려진 거의 대부분의 유기물을 녹일 수 있는 것으로 알려져 있다.\
-                ",
-    actor_quote="놈과 싸운 어떤 한 기사의 이야기를 들은 적이 있어. 갑옷의 구멍 사이로 붉은 살덩이들이 흘려 내렸다더군.",
+    actor_type_desc=("정령들의 존재는 익히 알려져 있지만, 그들의 기원을 두고는 무수한 추측만이 오갈 뿐이다. "
+        "이들이 자연의 산물이라고 주장하는 자들이 있는가 하면, 고대의 마법사들의 창조물이라고 주장하는 자들도 있다. "
+        "정령은 수 천년 이상 인간과 오랜 시간 공존해 왔고, 아주 드문 경우 이들은 자신들이 존경하는 인간을 위해 자신의 힘을 내어주기까지 했다. "
+        "그러나 근 몇 백 년간 인류가 급격하게 자연을 파괴하기 시작하자 이들은 인간에게도 적대감을 드러내기 시작했고, 지금은 던전 속에서 위협적인 존재로 군림하고 있다. "),
+    entity_desc=("융해의 정령의 신체는 알 수 없는 생명체의 뼈로 이루어져 있으며, 그 중 머리 부분은 인간의 두개골과 유사한 형상을 하고 있다. "
+                "이들의 신체 전체는 점액성을 띄는 강산성 물질로 덮어져 있으며, 이 강산성 점액질은 현재까지 알려진 거의 대부분의 유기물을 녹일 수 있는 것으로 알려져 있다. "),
+    actor_quote=("놈과 싸운 어떤 한 기사의 이야기를 들은 적이 있어. 갑옷의 구멍 사이로 붉은 살덩이들이 흘려 내렸다더군. "),
     rarity=1,
     weight=430,
     spawnable=True,
@@ -1536,7 +1515,7 @@ acid_elemental = Actor(
     ability_inventory=AbilityInventory(capacity=5),
     equipments=Equipments(),
 )
-monster_difficulty[acid_elemental.status.difficulty].append(acid_elemental)
+ActorDB.monster_difficulty[acid_elemental.status.difficulty].append(acid_elemental)
 
 
 ### Poison Elemental
@@ -1545,16 +1524,13 @@ poison_elemental = Actor(
     fg=(101, 0, 179),
     name="맹독의 정령",
     entity_id="poison_elemental",
-    actor_type_desc="\
-                    정령들의 존재는 익히 알려져 있지만, 그들의 기원을 두고는 무수한 추측만이 오갈 뿐이다.\n\
-                    이들이 자연의 산물이라고 주장하는 자들이 있는가 하면, 고대의 마법사들의 창조물이라고 주장하는 자들도 있다.\n\
-                    정령은 수 천년 이상 인간과 오랜 시간 공존해 왔고, 아주 드문 경우 이들은 자신들이 존경하는 인간을 위해 자신의 힘을 내어주기까지 했다.\n\
-                    그러나 근 몇 백 년간 인류가 급격하게 자연을 파괴하기 시작하자 이들은 인간에게도 적대감을 드러내기 시작했고, 지금은 던전 속에서 위협적인 존재로 군림하고 있다.",
-    entity_desc="\
-                맹독의 정령은 마치 거대한 독사와도 같은 형상을 하고 있다.\n\
-                이들의 신체는 치명적인 독성을 띄는 보랏빛 액체로 이루어져 있으며, 이 액체와 단순히 접촉하는 것만으로도 심각한 피해를 줄 수 있다고 알려져 있다.\
-                ",
-    actor_quote="맹독의 정령을 찾는 건 어렵지 않아. 시체들을 쭉 따라가다 보면 만날 수 있을 거야.",
+    actor_type_desc=("정령들의 존재는 익히 알려져 있지만, 그들의 기원을 두고는 무수한 추측만이 오갈 뿐이다. "
+                     "이들이 자연의 산물이라고 주장하는 자들이 있는가 하면, 고대의 마법사들의 창조물이라고 주장하는 자들도 있다. "
+                     "정령은 수 천년 이상 인간과 오랜 시간 공존해 왔고, 아주 드문 경우 이들은 자신들이 존경하는 인간을 위해 자신의 힘을 내어주기까지 했다. "
+                     "그러나 근 몇 백 년간 인류가 급격하게 자연을 파괴하기 시작하자 이들은 인간에게도 적대감을 드러내기 시작했고, 지금은 던전 속에서 위협적인 존재로 군림하고 있다. "),
+    entity_desc=("맹독의 정령은 마치 거대한 독사와도 같은 형상을 하고 있다. "
+                "이들의 신체는 치명적인 독성을 띄는 보랏빛 액체로 이루어져 있으며, 이 액체와 단순히 접촉하는 것만으로도 심각한 피해를 줄 수 있다고 알려져 있다. "),
+    actor_quote=("맹독의 정령을 찾는 건 어렵지 않아. 던전 속에 널부러진 시체들을 쭉 따라가다 보면 만날 수 있을 거야. "),
     rarity=1,
     weight=417,
     spawnable=True,
@@ -1598,7 +1574,7 @@ poison_elemental = Actor(
     ability_inventory=AbilityInventory(capacity=5),
     equipments=Equipments(),
 )
-monster_difficulty[poison_elemental.status.difficulty].append(poison_elemental)
+ActorDB.monster_difficulty[poison_elemental.status.difficulty].append(poison_elemental)
 
 
 ### Lightning Elemental
@@ -1607,16 +1583,13 @@ lightning_elemental = Actor(
     fg=(0, 255, 251),
     name="번개 정령",
     entity_id="lightning_elemental",
-    actor_type_desc="\
-                        정령들의 존재는 익히 알려져 있지만, 그들의 기원을 두고는 무수한 추측만이 오갈 뿐이다.\n\
-                        이들이 자연의 산물이라고 주장하는 자들이 있는가 하면, 고대의 마법사들의 창조물이라고 주장하는 자들도 있다.\n\
-                        정령은 수 천년 이상 인간과 오랜 시간 공존해 왔고, 아주 드문 경우 이들은 자신들이 존경하는 인간을 위해 자신의 힘을 내어주기까지 했다.\n\
-                        그러나 근 몇 백 년간 인류가 급격하게 자연을 파괴하기 시작하자 이들은 인간에게도 적대감을 드러내기 시작했고, 지금은 던전 속에서 위협적인 존재로 군림하고 있다.",
-    entity_desc="\
-                번개의 정령의 신체는 먹구름과 같이 보이는 알 수 없는 검은 기체로 이루어져 있으며, 전신에서 번개와도 같은 푸른 색 스파크를 내뿜는다.\n\
-                그러나 이들의 골격만큼은 기체가 아닌 알 수 없는 금속으로 이루어져 있으며, 이 금속은 정령이 소멸할 때 함께 기화되어 사라진다.\
-                ",
-    actor_quote="세상에 전기가 덜 흐르는 물질은 있어도, 전기가 흐르지 않는 물질은 없다는 거 알아? 뭐, 몰랐어도 금방 알게 됐겠지만.",
+    actor_type_desc=("정령들의 존재는 익히 알려져 있지만, 그들의 기원을 두고는 무수한 추측만이 오갈 뿐이다. "
+                     "이들이 자연의 산물이라고 주장하는 자들이 있는가 하면, 고대의 마법사들의 창조물이라고 주장하는 자들도 있다. "
+                     "정령은 수 천년 이상 인간과 오랜 시간 공존해 왔고, 아주 드문 경우 이들은 자신들이 존경하는 인간을 위해 자신의 힘을 내어주기까지 했다. "
+                     "그러나 근 몇 백 년간 인류가 급격하게 자연을 파괴하기 시작하자 이들은 인간에게도 적대감을 드러내기 시작했고, 지금은 던전 속에서 위협적인 존재로 군림하고 있다. "),
+    entity_desc=("번개의 정령의 신체는 먹구름과 같이 보이는 알 수 없는 검은 기체로 이루어져 있으며, 전신에서 번개와도 같은 푸른 색 스파크를 내뿜는다. "
+                "그러나 이들의 골격만큼은 기체가 아닌 알 수 없는 금속으로 이루어져 있으며, 이 금속은 정령이 소멸할 때 함께 기화되어 사라진다. "),
+    actor_quote=("세상에 전기가 덜 흐르는 물질은 있어도, 전기가 흐르지 않는 물질은 없다는 거 알아? "),
     rarity=1,
     weight=153,
     spawnable=True,
@@ -1660,7 +1633,7 @@ lightning_elemental = Actor(
     ability_inventory=AbilityInventory(capacity=5),
     equipments=Equipments(),
 )
-monster_difficulty[lightning_elemental.status.difficulty].append(lightning_elemental)
+ActorDB.monster_difficulty[lightning_elemental.status.difficulty].append(lightning_elemental)
 
 
 ####################################################
@@ -1673,14 +1646,13 @@ chatterbox = Actor(
     fg=(255, 230, 230),
     name="수다쟁이 괴물",
     entity_id="chatterbox",
-    entity_desc="\
-        던전에서 누군가 당신을 부르는 소리가 들린다면 뒤를 돌아보기보다는 검을 뽑아드는 편이 더 현명한 선택일지도 모른다.\n\
-        '수다쟁이'라는 이름으로 불리는 이 생명체는, 극단적으로 팔다리가 긴 여성 인간과 유사한 형태를 하고 있다.\n\
-        시각 기관의 부재에도 불구하고, 이들의 긴 팔과 날카로운 손톱은 가까운 거리의 인간을 갈기갈기 찢어 놓기에 충분하다.\n\
-        이들은 털이 없는 창백한 피부를 가졌으며, 머리에는 눈,코,귀 대신 '입'이 수 십여개 달려 있는 것이 특징이다.\n\
-        이들은 '입'을 통해 인간이나 다른 생명체들의 소리를 흉내내어 먹잇감을 유인하며, 성별, 인종, 나이에 관계없이 나양한 인간의 목소리를 내는 것으로 알려졌다.\n\
-        다만 이들이 자신들이 내뱉는 말들의 뜻을 이해하고 있는 것인지는 밝혀지지 않았다.",
-    actor_quote="부탁이야... 말리지 말아줘... 이렇게 해서라도 죽어버린 그녀의 목소리를 듣고 싶어...",
+    entity_desc=("던전에서 누군가 당신을 부르는 소리가 들린다면 뒤를 돌아보기보다는 검을 뽑아드는 편이 더 현명한 선택일지도 모른다. "
+        "'수다쟁이'라는 이름으로 불리는 이 생명체는, 극단적으로 팔다리가 긴 여성 인간과 유사한 형태를 하고 있다. "
+        "시각 기관의 부재에도 불구하고, 이들의 긴 팔과 날카로운 손톱은 가까운 거리의 인간을 갈기갈기 찢어 놓기에 충분하다. "
+        "이들은 털이 없는 창백한 피부를 가졌으며, 머리에는 눈,코,귀 대신 '입'이 수 십여개 달려 있는 것이 특징이다. "
+        "이들은 '입'을 통해 인간이나 다른 생명체들의 소리를 흉내내어 먹잇감을 유인하며, 성별, 인종, 나이에 관계없이 나양한 인간의 목소리를 내는 것으로 알려졌다. "
+        "다만 이들이 자신들이 내뱉는 말들의 뜻을 이해하고 있는 것인지는 밝혀지지 않았다. "),
+    actor_quote=("부탁이야... 말리지 말아줘... 이렇게 해서라도 죽어버린 그녀의 목소리를 듣고 싶어... "),
     rarity=99,
     weight=81,
     spawnable=True,
@@ -1718,7 +1690,7 @@ chatterbox = Actor(
     ability_inventory=AbilityInventory(capacity=2),
     equipments=Equipments(),
 )
-monster_difficulty[chatterbox.status.difficulty].append(chatterbox)
+ActorDB.monster_difficulty[chatterbox.status.difficulty].append(chatterbox)
 
 
 ####################################################
@@ -1731,12 +1703,10 @@ baby_phoenix = Actor(
     fg=(255, 115, 0),
     name="새끼 불사조",
     entity_id="baby_phoenix",
-    actor_type_desc="\
-            불사조는 인류보다도 오랜 세월을 이 땅에서 살아온 환상의 존재들이며, 마치 거대한 독수리와 공작새를 합친 듯한 외형을 하고 있다.\n\
-            이들은 살과 근육이 아닌, 붉은 화염을 연상케 하는 무언가로 구성되어 있으며, 이 '화염'이 무엇인지에 대한 의견은 학자들마다 분분하다.\n\
-            학자들 사이에서 가장 지지받는 이론은 바로 이 '화염'이 마력 에너지의 일종이며,\n\
-            불사조는 사실 우리들과 같은 유기적인 생명체가 아니라 막대한 양의 마력 에너지가 자아를 갖게 되면서 생겨난 존재라는 이론이다.\
-            ",
+    actor_type_desc=("불사조는 인류보다도 오랜 세월을 이 땅에서 살아온 환상의 존재들이며, 마치 거대한 독수리와 공작새를 합친 듯한 외형을 하고 있다. "
+            "이들은 살과 근육이 아닌, 붉은 화염을 연상케 하는 무언가로 구성되어 있으며, 이 '화염'이 무엇인지에 대한 의견은 학자들마다 분분하다. "
+            "학자들 사이에서 가장 지지받는 이론은 바로 이 '화염'이 마력 에너지의 일종이며, "
+            "불사조는 사실 우리들과 같은 유기적인 생명체가 아니라 막대한 양의 마력 에너지가 자아를 갖게 되면서 생겨난 존재라는 이론이다. "),
     rarity=1,
     weight=10.3,
     spawnable=True,
@@ -1788,7 +1758,7 @@ baby_phoenix = Actor(
     ability_inventory=AbilityInventory(capacity=7),
     equipments=Equipments(),
 )
-monster_difficulty[baby_phoenix.status.difficulty].append(baby_phoenix)
+ActorDB.monster_difficulty[baby_phoenix.status.difficulty].append(baby_phoenix)
 
 
 ### Phoenix
@@ -1797,12 +1767,10 @@ phoenix = Actor(
     fg=(255, 8, 0),
     name="불사조",
     entity_id="phoenix",
-    actor_type_desc="\
-                불사조는 인류보다도 오랜 세월을 이 땅에서 살아온 환상의 존재들이며, 마치 거대한 독수리와 공작새를 합친 듯한 외형을 하고 있다.\n\
-                이들은 살과 근육이 아닌, 붉은 화염을 연상케 하는 무언가로 구성되어 있으며, 이 '화염'이 무엇인지에 대한 의견은 학자들마다 분분하다.\n\
-                학자들 사이에서 가장 지지받는 이론은 바로 이 '화염'이 마력 에너지의 일종이며,\n\
-                불사조는 사실 우리들과 같은 유기적인 생명체가 아니라 막대한 양의 마력 에너지가 자아를 갖게 되면서 생겨난 존재라는 이론이다.\
-                ",
+    actor_type_desc=("불사조는 인류보다도 오랜 세월을 이 땅에서 살아온 환상의 존재들이며, 마치 거대한 독수리와 공작새를 합친 듯한 외형을 하고 있다. "
+            "이들은 살과 근육이 아닌, 붉은 화염을 연상케 하는 무언가로 구성되어 있으며, 이 '화염'이 무엇인지에 대한 의견은 학자들마다 분분하다. "
+            "학자들 사이에서 가장 지지받는 이론은 바로 이 '화염'이 마력 에너지의 일종이며, "
+            "불사조는 사실 우리들과 같은 유기적인 생명체가 아니라 막대한 양의 마력 에너지가 자아를 갖게 되면서 생겨난 존재라는 이론이다. "),
     rarity=1,
     weight=157,
     spawnable=True,
@@ -1854,7 +1822,7 @@ phoenix = Actor(
     ability_inventory=AbilityInventory(capacity=10),
     equipments=Equipments(),
 )
-monster_difficulty[phoenix.status.difficulty].append(phoenix)
+ActorDB.monster_difficulty[phoenix.status.difficulty].append(phoenix)
 
 
 ####################################################
@@ -1867,12 +1835,11 @@ ogre = Actor(
     fg=(160, 176, 111),
     name="오우거",
     entity_id="Ogre",
-    entity_desc="\
-        거대한 인간형 신체와 흉폭한 성격을 지닌 오우거들은 극단적으로 공격적인 성향을 보인다.\n\
-        이들은 지적으로 뛰어나지 못하며, 항상 피를 갈구하는 위험한 생명체이다.\n\
-        일부 학자들은 오우거들은 사실 선한 심성을 가진 생명체라고 주장하지만, 학계에서는 이 이론은 아직 받아들여지고 있지 않다.\
-        ",
-    actor_quote="오우거들이 사실은 착한 놈들이라느니 뭐니 하는 안경잽이 나부랭이들이 있는 모양인데, 내 앞에 보이면 눈알을 뽑아버릴 거야.",
+    entity_desc=("\거대한 인간형 신체와 흉폭한 성격을 지닌 오우거들은 극단적으로 공격적인 성향을 보인다. "
+        "이들은 지적으로 뛰어나지 못하며, 항상 피를 갈구하는 위험한 생명체이다. "
+        "일부 학자들은 오우거들은 사실 선한 심성을 가진 생명체라고 주장하지만, 학계에서는 이 이론은 아직 받아들여지고 있지 않다. "),
+    actor_quote=("오우거들이 사실은 착한 놈들이라느니 뭐니 하는 안경잽이 나부랭이들이 있는 모양인데, 내 앞에 보이면 눈알을 뽑아버릴 거야. "
+                 "우리 부대원들이 오우거들에게 찢겨 나가고 있을 때 그 자식들은 뭘 하고 있었지? 방에서 고대 시집이나 분석하고 있었으려나? "),
     rarity=2,
     weight=1855,
     spawnable=True,
@@ -1909,7 +1876,7 @@ ogre = Actor(
     ability_inventory=AbilityInventory(capacity=2),
     equipments=Equipments(),
 )
-monster_difficulty[ogre.status.difficulty].append(ogre)
+ActorDB.monster_difficulty[ogre.status.difficulty].append(ogre)
 
 
 ####################################################
@@ -1922,13 +1889,11 @@ giant = Actor(
     fg=(150, 30, 190),
     name="자이언트",
     entity_id="giant",
-    entity_desc="\
-        자이언트는 오우거, 트롤 등의 야수들보다도 더 크지만, 더 이성적인 존재들이다.\n\
-        거대한 크기 탓에 이들은 흔히 공포의 대상으로 여겨지지만, 대체적으로 이들은 인간을 먼저 공격하지는 않는다.\n\
-        또한 이들은 말을 할 수 있는 수준의 지성을 가지고 있으며, 도구를 만들어 사용하는 것이 관찰되기도 했다.\n\
-        그러나 한 번 폭주하기 시작하면 이들은 오우거, 트롤과는 비교도 되지 않을 정도의 끔찍한 결과를 초래하기 때문에 각별한 주의가 필요하다.\
-        ",
-    actor_quote="저놈들을 잘 길들여 병사로 만들면 우리 제국은 최강이 될 게야. 젊을 적의 영광을 다시 보는 날이 오면 좋겠구만.",
+    entity_desc=("자이언트는 오우거, 트롤 등의 야수들보다도 더 큰 몸집을 가졌지만, 이들에 비하면 비교적 이성적인 존재이다. "
+        "거대한 크기 탓에 이들은 흔히 공포의 대상으로 여겨지지만, 대체적으로 이들은 인간을 먼저 공격하지는 않는다. "
+        "또한 이들은 말을 할 수 있는 수준의 지성을 가지고 있으며, 도구를 만들어 사용하는 것이 관찰되기도 했다. "
+        "그러나 한 번 폭주하기 시작하면 이들은 오우거, 트롤과는 비교도 되지 않을 정도의 끔찍한 결과를 초래하기 때문에 각별한 주의가 필요하다. "),
+    actor_quote=("저놈들을 잘 길들여 병사로 만들면 우리 제국은 최강이 될 게야. 젊을 적의 영광을 다시 보는 날이 오면 좋겠구만. "),
     rarity=3,
     weight=4802,
     spawnable=True,
@@ -1973,13 +1938,13 @@ giant = Actor(
     ability_inventory=AbilityInventory(capacity=2),
     equipments=Equipments(),
 )
-monster_difficulty[giant.status.difficulty].append(giant)
+ActorDB.monster_difficulty[giant.status.difficulty].append(giant)
 
 
 ######################################### Adding monsters to actual database ############################################
 # This code will run when the program starts.
-# "monster_rarity_for_each_difficulty" contains lists of monsters' rarity for each difficulty level.
+# "ActorDB.monster_rarity_for_each_difficulty" contains lists of monsters' rarity for each difficulty level.
 # This lists are used as weigth value when the game generates monsters.
-for diff in list(monster_difficulty.keys()):
-    for actor in monster_difficulty[diff]:
-        monster_rarity_for_each_difficulty[diff].append(actor.rarity)
+for diff in list(ActorDB.monster_difficulty.keys()):
+    for actor in ActorDB.monster_difficulty[diff]:
+        ActorDB.monster_rarity_for_each_difficulty[diff].append(actor.rarity)

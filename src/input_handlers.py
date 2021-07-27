@@ -1454,7 +1454,13 @@ class LookHandler(SelectIndexHandler):
 
     def on_index_selected(self, x: int, y: int) -> None:
         """Return to main handler."""
-        self.engine.event_handler = MainGameEventHandler()
+        actor = self.engine.game_map.get_actor_at_location(x, y)
+        if actor:
+            from book import MonsterInfoHandler
+            self.engine.event_handler = MonsterInfoHandler(actor, page=None)
+            return None
+        else: #TODO: What if item is selected?
+            self.engine.event_handler = MainGameEventHandler()
 
 
 class MagicMappingLookHandler(LookHandler):

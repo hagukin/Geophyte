@@ -55,6 +55,10 @@ def init_game_variables(cfg, console: Console, context: Context):
     # Generate Camea
     engine.camera = camera.Camera(engine, width=cfg["camera_width"], height=cfg["camera_height"], display_x=cfg["camera_xpos"], display_y=cfg["camera_ypos"])
 
+    # Give player a complete encyclopedia TODO: delete?
+    from loader.data_loader import save_actor_book
+    save_actor_book(get_all_monsters=True)
+
     return engine
 
 def update_game_variables(engine: Engine):

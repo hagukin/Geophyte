@@ -44,24 +44,24 @@ def save_actor_book(get_all_monsters: bool=False):
         if get_all_monsters:
             # reset and init dictionary
             from book import monchar
-            temp = {"actors": {}}
+            temp = {}
             for c in monchar:
-                temp["actors"][str(c)] = {
+                temp[str(c)] = {
                     "a":None,"b":None,"c":None,"d":None,"e":None,"f":None,"g":None,"h":None,"i":None,"j":None,"k":None,"l":None,"m":None,"n":None,"o":None,"p":None,"q":None,"r":None,"s":None,"t":None,"u":None,"v":None,"w":None,"x":None,"y":None,"z":None,
                     "A":None,"B":None,"C":None,"D":None,"E":None,"F":None,"G":None,"H":None,"I":None,"J":None,"K":None,"L":None,"M":None,"N":None,"O":None,"P":None,"Q":None,"R":None,"S":None,"T":None,"U":None,"V":None,"W":None,"X":None,"Y":None,"Z":None
                 }
 
             # Insert data
-            from actor_factories import monster_difficulty
-            for monllist in monster_difficulty.values():
+            from actor_factories import ActorDB
+            for monllist in ActorDB.monster_difficulty.values():
                 if monllist:
                     for m in monllist:
-                        for key, val in temp["actors"][m.char].items():
+                        for key, val in temp[m.char].items():
                             if val == None:
-                                temp["actors"][m.char][key] = m.entity_id
+                                temp[m.char][key] = m.entity_id
                                 break
 
-            f = temp
+            f["actors"] = temp
 
 
 def load_book():
@@ -71,5 +71,5 @@ def load_book():
 
     import book
     with shelve.open(os.getcwd() + "\\saves\\book\\book", "r") as b:
-        book.actor_db = b["actor"]
+        book.actor_db = b["actors"]
     return book.actor_db
