@@ -251,10 +251,10 @@ class Engine:
                 actor.actor_state.actor_submerged()
                 if not actor.actor_state.is_underwater and actor.actor_state.was_submerged:
                     # actor moved from deep water to shallow water
-                    actor.status.reset_bonuses(["bonus_dexterity", "bonus_agility"])
+                    actor.status.remove_bonus("submerged_bonus")
             elif actor.actor_state.was_submerged:
                 # actor is completely out of water
-                actor.status.reset_bonuses(["bonus_dexterity", "bonus_agility"])
+                actor.status.remove_bonus("submerged_bonus")
             # Drowning
             if actor.actor_state.is_drowning != [0,0]:
                 actor.actor_state.actor_drowning()

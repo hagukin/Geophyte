@@ -7,7 +7,6 @@ from animation import Animation
 from entity import Actor
 from components.base_component import BaseComponent
 from exceptions import Impossible
-from input_handlers import AreaRangedAttackHandler, MagicMappingLookHandler, SingleRangedAttackHandler, RayRangedInputHandler, InventoryChooseItemAndCallbackHandler
 from order import InventoryOrder
 from korean import grammar as g
 from tiles import TileUtil
@@ -59,6 +58,8 @@ class SelectTileReadable(Readable):
             return self.item_use_cancelled(actor=consumer)
 
         self.engine.message_log.add_message("목표 지점을 선택하세요.", color.help_msg)
+
+        from input_handlers import SingleRangedAttackHandler
         self.engine.event_handler = SingleRangedAttackHandler(
             callback=lambda xy: actions.ReadItem(consumer, self.parent, xy),
             item_cancel_callback=lambda x: self.get_action(consumer, x),
@@ -123,7 +124,6 @@ class ScrollOfTameReadable(SelectTileReadable):
         else:
             # Try taming
             if target.ai.try_tame(consumer, 3): #TODO FIXME: Adjust tame power
-
                 # Log
                 if consumer == self.engine.player:
                     self.engine.message_log.add_message(f"{g(target.name, '을')} 길들였다!", color.status_effect_applied, target=target)
@@ -146,6 +146,8 @@ class SelectItemFromInventoryReadable(Readable):
             return self.item_use_cancelled(actor=consumer)
 
         self.engine.message_log.add_message("아이템을 선택하세요.", color.help_msg)
+
+        from input_handlers import InventoryChooseItemAndCallbackHandler
         self.engine.event_handler = InventoryChooseItemAndCallbackHandler(
             inventory_component=consumer.inventory,
             show_only_types=None, # If item_type filter is needed, you should override this entire function.
@@ -173,6 +175,8 @@ class ScrollOfEnchantmentReadable(SelectItemFromInventoryReadable):
             return self.item_use_cancelled(actor=consumer)
 
         self.engine.message_log.add_message("마법 강화할 아이템을 선택하세요.", color.help_msg)
+
+        from input_handlers import InventoryChooseItemAndCallbackHandler
         self.engine.event_handler = InventoryChooseItemAndCallbackHandler(
             inventory_component=consumer.inventory,
             show_only_types=(
@@ -207,6 +211,8 @@ class ScrollOfIdentifyReadable(SelectItemFromInventoryReadable):
             return self.item_use_cancelled(actor=consumer)
 
         self.engine.message_log.add_message("감정할 아이템을 선택하세요.", color.help_msg)
+
+        from input_handlers import InventoryChooseItemAndCallbackHandler
         self.engine.event_handler = InventoryChooseItemAndCallbackHandler(
             inventory_component=consumer.inventory,
             show_only_status=("unidentified-all", "semi-identified-all"), # NOTE: WARNING - If you pass only one parameter, additional comma is needed inside tuple to prevent passing the data in string form
@@ -229,6 +235,8 @@ class ScrollOfRemoveCurseReadable(SelectItemFromInventoryReadable):
             return self.item_use_cancelled(actor=consumer)
 
         self.engine.message_log.add_message("저주를 해제할 아이템을 선택하세요.", color.help_msg)
+
+        from input_handlers import InventoryChooseItemAndCallbackHandler
         self.engine.event_handler = InventoryChooseItemAndCallbackHandler(
             inventory_component=consumer.inventory,
             show_only_status=("unidentified-all", "semi-identified-all", "full-identified-cursed",),
@@ -278,7 +286,8 @@ class ScrollOfMagicMappingReadable(Readable): #TODO: make parent class like othe
             for y in range(len(self.engine.game_map.explored[0])):
                 for x in range(len(self.engine.game_map.explored)):
                     self.engine.game_map.explored[x, y] = True
-    
+
+        from input_handlers import MagicMappingLookHandler
         self.engine.event_handler = MagicMappingLookHandler(
             callback=lambda trash_value: actions.ReadItem(consumer, self.parent),
         )#NOTE: Has no item_cancel_callback parameter, since the item already has been consumed.
@@ -298,6 +307,8 @@ class ScrollOfMeteorStormReadable(Readable): #TODO: Make parent class like other
         self.engine.message_log.add_message(
             "목표 지점을 선택하세요.", color.help_msg
         )
+
+        from input_handlers import AreaRangedAttackHandler
         self.engine.event_handler = AreaRangedAttackHandler(
             radius=self.radius,
             callback=lambda xy: actions.ReadItem(consumer, self.parent, xy),
@@ -413,6 +424,8 @@ class RayReadable(Readable):
         self.engine.message_log.add_message(
             "방향을 선택하세요. (1~9)", color.help_msg
         )
+
+        from input_handlers import RayRangedInputHandler
         self.engine.event_handler = RayRangedInputHandler(
             actor=consumer,
             max_range=self.max_range,

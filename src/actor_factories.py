@@ -176,13 +176,13 @@ shopkeeper = Actor(
         protection=35,
         eyesight=80,
         hearing=30,
-        fire_resistance=0.9,
-        poison_resistance=0.9,
-        cold_resistance=0.9,
-        acid_resistance=0.9,
+        fire_resistance=0.5,
+        poison_resistance=0.5,
+        cold_resistance=0.5,
+        acid_resistance=0.5,
         psychic_resistance=0.9,
         sleep_resistance=0.9,
-        shock_resistance=0.9,
+        shock_resistance=0.5,
         magic_resistance=0.9,
         ),
     actor_state=ActorState(
@@ -192,15 +192,20 @@ shopkeeper = Actor(
         sexuality="male",
         can_swim=True,
         can_breathe_underwater=True,
-        has_telepathy=True,
+        has_telepathy=True, # Shopkeeper has telepathy
         can_think=True,
         can_talk=True
     ),
     inventory=Inventory(capacity=52, is_fireproof=True),
     ability_inventory=AbilityInventory(capacity=10),
     equipments=Equipments(),
-    initial_items=[],
-    initial_equipments=[],
+    initial_items=[
+        (item_factories.scroll_of_enchantment, 0.8, (1,1)),
+        (item_factories.shine, 1, (402,1003)),
+    ],
+    initial_equipments=[
+        (item_factories.merchant_robe, 1),
+    ],
     initial_abilities=[],
 )
 ActorDB.monster_difficulty[shopkeeper.status.difficulty].append(shopkeeper)
@@ -1051,12 +1056,17 @@ nymph = Actor(
         has_soul=True,
         can_talk=True,
     ),
-    inventory=Inventory(capacity=1),
+    inventory=Inventory(capacity=3),
     ability_inventory=AbilityInventory(capacity=2),
     equipments=Equipments(),
-    initial_items=[],
-    initial_equipments=[],
-    initial_abilities=[(ability_factories.steal, 1)]
+    initial_items=[
+            (item_factories.scroll_of_lightning, 0.2, (1,1)),
+            (item_factories.shine, 1, (0,120)),
+    ],
+    initial_equipments=[
+        (item_factories.silk_dress, 1),
+    ],
+    initial_abilities=[(ability_factories.steal, 1)],
 )
 ActorDB.monster_difficulty[nymph.status.difficulty].append(nymph)
 
@@ -1860,7 +1870,7 @@ ogre = Actor(
         difficulty=9,
         base_melee=25,
         additional_melee=20,
-        protection=19,
+        protection=18,
         hearing=15,
         eyesight=13,
         ),
@@ -1879,7 +1889,7 @@ ogre = Actor(
     ability_inventory=AbilityInventory(capacity=2),
     equipments=Equipments(),
     initial_equipments=[
-        (item_factories.giant_wood_club, 1),
+        (item_factories.rags, 1),
     ]
 )
 ActorDB.monster_difficulty[ogre.status.difficulty].append(ogre)
@@ -1915,9 +1925,9 @@ giant = Actor(
         constitution=13,
         charm=18,
         difficulty=19,
-        base_melee=45,
-        additional_melee=9,
-        protection=19,
+        base_melee=39,
+        additional_melee=1,
+        protection=18,
         hearing=10,
         eyesight=14,
         fire_resistance=0.5,
@@ -1943,6 +1953,10 @@ giant = Actor(
     inventory=Inventory(capacity=5),
     ability_inventory=AbilityInventory(capacity=2),
     equipments=Equipments(),
+    initial_equipments=[
+        (item_factories.giant_wood_club, 0.9),
+        (item_factories.rags, 1),
+    ]
 )
 ActorDB.monster_difficulty[giant.status.difficulty].append(giant)
 

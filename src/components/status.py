@@ -11,13 +11,71 @@ import math
 
 from components.base_component import BaseComponent
 from game_map import GameMap
-from input_handlers import GameOverEventHandler
 from korean import grammar as g
 
 if TYPE_CHECKING:
     from entity import Actor
 
 def clamp(n, smallest, largest): return max(smallest, min(n, largest))
+
+class Bonus():
+    """Indicates a single buff/debuff effect."""
+    def __init__(self,
+        bonus_id: str,
+        bonus_hp=0,
+        bonus_max_hp=0,
+        bonus_mp=0,
+        bonus_max_mp=0,
+        bonus_strength=0,
+        bonus_dexterity=0,
+        bonus_agility=0,
+        bonus_intelligence=0,
+        bonus_constitution=0,
+        bonus_charm=0,
+
+        bonus_base_melee=0,
+        bonus_additional_melee=0,
+        bonus_protection=0,
+        bonus_eyesight=0,
+        bonus_hearing=0,
+
+        bonus_fire_resistance: float=0,
+        bonus_poison_resistance: float=0,
+        bonus_cold_resistance: float=0,
+        bonus_acid_resistance: float=0,
+        bonus_psychic_resistance: float=0,
+        bonus_sleep_resistance: float=0,
+        bonus_shock_resistance: float=0,
+        bonus_magic_resistance: float=0,
+         ):
+        self.bonus_id = bonus_id
+
+        self.bonus_hp = bonus_hp
+        self.bonus_max_hp = bonus_max_hp
+        self.bonus_mp = bonus_mp
+        self.bonus_max_mp = bonus_max_mp
+        self.bonus_strength = bonus_strength
+        self.bonus_dexterity = bonus_dexterity
+        self.bonus_agility = bonus_agility
+        self.bonus_intelligence = bonus_intelligence
+        self.bonus_constitution = bonus_constitution
+        self.bonus_charm = bonus_charm
+        self.bonus_base_melee = bonus_base_melee
+        self.bonus_additional_melee = bonus_additional_melee
+        self.bonus_protection = bonus_protection
+
+        self.bonus_eyesight = bonus_eyesight
+        self.bonus_hearing = bonus_hearing
+
+        self.bonus_fire_resistance = bonus_fire_resistance
+        self.bonus_poison_resistance = bonus_poison_resistance
+        self.bonus_cold_resistance = bonus_cold_resistance
+        self.bonus_acid_resistance = bonus_acid_resistance
+        self.bonus_psychic_resistance = bonus_psychic_resistance
+        self.bonus_sleep_resistance = bonus_sleep_resistance
+        self.bonus_shock_resistance = bonus_shock_resistance
+        self.bonus_magic_resistance = bonus_magic_resistance
+
 
 class Status(BaseComponent):
     def __init__(self,
@@ -46,23 +104,6 @@ class Status(BaseComponent):
     # Hearing(listening radius)
     hearing=15,
 
-    # Bonus
-    bonus_hp=0,
-    bonus_max_hp=0,
-    bonus_mp=0,
-    bonus_max_mp=0,
-    bonus_strength=0,
-    bonus_dexterity=0,
-    bonus_agility=0,
-    bonus_intelligence=0,
-    bonus_constitution=0,
-    bonus_charm=0,
-    bonus_base_melee=0,
-    bonus_additional_melee=0,
-    bonus_protection=0,
-    bonus_eyesight=0,
-    bonus_hearing=0,
-
     # Resistances
     fire_resistance: float=0,
     poison_resistance: float=0,
@@ -72,16 +113,6 @@ class Status(BaseComponent):
     sleep_resistance: float=0,
     shock_resistance: float=0,
     magic_resistance: float=0,
-
-    # Bonus Resistances
-    bonus_fire_resistance: float=0,
-    bonus_poison_resistance: float=0,
-    bonus_cold_resistance: float=0,
-    bonus_acid_resistance: float=0,
-    bonus_psychic_resistance: float=0,
-    bonus_sleep_resistance: float=0,
-    bonus_shock_resistance: float=0,
-    bonus_magic_resistance: float=0,
     ):
         super().__init__(None)
         self.difficulty = None
@@ -107,22 +138,7 @@ class Status(BaseComponent):
         self.eyesight = eyesight
         self.hearing = hearing
 
-        self.bonus_hp = bonus_hp
-        self.bonus_max_hp = bonus_max_hp
-        self.bonus_mp = bonus_mp
-        self.bonus_max_mp = bonus_max_mp
-        self.bonus_strength = bonus_strength
-        self.bonus_dexterity = bonus_dexterity
-        self.bonus_agility = bonus_agility
-        self.bonus_intelligence = bonus_intelligence
-        self.bonus_constitution = bonus_constitution
-        self.bonus_charm = bonus_charm
-        self.bonus_base_melee = bonus_base_melee
-        self.bonus_additional_melee = bonus_additional_melee
-        self.bonus_protection = bonus_protection
-
-        self.bonus_eyesight = bonus_eyesight
-        self.bonus_hearing = bonus_hearing
+        self.bonuses = {}
 
         self.fire_resistance = fire_resistance
         self.poison_resistance = poison_resistance
@@ -133,14 +149,166 @@ class Status(BaseComponent):
         self.shock_resistance = shock_resistance
         self.magic_resistance = magic_resistance
 
-        self.bonus_fire_resistance = bonus_fire_resistance
-        self.bonus_poison_resistance = bonus_poison_resistance
-        self.bonus_cold_resistance = bonus_cold_resistance
-        self.bonus_acid_resistance = bonus_acid_resistance
-        self.bonus_psychic_resistance = bonus_psychic_resistance
-        self.bonus_sleep_resistance = bonus_sleep_resistance
-        self.bonus_shock_resistance = bonus_shock_resistance
-        self.bonus_magic_resistance = bonus_magic_resistance
+    @property
+    def bonus_hp(self):
+        tmp = 0
+        for bonus in self.bonuses.values():
+            tmp += bonus.bonus_hp
+        return tmp
+
+    @property
+    def bonus_max_hp(self):
+        tmp = 0
+        for bonus in self.bonuses.values():
+            tmp += bonus.bonus_max_hp
+        return tmp
+
+    @property
+    def bonus_mp(self):
+        tmp = 0
+        for bonus in self.bonuses.values():
+            tmp += bonus.bonus_mp
+        return tmp
+
+    @property
+    def bonus_max_mp(self):
+        tmp = 0
+        for bonus in self.bonuses.values():
+            tmp += bonus.bonus_max_mp
+        return tmp
+
+    @property
+    def bonus_strength(self):
+        tmp = 0
+        for bonus in self.bonuses.values():
+            tmp += bonus.bonus_strength
+        return tmp
+
+    @property
+    def bonus_dexterity(self):
+        tmp = 0
+        for bonus in self.bonuses.values():
+            tmp += bonus.bonus_dexterity
+        return tmp
+
+    @property
+    def bonus_agility(self):
+        tmp = 0
+        for bonus in self.bonuses.values():
+            tmp += bonus.bonus_agility
+        return tmp
+
+    @property
+    def bonus_intelligence(self):
+        tmp = 0
+        for bonus in self.bonuses.values():
+            tmp += bonus.bonus_intelligence
+        return tmp
+
+    @property
+    def bonus_constitution(self):
+        tmp = 0
+        for bonus in self.bonuses.values():
+            tmp += bonus.bonus_constitution
+        return tmp
+
+    @property
+    def bonus_charm(self):
+        tmp = 0
+        for bonus in self.bonuses.values():
+            tmp += bonus.bonus_charm
+        return tmp
+
+    @property
+    def bonus_base_melee(self):
+        tmp = 0
+        for bonus in self.bonuses.values():
+            tmp += bonus.bonus_base_melee
+        return tmp
+
+    @property
+    def bonus_additional_melee(self):
+        tmp = 0
+        for bonus in self.bonuses.values():
+            tmp += bonus.bonus_additional_melee
+        return tmp
+
+    @property
+    def bonus_protection(self):
+        tmp = 0
+        for bonus in self.bonuses.values():
+            tmp += bonus.bonus_protection
+        return tmp
+
+    @property
+    def bonus_eyesight(self):
+        tmp = 0
+        for bonus in self.bonuses.values():
+            tmp += bonus.bonus_eyesight
+        return tmp
+
+    @property
+    def bonus_hearing(self):
+        tmp = 0
+        for bonus in self.bonuses.values():
+            tmp += bonus.bonus_hearing
+        return tmp
+
+    @property
+    def bonus_fire_resistance(self):
+        tmp = 0
+        for bonus in self.bonuses.values():
+            tmp += bonus.bonus_fire_resistance
+        return tmp
+
+    @property
+    def bonus_poison_resistance(self):
+        tmp = 0
+        for bonus in self.bonuses.values():
+            tmp += bonus.bonus_poison_resistance
+        return tmp
+
+    @property
+    def bonus_cold_resistance(self):
+        tmp = 0
+        for bonus in self.bonuses.values():
+            tmp += bonus.bonus_cold_resistance
+        return tmp
+
+    @property
+    def bonus_acid_resistance(self):
+        tmp = 0
+        for bonus in self.bonuses.values():
+            tmp += bonus.bonus_acid_resistance
+        return tmp
+
+    @property
+    def bonus_psychic_resistance(self):
+        tmp = 0
+        for bonus in self.bonuses.values():
+            tmp += bonus.bonus_psychic_resistance
+        return tmp
+
+    @property
+    def bonus_sleep_resistance(self):
+        tmp = 0
+        for bonus in self.bonuses.values():
+            tmp += bonus.bonus_sleep_resistance
+        return tmp
+
+    @property
+    def bonus_shock_resistance(self):
+        tmp = 0
+        for bonus in self.bonuses.values():
+            tmp += bonus.bonus_shock_resistance
+        return tmp
+
+    @property
+    def bonus_magic_resistance(self):
+        tmp = 0
+        for bonus in self.bonuses.values():
+            tmp += bonus.bonus_magic_resistance
+        return tmp
 
     @property
     def origin_status(self):
@@ -202,78 +370,20 @@ class Status(BaseComponent):
             }
         return changed_status
 
-    def reset_bonuses(self, status_types: List[str]=None):
-        """
-        reset all status bonuses (except for equipments bonuses)
+    def add_bonus(self, bonus: Bonus) -> None:
+        # Removed the lines below because there are too many cases of overwriting a bonus.
+        # if bonus.bonus_id in self.bonuses.keys(): # If there is bonus of same id, replace it.
+        #     print(f"WARNING::status - bonus {bonus.bonus_id} has been overwritten.")
+        self.bonuses[bonus.bonus_id] = bonus
 
-        Args:
-            status_types:
-                ex. ["bonus_strength", "bonus_agility"] to remove bonus for strength and agility
-                If you want to reset everything, pass "all"
-        """
-        # Get list of equipped items
-        equipments_list = list(self.parent.equipments.equipments.values())
-
-        if equipments_list:
-            # temporarily remove bonuses granted from equipments
-            for item in equipments_list:
-                if item:
-                    self.parent.equipments.remove_equipable_bonuses(item)
-
-        # reset bonus
-        for stat_type in status_types:
-            if stat_type == "bonus_hp" or stat_type == "all":
-                self.bonus_hp = 0
-            if stat_type == "bonus_mp" or stat_type == "all":
-                self.bonus_mp = 0
-            if stat_type == "bonus_max_hp" or stat_type == "all":
-                self.bonus_max_hp = 0
-            if stat_type == "bonus_max_mp" or stat_type == "all":
-                self.bonus_max_mp = 0
-            if stat_type == "bonus_strength" or stat_type == "all":
-                self.bonus_strength = 0
-            if stat_type == "bonus_dexterity" or stat_type == "all":
-                self.bonus_dexterity = 0
-            if stat_type == "bonus_intelligence" or stat_type == "all":
-                self.bonus_intelligence = 0
-            if stat_type == "bonus_agility" or stat_type == "all":
-                self.bonus_agility = 0
-            if stat_type == "bonus_charm" or stat_type == "all":
-                self.bonus_charm = 0
-            if stat_type == "bonus_constitution" or stat_type == "all":
-                self.bonus_constitution = 0
-            if stat_type == "bonus_base_melee" or stat_type == "all":
-                self.bonus_base_melee = 0
-            if stat_type == "bonus_additional_melee" or stat_type == "all":
-                self.bonus_additional_melee = 0
-            if stat_type == "bonus_protection" or stat_type == "all":
-                self.bonus_protection = 0
-            if stat_type == "bonus_eyesight" or stat_type == "all":
-                self.bonus_eyesight = 0
-            if stat_type == "bonus_hearing" or stat_type == "all":
-                self.bonus_hearing = 0
-            if stat_type == "bonus_fire_resistance" or stat_type == "all":
-                self.bonus_fire_resistance = 0
-            if stat_type == "bonus_poison_resistance" or stat_type == "all":
-                self.bonus_poison_resistance = 0
-            if stat_type == "bonus_acid_resistance" or stat_type == "all":
-                self.bonus_acid_resistance = 0
-            if stat_type == "bonus_cold_resistance" or stat_type == "all":
-                self.bonus_cold_resistance = 0
-            if stat_type == "bonus_psychic_resistance" or stat_type == "all":
-                self.bonus_psychic_resistance = 0
-            if stat_type == "bonus_sleep_resistance" or stat_type == "all":
-                self.bonus_sleep_resistance = 0
-            if stat_type == "bonus_shock_resistance" or stat_type == "all":
-                self.bonus_shock_resistance = 0
-            if stat_type == "bonus_magic_resistance" or stat_type == "all":
-                self.bonus_magic_resistance = 0
-
-        if equipments_list:
-            # re-apply bonuses for each equipments
-            for item in equipments_list:
-                if item:
-                    self.parent.equipments.add_equipable_bonuses(item)
+    def remove_bonus(self, bonus_id: str) -> None:
+        try:
+            del self.bonuses[bonus_id]
+        except KeyError:
+            print(f"WARNING::TRIED TO REMOVE key-{bonus_id} BONUS BUT IT DOES NOT EXIST.")
+            return None
+        except:
+            raise Exception("FATAL ERROR::status.remove_bonus()")
 
     def death(self, cause: str="low_hp") -> None:
         self.parent.actor_state.is_dead = True
@@ -294,6 +404,7 @@ class Status(BaseComponent):
         if self.engine.player is self.parent:
             death_message += "당신은 죽었다!"
             death_message_color = color.player_die
+            from input_handlers import GameOverEventHandler
             self.engine.event_handler = GameOverEventHandler()
         elif self.engine.game_map.visible[self.parent.x, self.parent.y]:  # if dead entity is in player's visible range
             death_message += f"{g(self.parent.name, '이')} 죽었다!"
@@ -442,10 +553,12 @@ class Status(BaseComponent):
 
     def gain_strength(self, amount):
         self._strength += amount
+        self.parent.inventory.update_burden()
         return amount
     
     def lose_strength(self, amount):
         self._strength -= amount
+        self.parent.inventory.update_burden()
         return amount
 
 

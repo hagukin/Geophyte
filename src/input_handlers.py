@@ -217,7 +217,7 @@ class ItemUseCancelHandler(AskUserEventHandler):
 
     def on_render(self, console: tcod.Console,) -> None:
         super().on_render(console)
-        self.engine.draw_window(console, text="정말 아이템 사용을 취소하시겠습니까? 아이템은 여전히 소모됩니다. (Y/N)", title="아이템 사용 취소", frame_fg=color.lime, frame_bg=color.gui_inventory_bg)
+        self.engine.draw_window(console, text="정말 아이템 사용을 취소하시겠습니까? 아이템은 여전히 소모됩니다. (Y/N)", title="아이템 사용 취소", frame_fg=color.red, frame_bg=color.gui_inventory_bg)
 
     def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[Action]:
         if event.sym == tcod.event.K_y or event.sym == tcod.event.K_KP_ENTER:
@@ -244,6 +244,25 @@ class SaveInputHandler(AskUserEventHandler):
             save_game(player=player, engine=engine)
         elif event.sym == tcod.event.K_n or event.sym == tcod.event.K_ESCAPE:
             self.engine.message_log.add_message(f"저장 취소됨.", color.lime, stack=False)
+        return super().ev_keydown(event)
+
+
+class DangerousTileWalkHandler(AskUserEventHandler):
+    def __init__(self, dx: int, dy: int):
+        super().__init__()
+        self.dx = dx
+        self.dy = dy
+
+    def on_render(self, console: tcod.Console) -> None:
+        super().on_render(console)
+        self.engine.draw_window(console, text="정말 해당 위치로 이동하시겠습니까? (Y/N)", title="위험할 수 있는 타일로 이동", frame_fg=color.red, frame_bg=color.gui_inventory_bg)
+
+    def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[Action]:
+        if event.sym == tcod.event.K_y or event.sym == tcod.event.K_KP_ENTER:
+            self.on_exit()
+            return MovementAction(self.engine.player, self.dx, self.dy).perform()
+        elif event.sym == tcod.event.K_n or event.sym == tcod.event.K_ESCAPE:
+            self.on_exit()
         return super().ev_keydown(event)
 
 

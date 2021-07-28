@@ -4,7 +4,6 @@ from typing import Optional, List
 from animation import Animation
 from components.base_component import BaseComponent
 from entity import Actor, SemiActor, Entity
-from input_handlers import ForceAttackInputHandler, RayRangedInputHandler
 from korean import grammar as g
 from tiles import TileUtil
 
@@ -94,6 +93,7 @@ class Throwable(BaseComponent):
         self.engine.message_log.add_message(
             "방향을 선택하세요.", color.help_msg
         )
+        from input_handlers import RayRangedInputHandler
         self.engine.event_handler = RayRangedInputHandler(
             actor=thrower,
             max_range=self.throw_distance(thrower),

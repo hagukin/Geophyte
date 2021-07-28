@@ -290,6 +290,34 @@ def render_character_state(
         else:
             num1 += 1
             console.print(x=lane1_x, y=y+num1, string="공중 부양", fg=color.white)
+    if character.actor_state.encumbrance == 1:
+        if num1 > window_height:
+            num2 += 1
+            console.print(x=lane2_x, y=y+num2, string="다소 과적재", fg=color.burdened)
+        else:
+            num1 += 1
+            console.print(x=lane1_x, y=y+num1, string="다소 과적재", fg=color.burdened)
+    if character.actor_state.encumbrance == 2:
+        if num1 > window_height:
+            num2 += 1
+            console.print(x=lane2_x, y=y+num2, string="과적재", fg=color.stressed)
+        else:
+            num1 += 1
+            console.print(x=lane1_x, y=y+num1, string="과적재", fg=color.stressed)
+    if character.actor_state.encumbrance == 3:
+        if num1 > window_height:
+            num2 += 1
+            console.print(x=lane2_x, y=y+num2, string="심각한 과적재", fg=color.overloaded)
+        else:
+            num1 += 1
+            console.print(x=lane1_x, y=y+num1, string="심각한 과적재", fg=color.overloaded)
+    if character.actor_state.encumbrance == 4:
+        if num1 > window_height:
+            num2 += 1
+            console.print(x=lane2_x, y=y+num2, string="치명적인 과적재", fg=color.overloaded)
+        else:
+            num1 += 1
+            console.print(x=lane1_x, y=y+num1, string="치명적인 과적재", fg=color.overloaded)
     if character.actor_state.is_submerged:
         if character.actor_state.is_underwater:
             if num1 > window_height:

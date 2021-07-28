@@ -565,6 +565,29 @@ item_rarity.append(scroll_of_remove_curse.rarity)
 ################################ ARMORS #################################
 #########################################################################
 
+### Rags
+rags = Item(
+    char="[",
+    fg=(231, 255, 173),
+    name="천쪼가리",
+    entity_id="rags",
+    entity_desc="rags desc",
+    rarity=1,
+    weight=0.3,
+    price=1,
+    item_type=InventoryOrder.ARMOR,
+    item_state=ItemState(is_identified=1),
+    spawnable=True,
+    flammable=1,
+    droppable=True,
+    stackable=False,
+    throwable=throwable.NormalThrowable(air_friction=40),
+    equipable=equipable.RagsEquipable()
+)
+temp_items_lists.append(rags)
+item_rarity.append(rags.rarity)
+
+
 ### Leather Armor
 leather_armor = Item(
     char="[",
@@ -578,7 +601,7 @@ leather_armor = Item(
     item_type=InventoryOrder.ARMOR,
     item_state=ItemState(is_identified=1),
     spawnable=True,
-    flammable=1,##DEBUG
+    flammable=0.08,
     droppable=True,
     stackable=False,
     throwable=throwable.NormalThrowable(),
@@ -586,6 +609,52 @@ leather_armor = Item(
 )
 temp_items_lists.append(leather_armor)
 item_rarity.append(leather_armor.rarity)
+
+
+### Merchant robe
+merchant_robe = Item(
+    char="[",
+    fg=(120, 60, 250),
+    name="상인의 로브",
+    entity_id="merchant_robe",
+    entity_desc="Merchant Robe desc",
+    rarity=0,
+    weight=3.3,
+    price=410,
+    item_type=InventoryOrder.ARMOR,
+    item_state=ItemState(is_identified=1),
+    spawnable=False,
+    flammable=0,
+    droppable=True,
+    stackable=False,
+    throwable=throwable.NormalThrowable(air_friction=25),
+    equipable=equipable.MerchantRobeEquipable()
+)
+temp_items_lists.append(merchant_robe)
+item_rarity.append(merchant_robe.rarity)
+
+
+### Silk Dress
+silk_dress = Item(
+    char="[",
+    fg=(255, 222, 251),
+    name="실크 드레스",
+    entity_id="silk_dress",
+    entity_desc="Silk dress desc",
+    rarity=1,
+    weight=0.8,
+    price=5,
+    item_type=InventoryOrder.ARMOR,
+    item_state=ItemState(is_identified=1),
+    spawnable=True,
+    flammable=0.9,
+    droppable=True,
+    stackable=False,
+    throwable=throwable.NormalThrowable(air_friction=25),
+    equipable=equipable.SilkDressEquipable()
+)
+temp_items_lists.append(silk_dress)
+item_rarity.append(silk_dress.rarity)
 
 
 #########################################################################
@@ -669,7 +738,7 @@ item_rarity.append(longsword.rarity)
 ### Giant Wood Club
 giant_wood_club = Item(
     char=")",
-    fg=(152, 227, 226),
+    fg=(97, 53, 0),
     name="통나무 곤봉",
     entity_id="giant_wood_club",
     entity_desc="giant_wood_club desc",

@@ -9,8 +9,8 @@ def save_game(player, engine):
         # prevent pickle lib error(cannot serialize c objects)
         from game import Game
 
-        temp_console = copy.copy(Game.engine.console)
-        temp_context = copy.copy(Game.engine.context)
+        temp_console = Game.engine.console
+        temp_context = Game.engine.context
         Game.engine.console = None
         Game.engine.context = None
 

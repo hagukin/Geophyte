@@ -71,7 +71,7 @@ class Equipable(BaseComponent):
         self.possible_regions = possible_regions  # To get current equipped region, go item_state.equipped_region
         self.str_requirement = str_requirement
         self.equip_size = equip_size
-        
+
         # Default status of this item (no upgrades, no downgrades)
         self.eq_hp = hp
         self.eq_mp = mp
@@ -158,7 +158,7 @@ class Equipable(BaseComponent):
     @property
     def changed_status(self):
         """Status of the equipment's changed bonus status."""
-        origin_status = {
+        changed_status = {
             "eq_max_hp":max(0, self.eq_max_hp + self.add_max_hp),
             "eq_hp":max(0, self.eq_hp + self.add_hp),
             "eq_max_mp":max(0, self.eq_max_mp + self.add_max_mp),
@@ -183,7 +183,7 @@ class Equipable(BaseComponent):
             "eq_shock_resistance":clamp(self.eq_shock_resistance + self.add_shock_resistance, 0, 1),
             "eq_magic_resistance":clamp(self.eq_magic_resistance + self.add_magic_resistance, 0, 1),
             }
-        return origin_status
+        return changed_status
 
     @property
     def owner(self) -> Actor:
@@ -203,25 +203,40 @@ class Equipable(BaseComponent):
         Upgrade this equipment.
         And refresh the equiper's status bonus values.
         """
-        # temporary bonus removal
-        self.owner.equipments.remove_equipable_bonuses(self.parent)
-
         # actual upgrading parts
         self.upgrade += amount
         self.update_stat()
+        if self.owner:
+            self.owner.equipments.update_equipment_bonus(self.parent) # Change bonus values
 
-        # add bonuses
-        self.owner.equipments.add_equipable_bonuses(self.parent)
+        # upadte bonus
+        self.owner.equipments.update_equipment_bonus(self.parent)
 
 
 #################################################
 ################### ARMORS ######################
 #################################################
 
+class RagsEquipable(Equipable):
+    def __init__(self, upgrade=0):
+        super().__init__(
+            upgrade=upgrade,
+            equip_size=(3, 6),
+            possible_regions=("leg", "torso",),
+            str_requirement=4,
+            protection=1,
+            )
+
+    def update_stat(self):
+        super().update_stat()
+        self.add_protection = round(self.upgrade * 1.01)
+
+
 class LeatherArmorEquipable(Equipable):
     def __init__(self, upgrade=0):
         super().__init__(
             upgrade=upgrade,
+            equip_size=(3, 4),
             possible_regions=("torso",),
             str_requirement=10,
             protection=5,
@@ -229,8 +244,44 @@ class LeatherArmorEquipable(Equipable):
 
     def update_stat(self):
         super().update_stat()
-        self.add_protection = self.upgrade
+        self.add_protection = round(self.upgrade * 1.4)
 
+
+class MerchantRobeEquipable(Equipable):
+    def __init__(self, upgrade=0):
+        super().__init__(
+            upgrade=upgrade,
+            equip_size=(3, 4),
+            possible_regions=("torso", ),
+            str_requirement=6,
+            protection=4,
+            fire_resistance=0.3,
+            cold_resistance=0.3,
+            shock_resistance=0.3,
+            acid_resistance=0.3,
+            poison_resistance=0.3,
+            )
+
+    def update_stat(self):
+        super().update_stat()
+        self.add_protection = round(self.upgrade * 1.4)
+
+
+class SilkDressEquipable(Equipable):
+    def __init__(self, upgrade=0):
+        super().__init__(
+            upgrade=upgrade,
+            equip_size=(3, 4),
+            possible_regions=("torso", ),
+            protection=1,
+            magic_resistance=0.1,
+            sleep_resistance=0.6,
+            )
+
+    def update_stat(self):
+        super().update_stat()
+        self.add_protection = round(self.upgrade * 1.4)
+        self.add_sleep_resistance = self.upgrade * 0.08
 
 
 #################################################
@@ -292,9 +343,9 @@ class GiantWoodClubEquipable(Equipable):
             upgrade=upgrade,
             possible_regions=("main hand", "off hand"),
             equip_size=(5,6),
-            str_requirement=15,
-            base_melee=25,
-            additional_melee=15,
+            str_requirement=20,
+            base_melee=6,
+            additional_melee=10,
             )
 
     def update_stat(self):

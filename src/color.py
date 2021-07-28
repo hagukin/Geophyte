@@ -1,3 +1,5 @@
+import color
+
 white = (0xFF, 0xFF, 0xFF)
 black = (0x0, 0x0, 0x0)
 red = (0xFF, 0x0, 0x0)
@@ -47,6 +49,10 @@ enemy_crit = gray
 enemy_atk_missed = gray
 help_msg = (0x3F, 0xFF, 0xFF)
 status_effect_applied = (0x3F, 0xFF, 0x3F)
+burdened = color.yellow
+stressed = (255, 179, 0)
+overloaded = (255, 106, 0)
+immovable = (255, 34, 0)
 
 player_damaged = (0xff, 0x70, 0x03)
 enemy_damaged = gray

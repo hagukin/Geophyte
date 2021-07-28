@@ -4,6 +4,7 @@ from components.base_component import BaseComponent
 from components.equipable import Equipable
 from korean import grammar as g
 from util import equip_region_name_to_str
+from components.status import Bonus
 import exceptions
 
 import color
@@ -32,76 +33,54 @@ class Equipments(BaseComponent):
             "right ring":None,
             }
 
-
     def add_equipable_bonuses(self, item: Item):
         """Change parent entity's status.bonuses. (Add)"""
+        bonus = Bonus(
+            bonus_id = item.item_state.equipped_region, # id: equipped region
+            bonus_hp = item.equipable.changed_status["eq_hp"],
+            bonus_mp = item.equipable.changed_status["eq_mp"],
+            bonus_max_hp = item.equipable.changed_status["eq_max_hp"],
+            bonus_max_mp = item.equipable.changed_status["eq_max_mp"],
+            bonus_strength = item.equipable.changed_status["eq_strength"],
+            bonus_dexterity = item.equipable.changed_status["eq_dexterity"],
+            bonus_intelligence = item.equipable.changed_status["eq_intelligence"],
+            bonus_agility = item.equipable.changed_status["eq_agility"],
+            bonus_charm = item.equipable.changed_status["eq_charm"],
+            bonus_constitution = item.equipable.changed_status["eq_constitution"],
 
-        self.parent.status.bonus_hp += item.equipable.changed_status["eq_hp"]
-        self.parent.status.bonus_mp += item.equipable.changed_status["eq_mp"]
-        self.parent.status.bonus_max_hp += item.equipable.changed_status["eq_max_hp"]
-        self.parent.status.bonus_max_mp += item.equipable.changed_status["eq_max_mp"]
-        self.parent.status.bonus_strength += item.equipable.changed_status["eq_strength"]
-        self.parent.status.bonus_dexterity += item.equipable.changed_status["eq_dexterity"]
-        self.parent.status.bonus_intelligence += item.equipable.changed_status["eq_intelligence"]
-        self.parent.status.bonus_agility += item.equipable.changed_status["eq_agility"]
-        self.parent.status.bonus_charm += item.equipable.changed_status["eq_charm"]
-        self.parent.status.bonus_constitution += item.equipable.changed_status["eq_constitution"]
+            bonus_base_melee = item.equipable.changed_status["eq_base_melee"],
+            bonus_additional_melee = item.equipable.changed_status["eq_additional_melee"],
 
-        self.parent.status.bonus_base_melee += item.equipable.changed_status["eq_base_melee"]
-        self.parent.status.bonus_additional_melee += item.equipable.changed_status["eq_additional_melee"]
+            bonus_protection = item.equipable.changed_status["eq_protection"],
 
-        self.parent.status.bonus_protection += item.equipable.changed_status["eq_protection"]
+            bonus_hearing = item.equipable.changed_status["eq_hearing"],
+            bonus_eyesight = item.equipable.changed_status["eq_eyesight"],
 
-        self.parent.status.bonus_hearing += item.equipable.changed_status["eq_hearing"]
-        self.parent.status.bonus_eyesight += item.equipable.changed_status["eq_eyesight"]
+            bonus_fire_resistance = item.equipable.changed_status["eq_fire_resistance"],
+            bonus_poison_resistance = item.equipable.changed_status["eq_poison_resistance"],
+            bonus_acid_resistance = item.equipable.changed_status["eq_acid_resistance"],
+            bonus_cold_resistance = item.equipable.changed_status["eq_cold_resistance"],
+            bonus_psychic_resistance = item.equipable.changed_status["eq_psychic_resistance"],
+            bonus_sleep_resistance = item.equipable.changed_status["eq_sleep_resistance"],
+            bonus_shock_resistance = item.equipable.changed_status["eq_shock_resistance"],
+            bonus_magic_resistance = item.equipable.changed_status["eq_magic_resistance"],
+        )
+        self.parent.status.add_bonus(bonus)
 
-        self.parent.status.bonus_fire_resistance += item.equipable.changed_status["eq_fire_resistance"]
-        self.parent.status.bonus_poison_resistance += item.equipable.changed_status["eq_poison_resistance"]
-        self.parent.status.bonus_acid_resistance += item.equipable.changed_status["eq_acid_resistance"]
-        self.parent.status.bonus_cold_resistance += item.equipable.changed_status["eq_cold_resistance"]
-        self.parent.status.bonus_psychic_resistance += item.equipable.changed_status["eq_psychic_resistance"]
-        self.parent.status.bonus_sleep_resistance += item.equipable.changed_status["eq_sleep_resistance"]
-        self.parent.status.bonus_shock_resistance += item.equipable.changed_status["eq_shock_resistance"]
-        self.parent.status.bonus_magic_resistance += item.equipable.changed_status["eq_magic_resistance"]
-
-
-    def remove_equipable_bonuses(self, item: Item):
+    def remove_equipable_bonuses(self, item: Item) -> None:
         """Change parent entity's status.bonuses. (Remove)"""
+        self.parent.status.remove_bonus(item.item_state.equipped_region)
 
-        self.parent.status.bonus_hp -= item.equipable.changed_status["eq_hp"]
-        self.parent.status.bonus_mp -= item.equipable.changed_status["eq_mp"]
-        self.parent.status.bonus_max_hp -= item.equipable.changed_status["eq_max_hp"]
-        self.parent.status.bonus_max_mp -= item.equipable.changed_status["eq_max_mp"]
-        self.parent.status.bonus_strength -= item.equipable.changed_status["eq_strength"]
-        self.parent.status.bonus_dexterity -= item.equipable.changed_status["eq_dexterity"]
-        self.parent.status.bonus_intelligence -= item.equipable.changed_status["eq_intelligence"]
-        self.parent.status.bonus_agility -= item.equipable.changed_status["eq_agility"]
-        self.parent.status.bonus_charm -= item.equipable.changed_status["eq_charm"]
-        self.parent.status.bonus_constitution -= item.equipable.changed_status["eq_constitution"]
-
-        self.parent.status.bonus_base_melee -= item.equipable.changed_status["eq_base_melee"]
-        self.parent.status.bonus_additional_melee -= item.equipable.changed_status["eq_additional_melee"]
-
-        self.parent.status.bonus_protection -= item.equipable.changed_status["eq_protection"]
-
-        self.parent.status.bonus_hearing -= item.equipable.changed_status["eq_hearing"]
-        self.parent.status.bonus_eyesight -= item.equipable.changed_status["eq_eyesight"]
-
-        self.parent.status.bonus_fire_resistance -= item.equipable.changed_status["eq_fire_resistance"]
-        self.parent.status.bonus_poison_resistance -= item.equipable.changed_status["eq_poison_resistance"]
-        self.parent.status.bonus_acid_resistance -= item.equipable.changed_status["eq_acid_resistance"]
-        self.parent.status.bonus_cold_resistance -= item.equipable.changed_status["eq_cold_resistance"]
-        self.parent.status.bonus_psychic_resistance -= item.equipable.changed_status["eq_psychic_resistance"]
-        self.parent.status.bonus_sleep_resistance -= item.equipable.changed_status["eq_sleep_resistance"]
-        self.parent.status.bonus_shock_resistance -= item.equipable.changed_status["eq_shock_resistance"]
-        self.parent.status.bonus_magic_resistance -= item.equipable.changed_status["eq_magic_resistance"]
-
+    def update_equipment_bonus(self, item):
+        """Function called when equipment's stat has been changed.
+        Upgrade, debuff etc."""
+        self.remove_equipable_bonuses(item)
+        self.add_equipable_bonuses(item)
 
     def check_all_equipments_if_equipable(self):
         """Check all equipments this parent is equipping, and check if the parent satisfies the necessary condition to equip those items.
         e.g. this function is called right after an actor lose its arms/legs."""
         pass
-
 
     def can_equip_size_check(self, item: Item) -> Tuple[bool, Optional[bool]]:
         """
@@ -122,7 +101,6 @@ class Equipments(BaseComponent):
             return False, False
         else:
             return True, None
-
 
     def can_equip_region_check(self, item: Item, region: str) -> Tuple[bool, str]:
         """
@@ -275,6 +253,7 @@ class Equipments(BaseComponent):
         # Equip item, gain bonuses
         self.equipments[curr_equipped_region] = item
         item.equipable.update_stat()
+        item.item_state.equipped_region = curr_equipped_region
         self.add_equipable_bonuses(item)
 
         if not forced:
@@ -282,7 +261,6 @@ class Equipments(BaseComponent):
                 self.engine.message_log.add_message(f"당신은 {g(item.name, '을')} {equip_region_name_to_str(curr_equipped_region)} 부위에 장착했다.", fg=color.health_recovered)
             else:
                 self.engine.message_log.add_message(f"{g(self.parent.name, '이')} {g(item.name, '을')} {equip_region_name_to_str(curr_equipped_region)} 부위에 장착했다.", fg=color.gray, target=self.parent)
-        item.item_state.equipped_region = curr_equipped_region
     
 
     def remove_equipment(self, region: str, forced: bool=False):# forced는 parent의 의지에 의해 이루어진 게 아닐 경우 True.

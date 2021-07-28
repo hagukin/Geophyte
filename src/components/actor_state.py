@@ -4,6 +4,7 @@ from typing import Optional, TYPE_CHECKING, List, Set, Tuple, Any
 from numpy.core.fromnumeric import sort
 from components.base_component import BaseComponent
 from korean import grammar as g
+from components.status import Bonus
 
 import random
 import math
@@ -165,6 +166,17 @@ class ActorState(BaseComponent):
         can_think: bool = True, # Has ability to make the most basic level of logical decision (e.g. feels pain -> moves away)
         can_talk: bool = False, # Is capable of speaking a language
     ):
+        """
+        Vars:
+            encumbrance:
+                Current state of burden.
+                This value is only affected by inventory weight.
+                0 - not burdened
+                1 - burdened
+                2 - stressed
+                3 - overloaded
+                4 - immovable
+        """
         super().__init__(None)
 
         self.hunger = hunger
@@ -180,6 +192,8 @@ class ActorState(BaseComponent):
         self.size = size
         self.sexuality = sexuality
         self.is_right_handed = is_right_handed
+
+        self.encumbrance = 0 # Burden bonus is handled in inventory.
 
         self.is_burning = is_burning
         self.is_poisoned = is_poisoned
@@ -377,19 +391,15 @@ class ActorState(BaseComponent):
                 fire_dmg = self.parent.status.calculate_dmg_reduction(damage=fire_dmg, damage_type="fire")
 
                 # Log before actual damage
-                self.engine.message_log.add_message(f"{g(self.parent.name, '은')} 화염으로부터 {fire_dmg} 데미지를 받았다.", fg=dmg_color, target=self.parent)
-                self.parent.status.take_damage(amount=fire_dmg)
-
-                # Log
                 if self.parent == self.engine.player:
                     dmg_color = color.player_damaged
                 else:
                     dmg_color = color.enemy_damaged
-
+                self.engine.message_log.add_message(f"{g(self.parent.name, '은')} 화염으로부터 {fire_dmg} 데미지를 받았다.", fg=dmg_color, target=self.parent)
+                self.parent.status.take_damage(amount=fire_dmg)
             
                 # Inventory on fire
                 self.parent.inventory_on_fire()
-
 
             # Chance of fire going off
             extinguish_chance = random.random()
@@ -430,11 +440,11 @@ class ActorState(BaseComponent):
             self.engine.message_log.add_message(f"{g(self.parent.name, '은')} 냉기에 저항했다!", fg=color.white, target=self.parent)
             self.apply_freezing([0, 0, 0, 0, 0])
             # Reset this actor's agility value
-            self.parent.status.reset_bonuses(["bonus_agility"]) #TODO: Might need serious reworks. currently when yoou reset the bonus the entire buffs/debuffs are resetted.
+            self.parent.status.remove_bonus("freeze_bonus")
         else:
             if self.is_freezing[3] >= self.is_freezing[4]: # If past max turn, reset stats
                 self.apply_freezing([0, 0, 0, 0, 0])
-                self.parent.status.reset_bonuses(["bonus_agility"])
+                self.parent.status.remove_bonus("freeze_bonus")
             else:
                 if self.is_freezing[3] >= 0: # Last infinitly if negative
                     self.is_freezing[3] += 1 # current_turn += 1
@@ -453,8 +463,8 @@ class ActorState(BaseComponent):
 
                 self.parent.status.take_damage(amount=cold_dmg)
 
-                # Slows actor down (stacked)
-                self.parent.status.bonus_agility -= self.is_freezing[1]
+                # Slows actor down (not stacked)
+                self.parent.status.add_bonus(Bonus("freeze_bonus", bonus_agility=-1 * self.is_freezing[1]))
 
                 # Chance of getting frozen
                 if random.random() <= self.is_freezing[2]:
@@ -466,7 +476,7 @@ class ActorState(BaseComponent):
                     self.apply_frozen([dmg, 0, turn])
                     
                     self.apply_freezing([0, 0, 0, 0, 0])
-                    self.parent.status.reset_bonuses(["bonus_agility"])
+                    self.parent.status.remove_bonus("freeze_bonus")
 
                     # Run frozen state handling method
                     self.actor_frozen()
@@ -476,7 +486,7 @@ class ActorState(BaseComponent):
             resist_chance = random.random()
             if resist_chance <= self.parent.status.changed_status["cold_resistance"]:
                 self.apply_freezing([0, 0, 0, 0, 0])
-                self.parent.status.reset_bonuses(["bonus_agility"])
+                self.parent.status.remove_bonus("freeze_bonus")
                 self.engine.message_log.add_message(f"{g(self.parent.name, '은')} 더 이상 얼어붙고 있지 않다.", fg=color.gray, target=self.parent)
 
     def actor_frozen(self):
@@ -485,7 +495,7 @@ class ActorState(BaseComponent):
         """
         if self.is_frozen[1] >= self.is_frozen[2]:# Stats reset after max turn
             self.apply_frozen([0,0,0])
-            self.parent.status.reset_bonuses(["bonus_agility"])
+            self.parent.status.remove_bonus("frozen_bonus")
         else:
             if self.is_frozen[1] >= 0: # will last infinitly if negetive
                 self.is_frozen[1] += 1 #current_turn += 1
@@ -505,13 +515,13 @@ class ActorState(BaseComponent):
             self.parent.status.take_damage(amount=cold_dmg)
 
             # slows actor down (will not stack)
-            self.parent.status.bonus_agility = -1000 # agility value will be set to 1 (it will get clamped)
+            self.parent.status.add_bonus(Bonus("frozen_bonus", bonus_agility=-1000)) # agility value will be set to 1 (it will get clamped)
 
         # Resistance
         resist_chance = random.random()
         if resist_chance <= self.parent.status.changed_status["cold_resistance"]:
             self.apply_frozen([0,0,0])
-            self.parent.status.reset_bonuses(["bonus_agility"])
+            self.parent.status.remove_bonus("frozen_bonus")
             self.engine.message_log.add_message(f"{g(self.parent.name, '은')} 더 이상 얼어있지 않다.", fg=color.white, target=self.parent)
 
     def get_connected_actors(self, prev_actors:Set = None):
@@ -701,7 +711,7 @@ class ActorState(BaseComponent):
         if self.parent.status.changed_status["poison_resistance"] >= 1:
             self.engine.message_log.add_message(f"{g(self.parent.name, '은')} 독에 저항했다!", fg=color.white, target=self.parent)
             self.apply_poisoning([0, 0, 0, 0])
-            self.parent.status.reset_bonuses(["bonus_constitution"]) # TODO: Improve buff/debuff system
+            self.parent.status.remove_bonus("poison_bonus")
         else:
             if self.is_poisoned[2] >= self.is_poisoned[3]:
                 if self.parent == self.engine.player:
@@ -709,7 +719,7 @@ class ActorState(BaseComponent):
                 else:
                     self.engine.message_log.add_message(f"{g(self.parent.name, '은')} 기운을 차린 듯 하다.", target=self.parent)
                 self.apply_poisoning([0, 0, 0, 0])
-                self.parent.status.reset_bonuses(["bonus_constitution"])
+                self.parent.status.remove_bonus("poison_bonus")
             else:
                 if self.is_poisoned[2] >= 0: # lasts forever if negative
                     self.is_poisoned[2] += 1
@@ -731,13 +741,13 @@ class ActorState(BaseComponent):
                 self.parent.status.take_damage(amount=poison_dmg)
 
                 # Lowers constitution (Debuff will stack, But there is no specific value. Constitution will reduce in half each turn.)
-                self.parent.status.bonus_constitution -= int(self.parent.status.changed_status["constitution"] / 2)
+                self.parent.status.add_bonus(Bonus("poison_bonus", bonus_constitution=-1 * int(self.parent.status.changed_status["constitution"] / 2)))
         
             # Resistance
             resist_chance = random.random()
             if resist_chance <= self.parent.status.changed_status["poison_resistance"]:
                 self.apply_poisoning([0, 0, 0, 0])
-                self.parent.status.reset_bonuses(["bonus_constitution"])
+                self.parent.status.remove_bonus("poison_bonus")
                 if self.parent == self.engine.player:
                     self.engine.message_log.add_message(f"당신은 더 이상 중독 상태가 아니다.", target=self.parent)
                 else:
@@ -761,13 +771,14 @@ class ActorState(BaseComponent):
             # Fully submerged
             if self.parent.actor_state.is_underwater:
                 # agility, dexterity reduce in half (will not stack)
-                self.parent.status.bonus_agility = min(-int(self.parent.status.changed_status["agility"] / 2), self.parent.status.bonus_agility)
-                self.parent.status.bonus_dexterity = min(-int(self.parent.status.changed_status["dexterity"] / 2), self.parent.status.bonus_dexterity)
+                self.parent.status.add_bonus(Bonus("submerged_bonus",
+                                                   bonus_agility=-1 * int(self.parent.status.changed_status["agility"] / 2),
+                                             bonus_dexterity=-1 * int(self.parent.status.changed_status["dexterity"] / 2)))
             # No debuff when partially submerged.
         
         # Actor will slowly drown if it can't swim nor breathe underwater, and it needs to breathe to live
         if self.parent.actor_state.is_drowning == [0,0] and not self.parent.actor_state.can_swim and not self.parent.actor_state.can_breathe_underwater and self.parent.actor_state.need_breathe:
-            self.apply_drowning([0, 80])##TODO
+            self.apply_drowning([0, 80])
         # Moved from deep water to shallow water while drowning (The actor is still submerged, but is_underwater is set to False)
         elif self.parent.actor_state.is_drowning != [0,0] and not self.parent.actor_state.is_underwater:
             self.apply_drowning([0, 0])
@@ -1203,3 +1214,4 @@ class ActorState(BaseComponent):
             self.apply_hallucination(value)
         elif state_name == "is_detecting_obj":
             self.apply_object_detection(value)
+

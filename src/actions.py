@@ -962,4 +962,14 @@ class BumpAction(ActionWithDirection):
         elif self.target_semiactor_bump:
             return self.target_semiactor_bump.bump_action(self.entity, self.dx, self.dy).perform()
         else:
-            return MovementAction(self.entity, self.dx, self.dy).perform()
+            if self.entity != self.engine.player:
+                return MovementAction(self.entity, self.dx, self.dy).perform()
+            else:
+                # Actor is player
+                if self.engine.game_map.check_tile_safe(self.entity.x + self.dx, self.entity.y + self.dy):
+                    return MovementAction(self.entity, self.dx, self.dy).perform()
+                else:
+                    from input_handlers import DangerousTileWalkHandler
+                    self.engine.event_handler = DangerousTileWalkHandler(dx=self.dx, dy=self.dy)
+                    self.free_action = True # Force this action to not cost a time so that yime passes after player decides whether to attack or not.
+                    return None

@@ -87,7 +87,7 @@ class GameMap:
         yield from (entity for entity in reversed(self.entities) if isinstance(entity, Item))
 
     @property
-    def semiactors(self) -> Iterator[Actor]:
+    def semiactors(self) -> Iterator[SemiActor]:
         """Iterate over this maps active semiactors, and return in list."""
         yield from (
             entity
@@ -182,7 +182,7 @@ class GameMap:
         
         return None
 
-    def get_all_semiactors_at_location(self, x: int, y: int) -> Optional[SemiActor]:
+    def get_all_semiactors_at_location(self, x: int, y: int) -> Optional[List[SemiActor]]:
         tmp = []
         for semiactor in self.semiactors:
             if semiactor.x == x and semiactor.y == y:
@@ -190,6 +190,17 @@ class GameMap:
         if len(tmp):
             return tmp
         return None
+
+    def check_tile_safe(self, x: int, y: int):
+        if self.tiles[x, y]['safe_to_walk']:
+            tmp = self.get_all_semiactors_at_location(x, y)
+            if tmp == None:
+                return True
+            for semi in tmp:
+                if not semi.safe_to_move:
+                    return False
+            return True
+        return False
 
     def get_random_tile(
             self,

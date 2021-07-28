@@ -3,8 +3,10 @@ from __future__ import annotations
 import random
 from typing import List, TYPE_CHECKING, Optional
 from components.base_component import BaseComponent
+from components.status import Bonus
 from exceptions import Impossible
 from korean import grammar as g
+from entity import Actor
 
 import color
 
@@ -25,6 +27,42 @@ class Inventory(BaseComponent):
     @property
     def items(self):
         return [x for x in self.item_hotkeys.values() if x is not None]
+
+    @property
+    def inv_weight(self):
+        tmp = 0
+        for i in self.items:
+            tmp += i.weight
+        return tmp
+
+    def update_burden(self):
+        """Check current inventory weight and apply actor state.
+        Must be called when either inventory or strength is updated.
+        Actual debuff is handled in actor_state.actor_burdened"""
+        if not isinstance(self.parent, Actor): # Non-actor cannot be burdened.
+            return None
+        w = self.inv_weight
+        strength = self.parent.status.changed_status["strength"]
+        if w < strength * 2:
+            self.parent.actor_state.encumbrance = 0
+            try:
+                self.parent.status.remove_bonus("burden_bonus")
+            except KeyError:
+                pass # This function can be called even when you are not burdened.
+        elif w < strength * 3:
+            self.parent.actor_state.encumbrance = 1
+            self.parent.status.add_bonus(Bonus("burden_bonus", bonus_agility=-1, bonus_dexterity=-1))
+        elif w < strength * 4:
+            self.parent.actor_state.encumbrance = 2
+            self.parent.status.add_bonus(Bonus("burden_bonus", bonus_agility=-5, bonus_dexterity=-5))
+        elif w < strength * 5:
+            self.parent.actor_state.encumbrance = 3
+            self.parent.status.add_bonus(Bonus("burden_bonus", bonus_agility=-10, bonus_dexterity=-10))
+        else:
+            self.parent.actor_state.encumbrance = 4
+            self.parent.status.add_bonus(Bonus("burden_bonus",
+                                               bonus_agility=min(0, -self.parent.status.changed_status["agility"]),
+                                               bonus_dexterity=-20))
 
     def check_if_in_inv(self, item_id: str) -> Optional[Item]:
         """
@@ -67,6 +105,7 @@ class Inventory(BaseComponent):
                 else:
                     self.engine.message_log.add_message(f"{g(self.parent.name, '이')} {g(item.name, '을')} 땅에 떨어뜨렸다.", fg=color.gray, target=self.parent)
 
+        self.update_burden()
         return True
     
     def throw(self, item: Item, x: int, y: int, show_msg: bool=True) -> None:
@@ -92,6 +131,7 @@ class Inventory(BaseComponent):
             else:
                 self.engine.message_log.add_message(f"{g(self.parent.name, '이')} {g(item.name, '을')} 던졌다.", fg=color.gray, target=self.parent)
 
+        self.update_burden()
         return True
 
     def sort_inventory(self) -> None:
@@ -136,6 +176,9 @@ class Inventory(BaseComponent):
                 self.item_hotkeys[key] = item
                 break
 
+        self.update_burden()
+        return None
+
     def remove_item(self, item: Item, remove_count: int=1) -> None:
         """
         Remove item from inventory.
@@ -155,6 +198,7 @@ class Inventory(BaseComponent):
                         self.item_hotkeys[key] = None
                     elif inv_item.stack_count < 0:# If remove_count is set to negative, do nothing. This feature exist in case of using an item infinitly. (e.g. black jelly throwing a toxic goo)
                         return None
+                self.update_burden()
                 return None
         raise Exception("FATAL ERROR::tried to remove item that is not in inventory")
 
