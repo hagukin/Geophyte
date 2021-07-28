@@ -313,7 +313,7 @@ class Actor(Entity):
         name: str = "<Unnamed>",
         entity_id: str = "<Undefined id>",
         actor_type_desc: str = "",
-        entity_desc: str = "<Undefined description>",
+        entity_desc: str = "",
         actor_quote: str = "",
         rarity: int = 0, # 1 to 10
         action_point: int = 60, # 0 to 60

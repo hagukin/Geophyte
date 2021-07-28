@@ -361,7 +361,7 @@ def generate_rooms(
             new_room = PerpendicularRoom(x, y, room_width, room_height, parent=dungeon, terrain=room_terrain)
         else:
             new_room = RectangularRoom(x, y, room_width, room_height, parent=dungeon, terrain=room_terrain)
-            print("ERROR : PROCGEN - GENERATE_ROOMS - FAILED TO SET THE ROOM SHAPE")
+            print("WARNING::PROCGEN - GENERATE_ROOMS - FAILED TO SET THE ROOM SHAPE")
 
         # Run through the other rooms and see if they intersect with this one.
         if any(new_room.intersects(other_room) for other_room in rooms):
@@ -566,7 +566,7 @@ def generate_stair(
             if connected:
                 break
             else:
-                print("ERROR : Path not found, Regenerating Staircases...") # Search for new locations
+                print("WARNING::Path not found, Regenerating Staircases...") # Search for new locations
                 continue
     elif stair_type == "up": # Generate single stair
         ascend_tile = stair_generation(dungeon, rooms, 0)

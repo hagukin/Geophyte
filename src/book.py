@@ -52,8 +52,10 @@ class MonsterBookIndexHandler(AskUserEventHandler):
             return None
         if event.sym in (tcod.event.K_KP_6, tcod.event.K_RIGHT):
             self.next_page()
+            return None
         elif event.sym in (tcod.event.K_KP_4, tcod.event.K_LEFT):
             self.prev_page()
+            return None
 
         # Alphabets
         if event.mod & tcod.event.K_LSHIFT:
@@ -66,11 +68,13 @@ class MonsterBookIndexHandler(AskUserEventHandler):
             }
         try:
             monster = actor_factories.ActorDB.get_actor_by_id(entity_id=actor_db[monchar[self.page]][alphabet[event.sym]])
+            if monster == None:
+                raise KeyError()
             self.engine.event_handler = MonsterInfoHandler(monster, self.page)
             return None
         except KeyError:
             self.engine.message_log.add_message("잘못된 입력입니다.", color.invalid)
-            return None
+            return self.on_exit()
         except:
             import traceback
             traceback.print_exc()
