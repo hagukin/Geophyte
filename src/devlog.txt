@@ -1897,6 +1897,18 @@
             actor_state에 오른손잡이/왼손잡이 기록하는 변수 추가.
             오프핸드,메인핸드의 방향은 이 값을 기준으로 결정됨.
 
+            equip region값은 item_state.equipped_region에 저장,
+            장착 가능한 equip_region들의 튜플값은 equipable.possible_regions에 저장함.
+
+            썩은 음식에 구더기 생성되도록 추가.
+            util에 주변 8칸에 엔티티 스폰하는 함수 추가.
+
+            TODO: 층 이동(드랍)할경우 protected area에도 떨어질 수 있는 문제 발견. 해결 필요.
+            > 해결.
+
+            죽고 나서 상태이상 관련 로그가 뜨는 문제 해결.
+            > 항상 로그 먼저, 그다음 데미지 적용 순으로 코드 작성할 것.
+
 
 
 

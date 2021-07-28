@@ -19,7 +19,7 @@ class ItemState(BaseComponent):
         corrosion: int = 0,
         BUC: int = 0,
         is_identified: int = 0,
-        is_equipped: str = None,
+        equipped_region: str = None,
         is_being_sold_from: int = None,
     ):
         """
@@ -42,7 +42,7 @@ class ItemState(BaseComponent):
                 0 - unidentified
                 1 - semi-identified (You know the id(type) of an item, but BUC is unknown)
                 2 - full-identified (You know the id(type) AND the BUC.)
-            is_equipped:
+            equipped_region:
                 string value that indicates the equip region this item if currently equipped on. (if there is one)
             is_being_sold_from:
                 Integer. a memory location of a actor that is selling this item. This doesn't necesserily means the owner. (Warning: The value is a integer, not a reference.)
@@ -52,7 +52,7 @@ class ItemState(BaseComponent):
 
         # values that are not stored in item_state dictionaty
         self.was_burning = was_burning
-        self.equipped_region = is_equipped
+        self.equipped_region = equipped_region
 
         # values that are stored in item_state dictionaty (entity.Item.set_info())
         self.is_burning = is_burning

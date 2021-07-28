@@ -376,7 +376,8 @@ class ActorState(BaseComponent):
                 # Damage reduction
                 fire_dmg = self.parent.status.calculate_dmg_reduction(damage=fire_dmg, damage_type="fire")
 
-                # Deal damage
+                # Log before actual damage
+                self.engine.message_log.add_message(f"{g(self.parent.name, '은')} 화염으로부터 {fire_dmg} 데미지를 받았다.", fg=dmg_color, target=self.parent)
                 self.parent.status.take_damage(amount=fire_dmg)
 
                 # Log
@@ -385,7 +386,6 @@ class ActorState(BaseComponent):
                 else:
                     dmg_color = color.enemy_damaged
 
-                self.engine.message_log.add_message(f"{g(self.parent.name, '은')} 화염으로부터 {fire_dmg} 데미지를 받았다.", fg=dmg_color, target=self.parent)
             
                 # Inventory on fire
                 self.parent.inventory_on_fire()
@@ -443,15 +443,15 @@ class ActorState(BaseComponent):
                 cold_dmg = self.is_freezing[0]
                 cold_dmg = self.parent.status.calculate_dmg_reduction(damage=cold_dmg, damage_type="cold")
 
-                # Apply damage
-                self.parent.status.take_damage(amount=cold_dmg)
-
-                # Log
+                # Log before damage
                 if self.parent == self.engine.player:
                     dmg_color = color.player_damaged
                 else:
                     dmg_color = color.enemy_damaged
-                self.engine.message_log.add_message(f"{g(self.parent.name, '은')} 얼어붙고 있다. {cold_dmg} 데미지를 받았다.", fg=dmg_color, target=self.parent)
+                self.engine.message_log.add_message(f"{g(self.parent.name, '은')} 얼어붙고 있다. {cold_dmg} 데미지를 받았다.",
+                                                    fg=dmg_color, target=self.parent)
+
+                self.parent.status.take_damage(amount=cold_dmg)
 
                 # Slows actor down (stacked)
                 self.parent.status.bonus_agility -= self.is_freezing[1]
@@ -494,15 +494,15 @@ class ActorState(BaseComponent):
             cold_dmg = self.is_frozen[0]
             cold_dmg = self.parent.status.calculate_dmg_reduction(damage=cold_dmg, damage_type="cold")
 
-            # dmg apply
-            self.parent.status.take_damage(amount=cold_dmg)
-
-            # log
+            # log before dmg
             if self.parent == self.engine.player:
                 dmg_color = color.player_damaged
             else:
                 dmg_color = color.enemy_damaged
             self.engine.message_log.add_message(f"{g(self.parent.name, '은')} 완전히 얼어붙었다. {cold_dmg} 데미지를 받았다!", fg=dmg_color, target=self.parent)
+
+            # dmg apply
+            self.parent.status.take_damage(amount=cold_dmg)
 
             # slows actor down (will not stack)
             self.parent.status.bonus_agility = -1000 # agility value will be set to 1 (it will get clamped)
@@ -625,14 +625,16 @@ class ActorState(BaseComponent):
             # Apply damage
             acid_dmg = self.is_melting[0]
             acid_dmg = self.parent.status.calculate_dmg_reduction(damage=acid_dmg, damage_type="acid")
-            self.parent.status.take_damage(amount=acid_dmg)
 
-            # Log
+            # Log before dmg
             if self.parent == self.engine.player:
                 dmg_color = color.player_damaged
             else:
                 dmg_color = color.enemy_damaged
             self.engine.message_log.add_message(f"{g(self.parent.name, '은')} 산성 물질로 인해 천천히 녹아내리고 있다. {acid_dmg} 데미지를 받았다.", fg=dmg_color, target=self.parent)
+
+            # dmg
+            self.parent.status.take_damage(amount=acid_dmg)
 
             # corrode equipped items if possible (chance of getting corroded is calculated inside of corrode() function.)
             for equipment in self.parent.equipments.equipments.values():
@@ -659,16 +661,17 @@ class ActorState(BaseComponent):
             if self.is_bleeding[1] >= 0: # lasts forever if negative
                 self.is_bleeding[1] += 1
 
-            # Apply damage
             blood_dmg = self.is_bleeding[0]
-            self.parent.status.take_damage(amount=blood_dmg)
 
-            # Log
+            # Log before dmg
             if self.parent == self.engine.player:
                 dmg_color = color.player_damaged
             else:
                 dmg_color = color.enemy_damaged
             self.engine.message_log.add_message(f"{g(self.parent.name, '은')} 출혈로 인해 {blood_dmg} 데미지를 받았다.", fg=dmg_color, target=self.parent)
+
+            # Apply damage
+            self.parent.status.take_damage(amount=blood_dmg)
 
         # Check if the bleeding has stopped (Similar to resistance)
         # Each turn, there is cons / cons + 60 chance of stop bleeding
@@ -716,14 +719,16 @@ class ActorState(BaseComponent):
                 # Apply damage
                 poison_dmg = self.is_poisoned[0]
                 poison_dmg = self.parent.status.calculate_dmg_reduction(damage=poison_dmg, damage_type="poison")
-                self.parent.status.take_damage(amount=poison_dmg)
 
-                # Log
+                # Log before dmg
                 if self.parent == self.engine.player:
                     dmg_color = color.player_damaged
                 else:
                     dmg_color = color.enemy_damaged
                 self.engine.message_log.add_message(f"{g(self.parent.name, '은')} 독으로 인해 {poison_dmg} 데미지를 받았다.", fg=dmg_color, target=self.parent)
+
+                # dmg
+                self.parent.status.take_damage(amount=poison_dmg)
 
                 # Lowers constitution (Debuff will stack, But there is no specific value. Constitution will reduce in half each turn.)
                 self.parent.status.bonus_constitution -= int(self.parent.status.changed_status["constitution"] / 2)

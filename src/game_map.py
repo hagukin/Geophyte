@@ -200,6 +200,7 @@ class GameMap:
             should_not_walkable: bool = False,
             should_not_safe_to_walk: bool = False,
             should_not_transparent: bool = False,
+            should_not_protected: bool = False,
             threshold: Optional[int] = 5000,
             return_random_location_if_not_found: bool = False,
     ) -> Tuple[int,int]:
@@ -228,6 +229,8 @@ class GameMap:
             if should_not_safe_to_walk and self.tiles[x,y]["safe_to_walk"]:
                 continue
             if should_not_transparent and self.tiles[x,y]["transparent"]:
+                continue
+            if should_not_protected and self.protectmap[x,y]:
                 continue
             return (x,y)
 

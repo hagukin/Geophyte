@@ -139,9 +139,7 @@ player = Actor(
         ],
     initial_equipments=[
         (item_factories.leather_armor, 1),
-        (item_factories.iron_dagger, 1),
         (item_factories.longsword, 1),
-        (item_factories.giant_wood_club, 1),
         ],
     initial_abilities=[(ability_factories.lightning_bolt, 1), (ability_factories.steal, 1)],
 )
@@ -225,7 +223,7 @@ ant = Actor(
     rarity=10,
     weight = 0.07,
     spawnable=True,
-    edible=edible.RawMeatEdible(nutrition=5),
+    edible=edible.InsectEdible(nutrition=5),
     ai_cls=ai_factories.ant_ai,
     status=Status(
         hp=28,
@@ -855,7 +853,7 @@ fly = Actor(
     rarity=6,
     weight=0.07,
     spawnable=True,
-    edible=edible.RawMeatEdible(nutrition=12, cook_bonus=2),
+    edible=edible.InsectEdible(nutrition=12, cook_bonus=2),
     ai_cls=ai_factories.fly_ai,
     status=Status(
         hp=28,
@@ -1140,7 +1138,7 @@ jumping_spider = Actor(
     rarity=3,
     weight=0.01,
     spawnable=True,
-    edible=edible.RawMeatEdible(nutrition=1),
+    edible=edible.InsectEdible(nutrition=1),
     ai_cls=ai_factories.jumping_spider_ai,
     status=Status(
         hp=12,
@@ -1195,7 +1193,7 @@ earthworm = Actor(
     rarity=9,
     weight=0.1,
     spawnable=True,
-    edible=edible.RawMeatEdible(nutrition=8, cook_bonus=2),
+    edible=edible.InsectEdible(nutrition=8, cook_bonus=2),
     ai_cls=ai_factories.earthworm_ai,
     status=Status(
         hp=8,
@@ -1242,7 +1240,7 @@ maggot = Actor(
     rarity=1,
     weight=0.01,
     spawnable=False, # NOTE: does not spawn naturally.
-    edible=edible.RawMeatEdible(nutrition=1),
+    edible=edible.InsectEdible(nutrition=1, maggot_chance=0), # Cannot spawn maggots to prevent continuos spawning
     ai_cls=ai_factories.maggot_ai,
     status=Status(
         hp=4,
@@ -1258,7 +1256,7 @@ maggot = Actor(
         additional_melee=1,
         protection=2,
         hearing=1,
-        eyesight=2,
+        eyesight=3,
         ),
     actor_state=ActorState(
         size=1,

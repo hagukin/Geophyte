@@ -222,10 +222,8 @@ class PotionOfLiquifiedAntsQuaffable(Quaffable):
 
         # Spawn 8 ants maximum surrounding the consumer.
         from actor_factories import ant
-        for dx in (1, 0, -1):
-            for dy in (1, 0, -1):
-                if apply_to.gamemap.check_tile_monster_spawnable(apply_to.x + dx, apply_to.y + dy):
-                    ant.spawn(apply_to.gamemap, apply_to.x + dx, apply_to.y + dy, is_active=True)
+        from util import spawn_entity_8way
+        spawn_entity_8way(entity=ant, gamemap=apply_to.gamemap, center_x=apply_to.x, center_y=apply_to.y, spawn_cnt=random.randint(5,8))
 
         # Log
         if apply_to == self.engine.player:

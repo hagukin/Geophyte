@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-from typing import Optional, TYPE_CHECKING
+import random
+from typing import Optional, TYPE_CHECKING, Tuple
 from components.base_component import BaseComponent
 from korean import grammar as g
 
@@ -12,7 +13,16 @@ if TYPE_CHECKING:
 
 class Edible(BaseComponent):
     parent: Item
-    def __init__(self, nutrition: int, spoilage: int=0, is_cooked: bool=False, can_cook: bool=False, spoil_speed:int=1, cook_bonus: int = 0, edible_type: str = "food"):
+    def __init__(self,
+                 nutrition: int,
+                 spoilage: int=0,
+                 is_cooked: bool=False,
+                 can_cook: bool=False,
+                 spoil_speed:int=1,
+                 cook_bonus: int = 0,
+                 edible_type: str = "food",
+                 maggot_chance: float=0,
+                 maggot_range: Tuple[int,int]=(1,3)):
         """
         Args:
             nutrition:
@@ -33,9 +43,9 @@ class Edible(BaseComponent):
                     food (e.g. Every ai who are willing to eat something will gladly eat "food" typed item.)
                     meat
                     insect
-                    fruit
-                    vegetable
+                    vegetable (including fruits)
                     snack (e.g. candy bar)
+                    misc (e.g. jelly corpse)
         """
         super().__init__()
         self._nutrition = nutrition
@@ -49,12 +59,53 @@ class Edible(BaseComponent):
         self.is_cooked = is_cooked
         self.spoilage = spoilage
 
+        # maggot related
+        self.maggot_chance = maggot_chance
+        self.maggot_range = maggot_range
+
     @property
     def nutrition(self):
         if self.spoilage > 1:
             return int(self._nutrition / self.spoilage)
         else:
             return self._nutrition
+
+    @property
+    def owner(self) -> Optional[Actor]:
+        if self.parent.parent != None:
+            if self.parent.parent.parent != None:
+                return self.parent.parent.parent
+        return None
+
+    def rot(self) -> None:
+        if self.parent.stack_count > 0:  # e.g. black jelly's toxic goo
+            if self.parent.parent != None:
+                if self.parent.parent.parent == self.engine.player:
+                    self.engine.message_log.add_message(f"당신의 {g(self.parent.name, '이')} 썩어 사라졌다!",
+                                                        color.player_damaged, )
+            else:
+                if self.engine.game_map.visible[self.parent.x, self.parent.y]:
+                    self.engine.message_log.add_message(f"{g(self.parent.name, '이')} 썩어 사라졌다.", color.gray,
+                                                        target=self.parent)
+            self.parent.remove_self()
+
+    def spawn_maggots(self) -> None:
+        if random.random() <= self.maggot_chance:
+            maggot_num = random.randint(self.maggot_range[0], self.maggot_range[1])
+            from util import spawn_entity_8way
+            from actor_factories import maggot
+
+            if self.parent.parent == None: # Is not owned by any InventoryComponent
+                x, y = self.parent.x, self.parent.y
+            else:
+                x, y = self.owner.x, self.owner.y
+            spawn_entity_8way(entity=maggot, gamemap=self.engine.game_map, center_x=x, center_y=y, spawn_cnt=maggot_num)
+
+            # Log
+            if self.parent.parent and self.owner == self.engine.player:
+                self.engine.message_log.add_message(text=f"당신의 {self.parent.name} 주변에 구더기가 생겨났다!", fg=color.purple)
+            else:
+                self.engine.message_log.add_message(text=f"{self.parent.name} 주변에 구더기가 생겨났다!", target=self.parent, fg=color.purple)
 
     def time_pass(self) -> None:
         """
@@ -72,19 +123,14 @@ class Edible(BaseComponent):
         if self.time_after_spawned >= 150:
             self.spoilage = min(self.spoilage + 1, 4)
             self.time_after_spawned = 0
+            if self.spoilage == 3: # spawn maggots when rotten
+                if self.parent.parent and self.parent.parent.parent == self.engine.player:
+                    self.engine.message_log.add_message(text=f"{g(self.parent.name, '이')} 부패하기 시작한다!", fg=color.purple)
+                self.spawn_maggots()
 
         # foods will rot away if its too rotten
         if self.spoilage > 3:
-            if self.parent.stack_count > 0: # e.g. black jelly's toxic goo
-                if self.parent.parent != None:
-                    if self.parent.parent.parent == self.engine.player:
-                        self.engine.message_log.add_message(f"당신의 {g(self.parent.name, '이')} 썩어 사라졌다!",
-                                                            color.player_damaged, )
-                else:
-                    if self.engine.game_map.visible[self.parent.x, self.parent.y]:
-                        self.engine.message_log.add_message(f"{g(self.parent.name, '이')} 썩어 사라졌다.", color.gray,
-                                                            target=self.parent)
-                self.parent.remove_self()
+            self.rot()
 
     def get_action(self, consumer: Actor) -> Optional[actions.Action]:
         """Try to return the action for this item."""
@@ -209,17 +255,25 @@ class RawMeatEdible(Edible):
     The consumer gains nutritions.
     Meat rots faster. (spoil_speed set to 3)
     """
-    def __init__(self, nutrition: int, spoilage: int=0, is_cooked: bool=False, can_cook: bool=True, spoil_speed: int=3, cook_bonus:int = None, edible_type:str = "meat"):
-        super().__init__(nutrition,spoilage,is_cooked,can_cook,spoil_speed,cook_bonus,edible_type)
+    def __init__(self, nutrition: int, spoilage: int=0, is_cooked: bool=False, can_cook: bool=True, spoil_speed: int=3, cook_bonus:int = None, edible_type:str = "meat",
+                 maggot_chance: float=0.2, maggot_range: Tuple[int,int]=(1,1)):
+        super().__init__(nutrition,spoilage,is_cooked,can_cook,spoil_speed,cook_bonus,edible_type,maggot_chance,maggot_range)
+        self.maggot_range = (1, max(8, min(int(self.nutrition / 100), 1))) # Number of maggots spawned increase by nutrition value
 
-
+class InsectEdible(Edible):
+    """
+    Provides no special effects.
+    """
+    def __init__(self, nutrition: int, spoilage: int=0, is_cooked: bool=False, can_cook: bool=True, spoil_speed: int=2, cook_bonus:int = None, edible_type:str = "insect",
+                 maggot_chance: float=0, maggot_range: Tuple[int,int]=(0,0)):
+        super().__init__(nutrition,spoilage,is_cooked,can_cook,spoil_speed,cook_bonus,edible_type,maggot_chance,maggot_range)
 
 
 ####################################################
 ###################### a - ants  ###################
 ####################################################
 
-class FireAntEdible(Edible):
+class FireAntEdible(InsectEdible):
     def __init__(self, nutrition: int=10, spoilage: int=0, is_cooked: bool=False, can_cook: bool=False, spoil_speed: int=2, cook_bonus:int=5, edible_type:str = "insect"):
         super().__init__(nutrition,spoilage,is_cooked,can_cook,spoil_speed,cook_bonus,edible_type)
     
@@ -228,10 +282,10 @@ class FireAntEdible(Edible):
         # Log
         if consumer == self.engine.player:
             self.engine.message_log.add_message(f"당신의 입 안에서 약간의 열기가 느껴진다.", color.white)
-        return super().effect_cooked()
+        return super().effect_cooked(action)
 
 
-class VoltAntEdible(Edible):
+class VoltAntEdible(InsectEdible):
     def __init__(self, nutrition: int=15, spoilage: int=0, is_cooked: bool=False, can_cook: bool=False, spoil_speed: int=2, cook_bonus:int=5, edible_type:str = "insect"):
         super().__init__(nutrition,spoilage,is_cooked,can_cook,spoil_speed,cook_bonus,edible_type)
 
@@ -240,7 +294,7 @@ class VoltAntEdible(Edible):
         # Log
         if consumer == self.engine.player:
             self.engine.message_log.add_message(f"당신의 혓바닥이 따끔거린다.", color.white)
-        return super().effect_cooked()
+        return super().effect_cooked(action)
 
 
 ####################################################
@@ -266,7 +320,7 @@ class FloatingEyeEdible(Edible):
 ############### i = flying insects  ################
 ####################################################
 
-class GiantWaspEdible(Edible):
+class GiantWaspEdible(InsectEdible):
     def __init__(self, nutrition: int=50, spoilage: int=0, is_cooked: bool=False, can_cook: bool=True, spoil_speed: int=2, cook_bonus:int=5, edible_type:str="insect"):
         super().__init__(nutrition,spoilage,is_cooked,can_cook,spoil_speed,cook_bonus,edible_type)
     
@@ -280,7 +334,6 @@ class GiantWaspEdible(Edible):
             consumer.actor_state.apply_poisoning([2, 0, 0, 13])
         return super().effect_always(action)
 
-        
 
 
 ####################################################
@@ -288,7 +341,7 @@ class GiantWaspEdible(Edible):
 ####################################################
 
 class BlackJellyEdible(Edible):
-    def __init__(self, nutrition: int = 15, spoilage: int=0, is_cooked: bool=False, can_cook: bool=False, spoil_speed: int=20, cook_bonus:int = None, edible_type="meat"):
+    def __init__(self, nutrition: int = 15, spoilage: int=0, is_cooked: bool=False, can_cook: bool=False, spoil_speed: int=20, cook_bonus:int = None, edible_type="misc"):
         super().__init__(nutrition,spoilage,is_cooked,can_cook,spoil_speed,cook_bonus,edible_type)
 
     def effect_uncooked(self, action: actions.EatItem):

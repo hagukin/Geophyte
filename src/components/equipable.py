@@ -16,7 +16,7 @@ def clamp(n, smallest, largest): return max(smallest, min(n, largest))
 class Equipable(BaseComponent):
     def __init__(
         self,
-        equip_region: Tuple[str, ...],
+        possible_regions: Tuple[str, ...],
         equip_size: Tuple[int, int] = (3, 5),
         upgrade: int = 0,
         str_requirement: int = 0,
@@ -56,7 +56,7 @@ class Equipable(BaseComponent):
     ):
         """
         Args:
-            equip_region:
+            possible_regions:
                 main equipping region for this component's parent.
                 It is possible to equip items other than the given region, by passing region as a string to equipments.equip_equipments().
             equip_size:
@@ -68,7 +68,7 @@ class Equipable(BaseComponent):
         """
         super().__init__()
         self.upgrade = upgrade # When copying a item, you must manually copy the upgrade value.
-        self.equip_region = equip_region
+        self.possible_regions = possible_regions  # To get current equipped region, go item_state.equipped_region
         self.str_requirement = str_requirement
         self.equip_size = equip_size
         
@@ -222,7 +222,7 @@ class LeatherArmorEquipable(Equipable):
     def __init__(self, upgrade=0):
         super().__init__(
             upgrade=upgrade,
-            equip_region=("torso",),
+            possible_regions=("torso",),
             str_requirement=10,
             protection=5,
             )
@@ -242,7 +242,7 @@ class IronDaggerEquipable(Equipable):
     def __init__(self, upgrade=0):
         super().__init__(
             upgrade=upgrade,
-            equip_region=("main hand", "off hand"),
+            possible_regions=("main hand", "off hand"),
             str_requirement=10,
             base_melee=6,
             additional_melee=5,
@@ -258,7 +258,7 @@ class ShortswordEquipable(Equipable):
     def __init__(self, upgrade=0):
         super().__init__(
             upgrade=upgrade,
-            equip_region=("main hand", "off hand"),
+            possible_regions=("main hand", "off hand"),
             str_requirement=13,
             base_melee=8,
             additional_melee=3,
@@ -274,7 +274,7 @@ class LongswordEquipable(Equipable):
     def __init__(self, upgrade=0):
         super().__init__(
             upgrade=upgrade,
-            equip_region=("main hand", "off hand"),
+            possible_regions=("main hand", "off hand"),
             str_requirement=15,
             base_melee=10,
             additional_melee=8,
@@ -290,7 +290,7 @@ class GiantWoodClubEquipable(Equipable):
     def __init__(self, upgrade=0):
         super().__init__(
             upgrade=upgrade,
-            equip_region=("main hand", "off hand"),
+            possible_regions=("main hand", "off hand"),
             equip_size=(5,6),
             str_requirement=15,
             base_melee=25,
@@ -312,7 +312,7 @@ class AmuletOfKugahEquipable(Equipable):
     def __init__(self, upgrade=0):
         super().__init__(
             upgrade=upgrade,
-            equip_region=("amulet",),
+            possible_regions=("amulet",),
             )
 
     def update_stat(self):

@@ -1,11 +1,12 @@
 from __future__ import annotations
+
+import random
 from typing import Tuple, Optional, List
 from tcod.map import compute_fov
 from tcod import Console, console_get_width
+from entity import Actor
 
 import math
-import os
-import sys
 import numpy as np
 import copy
 
@@ -208,3 +209,23 @@ def equip_region_name_to_str(region_name) -> str:
     elif region_name == "right ring":
         translated = "오른손 반지"
     return translated
+
+
+def spawn_entity_8way(entity, gamemap, center_x: int, center_y: int, spawn_cnt: int=8) -> None:
+    curr_spawn_cnt = 0
+
+    xs = [1, 0, -1]
+    ys = [1, 0, -1]
+    random.shuffle(xs)
+    random.shuffle(ys) # randomize spawn place
+
+    for dx in xs:
+        for dy in ys:
+            if curr_spawn_cnt >= spawn_cnt:
+                return None
+            if isinstance(entity, Actor):
+                if gamemap.check_tile_monster_spawnable(center_x + dx, center_y + dy):
+                    entity.spawn(gamemap, center_x + dx, center_y + dy, is_active=True)
+
+            curr_spawn_cnt += 1
+            # TODO: Add other types of entities

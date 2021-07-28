@@ -26,21 +26,21 @@ class BaseAI(BaseComponent):
             do_ranged_atk: bool,
             use_ability: bool,
 
-            allied_type: set=set(),
-            allied_id: set=set(),
-            allied_with: set=set(),
+            allied_type:set=None,
+            allied_id:set=None,
+            allied_with:set=None,
 
-            hostile_type: set=set(),
-            hostile_id: set=set(),
-            hostile_with: set=set(),
+            hostile_type:set=None,
+            hostile_id:set=None,
+            hostile_with:set=None,
 
-            attracted_eat_type: set=set(),
-            attracted_eat_id: set=set(),
-            attracted_eat_with: set=set(),
-            
-            attracted_own_type: set=set(),
-            attracted_own_id: set=set(),
-            attracted_own_with: set=set(),
+            attracted_eat_type:set=None,
+            attracted_eat_id:set=None,
+            attracted_eat_with:set=None,
+
+            attracted_own_type:set=None,
+            attracted_own_id:set=None,
+            attracted_own_with:set=None,
 
             tameable: int = 1,
             owner: Actor = None,
@@ -75,24 +75,60 @@ class BaseAI(BaseComponent):
         self.melee_effects_var = []
 
         # Alliance
-        self.allied_with = allied_with # actor that is alligned with
-        self.allied_id = allied_id # monster type(monster_id) that are alligned with (e.g. fire_ant)
-        self.allied_type = allied_type # species that are alligned with (e.g. char "a")
+        if allied_type is None:
+            self.allied_type = set()
+        else:
+            self.allied_type = allied_type  # species that are alligned with (e.g. char "a")
+        if allied_id is None:
+            self.allied_id = set()
+        else:
+            self.allied_id = allied_id  # monster type(monster_id) that are alligned with (e.g. fire_ant)
+        if allied_with is None:
+            self.allied_with = set()
+        else:
+            self.allied_with = allied_with  # actor that is alligned with
 
         # Enemy
-        self.hostile_with = hostile_with # actor that is considered as an enemy
-        self.hostile_id = hostile_id # monster type(monster_id) that is considered as an enemy
-        self.hostile_type = hostile_type # species that is considered as an enemy
+        if hostile_type is None:
+            self.hostile_type = set()
+        else:
+            self.hostile_type = hostile_type  # species that is considered as an enemy
+        if hostile_id is None:
+            self.hostile_id = set()
+        else:
+            self.hostile_id = hostile_id  # monster type(monster_id) that is considered as an enemy
+        if hostile_with is None:
+            self.hostile_with = set()
+        else:
+            self.hostile_with = hostile_with # actor that is considered as an enemy
 
         # Attraction - Ai wants to eat these
-        self.attracted_eat_type = attracted_eat_type # edible.edible_type (string)
-        self.attracted_eat_id = attracted_eat_id
-        self.attracted_eat_with = attracted_eat_with
+        if attracted_eat_type is None:
+            self.attracted_eat_type = set()
+        else:
+            self.attracted_eat_type = attracted_eat_type  # edible.edible_type (string)
+        if attracted_eat_id is None:
+            self.attracted_eat_id = set()
+        else:
+            self.attracted_eat_id = attracted_eat_id
+        if attracted_eat_with is None:
+            self.attracted_eat_with = set()
+        else:
+            self.attracted_eat_with = attracted_eat_with
 
         # Attraction - Ai wants to own(possess) these
-        self.attracted_own_type = attracted_own_type # item.InventoryOrder (enum)
-        self.attracted_own_id = attracted_own_id
-        self.attracted_own_with = attracted_own_with
+        if attracted_own_type is None:
+            self.attracted_own_type = set()
+        else:
+            self.attracted_own_type = attracted_own_type  # item.InventoryOrder (enum)
+        if attracted_own_id is None:
+            self.attracted_own_id = set()
+        else:
+            self.attracted_own_id = attracted_own_id
+        if attracted_own_with is None:
+            self.attracted_own_with = set()
+        else:
+            self.attracted_own_with = attracted_own_with
 
         # Owner
         self.tameable = tameable

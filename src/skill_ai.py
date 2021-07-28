@@ -1,17 +1,9 @@
 from __future__ import annotations
 
-import random
-import numpy as np
-import copy
-from numpy.core.shape_base import block
-import tcod
-
 from typing import List, Tuple, Optional
-
-from ability import Ability
-from actions import Action, BumpAction, MeleeAction, WaitAction, ThrowItem, EatItem, PickupAction
-from components.base_component import BaseComponent
 from entity import Actor, SemiActor, Entity, Item
+from ability import Ability
+from components.activatable import SpellActivateable
 
 
 class Skill_AI():
@@ -44,7 +36,7 @@ class Skill_AI():
             If something went wrong and you couldn't get the coordinate, return
         """
         coordinate = None
-        raise NotImplementedError
+        raise NotImplementedError()
 
     @staticmethod
     def check_mana(actor: Actor, spell: Ability):

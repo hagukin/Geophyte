@@ -131,7 +131,7 @@ class Equipments(BaseComponent):
             string contains the region name for the given item.
         """
         # Cannot equip item to the given region.
-        if region not in item.equipable.equip_region:
+        if region not in item.equipable.possible_regions:
             return False, ""
 
         if region == "main hand":
@@ -263,7 +263,7 @@ class Equipments(BaseComponent):
         # If equip region is specified, pass a tuple of size = 1.
         # By default, use tuple value that is stored in item's equipable component.
         if equip_region == None:
-            possible_equip_regions = item.equipable.equip_region
+            possible_equip_regions = item.equipable.possible_regions
         else:
             possible_equip_regions = (equip_region, )
         curr_equipped_region = self.try_equip(item, possible_equip_regions=possible_equip_regions)

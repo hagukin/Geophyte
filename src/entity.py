@@ -194,7 +194,7 @@ class Entity:
             # When entity is on a hole
             if self.gamemap.tiles[self.x, self.y]["tile_id"] == "hole":
                 new_gamemap = self.engine.world.get_map(depth=self.gamemap.depth + 1)
-                x, y = new_gamemap.get_random_tile(should_no_entity=True, should_walkable=True, should_safe_to_walk=True)
+                x, y = new_gamemap.get_random_tile(should_no_entity=True, should_walkable=True, should_safe_to_walk=True, should_not_protected=True)
                 self.engine.change_entity_depth(entity=self, depth=self.gamemap.depth+1, xpos=x, ypos=y)
                 return None
 
@@ -830,7 +830,8 @@ class Item(Entity):
 
         if self.parent:
             if self.equipable: # If the item can be equipped, try to remove it from its wearer. (if there is any)
-                self.parent.parent.equipments.remove_equipment(region=self.equipable.equip_region, forced=True)
+                if self.item_state.equipped_region:
+                    self.parent.parent.equipments.remove_equipment(region=self.item_state.equipped_region, forced=True)
             self.parent.remove_item(self, remove_count=self.stack_count)
 
     def initialize_item(self):
