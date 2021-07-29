@@ -46,8 +46,6 @@ ancient_ruins = Biome(
     map_width=80,
     map_height=80,
     respawn_ratio=0,
-    max_monsters_per_room=0,
-    max_items_per_room=0,
     generate_descending_stair=False,
     tileset=tileset({
         "t_wall":tiles.wall_ancient_ruins,

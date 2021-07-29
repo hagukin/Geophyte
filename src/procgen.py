@@ -116,9 +116,9 @@ def spawn_monsters_by_difficulty(
 
 
 def spawn_items(
-    room: Room, dungeon: GameMap, max_item_per_room: int, min_item_per_room: int=0,
+    room: Room, dungeon: GameMap,  min_items_per_room: int, max_items_per_room: int,
 ) -> None:
-    number_of_items = random.randint(min_item_per_room, max_item_per_room)
+    number_of_items = random.randint(min_items_per_room, max_items_per_room)
     tile_coordinates = room.inner_tiles
 
     # Choose items to spawn
@@ -130,6 +130,9 @@ def spawn_items(
 
     # Spawn items
     for item_to_spawn in spawn_list:
+        if random.random() >= room.terrain.monster_spawn_chance:
+            continue
+
         place_tile = random.choice(tile_coordinates)
         
         if not any(entity.x == place_tile[0] and entity.y == place_tile[1] for entity in dungeon.entities) and item_to_spawn.spawnable:
@@ -590,16 +593,15 @@ def generate_entities(
     dungeon: GameMap,
     rooms: List,
     depth: int,
-    max_monsters_per_room: int,
-    max_items_per_room: int,
     ) -> None:
     for room in rooms:
         ### Spawning Monsters ###
         if room.terrain.spawn_monster:
-
             # Each loop can generates one monster
-            mon_num = random.randint(0, max_monsters_per_room)
+            mon_num = random.randint(room.terrain.min_monsters_per_room, room.terrain.max_monsters_per_room)
             for _ in range(mon_num):
+                if random.random() >= room.terrain.monster_spawn_chance:
+                    continue
 
                 # Spawn location
                 tile_coordinates = room.inner_tiles
@@ -621,7 +623,12 @@ def generate_entities(
 
         ### Spawning Items ###
         if room.terrain.spawn_item:
-            spawn_items(room, dungeon, max_items_per_room)
+            spawn_items(
+                room,
+                dungeon,
+                min_items_per_room=room.terrain.min_items_per_room,
+                max_items_per_room=room.terrain.max_items_per_room
+            )
 
 
 def debug(dungeon, save_as_txt: bool = False):
@@ -789,8 +796,6 @@ def generate_dungeon(
         dungeon=dungeon,
         rooms=rooms,
         depth=depth,
-        max_monsters_per_room=biome.max_monsters_per_room,
-        max_items_per_room=biome.max_items_per_room,
     )
 
     # Error check

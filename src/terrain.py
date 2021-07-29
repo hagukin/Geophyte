@@ -17,7 +17,13 @@ class Terrain:
         max_height: int = 16,
         shape: dict = None,
         spawn_item: bool = True,
+        item_spawn_chance: float = 0.5,
+        min_items_per_room: int = 0,
+        max_items_per_room: int = 4,
         spawn_monster: bool = True,
+        monster_spawn_chance: float = 0.5,
+        min_monsters_per_room: int = 0,
+        max_monsters_per_room: int = 4,
         has_wall: bool = True, #TODO: need to add feature
         protected: bool = False,
         has_door: bool = True,
@@ -102,6 +108,14 @@ class Terrain:
         self.terrain_desc = terrain_desc
 
         self.rarity = rarity
+
+        self.item_spawn_chance = item_spawn_chance
+        self.monster_spawn_chance = monster_spawn_chance
+
+        self.max_monsters_per_room = max_monsters_per_room
+        self.max_items_per_room = max_items_per_room
+        self.min_monsters_per_room = min_monsters_per_room
+        self.min_items_per_room = min_items_per_room
 
         self.min_width = min_width
         self.max_width = max_width

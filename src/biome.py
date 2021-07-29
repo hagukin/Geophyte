@@ -52,8 +52,6 @@ class Biome:
         map_height: int = 45, # min 45
         respawn_ratio: float = 0.4,
         respawn_time: float = 50,
-        max_monsters_per_room: int = 4,
-        max_items_per_room: int = 4,
         generate_descending_stair: bool = True,
         tileset: dict = tileset(),
         terrain: dict = None,
@@ -97,8 +95,6 @@ class Biome:
         self.map_height = map_height
         self.respawn_ratio = respawn_ratio
         self.respawn_time = respawn_time
-        self.max_monsters_per_room = max_monsters_per_room
-        self.max_items_per_room = max_items_per_room
         self.generate_descending_stair = generate_descending_stair
         self.tileset = tileset
         self.terrain = terrain
