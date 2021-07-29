@@ -134,6 +134,10 @@ class Engine:
         entity.place(xpos, ypos, new_gamemap)
         entity.gamemap = new_gamemap
 
+        if entity == self.player:
+            self.update_fov()
+
+
     def handle_world(self, turn_pass: bool) -> None:
         """
         Handles things that happens regardless of player's will.
@@ -157,7 +161,6 @@ class Engine:
             self.handle_gamemap_states()
             self.update_fov()
             self.game_map.update_enemy_fov()
-            self.update_entity_in_sight()
 
     def time_pass(self) -> None:
         while self.player.action_point < 60:
@@ -246,15 +249,7 @@ class Engine:
             # Poisoned
             if actor.actor_state.is_poisoned != [0,0,0,0]:
                 actor.actor_state.actor_poisoned()
-            # Water related status effects NOTE: Drowning status effect is handled seperately
-            if actor.actor_state.is_submerged:
-                actor.actor_state.actor_submerged()
-                if not actor.actor_state.is_underwater and actor.actor_state.was_submerged:
-                    # actor moved from deep water to shallow water
-                    actor.status.remove_bonus("submerged_bonus")
-            elif actor.actor_state.was_submerged:
-                # actor is completely out of water
-                actor.status.remove_bonus("submerged_bonus")
+            # Submerging handled in environmental_effects
             # Drowning
             if actor.actor_state.is_drowning != [0,0]:
                 actor.actor_state.actor_drowning()
@@ -424,7 +419,6 @@ class Engine:
             is_initialization:
                 When this function is called the first time right before the main game loop begins, this parameter is set to True.
         """
-
         # Copy the old data to prev_ variables (shallow copy)
         self.prev_actors_in_sight = copy.copy(self.actors_in_sight)
         self.prev_items_in_sight = copy.copy(self.items_in_sight)
@@ -434,7 +428,7 @@ class Engine:
 
         # Get new data
         for entity in self.game_map.entities:
-            if self.game_map.visible[entity.x, entity.y]:
+            if self.camera.in_bounds(entity.x, entity.y) and self.game_map.visible[entity.x, entity.y]:
                 if isinstance(entity, Actor):
                     self.actors_in_sight.add(entity)
                 elif isinstance(entity, Item):
@@ -610,7 +604,6 @@ class Engine:
             if not self.config["ignore_enemy_spotted_during_mouse_movement"] and self.prev_actors_in_sight != self.actors_in_sight:
                 # If so, stop the movement.
                 # TODO: Add a feature to stop ONLY if the actor is hostile to player?
-                self.update_entity_in_sight()# update actors only when it's necessary
                 self.player_path.clear()
                 return False
 

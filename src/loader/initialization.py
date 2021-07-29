@@ -47,18 +47,18 @@ def init_game_variables(cfg, console: Console, context: Context):
     engine.change_gamemap_depth(1)
     engine.change_entity_depth(engine.player, 1, engine.game_map.ascend_loc[0], engine.game_map.ascend_loc[1])
     engine.player.gamemap = engine.world.get_map(engine.depth)
-    engine.game_map.adjustments_before_new_map(update_player_fov=True)
+    engine.camera = camera.Camera(engine, width=cfg["camera_width"], height=cfg["camera_height"],
+                                  display_x=cfg["camera_xpos"], display_y=cfg["camera_ypos"])
 
     # Initialize player (give initial items, skils, etc)
     engine.player.initialize_actor()
-
-    # Generate Camea
-    engine.camera = camera.Camera(engine, width=cfg["camera_width"], height=cfg["camera_height"], display_x=cfg["camera_xpos"], display_y=cfg["camera_ypos"])
 
     # Give player a complete encyclopedia TODO: delete?
     from loader.data_loader import save_actor_book
     save_actor_book(get_all_monsters=True)
 
+
+    engine.game_map.adjustments_before_new_map(update_player_fov=True)
     return engine
 
 def update_game_variables(engine: Engine):

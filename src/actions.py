@@ -5,6 +5,8 @@ import math
 import color
 import exceptions
 import random
+
+from components.inventory import Inventory
 from korean import grammar as g
 
 if TYPE_CHECKING:
@@ -61,11 +63,18 @@ class PickupAction(Action):
                 item.parent = self.entity.inventory
                 inventory.add_item(item)
 
-                if item.stack_count > 1:
-                    self.engine.message_log.add_message(f"{g(self.entity.name, '이')} {g(item.name, '을')} 주웠다. (x{item.stack_count}).", target=self.entity, fg=color.gray)
+                if self.entity == self.engine.player:
+                    if item.stack_count > 1:
+                        self.engine.message_log.add_message(f"{g(item.name, '을')} 주웠다. (x{item.stack_count}).", target=self.entity, fg=color.obtain_item)
+                    else:
+                        self.engine.message_log.add_message(f"{g(item.name, '을')} 주웠다.", target=self.entity, fg=color.obtain_item)
+                    return #prevents picking up everything at once. # TODO : Add feature to pickup everything at once
                 else:
-                    self.engine.message_log.add_message(f"{g(self.entity.name, '이')} {g(item.name, '을')} 주웠다.", target=self.entity, fg=color.gray)
-                return #prevents picking up everything at once. # TODO : Add feature to pickup everything at once
+                    if item.stack_count > 1:
+                        self.engine.message_log.add_message(f"{g(self.entity.name, '이')} {g(item.name, '을')} 주웠다. (x{item.stack_count}).", target=self.entity, fg=color.gray)
+                    else:
+                        self.engine.message_log.add_message(f"{g(self.entity.name, '이')} {g(item.name, '을')} 주웠다.", target=self.entity, fg=color.gray)
+                    return #prevents picking up everything at once. # TODO : Add feature to pickup everything at once
 
         raise exceptions.Impossible("주울 만한 물건이 아무 것도 없습니다.")
 
@@ -309,6 +318,64 @@ class WaitAction(Action):
         pass
 
 
+class MultiEntitiesAction(Action):
+    """Handles actions that uses multiple items.
+    NOTE: You should not use this function when handling item usage."""
+    def __init__(self,  entity: Actor, entities: List[Entity]):
+        super().__init__(entity)
+        self.entities = entities
+
+
+class ChestAction(MultiEntitiesAction):
+    @property
+    def chest_name(self) -> str:
+        return self.chest_storage.parent.name
+
+    @property
+    def actor_storage(self) -> Inventory:
+        return self.entity.inventory
+
+    def __init__(self, entity: Actor, entities: List[Item], chest_storage: Inventory):
+        super().__init__(entity, entities)
+        self.chest_storage = chest_storage
+
+
+class ChestTakeAction(ChestAction):
+    def perform(self) -> None:
+        for item in self.entities:
+            self.chest_storage.remove_item(item, -1)
+            self.actor_storage.add_item(item)
+
+            if self.entity == self.engine.player:
+                if item.stack_count <= 1:
+                    self.engine.message_log.add_message(f"{g(item.name, '을')} 얻었다.", color.obtain_item)
+                else:
+                    self.engine.message_log.add_message(f"{g(item.name, '을')} 얻었다. (x{item.stack_count})", color.obtain_item)
+            else:
+                if item.stack_count <= 1:
+                    self.engine.message_log.add_message(f"{g(self.entity.name, '이')} {g(item.name, '을')} {self.chest_name}에서 꺼냈다.", color.white)
+                else:
+                    self.engine.message_log.add_message(f"{g(self.entity.name, '이')} {g(item.name, '을')} {self.chest_name}에서 꺼냈다. (x{item.stack_count})", color.white)
+
+
+class ChestPutAction(ChestAction):
+    def perform(self) -> None:
+        for item in self.entities:
+            self.actor_storage.remove_item(item, -1)
+            self.chest_storage.add_item(item)
+
+            if self.entity == self.engine.player:
+                if item.stack_count <= 1:
+                    self.engine.message_log.add_message(f"{g(item.name, '을')} 집어넣었다.", color.white)
+                else:
+                    self.engine.message_log.add_message(f"{g(item.name, '을')} 집어넣었다. (x{item.stack_count})", color.white)
+            else:
+                if item.stack_count <= 1:
+                    self.engine.message_log.add_message(f"{g(self.entity.name, '이')} {g(item.name, '을')} {self.chest_name}에 집어넣었다.", color.white)
+                else:
+                    self.engine.message_log.add_message(f"{g(self.entity.name, '이')} {g(item.name, '을')} {self.chest_name}에서 집어넣었다. (x{item.stack_count})", color.white)
+
+
 class ActionWithDirection(Action):
     """
     Handles all types of action that has direction.
@@ -364,7 +431,21 @@ class ActionWithDirection(Action):
         """
         Return the semiactor at this actions destination if it has any bumpaction attached.
         """
-        return self.engine.game_map.get_semiactor_with_bumpaction_at_location(*self.dest_xy)
+        return self.engine.game_map.get_semiactor_that_bump(*self.dest_xy)
+
+    @property
+    def bump_entity(self) -> Optional[Entity]:
+        """
+        Priority: Actor > Semiactor
+        """
+        tmp = self.target_actor
+        if tmp:
+            return tmp
+        tmp = self.target_semiactor_bump
+        if tmp:
+            return tmp
+        return None
+
 
     def perform(self) -> None:
         raise NotImplementedError()
@@ -854,36 +935,13 @@ class DoorCloseAction(ActionWithDirection):
             raise exceptions.Impossible("이 곳에는 문이 없다.")
 
 
-class ChestBumpAction(ActionWithDirection):
+class ActionWithDirectionAndTarget(ActionWithDirection):
+    def __init__(self, entity: Actor, dx: int, dy: int, target: Entity):
+        super().__init__(entity, dx, dy)
+        self.target = target
+
     def perform(self) -> None:
-        import chest_factories
-
-        # Checking for inability
-        if self.entity.check_for_immobility():
-            if self.entity == self.engine.player:
-                self.engine.message_log.add_message(f"아무 것도 할 수 없다!", color.red)
-            return None
-
-        # Set coordinates
-        dest_x, dest_y = self.dest_xy
-        semiactor_on_dir = self.engine.game_map.get_semiactor_with_bumpaction_at_location(dest_x, dest_y)
-
-        # If non-player bumped, move towards the chest instead of opening. FIXME TODO
-        if self.entity != self.engine.player:
-            return MovementAction(self.entity, self.dx, self.dy).perform()
-
-        if not semiactor_on_dir:
-            raise exceptions.Impossible("해당 위치에 상자가 없다.")
-        elif isinstance(semiactor_on_dir, chest_factories.ChestSemiactor):# Check if the semiactor is chest type
-            self.engine.message_log.add_message(f"{g(self.entity.name, '이')} {g(semiactor_on_dir.name, '을')} 열었다.", color.invalid, target=self.entity)
-
-            # If the player is the actor, call input handler
-            if self.entity == self.engine.player:
-                from input_handlers import NonHostileBumpHandler
-                self.engine.event_handler = NonHostileBumpHandler(semiactor_on_dir)
-                return None
-        else:
-            raise exceptions.Impossible("아무 것도 들어있지 않다.")
+        raise NotImplementedError()
 
 
 class CashExchangeAction(Action):
@@ -940,36 +998,79 @@ class BumpAction(ActionWithDirection):
                 self.engine.message_log.add_message(f"아무 것도 할 수 없다!", color.red)
             return None
 
-        # Check for actors. If there is one, return MeleeAction.
-        if self.target_actor:
-            if self.entity == self.engine.player and self.target_actor.ai:
-                if self.target_actor.ai.owner == self.engine.player:
-                    return PlaceSwapAction(self.entity, self.target_actor).perform()
-                elif not self.target_actor.ai.check_if_enemy(self.entity):
-                    from input_handlers import NonHostileBumpHandler
-                    self.engine.event_handler = NonHostileBumpHandler(self.target_actor)
+        if self.bump_entity:
+            from input_handlers import NonHostileBumpHandler
+            if self.bump_entity.how_many_bump_action_possible(actor=self.entity) == 1: # Auto-Action when there is only one available action. (e.g. opening a door, attacking a hostile monster etc.)
+                action = self.bump_entity.get_bumpaction(actor=self.entity, keyword=self.bump_entity.get_possible_bump_action_keywords(self.entity)[0])
+                if action is None:
+                    return None
+                else:
+                    return action.perform()
+            else:
+                if self.entity == self.engine.player:
+                    self.engine.event_handler = NonHostileBumpHandler(self.bump_entity)
                     self.free_action = True # Force this action to not cost a time so that yime passes after player decides whether to attack or not.
                     return None
                 else:
-                    return MeleeAction(self.entity, self.dx, self.dy).perform()
-            elif self.entity.ai and self.target_actor.ai:
-                if self.entity.ai.check_if_enemy(self.target_actor):
-                    return MeleeAction(self.entity, self.dx, self.dy).perform()
-                else:
-                    return WaitAction(self.entity).perform()
-            else:
-                return MeleeAction(self.entity, self.dx, self.dy).perform()
-        elif self.target_semiactor_bump:
-            return self.target_semiactor_bump.bump_action(self.entity, self.dx, self.dy).perform()
+                    if self.entity.ai:
+                        return self.entity.ai.get_action_when_bumped_with(self.bump_entity).perform()
+
         else:
             if self.entity != self.engine.player:
-                return MovementAction(self.entity, self.dx, self.dy).perform()
+                return MovementAction(self.entity, self.dx, self.dy).perform() # AI should've avoided any danger during ai's path setting (which is before executing this action.)
             else:
-                # Actor is player
-                if self.engine.game_map.check_tile_safe(self.entity.x + self.dx, self.entity.y + self.dy):
+                if self.engine.game_map.check_tile_safe(self.engine.player, x=self.entity.x + self.dx, y=self.entity.y + self.dy, ignore_semiactor=True):
                     return MovementAction(self.entity, self.dx, self.dy).perform()
                 else:
+                    # If next tile is same as current one, ignore warning.
+                    if self.engine.game_map.tiles[self.entity.x + self.dx, self.entity.y + self.dy]["tile_id"] == self.engine.game_map.tiles[self.entity.x, self.entity.y]["tile_id"]:
+                        return MovementAction(self.entity, self.dx, self.dy).perform()
                     from input_handlers import DangerousTileWalkHandler
                     self.engine.event_handler = DangerousTileWalkHandler(dx=self.dx, dy=self.dy)
                     self.free_action = True # Force this action to not cost a time so that yime passes after player decides whether to attack or not.
                     return None
+
+    # if self.target_actor:
+        #     if self.entity == self.engine.player and self.target_actor.ai:
+        #         if self.target_actor.ai.owner == self.engine.player:
+        #             return PlaceSwapAction(self.entity, self.target_actor).perform()
+        #         elif not self.target_actor.ai.check_if_enemy(self.entity):
+        #
+        #             from input_handlers import NonHostileBumpHandler
+        #             self.engine.event_handler = NonHostileBumpHandler(self.target_actor)
+        #             self.free_action = True # Force this action to not cost a time so that yime passes after player decides whether to attack or not.
+        #             return None
+        #         else:
+        #             return MeleeAction(self.entity, self.dx, self.dy).perform()
+        #     elif self.entity.ai and self.target_actor.ai:
+        #         if self.entity.ai.check_if_enemy(self.target_actor):
+        #             return MeleeAction(self.entity, self.dx, self.dy).perform()
+        #         else:
+        #             return WaitAction(self.entity).perform()
+        #     else:
+        #         return MeleeAction(self.entity, self.dx, self.dy).perform()
+        # elif self.target_semiactor_bump:
+        #     if self.entity == self.engine.player:
+        #         from input_handlers import NonHostileBumpHandler
+        #         self.engine.event_handler = NonHostileBumpHandler(self.target_semiactor_bump)
+        #         self.free_action = True  # Force this action to not cost a time so that yime passes after player decides whether to attack or not.
+        #         return None
+        #     else:
+        #         print(f"WARNING::ai {self.entity.name} blocked by semiactor {self.target_semiactor_bump.name}. Ai will perform WaitAction.")
+        #         return WaitAction(self.entity).perform()
+        # else:
+        #     # Actor is player
+        #     if self.entity != self.engine.player:
+        #         return MovementAction(self.entity, self.dx, self.dy).perform()
+        #     else:
+        #         if self.engine.game_map.check_tile_safe(self.entity.x + self.dx, self.entity.y + self.dy, ignore_semiactor=True):
+        #             return MovementAction(self.entity, self.dx, self.dy).perform()
+        #         else:
+        #             # If next tile is same as current one, ignore warning.
+        #             if self.engine.game_map.tiles[self.entity.x + self.dx, self.entity.y + self.dy]["tile_id"] == self.engine.game_map.tiles[self.entity.x, self.entity.y]["tile_id"]:
+        #                 return MovementAction(self.entity, self.dx, self.dy).perform()
+        #
+        #             from input_handlers import DangerousTileWalkHandler
+        #             self.engine.event_handler = DangerousTileWalkHandler(dx=self.dx, dy=self.dy)
+        #             self.free_action = True # Force this action to not cost a time so that yime passes after player decides whether to attack or not.
+        #             return None

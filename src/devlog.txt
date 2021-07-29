@@ -1913,6 +1913,28 @@
             보다 더 유동적인 구조로 변환함.
 
             TODO: DangerousTileWalkHandler 관련 턴처리가 제대로 안되는 문제 수정 필요.
+            > 완료.
+            TODO: Bonus 시스템 버그 없는지 점검 필요.
+            > 완료. 문제 발견되지 않음.
+20210729 - TODO: 물에서 나오자마자 디버프 약화되지 않는 버그 발견, 수정필요
+
+            sort 성능 개선.
+            > 여러가지 방법들을 시도해봤음.
+              List오브젝트를 상속한 EntityList를 만들어서 EntityList.should_sort boolean을 변경해 필요할 때만 sorting하는 방식을 시도했으나,
+              여러 문제점이 발견되어 폐기함
+            > sort 호출 시점이 매 게임 루프가 아닌 camera.render() 시점으로 변경함.
+            > entity.render_id 를 해당 엔티티의 메모리 주소의 해시값을 사용하는 것으로 변경.
+
+            그 외 프레임워크 전반 대거 수정
+            특히 엔티티와의 상호작용 관련해서 구조를 보다 더 유지에 용이하게 변경함.
+
+            AI.get_action_when_bumped_with(self, bumped_entity: Entity) 제작.
+            > AI는 기본적으로 bump시 플레이어와 동일하게 처리되지만, 일부 특수 항목들에 대해 AI들에 한해 별도의 처리를 해줄 수 있게 하는 함수.
+            이걸로 이제 Chest같은 장애물을 AI도 자유롭게 지나다닐 수 있음. (혹은 사용도 가능함)
+
+            창고 관련해서 ChestAction추가. 이제 AI도 Chest를 Action형태로 접근이 가능함.
+
+            duel wield는 이제 dex를 감소시킴.
 
 
 

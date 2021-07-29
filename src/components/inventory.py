@@ -1,14 +1,11 @@
 from __future__ import annotations
-
 import random
+import color
 from typing import List, TYPE_CHECKING, Optional
 from components.base_component import BaseComponent
 from components.status import Bonus
 from exceptions import Impossible
 from korean import grammar as g
-from entity import Actor
-
-import color
 
 if TYPE_CHECKING:
     from entity import Actor, Item
@@ -32,23 +29,21 @@ class Inventory(BaseComponent):
     def inv_weight(self):
         tmp = 0
         for i in self.items:
-            tmp += i.weight
+            tmp += i.weight * i.stack_count
         return tmp
 
     def update_burden(self):
         """Check current inventory weight and apply actor state.
         Must be called when either inventory or strength is updated.
         Actual debuff is handled in actor_state.actor_burdened"""
+        from entity import Actor
         if not isinstance(self.parent, Actor): # Non-actor cannot be burdened.
             return None
         w = self.inv_weight
         strength = self.parent.status.changed_status["strength"]
         if w < strength * 2:
             self.parent.actor_state.encumbrance = 0
-            try:
-                self.parent.status.remove_bonus("burden_bonus")
-            except KeyError:
-                pass # This function can be called even when you are not burdened.
+            self.parent.status.add_bonus(Bonus("burden_bonus", bonus_agility=0, bonus_dexterity=0))
         elif w < strength * 3:
             self.parent.actor_state.encumbrance = 1
             self.parent.status.add_bonus(Bonus("burden_bonus", bonus_agility=-1, bonus_dexterity=-1))

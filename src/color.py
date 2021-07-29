@@ -54,6 +54,10 @@ stressed = (255, 179, 0)
 overloaded = (255, 106, 0)
 immovable = (255, 34, 0)
 
+obtain_item = (3, 252, 211)
+
+actor_detection = (252, 3, 219)
+
 player_damaged = (0xff, 0x70, 0x03)
 enemy_damaged = gray
 

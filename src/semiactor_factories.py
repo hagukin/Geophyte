@@ -67,7 +67,7 @@ closed_door = SemiActor(
     blocks_movement=True,
     blocks_sight=True,
     rule_cls=None,
-    bump_action=DoorOpenAction,#NOTE: Change this value to None to toggle off auto door opening
+    trigger_bump=True,
 )
 
 opened_door = SemiActor(
@@ -84,7 +84,7 @@ opened_door = SemiActor(
     blocks_movement=False,
     blocks_sight=False,
     rule_cls=None,
-    bump_action=None,
+    trigger_bump=False,
 )
 
 locked_door = SemiActor(
@@ -101,5 +101,5 @@ locked_door = SemiActor(
     blocks_movement=True,
     blocks_sight=True,
     rule_cls=None,
-    bump_action=DoorOpenAction,#NOTE: Change this value to None to toggle off auto door opening
+    trigger_bump=True,
 )

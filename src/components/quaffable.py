@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import copy
 import random
 from typing import Optional, TYPE_CHECKING
 from tiles import TileUtil
@@ -73,10 +74,11 @@ class PotionOfParalysisQuaffable(Quaffable):
         self.turn = turn
 
     def apply_effect(self, apply_to: Actor) -> None:
+        temp = copy.copy(apply_to.actor_state.is_paralyzing)
         apply_to.actor_state.apply_paralyzation([0,self.turn])
 
         # Log
-        if apply_to.actor_state.is_paralyzing == [0, 0]:
+        if temp == [0, 0]:
             if apply_to == self.engine.player:
                 self.engine.message_log.add_message(f"당신은 갑자기 몸이 뻣뻣해지는 것을 느꼈다!", color.player_damaged, )
             else:
@@ -107,20 +109,26 @@ class PotionOfMonsterDetectionQuaffable(Quaffable):
 
 class PotionOfFlameQuaffable(Quaffable):
     """Spawn a flame entity onto its location. (quaff/thrown)"""
-    def __init__(self, turn: int):
+    def __init__(self, base_dmg, add_dmg, turn: int, fire_lifetime):
         super().__init__()
+        self.base_dmg = base_dmg
+        self.add_dmg = add_dmg
         self.turn = turn
+        self.fire_lifetime = fire_lifetime
 
     def apply_effect(self, apply_to: Actor) -> None:
-        initial_dmg = random.randint(1, 1+int(apply_to.status.changed_status["max_hp"]/20))
         apply_to.actor_state.apply_burning([
-            initial_dmg,
-            random.randint(1,1+int(initial_dmg/self.turn)),
+            self.base_dmg,
+            self.add_dmg,
             0,
             self.turn])
+
         # Spawn fire
         import semiactor_factories
-        semiactor_factories.fire.spawn(apply_to.gamemap, apply_to.x, apply_to.y, 6)
+        tmp = semiactor_factories.fire.copy(apply_to.gamemap, self.fire_lifetime)
+        tmp.rule.base_damage = int(self.base_dmg / 2)
+        tmp.rule.add_damage = int(self.add_dmg / 2)
+        tmp.spawn(apply_to.gamemap, apply_to.x, apply_to.y, self.fire_lifetime)
 
         # Log
         if apply_to == self.engine.player:
@@ -219,11 +227,6 @@ class PotionOfLiquifiedAntsQuaffable(Quaffable):
             dmg,
             0,
             self.turn])
-
-        # Spawn 8 ants maximum surrounding the consumer.
-        from actor_factories import ant
-        from util import spawn_entity_8way
-        spawn_entity_8way(entity=ant, gamemap=apply_to.gamemap, center_x=apply_to.x, center_y=apply_to.y, spawn_cnt=random.randint(5,8))
 
         # Log
         if apply_to == self.engine.player:

@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from tcod.tileset import get_default
-from actions import WaitAction
 import copy
 import math
 import random
@@ -9,6 +8,8 @@ import numpy as np
 
 from typing import Optional, Tuple, Type, TypeVar, TYPE_CHECKING, List
 from numpy.core.shape_base import block
+
+from input_handlers import ForceAttackInputHandler, ChestPutEventHandler, ChestTakeEventHandler
 from order import RenderOrder, InventoryOrder
 from korean import grammar as g
 from tiles import TileUtil
@@ -29,6 +30,7 @@ if TYPE_CHECKING:
     from components.actor_state import ActorState
     from components.semiactor_info import SemiactorInfo
     from game_map import GameMap
+    from actions import Action
 
 T = TypeVar("T", bound="Entity")
 
@@ -112,7 +114,7 @@ class Entity:
         self.blocks_movement = blocks_movement
         self.blocks_sight = blocks_sight
         self.render_order = render_order
-        self.entity_order = 0
+        self.entity_order = id(self)
         self.gamemap = gamemap
     
     @property
@@ -153,30 +155,118 @@ class Entity:
         else:
             self.is_on_air = False
 
-    def how_many_bump_action_possible(self) -> int:
+    def get_possible_bump_action_keywords(self, actor: Actor) -> List[str]:
         """Returns the amount of different bump actions this entity can do."""
-        allactions = ("move","swap","attack","takeout","putin")
-        n = 0
+        allactions = ("move", "swap", "force_attack", "attack", "takeout", "putin", "open", "close", "unlock")
+        tmp = []
         for action in allactions:
-            if self.check_if_bump_action_possible(action):
-                n += 1
-        return n
+            if self.check_if_bump_action_possible(actor, action):
+                tmp.append(action)
+        return tmp
 
-    def check_if_bump_action_possible(self, keyword: str) -> bool:
+    def how_many_bump_action_possible(self, actor: Actor) -> int:
+        """Returns the amount of different bump actions this entity can do."""
+        return len(self.get_possible_bump_action_keywords(actor))
+
+    def check_if_bump_action_possible(self, actor: Actor, keyword: str) -> bool:
         """Returns a default list of bump action that are available for this entity.
         e.g. an entity that has blocks_movement = True will not get "move" bump action.
         NOTE: "purchase" only exists as a form, and its active condition is decided during NonHostileBumpHandler."""
-
+        from chest_factories import ChestSemiactor
         if keyword == "move" and not self.blocks_movement:
             return True
-        if keyword == "swap" and self.swappable:
+        elif keyword == "swap" and self.swappable:
+            if isinstance(self, Actor):
+                if self.ai:
+                    if self.ai.check_if_enemy(actor=actor):
+                        return False
             return True
-        if keyword == "attack" and hasattr(self, "status"):
+        elif keyword == "attack" and hasattr(self, "status"):
             return True
-        from chest_factories import ChestSemiactor
-        if (keyword == "takeout" or keyword == "putin") and isinstance(self, ChestSemiactor):
+        elif keyword == "force_attack" and hasattr(self, "status"):
+            if isinstance(self, Actor):
+                if self.ai:
+                    if self.ai.check_if_enemy(actor=actor):
+                        return False
+            return True
+        elif (keyword == "takeout" or keyword == "putin") and isinstance(self, ChestSemiactor):
+            return True
+        elif keyword == "open" and self.entity_id[-11:] == "closed_door":
+            return True
+        elif keyword == "close" and self.entity_id[-11:] == "opened_door":
+            return True
+        elif keyword == "unlock" and self.entity_id[-11:] == "locked_door":#TODO Add lock
             return True
         return False
+
+    def get_bumpaction(self, actor: Actor, keyword: str) -> Optional[Action]:
+        """returns the action of given keyword.
+        NOTE: Self is the one getting bumped.
+        NOTE: This function MUST do one of the following:
+            a) return a Action
+            or
+            b) set current eventhandler to a one that ALWAYS returns an action when .perform(), and return None"""
+        import actions
+        dx, dy = self.x - actor.x, self.y - actor.y
+        if keyword == "move":
+            return actions.MovementAction(actor, dx, dy)
+        elif keyword == "swap":
+            return actions.PlaceSwapAction(actor, self)
+        elif keyword == "attack":
+            return actions.MeleeAction(actor, dx, dy)
+        elif keyword == "force_attack":
+            self.engine.event_handler = ForceAttackInputHandler(melee_action=actions.MeleeAction(actor, dx, dy))
+            return None
+        elif keyword == "takeout":
+            self.engine.event_handler = ChestTakeEventHandler(self.storage)
+            return None  # TODO Turn should pass
+        elif keyword == "putin":
+            self.engine.event_handler = ChestPutEventHandler(actor.inventory, self.storage)
+            return None  # TODO Turn should pass
+        elif keyword == "open":
+            return actions.DoorOpenAction(actor, dx, dy)
+        elif keyword == "close":
+            return actions.DoorCloseAction(actor, dx, dy)
+        elif keyword == "unlock":
+            return actions.DoorUnlockAction(actor, dx, dy)
+        raise Exception(f"FATAL ERROR::Cannot find the given keyword {keyword}")
+
+    def environmental_hole(self):
+        """Handle entity on a hole tile."""
+        if self.gamemap.tiles[self.x, self.y]["tile_id"] == "hole":
+            new_gamemap = self.engine.world.get_map(depth=self.gamemap.depth + 1)
+            x, y = new_gamemap.get_random_tile(should_no_entity=True, should_walkable=True, should_safe_to_walk=True,
+                                               should_not_protected=True)
+            self.engine.change_entity_depth(entity=self, depth=self.gamemap.depth + 1, xpos=x, ypos=y)
+            return None
+
+    def environmental_grass(self):
+        """Handle entity on a grass tile"""
+        if self.gamemap.tiles[self.x, self.y]["tile_id"] == "dense_grass":
+            self.gamemap.tiles[self.x, self.y] = self.gamemap.tileset["t_sparse_grass"]()
+
+    def environmental_water(self):
+        """Handle entity on water.
+        NOTE: is different from Actor.environmental_water"""
+        if self.gamemap.tiles[self.x, self.y]["tile_id"] == "shallow_water":
+            self.gamemap.tiles[self.x, self.y] = self.gamemap.tileset["t_shallow_water"]()
+            change_water_color = True
+        elif self.gamemap.tiles[self.x, self.y]["tile_id"] == "deep_water":
+            self.gamemap.tiles[self.x, self.y] = self.gamemap.tileset["t_deep_water"]()
+            change_water_color = True
+        else:
+            change_water_color = False
+
+        # Change the color of the water this entity is on (to simulate basic water movements)
+        if change_water_color:
+            for x_add in range(3):
+                for y_add in range(3):
+                    if self.gamemap.tiles[self.x - 1 + x_add, self.y - 1 + y_add]["tile_id"] == "shallow_water":
+                        self.gamemap.tiles[self.x - 1 + x_add, self.y - 1 + y_add] = self.gamemap.tileset[
+                            "t_shallow_water"]()
+                    elif self.gamemap.tiles[self.x - 1 + x_add, self.y - 1 + y_add]["tile_id"] == "deep_water":
+                        self.gamemap.tiles[self.x - 1 + x_add, self.y - 1 + y_add] = self.gamemap.tileset[
+                            "t_deep_water"]()
 
     def do_environmental_effects(self) -> None:
         """
@@ -191,35 +281,9 @@ class Entity:
         (e.g. teleporting on traps will still activate the traps.)
         """
         if not self.is_on_air:
-            # When entity is on a hole
-            if self.gamemap.tiles[self.x, self.y]["tile_id"] == "hole":
-                new_gamemap = self.engine.world.get_map(depth=self.gamemap.depth + 1)
-                x, y = new_gamemap.get_random_tile(should_no_entity=True, should_walkable=True, should_safe_to_walk=True, should_not_protected=True)
-                self.engine.change_entity_depth(entity=self, depth=self.gamemap.depth+1, xpos=x, ypos=y)
-                return None
-
-            # When entity is on a grass
-            if self.gamemap.tiles[self.x, self.y]["tile_id"] == "dense_grass":
-                self.gamemap.tiles[self.x, self.y] = self.gamemap.tileset["t_sparse_grass"]()
-
-            # When entity is on a water
-            if self.gamemap.tiles[self.x, self.y]["tile_id"] == "shallow_water":
-                self.gamemap.tiles[self.x, self.y] = self.gamemap.tileset["t_shallow_water"]()
-                change_water_color = True
-            elif self.gamemap.tiles[self.x, self.y]["tile_id"] == "deep_water":
-                self.gamemap.tiles[self.x, self.y] = self.gamemap.tileset["t_deep_water"]()
-                change_water_color = True
-            else:
-                change_water_color = False
-
-            # Change the color of the water this entity is on (to simulate basic water movements)
-            if change_water_color:
-                for x_add in range(3):
-                    for y_add in range(3):
-                        if self.gamemap.tiles[self.x-1+x_add, self.y-1+y_add]["tile_id"] == "shallow_water":
-                            self.gamemap.tiles[self.x-1+x_add, self.y-1+y_add] = self.gamemap.tileset["t_shallow_water"]()
-                        elif self.gamemap.tiles[self.x-1+x_add, self.y-1+y_add]["tile_id"] == "deep_water":
-                            self.gamemap.tiles[self.x-1+x_add, self.y-1+y_add] = self.gamemap.tileset["t_deep_water"]()
+            self.environmental_hole()
+            self.environmental_grass()
+            self.environmental_water()
 
     def gain_action_point(self):
         """Gain action points every game time."""
@@ -487,6 +551,46 @@ class Actor(Entity):
     def remove_self(self):
         super().remove_self()
 
+    def environmental_pit(self):
+        """Handles when actor is in pit"""
+        # Deep pit
+        if self.gamemap.tiles[self.x, self.y]["tile_id"] == "deep_pit":
+            if not self.actor_state.is_in_deep_pit:
+                pass  # TODO: Add an effect that happens only right after when the actor fell into the pit
+
+            self.actor_state.is_in_deep_pit = True  # TODO : action에서 deep pit 처리
+        else:
+            self.actor_state.is_in_deep_pit = False
+
+        # Shallow pit
+        if self.gamemap.tiles[self.x, self.y]["tile_id"] == "shallow_pit":
+            self.actor_state.is_in_shallow_pit = True
+        else:
+            self.actor_state.is_in_shallow_pit = False
+
+    def environmental_water(self):
+        """Handles when actor is in water"""
+        self.actor_state.was_submerged = self.actor_state.is_submerged
+
+        if self.gamemap.tiles[self.x, self.y]["tile_id"] == "deep_water":
+            self.actor_state.is_submerged = True
+            if self.actor_state.size < 6: #TODO Size
+                self.actor_state.is_underwater = True
+        elif self.gamemap.tiles[self.x, self.y]["tile_id"] == "shallow_water":
+            self.actor_state.is_submerged = True
+            if self.actor_state.size <= 1: #TODO Size
+                self.actor_state.is_underwater = True
+        else:
+            self.actor_state.is_submerged = False
+            self.actor_state.is_underwater = False
+            self.actor_state.apply_drowning([0, 0])
+            if not self.actor_state.is_underwater:
+                self.status.remove_bonus("submerged_bonus", ignore_warning=True)
+
+        # Immediate debuff
+        if self.actor_state.is_submerged:
+            self.actor_state.actor_submerged()
+
     def do_environmental_effects(self):
         """
         Overriding the entity method.
@@ -500,50 +604,11 @@ class Actor(Entity):
             if self.actor_state.is_flying or self.actor_state.is_levitating != [0, 0]:
                 self.float(True)
 
-            ### 1. Deep pit
-            if self.gamemap.tiles[self.x, self.y]["tile_id"] == "deep_pit":
-                if not self.actor_state.is_in_deep_pit:
-                    pass#TODO: Add an effect that happens only right after when the actor fell into the pit
-
-                self.actor_state.is_in_deep_pit = True #TODO : action에서 deep pit 처리
-            else:
-                self.actor_state.is_in_deep_pit = False
-            
-            ### 2. Shallow pit
-            if self.gamemap.tiles[self.x, self.y]["tile_id"] == "shallow_pit":
-                self.actor_state.is_in_shallow_pit = True
-            else:
-                self.actor_state.is_in_shallow_pit = False
-
-            ### 3. Deep water, shallow water
-            # copy is_submerged to was_submerged
-            self.actor_state.was_submerged = self.actor_state.is_submerged
-
-            if self.gamemap.tiles[self.x, self.y]["tile_id"] == "deep_water":
-                self.actor_state.is_submerged = True
-
-                # Actor that is bigger than size 7 does not fully sink in the water.
-                if self.actor_state.size < 7:
-                    self.actor_state.is_underwater = True
-            elif self.gamemap.tiles[self.x, self.y]["tile_id"] == "shallow_water":
-                self.actor_state.is_submerged = True
-
-                # Actor that is smaller than size 1 will fully sink in the water even if its shallow.
-                if self.actor_state.size <= 1:
-                    self.actor_state.is_underwater = True
-                else:
-                    self.actor_state.is_underwater = False
-            else:
-                self.actor_state.is_submerged = False
-                self.actor_state.is_underwater = False
-                self.actor_state.is_drowning = [0,0]
-
-            # Apply special effects on the tile this actor is at
-            self.do_special_environmental_effect()
-   
+            self.environmental_pit()
+            self.environmental_water()
+            self.do_special_environmental_effect() # Do action on tile
         ### B. Semiactor related ###
         semiactor_collided = self.gamemap.get_semiactor_at_location(self.x, self.y)
-
         if semiactor_collided:
             if semiactor_collided.walkable:
                 semiactor_collided.walkable.perform(target=self)
@@ -921,7 +986,7 @@ class SemiActor(Entity):
         blocks_movement: bool = False,
         blocks_sight: bool = False,
         rule_cls = None,
-        bump_action = None,
+        trigger_bump: bool = True,
         render_order = RenderOrder.SEMIACTOR, #NOTE: Might change depending on the entity itself
     ):
         """
@@ -934,10 +999,8 @@ class SemiActor(Entity):
                 Boolean. 
                 This indicates whether it is safe to move to this entity's location or not.
                 NOTE: This value might not be True to some types of actors, but it should work against most of the actors.
-            bump_action:
-                This variable is an object, and it is a child of SemiactorActionWithDirection class.
-                When a BumpAction is called upon this semiactor, the game calls this instead.
-                If its set to None, the game will call MoveAction.
+            trigger_bump:
+                If True, player will open NonHostileInputHandler instead of moving onto this semiactor.
         """
         super().__init__(
             gamemap=gamemap,
@@ -970,7 +1033,7 @@ class SemiActor(Entity):
             self.action_speed = 0
 
         self.safe_to_move = safe_to_move
-        self.bump_action = bump_action
+        self.trigger_bump = trigger_bump
         self.semiactor_info = semiactor_info
         self.semiactor_info.parent = self
 
@@ -984,6 +1047,11 @@ class SemiActor(Entity):
     
     def remove_self(self):
         super().remove_self()
+
+    def copy(self, gamemap: GameMap, lifetime: int=3) -> SemiActor:
+        clone = super(SemiActor, self).copy(gamemap)
+        clone.lifetime = lifetime
+        return clone
         
     def spawn(self: T, gamemap: GameMap, x: int, y: int, lifetime: int=3) -> T:
         """Spawn a copy of this instance at the given location."""

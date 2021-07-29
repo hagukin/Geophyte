@@ -4,19 +4,18 @@ from typing import Optional, TYPE_CHECKING
 
 import tiles
 from animation import Animation
-from entity import Actor
 from components.base_component import BaseComponent
 from exceptions import Impossible
 from order import InventoryOrder
 from korean import grammar as g
 from tiles import TileUtil
+from entity import Actor
 
-import semiactor_factories
 import actions
 import color
 
 if TYPE_CHECKING:
-    from entity import Item
+    from entity import Item, Actor
 
 class Readable(BaseComponent):
     def __init__(self):
@@ -326,6 +325,7 @@ class ScrollOfMeteorStormReadable(Readable): #TODO: Make parent class like other
         self.engine.message_log.add_message(f"허공에서 운석이 나타났다!", target=consumer)
 
         # Set fire on the given radius
+        import semiactor_factories
         for dx in range(-self.radius, self.radius+1):
             for dy in range(-self.radius, self.radius+1):
                 semiactor_factories.fire.spawn(self.engine.game_map, target_xy[0] + dx, target_xy[1] + dy, 6)
@@ -516,6 +516,7 @@ class ScrollOfScorchingRayReadable(RayReadable):
     
     def effects_on_path(self, x: int, y: int):
         # Create fire
+        import semiactor_factories
         semiactor_factories.fire.spawn(self.engine.game_map, x, y, 6)
 
 

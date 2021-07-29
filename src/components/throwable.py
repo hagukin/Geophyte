@@ -1,13 +1,12 @@
 from __future__ import annotations
 
-from typing import Optional, List
+from typing import Optional, List, TYPE_CHECKING
 from animation import Animation
 from components.base_component import BaseComponent
-from entity import Actor, SemiActor, Entity
 from korean import grammar as g
 from tiles import TileUtil
+from entity import Actor, SemiActor, Entity
 
-import semiactor_factories
 import actions
 import color
 import random
@@ -25,6 +24,12 @@ class Throwable(BaseComponent):
         self.sec_per_frame = sec_per_frame
         self.shattered = False # if True, item can be destroyed after being thrown (depending on the break_chance)
         self.trigger_if_thrown_at = trigger_if_thrown_at
+        self.shattered_x = None
+        self.shattered_y = None
+        self.collision_x = None # Set this value When collided with a monster, and when this throwable's penetrate == False. When collided with a wall, this value remains None.
+        self.collision_y = None
+        self.dx = None
+        self.dy = None
 
     def is_miss(self, thrower: Actor, target: Actor) -> bool:
         """return boolean indicating whether the attack is missed or not"""
@@ -70,18 +75,15 @@ class Throwable(BaseComponent):
 
             return round(damage)
 
-    def break_calculation(self):
+    def break_calculation(self) -> None:
         """
         Calculate chance of this component's parent's destruction when the throw was successful.
         """
-        # indestrutible object
         if self.break_chance == 0:
             return None
-
         if random.random() <= self.break_chance:
-            # Destroy object (The actual destruction of object is handled somewhere else)
             self.shattered = True
-                
+
     def throw_distance(self, thrower: Actor):
         throw_dist_constant = 0.05
 
@@ -196,6 +198,7 @@ class NormalThrowable(Throwable):
                 if not self.shattered:
                     temp_x, temp_y = collided.x, collided.y
                     collided.remove_self()
+                    import semiactor_factories
                     semiactor_factories.opened_door.spawn(self.engine.game_map, temp_x, temp_y, -1)
                 # drop in front of the semiactor(NOTE: Not below the semiactor)
                 return False
@@ -221,11 +224,11 @@ class NormalThrowable(Throwable):
             return loc # Last location of the thrown item's path
         return None
 
-    def drop_thrown_item(self, collision_x: int, collision_y: int, thrower, loc: Optional[List]=None):
+    def drop_thrown_item(self, thrower, loc: Optional[List]=None):
         if not self.shattered:
             # If collided with actor, drop it on the actor's location
-            if collision_x and collision_y:
-                thrower.inventory.throw(item=self.parent, x=collision_x, y=collision_y, show_msg=False)
+            if self.collision_x and self.collision_y:
+                thrower.inventory.throw(item=self.parent, x=self.collision_x, y=self.collision_y, show_msg=False)
             else:
                 if loc: # if loc exists (if the object flied one or more tile)
                     thrower.inventory.throw(item=self.parent, x=loc[0], y=loc[1], show_msg=False)
@@ -239,69 +242,55 @@ class NormalThrowable(Throwable):
                 self.engine.message_log.add_message(f"{g(self.parent.name, '이')} 파괴되었다.", fg=color.gray, target=thrower)
             self.parent.parent.remove_item(self.parent, remove_count=1)
 
-            # throwable component is shared through the entire stack, so .shattered should be set back to False after the item was thrown
-            # (So that the rest of the item stack can work properly)
-            self.shattered = False
+    def effects_when_shattered(self):
+        """Effects when the item is broken. e.g. spawn fire when fire potion is broken
+        NOTE: Think seperately from collided_with_entity functions."""
+        pass
 
     def activate(self, action: actions.ThrowItem) -> None:
         thrower = action.entity
         target = None
-        
-        dx = action.target_xy[0]
-        dy = action.target_xy[1]
-        dest_x, dest_y = thrower.x + dx, thrower.y + dy
 
+        self.dx = action.target_xy[0]
+        self.dy = action.target_xy[1]
+        dest_x, dest_y = thrower.x + self.dx, thrower.y + self.dy
         dist = 0
-
-        collision_x = None # Set this value When collided with a monster, and when this throwable's penetrate == False. When collided with a wall, this value remains None.
-        collision_y = None
-
         path = []
 
         ### A. Main loop ###
         while not self.shattered:
-
             # 1. Collided with the map border
             if not self.engine.game_map.in_bounds(dest_x, dest_y):
-                # Destination is out of bounds.
                 self.break_calculation()
                 break
-
             # 2. Collided with a wall
             if not self.engine.game_map.tiles["walkable"][dest_x, dest_y]:
-                # Destination is blocked by a tile.
                 self.break_calculation()
                 break
-
             # 3. Collided with an entity
             for collided in self.engine.game_map.get_all_blocking_entities_at_location(dest_x, dest_y):
                 # 3-1. If collided with the thrower itself #NOTE TODO: Further debugging required
                 if collided == thrower:
                     self.collided_with_thrower(target=target, thrower=thrower)
-                    return 0
-
+                    return None
                 # 3-2. If collided with actor entity (beside thrower itself)
                 if isinstance(collided, Actor):
                     self.collided_with_actor(collided=collided, thrower=thrower)
-                
                 # 3-3. If collided with semiactor entity, and the entity.block_movement is True
                 if isinstance(collided, SemiActor):
                     if (self.collided_with_semiactor(collided=collided, thrower=thrower)):
-                        collision_x = dest_x - dx
-                        collision_y = dest_y - dy
+                        self.collision_x = dest_x - self.dx
+                        self.collision_y = dest_y - self.dy
                         break
-
                 # Check penetration
                 if self.penetration == False:
-                    collision_x = dest_x
-                    collision_y = dest_y
+                    self.collision_x = dest_x
+                    self.collision_y = dest_y
                     break
-
             # 4. Check range
             path.append((dest_x, dest_y))
-            dest_x += dx
-            dest_y += dy
-            
+            dest_x += self.dx
+            dest_y += self.dy
             dist += 1
             if dist >= self.throw_distance(thrower=thrower):
                 break
@@ -310,8 +299,16 @@ class NormalThrowable(Throwable):
         loc = self.render_animation(path)
 
         ### C. Drop Item ###
-        self.drop_thrown_item(collision_x, collision_y, thrower, loc)
+        self.drop_thrown_item(thrower, loc)
         
+        ### D. Effects when shattered ###
+        if self.shattered:
+            self.shattered_x, self.shattered_y = dest_x, dest_y
+            self.effects_when_shattered()
+            # throwable component is shared through the entire stack, so .shattered should be set back to False after the item was thrown
+            # (So that the rest of the item stack can work properly)
+            self.shattered = False
+
 
 
 ###########################################################################################################################
@@ -333,17 +330,31 @@ class PotionQuaffAndThrowSameEffectThrowable(NormalThrowable):
             print(f"WARNING::{self.parent.entity_id} has no quaffable but is using potion throwable.")
 
 
-class PotionOfFlameThrowable(PotionQuaffAndThrowSameEffectThrowable):
+class PotionOfFlameThrowable(NormalThrowable):
     """Additional freezing tile effect."""
-    def effect_when_collided_with_entity(self, target: Entity, thrower: Actor):
-        semiactor_factories.fire.spawn(self.engine.game_map, target.x, target.y, 6)
+    def effects_when_shattered(self):
+        import semiactor_factories
+        from util import spawn_entity_8way
+        tmp = semiactor_factories.fire.copy(self.engine.game_map, lifetime=self.parent.quaffable.fire_lifetime)
+        tmp.rule.base_damage = int(self.parent.quaffable.base_dmg / 2)
+        tmp.rule.add_damage = int(self.parent.quaffable.add_dmg / 2)
+        spawn_entity_8way(entity=tmp, gamemap=self.engine.game_map, center_x=self.shattered_x-self.dx, center_y=self.shattered_y-self.dy, spawn_cnt=8, spawn_on_center=True)
 
 
 class PotionOfFrostThrowable(PotionQuaffAndThrowSameEffectThrowable):
     """Additional freezing tile effect."""
-    def effect_when_collided_with_entity(self, target: Entity, thrower: Actor):
-        self.engine.game_map.tiles[target.x, target.y] = TileUtil.freeze(
-            self.engine.game_map.tiles[target.x, target.y])
+    def effects_when_shattered(self):
+        for dx in (1, 0, -1):
+            for dy in (1, 0, -1):
+                self.engine.game_map.tiles[self.shattered_x-self.dx+dx, self.shattered_y-self.dy+dy] = TileUtil.freeze(self.engine.game_map.tiles[self.shattered_x-self.dx+dx, self.shattered_y-self.dy+dy])
+
+
+class PotionOfLiquifiedAntsThrowable(NormalThrowable):
+    def effects_when_shattered(self):
+        # Spawn 8 ants maximum surrounding the consumer.
+        from actor_factories import ant
+        from util import spawn_entity_8way
+        spawn_entity_8way(entity=ant, gamemap=self.engine.game_map, center_x=self.shattered_x - self.dx, center_y=self.shattered_y - self.dy, spawn_cnt=random.randint(5,8), spawn_on_center=True)
 
 
 class ToxicGooThrowable(NormalThrowable):

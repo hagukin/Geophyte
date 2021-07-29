@@ -211,21 +211,32 @@ def equip_region_name_to_str(region_name) -> str:
     return translated
 
 
-def spawn_entity_8way(entity, gamemap, center_x: int, center_y: int, spawn_cnt: int=8) -> None:
-    curr_spawn_cnt = 0
+def spawn_entity_8way(entity, gamemap, center_x: int, center_y: int, spawn_cnt: int=8, spawn_on_center: bool=False, randomize: bool=True) -> None:
+    def spawn(_entity, _gamemap, _x: int, _y: int):
+        if isinstance(_entity, Actor):
+            if gamemap.check_tile_monster_spawnable(_x, _y):
+                entity.spawn(_gamemap, _x, _y, is_active=True)
+        else:
+            entity.spawn(_gamemap, _x, _y)
 
+
+    if spawn_on_center:
+        spawn(entity, gamemap, center_x, center_y)
+
+    curr_spawn_cnt = 0
     xs = [1, 0, -1]
     ys = [1, 0, -1]
-    random.shuffle(xs)
-    random.shuffle(ys) # randomize spawn place
+    if randomize:
+        random.shuffle(xs)
+        random.shuffle(ys) # randomize spawn place
 
     for dx in xs:
         for dy in ys:
+            if dx == 0 and dy == 0:
+                continue
             if curr_spawn_cnt >= spawn_cnt:
                 return None
-            if isinstance(entity, Actor):
-                if gamemap.check_tile_monster_spawnable(center_x + dx, center_y + dy):
-                    entity.spawn(gamemap, center_x + dx, center_y + dy, is_active=True)
+            spawn(entity, gamemap, center_x+dx, center_y+dy)
 
             curr_spawn_cnt += 1
-            # TODO: Add other types of entities
+

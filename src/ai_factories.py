@@ -171,13 +171,12 @@ class Sphere_Of_Acid_Ai(ai.BaseAI):
         super().__init__(alignment, do_melee_atk, do_ranged_atk, use_ability)
         self.hostile_type.add('@')
 
-    def get_melee_action(self, dx, dy):
+    def perform_melee_action(self, dx, dy):
         """
         Return the action this ai will perform when its melee attacking something.
         If the ai has any sort of special effects to its melee attack, its passed as a parameter.
         """
         explosion_action.AcidExplodeAction(self.parent, False, True, radius=2, expl_dmg=50, dmg_reduction_by_dist=10, cause_fire=0).perform()
-        self.parent.status.death()
 
 
 ####################################################

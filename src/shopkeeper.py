@@ -52,7 +52,7 @@ class Shopkeeper_Ai(ai.BaseAI):
                 continue
         return tmp
 
-    def idle_action(self) -> Action: #Override
+    def perform_idle_action(self) -> Action: #Override
         return self.wait_for_customer()
 
     def perform_shopkeeping(self) -> None:

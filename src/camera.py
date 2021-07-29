@@ -159,6 +159,10 @@ class Camera:
         If it isn't, but it's in the "explored" array, then draw it with the "dark" colors.
         Otherwise, the default is "SHROUD".
         """
+        # update enetities, sort them
+        self.engine.game_map.sort_entities()
+        self.engine.update_entity_in_sight()
+
         # Render tiles
         self.render_tiles(console)
 

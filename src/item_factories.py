@@ -87,7 +87,7 @@ potion_of_monster_detection = Item(
     stackable=True,
     throwable=throwable.NormalThrowable(break_chance=1),
     readable=None,
-    quaffable=quaffable.PotionOfMonsterDetectionQuaffable(turn=20),
+    quaffable=quaffable.PotionOfMonsterDetectionQuaffable(turn=50),
 )
 temp_items_lists.append(potion_of_monster_detection)
 item_rarity.append(potion_of_monster_detection.rarity)
@@ -113,7 +113,7 @@ potion_of_flame = Item(
     stackable=True,
     throwable=throwable.PotionOfFlameThrowable(break_chance=1, trigger_if_thrown_at=True),
     readable=None,
-    quaffable=quaffable.PotionOfFlameQuaffable(turn=10),
+    quaffable=quaffable.PotionOfFlameQuaffable(base_dmg=10, add_dmg=2, turn=8, fire_lifetime=8),
 )
 temp_items_lists.append(potion_of_flame)
 item_rarity.append(potion_of_flame.rarity)
@@ -217,7 +217,7 @@ potion_of_levitation = Item(
     stackable=True,
     throwable=throwable.PotionQuaffAndThrowSameEffectThrowable(break_chance=1, trigger_if_thrown_at=True),
     readable=None,
-    quaffable=quaffable.PotionOfLevitationQuaffable(turn=15),
+    quaffable=quaffable.PotionOfLevitationQuaffable(turn=50),
 )
 temp_items_lists.append(potion_of_levitation)
 item_rarity.append(potion_of_levitation.rarity)
@@ -241,7 +241,7 @@ potion_of_liquified_ants = Item(
     corrodible=0,
     droppable=True,
     stackable=True,
-    throwable=throwable.PotionQuaffAndThrowSameEffectThrowable(break_chance=1, trigger_if_thrown_at=True),
+    throwable=throwable.PotionOfLiquifiedAntsThrowable(break_chance=1, trigger_if_thrown_at=True),
     readable=None,
     quaffable=quaffable.PotionOfLiquifiedAntsQuaffable(turn=5),
 )

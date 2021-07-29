@@ -766,22 +766,27 @@ class ActorState(BaseComponent):
             self.apply_burning([0,0,0,0])
 
         # Debuffs on agi and dex if you cant swim
-        if not self.parent.actor_state.can_swim:
-            
-            # Fully submerged
-            if self.parent.actor_state.is_underwater:
+        if self.is_underwater:
+            if not self.can_swim and self.size <= 5: #TODO: Size
+                if self.is_drowning == [0,0] and not self.can_breathe_underwater and self.need_breathe:
+                    self.apply_drowning([0, 80])
+
                 # agility, dexterity reduce in half (will not stack)
                 self.parent.status.add_bonus(Bonus("submerged_bonus",
-                                                   bonus_agility=-1 * int(self.parent.status.changed_status["agility"] / 2),
-                                             bonus_dexterity=-1 * int(self.parent.status.changed_status["dexterity"] / 2)))
-            # No debuff when partially submerged.
-        
-        # Actor will slowly drown if it can't swim nor breathe underwater, and it needs to breathe to live
-        if self.parent.actor_state.is_drowning == [0,0] and not self.parent.actor_state.can_swim and not self.parent.actor_state.can_breathe_underwater and self.parent.actor_state.need_breathe:
-            self.apply_drowning([0, 80])
-        # Moved from deep water to shallow water while drowning (The actor is still submerged, but is_underwater is set to False)
-        elif self.parent.actor_state.is_drowning != [0,0] and not self.parent.actor_state.is_underwater:
-            self.apply_drowning([0, 0])
+                                                   bonus_agility=-10,
+                                                   bonus_dexterity=-10))
+            else:
+                if self.is_drowning != [0, 0]:
+                    self.apply_drowning([0, 0])
+
+                # agility, dexterity reduce in half (will not stack)
+                self.parent.status.add_bonus(Bonus("submerged_bonus",
+                                                   bonus_agility=-5,
+                                                   bonus_dexterity=-5))
+        else:
+            if self.is_drowning != [0, 0]:
+                self.apply_drowning([0, 0])
+
 
     def actor_drowning(self):
         """

@@ -5,7 +5,6 @@ from order import RenderOrder
 import random
 from typing import Tuple, List
 from entity import SemiActor
-from actions import ChestBumpAction
 
 class ChestSemiactor(SemiActor):
     def __init__(
@@ -28,9 +27,9 @@ class ChestSemiactor(SemiActor):
         blocks_movement: bool = False,
         blocks_sight: bool = False,
         rule_cls = None,
-        bump_action = None,
+        trigger_bump: bool = True,
         storage = None,
-        initial_items = [],
+        initial_items = None,
     ):
         """
         Args:
@@ -63,19 +62,17 @@ class ChestSemiactor(SemiActor):
             blocks_movement=blocks_movement,
             blocks_sight=blocks_sight,
             rule_cls=rule_cls,
-            bump_action=bump_action,
+            trigger_bump=trigger_bump,
             render_order=RenderOrder.SEMIACTOR_OBJ,
         )
         self.storage = storage
         if self.storage:
             self.storage.parent = self
-        self.initial_items = initial_items
+        if initial_items != None:
+            self.initial_items = initial_items
+        else:
+            self.initial_items = []
 
-    def spawn(self, gamemap, x: int, y: int, lifetime=-1, initial_items: List=None):
-        """Spawn a copy of this instance at the given location."""
-        clone = super().spawn(gamemap, x, y, lifetime)
-        clone.initialize_chest(initial_items)
-        return clone
 
     def initialize_chest(self, initial_items: List=None):
         """
@@ -89,6 +86,14 @@ class ChestSemiactor(SemiActor):
                 temp = item[0].spawn(gamemap=self.gamemap, x=0, y=0) # spawn items first to set item's gamemap value
                 temp.stack_count = random.randint(item[2][0], item[2][1])
                 self.storage.add_item(temp)
+
+
+    def spawn(self, gamemap, x: int, y: int, lifetime=-1, initial_items: List=None):
+        """Spawn a copy of this instance at the given location."""
+        clone = super().spawn(gamemap, x, y, lifetime)
+        clone.initialize_chest(initial_items)
+        return clone
+
 
 
 from components.inventory import Inventory
@@ -108,7 +113,7 @@ large_wooden_chest = ChestSemiactor(
         blocks_movement=False,
         blocks_sight=False,
         rule_cls=None,
-        bump_action=ChestBumpAction,
+        trigger_bump=True,
         storage=Inventory(capacity=52, is_fireproof=False),
         initial_items=[(item_factories.potion_of_healing, 1, (1,5))],
     )

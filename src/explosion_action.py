@@ -127,8 +127,8 @@ class ExplodeAction(RadiusAction):
     def actor_in_radius_action(self, actor: Actor):
         distance = get_distance(self.entity.x, self.entity.y, actor.x, actor.y)
         dmg = actor.status.calculate_dmg_reduction(self.real_dmg(dist=distance), "explosion")
-        actor.status.take_damage(dmg)
         self.engine.message_log.add_message(f"{g(actor.name, '이')} 폭발로부터 {dmg} 데미지를 받았다.", color.yellow)
+        actor.status.take_damage(dmg)
 
     def item_in_radius_action(self, item: Item):
         return super().item_in_radius_action(item)

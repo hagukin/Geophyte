@@ -1,5 +1,4 @@
 from __future__ import annotations
-from entity import SemiActor
 from components.inventory import Inventory
 from typing import Callable, Optional, Tuple, TYPE_CHECKING
 from order import InventoryOrder
@@ -21,9 +20,10 @@ from actions import (
     AscendAction,
     PlaceSwapAction,
     DoorUnlockAction,
+    ChestTakeAction,
+    ChestPutAction,
 )
 from loader.data_loader import save_game, quit_game
-from entity import Actor, Item, Entity
 from game import Game
 from korean import grammar as g
 
@@ -36,6 +36,7 @@ import traceback
 if TYPE_CHECKING:
     from engine import Engine
     from ability import Ability
+    from entity import SemiActor, Actor, Item, Entity
 
 
 MOVE_KEYS = {
@@ -1243,7 +1244,8 @@ class NonHostileBumpHandler(AskUserEventHandler):
         """
         super().on_render(console)
 
-        height = 5 + 2*self.target.how_many_bump_action_possible()
+        number_of_possible_actions = self.target.how_many_bump_action_possible(self.engine.player)
+        height = 5 + 2*number_of_possible_actions
         x = 0
         y = 0
         x_space = 5 # per side
@@ -1264,34 +1266,44 @@ class NonHostileBumpHandler(AskUserEventHandler):
 
         # Message log
         y_pad = 2
-        # Check if target is a shopkeeper
-        if self.target.check_if_bump_action_possible("takeout"):
+
+        if self.target.check_if_bump_action_possible(self.engine.player, "open"):
+            console.print(x + x_space + 1, y + y_space + y_pad, "(o) - 문을 연다", fg=color.white)
+            y_pad += 2
+        if self.target.check_if_bump_action_possible(self.engine.player, "close"):
+            console.print(x + x_space + 1, y + y_space + y_pad, "(c) - 문을 닫는다", fg=color.white)
+            y_pad += 2
+        if self.target.check_if_bump_action_possible(self.engine.player, "unlock"):
+            console.print(x + x_space + 1, y + y_space + y_pad, "(u) - 문의 잠금을 해제한다", fg=color.white)
+            y_pad += 2
+        if self.target.check_if_bump_action_possible(self.engine.player, "takeout"):
             console.print(x + x_space + 1, y + y_space + y_pad, "(t) - 무언가를 꺼낸다", fg=color.white)
             y_pad += 2
-        if self.target.check_if_bump_action_possible("putin"):
+        if self.target.check_if_bump_action_possible(self.engine.player, "putin"):
             console.print(x + x_space + 1, y + y_space + y_pad, "(i) - 무언가를 넣는다", fg=color.white)
             y_pad += 2
-        if self.target.check_if_bump_action_possible("move"):
+        if self.target.check_if_bump_action_possible(self.engine.player, "move"):
             console.print(x + x_space + 1, y + y_space + y_pad, "(m) - 해당 칸으로 이동한다", fg=color.white)
             y_pad += 2
         if self.can_pay_shopkeeper: # NOTE: does not check for "purchase" keyword
             console.print(x + x_space + 1, y + y_space + y_pad, "(p) - 소지중인 판매물품들을 구매한다", fg=color.white)
             y_pad += 2
-        if self.target.check_if_bump_action_possible("swap"):
+        if self.target.check_if_bump_action_possible(self.engine.player, "swap"):
             console.print(x + x_space + 1, y + y_space + y_pad, "(s) - 위치를 바꾼다", fg=color.white)
             y_pad += 2
-        if self.target.check_if_bump_action_possible("attack"):
+        if self.target.check_if_bump_action_possible(self.engine.player, "attack") or self.target.check_if_bump_action_possible(self.engine.player, "force_attack"):
             console.print(x + x_space + 1, y + y_space + y_pad, "(a) - 공격한다", fg=color.white)
             y_pad += 2
         console.print(x + x_space + 1, y + y_space + y_pad, "ESC - 취소", fg=color.white)
 
     def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[Action]:
         from chest_factories import ChestSemiactor
+        from entity import Actor
         key = event.sym
         dx, dy = self.target.x - self.engine.player.x, self.target.y - self.engine.player.y
 
         if not self.target.blocks_movement and key == tcod.event.K_m:
-            return MovementAction(self.engine.player, dx, dy)
+            return self.target.get_bumpaction(self.engine.player, "move")
         elif self.can_pay_shopkeeper and key == tcod.event.K_p:
             self.engine.event_handler = MainGameEventHandler()
             if not hasattr(self.target, "ai"):
@@ -1299,16 +1311,22 @@ class NonHostileBumpHandler(AskUserEventHandler):
             self.target.ai.sell_all_picked_ups(customer=self.engine.player)
             return None
         elif self.target.swappable and key == tcod.event.K_s:
-            return PlaceSwapAction(self.engine.player, self.target)
+            return self.target.get_bumpaction(self.engine.player, "swap")
         elif isinstance(self.target, Actor) and key == tcod.event.K_a:
-            self.engine.event_handler = ForceAttackInputHandler(melee_action=MeleeAction(self.engine.player, dx, dy))
-            return None
+            if self.target.check_if_bump_action_possible(self.engine.player, "force_attack"): # prioritize force_attack
+                return self.target.get_bumpaction(self.engine.player, "force_attack")
+            else:
+                return self.target.get_bumpaction(self.engine.player, "attack")
         elif key == tcod.event.K_t and isinstance(self.target, ChestSemiactor):
-            self.engine.event_handler = ChestTakeEventHandler(self.target.storage)
-            return None
+            return self.target.get_bumpaction(self.engine.player, "takeout")
         elif key == tcod.event.K_i and isinstance(self.target, ChestSemiactor):
-            self.engine.event_handler = ChestPutEventHandler(self.engine.player.inventory, self.target.storage)
-            return None
+            return self.target.get_bumpaction(self.engine.player, "putin")
+        elif key == tcod.event.K_o:
+            return self.target.get_bumpaction(self.engine.player, "open")
+        elif key == tcod.event.K_c:
+            return self.target.get_bumpaction(self.engine.player, "close")
+        elif key == tcod.event.K_u:
+            return self.target.get_bumpaction(self.engine.player, "unlock")
         elif key == tcod.event.K_ESCAPE:
             self.engine.event_handler = MainGameEventHandler()
             return None
@@ -1319,20 +1337,19 @@ class NonHostileBumpHandler(AskUserEventHandler):
 
 
 class ChestTakeEventHandler(StorageSelectMultipleEventHandler):
+    def __init__(self, chest_inventory_component: Inventory):
+        super().__init__(chest_inventory_component)
+        if hasattr(chest_inventory_component.parent, "name"):
+            self.TITLE = f"{chest_inventory_component.parent.name}에서 가져갈 아이템을 선택하세요."
+        else:
+            self.TITLE = "가져갈 아이템을 선택하세요."
+        self.chest_inv = chest_inventory_component
+
     def choice_confirmed(self):
         """
         Move the selected items to player's inventory.
         """
-        for item in self.selected_items:
-            self.inventory_component.remove_item(item, -1) #TODO: Add feature to choose certain amounts
-            self.engine.player.inventory.add_item(item)
-
-            if item.stack_count <= 1:
-                self.engine.message_log.add_message(f"{g(item.name, '을')} 얻었다.", color.white)
-            else:
-                self.engine.message_log.add_message(f"{g(item.name, '을')} 얻었다. (x{item.stack_count})", color.white)
-
-        return self.on_exit() #NOTE: game turn is already passed at the moment player opened the chest, so taking something wont cost additional turn.
+        return ChestTakeAction(entity=self.engine.player, entities=list(self.selected_items), chest_storage=self.chest_inv)
 
 
 class ChestPutEventHandler(StorageSelectMultipleEventHandler):
@@ -1348,21 +1365,9 @@ class ChestPutEventHandler(StorageSelectMultipleEventHandler):
 
     def choice_confirmed(self):
         """
-        Move the selected items to chest's storage.
+        Move the selected items to player's inventory.
         """
-        for item in self.selected_items:
-            if item.item_state.equipped_region:
-                self.engine.message_log.add_message("장착하고 있는 아이템을 넣을 수 없습니다.", color.invalid)
-                continue
-            self.actor_inv.remove_item(item, -1) #TODO: Add feature to choose certain amounts
-            self.chest_inv.add_item(item)
-
-            if item.stack_count > 1:
-                self.engine.message_log.add_message(f"{g(item.name, '을')} {self.chest_inv.parent.name}에 넣었다.", color.gray)
-            else:
-                self.engine.message_log.add_message(f"{g(item.name, '을')} {self.chest_inv.parent.name}에 넣었다. (x{item.stack_count})", color.gray)
-
-        return self.on_exit() #NOTE: game turn is already passed at the moment player opened the chest, so putting something in wont cost additional turn.
+        return ChestPutAction(entity=self.engine.player, entities=list(self.selected_items), chest_storage=self.chest_inv)
 
 
 class InventoryDropHandler(StorageSelectMultipleEventHandler):
@@ -1453,7 +1458,7 @@ class LookHandler(SelectIndexHandler):
             self.engine.event_handler = MonsterInfoHandler(actor, page=None)
             return None
         else: #TODO: What if item is selected?
-            self.engine.event_handler = MainGameEventHandler()
+            self.on_exit()
 
 
 class MagicMappingLookHandler(LookHandler):

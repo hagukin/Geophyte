@@ -55,7 +55,7 @@ class GameMap:
     def engine(self) -> Engine:
         return Game.engine
 
-    def is_type(self, entity: Entity, types: Tuple(str)) -> bool:
+    def is_type(self, entity: Entity, types: Tuple[str]) -> bool:
         for t in types:
             if t == "actor" and isinstance(entity, Actor) and not entity.is_dead:
                 return True
@@ -65,7 +65,7 @@ class GameMap:
                 return True
         return False
     
-    def typed_entities(self, types: List(str)) -> Iterator[Entity]:
+    def typed_entities(self, types: Tuple[str]) -> Iterator[Entity]:
         """Iterate over this maps entities of given types."""
         yield from (
             entity
@@ -143,7 +143,7 @@ class GameMap:
 
         return None
 
-    def get_all_actors_at_location(self, x: int, y: int) -> Optional[Actor]:
+    def get_all_actors_at_location(self, x: int, y: int) -> Optional[List[Actor]]:
         tmp = []
         for actor in self.actors:
             if actor.x == x and actor.y == y:
@@ -152,7 +152,7 @@ class GameMap:
             return tmp
         return None
 
-    def get_all_items_at_location(self, x: int, y: int) -> Optional[Item]:
+    def get_all_items_at_location(self, x: int, y: int) -> Optional[List[Item]]:
         tmp = []
         for item in self.items:
             if item.x == x and item.y == y:
@@ -175,9 +175,9 @@ class GameMap:
 
         return None
 
-    def get_semiactor_with_bumpaction_at_location(self, x: int, y: int) -> Optional[SemiActor]:
+    def get_semiactor_that_bump(self, x: int, y: int) -> Optional[SemiActor]:
         for semiactor in self.semiactors:
-            if semiactor.x == x and semiactor.y == y and semiactor.bump_action:
+            if semiactor.x == x and semiactor.y == y and (semiactor.trigger_bump or semiactor.blocks_movement):
                 return semiactor
         
         return None
@@ -191,16 +191,38 @@ class GameMap:
             return tmp
         return None
 
-    def check_tile_safe(self, x: int, y: int):
-        if self.tiles[x, y]['safe_to_walk']:
+    def check_tile_safe(self, actor: Actor, x: int, y: int, ignore_semiactor: bool=False) -> bool:
+        """
+        Args:
+            ignore_semiactor:
+                if True, function will return True even if there is dangerous semiactor on the tile.
+        """
+        tile_safe = False
+        semiactor_safe = False
+
+        if actor.is_on_air or self.tiles[x, y]['safe_to_walk']:
+           tile_safe = True
+        else:
+            # If the tile is deep water, but the ai is able to swim, its considered safe.
+            if actor.actor_state.can_swim and self.gamemap.tiles[x, y]["tile_id"] == "deep_water":
+                tile_safe = True
+            # TODO : Add other tiles logics
+            else:
+                tile_safe = False
+
+        if ignore_semiactor:
+            semiactor_safe = True
+        else:
             tmp = self.get_all_semiactors_at_location(x, y)
             if tmp == None:
-                return True
+                semiactor_safe = True
             for semi in tmp:
                 if not semi.safe_to_move:
-                    return False
-            return True
-        return False
+                    semiactor_safe = False
+                    break
+                else:
+                    semiactor_safe = True
+        return tile_safe and semiactor_safe
 
     def get_random_tile(
             self,
@@ -268,12 +290,7 @@ class GameMap:
         self.entities = list(set(self.entities))
     
     def sort_entities(self) -> None:
-
         self.remove_dup_entities()
-
-        for i in range(len(self.entities)):
-            self.entities[i].entity_order = len(self.entities) - i
-
         self.entities = sorted(
             self.entities, key=lambda x: (x.render_order.value, -x.entity_order)
         )
@@ -296,6 +313,7 @@ class GameMap:
             #     self.update_additional_vision(actor=actor)
 
     def adjustments_before_new_map(self, update_player_fov: bool=False):
+        self.remove_dup_entities()
         self.sort_entities()
         if update_player_fov:
             self.engine.update_fov()

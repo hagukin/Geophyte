@@ -5,6 +5,7 @@ import numpy as np
 import copy
 from numpy.core.shape_base import block
 import tcod
+import actions
 
 from typing import List, Tuple, Optional
 from util import get_distance
@@ -212,7 +213,7 @@ class BaseAI(BaseComponent):
         elif self.alignment == "peaceful":
             return self.perform_peaceful()
         
-    def wander(self) -> Action:
+    def wander(self) -> None:
         """
         Actor will wander around the dungeon randomly.
 
@@ -225,7 +226,7 @@ class BaseAI(BaseComponent):
         if self.gamemap.tiles[random_x, random_y]["walkable"]:
             self.path = self.get_path_to(random_x, random_y)
 
-    def idle_action(self) -> Action:
+    def perform_idle_action(self) -> None:
         """
         If the ai is not active, it will do nothing when its in idle state.
         If its active, it will wander around.
@@ -245,43 +246,28 @@ class BaseAI(BaseComponent):
         Compute and return a path to the target position.
         If there is no valid path then returns an empty list.
         """
-        # Copy the walkable array.
-        cost = np.array(self.parent.gamemap.tiles["walkable"], dtype=np.int8)
+        intelligence = self.parent.status.changed_status["intelligence"]
+        cost = np.array(self.parent.gamemap.tiles["walkable"], dtype=np.int8) # set to 1 (walkable)
 
-        for parent in self.parent.gamemap.entities:
+        for e in self.parent.gamemap.entities:
             # Check that an enitiy blocks movement and the cost isn't zero (blocking.)
-            if parent.blocks_movement and cost[parent.x, parent.y]:
-                # Add to the cost of a blocked position.
-                # A lower number means more enemies will crowd behind each other in
-                # hallways.  A higher number means enemies will take longer paths in
-                # order to surround the player.
-                cost[parent.x, parent.y] += 10
+            if e.blocks_movement and cost[e.x, e.y]:
+                cost[e.x, e.y] += 10
+            if intelligence > 3 and isinstance(e, SemiActor):
+                if (e.x != dest_x or e.y != dest_y) and not e.safe_to_move:
+                    cost[e.x, e.y] += intelligence * 5 # AIs with higher intelligence is more likely to dodge dangerous semiactors.
 
-        ### Intelligent ai will try to avoid dangerous tiles/semiactors by removing them from path, or setting their cost high.
-        # If the ai is currently flying it will ignore some of the dangers.
-        if self.parent.status.changed_status["intelligence"] > 1:##TODO DEBUG
-
-            # 1. If the AI is not flying, raise costs for safe_to_walk = False tiles.
-            # NOTE: The reason for not entirely removing dangerous tiles from path is, to prevent ai "stuck" between dangerous tiles. (It can't generate path to get out if its surrounded)
+        if intelligence > 3:
             if not self.parent.is_on_air:
                 dangerous_coordinates = zip(*np.where(self.gamemap.tiles["safe_to_walk"][:,:] == False))
                 for cor in dangerous_coordinates:
-                    # If the actor is already on dangerous tile, same types of tiles will be considered safe. 
-                    # (Thus, the ai will be able to find its way out from the middle of giant pool of water.)
                     if self.gamemap.tiles[cor]["tile_id"] == self.gamemap.tiles[self.parent.x, self.parent.y]["tile_id"]:
+                        # If the actor is already on dangerous tile, same types of tiles will be considered safe.
+                        # (Thus, the ai will be able to find its way out from the middle of giant pool of water.)
                         continue
-
-                    # If the tile is deep water, but the ai is able to swim, its considered safe.
-                    if self.parent.actor_state.can_swim and self.gamemap.tiles[cor]["tile_id"] == "deep_water":
+                    if self.gamemap.check_tile_safe(self.parent, cor[0], cor[1], ignore_semiactor=True): # Semiactor is handled below.
                         break
-                    else:# TODO: Add logics besides just deep water. (e.g. actors with fire res 100% will ignore lava pools.)
-                        cost[cor] += 50
-
-            # 2. Tiles with dangerous semiactors to bump into, will also have high costs.
-            for parent in self.gamemap.entities:
-                if isinstance(parent, SemiActor):
-                    if (parent.x != dest_x or parent.y != dest_y) and not parent.safe_to_move:
-                        cost[parent.x, parent.y] += 50
+                    cost[cor] += intelligence * 3  # AI with higher intelligence is more likely to dodge dangerous tiles.
 
         # Create a graph from the cost array and pass that graph to a new pathfinder
         graph = tcod.path.SimpleGraph(cost=cost, cardinal=2, diagonal=3)
@@ -289,7 +275,7 @@ class BaseAI(BaseComponent):
         pathfinder.add_root((self.parent.x, self.parent.y))  # Start position
 
         # Compute the path to the destination and remove the starting point
-        path: List[List[int]] = pathfinder.path_to((dest_x, dest_y))[1:].tolist()
+        path = pathfinder.path_to((dest_x, dest_y))[1:].tolist()
 
         # Convert from List[List[int]] to List[Tuple[int, int]]
         return [(index[0], index[1]) for index in path]
@@ -320,20 +306,20 @@ class BaseAI(BaseComponent):
                 else: # if the AI was wandering
                     self.wander() # Select new destination to wander
 
-    def get_melee_action(self, dx, dy):
+    def perform_melee_action(self, dx, dy):
         """
         Return the action this ai will perform when its melee attacking something.
         If the ai has any sort of special effects to its melee attack, its passed as a parameter.
         """
         return MeleeAction(self.parent, dx, dy, self.melee_effects, self.melee_effects_var).perform()
 
-    def get_ranged_action(self, dx, dy, ammo):
+    def perform_ranged_action(self, dx, dy, ammo):
         """
         Return the action this ai will perform when its range attacking(besides spellcasting) something.
         """
         return ThrowItem(entity=self.parent, item=ammo, target_xy=(dx, dy)).perform()
 
-    def get_ability_action(self, x, y, target, ability):
+    def perform_ability_action(self, x, y, target, ability):
         """
         Return the action this ai will perform when its using its ability.
         This includes magical attacks, using magic buffs, and many more.
@@ -718,19 +704,19 @@ class BaseAI(BaseComponent):
                             x, y = coordinate[0], coordinate[1]
 
 
-                        return self.get_ability_action(x=x, y=y, target=target, ability=selected_ability)
+                        return self.perform_ability_action(x=x, y=y, target=target, ability=selected_ability)
 
                 # Check if the ai can melee attack
                 if self.do_melee_atk:
                     if self.check_is_melee_atk_possible(attacker=self.parent, target=self.target, cheby_dist=distance):
-                        return self.get_melee_action(dx=dx, dy=dy)
+                        return self.perform_melee_action(dx=dx, dy=dy)
 
                 # Check if the ai can range attack
                 if self.do_ranged_atk:
                     temp = self.check_is_ranged_atk_possible(attacker=self.parent, target=self.target)
                     if temp:
                         attack_dir, ammo = temp
-                        return self.get_ranged_action(dx=attack_dir[0], dy=attack_dir[1], ammo=ammo)
+                        return self.perform_ranged_action(dx=attack_dir[0], dy=attack_dir[1], ammo=ammo)
                     
                 # if none of the above works, set new path and approach to target.
                 self.path = self.get_path_to(self.target.x, self.target.y)
@@ -783,14 +769,14 @@ class BaseAI(BaseComponent):
             self.move_path()
             return None
         else:
-            # No target, no path -> idle_action()
-            return self.idle_action()
+            # No target, no path -> perform_idle_action()
+            return self.perform_idle_action()
 
     def perform_peaceful(self):
         if self.path:
             self.move_path()
         else:
-            return self.idle_action()
+            return self.perform_idle_action()
     
     def idle_action_pet(self):
         """
@@ -806,3 +792,14 @@ class BaseAI(BaseComponent):
         NOTE: This function is called when the target is not only out of sight, but also undetected by any intrinsic abilities this ai has.
         """
         pass
+
+    def get_action_when_bumped_with(self, bumped_entity: Entity):
+        """Returns an Action to perform when bumped with given entity.
+        Is called from BumpAction.perform() """
+        if bumped_entity.entity_id[-5:] == "chest":
+            return actions.MovementAction(
+                self.parent,
+                dx=bumped_entity.x - self.parent.x,
+                dy=bumped_entity.y - self.parent.y)
+        else:
+            return actions.WaitAction(self.parent)

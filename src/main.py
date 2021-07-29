@@ -42,7 +42,6 @@ def main() -> None:
             try:
                 if engine.player_path or engine.player_dir:
                     turn_pass = engine.do_player_queue_actions()
-                    engine.game_map.sort_entities() # rearranging entities to prevent rendering issues
                     engine.handle_world(turn_pass=turn_pass)
 
                     # Render game
@@ -53,7 +52,6 @@ def main() -> None:
                     for event in tcod.event.wait(timeout=None):# set to None = wait indefinitly for any events
                         context.convert_event(event)
                         turn_pass = engine.event_handler.handle_events(event)# returns True if player does any action that costs a in-game turn
-                        engine.game_map.sort_entities()
                         engine.handle_world(turn_pass=turn_pass)
 
                         # Render game
@@ -62,7 +60,8 @@ def main() -> None:
                         context.present(root_console, keep_aspect=True)
 
                 ### WRITE DEBUG FUNCTIONS HERE ###
-                # print("Hi")
+                # for b in engine.player.status.bonuses.items():
+                #     print(b.bonus_id)
 
             except Exception:
                 # Print error to stderr then print the error to the message log

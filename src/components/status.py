@@ -5,12 +5,9 @@ from typing import List, TYPE_CHECKING, Optional
 
 import random
 import color
-import item_factories
-import copy
 import math
 
 from components.base_component import BaseComponent
-from game_map import GameMap
 from korean import grammar as g
 
 if TYPE_CHECKING:
@@ -376,11 +373,12 @@ class Status(BaseComponent):
         #     print(f"WARNING::status - bonus {bonus.bonus_id} has been overwritten.")
         self.bonuses[bonus.bonus_id] = bonus
 
-    def remove_bonus(self, bonus_id: str) -> None:
+    def remove_bonus(self, bonus_id: str, ignore_warning: bool=False) -> None:
         try:
             del self.bonuses[bonus_id]
         except KeyError:
-            print(f"WARNING::TRIED TO REMOVE key-{bonus_id} BONUS BUT IT DOES NOT EXIST.")
+            if not ignore_warning:
+                print(f"WARNING::TRIED TO REMOVE key-{bonus_id} BONUS BUT IT DOES NOT EXIST.")
             return None
         except:
             raise Exception("FATAL ERROR::status.remove_bonus()")
@@ -511,6 +509,11 @@ class Status(BaseComponent):
                 self.parent.ai.attacked_from = attacked_from
         
         self.hp -= amount
+
+        # When damaged, delete all queued actions.
+        if self.parent == self.engine.player:
+            self.engine.player_path.clear()
+            self.engine.player_dir = None
 
     ### Magic Power
     @property
