@@ -47,7 +47,7 @@ class Biome:
         biome_desc: str = "",
         rarity: int = 1,
         biome_color: Tuple = color.black,
-        max_rooms: int = 3000,
+        max_rooms: int = 30000,
         map_width: int = 70, # min 70
         map_height: int = 45, # min 45
         respawn_ratio: float = 0.4,

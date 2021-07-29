@@ -5,6 +5,7 @@ from world import World
 import actor_factories
 import camera
 import random
+import color
 
 from engine import Engine
 from tcod import Console
@@ -47,6 +48,10 @@ def init_game_variables(cfg, console: Console, context: Context):
     engine.camera = camera.Camera(engine, width=cfg["camera_width"], height=cfg["camera_height"],
                                   display_x=cfg["camera_xpos"], display_y=cfg["camera_ypos"])
 
+    from render import randomized_screen_paint
+    randomized_screen_paint(console, context, color.black, diversity=0)
+    console.print(int(console.width/2) - 4, int(console.height/2), "던전 초기화 중", fg=color.procgen_fg, bg=color.procgen_bg)
+    context.present(console=console, keep_aspect=True)
     engine.world.set_map(engine.generate_new_dungeon(console, context, 1, False), 1)
     engine.change_gamemap_depth(1)
     engine.change_entity_depth(engine.player, 1, engine.game_map.ascend_loc[0], engine.game_map.ascend_loc[1])

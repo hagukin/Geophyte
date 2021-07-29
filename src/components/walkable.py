@@ -70,20 +70,20 @@ class TrapWalkable(Walkable):
 
             # Prevent performing multiple times in a single turn
             if self.check_actor and isinstance(target, Actor):
-                self.triggered = True
-                if self.trigger_once:
-                    self.parent._fg = color.black
-                    self.parent._name += "(해제됨)"
                 self.previous_entity = target
                 self.when_actor_on_trap(target)
-                return None
-            if self.check_item and isinstance(target, Item):
                 self.triggered = True
                 if self.trigger_once:
                     self.parent._fg = color.black
                     self.parent._name += "(해제됨)"
+                return None
+            if self.check_item and isinstance(target, Item):
                 self.previous_entity = target
                 self.when_item_on_trap(target)
+                self.triggered = True
+                if self.trigger_once:
+                    self.parent._fg = color.black
+                    self.parent._name += "(해제됨)"
                 return None
         else:
             # If there is no target currently, set previous_entity back to None

@@ -12,9 +12,9 @@ class Terrain:
         terrain_desc: str = "",
         rarity: int = 1,
         min_width: int = 6, # min 6
-        max_width: int = 16,
+        max_width: int = 11,
         min_height: int = 6, # min 6
-        max_height: int = 16,
+        max_height: int = 10,
         shape: dict = None,
         spawn_item: bool = True,
         item_spawn_chance: float = 0.5,
