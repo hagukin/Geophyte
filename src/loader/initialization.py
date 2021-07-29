@@ -36,19 +36,21 @@ def init_game_variables(cfg, console: Console, context: Context):
     # Set item manager
     engine.initialize_item_manager()
     
-    # Generate Map
+    # Set current depth
     engine.depth = 1
 
     # Set GameMap.engine. All in-game access to engine object is handled using this class variable.
     from game import Game
     Game.engine = engine
 
+    # Generate camera
+    engine.camera = camera.Camera(engine, width=cfg["camera_width"], height=cfg["camera_height"],
+                                  display_x=cfg["camera_xpos"], display_y=cfg["camera_ypos"])
+
     engine.world.set_map(engine.generate_new_dungeon(console, context, 1, False), 1)
     engine.change_gamemap_depth(1)
     engine.change_entity_depth(engine.player, 1, engine.game_map.ascend_loc[0], engine.game_map.ascend_loc[1])
     engine.player.gamemap = engine.world.get_map(engine.depth)
-    engine.camera = camera.Camera(engine, width=cfg["camera_width"], height=cfg["camera_height"],
-                                  display_x=cfg["camera_xpos"], display_y=cfg["camera_ypos"])
 
     # Initialize player (give initial items, skils, etc)
     engine.player.initialize_actor()

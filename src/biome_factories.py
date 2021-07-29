@@ -48,11 +48,12 @@ ancient_ruins = Biome(
     respawn_ratio=0,
     max_monsters_per_room=0,
     max_items_per_room=0,
+    generate_descending_stair=False,
     tileset=tileset({
         "t_wall":tiles.wall_ancient_ruins,
         "t_floor":tiles.floor_ancient_ruins,
     }),
-    terrain = {"dungeon_chamber":1},
+    terrain = {"chamber_of_kugah":1},
 )
 biome_dict[ancient_ruins.biome_id] = ancient_ruins
 biome_rarity.append(ancient_ruins.rarity)

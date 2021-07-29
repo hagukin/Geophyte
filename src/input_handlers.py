@@ -268,15 +268,15 @@ class DangerousTileWalkHandler(AskUserEventHandler):
 
 
 class GameClearInputHandler(AskUserEventHandler): #TODO Unfinished
-
     def on_render(self, console: tcod.Console) -> None:
-        super().on_render(console)
-        self.engine.draw_window(
-            self.engine.console,
-            text="쿠가의 아뮬렛을 탈환했다!",
-            title="승리했습니다!",
-            frame_fg=color.yellow,
-        )
+        while True:
+            super().on_render(console)
+            self.engine.draw_window(
+                self.engine.console,
+                text="쿠가의 아뮬렛을 탈환했다!",
+                title="승리했습니다!",
+                frame_fg=color.yellow,
+            )
 
 
 class AbilityEventHandler(AskUserEventHandler):

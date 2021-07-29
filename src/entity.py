@@ -298,7 +298,7 @@ class Entity:
 
     def remove_self(self) -> None:
         if self.indestructible:
-            print(f"ENTITY_REMOVE_SELF()::{self.name} IS INDESTRUCTIBLE. ENTITY.REMOVE_SELF() IS NULLIFIED.")
+            print(f"DEBUG::{self.name} IS INDESTRUCTIBLE. ENTITY.REMOVE_SELF() IS NULLIFIED.")
             return None
         elif self.gamemap:
             # If the gamemap value is not yet set for the entity, an error might pop up here.

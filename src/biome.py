@@ -54,6 +54,7 @@ class Biome:
         respawn_time: float = 50,
         max_monsters_per_room: int = 4,
         max_items_per_room: int = 4,
+        generate_descending_stair: bool = True,
         tileset: dict = tileset(),
         terrain: dict = None,
         # TODO Add biome-differentiated monster generating system feature
@@ -75,6 +76,9 @@ class Biome:
                 > Which means, unless more than 50 monsters die, the gamemap will not regenerate any monster.
             respawn_time:
                 Time that takes for a single loop of monster regeneration. (In-game turn)
+            generate_descending_stair:
+                Whether to generate descending stair or not.
+                e.g. you can set this to False when generating last level (maximum depth)
             tileset:
                 tileset of this biome.
                 The arguments must be passed by using the "tileset() function" above.
@@ -95,5 +99,6 @@ class Biome:
         self.respawn_time = respawn_time
         self.max_monsters_per_room = max_monsters_per_room
         self.max_items_per_room = max_items_per_room
+        self.generate_descending_stair = generate_descending_stair
         self.tileset = tileset
         self.terrain = terrain

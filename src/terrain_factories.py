@@ -1,5 +1,6 @@
 from terrain import Terrain
 from unique_terrains.shop import ShopTerrain
+from unique_terrains.chamber_of_kugah import ChamberOfKugahTerrain
 
 terrain_dict = {}
 terrain_rarity = []
@@ -146,7 +147,7 @@ terrain_rarity.append(swamp.rarity)
 
 
 # General shop
-from custom_terrgen import generate_shop
+from custom_terrgen import ShopTerrGen
 import item_factories
 shop = ShopTerrain(
     name="잡동사니 상점",
@@ -157,7 +158,7 @@ shop = ShopTerrain(
     max_width=10,
     min_height=6,
     max_height=10,
-    custom_gen=generate_shop,
+    custom_gen=ShopTerrGen.generate_shop,
     sell_items={
         item_factories.leather_armor : item_factories.leather_armor.rarity,
         item_factories.potion_of_healing : item_factories.leather_armor.rarity,
@@ -165,3 +166,20 @@ shop = ShopTerrain(
 )
 terrain_dict[shop.terrain_id] = shop
 terrain_rarity.append(shop.rarity)
+
+
+# Chamber Of Kugah
+from custom_terrgen import ChamberOfKugahTerrGen
+chamber_of_kugah = ChamberOfKugahTerrain(
+    name="쿠가의 성소",
+    terrain_id="chamber_of_kugah",
+    terrain_desc="chamber of kugah desc",
+    rarity=5,
+    min_width=30,
+    max_width=30,
+    min_height=30,
+    max_height=30,
+    custom_gen=ChamberOfKugahTerrGen.generate_chamber_of_kugah,
+)
+terrain_dict[chamber_of_kugah.terrain_id] = chamber_of_kugah
+terrain_rarity.append(chamber_of_kugah.rarity)

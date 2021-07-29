@@ -2,6 +2,7 @@ from __future__ import annotations
 from tcod.console import Console
 from tcod.context import Context, new
 from biome import Biome
+from biome_by_depth import get_dungeon_biome
 
 import numpy as np
 import copy
@@ -568,9 +569,9 @@ def generate_stair(
             else:
                 print("WARNING::Path not found, Regenerating Staircases...") # Search for new locations
                 continue
-    elif stair_type == "up": # Generate single stair
+    elif stair_type == "ascend": # Generate single stair
         ascend_tile = stair_generation(dungeon, rooms, 0)
-    elif stair_type == "down": # Generate single stair
+    elif stair_type == "descend": # Generate single stair
         descend_tile = stair_generation(dungeon, rooms, 1)
 
     if ascend_tile:
@@ -627,8 +628,8 @@ def debug(dungeon, save_as_txt: bool = False):
     """
     prints out tilemap
     """
+    import sys
     if save_as_txt:
-        import sys
         sys.stdout = open('./procgen_debug.txt', 'a')
     
     print("\n")
@@ -664,17 +665,6 @@ def debug(dungeon, save_as_txt: bool = False):
         print(end='\n')
     
     sys.stdout = sys.__stdout__ #stdout back to normal
-
-
-def get_dungeon_biome(depth: int):
-    if depth == 1: ##TEST TODO
-        return {
-            "ancient_ruins":5
-        }
-    elif depth == 25:
-        return {
-            "ancinet_ruins":1
-        }
 
 
 def generate_dungeon(
@@ -769,17 +759,25 @@ def generate_dungeon(
         map_height=biome.map_height,
     )
 
+
     if display_process:
         randomized_screen_paint(console, context, color.black, diversity=30)
         console.print(screen_center_x - 5, screen_center_y, "던전을 내려가는 중", fg=color.procgen_fg, bg=color.procgen_bg)
         console.print(screen_center_x - 6, screen_center_y + 2, "계단 생성 중...", fg=color.procgen_fg)
         context.present(console=console, keep_aspect=True)
     print("Generating Staircases...")
-    generate_stair(
-        dungeon=dungeon,
-        rooms=rooms,
-        stair_type="pair"
-    )
+    if not biome.generate_descending_stair:
+        generate_stair(
+            dungeon=dungeon,
+            rooms=rooms,
+            stair_type="ascend"
+        )
+    else:
+        generate_stair(
+            dungeon=dungeon,
+            rooms=rooms,
+            stair_type="pair"
+        )
 
     if display_process:
         randomized_screen_paint(console, context, color.black, diversity=35)

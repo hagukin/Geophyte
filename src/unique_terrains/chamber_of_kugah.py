@@ -6,28 +6,28 @@ from actor_factories import shopkeeper
 if TYPE_CHECKING:
     from room_factories import Room
 
-class ShopTerrain(Terrain):
+class ChamberOfKugahTerrain(Terrain):
     """
     Shop terrain component.
     """
     def __init__(
         self,
-        name: str = "Shop",
-        terrain_id: str = "shop",
+        name: str = "Chamber of Kugah",
+        terrain_id: str = "chamber_of_kugah",
         terrain_desc: str = "",
-        rarity: int = 1,
-        min_width: int = 6, # min 6
-        max_width: int = 10,
-        min_height: int = 6, # min 6
-        max_height: int = 10,
+        rarity: int = 0,
+        min_width: int = 30, # min 6
+        max_width: int = 30,
+        min_height: int = 30, # min 6
+        max_height: int = 30,
         shape: dict = None,
         spawn_item: bool = False,
         spawn_monster: bool = False,
         has_wall: bool = True, #TODO: need to add feature
         protected: bool = True,
-        has_door: bool = True,
-        can_have_stair: bool = False,
-        door_num_range = (1,),
+        has_door: bool = False,
+        can_have_stair: bool = True,
+        door_num_range = (0,),
         door_num_weight = (1,),
         gen_grass = None,
         gen_holes=None,
@@ -36,9 +36,6 @@ class ShopTerrain(Terrain):
         gen_traps = None,
         gen_chests = None,
         custom_gen = None, # Must have one
-        sell_items = None,
-        items_on_stock = None,
-        shopkeeper_type: Actor = shopkeeper,
     ):
         super().__init__(
             name=name,
@@ -80,24 +77,10 @@ class ShopTerrain(Terrain):
         """
         if shape == None:
             self.shape = {
-            "rectangular":1, #Shops can be in any shape, but rectangular is most stable
-            "perpendicular":99,
-            }
+            "circular":99, #Shops can be in any shape, but rectangular is most stable
+        }
         else:
             self.shape = shape
 
-        self.shopkeeper_loc = None # initialized during custom_terrgen.generate_shop_item()
-        self.shopkeeper_type = shopkeeper_type
-        self.shopkeeper = None
-
-        if sell_items == None:
-            self.sell_items = {}
-        else:
-            self.sell_items = sell_items
-
-        if items_on_stock == None:
-            self.items_on_stock = []
-        else:
-            self.items_on_stock = items_on_stock
 
 
