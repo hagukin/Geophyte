@@ -285,6 +285,11 @@ class Entity:
             self.environmental_grass()
             self.environmental_water()
 
+        semiactor_collided = self.gamemap.get_semiactor_at_location(self.x, self.y)
+        if semiactor_collided:
+            if semiactor_collided.walkable:
+                semiactor_collided.walkable.perform(target=self)
+
     def gain_action_point(self):
         """Gain action points every game time."""
         # NOTE: The maximum amount of action point that can be saved is 180.
@@ -607,11 +612,6 @@ class Actor(Entity):
             self.environmental_pit()
             self.environmental_water()
             self.do_special_environmental_effect() # Do action on tile
-        ### B. Semiactor related ###
-        semiactor_collided = self.gamemap.get_semiactor_at_location(self.x, self.y)
-        if semiactor_collided:
-            if semiactor_collided.walkable:
-                semiactor_collided.walkable.perform(target=self)
             
     def gain_action_point(self):
         """
@@ -949,14 +949,7 @@ class Item(Entity):
         if self.quaffable:
             self.quaffable.parent = item
 
-    def collided_with_fire(self, fire=None):
-        """
-        Args:
-            fire:
-                Fire semiactor that this entity collided with.
-        """
-        if fire:
-            super().collided_with_fire(fire)
+    def collided_with_fire(self):
         will_catch_fire = random.random()
         if will_catch_fire < self.flammable:
             self.item_state.is_burning = True

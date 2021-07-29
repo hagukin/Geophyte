@@ -81,7 +81,8 @@ class ShopTerrain(Terrain):
         if shape == None:
             self.shape = {
             "rectangular":1, #Shops can be in any shape, but rectangular is most stable
-            "perpendicular":99,
+            "circular":1,
+            "perpendicular":1,
             }
         else:
             self.shape = shape
@@ -91,7 +92,11 @@ class ShopTerrain(Terrain):
         self.shopkeeper = None
 
         if sell_items == None:
-            self.sell_items = {}
+            self.sell_items = {} # Spawn all items
+            from item_factories import item_rarity, temp_items_lists
+            for i in range(len(temp_items_lists)):
+                if temp_items_lists[i].spawnable:
+                    self.sell_items[temp_items_lists[i]] = item_rarity[i]
         else:
             self.sell_items = sell_items
 

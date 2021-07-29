@@ -152,7 +152,7 @@ class Chest(SemiactorInfo):
             if hasattr(self.parent, "storage"):
                 for item in self.parent.storage.items:
                     self.parent.storage.drop(item=item, show_msg=False)
-                    item.collided_with_fire(fire=None)
+                    item.collided_with_fire()
             else:
                 print(f"ERROR: A NON-CHEST SEMIACTOR {self.parent.name} HAS CHEST SEMIACTION_INFO.")
 

@@ -131,8 +131,7 @@ class ExplodeAction(RadiusAction):
         actor.status.take_damage(dmg)
 
     def item_in_radius_action(self, item: Item):
-        return super().item_in_radius_action(item)
-        #TODO
+        item.collided_with_fire()
 
     def tile_in_radius_action(self, x, y):
         from semiactor_factories import fire

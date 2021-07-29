@@ -47,6 +47,96 @@ spike_trap = SemiActor(
 )
 
 
+flame_trap = SemiActor(
+    char="#",
+    fg=(255, 51, 0),
+    bg=None,
+    name="화염 함정",
+    entity_id="flame_trap",
+    entity_desc="description of flame trap",
+    do_action=False,
+    walkable=walkable.low_dmg_flame_trap_walkable,
+    semiactor_info=semiactor_info.Default(),
+    blocks_movement=False,
+    rule_cls=None,
+)
+
+
+icicle_trap = SemiActor(
+    char="#",
+    fg=(194, 255, 254),
+    bg=None,
+    name="고드름 함정",
+    entity_id="icicle_trap",
+    entity_desc="description of trap",
+    do_action=False,
+    walkable=walkable.low_dmg_icicle_trap_walkable,
+    semiactor_info=semiactor_info.Default(),
+    blocks_movement=False,
+    rule_cls=None,
+)
+
+
+acid_spray_trap = SemiActor(
+    char="#",
+    fg=(60, 255, 0),
+    bg=None,
+    name="염산 분사 함정",
+    entity_id="acid_spray_trap",
+    entity_desc="description of trap",
+    do_action=False,
+    walkable=walkable.low_dmg_acid_spray_trap_walkable,
+    semiactor_info=semiactor_info.Default(),
+    blocks_movement=False,
+    rule_cls=None,
+)
+
+
+poison_spike_trap = SemiActor(
+    char="#",
+    fg=(195, 0, 255),
+    bg=None,
+    name="독침 함정",
+    entity_id="poison_spike_trap",
+    entity_desc="description of poison spike trap",
+    do_action=False,
+    walkable=walkable.low_dmg_poison_spike_trap_walkable,
+    semiactor_info=semiactor_info.Default(),
+    blocks_movement=False,
+    rule_cls=None,
+)
+
+
+sonic_boom_trap = SemiActor(
+    char="#",
+    fg=(255, 242, 0),
+    bg=None,
+    name="소닉붐 함정",
+    entity_id="sonic_boom_trap",
+    entity_desc="description of spike trap",
+    do_action=False,
+    walkable=walkable.sonic_boom_trap_walkable,
+    semiactor_info=semiactor_info.Default(),
+    blocks_movement=False,
+    rule_cls=None,
+)
+
+
+explosion_trap = SemiActor(
+    char="#",
+    fg=(255, 0, 0),
+    bg=None,
+    name="폭발 함정",
+    entity_id="explosion_trap",
+    entity_desc="description of trap",
+    do_action=False,
+    walkable=walkable.low_dmg_explosion_trap_walkable,
+    semiactor_info=semiactor_info.Default(),
+    blocks_movement=False,
+    rule_cls=None,
+)
+
+
 ##########################################################################
 ##########################################################################
 ################ INTERACTABLE SEMIACTORS WITH NO AI ######################

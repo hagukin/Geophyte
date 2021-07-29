@@ -121,3 +121,5 @@ monster_book_bg = brown
 credit_dev = green
 credit_special = orange
 credit_license = soothing_blue
+
+triggered_trap = black

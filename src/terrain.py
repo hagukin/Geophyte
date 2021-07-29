@@ -66,7 +66,7 @@ class Terrain:
                 Same as gen_water.
             gen_traps:
                 {
-                    "checklist":dict{id : name}, 
+                    "checklist":dict{semiactor : weight},
                     "max_traps_per_room":int, 
                     "spawn_chance":float, 
                     "forced_traps_gen_number":int = 0

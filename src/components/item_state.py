@@ -137,6 +137,8 @@ class ItemState(BaseComponent):
         return False
 
     def burn(self, owner: Actor=None):
+        """NOTE: It is recommended not to call this function directly. engine.handle_item_states will call this function most of the time.
+        Use item_state.is_burning = True instead."""
         # Catch on fire log
         if self.was_burning == False:
             self.was_burning = True

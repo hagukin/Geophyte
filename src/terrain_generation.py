@@ -3,6 +3,7 @@ import random
 
 from typing import List, Tuple, TYPE_CHECKING
 
+from entity import SemiActor
 from order import TilemapOrder
 from room_factories import Room
 from game_map import GameMap
@@ -175,7 +176,7 @@ def generate_hole(gamemap: GameMap, room: Room) -> None:
                    density=room.terrain.gen_holes["density"])
 
 
-def grow_trap(gamemap, x, y, trap_id:str, lifetime=-1) -> None:
+def grow_trap(gamemap, x, y, trap_semiactor:SemiActor, lifetime=-1) -> None:
     """Spawn a SemiActor instance of a given name at given location."""
 
     tilemap = gamemap.tilemap
@@ -188,10 +189,8 @@ def grow_trap(gamemap, x, y, trap_id:str, lifetime=-1) -> None:
     else:
         return None
 
-    # Spawn the semiactor of given id
-    # NOTE: Update the function manually
-    if trap_id == "spike_trap":
-        semiactor_factories.spike_trap.spawn(gamemap=gamemap, x=x, y=y, lifetime=lifetime)
+    # Spawn
+    trap_semiactor.spawn(gamemap=gamemap, x=x, y=y, lifetime=lifetime)
 
 
 def generate_trap(gamemap: GameMap, room: Room) -> None:
@@ -213,7 +212,7 @@ def generate_trap(gamemap: GameMap, room: Room) -> None:
 
             # Spawn trap
             if trap_count <= max_traps_per_room:
-                grow_trap(gamemap=gamemap, x=loc[0], y=loc[1], trap_id=trap_chosen)
+                grow_trap(gamemap=gamemap, x=loc[0], y=loc[1], trap_semiactor=trap_chosen)
                 trap_count += 1
             else:
                 break
@@ -233,7 +232,7 @@ def generate_trap(gamemap: GameMap, room: Room) -> None:
         
         # Spawn trap
         trap_chosen = random.choices(list(checklist.keys()), weights=list(checklist.values()), k=1)[0]
-        grow_trap(gamemap=gamemap, x=loc[0], y=loc[1], trap_id=trap_chosen)
+        grow_trap(gamemap=gamemap, x=loc[0], y=loc[1], trap_semiactor=trap_chosen)
         trap_count += 1
 
 
