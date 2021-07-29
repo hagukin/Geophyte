@@ -1936,6 +1936,12 @@
 
             duel wield는 이제 dex를 감소시킴.
 
+            다양한 함정들 추가
+
+            LookHandler에서 이제 item과 세미액터 정보도 확인할 수 있음.
+            item, semiactor에도 type_desc와 quote 추가.
+            book.ItemInfoHandler, semiactorinfohandler추가.
+
 
 
 

@@ -1,6 +1,6 @@
 from __future__ import annotations
 from input_handlers import AskUserEventHandler, MainGameEventHandler
-from entity import Actor
+from entity import Actor, Item, SemiActor
 from loader.data_loader import load_book
 from typing import Optional
 from actions import Action
@@ -83,8 +83,8 @@ class MonsterBookIndexHandler(AskUserEventHandler):
 
     def on_render(self, console: tcod.Console) -> None:
         """Render current page"""
-        console.draw_frame(0, 0, console.width, console.height, "던전 몬스터 도감", fg=color.monster_book_fg, bg=color.monster_book_bg)
-        console.draw_frame(1, 1, console.width - 2, console.height - 2, f"{monchar[self.page]}", fg=color.monster_book_fg, bg=color.monster_book_bg)
+        console.draw_frame(0, 0, console.width, console.height, "던전 몬스터 도감", fg=color.book_fg, bg=color.book_bg)
+        console.draw_frame(1, 1, console.width - 2, console.height - 2, f"{monchar[self.page]}", fg=color.book_fg, bg=color.book_bg)
 
         start_x = 3
         start_y = 3
@@ -129,9 +129,9 @@ class MonsterInfoHandler(AskUserEventHandler):
         self.page = page # If this input handler is called from MonsterBookIndexHandler, pass in the page number so it could callback the indexhandler when cancelled.
 
     def on_render(self, console: tcod.Console) -> None:
-        console.draw_frame(0, 0, console.width, console.height, bg=color.monster_book_bg)
-        console.draw_frame(1, 1, console.width - 2, console.height - 2, f"{self.monster.name}", fg=color.monster_book_fg,
-                           bg=color.monster_book_bg)
+        console.draw_frame(0, 0, console.width, console.height, bg=color.book_bg)
+        console.draw_frame(1, 1, console.width - 2, console.height - 2, f"{self.monster.name}", fg=color.book_fg,
+                           bg=color.book_bg)
 
         start_x = 3
         start_y = 3
@@ -169,4 +169,100 @@ class MonsterInfoHandler(AskUserEventHandler):
                 self.engine.event_handler = MonsterBookIndexHandler(page=self.page)
             else:
                 self.engine.event_handler = MainGameEventHandler()
+        return None
+
+
+class ItemInfoHandler(AskUserEventHandler):
+    width: int = 70
+    def __init__(self, item: Item, page: int=None):
+        super().__init__()
+        self.item = item
+        self.page = page # If this input handler is called from MonsterBookIndexHandler, pass in the page number so it could callback the indexhandler when cancelled.
+
+    def on_render(self, console: tcod.Console) -> None:
+        console.draw_frame(0, 0, console.width, console.height, bg=color.book_bg)
+        console.draw_frame(1, 1, console.width - 2, console.height - 2, f"{self.item.name}", fg=color.book_fg,
+                           bg=color.book_bg)
+
+        start_x = 3
+        start_y = 3
+        xpad = 0
+        ypad = 0
+
+        # Name
+        console.print(start_x, start_y, self.item.name, fg=color.white)
+        ypad += 4
+
+        # Type Description
+        if self.item.item_type_desc != "":
+            text, line_cnt = multiline(self.item.item_type_desc, self.width, 2)
+            console.print(start_x, start_y + ypad, text, fg=color.white)
+            ypad += line_cnt
+
+        # Entity Description
+        if self.item.entity_desc != "":
+            text, line_cnt = multiline(self.item.entity_desc, self.width, 2)
+            console.print(start_x, start_y + ypad, text, fg=color.white)
+            ypad += line_cnt
+
+        ypad += 4
+
+        # Item quote
+        if self.item.item_quote != "":
+            text, line_cnt = multiline(self.item.item_quote, self.width)
+            console.print(start_x, start_y + ypad, "\""+text+"\"", fg=color.white)
+            ypad += line_cnt
+
+    def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[Action]:
+        """By default any key exits this input handler."""
+        if event.sym == tcod.event.K_ESCAPE:
+            self.engine.event_handler = MainGameEventHandler()
+        return None
+
+
+class SemiActorInfoHandler(AskUserEventHandler):
+    width: int = 70
+    def __init__(self, semiactor: SemiActor, page: int=None):
+        super().__init__()
+        self.semiactor = semiactor
+        self.page = page # If this input handler is called from MonsterBookIndexHandler, pass in the page number so it could callback the indexhandler when cancelled.
+
+    def on_render(self, console: tcod.Console) -> None:
+        console.draw_frame(0, 0, console.width, console.height, bg=color.book_bg)
+        console.draw_frame(1, 1, console.width - 2, console.height - 2, f"{self.semiactor.name}", fg=color.book_fg,
+                           bg=color.book_bg)
+
+        start_x = 3
+        start_y = 3
+        xpad = 0
+        ypad = 0
+
+        # Name
+        console.print(start_x, start_y, self.semiactor.name, fg=color.white)
+        ypad += 4
+
+        # Type Description
+        if self.semiactor.semiactor_type_desc != "":
+            text, line_cnt = multiline(self.semiactor.semiactor_type_desc, self.width, 2)
+            console.print(start_x, start_y + ypad, text, fg=color.white)
+            ypad += line_cnt
+
+        # Entity Description
+        if self.semiactor.entity_desc != "":
+            text, line_cnt = multiline(self.semiactor.entity_desc, self.width, 2)
+            console.print(start_x, start_y + ypad, text, fg=color.white)
+            ypad += line_cnt
+
+        ypad += 4
+
+        # Item quote
+        if self.semiactor.semiactor_quote != "":
+            text, line_cnt = multiline(self.semiactor.semiactor_quote, self.width)
+            console.print(start_x, start_y + ypad, "\""+text+"\"", fg=color.white)
+            ypad += line_cnt
+
+    def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[Action]:
+        """By default any key exits this input handler."""
+        if event.sym == tcod.event.K_ESCAPE:
+            self.engine.event_handler = MainGameEventHandler()
         return None

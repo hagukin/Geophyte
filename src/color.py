@@ -115,8 +115,8 @@ gui_status_text = (0xf5, 0x98, 0x42)
 gui_mouse_tile = white
 gui_mouse_entity = yellow
 
-monster_book_fg = white
-monster_book_bg = brown
+book_fg = white
+book_bg = brown
 
 credit_dev = green
 credit_special = orange

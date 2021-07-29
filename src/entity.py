@@ -722,7 +722,9 @@ class Item(Entity):
         bg: Tuple[int, int, int] = None,
         name: str = "<Unnamed>",
         entity_id: str = "<Undefined id>",
+        item_type_desc: str = "",
         entity_desc: str = "<Undefined description>",
+        item_quote: str = "",
         rarity: int = 0, # 1 to 10
         action_point: int = 60, # 0 to 60
         action_speed: int = 0, # 0 to 60
@@ -794,6 +796,9 @@ class Item(Entity):
         self.weight = weight
         self.price = price
         self.item_type = item_type
+
+        self.item_type_desc = item_type_desc
+        self.item_quote = item_quote
 
         self.item_state = item_state
         self.item_state.parent = self
@@ -968,7 +973,9 @@ class SemiActor(Entity):
         bg: Tuple[int, int, int] = None,
         name: str = "<Unnamed>",
         entity_id: str = "<Undefined id>",
+        semiactor_type_desc: str = "",
         entity_desc: str = "<Undefined description>",
+        semiactor_quote: str = "",
         do_action: bool = True,
         action_point: int = 60, # 0 to 60
         action_speed: int = 0, # 0 to 60
@@ -1017,6 +1024,9 @@ class SemiActor(Entity):
         self.rule = rule_cls
         if rule_cls:
             self.rule.parent = self
+
+        self.semiactor_type_desc = semiactor_type_desc
+        self.semiactor_quote = semiactor_quote
 
         self.lifetime = 0
         self.do_action = do_action

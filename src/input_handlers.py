@@ -1452,12 +1452,21 @@ class LookHandler(SelectIndexHandler):
 
     def on_index_selected(self, x: int, y: int) -> None:
         """Return to main handler."""
-        actor = self.engine.game_map.get_actor_at_location(x, y)
-        if actor:
+        from entity import Actor, Item, SemiActor
+        entity = self.engine.game_map.get_any_entity_at_location(x, y)
+        if isinstance(entity, Actor):
             from book import MonsterInfoHandler
-            self.engine.event_handler = MonsterInfoHandler(actor, page=None)
+            self.engine.event_handler = MonsterInfoHandler(entity, page=None)
             return None
-        else: #TODO: What if item is selected?
+        elif isinstance(entity, Item):
+            from book import ItemInfoHandler
+            self.engine.event_handler = ItemInfoHandler(entity, page=None)
+            return None
+        elif isinstance(entity, SemiActor):
+            from book import SemiActorInfoHandler
+            self.engine.event_handler = SemiActorInfoHandler(entity, page=None)
+            return None
+        else:
             self.on_exit()
 
 
