@@ -402,7 +402,6 @@ class Engine:
 
     def generate_new_dungeon(self, console, context, depth=1, display_process=True) -> GameMap:
         """Generate new dungeon and return as gamemap object"""
-        # Generate regular dungeon
         new_dungeon = generate_dungeon(
             console=console,
             context=context,

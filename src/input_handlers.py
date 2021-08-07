@@ -277,6 +277,11 @@ class GameClearInputHandler(AskUserEventHandler): #TODO Unfinished
                 frame_fg=color.yellow,
             )
 
+    def ev_keydown(self, event: tcod.event.KeyDown) -> None:
+        if event.sym == tcod.event.K_ESCAPE:
+            raise SystemExit()
+        return None
+
 
 class AbilityEventHandler(AskUserEventHandler):
     """
@@ -1936,6 +1941,7 @@ class GameOverEventHandler(EventHandler):
     def ev_keydown(self, event: tcod.event.KeyDown) -> None:
         if event.sym == tcod.event.K_ESCAPE:
             raise SystemExit()
+        return None
 
 CURSOR_Y_KEYS = {
     tcod.event.K_UP: -1,

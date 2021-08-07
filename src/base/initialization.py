@@ -49,8 +49,10 @@ def init_game_variables(cfg, console: Console, context: Context):
                                   display_x=cfg["camera_xpos"], display_y=cfg["camera_ypos"])
 
     from render import randomized_screen_paint
+
     randomized_screen_paint(console, context, color.black, diversity=0)
     console.print(int(console.width/2) - 4, int(console.height/2), "던전 초기화 중", fg=color.procgen_fg, bg=color.procgen_bg)
+    console.print(int(console.width / 2) - 12, int(console.height / 2)+2, "이 작업은 약간의 시간이 걸릴 수 있습니다.", fg=color.procgen_fg, bg=color.procgen_bg)
     context.present(console=console, keep_aspect=True)
     engine.world.set_map(engine.generate_new_dungeon(console, context, 1, False), 1)
     engine.change_gamemap_depth(1)
