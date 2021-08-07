@@ -21,8 +21,6 @@ def init_game_variables(cfg, console: Console, context: Context):
 
     # Set Player TODO: Character Building
     player = copy.deepcopy(actor_factories.player)
-    ##DEBUG
-    print(id(player))
     # NOTE: player.initialize_actor() is called from procgen.generate_entities()
 
     # Generate Engine
