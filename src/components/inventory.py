@@ -198,7 +198,7 @@ class Inventory(BaseComponent):
         You can remove multiple items at once by giving this function a "remove_count" value.
         If item is stacked, stack_count will decrease instead of removing the item from inventory.
         """
-        if remove_count > item.stack_count:
+        if item.stack_count > 0 and remove_count > item.stack_count:
             raise Exception("FATAL ERROR::Cannot remove item stack count higher than its original stack count. - inventory.decrease_item_stack")
         elif remove_count < 0:
             raise Exception("FATAL ERROR::Cannot remove stack count by negative integer. - inventory.decrease_item_stack")

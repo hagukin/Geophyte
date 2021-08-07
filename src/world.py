@@ -44,7 +44,7 @@ class World():
         return False
 
     def save_map(self, gamemap, depth:int) -> None:
-        with shelve.open(os.getcwd()+f"\\saves\\worlds\\{self.seed}") as save_file:
+        with shelve.open(os.getcwd()+f"\\saves\\worlds\\{self.engine.player.entity_id}") as save_file:
             # prevent pickle lib error(cannot serialize c objects)
             save_file["depth"+str(depth)] = gamemap
             save_file.close()
@@ -57,10 +57,10 @@ class World():
             print(f"WARNING::Depth {depth} already exists on the memory. Will ignore the loading request.")
             return self.mem_world[depth]
         # Check if file exists
-        if not os.path.isfile(os.getcwd()+f"\\saves\\worlds\\{self.seed}.dat"):
+        if not os.path.isfile(os.getcwd()+f"\\saves\\worlds\\{self.engine.player.entity_id}.dat"):
             raise FileNotFoundError
 
-        with shelve.open(os.getcwd()+f"\\saves\\worlds\\{self.seed}") as save_file:
+        with shelve.open(os.getcwd()+f"\\saves\\worlds\\{self.engine.player.entity_id}") as save_file:
             gamemap = save_file["depth"+str(depth)]
             gamemap.engine = self.engine
             self.mem_world[depth] = gamemap

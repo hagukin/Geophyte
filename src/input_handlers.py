@@ -23,7 +23,7 @@ from actions import (
     ChestTakeAction,
     ChestPutAction,
 )
-from loader.data_loader import save_game, quit_game
+from base.data_loader import save_game, quit_game
 from game import Game
 from korean import grammar as g
 
@@ -34,7 +34,6 @@ import exceptions
 import traceback
 
 if TYPE_CHECKING:
-    from engine import Engine
     from ability import Ability
     from entity import SemiActor, Actor, Item, Entity
 

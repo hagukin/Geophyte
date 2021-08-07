@@ -1,7 +1,7 @@
 from __future__ import annotations
 from input_handlers import AskUserEventHandler, MainGameEventHandler
 from entity import Actor, Item, SemiActor
-from loader.data_loader import load_book
+from base.data_loader import load_book
 from typing import Optional
 from actions import Action
 from util import multiline

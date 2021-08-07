@@ -61,7 +61,7 @@ def init_game_variables(cfg, console: Console, context: Context):
     engine.player.initialize_actor()
 
     # Give player a complete encyclopedia TODO: delete?
-    from loader.data_loader import save_actor_book
+    from base.data_loader import save_actor_book
     save_actor_book(get_all_monsters=True)
 
 

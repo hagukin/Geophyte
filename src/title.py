@@ -1,7 +1,7 @@
-from loader.initialization import init_game_variables
-from loader.data_loader import load_game
+from base.initialization import init_game_variables
+from base.data_loader import load_game
 from render import render_img
-from loader.data_loader import quit_game
+from base.data_loader import quit_game
 
 import color
 import tcod

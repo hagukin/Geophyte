@@ -1,15 +1,10 @@
-from loader.initialization import init_game_variables
-from loader.data_loader import load_game
 from render import render_img
-from loader.data_loader import quit_game
-from typing import Tuple
 from util import center_print, draw_horizontal_line
 
 import color
 import tcod
 import time
 import random
-import option
 
 
 class CreditInputHandler(tcod.event.EventDispatch[None]):
