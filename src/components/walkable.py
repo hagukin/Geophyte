@@ -3,7 +3,7 @@ from __future__ import annotations
 import random
 import color
 
-from typing import TYPE_CHECKING, List
+from typing import TYPE_CHECKING, List, Tuple
 from numpy.lib.twodim_base import tri
 from components.base_component import BaseComponent
 from entity import Actor, Item, Entity
@@ -127,7 +127,7 @@ class FlameTrapWalkable(TrapWalkable):
                  untrap_chance,
                  check_item,
                  check_actor,
-                 burn_value: List[int, int, int, int],
+                 burn_value: Tuple[int, int, int, int],
                  trigger_once=True,
                  continuous_effect=False,
                  ):
@@ -156,7 +156,7 @@ class FlameTrapWalkable(TrapWalkable):
         else:
             self.engine.message_log.add_message(f"{g(target.name, '이')} {g(self.parent.name, '을')} 밟았다.", target=target)
         if not target.actor_state.is_dead:
-            target.actor_state.apply_burning(self.burn_value)
+            target.actor_state.apply_burning(list(self.burn_value))
 
 
 class IcicleTrapWalkable(TrapWalkable):
@@ -166,8 +166,8 @@ class IcicleTrapWalkable(TrapWalkable):
                  check_actor,
                  base_damage,
                  add_damage,
-                 freeze_value: List[int, int, int, int, int],
-                 bleed_value: List,
+                 freeze_value: Tuple[int, int, float, int, int],
+                 bleed_value: Tuple[int,int,int],
                  trigger_once=False,
                  continuous_effect=False,
                  ):
@@ -194,13 +194,13 @@ class IcicleTrapWalkable(TrapWalkable):
                                                 target=target)
         target.status.take_damage(dmg)
         if not target.actor_state.is_dead:
-            target.actor_state.apply_freezing(self.freeze_value)
+            target.actor_state.apply_freezing(list(self.freeze_value))
         if not target.actor_state.is_dead:
-            target.actor_state.apply_bleeding(self.bleed_value)
+            target.actor_state.apply_bleeding(list(self.bleed_value))
 
 
 class AcidSprayTrapWalkable(TrapWalkable):
-    def __init__(self, trigger_once, untrap_chance, check_item, check_actor, continuous_effect, melt_value: List[int, int, int, int]):
+    def __init__(self, trigger_once, untrap_chance, check_item, check_actor, continuous_effect, melt_value: Tuple[int, int, int, int]):
         super().__init__(trigger_once, untrap_chance, check_item, check_actor, continuous_effect)
         self.melt_value = melt_value
 
@@ -219,12 +219,12 @@ class AcidSprayTrapWalkable(TrapWalkable):
             self.engine.message_log.add_message(f"{g(target.name, '이')} {g(self.parent.name, '을')} 밟았다.", target=target)
         if not target.actor_state.is_dead:
             self.engine.message_log.add_message(f"{g(target.name, '이')} 산성 물질을 분사한다!", fg=color.red, target=target)
-            target.actor_state.apply_melting(self.melt_value)
+            target.actor_state.apply_melting(list(self.melt_value))
 
 
 class PoisonSpikeTrapWalkable(TrapWalkable):
     def __init__(self, trigger_once, untrap_chance, check_item, check_actor, continuous_effect, base_damage,
-                 add_damage, poison_value: List[int, int, int]):
+                 add_damage, poison_value: Tuple[int, int, int, int]):
         super().__init__(trigger_once, untrap_chance, check_item, check_actor, continuous_effect)
         self.base_damage = base_damage
         self.add_damage = add_damage
@@ -257,7 +257,7 @@ class PoisonSpikeTrapWalkable(TrapWalkable):
                                                 target=target)
         target.status.take_damage(dmg)
         if not target.actor_state.is_dead:
-            target.actor_state.apply_poisoning(self.poison_value)
+            target.actor_state.apply_poisoning(list(self.poison_value))
 
 
 class SonicBoomTrapWalkable(TrapWalkable):
@@ -266,7 +266,7 @@ class SonicBoomTrapWalkable(TrapWalkable):
                  check_item,
                  check_actor,
                  continuous_effect,
-                 confuse_value: List[int, int],
+                 confuse_value: Tuple[int, int],
                  trigger_once=True
     ):
         super().__init__(trigger_once, untrap_chance, check_item, check_actor, continuous_effect)
@@ -303,7 +303,7 @@ class SonicBoomTrapWalkable(TrapWalkable):
 
         self.sonic_boom(target)
         if not target.actor_state.is_dead:
-            target.actor_state.apply_confusion(self.confuse_value)
+            target.actor_state.apply_confusion(list(self.confuse_value))
 
 
 class ExplosionTrapWalkable(TrapWalkable):
@@ -377,7 +377,7 @@ low_dmg_flame_trap_walkable = FlameTrapWalkable(
     check_item=True,
     check_actor=True,
     continuous_effect=False,
-    burn_value=[5, 3, 0, 6],
+    burn_value=(5, 3, 0, 6),
 )
 
 low_dmg_icicle_trap_walkable = IcicleTrapWalkable(
@@ -388,8 +388,8 @@ low_dmg_icicle_trap_walkable = IcicleTrapWalkable(
     continuous_effect=False,
     base_damage=2,
     add_damage=2,
-    freeze_value=[2, 1, 0.1, 0, 3],
-    bleed_value=[1, 0, 3],
+    freeze_value=(2, 1, 0.1, 0, 3),
+    bleed_value=(1, 0, 3),
 )
 
 low_dmg_acid_spray_trap_walkable = AcidSprayTrapWalkable(
@@ -398,7 +398,7 @@ low_dmg_acid_spray_trap_walkable = AcidSprayTrapWalkable(
     check_item=True,
     check_actor=True,
     continuous_effect=False,
-    melt_value=[7,3,0,3]
+    melt_value=(7,3,0,3)
 )
 
 low_dmg_poison_spike_trap_walkable = PoisonSpikeTrapWalkable(
@@ -409,7 +409,7 @@ low_dmg_poison_spike_trap_walkable = PoisonSpikeTrapWalkable(
     base_damage=6,
     add_damage=6,
     continuous_effect=False,
-    poison_value=[1,2,0,6]
+    poison_value=(1,2,0,6)
 )
 
 sonic_boom_trap_walkable = SonicBoomTrapWalkable(
@@ -418,7 +418,7 @@ sonic_boom_trap_walkable = SonicBoomTrapWalkable(
     check_item=True,
     check_actor=True,
     continuous_effect=False,
-    confuse_value=[0,6],
+    confuse_value=(0,6),
 )
 
 low_dmg_explosion_trap_walkable = ExplosionTrapWalkable(
