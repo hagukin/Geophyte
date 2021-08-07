@@ -36,7 +36,7 @@ class Readable(BaseComponent):
         """Remove the consumed item from its containing inventory."""
         # fully identify used instance, and semi-identify the same item types.
         self.parent.item_state.identify_self(identify_level=2)
-        self.parent.parent.remove_item(self.parent, remove_count=1)
+        self.parent.parent.decrease_item_stack(self.parent, remove_count=1)
 
     def item_use_cancelled(self, actor: Actor) -> actions.Action:
         """

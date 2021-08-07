@@ -473,12 +473,20 @@ class AbilityActionSelectHandler(AskUserEventHandler):
 
 
 class StorageSelectEventHandler(AskUserEventHandler):
+    """
+    Handles selecting Item or Items from given inventory component.
+    NOTE: Seperated from ability select handler
+    """
     def __init__(
             self,
             inventory_component: Inventory,
             show_only_types: Tuple[InventoryOrder] =None,
             show_only_status: Tuple[str] = None,
             show_if_satisfy_both: bool = True,
+            hide_not_tradable: bool = False,
+            hide_not_owned: bool = False, #e.g. stolen items
+            hide_equipped: bool = False,
+            render_sell_price: bool = False,
             item_cancel_callback: Callable = None,
             ):
         """
@@ -499,16 +507,23 @@ class StorageSelectEventHandler(AskUserEventHandler):
             show_if_satisfy_both:
                 show item only if both types and status is satisfied.
                 if False, show items if they satisfy either one.
+        Vars:
+            display_sell_price:
+                bool. if True, the input handler will render the selling price information of all items in stroage.
         """
         super().__init__(item_cancel_callback)
         self.inventory_component = inventory_component
         self.show_only_types = show_only_types
         self.show_only_status = show_only_status
         self.show_if_satisfy_both = show_if_satisfy_both
+        self.hide_not_tradable = hide_not_tradable
+        self.hide_not_owned = hide_not_owned
+        self.hide_equipped = hide_equipped
         if hasattr(self.inventory_component.parent, "name"):
             self.TITLE = f"{self.inventory_component.parent.name}"
         else:
             self.TITLE = ""
+        self.render_sell_price = render_sell_price
 
     def get_item_rendered_text(self, item: Item, item_key, choose_multiple: bool):
         """
@@ -534,7 +549,8 @@ class StorageSelectEventHandler(AskUserEventHandler):
         item_damage_text = ""
         item_state_text = ""
         item_equip_text = ""
-        item_price_text = ""
+        item_buy_price_text = ""
+        item_sell_price_text = ""
         item_text_color = None
 
         # Display item counts if it is greater than 1
@@ -581,9 +597,15 @@ class StorageSelectEventHandler(AskUserEventHandler):
 
         # Display the price of the item if it is currently being sold
         if item.item_state.is_being_sold_from:
-            item_price_text += f"<{item.price_of(self.engine.player,1)}샤인, 미구매> " #discount set as 1 (hard-coded)
+            item_buy_price_text += f"<{item.price_of_single_item(is_shopkeeper_is_selling=True, discount=1 - self.engine.player.discount_value())}샤인, 미구매> "
 
-        return item_text, item_count, item_damage_text, item_state_text, item_equip_text, item_price_text, item_text_color
+        if self.render_sell_price:
+            if item.stack_count == 1:
+                item_sell_price_text += f"<{item.price_of_single_item(is_shopkeeper_is_selling=False, discount=0.5)}샤인에 판매 가능>"
+            else:
+                item_sell_price_text += f"<{item.stack_count}개 총 {item.price_of_all_stack(is_shopkeeper_is_selling=False, discount=0.5)}샤인에 판매 가능>"
+
+        return item_text, item_count, item_damage_text, item_state_text, item_equip_text, item_buy_price_text, item_sell_price_text, item_text_color
 
     def render_item(
         self,
@@ -593,7 +615,8 @@ class StorageSelectEventHandler(AskUserEventHandler):
         item_damage_text: str,
         item_state_text: str,
         item_equip_text: str,
-        item_price_text: str,
+        item_buy_price_text: str,
+        item_sell_price_text: str,
         item_text_color: Tuple[int,int,int],
         y_padding: int
     ) -> None:
@@ -609,15 +632,24 @@ class StorageSelectEventHandler(AskUserEventHandler):
         xpos += len(item_equip_text)
         self.engine.console.print(xpos, ypos + y_padding, item_state_text, fg=color.gui_item_state)
         xpos += len(item_state_text)
-        self.engine.console.print(xpos, ypos + y_padding, item_price_text, fg=color.gui_item_price)
+        self.engine.console.print(xpos, ypos + y_padding, item_buy_price_text, fg=color.gui_item_price)
+        xpos += len(item_buy_price_text)
+        self.engine.console.print(xpos, ypos + y_padding, item_sell_price_text, fg=color.gui_item_sell_price)
 
     def check_should_render_item(self, item: Item) -> bool:
+        if not item.tradable and self.hide_not_tradable:
+            return False
+        if item.item_state.is_being_sold_from and self.hide_not_owned:
+            return False
+        if item.item_state.equipped_region != None and self.hide_equipped:
+            return False
         if self.show_if_satisfy_both:
             if (self.check_should_render_type(item) and self.check_should_render_status(item)):
                 return True
         else:
             if (self.check_should_render_type(item) or self.check_should_render_status(item)):
                 return True
+        return False
 
     def check_should_render_type(self, item: Item) -> bool:
         """
@@ -723,10 +755,10 @@ class StorageSelectSingleEventHandler(StorageSelectEventHandler):
 
                 y_padding += 1
 
-                item_text, item_count, item_damage_text, item_state_text, item_equip_text, item_price_text, item_text_color = self.get_item_rendered_text(item, item_key, choose_multiple=False)
+                item_text, item_count, item_damage_text, item_state_text, item_equip_text, item_buy_price_text, item_sell_price_text, item_text_color = self.get_item_rendered_text(item, item_key, choose_multiple=False)
                 xpos = x + x_space + 1
                 ypos = y + y_space + 1
-                self.render_item(xpos, ypos, item_text, item_count, item_damage_text, item_state_text, item_equip_text, item_price_text, item_text_color, y_padding=y_padding)
+                self.render_item(xpos, ypos, item_text, item_count, item_damage_text, item_state_text, item_equip_text, item_buy_price_text, item_sell_price_text, item_text_color, y_padding=y_padding)
         else:
             console.print(x + x_space + 1, y + y_space + 1, "(없음)", color.gray)
         console.print(x + x_space + 1, height - 1, "\"/\"키 - 아이템 정렬", color.gui_inventory_fg)
@@ -765,9 +797,10 @@ class StorageSelectSingleEventHandler(StorageSelectEventHandler):
         try:
             key = alphabet[event.sym]
             selected_item = self.inventory_component.item_hotkeys[key]
-            if not self.check_should_render_item(selected_item):
-                raise Exception()
             if selected_item:
+                if not self.check_should_render_item(selected_item):  # Cannot select hidden item index.
+                    self.engine.message_log.add_message(f"잘못된 입력입니다.", color.invalid)
+                    return None
                 return self.on_item_selected(selected_item)
             else:
                 self.engine.message_log.add_message(f"잘못된 입력입니다.", color.invalid)
@@ -1048,8 +1081,12 @@ class StorageSelectMultipleEventHandler(StorageSelectEventHandler):
             show_only_types: Tuple[InventoryOrder] =None,
             show_only_status: Tuple[str] = None,
             show_if_satisfy_both: bool = True,
+            render_sell_price: bool = False,
+            hide_not_tradable: bool = False,
+            hide_not_owned: bool = False,
+            hide_equipped: bool = False
             ):
-        super().__init__(inventory_component, show_only_types, show_only_status, show_if_satisfy_both)
+        super().__init__(inventory_component, show_only_types, show_only_status, show_if_satisfy_both, render_sell_price, hide_not_tradable, hide_not_owned, hide_equipped)
         self.selected_items = set()
 
     def on_render(self, console: tcod.Console) -> None:
@@ -1095,10 +1132,10 @@ class StorageSelectMultipleEventHandler(StorageSelectEventHandler):
 
                 y_padding += 1
 
-                item_text, item_count, item_damage_text, item_state_text, item_equip_text, item_price_text, item_text_color = self.get_item_rendered_text(item, item_key, choose_multiple=True)
+                item_text, item_count, item_damage_text, item_state_text, item_equip_text, item_buy_price_text, item_sell_price_text, item_text_color = self.get_item_rendered_text(item, item_key, choose_multiple=True)
                 xpos = x + x_space + 1
                 ypos = y + y_space + 1
-                self.render_item(xpos, ypos, item_text, item_count, item_damage_text, item_state_text, item_equip_text, item_price_text, item_text_color, y_padding=y_padding)
+                self.render_item(xpos, ypos, item_text, item_count, item_damage_text, item_state_text, item_equip_text, item_buy_price_text, item_sell_price_text, item_text_color, y_padding=y_padding)
         else:
             console.print(x + x_space + 1, y + y_space + 1, "(없음)", color.gray)
 
@@ -1142,6 +1179,9 @@ class StorageSelectMultipleEventHandler(StorageSelectEventHandler):
             key = alphabet[event.sym]
             selected_item = self.inventory_component.item_hotkeys[key]
             if selected_item:
+                if not self.check_should_render_item(selected_item):  # Cannot select hidden item index.
+                    self.engine.message_log.add_message(f"잘못된 입력입니다.", color.invalid)
+                    return None
                 self.on_item_selected(selected_item)
                 return None
             else:
@@ -1229,14 +1269,18 @@ class NonHostileBumpHandler(AskUserEventHandler):
         self.target = target
         self.TITLE = "무엇을 하시겠습니까?"
         self.can_pay_shopkeeper = False
+        self.can_sell_to_shopkeeper = False
         self.update_pay_status()
 
     def update_pay_status(self):
         if hasattr(self.target, "ai"):
             if self.target.ai:
-                if hasattr(self.target.ai, "has_dept"):
-                    if self.target.ai.has_dept(self.engine.player):
-                        self.can_pay_shopkeeper = True
+                from shopkeeper import Shopkeeper_Ai
+                if isinstance(self.target.ai, Shopkeeper_Ai):
+                    if not self.engine.player in self.target.ai.thieves: # Can sell/buy items from shopkeeper only if you are not a thief.
+                        self.can_sell_to_shopkeeper = True
+                        if self.target.ai.has_dept(self.engine.player):
+                            self.can_pay_shopkeeper = True
 
     def on_render(self, console: tcod.Console) -> None:
         """
@@ -1288,6 +1332,9 @@ class NonHostileBumpHandler(AskUserEventHandler):
         if self.can_pay_shopkeeper: # NOTE: does not check for "purchase" keyword
             console.print(x + x_space + 1, y + y_space + y_pad, "(p) - 소지중인 판매물품들을 구매한다", fg=color.white)
             y_pad += 2
+        if self.can_sell_to_shopkeeper: # NOTE: does not check for "sell" keyword
+            console.print(x + x_space + 1, y + y_space + y_pad, "(e) - 인벤토리에서 물품들을 선택해 판매한다", fg=color.white)
+            y_pad += 2
         if self.target.check_if_bump_action_possible(self.engine.player, "swap"):
             console.print(x + x_space + 1, y + y_space + y_pad, "(s) - 위치를 바꾼다", fg=color.white)
             y_pad += 2
@@ -1306,9 +1353,10 @@ class NonHostileBumpHandler(AskUserEventHandler):
             return self.target.get_bumpaction(self.engine.player, "move")
         elif self.can_pay_shopkeeper and key == tcod.event.K_p:
             self.engine.event_handler = MainGameEventHandler()
-            if not hasattr(self.target, "ai"):
-                raise Exception("ERROR::NonHostileBumpHandler - Shopkeeper must have an AI.")
             self.target.ai.sell_all_picked_ups(customer=self.engine.player)
+            return None
+        elif self.can_sell_to_shopkeeper and key == tcod.event.K_e:
+            self.engine.event_handler = SellItemsHandler(sell_to=self.target)
             return None
         elif self.target.swappable and key == tcod.event.K_s:
             return self.target.get_bumpaction(self.engine.player, "swap")
@@ -1336,13 +1384,30 @@ class NonHostileBumpHandler(AskUserEventHandler):
             return None
 
 
+class SellItemsHandler(StorageSelectMultipleEventHandler):
+    def __init__(self, sell_to: Entity):
+        super().__init__(self.engine.player.inventory, render_sell_price=True, hide_not_tradable=True, hide_not_owned=True, hide_equipped=True)
+        self.TITLE = "판매할 아이템들을 선택하세요."
+        self.sell_to = sell_to
+
+    def choice_confirmed(self):
+        """
+        Remove the selected items from player's inventory and place them in shops.
+        """
+        if hasattr(self.sell_to, "ai"):
+            from shopkeeper import Shopkeeper_Ai
+            if isinstance(self.sell_to.ai, Shopkeeper_Ai):
+                self.sell_to.ai.purchase_items(customer=self.engine.player, items=list(self.selected_items))
+        return self.on_exit()
+
+
 class ChestTakeEventHandler(StorageSelectMultipleEventHandler):
     def __init__(self, chest_inventory_component: Inventory):
         super().__init__(chest_inventory_component)
         if hasattr(chest_inventory_component.parent, "name"):
             self.TITLE = f"{chest_inventory_component.parent.name}에서 가져갈 아이템을 선택하세요."
         else:
-            self.TITLE = "가져갈 아이템을 선택하세요."
+            self.TITLE = "가져갈 아이템들을 선택하세요."
         self.chest_inv = chest_inventory_component
 
     def choice_confirmed(self):
@@ -1359,7 +1424,7 @@ class ChestPutEventHandler(StorageSelectMultipleEventHandler):
         if hasattr(chest_inventory_component.parent, "name"):
             self.TITLE = f"{chest_inventory_component.parent.name}에 넣을 아이템을 선택하세요."
         else:
-            self.TITLE = "넣을 아이템을 선택하세요."
+            self.TITLE = "넣을 아이템들을 선택하세요."
         self.actor_inv = actor_inventory_component
         self.chest_inv = chest_inventory_component
 
@@ -1374,7 +1439,7 @@ class InventoryDropHandler(StorageSelectMultipleEventHandler):
     """Handle dropping an inventory item."""
     def __init__(self, inventory_component: Inventory):
         super().__init__(inventory_component)
-        self.TITLE = "Select items to drop"
+        self.TITLE = "드랍할 아이템들을 선택하세요."
 
     def choice_confirmed(self):
         """
@@ -1382,12 +1447,14 @@ class InventoryDropHandler(StorageSelectMultipleEventHandler):
         """
         for item in self.selected_items:
             if item.item_state.equipped_region:
-                self.engine.message_log.add_message("장착하고 있는 아이템을 떨어뜨릴 수 없습니다.", color.invalid)
+                self.engine.message_log.add_message("장착하고 있는 아이템을 드랍할 수 없습니다.", color.invalid)
+                continue
+            if not item.droppable:
+                self.engine.message_log.add_message(f"{g(item.name, '을')} 드랍할 수 없습니다.", color.invalid)
                 continue
             DropItem(self.engine.player, item).perform()
 
-        self.engine.event_handler = MainGameEventHandler()
-
+        return self.on_exit()
 
 class SelectIndexHandler(AskUserEventHandler):
     """Handles asking the user for an index on the map."""

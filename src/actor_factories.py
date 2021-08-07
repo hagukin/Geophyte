@@ -101,7 +101,7 @@ player = Actor(
         agility=15,
         intelligence=15,
         constitution=15,
-        charm=15,
+        charm=45,
         difficulty=0,
         base_melee=10,
         additional_melee=10,
@@ -128,7 +128,7 @@ player = Actor(
         (item_factories.potion_of_monster_detection, 1, (3,4)),
         (item_factories.scroll_of_confusion, 1, (3,5)),
         (item_factories.scroll_of_scorching_ray, 1, (3,5)),
-        (item_factories.longsword, 1, (1,1)),
+        (item_factories.shine, 1, (5000,5001)),
         (item_factories.leather_armor, 1, (1,1)),
         ],
     initial_equipments=[

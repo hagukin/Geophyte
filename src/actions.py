@@ -343,8 +343,7 @@ class ChestAction(MultiEntitiesAction):
 class ChestTakeAction(ChestAction):
     def perform(self) -> None:
         for item in self.entities:
-            self.chest_storage.remove_item(item, -1)
-            self.actor_storage.add_item(item)
+            self.actor_storage.add_item(self.chest_storage.delete_item_from_inv(item))
 
             if self.entity == self.engine.player:
                 if item.stack_count <= 1:
@@ -361,8 +360,7 @@ class ChestTakeAction(ChestAction):
 class ChestPutAction(ChestAction):
     def perform(self) -> None:
         for item in self.entities:
-            self.actor_storage.remove_item(item, -1)
-            self.chest_storage.add_item(item)
+            self.chest_storage.add_item(self.actor_storage.delete_item_from_inv(item))
 
             if self.entity == self.engine.player:
                 if item.stack_count <= 1:
@@ -956,7 +954,7 @@ class CashExchangeAction(Action):
         You should check whether the transaction is valid BEFORE you perform the action."""
         from item_factories import shines
         self.taker.inventory.add_item(shines(self.cash_amount))
-        self.giver.inventory.remove_item(self.giver.inventory.check_if_in_inv("shine"), self.cash_amount)
+        self.giver.inventory.decrease_item_stack(self.giver.inventory.check_if_in_inv("shine"), self.cash_amount)
 
 
 class PlaceSwapAction(Action):

@@ -96,7 +96,7 @@ class StealActivatable(Activatable):
                 # Make duplicate
                 dup_item = item.copy(gamemap=item.gamemap)
                 dup_item.stack_count = item_count
-                target.inventory.remove_item(item=item, remove_count=item_count)
+                target.inventory.decrease_item_stack(item=item, remove_count=item_count)
 
                 if len(attacker.inventory.items) >= attacker.inventory.capacity:
                     dup_item.place(x=attacker.x, y=attacker.y, gamemap=attacker.gamemap)

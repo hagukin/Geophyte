@@ -99,7 +99,7 @@ class ItemState(BaseComponent):
         """
         self.BUC = 0
 
-    def check_if_identical(self, comparing_item: Item, compare_stack_count: bool = False) -> bool:
+    def check_if_state_identical(self, comparing_item: Item, compare_stack_count: bool = False) -> bool:
         """
         Check if the two items received as arguments are the "same". (they might have different memory address)
         We only care about certain status that could affect the item's in-game abilities.
@@ -110,30 +110,34 @@ class ItemState(BaseComponent):
         ALL ITEMS THAT ARE UPGRADABLE OR EDIBLE SHOULD NEVER BE IDENTICAL WITH OTHER ITEMS.
         THIS IS THE REASON WHY THEY ARE NOT STACKABLE FROM THE BEGINNING.
 
+        NOTE: DO NOT change this function into simple memory address comparing function.
+        The main reason for this is when you pick up an item,
+        it should stack with the item that is in your inventory
+        that has different memory address but has the exact same informations.
         """
-        # 0. Compare stack id
-        if compare_stack_count and self.parent.stack_count  != comparing_item.stack_count:
+        # 0. compare memory address
+        if id(self.parent) == id(comparing_item):
+            print(f"DEBUG::item_state.check_if_identical - Identical memory")
+            return True
+
+        # 1. Compare stack count and names
+        if compare_stack_count and self.parent.stack_count != comparing_item.stack_count:
             return False
-
-        # 1. Compare names
         if self.parent.name == comparing_item.name and self.parent.entity_id == comparing_item.entity_id:
-
             # 2. Compare item states
-            if self.parent.item_state.BUC != comparing_item.item_state.BUC:
+            if self.BUC != comparing_item.item_state.BUC:
                 return False
             if self.check_if_semi_identified() != comparing_item.item_state.check_if_semi_identified()\
                 and self.check_if_full_identified() != comparing_item.item_state.check_if_full_identified():
                 return False
             if(
-                self.parent.item_state.burntness != comparing_item.item_state.burntness or
-                self.parent.item_state.is_burning != comparing_item.item_state.is_burning or
-                self.parent.item_state.corrosion != comparing_item.item_state.corrosion or
-                self.parent.item_state.is_being_sold_from != comparing_item.item_state.is_being_sold_from
+                self.burntness != comparing_item.item_state.burntness or
+                self.is_burning != comparing_item.item_state.is_burning or
+                self.corrosion != comparing_item.item_state.corrosion or
+                self.is_being_sold_from != comparing_item.item_state.is_being_sold_from
             ):
                 return False
-            
             return True
-
         return False
 
     def burn(self, owner: Actor=None):

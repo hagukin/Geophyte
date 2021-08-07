@@ -94,6 +94,7 @@ gui_item_damage = (0x7a, 0x7a, 0x7a)
 gui_item_state = (0xd0, 0x31, 0x2d)
 gui_item_equip = (0x25, 0x66, 0xCA)
 gui_item_price = lime
+gui_item_sell_price = cyan
 
 msg_log_bg = dark_gray
 msg_log_frame = yellow

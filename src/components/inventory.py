@@ -1,7 +1,7 @@
 from __future__ import annotations
 import random
 import color
-from typing import List, TYPE_CHECKING, Optional
+from typing import List, TYPE_CHECKING, Optional, Tuple
 from components.base_component import BaseComponent
 from components.status import Bonus
 from exceptions import Impossible
@@ -82,7 +82,7 @@ class Inventory(BaseComponent):
         item.parent = None
         item.item_state.equipped_region = None
         
-        self.remove_item(item=item, remove_count=-1) # remove all stack
+        self.delete_item_from_inv(item=item) # remove all stack
         if item.change_stack_count_when_dropped != None: # set new drop count if it has one. (e.g. toxic goo drop from black jelly)
             new_stack_count = random.randint(item.change_stack_count_when_dropped[0], item.change_stack_count_when_dropped[1])
             item.stack_count = new_stack_count
@@ -117,7 +117,7 @@ class Inventory(BaseComponent):
         # Duplicate and place the item
         spliten_item = item.copy(gamemap=item.gamemap)
         spliten_item.stack_count = 1
-        self.remove_item(item, remove_count=1)
+        self.decrease_item_stack(item, remove_count=1)
         spliten_item.place(x, y, self.gamemap)
 
         if show_msg:
@@ -160,7 +160,7 @@ class Inventory(BaseComponent):
         """
         if item.stackable:
             for inv_item in self.items:
-                if item.item_state.check_if_identical(inv_item):
+                if item.item_state.check_if_state_identical(inv_item):
                     inv_item.stack_count += item.stack_count # Stack item
                     return None
         item.parent = self
@@ -174,28 +174,44 @@ class Inventory(BaseComponent):
         self.update_burden()
         return None
 
-    def remove_item(self, item: Item, remove_count: int=1) -> None:
+    def get_key_of(self, item: Item) -> Optional[str]:
+        for key, inv_item in self.item_hotkeys.items():
+            if item is inv_item:
+                return key
+        print("WARNING::Item not found in inventory.")
+        return None
+
+    def delete_item_from_inv(self, item: Item) -> Item:
+        """
+        Delete item from inventory and return the deleted item.
+        WARNING: Stack count is not being changed whatsoever.
+        """
+        item.parent = None
+        self.item_hotkeys[self.get_key_of(item)] = None
+        self.update_burden()
+        return item
+
+    def decrease_item_stack(self, item: Item, remove_count: int=1) -> None:
         """
         Remove item from inventory.
         if remove_count == -1, remove all stack.
         You can remove multiple items at once by giving this function a "remove_count" value.
         If item is stacked, stack_count will decrease instead of removing the item from inventory.
         """
-        for key, inv_item in self.item_hotkeys.items():
-            if inv_item == None:
-                continue
-            if item.item_state.check_if_identical(inv_item, compare_stack_count=True):
-                if remove_count == -1:# if -1, remove entire stack
-                    self.item_hotkeys[key] = None
-                else:
-                    inv_item.stack_count -= remove_count # Stack item
-                    if inv_item.stack_count == 0:
-                        self.item_hotkeys[key] = None
-                    elif inv_item.stack_count < 0:# If remove_count is set to negative, do nothing. This feature exist in case of using an item infinitly. (e.g. black jelly throwing a toxic goo)
-                        return None
-                self.update_burden()
+        if remove_count > item.stack_count:
+            raise Exception("FATAL ERROR::Cannot remove item stack count higher than its original stack count. - inventory.decrease_item_stack")
+        elif remove_count < 0:
+            raise Exception("FATAL ERROR::Cannot remove stack count by negative integer. - inventory.decrease_item_stack")
+        elif remove_count == 0:
+            print("WARNING::Tried to remove stack count by 0. Possibly an error?")
+        else:
+            item.stack_count -= remove_count
+            if item.stack_count == 0:
+                self.delete_item_from_inv(item)
+            elif item.stack_count < 0:# If remove_count is set to negative, do nothing. This feature exist in case of using an item infinitly. (e.g. black jelly throwing a toxic goo)
                 return None
-        raise Exception("FATAL ERROR::tried to remove item that is not in inventory")
+        self.update_burden()
+        return None
 
     def split_item(self, item: Item, split_amount: int=1) -> None:
         """
@@ -209,7 +225,7 @@ class Inventory(BaseComponent):
                 spliten_item.stackable = False
 
                 # Remove item from stack
-                self.remove_item(item, split_amount)
+                self.decrease_item_stack(item, split_amount)
 
                 # Drop item to the floor if there is no room in the inventory
                 if len(self.items) >= self.capacity:

@@ -161,7 +161,7 @@ class NormalThrowable(Throwable):
                 self.engine.message_log.add_message(f"{g(self.parent.name, '이')} 깨졌다.", fg=color.gray, target=thrower)
             else:
                 self.engine.message_log.add_message(f"{g(self.parent.name, '이')} 파괴되었다.", fg=color.gray, target=thrower)
-            self.parent.parent.remove_item(self.parent, remove_count=1)
+            self.parent.parent.decrease_item_stack(self.parent, remove_count=1)
 
     def collided_with_actor(self, collided, thrower):
         # Check dodged
@@ -240,7 +240,7 @@ class NormalThrowable(Throwable):
                 self.engine.message_log.add_message(f"{g(self.parent.name, '이')} 깨졌다.", fg=color.gray, target=thrower)
             else:
                 self.engine.message_log.add_message(f"{g(self.parent.name, '이')} 파괴되었다.", fg=color.gray, target=thrower)
-            self.parent.parent.remove_item(self.parent, remove_count=1)
+            self.parent.parent.decrease_item_stack(self.parent, remove_count=1)
 
     def effects_when_shattered(self):
         """Effects when the item is broken. e.g. spawn fire when fire potion is broken

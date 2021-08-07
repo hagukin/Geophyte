@@ -1,3 +1,5 @@
+import random
+
 import components.ai as ai
 import copy
 import color
@@ -128,9 +130,19 @@ class Shopkeeper_Ai(ai.BaseAI):
             and not self.path:
             self.path = self.get_path_to(self.room.doors[0][0], self.room.doors[0][1])
         return self.move_path()
-        
+
+    def place_item_in_shop(self, item: Item) -> None: #TODO DEBUG
+        """Physically move the item into the shop.
+        NOTE: Adding item to the shop is handled in purchase_items()"""
+        item.stack_count = 1 # TODO: shop items cannot be stacked.
+        tmp = random.choices(self.room.inner_tiles, k=1)[0]
+        item.place(x=tmp[0], y=tmp[1], gamemap=self.gamemap)
+
     def add_item_to_shop(self, item: Item) -> None:
         item.item_state.is_being_sold_from = id(self.parent)
+        # item.stack_count = 1 # Item count is reduced down to 1
+        item.stackable = False # Items in shops are spawned as nonstackable to prevent glitches and to clarify each item's indivisual prices.
+        # After purchasing it, the items becomes stackable again. (shopkeeper.remove_item_from_shop())
         self.room.terrain.items_on_stock.append(item)
         self.picked_up[item] = None
 
@@ -152,7 +164,7 @@ class Shopkeeper_Ai(ai.BaseAI):
         dept = 0
         for item, buyer in self.picked_up.items():
             if buyer == customer:
-                dept += item.price_of(customer, discount=1)
+                dept += item.price_of_all_stack(customer, discount=1)
         return dept
 
     def take_cash(self, customer: Actor, cash_amount: int) -> None:
@@ -169,20 +181,40 @@ class Shopkeeper_Ai(ai.BaseAI):
         NOTE: You should check whether the shopkeeper has enough money or not before calling this method.
         NOTE: in order to sell an item, item should have no owner, and it should be located in shop's inner area.
         """
-        if not self.room.check_if_in_room(item.x, item.y): # Check if item is in the shop
-            raise Exception() #Should not try to purchase items that are located outside of the shop
-
-        buying_price = item.price_of(item, 0.7)
-        if self.parent.inventory.check_has_enough_money(buying_price):
-            self.give_cash(customer, buying_price)
-            self.add_item_to_shop(item)
-            self.engine.message_log.add_message(f"{g(item.name, '이')} {g(item.name, '을')} {buying_price}샤인에 판매했다.", fg=color.shop_sold)
-        else:
+        if not item.tradable:
+            self.engine.message_log.add_message("거래가 불가능한 아이템을 판매할 수 없습니다.", fg=color.gray)
+            # This part should never be reached in the first place since you cannot select non-tradable items from SellItemHandler
             return None
+        if item.item_state.equipped_region is not None:
+            self.engine.message_log.add_message("장착하고 있는 아이템을 판매할 수 없습니다.", fg=color.gray)
+            # This part should never be reached in the first place since you cannot select equipped items from SellItemHandler
+            return None
+        if item.item_state.is_being_sold_from is not None:
+            self.engine.message_log.add_message("소유권이 없는 아이템을 판매할 수 없습니다.", fg=color.gray)
+            # This part should never be reached in the first place since you cannot select not-owned items from SellItemHandler
+            return None
+
+        buying_price = item.price_of_all_stack(is_shopkeeper_is_selling=False, discount=0.5)
+        if self.parent.inventory.check_has_enough_money(buying_price):
+            if item.stack_count > 1:
+                self.engine.message_log.add_message(f"{g(customer.name, '이')} {item.name} (x{item.stack_count}) 을 총 {buying_price}샤인에 판매했다.", fg=color.shop_sold)
+            else:
+                self.engine.message_log.add_message(f"{g(customer.name, '이')} {g(item.name, '을')} {buying_price}샤인에 판매했다.", fg=color.shop_sold)
+            self.give_cash(customer, buying_price)
+            tmp = customer.inventory.delete_item_from_inv(item)
+            self.add_item_to_shop(tmp)
+            self.place_item_in_shop(tmp)
+        else:
+            self.engine.message_log.add_speech(f"아쉽지만 지금은 {g(item.name, '을')} 살 수 없다네.", speaker=self.parent, stack=False)
+            return None
+
+    def purchase_items(self, customer: Actor, items: List[Item]) -> None:
+        for item in items:
+            self.purchase_item(customer, item=item)
 
     def sell_item(self, customer: Actor, item: Item) -> None:
         """Sell item to the customer."""
-        selling_price = item.price_of(item, 1)
+        selling_price = item.price_of_all_stack(is_shopkeeper_is_selling=True, discount=1 - customer.discount_value())
         if customer.inventory.check_has_enough_money(selling_price):
             self.take_cash(customer, selling_price)
             self.remove_item_from_shop(item)
@@ -196,22 +228,22 @@ class Shopkeeper_Ai(ai.BaseAI):
         buyings = []
         for item, buyer in self.picked_up.items():
             if buyer == customer:
-                bill += item.price_of(customer, discount=1)
+                bill += item.price_of_all_stack(customer, discount=1)
                 buyings.append(item)
-        # bill is 0
-        if bill <= 0:
+        # no goods to puy
+        if not buyings:
             print("ERROR::CUSTOMER TRIED TO PURCHASE WHILE NOT PICKING UP ANYTHING FROM THE SHOP. - shopkeeper.py")
             return None
 
         # Customer has insufficient money
         if not customer.inventory.check_has_enough_money(bill):
-            self.engine.message_log.add_speech(f"가지고 있는 샤인이 부족한 것 같다만.", speaker=self.parent, stack=False)
+            self.engine.message_log.add_speech(f"가지고 있는 샤인이 부족한 것 같군.", speaker=self.parent, stack=False)
             return None
 
         # Purchase everything
         for buying in buyings:
             self.sell_item(customer, buying)
-        self.engine.message_log.add_speech("좋은 거래였네.", speaker=self.parent, stack=False)
+        self.engine.message_log.add_speech("좋은 거래 고맙네.", speaker=self.parent, stack=False)
 
     def perform(self) -> None:
         """

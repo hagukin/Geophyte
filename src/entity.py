@@ -520,6 +520,14 @@ class Actor(Entity):
         self.action_speed = self.status.agility
         return self.action_speed
 
+    def discount_value(self) -> float:
+        """A discout value for this actor.
+        The higher the actor's charm is, the higher this value gets.
+        If the actor is buying, subtract this value from 1.
+        Return:
+            float range between -0.4 to 0.4."""
+        return max(-0.4, min(0.4, (self.status.changed_status["charm"] / 15) - 1) * 0.75)
+
     def drop_all_items(self) -> None:
         """Drop all items this status' parent owns. Mainly used during die()"""
         drop_list = []
@@ -734,6 +742,7 @@ class Item(Entity):
         item_state: ItemState,
         blocks_movement: bool = False,
         blocks_sight: bool = False,
+        tradable: bool = True,
         spawnable: bool = False,
         walkable: Walkable=None,
         swappable: bool=False,
@@ -803,6 +812,7 @@ class Item(Entity):
         self.item_state = item_state
         self.item_state.parent = self
 
+        self.tradable = tradable
         self.flammable = flammable
         self.corrodible = corrodible
         self.droppable = droppable
@@ -886,20 +896,30 @@ class Item(Entity):
             else:
                 return self._entity_desc
 
-    def price_of(self, buyer: Actor, discount: float=1) -> int:
-        """Return the price of the given item for given actor."""
+    def price_of_single_item(self, is_shopkeeper_is_selling: bool, discount: float=1) -> int:
+        """
+        Return the price of the given item for given actor.
+        NOTE: This function will not handle the change of the price depending on the actor's charm.
+        NOTE: If dicount value is over 1, the function will return an overrated price for the item.
+        """
         if self.item_type == InventoryOrder.GEM:
             if self.item_state.is_identified == 0:
-                if buyer == self.engine.player:
-                    return round(discount * 3000 * self.stack_count)
+                if is_shopkeeper_is_selling:
+                    return round(discount * 3000)
                 else:
-                    return round(discount * 1 * self.stack_count)
+                    return round(discount * 1)
             else:
-                return round(discount * self.price * self.stack_count)
+                return round(discount * self.price)
+        return round(discount * self.price)  # TODO: Make charm affect the price
 
+    def price_of_all_stack(self, is_shopkeeper_is_selling: bool=False, discount: float=1) -> int:
+        """
+        Return the price of the given item for given actor.
+        NOTE: This function will not handle the change of the price depending on the actor's charm.
+        """
         if self.stack_count < 1:
             return 0
-        return round(discount * self.price * self.stack_count) #TODO: Make charm affect the price
+        return self.price_of_single_item(is_shopkeeper_is_selling, discount) * self.stack_count
 
     def remove_self(self):
         super().remove_self()
@@ -911,7 +931,7 @@ class Item(Entity):
             if self.equipable: # If the item can be equipped, try to remove it from its wearer. (if there is any)
                 if self.item_state.equipped_region:
                     self.parent.parent.equipments.remove_equipment(region=self.item_state.equipped_region, forced=True)
-            self.parent.remove_item(self, remove_count=self.stack_count)
+            self.parent.delete_item_from_inv(self)
 
     def initialize_item(self):
         """
