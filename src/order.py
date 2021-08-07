@@ -44,6 +44,7 @@ class InventoryOrder(Enum):
     FOOD = auto()
     CORPSE = auto()
     TOOL = auto()
+    GEM = auto()
     MISC = auto()
 
 

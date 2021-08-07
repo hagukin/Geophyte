@@ -31,7 +31,7 @@ class GameMap:
         self.tiles = np.full((biome.map_width, biome.map_height), fill_value=tiles.DEBUG(), order="F")
         self.tilemap = np.full((biome.map_width, biome.map_height), fill_value=TilemapOrder.VOID.value, order="F")
         self.tunnelmap = np.full((biome.map_width, biome.map_height), fill_value=True, order="F")# Set to True=tunnel can be built on that location
-        self.protectmap = np.full((biome.map_width, biome.map_height), fill_value=False, order="F")# Set to True=terrain cannot overwrite(generate onto) that location
+        self.protectmap = np.full((biome.map_width, biome.map_height), fill_value=False, order="F")# Set to True=terrain cannot overwrite(randomize onto) that location
         self.ascend_loc = None # Location of ascending stair that goes to the upper floor.
         self.descend_loc = None
 

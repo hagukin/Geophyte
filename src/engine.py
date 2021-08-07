@@ -118,7 +118,7 @@ class Engine:
         This means entity can get stuck after falling(going down a level), 
         so you should calculate the appropriate xpos, ypos in advance and pass it to this function.
         """
-        if not self.world.check_has_map(depth): # If there is no level below current level, generate new level.
+        if not self.world.check_has_map(depth): # If there is no level below current level, randomize new level.
             print("WARNING::Something went wrong, Pre-generated level missing!")
             self.world.set_map(self.generate_new_dungeon(depth=depth, console=self.console, context=self.context, display_process=False), depth)
 
@@ -541,7 +541,7 @@ class Engine:
             not_explored_coordinates = zip(*np.where(self.game_map.explored[:,:] == False))
 
             for cor in not_explored_coordinates:
-                # Even if the position clicked if currently unexplored, the game will generate path and allow player to move to that tile 
+                # Even if the position clicked if currently unexplored, the game will randomize path and allow player to move to that tile
                 # UNLESS the path contains other unexplored tiles.
                 # This is due to convenience, and other touch/click driven moving roguelikes like pixel dungeon uses similar mechanics.
                 # TODO: This mechanics can be improved. 
@@ -557,7 +557,7 @@ class Engine:
                 # If the player is already on a dangerous tile, ignore same types of tile and exclude them from "dangerous coordinates".
                 # The reaseon for this is convenience.
                 # For example, when the player is in the middle of ocean, the player is most likely to be standing on the deep water tile.(which is considered "dangerous tile")
-                # When player click somewhere else to get out of the ocean, the game will not generate any path because the player is surrounded by dangerous tiles(deep water).
+                # When player click somewhere else to get out of the ocean, the game will not randomize any path because the player is surrounded by dangerous tiles(deep water).
                 # However by excluding all deep water tiles from "dangerous tile" temporarily, the player can now get out of the ocean by clicking somewhere else.
                 if self.game_map.tiles[cor]["tile_id"] == self.game_map.tiles[self.player.x, self.player.y]["tile_id"]:
                     continue

@@ -116,19 +116,19 @@ class Room:
         return False
 
     def door_up(self) -> Tuple[slice, slice]:
-        """Randomly generate door convex location next to the upper wall, and return the location as a 2D array index."""
+        """Randomly randomize door convex location next to the upper wall, and return the location as a 2D array index."""
         raise NotImplementedError()
 
     def door_left(self) -> Tuple[slice, slice]:
-        """Randomly generate door convex location next to the left wall, and return the location as a 2D array index."""
+        """Randomly randomize door convex location next to the left wall, and return the location as a 2D array index."""
         raise NotImplementedError()
 
     def door_right(self) -> Tuple[slice, slice]:
-        """Randomly generate door convex location next to the right wall, and return the location as a 2D array index."""
+        """Randomly randomize door convex location next to the right wall, and return the location as a 2D array index."""
         raise NotImplementedError()
 
     def door_down(self) -> Tuple[slice, slice]:
-        """Randomly generate door convex location next to the lower wall, and return the location as a 2D array index."""
+        """Randomly randomize door convex location next to the lower wall, and return the location as a 2D array index."""
         raise NotImplementedError()
 
     def get_actors_in_room(self) -> List[Actor]:

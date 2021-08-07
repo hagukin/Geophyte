@@ -47,7 +47,7 @@ class Biome:
         biome_desc: str = "",
         rarity: int = 1,
         biome_color: Tuple = color.black,
-        max_rooms: int = 30000,
+        max_rooms: int = 3000,
         map_width: int = 70, # min 70
         map_height: int = 45, # min 45
         respawn_ratio: float = 0.4,
@@ -75,7 +75,7 @@ class Biome:
             respawn_time:
                 Time that takes for a single loop of monster regeneration. (In-game turn)
             generate_descending_stair:
-                Whether to generate descending stair or not.
+                Whether to randomize descending stair or not.
                 e.g. you can set this to False when generating last level (maximum depth)
             tileset:
                 tileset of this biome.

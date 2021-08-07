@@ -303,14 +303,14 @@ class AbilityEventHandler(AskUserEventHandler):
         x = 0
         y = 0
         x_space = 5 # for each sides
-        y_space = 3
+        y_space = 0
         width = self.engine.config["screen_width"] - (x_space * 2)
 
         console.draw_frame(
             x=x + x_space,
             y=y + y_space,
             width=width,
-            height=height + 1, # 2 extra lines for bottom
+            height=height, # 2 extra lines for bottom
             title=self.TITLE,
             clear=True,
             fg=color.gui_inventory_fg,
@@ -335,7 +335,7 @@ class AbilityEventHandler(AskUserEventHandler):
         else:
             console.print(x + x_space + 1, y + y_space + 1, "(없음)", color.gray)
 
-        console.print(x + x_space + 1, height + 3, "\"/\"키: - 인벤토리 정렬", color.gui_inventory_fg)
+        console.print(x + x_space + 1, height - 1, "\"/\"키 - 인벤토리 정렬", color.gui_inventory_fg)
 
     def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[Action]:
         player = self.engine.player
@@ -699,14 +699,14 @@ class StorageSelectSingleEventHandler(StorageSelectEventHandler):
         x = 0
         y = 0
         x_space = 5 # per side
-        y_space = 3
+        y_space = 0
         width = self.engine.config["screen_width"] - (x_space * 2)
 
         console.draw_frame(
             x=x + x_space,
             y=y + y_space,
             width=width,
-            height=height + 1, # 2 extra line for "press slash to sort inventory"
+            height=height, # 2 extra line for "press slash to sort inventory"
             title=self.TITLE,
             clear=True,
             fg=color.gui_inventory_fg,
@@ -729,7 +729,7 @@ class StorageSelectSingleEventHandler(StorageSelectEventHandler):
                 self.render_item(xpos, ypos, item_text, item_count, item_damage_text, item_state_text, item_equip_text, item_price_text, item_text_color, y_padding=y_padding)
         else:
             console.print(x + x_space + 1, y + y_space + 1, "(없음)", color.gray)
-        console.print(x + x_space + 1, height + 4, "\"/\"키 - 아이템 정렬", color.gui_inventory_fg)
+        console.print(x + x_space + 1, height - 1, "\"/\"키 - 아이템 정렬", color.gui_inventory_fg)
 
     def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[Action]:
         if event.sym in {  # Ignore modifier keys.
@@ -1070,14 +1070,14 @@ class StorageSelectMultipleEventHandler(StorageSelectEventHandler):
         x = 0
         y = 0
         x_space = 5 # per side
-        y_space = 3
+        y_space = 0
         width = self.engine.config["screen_width"] - (x_space * 2)
 
         console.draw_frame(
             x=x + x_space,
             y=y + y_space,
             width=width,
-            height=height + 1, # 2 extra line for "press slash to sort inventory"
+            height=height, # 2 extra line for "press slash to sort inventory"
             title=self.TITLE,
             clear=True,
             fg=color.gui_inventory_fg,
@@ -1102,7 +1102,7 @@ class StorageSelectMultipleEventHandler(StorageSelectEventHandler):
         else:
             console.print(x + x_space + 1, y + y_space + 1, "(없음)", color.gray)
 
-        console.print(x + x_space + 1, height + 4, "\"/\"키 - 아이템 정렬 | 엔터 키- 선택 확인", color.gui_inventory_fg)
+        console.print(x + x_space + 1, height - 1, "\"/\"키 - 아이템 정렬 | 엔터 키- 선택 확인", color.gui_inventory_fg)
 
     def choice_confirmed(self):
         raise NotImplementedError()

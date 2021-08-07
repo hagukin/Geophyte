@@ -86,7 +86,7 @@ class Terrain:
                     chance of generating a trap for a single tile.
                 forced_traps_gen_number:
                     Number of traps that are guarenteed to be generated.
-                    If the room has not enough valid tiles to generate traps, it will generate the maximum amount.
+                    If the room has not enough valid tiles to randomize traps, it will randomize the maximum amount.
                     NOTE: This value is effected by max_traps_per_room
             gen_chests:
                 {
@@ -98,7 +98,7 @@ class Terrain:
                     A list that contains information about what kind of items will be generated in the chests that are spawned in this terrain.
                     If the value is set to None, the chest will use default values.
             custom_gen:
-                Function. The function will generate an unique terrains that is specified to this room.
+                Function. The function will randomize an unique terrains that is specified to this room.
                 FUnction is called during procgen.generate_terrain().
                 Can be set to None.
         """

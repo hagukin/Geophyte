@@ -65,8 +65,8 @@ def choose_terrain(
 
 def choose_monster_difficulty(depth: int, toughness: int=0) -> int:
     """
-    Input: the depth of the floor to generate new monsters
-    Output: an integer value that indicates the difficulty of the monster to generate
+    Input: the depth of the floor to randomize new monsters
+    Output: an integer value that indicates the difficulty of the monster to randomize
     
     Args:
         toughness:
@@ -213,7 +213,7 @@ def adjust_convex(
     rooms: List,
 ) -> None:
     """
-    This function will connect empty convexes with tunnels, or generate something in the convex.
+    This function will connect empty convexes with tunnels, or randomize something in the convex.
     ###
     # #
     #+# -> an example of an empty convex
@@ -303,7 +303,7 @@ def door_generation(
             print("SOMETHING WENT WRONG::DOOR COLLIDED WITH PROTECTED AREA(PROCGEN.PY)")
             continue
 
-        # generate door convex
+        # randomize door convex
         dungeon.tilemap[door_slice] = TilemapOrder.DOOR_CONVEX.value
         dungeon.tunnelmap[door_slice] = True
         if room.terrain.protected:
@@ -312,7 +312,7 @@ def door_generation(
         dungeon.tiles[door_slice] = dungeon.tileset["t_floor"]()
         #dungeon.tiles[door_slice] = dungeon.tileset["t_DEBUG"]()
 
-        # generate door
+        # randomize door
         dungeon.tilemap[door_loc] = TilemapOrder.DOOR.value
         dungeon.tunnelmap[door_loc] = True
         if room.terrain.protected:
@@ -397,7 +397,7 @@ def generate_rooms(
         for i in range(door_num):
             doordir.append(tempdir[i%4]) # udlr 1234
 
-        # generate doors and door convexes
+        # randomize doors and door convexes
         if new_room.terrain.has_door:
             for direction in doordir:
                 door_generation(dungeon=dungeon, room=new_room, door_dir=direction)

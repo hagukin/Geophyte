@@ -122,9 +122,9 @@ player = Actor(
     equipments=Equipments(),
     initial_items=[
         (item_factories.scroll_of_magic_mapping, 1, (3,5)),
-        (item_factories.potion_of_flame, 1, (3,4)),
-        (item_factories.potion_of_liquified_ants, 1, (3,4)),
-        (item_factories.potion_of_levitation, 1, (3,4)),
+        (item_factories.diamond, 1, (3,4)),
+        (item_factories.worthless_piece_of_white_glass, 1, (3,4)),
+        (item_factories.scroll_of_identify, 1, (3,4)),
         (item_factories.potion_of_monster_detection, 1, (3,4)),
         (item_factories.scroll_of_confusion, 1, (3,5)),
         (item_factories.scroll_of_scorching_ray, 1, (3,5)),

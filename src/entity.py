@@ -888,6 +888,15 @@ class Item(Entity):
 
     def price_of(self, buyer: Actor, discount: float=1) -> int:
         """Return the price of the given item for given actor."""
+        if self.item_type == InventoryOrder.GEM:
+            if self.item_state.is_identified == 0:
+                if buyer == self.engine.player:
+                    return round(discount * 3000 * self.stack_count)
+                else:
+                    return round(discount * 1 * self.stack_count)
+            else:
+                return round(discount * self.price * self.stack_count)
+
         if self.stack_count < 1:
             return 0
         return round(discount * self.price * self.stack_count) #TODO: Make charm affect the price

@@ -23,7 +23,7 @@ potion_of_healing = Item(
     name="회복의 물약",
     entity_id="potion_of_healing",
     entity_desc="Potion of healing desc",
-    rarity=6,
+    rarity=60,
     weight=0.2,
     price=100,
     item_type=InventoryOrder.POTION,
@@ -49,7 +49,7 @@ potion_of_paralysis = Item(
     name="마비 물약",
     entity_id="potion_of_paralysis",
     entity_desc="Potion of paralysis desc",
-    rarity=2,
+    rarity=20,
     weight=0.2,
     price=100,
     item_type=InventoryOrder.POTION,
@@ -75,7 +75,7 @@ potion_of_monster_detection = Item(
     name="생명체 탐지의 물약",
     entity_id="potion_of_monster_detection",
     entity_desc="Potion of telepathy desc",
-    rarity=1,
+    rarity=10,
     weight=0.2,
     price=150,
     item_type=InventoryOrder.POTION,
@@ -101,7 +101,7 @@ potion_of_flame = Item(
     name="화염의 물약",
     entity_id="potion_of_flame",
     entity_desc="Potion of flame desc",
-    rarity=2,
+    rarity=20,
     weight=0.2,
     price=80,
     item_type=InventoryOrder.POTION,
@@ -127,7 +127,7 @@ potion_of_acid = Item(
     name="강산성 물약",
     entity_id="potion_of_acid",
     entity_desc="Potion of acid desc",
-    rarity=2,
+    rarity=20,
     weight=0.2,
     price=100,
     item_type=InventoryOrder.POTION,
@@ -153,7 +153,7 @@ potion_of_frost = Item(
     name="냉기의 물약",
     entity_id="potion_of_frost",
     entity_desc="Potion of frost desc",
-    rarity=2,
+    rarity=20,
     weight=0.2,
     price=100,
     item_type=InventoryOrder.POTION,
@@ -179,7 +179,7 @@ potion_of_poison = Item(
     name="맹독의 물약",
     entity_id="potion_of_poison",
     entity_desc="Potion of poison desc",
-    rarity=2,
+    rarity=20,
     weight=0.2,
     price=100,
     item_type=InventoryOrder.POTION,
@@ -205,7 +205,7 @@ potion_of_levitation = Item(
     name="공중 부양의 물약",
     entity_id="potion_of_levitation",
     entity_desc="",
-    rarity=3,
+    rarity=30,
     weight=0.2,
     price=100,
     item_type=InventoryOrder.POTION,
@@ -231,7 +231,7 @@ potion_of_liquified_ants = Item(
     name="액화 개미 물약",
     entity_id="potion_of_liquified_ants",
     entity_desc="",
-    rarity=2,
+    rarity=20,
     weight=0.2,
     price=100,
     item_type=InventoryOrder.POTION,
@@ -261,7 +261,7 @@ scroll_of_confusion = Item(
     name="혼란의 주문서",
     entity_id="scroll_of_confusion",
     entity_desc="Scroll of confusion desc",
-    rarity=3,
+    rarity=30,
     weight=0.1,
     price=200,
     item_type=InventoryOrder.SCROLL,
@@ -287,7 +287,7 @@ scroll_of_meteor_storm = Item(
     name="운석 폭풍의 주문서",
     entity_id="scroll_of_meteor_storm",
     entity_desc="Scroll of meteor storm desc",
-    rarity=2,
+    rarity=20,
     weight=0.1,
     price=300,
     item_type=InventoryOrder.SCROLL,
@@ -313,7 +313,7 @@ scroll_of_thunderstorm = Item(
     name="천둥 폭풍의 주문서",
     entity_id="scroll_of_thunderstorm",
     entity_desc="Scroll of thunderstorm desc",
-    rarity=1,
+    rarity=10,
     weight=0.1,
     price=400,
     item_type=InventoryOrder.SCROLL,
@@ -339,7 +339,7 @@ scroll_of_lightning = Item(
     name="번개의 주문서",
     entity_id="scroll_of_lightning",
     entity_desc="Scroll of lightning desc",
-    rarity=2,
+    rarity=20,
     weight=0.1,
     price=200,
     item_type=InventoryOrder.SCROLL,
@@ -365,7 +365,7 @@ scroll_of_magic_missile = Item(
     name="마법 광선의 주문서",
     entity_id="scroll_of_magic_missile",
     entity_desc="Scroll of magic missile desc",
-    rarity=4,
+    rarity=40,
     weight=0.1,
     price=250,
     item_type=InventoryOrder.SCROLL,
@@ -391,7 +391,7 @@ scroll_of_magic_mapping = Item(
     name="마법 지도의 주문서",
     entity_id="scroll_of_magic_mapping",
     entity_desc="Scroll of magic mapping desc",
-    rarity=4,
+    rarity=40,
     weight=0.1,
     price=250,
     item_type=InventoryOrder.SCROLL,
@@ -417,7 +417,7 @@ scroll_of_scorching_ray = Item(
     name="맹렬한 화염 광선의 주문서",
     entity_id="scroll_of_scorching_ray",
     entity_desc="Scroll of scorching ray desc",
-    rarity=2,
+    rarity=20,
     weight=0.1,
     price=300,
     item_type=InventoryOrder.SCROLL,
@@ -443,7 +443,7 @@ scroll_of_freezing_ray = Item(
     name="얼어붙는 빙결 광선의 주문서",
     entity_id="scroll_of_freezing_ray",
     entity_desc="Scroll of freezing ray desc",
-    rarity=2,
+    rarity=20,
     weight=0.1,
     price=300,
     item_type=InventoryOrder.SCROLL,
@@ -469,7 +469,7 @@ scroll_of_tame = Item(
     name="복종의 주문서",
     entity_id="scroll_of_tame",
     entity_desc="Scroll of tame desc",
-    rarity=1,
+    rarity=10,
     weight=0.1,
     price=400,
     item_type=InventoryOrder.SCROLL,
@@ -494,7 +494,7 @@ scroll_of_enchantment = Item(
     name="마법 강화의 주문서",
     entity_id="scroll_of_enchantment",
     entity_desc="Scroll of enchantment desc",
-    rarity=4,
+    rarity=40,
     weight=0.1,
     price=400,
     item_type=InventoryOrder.SCROLL,
@@ -519,7 +519,7 @@ scroll_of_identify = Item(
     name="감정의 주문서",
     entity_id="scroll_of_identify",
     entity_desc="Scroll of identify desc",
-    rarity=6,
+    rarity=60,
     weight=0.1,
     price=50,
     item_type=InventoryOrder.SCROLL,
@@ -544,7 +544,7 @@ scroll_of_remove_curse = Item(
     name="저주 해제의 주문서",
     entity_id="scroll_of_remove_curse",
     entity_desc="Scroll of remove curse desc",
-    rarity=4,
+    rarity=40,
     weight=0.1,
     price=150,
     item_type=InventoryOrder.SCROLL,
@@ -572,7 +572,7 @@ rags = Item(
     name="천쪼가리",
     entity_id="rags",
     entity_desc="rags desc",
-    rarity=1,
+    rarity=5,
     weight=0.3,
     price=1,
     item_type=InventoryOrder.ARMOR,
@@ -595,7 +595,7 @@ leather_armor = Item(
     name="가죽 갑옷",
     entity_id="leather_armor",
     entity_desc="Leather armor desc",
-    rarity=2,
+    rarity=5,
     weight=4.5,
     price=300,
     item_type=InventoryOrder.ARMOR,
@@ -668,7 +668,7 @@ iron_dagger = Item(
     name="철제 단검",
     entity_id="iron_dagger",
     entity_desc="Irondagger desc",
-    rarity=1,
+    rarity=10,
     weight=0.4,
     price=8,
     item_type=InventoryOrder.MELEE_WEAPON,
@@ -692,7 +692,7 @@ shortsword = Item(
     name="숏소드",
     entity_id="shortsword",
     entity_desc="Shortsword desc",
-    rarity=1,
+    rarity=9,
     weight=1.5,
     price=25,
     item_type=InventoryOrder.MELEE_WEAPON,
@@ -717,7 +717,7 @@ longsword = Item(
     name="롱소드",
     entity_id="longsword",
     entity_desc="longsword desc",
-    rarity=1,
+    rarity=5,
     weight=1.8,
     price=75,
     item_type=InventoryOrder.MELEE_WEAPON,
@@ -820,12 +820,225 @@ item_rarity.append(corpse.rarity) # All items should be appended regardless of i
 
 
 #########################################################################
+################################# GEMS ##################################
+#########################################################################
+
+### Diamond
+diamond = Item(
+    should_randomize=True,
+    char="*",
+    fg = (255, 255, 255),
+    name="다이아몬드",
+    entity_id="diamond",
+    entity_desc="diamond desc",
+    rarity=1,
+    weight=0.01,
+    price=3000,
+    item_type=InventoryOrder.GEM,
+    item_state=ItemState(is_identified=0),
+    spawnable=True,
+    flammable=0,
+    corrodible=0,
+    droppable=True,
+    stackable=True,
+    throwable=throwable.NormalThrowable(base_throw=0, additional_throw=0, penetration=False, air_friction=1),
+    equipable=None,
+    edible=None
+)
+temp_items_lists.append(diamond)
+item_rarity.append(diamond.rarity)
+
+
+### Ruby
+ruby = Item(
+    should_randomize=True,
+    char="*",
+    fg = (255, 0, 38),
+    name="루비",
+    entity_id="ruby",
+    entity_desc="ruby desc",
+    rarity=1,
+    weight=0.01,
+    price=3000,
+    item_type=InventoryOrder.GEM,
+    item_state=ItemState(is_identified=0),
+    spawnable=True,
+    flammable=0,
+    corrodible=0,
+    droppable=True,
+    stackable=True,
+    throwable=throwable.NormalThrowable(base_throw=0, additional_throw=0, penetration=False, air_friction=1),
+    equipable=None,
+    edible=None
+)
+temp_items_lists.append(diamond)
+item_rarity.append(diamond.rarity)
+
+
+### Emerald
+emerald = Item(
+    should_randomize=True,
+    char="*",
+    fg = (21, 207, 0),
+    name="에메랄드",
+    entity_id="emerald",
+    entity_desc="emerald desc",
+    rarity=1,
+    weight=0.01,
+    price=3000,
+    item_type=InventoryOrder.GEM,
+    item_state=ItemState(is_identified=0),
+    spawnable=True,
+    flammable=0,
+    corrodible=0,
+    droppable=True,
+    stackable=True,
+    throwable=throwable.NormalThrowable(base_throw=0, additional_throw=0, penetration=False, air_friction=1),
+    equipable=None,
+    edible=None
+)
+temp_items_lists.append(emerald)
+item_rarity.append(emerald.rarity)
+
+
+### Sapphire
+sapphire = Item(
+    should_randomize=True,
+    char="*",
+    fg = (0, 162, 255),
+    name="사파이어",
+    entity_id="sapphire",
+    entity_desc="sapphire desc",
+    rarity=1,
+    weight=0.01,
+    price=3000,
+    item_type=InventoryOrder.GEM,
+    item_state=ItemState(is_identified=0),
+    spawnable=True,
+    flammable=0,
+    corrodible=0,
+    droppable=True,
+    stackable=True,
+    throwable=throwable.NormalThrowable(base_throw=0, additional_throw=0, penetration=False, air_friction=1),
+    equipable=None,
+    edible=None
+)
+temp_items_lists.append(sapphire)
+item_rarity.append(sapphire.rarity)
+
+
+### Worthless piece of white glass
+worthless_piece_of_white_glass = Item(
+    should_randomize=True,
+    char="*",
+    fg = (255, 255, 255),
+    name="하얀색 싸구려 유리 조각",
+    entity_id="worthless_piece_of_white_glass",
+    entity_desc="worthless piece of white glass desc",
+    rarity=2,
+    weight=0.01,
+    price=1,
+    item_type=InventoryOrder.GEM,
+    item_state=ItemState(is_identified=0),
+    spawnable=True,
+    flammable=0,
+    corrodible=0,
+    droppable=True,
+    stackable=True,
+    throwable=throwable.NormalThrowable(base_throw=0, additional_throw=0, penetration=False, air_friction=1),
+    equipable=None,
+    edible=None
+)
+temp_items_lists.append(worthless_piece_of_white_glass)
+item_rarity.append(worthless_piece_of_white_glass.rarity)
+
+
+### Worthless piece of red glass
+worthless_piece_of_red_glass = Item(
+    should_randomize=True,
+    char="*",
+    fg = (255, 0, 38),
+    name="빨간색 싸구려 유리 조각",
+    entity_id="worthless_piece_of_red_glass",
+    entity_desc="worthless piece of red glass desc",
+    rarity=2,
+    weight=0.01,
+    price=1,
+    item_type=InventoryOrder.GEM,
+    item_state=ItemState(is_identified=0),
+    spawnable=True,
+    flammable=0,
+    corrodible=0,
+    droppable=True,
+    stackable=True,
+    throwable=throwable.NormalThrowable(base_throw=0, additional_throw=0, penetration=False, air_friction=1),
+    equipable=None,
+    edible=None
+)
+temp_items_lists.append(worthless_piece_of_red_glass)
+item_rarity.append(worthless_piece_of_red_glass.rarity)
+
+
+### Worthless piece of green glass
+worthless_piece_of_green_glass = Item(
+    should_randomize=True,
+    char="*",
+    fg = (21, 207, 0),
+    name="초록색 싸구려 유리 조각",
+    entity_id="worthless_piece_of_green_glass",
+    entity_desc="worthless piece of green glass desc",
+    rarity=1,
+    weight=0.01,
+    price=1,
+    item_type=InventoryOrder.GEM,
+    item_state=ItemState(is_identified=0),
+    spawnable=True,
+    flammable=0,
+    corrodible=0,
+    droppable=True,
+    stackable=True,
+    throwable=throwable.NormalThrowable(base_throw=0, additional_throw=0, penetration=False, air_friction=1),
+    equipable=None,
+    edible=None
+)
+temp_items_lists.append(worthless_piece_of_green_glass)
+item_rarity.append(worthless_piece_of_green_glass.rarity)
+
+
+### Worthless piece of blue glass
+worthless_piece_of_blue_glass = Item(
+    should_randomize=True,
+    char="*",
+    fg = (0, 162, 255),
+    name="파랑색 싸구려 유리 조각",
+    entity_id="worthless_piece_of_blue_glass",
+    entity_desc="worthless_piece_of_blue_glass desc",
+    rarity=1,
+    weight=0.01,
+    price=1,
+    item_type=InventoryOrder.GEM,
+    item_state=ItemState(is_identified=0),
+    spawnable=True,
+    flammable=0,
+    corrodible=0,
+    droppable=True,
+    stackable=True,
+    throwable=throwable.NormalThrowable(base_throw=0, additional_throw=0, penetration=False, air_friction=1),
+    equipable=None,
+    edible=None
+)
+temp_items_lists.append(worthless_piece_of_blue_glass)
+item_rarity.append(worthless_piece_of_blue_glass.rarity)
+
+
+
+#########################################################################
 ################################# MISCS #################################
 #########################################################################
 
 ### toxic Goo
 toxic_goo = Item(
-    char="*",
+    char="•",# Unicode bullet
     fg = (44, 23, 61),
     name="독성 점액",
     entity_id="toxic_goo",

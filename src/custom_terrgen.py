@@ -83,7 +83,7 @@ class ShopTerrGen:
             shopkeeper = ShopTerrGen.spawn_shopkeeper(gamemap, room)
             ShopTerrGen.adjust_items(shopkeeper, room)
         except AttributeError:
-            print("ERROR::Tried to generate a shop onto a non-shop-terrain room. - custom_terrgen.generate_shop()")
+            print("ERROR::Tried to randomize a shop onto a non-shop-terrain room. - custom_terrgen.generate_shop()")
 
 
 class ChamberOfKugahTerrGen:

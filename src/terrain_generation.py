@@ -30,7 +30,7 @@ def grow_grass(
 
     # Set directions
     spawn_core_dir = ((1,0), (-1,0), (0,1), (0,-1)) # duplicate core in cross-directions
-    spawn_grass_dir = ((1,1), (1,-1), (-1,1), (-1,-1)) # generate grass in X-directions
+    spawn_grass_dir = ((1,1), (1,-1), (-1,1), (-1,-1)) # randomize grass in X-directions
 
     # Create grass_core at given location
     # NOTE: You have to manually write what types of terrains that the grass can overwrite
@@ -109,7 +109,7 @@ def grow_hole(
 
     # Set directions
     spawn_core_dir = ((1, 0), (-1, 0), (0, 1), (0, -1))  # duplicate core in cross-directions
-    spawn_hole_dir = ((1, 1), (1, -1), (-1, 1), (-1, -1))  # generate hole in X-directions
+    spawn_hole_dir = ((1, 1), (1, -1), (-1, 1), (-1, -1))  # randomize hole in X-directions
 
     # Create hole_core at given location
     # NOTE: You have to manually write what types of terrains that the hole can overwrite
@@ -246,7 +246,7 @@ def make_shallow_water(
 
     # Set directions
     spawn_core_dir = ((1,0), (-1,0), (0,1), (0,-1)) # duplicate core in cross-directions
-    spawn_water_dir = ((1,1), (1,-1), (-1,1), (-1,-1)) # generate grass in X-directions
+    spawn_water_dir = ((1,1), (1,-1), (-1,1), (-1,-1)) # randomize grass in X-directions
 
     # Create water_core at given location
     # NOTE: You have to manually write what types of terrains that the grass can overwrite
@@ -372,7 +372,7 @@ def make_shallow_pit(
 
     # Set directions
     spawn_core_dir = ((1, 0), (-1, 0), (0, 1), (0, -1))  # duplicate core in cross-directions
-    spawn_pit_dir = ((1, 1), (1, -1), (-1, 1), (-1, -1))  # generate grass in X-directions
+    spawn_pit_dir = ((1, 1), (1, -1), (-1, 1), (-1, -1))  # randomize grass in X-directions
 
     # Create pit_core at given location
     # NOTE: You have to manually write what types of terrains that pits can overwrite
@@ -508,7 +508,7 @@ def grow_chest(gamemap, x, y, chest_id:str, lifetime=-1, initial_items: List=Non
                 Item amount
             )
             NOTE: if the terrain has specific gen_chests["initial_items"] value, use it.
-            If it's set to None, the chest will generate items based on the default values. (default values are set in chest_factories.)
+            If it's set to None, the chest will randomize items based on the default values. (default values are set in chest_factories.)
     """
     tilemap = gamemap.tilemap
 

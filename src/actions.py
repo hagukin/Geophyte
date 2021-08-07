@@ -85,7 +85,7 @@ class DescendAction(Action):
 
     def perform(self, depth: int=None) -> None:
         """
-        If the Player is the actor, and the game map is not yet generated, this method will generate a new gamemap object.
+        If the Player is the actor, and the game map is not yet generated, this method will randomize a new gamemap object.
         """
         if depth == None:
             n_depth = self.engine.depth + 1

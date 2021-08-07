@@ -99,6 +99,9 @@ class ItemManager:
             self.items_fake_info[item.entity_id]["entity_desc"] = f"{color_name} 물약. 마시면 무슨 일이 일어날지 알 수 없다."
             self.items_fake_info[item.entity_id]["fg"] = fg
             self.items_fake_info[item.entity_id]["bg"] = bg
+        elif item.item_type == InventoryOrder.GEM:
+            self.items_fake_info[item.entity_id]["name"] = "반짝거리는 돌맹이"
+            self.items_fake_info[item.entity_id]["entity_desc"] = "투명하고 반짝거리는 돌맹이. 종류를 정확히 식별할 수 없다."
         else:
             print(f"ERROR::Cannot randomize {item.name} of {item.item_type} type.")
             return None
