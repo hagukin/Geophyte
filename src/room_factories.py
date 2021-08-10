@@ -2,6 +2,7 @@ import random
 
 import numpy as np
 
+from util import surround_grid_value_with
 from game_map import GameMap
 from terrain import Terrain
 from typing import Tuple, List
@@ -282,7 +283,7 @@ class PerpendicularRoom(Room):
 
 
 class BlobRoom(Room):
-    def __init__(self, x: int, y: int, width: int, height: int, parent: GameMap, terrain: Terrain, min_mass: int=25, max_mass: int=100, noise_density: float=0.5, max_fill_gap_size: int = 1000000):
+    def __init__(self, x: int, y: int, width: int, height: int, parent: GameMap, terrain: Terrain, noise_density: float=0.5, max_fill_gap_size: int = 3):
         """
         Vars:
             is_valid:
@@ -290,14 +291,14 @@ class BlobRoom(Room):
                 if False, procgen will dump this room.s
         """
         from blob import generate_blob_of_size_fast
-        self.blob = generate_blob_of_size_fast(width, height, area_min_density=0.3, area_max_density=1, noise_density=noise_density)
-        self.blob.gooify(max_fill_gap_size) # NOTE: blob.grid indicates only the inner area of the room.
-        width = self.blob.width + 2 # for outer walls
-        height = self.blob.height + 2
+        self.grid = np.full((width, height), fill_value=0, order="F")
+        tmp = generate_blob_of_size_fast(width-2, height-2, area_min_density=0.3, area_max_density=1, max_fill_gap_size=max_fill_gap_size, noise_density=noise_density, int_grid=True).grid #ignore walls
+        self.grid[1:1+tmp.shape[0], 1:1+tmp.shape[1]] = tmp
+        surround_grid_value_with(self.grid, search_for=1, surround_with=2) # 2 - outer wall
         super().__init__(x, y, width, height, parent, terrain)
 
     @staticmethod
-    def grid_to_slice(grid: np.ndarray, grid_dx: int=0, grid_dy: int=0, search_for: int=True) -> List[Tuple[slice, slice]]:
+    def grid_to_slice(grid: np.ndarray, grid_dx: int=0, grid_dy: int=0, search_for: int=1) -> List[Tuple[slice, slice]]:
         """
         Convert the given 2d grid into a list of tuple that contains two slices.
 
@@ -308,11 +309,11 @@ class BlobRoom(Room):
                 e.g.
                 grid =
                 000000
-                011110
-                112211
-                122221
-                112211
-                011110
+                022220
+                221122
+                211112
+                221122
+                022220
                 000000
                 if you want to convert the '2' parts (the inner area) only, you should pass in 2 to search_for parameter.
             grid_dx:
@@ -369,25 +370,38 @@ class BlobRoom(Room):
     @property
     def inner(self) -> List[Tuple[slice, slice]]:
         """Return the inner area of this room as a 2D array index."""
-        return BlobRoom.grid_to_slice(self.blob.grid, grid_dx=self.x1+1, grid_dy=self.y1+1, search_for=True)
+        return BlobRoom.grid_to_slice(self.grid, grid_dx=self.x1, grid_dy=self.y1, search_for=1)
 
 
 
 ###DEBUG SESSION
 from blob import generate_blob_of_mass, generate_blob_of_size_fast, generate_blob_of_size_slow
+from terrain import Terrain
+from biome import Biome
 print("____________BLOB____________")
-k = generate_blob_of_size_slow(10, 10, 0.3, 1, max_fill_gap_size=3)
-k.print()
+r = BlobRoom(x=3, y=3, width=10, height=10, parent=GameMap(0, Biome()), terrain=Terrain())
+for i in r.grid:
+    for k in i:
+        if k:
+            print("#", end="")
+        else:
+            print(".", end="")
+    print(end="\n")
 
-t = BlobRoom.grid_to_slice(k.grid, grid_dx=5, grid_dy=5)
-map2 = np.full((50, 50), fill_value=False, order="F")
+t = BlobRoom.grid_to_slice(r.grid, grid_dx=5, grid_dy=5, search_for=1)
+t2 = BlobRoom.grid_to_slice(r.grid, grid_dx=5, grid_dy=5, search_for=2)
+map = np.full((50, 50), fill_value=0, order="F")
 
-for inner_slice in t:
-    map2[inner_slice] = True
+for sliceobj in t:
+    map[sliceobj] = 1
+for sliceobj in t2:
+    map[sliceobj] = 2
 print("____________SLICE__________")
-for x in map2:
+for x in map:
     for y in x:
-        if y == True:
+        if y == 1:
+            print('^', end="")
+        elif y == 2:
             print('#', end="")
         else:
             print('.', end="")

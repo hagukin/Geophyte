@@ -1,56 +1,46 @@
 from collections import deque
 from typing import List, Optional, Tuple
 import numpy as np
+import tcod
 import random
 
 class Blob:
-    def __init__(self, width, height, noise_density):
-        self.width = width
-        self.height = height
+    def __init__(self, grid_width, grid_height, noise_density, int_grid: bool=False):
+        """
+        Args:
+            int_grid:
+                whether this Blob object's grid uses boolean or integer for its value.
+                When generating a blobRoom, you should use integer since there are 3 types of informations you can store.
+                => void, outer, inner
+        Vars:
+            grid_width, grid_height:
+                e.g.
+                .###..
+                #####.
+                #.....
+                ###...
+                ......
+
+                -> grid_width 6, grid_height 5
+                -> blob_width 5, blob_height 4
+        """
+        self.grid_width = grid_width # The width of a grid, not the blob itself. NOTE: must be higher than target blob_weight
+        self.grid_height = grid_height
+        self.blob_width = None # Initialized after blob is generated.
+        self.blob_height = None # Initialized after blob is generated.
         self.noise_density = noise_density
-        self.grid = np.full((width, height), fill_value=False, order="F")
+        if int_grid:
+            self.grid = np.full((grid_width, grid_height), fill_value=0, order="F")
+        else:
+            self.grid = np.full((grid_width, grid_height), fill_value=False, order="F")
+        self.blob = None
         self.tried = []
-
-    def CA(self):
-        """
-        Cellular Automata.
-        1. 살아있는 세포 주변에 다른 살아있는 세포의 갯수가 두 개 미만이면 사망
-        2. 살아있는 세포 주변에 다른 살아있는 세포의 갯수가 두 개 혹은 세 개이면 그대로 생존
-        3. 살아있는 세포 주변에 다른 살아있는 세포의 갯수가 세 개를 넘을 경우 사망
-        4. 죽은 세포 주변에 정확히 세 개의 살아있는 세포가 있을 경우 부활
-
-        If your goal is to get a new random shaped grid, you can use noise() instead.
-        """
-        temp_grid = np.full(
-            (self.width, self.height), fill_value=True, order="F"
-        )
-
-        for x in range(len(self.grid)):
-            for y in range(len(self.grid[0])):
-                cell_count = 0
-                for x_add, y_add in ((0, 1), (1, 0), (0, -1), (-1, 0), (1, 1), (-1, -1), (1, -1), (-1, 1)):
-                    try:
-                        if self.grid[x + x_add, y + y_add] == True:
-                            cell_count += 1
-                    except:
-                        continue
-
-                if self.grid[x][y]:
-                    if cell_count == 3:
-                        continue
-                    else:
-                        temp_grid[x][y] = False
-                else:
-                    if cell_count == 3:
-                        temp_grid[x][y] = True
-
-        self.grid = temp_grid
 
     def noise(self):
         for x in range(len(self.grid)):
             for y in range(len(self.grid[0])):
                 if random.random() <= self.noise_density:
-                    self.grid[x, y] = True
+                    self.grid[x, y] = 1
 
     def get_start_cell(self) -> Optional[Tuple[int, int]]:
         for x in range(len(self.grid)):
@@ -62,7 +52,7 @@ class Blob:
     def remove_non_chunks(self):
         q = deque()
         for x, y in self.tried:
-            visited = np.full((self.width, self.height), fill_value=False, order="F")
+            visited = np.full((self.grid_width, self.grid_height), fill_value=False, order="F")
             q.append((x, y))
             while q:
                 curr = q.popleft()
@@ -71,8 +61,8 @@ class Blob:
                 for dxdy in ((1, 0), (0, 1), (-1, 0), (0, -1)):
                     nx = curr[0] + dxdy[0]
                     ny = curr[1] + dxdy[1]
-                    if nx >= 0 and nx < self.width \
-                            and ny >= 0 and ny < self.height:
+                    if nx >= 0 and nx < self.grid_width \
+                            and ny >= 0 and ny < self.grid_height:
                         if not visited[nx][ny] and self.grid[nx][ny]:
                             visited[nx][ny] = True
                             self.grid[nx][ny] = False
@@ -85,7 +75,7 @@ class Blob:
         Return:
             boolean, whether the algorithm found a chunk of a given size or not."""
         self.tried.clear()
-        visited = np.full((self.width, self.height), fill_value=False, order="F")
+        visited = np.full((self.grid_width, self.grid_height), fill_value=False, order="F")
         chunk_size = 1
 
         for x in range(len(self.grid)):
@@ -102,8 +92,8 @@ class Blob:
                     for dxdy in ((1, 0), (0, 1), (-1, 0), (0, -1)):
                         nx = curr[0] + dxdy[0]
                         ny = curr[1] + dxdy[1]
-                        if nx >= 0 and nx < self.width \
-                                and ny >= 0 and ny < self.height:
+                        if nx >= 0 and nx < self.grid_width \
+                                and ny >= 0 and ny < self.grid_height:
                             if not visited[nx][ny] and self.grid[nx][ny]:
                                 visited[nx][ny] = True
                                 q.append((nx, ny))
@@ -131,29 +121,27 @@ class Blob:
         #
         # (1x2)
         """
-        min_x, max_x, min_y, max_y = self.width, 0, self.height, 0
+        min_x, max_x, min_y, max_y = self.grid_width, 0, self.grid_height, 0
 
         for x in range(len(self.grid)):
             for y in range(len(self.grid[0])):
-                if self.grid[x][y] == True:
+                if self.grid[x][y] == 1:
                     min_x = min(min_x, x)
                     max_x = max(max_x, x)
                     min_y = min(min_y, y)
                     max_y = max(max_y, y)
 
         if force_width:
+            if max_x > min_x + force_width:
+                print(f"WARNING::max_x {max_x} is larger than min_x + force_width{min_x + force_width}. blob is partially lost.")
             max_x = min_x + force_width
-            if max_x > self.width:
-                max_x = self.width
-                print("WARNING::max_x is larger than grid width. is reduced down to grid width")
         if force_height:
+            if max_y > min_y + force_height:
+                print(f"WARNING::max_y {max_y} is larger than min_y + force_height{min_y + force_height}. blob is partially lost.")
             max_y = min_y + force_height
-            if max_y > self.height:
-                max_y = self.height
-                print("WARNING::max_y is larger than grid height. is reduced down to grid height.")
 
-        self.grid = self.grid[min_x:max_x, min_y:max_y]
-        self.width, self.height = self.grid.shape
+        self.blob = self.grid[min_x:max_x+1, min_y:max_y+1]
+        self.blob_width, self.blob_height = self.blob.shape
 
     def gooify(self, max_fill_gap_size: int = 999):
         """Make blob more denser by filling the gaps.
@@ -181,7 +169,7 @@ class Blob:
         ######.
         #####..
         """
-        min_y, max_y = self.height, 0
+        min_y, max_y = self.grid_height, 0
 
         for x in range(len(self.grid)):
             for y in range(len(self.grid[0])):
@@ -194,22 +182,19 @@ class Blob:
                             self.grid[x][y] = True
                     min_y += 1+gap_size
                     max_y = 0
-            min_y, max_y = self.height, 0
-
-    def print(self):
-        for i in self.grid:
-            for k in i:
-                if k:
-                    print("#", end="")
-                else:
-                    print(".", end="")
-            print(end="\n")
+            min_y, max_y = self.grid_height, 0
 
 
-def generate_blob_of_mass(min_chunk_mass: int, max_chunk_mass: int, max_fill_gap_size: int, acc_const: Optional[float] = None, noise_density: float=0.5) -> Blob:
+def generate_blob_of_mass(
+        min_chunk_mass: int,
+        max_chunk_mass: int,
+        grid_magnifier: Optional[float] = None,
+        noise_density: float=0.5,
+        int_grid=True
+) -> Blob:
     """
     Args:
-        acc_const:
+        grid_magnifier:
             Higher the number is, the longer the function takes.
             But the chance of failure reduces.
             if set to Optional, function automatically assigns a value.
@@ -217,23 +202,29 @@ def generate_blob_of_mass(min_chunk_mass: int, max_chunk_mass: int, max_fill_gap
             The initial noice map's density.
             has almost no effect to the results.
     """
-    if acc_const is None:
+    if grid_magnifier is None:
         C = 1 + 3/np.log10(max_chunk_mass)
     else:
-        C = acc_const
+        C = grid_magnifier
     edge_len = int(np.sqrt(max_chunk_mass) * (1 / noise_density) * C)
-    grid = Blob(edge_len, edge_len, noise_density)
+    grid = Blob(edge_len, edge_len, noise_density, int_grid)
     grid.noise()
-    grid.gooify(max_fill_gap_size=max_fill_gap_size)
     while not grid.blobify(min_chunk_mass, max_chunk_mass):
         grid.noise()
-        grid.gooify(max_fill_gap_size=max_fill_gap_size)
     grid.remove_non_chunks()
     grid.crop()
     return grid
 
 
-def generate_blob_of_size_fast(width: int, height: int, area_min_density: float, area_max_density: float, max_fill_gap_size: int, noise_density: float=0.5) -> Blob:
+
+def generate_blob_of_size_fast(
+        width: int,
+        height: int,
+        area_min_density: float,
+        area_max_density: float,
+        noise_density: float=0.5,
+        int_grid=True
+) -> Blob:
     """
     A faster version of generating blob.
     Instead the shape might look a little 'blocky'
@@ -245,24 +236,29 @@ def generate_blob_of_size_fast(width: int, height: int, area_min_density: float,
             Indicates the density of the room.
             if set to 1,
     """
-    grid = Blob(width, height, noise_density)
+    grid = Blob(width, height, noise_density, int_grid)
     grid.noise()
-    grid.gooify(max_fill_gap_size=max_fill_gap_size)
     while not grid.blobify(width*height*area_min_density, width*height*area_max_density):
         grid.noise()
-        grid.gooify(max_fill_gap_size=max_fill_gap_size)
     grid.remove_non_chunks()
     grid.crop(width, height)
     return grid
 
 
-def generate_blob_of_size_slow(width: int, height: int, area_min_density: float, area_max_density: float, max_fill_gap_size: int, acc_const: Optional[float] = None, noise_density: float=0.5) -> Blob:
+def generate_blob_of_size_slow(
+        width: int,
+        height: int,
+        area_min_density: float,
+        area_max_density: float,
+        grid_magnifier: Optional[float] = None,
+        noise_density: float=0.5,
+        int_grid=True
+) -> Blob:
     """
     A slower version of generating blob.
     Shapes are a bit more natural.
-
     Args:
-        acc_const:
+        grid_magnifier:
             Higher the number is, the longer the function takes.
             But the chance of failure reduces.
             if set to Optional, function automatically assigns a value.
@@ -272,32 +268,45 @@ def generate_blob_of_size_slow(width: int, height: int, area_min_density: float,
             Indicates the density of the room.
             if set to 1,
     """
-    if acc_const is None:
+    if grid_magnifier is None:
         C = 1 + 3/np.log10(width*height)
     else:
-        C = acc_const
-    grid = Blob(int(width*C), int(height*C), noise_density)
+        C = grid_magnifier
+    grid = Blob(int(width*C), int(height*C), noise_density, int_grid)
     grid.noise()
-    grid.CA()
-    grid.gooify(max_fill_gap_size=max_fill_gap_size)
     while not grid.blobify(width*height*area_min_density, width*height*area_max_density):
-        grid.CA()
-        grid.gooify(max_fill_gap_size=max_fill_gap_size)
+        grid.noise()
     grid.remove_non_chunks()
     grid.crop(width, height)
-    grid.blobify(0, 1000000)
     return grid
+
+
+
+def debug(grid: np.ndarray):
+    for i in grid:
+        for k in i:
+            if k:
+                print("#", end="")
+            else:
+                print(".", end="")
+        print(end="\n")
 
 
 import time
 t = time.time()
-for _ in range(5):
+for _ in range(1):
     print("==============BEGIN=========================")
-    x = generate_blob_of_size_slow(width=10, height=10, area_min_density=0.3, area_max_density=1, max_fill_gap_size=0, noise_density=0.2)
-    x.print()
+    z = generate_blob_of_size_slow(width=10, height=10, area_min_density=0.3, area_max_density=0.5)
+    z.gooify(5)
+    debug(z.blob)
     print("^Slow")
-    y = generate_blob_of_size_fast(width=10, height=10, area_min_density=0.3, area_max_density=1, max_fill_gap_size=0, noise_density=0.2)
-    y.print()
+    y = generate_blob_of_size_fast(width=10, height=10, area_min_density=0.3, area_max_density=0.5)
+    y.gooify(5)
+    debug(y.blob)
     print("^Fast")
+    x = generate_blob_of_mass(min_chunk_mass=100, max_chunk_mass=100, noise_density=0.5)
+    x.gooify(5)
+    debug(x.blob)
+    print("^Mass")
     print("=======================================")
 print(time.time() - t)

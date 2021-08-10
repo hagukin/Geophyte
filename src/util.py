@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import random
-from typing import Tuple, Optional, List
+from typing import Tuple, Optional, List, Any
 from tcod.map import compute_fov
 from tcod import Console, console_get_width
 from entity import Actor
@@ -40,8 +40,8 @@ def calc_circle(engine, center_x: int, center_y: int, radius: int, fat_circles: 
     res = []
     for horizontal in grid:
         for xy in horizontal:
-            map_x = min(max(xy[0] + center_x, 0), engine.game_map.width - 1)
-            map_y = min(max(xy[1] + center_y, 0), engine.game_map.height - 1)
+            map_x = min(max(xy[0] + center_x, 0), engine.game_map.grid_width - 1)
+            map_y = min(max(xy[1] + center_y, 0), engine.game_map.grid_height - 1)
 
             if pow(xy[0], 2) + pow(xy[1], 2) <= pow(radius, 2):
                 res.append((map_x, map_y))
@@ -66,8 +66,8 @@ def calc_explosion(engine, center_x: int, center_y: int, radius: int, fat_circle
 
     for horizontal in grid:
         for xy in horizontal:
-            map_x = min(max(xy[0] + center_x, 0), engine.game_map.width - 1)
-            map_y = min(max(xy[1] + center_y, 0), engine.game_map.height - 1)
+            map_x = min(max(xy[0] + center_x, 0), engine.game_map.grid_width - 1)
+            map_y = min(max(xy[1] + center_y, 0), engine.game_map.grid_height - 1)
 
             if not penetrate_wall and not expl_range[map_x, map_y]:
                 continue
@@ -240,3 +240,20 @@ def spawn_entity_8way(entity, gamemap, center_x: int, center_y: int, spawn_cnt: 
 
             curr_spawn_cnt += 1
 
+
+def surround_grid_value_with(grid: np.ndarray, search_for: Any, surround_with: Any, surround_8way: bool = True) -> None:
+    """Search the given value from the grid, and surround it with 'surround_with' object.
+    NOTE: This function will overwrite ANY value with 'surround_with' in the list besides 'search_for'. """
+    if surround_8way:
+        dxdy = ((0,1), (1,0), (0,-1), (-1,0), (1,1), (-1,-1), (1,-1), (-1,1))
+    else:
+        dxdy = ((0, 1), (1, 0), (0, -1), (-1, 0))
+
+    for i in range(len(grid)):
+        for j in range(len(grid[0])):
+            if grid[i][j] == search_for:
+                for dx, dy in dxdy:
+                    nx = i + dx
+                    ny = j + dy
+                    if nx >= 0 and nx < len(grid) and ny >= 0 and ny < len(grid[0]) and grid[nx][ny] != search_for:
+                        grid[nx][ny] = surround_with

@@ -83,7 +83,7 @@ class Animation:
                 break
 
             graphic = self.current_graphic
-            if 0 <= graphic[0] <= self.engine.camera.width and 0 <= graphic[1] <= self.engine.camera.height: # Clamp inside camera screen
+            if 0 <= graphic[0] <= self.engine.camera.grid_width and 0 <= graphic[1] <= self.engine.camera.grid_height: # Clamp inside camera screen
                 self.engine.console.print(x=graphic[0], y=graphic[1], string=graphic[2]["char"], fg=graphic[2]["fg"], bg=graphic[2]["bg"])
 
             if graphic[4]:

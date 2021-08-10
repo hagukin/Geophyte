@@ -70,9 +70,9 @@ class Camera:
 
     def move(self, dx: int=0, dy: int=0) -> None:
         """Move the camera position."""
-        if 0 <= self.xpos + dx <= self.engine.game_map.width - self.width:
+        if 0 <= self.xpos + dx <= self.engine.game_map.grid_width - self.width:
             self.dx = self.dx + dx
-        if 0 <= self.ypos + dy <= self.engine.game_map.height - self.height:
+        if 0 <= self.ypos + dy <= self.engine.game_map.grid_height - self.height:
             self.dy = self.dy + dy
 
     def reset_dxdy(self, adjust:bool=True) -> None:
@@ -92,8 +92,8 @@ class Camera:
         """adjust camera position."""
         self.xpos = self.engine.player.x - self.half_width
         self.ypos = self.engine.player.y - self.half_height
-        self.xpos = min(max(0, self.xpos), self.engine.game_map.width - self.width) + self.dx
-        self.ypos = min(max(0, self.ypos), self.engine.game_map.height - self.height) + self.dy
+        self.xpos = min(max(0, self.xpos), self.engine.game_map.grid_width - self.width) + self.dx
+        self.ypos = min(max(0, self.ypos), self.engine.game_map.grid_height - self.height) + self.dy
 
     def render_visuals(self, console) -> None:
         """
