@@ -18,7 +18,7 @@ import terrain_generation
 
 from order import TilemapOrder
 from typing import Iterator, List, Tuple, TYPE_CHECKING
-from room_factories import Room, RectangularRoom, CircularRoom, PerpendicularRoom
+from room_factories import Room, RectangularRoom, CircularRoom, PerpendicularRoom, BlobRoom
 from game_map import GameMap
 from render import randomized_screen_paint
 
@@ -293,27 +293,37 @@ def door_generation(
     for door_slice in door_slices:
         # Get door location
         door_loc = door_slice[0].start + dx, door_slice[1].start + dy
-        room.doors.append(door_loc)
 
         # Check if door convex collides with protected areas.
-        if 1 in dungeon.protectmap[door_slice]:
+        if 1 in dungeon.protectmap[door_slice] or TilemapOrder.DOOR.value in dungeon.tilemap[door_slice]:
             continue # NOTE: Warning - Because of this line of code, the actual number of door being spawned can be smaller than the user-defined amount.
         
         # Check if door collides with protected areas.
         if dungeon.protectmap[door_loc] == 1 and room.room_protectmap[door_loc] != 1:
-            print("SOMETHING WENT WRONG::DOOR COLLIDED WITH PROTECTED AREA(PROCGEN.PY)")
+            print("ERROR::SOMETHING WENT WRONG::DOOR COLLIDED WITH PROTECTED AREA(PROCGEN.PY) - This should've been prevented")
             continue
 
-        # randomize door convex
+        # Adjacent door check
+        flag = False
+        for dx, dy in ((1,0),(0,1),(-1,0),(0,-1),(1,1),(-1,-1),(1,-1),(-1,1)):
+            if dungeon.tilemap[door_loc[0] + dx][door_loc[1] + dy] == TilemapOrder.DOOR.value:
+                flag = True
+                break
+        if flag:
+            print("DEBUG::Prevented adjacent door")
+            continue
+
+        # spawn door convex
         dungeon.tilemap[door_slice] = TilemapOrder.DOOR_CONVEX.value
         dungeon.tunnelmap[door_slice] = True
         if room.terrain.protected:
             dungeon.protectmap[door_slice] = True
             room.room_protectmap[door_slice] = True
         dungeon.tiles[door_slice] = dungeon.tileset["t_floor"]()
-        #dungeon.tiles[door_slice] = dungeon.tileset["t_DEBUG"]()
+        # if isinstance(room, BlobRoom): #TODO DEBUG
+        #     dungeon.tiles[door_slice] = dungeon.tileset["t_DEBUG"]()
 
-        # randomize door
+        # spawn door
         dungeon.tilemap[door_loc] = TilemapOrder.DOOR.value
         dungeon.tunnelmap[door_loc] = True
         if room.terrain.protected:
@@ -325,6 +335,7 @@ def door_generation(
         if not dungeon.get_any_entity_at_location(door_loc[0], door_loc[1]):
             semiactor_factories.closed_door.spawn(gamemap=dungeon, x=door_loc[0], y=door_loc[1], lifetime=-1)
             #semiactor_factories.locked_door.spawn(gamemap=dungeon, x=door_loc[0], y=door_loc[1], lifetime=-1)
+            room.doors.append(door_loc)
 
 
 def generate_rooms(
@@ -346,11 +357,11 @@ def generate_rooms(
         room_width = random.randint(room_terrain.min_width, room_terrain.max_width)
         room_height = random.randint(room_terrain.min_height, room_terrain.max_height)
 
-        # Choose the location of the room
+        # Start location of the room
         # NOTE: There should be at least 4 tiles of free space each sides, so that every room can be connected.
         # It is recommeded to keep the free space as minimum as possible.
-        x = random.randint(3, dungeon.width - room_width - 4)
-        y = random.randint(3, dungeon.height - room_height - 4)
+        x = 4
+        y = 4
 
         # Choose the shape of the room
         shape = list(room_terrain.shape.keys())
@@ -364,14 +375,31 @@ def generate_rooms(
             new_room = CircularRoom(x, y, room_width, room_height, parent=dungeon, terrain=room_terrain)
         elif room_shape == "perpendicular":
             new_room = PerpendicularRoom(x, y, room_width, room_height, parent=dungeon, terrain=room_terrain)
+        elif room_shape == "blob":
+            min_dense = 0.2
+            max_dense = 0.5
+            new_room = BlobRoom(x, y, 12, 12, parent=dungeon, terrain=room_terrain, area_min_density=min_dense, area_max_density=max_dense)
+            #FIXME
+            # new_room.terrain.has_door = False
         else:
             new_room = RectangularRoom(x, y, room_width, room_height, parent=dungeon, terrain=room_terrain)
             print("WARNING::PROCGEN - GENERATE_ROOMS - FAILED TO SET THE ROOM SHAPE")
 
         # Run through the other rooms and see if they intersect with this one.
-        if any(new_room.intersects(other_room) for other_room in rooms):
-            continue  # This room intersects, so go to the next attempt.
-        # If there are no intersections then the room is valid.
+        found = False
+        for x in range(0, dungeon.tiles.shape[0]):
+            for y in range(0, dungeon.tiles.shape[1]): # Map border colliding handled in room.move()
+                if any(new_room.intersects(other_room) for other_room in rooms):
+                    new_room.move(x, y)
+                    continue  # This room intersects, so go to the next attempt.
+                # If there are no intersections then the room is valid.
+                else:
+                    found = True
+                    break
+            if found:
+                break
+        if not found:
+            break # Made every room possible
 
         # Fill room's outer area on tilemap.
         for outer_slice in new_room.outer:
@@ -406,7 +434,7 @@ def generate_rooms(
         # Finally, append the new room to the list.
         rooms.append(new_room)
 
-        #debug(dungeon, save_as_txt=True)
+        debug(dungeon, save_as_txt=True)
 
     # NOTE: You can save the room data on GameMap by adding something here like "dungeon.rooms = rooms"
     return dungeon, rooms
@@ -638,7 +666,7 @@ def debug(dungeon, save_as_txt: bool = False):
     """
     import sys
     if save_as_txt:
-        sys.stdout = open('./procgen_debug.txt', 'a')
+        sys.stdout = open('./saves/procgen_debug.txt', 'a')
     
     print("\n")
     
@@ -680,15 +708,13 @@ def generate_dungeon(
     context: Context,
     depth,
     display_process: bool,
-    min_display_time: int = 2,
+    debugmode: bool = True,
+    txt_log: bool = False,
 ) -> GameMap:
     """
     Args:
         display_process:
             Whether to display current procgen process on the screen or not.
-        min_display_time:
-            Minimum length(seconds) of how long the game will display procgen process to the screen.
-            This argument does nothing if display_process is set to False.
     """
     from game import Game
     engine = Game.engine
@@ -704,8 +730,7 @@ def generate_dungeon(
     screen_center_x = int(engine.config["screen_width"] / 2)
     screen_center_y = int(engine.config["screen_height"] / 2)
 
-    render_start_time = time.time()
-
+    t = time.time()
     if display_process:
         randomized_screen_paint(console, context, color.black, diversity=0)
         console.print(screen_center_x - 5, screen_center_y, "던전을 내려가는 중", fg=color.procgen_fg, bg=color.procgen_bg)
@@ -718,6 +743,9 @@ def generate_dungeon(
         map_height=biome.map_height,
         engine=engine
     )
+    if debugmode:
+        print(f"Generating Earth - {time.time() - t}s")
+        t = time.time()
 
     if display_process:
         randomized_screen_paint(console, context, color.black, diversity=10)
@@ -731,6 +759,9 @@ def generate_dungeon(
         max_rooms=biome.max_rooms,
         engine=engine
     )
+    if debugmode:
+        print(f"Generating Dungeon Rooms - {time.time() - t}s")
+        t = time.time()
 
     if display_process:
         randomized_screen_paint(console, context, color.black, diversity=15)
@@ -742,6 +773,9 @@ def generate_dungeon(
         dungeon=dungeon,
         rooms=rooms,
     )
+    if debugmode:
+        print(f"Generating Tunnels - {time.time() - t}s")
+        t = time.time()
 
     if display_process:
         randomized_screen_paint(console, context, color.black, diversity=20)
@@ -753,6 +787,9 @@ def generate_dungeon(
         dungeon=dungeon,
         rooms=rooms,
         )
+    if debugmode:
+        print(f"Adjusting Tunnels - {time.time() - t}s")
+        t = time.time()
 
     if display_process:
         randomized_screen_paint(console, context, color.black, diversity=25)
@@ -766,7 +803,9 @@ def generate_dungeon(
         map_width=biome.map_width,
         map_height=biome.map_height,
     )
-
+    if debugmode:
+        print(f"Generating Terrains - {time.time() - t}s")
+        t = time.time()
 
     if display_process:
         randomized_screen_paint(console, context, color.black, diversity=30)
@@ -786,6 +825,9 @@ def generate_dungeon(
             rooms=rooms,
             stair_type="pair"
         )
+    if debugmode:
+        print(f"Generating Staircases - {time.time() - t}s")
+        t = time.time()
 
     if display_process:
         randomized_screen_paint(console, context, color.black, diversity=35)
@@ -798,15 +840,16 @@ def generate_dungeon(
         rooms=rooms,
         depth=depth,
     )
+    if debugmode:
+        print(f"Spawning Entities - {time.time() - t}s")
+        t = time.time()
 
     # Error check
     check_spawn_err = dungeon.get_any_entity_at_location(location_x=0, location_y=0)
     if check_spawn_err != None:
         print(f"WARNING::{check_spawn_err.name} spawned at (0,0)")
 
-    # debug(dungeon=dungeon, save_as_txt=True)
-
-    if display_process:
-        time.sleep(max(0.0, min_display_time - (time.time() - render_start_time)))
+    if txt_log:
+        debug(dungeon=dungeon, save_as_txt=True)
 
     return dungeon

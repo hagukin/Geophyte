@@ -1,4 +1,7 @@
 from __future__ import annotations
+
+import tcod
+
 from camera import Camera
 from typing import TYPE_CHECKING, List, Optional, Tuple, Set
 from util import draw_thick_frame
@@ -13,7 +16,9 @@ import exceptions
 import copy
 import traceback
 import color
+import queue
 
+from threading import Thread
 from collections import deque
 from actions import BumpAction, DescendAction, AscendAction, PickupAction
 from procgen import generate_dungeon
@@ -402,13 +407,17 @@ class Engine:
 
     def generate_new_dungeon(self, console, context, depth=1, display_process=True) -> GameMap:
         """Generate new dungeon and return as gamemap object"""
-        new_dungeon = generate_dungeon(
-            console=console,
-            context=context,
-            depth=depth,
-            display_process=display_process
+        if self.config["autosave"] and self.game_map is not None:
+            from base import data_loader
+            data_loader.save_game(self.player, self) # Autosave
+
+        return generate_dungeon(
+            console,
+            context,
+            depth,
+            display_process
         )
-        return new_dungeon
+
 
     def update_entity_in_sight(self, is_initialization=False) -> None:
         """

@@ -40,8 +40,8 @@ def calc_circle(engine, center_x: int, center_y: int, radius: int, fat_circles: 
     res = []
     for horizontal in grid:
         for xy in horizontal:
-            map_x = min(max(xy[0] + center_x, 0), engine.game_map.grid_width - 1)
-            map_y = min(max(xy[1] + center_y, 0), engine.game_map.grid_height - 1)
+            map_x = min(max(xy[0] + center_x, 0), engine.game_map.width - 1)
+            map_y = min(max(xy[1] + center_y, 0), engine.game_map.height - 1)
 
             if pow(xy[0], 2) + pow(xy[1], 2) <= pow(radius, 2):
                 res.append((map_x, map_y))
@@ -66,8 +66,8 @@ def calc_explosion(engine, center_x: int, center_y: int, radius: int, fat_circle
 
     for horizontal in grid:
         for xy in horizontal:
-            map_x = min(max(xy[0] + center_x, 0), engine.game_map.grid_width - 1)
-            map_y = min(max(xy[1] + center_y, 0), engine.game_map.grid_height - 1)
+            map_x = min(max(xy[0] + center_x, 0), engine.game_map.width - 1)
+            map_y = min(max(xy[1] + center_y, 0), engine.game_map.height - 1)
 
             if not penetrate_wall and not expl_range[map_x, map_y]:
                 continue

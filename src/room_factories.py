@@ -8,6 +8,7 @@ from terrain import Terrain
 from typing import Tuple, List
 from game_map import GameMap
 from room import Room
+from collections import deque
 
 class RectangularRoom(Room):
     """
@@ -283,18 +284,34 @@ class PerpendicularRoom(Room):
 
 
 class BlobRoom(Room):
-    def __init__(self, x: int, y: int, width: int, height: int, parent: GameMap, terrain: Terrain, noise_density: float=0.5, max_fill_gap_size: int = 3):
+    def __init__(self,
+                 x: int,
+                 y: int,
+                 width: int,
+                 height: int,
+                 parent: GameMap,
+                 terrain: Terrain,
+                 area_min_density: float,
+                 area_max_density: float,
+                 rotate_chance: float = 0.5,
+                 max_fill_gap_size: int = 99):
         """
         Vars:
             is_valid:
                 used to check if the room can fit in gamemap location.
                 if False, procgen will dump this room.s
         """
-        from blob import generate_blob_of_size_fast
+        from blob import generate_blob_of_size
         self.grid = np.full((width, height), fill_value=0, order="F")
-        tmp = generate_blob_of_size_fast(width-2, height-2, area_min_density=0.3, area_max_density=1, max_fill_gap_size=max_fill_gap_size, noise_density=noise_density, int_grid=True).grid #ignore walls
+        tmp = generate_blob_of_size(width-2, height-2, area_min_density=area_min_density, area_max_density=area_max_density, int_grid=True, max_fill_gap_size=3) #ignore walls
+        tmp = tmp.grid
         self.grid[1:1+tmp.shape[0], 1:1+tmp.shape[1]] = tmp
         surround_grid_value_with(self.grid, search_for=1, surround_with=2) # 2 - outer wall
+
+        if random.random() <= rotate_chance:
+            self.width = height
+            self.height = width
+            self.grid = np.rot90(self.grid,k=random.randint(1,4))
         super().__init__(x, y, width, height, parent, terrain)
 
     @staticmethod
@@ -372,37 +389,127 @@ class BlobRoom(Room):
         """Return the inner area of this room as a 2D array index."""
         return BlobRoom.grid_to_slice(self.grid, grid_dx=self.x1, grid_dy=self.y1, search_for=1)
 
+    @property
+    def outer(self) -> List[Tuple[slice, slice]]:
+        """Return the inner area of this room as a 2D array index."""
+        return BlobRoom.grid_to_slice(self.grid, grid_dx=self.x1, grid_dy=self.y1, search_for=2)
 
+    def door_up(self) -> List[Tuple[slice, slice]]:
+        """Randomly randomize door convex location next to the upper wall, and return the location as a 2D array index."""
+        cands = deque()
+        blob_wall_width = self.grid.shape[0]
+        blob_wall_height = self.grid.shape[1]
+        found = False
+        for y in range(0, blob_wall_height):
+            for x in range(0, blob_wall_width):
+                if self.grid[x,y] == 2:
+                    found = True
+                    cands.append((x,y))
+            if found:
+                cands.pop()
+                cands.popleft()
+                break
+        if not found or len(cands) == 0:
+            print("FATAL ERROR::BlobRoom DoorGen error")
+        randloc = random.choice(cands)
+        return [(slice(self.x1 + randloc[0], self.x1 + randloc[0] + 1),
+                 slice(self.y1 + randloc[1] - 1, self.y1  + randloc[1]))]
 
-###DEBUG SESSION
-from blob import generate_blob_of_mass, generate_blob_of_size_fast, generate_blob_of_size_slow
-from terrain import Terrain
-from biome import Biome
-print("____________BLOB____________")
-r = BlobRoom(x=3, y=3, width=10, height=10, parent=GameMap(0, Biome()), terrain=Terrain())
-for i in r.grid:
-    for k in i:
-        if k:
-            print("#", end="")
-        else:
-            print(".", end="")
-    print(end="\n")
+    def door_down(self) -> List[Tuple[slice, slice]]:
+        """Randomly randomize door convex location next to the upper wall, and return the location as a 2D array index."""
+        cands = deque()
+        blob_wall_width = self.grid.shape[0]
+        blob_wall_height = self.grid.shape[1] - 1
+        found = False
+        for y in range(blob_wall_height, 0, -1):
+            for x in range(0, blob_wall_width):
+                if self.grid[x, y] == 2:
+                    found = True
+                    cands.append((x, y))
+            if found:
+                cands.pop()
+                cands.popleft()
+                break
+        if not found or len(cands) == 0:
+            print("FATAL ERROR::BlobRoom DoorGen error")
+        randloc = random.choice(cands)
+        return [(slice(self.x1 + randloc[0], self.x1 + randloc[0] + 1),
+                 slice(self.y1 + randloc[1] + 1, self.y1 + randloc[1] + 2))]
 
-t = BlobRoom.grid_to_slice(r.grid, grid_dx=5, grid_dy=5, search_for=1)
-t2 = BlobRoom.grid_to_slice(r.grid, grid_dx=5, grid_dy=5, search_for=2)
-map = np.full((50, 50), fill_value=0, order="F")
+    def door_left(self) -> List[Tuple[slice, slice]]:
+        """Randomly randomize door convex location next to the upper wall, and return the location as a 2D array index."""
+        cands = deque()
+        blob_wall_width = self.grid.shape[0]
+        blob_wall_height = self.grid.shape[1]
+        found = False
+        for x in range(0, blob_wall_width):
+            for y in range(0, blob_wall_height):
+                if self.grid[x, y] == 2:
+                    found = True
+                    cands.append((x, y))
+            if found:
+                cands.pop()
+                cands.popleft()
+                break
+        if not found or len(cands) == 0:
+            print("FATAL ERROR::BlobRoom DoorGen error")
+        randloc = random.choice(cands)
+        return [(slice(self.x1 + randloc[0] - 1, self.x1 + randloc[0]),
+                 slice(self.y1 + randloc[1], self.y1 + randloc[1] + 1))]
 
-for sliceobj in t:
-    map[sliceobj] = 1
-for sliceobj in t2:
-    map[sliceobj] = 2
-print("____________SLICE__________")
-for x in map:
-    for y in x:
-        if y == 1:
-            print('^', end="")
-        elif y == 2:
-            print('#', end="")
-        else:
-            print('.', end="")
-    print()
+    def door_right(self) -> List[Tuple[slice, slice]]:
+        """Randomly randomize door convex location next to the upper wall, and return the location as a 2D array index."""
+        cands = deque()
+        blob_wall_width = self.grid.shape[0] - 1
+        blob_wall_height = self.grid.shape[1]
+        found = False
+        for x in range(blob_wall_width, 0, -1):
+            for y in range(0, blob_wall_height):
+                if self.grid[x, y] == 2:
+                    found = True
+                    cands.append((x, y))
+            if found:
+                cands.pop()
+                cands.popleft()
+                break
+        if not found or len(cands) == 0:
+            print("FATAL ERROR::BlobRoom DoorGen error")
+        randloc = random.choice(cands)
+        return [(slice(self.x1 + randloc[0] + 1, self.x1 + randloc[0] + 2),
+                 slice(self.y1 + randloc[1], self.y1 + randloc[1] + 1))]
+
+#
+#
+# ##DEBUG SESSION
+# from terrain import Terrain
+# from biome import Biome
+# print("____________BLOB____________")
+# r = BlobRoom(x=3, y=3, width=16, height=16, parent=GameMap(0, Biome()), terrain=Terrain(), max_fill_gap_size=3, area_min_density=0.2, area_max_density=0.6)
+# for i in r.grid:
+#     for k in i:
+#         if k == 2:
+#             print("#", end="")
+#         elif k == 1:
+#             print("^", end="")
+#         else:
+#             print(".", end="")
+#     print()
+#
+# t = BlobRoom.grid_to_slice(r.grid, grid_dx=5, grid_dy=5, search_for=1)
+# t2 = BlobRoom.grid_to_slice(r.grid, grid_dx=5, grid_dy=5, search_for=2)
+# map = np.full((50, 50), fill_value=0, order="F")
+#
+# for sliceobj in t:
+#     map[sliceobj] = 1
+# for sliceobj in t2:
+#     map[sliceobj] = 2
+# print("____________SLICE__________")
+# for x in map:
+#     for y in x:
+#         if y == 1:
+#             print('^', end="")
+#         elif y == 2:
+#             print('#', end="")
+#         else:
+#             print('.', end="")
+#     print()

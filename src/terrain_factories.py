@@ -11,7 +11,7 @@ dungeon_chamber = Terrain(
     name="던전 챔버",
     terrain_id="dungeon_chamber",
     terrain_desc="Desc of dungeon chamber terrain (TEST)",
-    rarity=5,
+    rarity=30,
     spawn_item=True,
     spawn_monster=True,
     gen_grass=None,
@@ -25,7 +25,7 @@ grass_field = Terrain(
     name="평야",
     terrain_id="grass_field",
     terrain_desc="Desc of grass_field terrain (TEST)",
-    rarity=6,
+    rarity=60,
     spawn_item=True,
     spawn_monster=True,
     gen_grass={"core_num_range":(1,8), "scale_range":(1,4), "density":0.6},
@@ -39,7 +39,7 @@ trap_field = Terrain(
     name="함정 필드",
     terrain_id="trap_field",
     terrain_desc="Desc of trap_field terrain (TEST)",
-    rarity=5,
+    rarity=50,
     spawn_item=True,
     spawn_monster=True,
     gen_grass={"core_num_range":(1,6), "scale_range":(1,4), "density":0.3},
@@ -67,32 +67,13 @@ chest_room = Terrain(
     name="창고",
     terrain_id="chest_room",
     terrain_desc="chest room desc",
-    rarity=2,
+    rarity=1,
     spawn_item=False,
     spawn_monster=True,
     gen_chests={"checklist":{"large_wooden_chest" : 10}, "chest_num_range":(1,8), "initial_items":None},
 )
 terrain_dict[chest_room.terrain_id] = chest_room
 terrain_rarity.append(chest_room.rarity)
-
-
-# Large Lake
-large_lake = Terrain(
-    name="큰 호수",
-    terrain_id="large_lake",
-    terrain_desc="Desc of large_lake terrain (TEST)",
-    rarity=4,
-    min_width=12,
-    min_height=12,
-    max_width=16,
-    max_height=16,
-    spawn_item=True,
-    spawn_monster=True,
-    gen_grass={"core_num_range":(4,8), "scale_range":(2,6), "density":0.7},
-    gen_water={"core_num_range":(1,1), "scale_range":(7,11), "density":0.9, "no_border":False},
-)
-terrain_dict[large_lake.terrain_id] = large_lake
-terrain_rarity.append(large_lake.rarity)
 
 # Large pit
 large_pit = Terrain(
@@ -106,7 +87,10 @@ large_pit = Terrain(
     max_height=16,
     spawn_item=True,
     spawn_monster=True,
-    gen_pits={"core_num_range":(1,1), "scale_range":(7,11), "density":0.9, "no_border":False},
+    shape={
+        "blob":1,
+    },
+    gen_pits={"core_num_range":(1,1), "scale_range":(5,8), "density":0.9, "no_border":True},
 )
 terrain_dict[large_pit.terrain_id] = large_pit
 terrain_rarity.append(large_pit.rarity)
@@ -120,7 +104,7 @@ giant_hole = Terrain(
     rarity=2,
     spawn_item=False,
     spawn_monster=False,
-    gen_holes={"core_num_range":(1,8), "scale_range":(1,4), "density":0.6},
+    gen_holes={"core_num_range":(1,8), "scale_range":(1,4), "density":0.6, "no_border":True},
 )
 terrain_dict[giant_hole.terrain_id] = giant_hole
 terrain_rarity.append(giant_hole.rarity)
@@ -131,10 +115,10 @@ ocean = Terrain(
     name="바다",
     terrain_id="Ocean",
     terrain_desc="Desc of ocean terrain (TEST)",
-    rarity=2,
+    rarity=1,
     spawn_item=True,
     spawn_monster=True,
-    gen_water={"core_num_range":(3,5), "scale_range":(4,8), "density":0.9, "no_border":True},
+    gen_water={"core_num_range":(3,6), "scale_range":(4,8), "density":0.9, "no_border":True},
 )
 terrain_dict[ocean.terrain_id] = ocean
 terrain_rarity.append(ocean.rarity)
@@ -153,7 +137,7 @@ swamp = Terrain(
     spawn_item=True,
     spawn_monster=True,
     gen_grass={"core_num_range":(4,8), "scale_range":(2,4), "density":0.7},
-    gen_water={"core_num_range":(10,20), "scale_range":(2,4), "density":0.6, "no_border":False},
+    gen_water={"core_num_range":(10,20), "scale_range":(2,4), "density":0.6, "no_border":True},
 )
 terrain_dict[swamp.terrain_id] = swamp
 terrain_rarity.append(swamp.rarity)
@@ -173,6 +157,11 @@ general_shop = ShopTerrain(
     max_height=10,
     custom_gen=ShopTerrGen.generate_shop,
     sell_items=None,
+    shape={
+        "rectangular":2,
+        "circular":4,
+        "perpendicular":4,
+    },
 )
 terrain_dict[general_shop.terrain_id] = general_shop
 terrain_rarity.append(general_shop.rarity)
@@ -203,6 +192,11 @@ potion_shop = ShopTerrain(
         item_factories.potion_of_acid : item_factories.potion_of_acid.rarity,
         item_factories.potion_of_frost : item_factories.potion_of_frost.rarity,
     },
+    shape={
+        "rectangular":2,
+        "circular":4,
+        "perpendicular":4,
+    },
 )
 terrain_dict[potion_shop.terrain_id] = potion_shop
 terrain_rarity.append(potion_shop.rarity)
@@ -220,6 +214,9 @@ chamber_of_kugah = ChamberOfKugahTerrain(
     min_height=30,
     max_height=30,
     custom_gen=ChamberOfKugahTerrGen.generate_chamber_of_kugah,
+    shape={
+        "circular":4,
+    },
 )
 terrain_dict[chamber_of_kugah.terrain_id] = chamber_of_kugah
 terrain_rarity.append(chamber_of_kugah.rarity)

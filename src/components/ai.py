@@ -137,7 +137,7 @@ class BaseAI(BaseComponent):
     
     def init_vision(self) -> None:
         """Initialize this ai's vision"""
-        self.vision = np.full((self.parent.gamemap.grid_width, self.parent.gamemap.grid_height), fill_value=False, order="F")
+        self.vision = np.full((self.parent.gamemap.width, self.parent.gamemap.height), fill_value=False, order="F")
         self.update_vision()
 
     def activate(self) -> None:

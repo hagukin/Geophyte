@@ -24,6 +24,16 @@ class Room:
         self.room_protectmap = np.full((parent.biome.map_width, parent.biome.map_height), fill_value=False, order="F")
         self.terrain = terrain
         self.doors = [] # door locations (not convex)
+
+    def move(self, x: int=0, y: int=0):
+        if x + self.width > self.parent.tiles.shape[0] - 3 or y + self.height > self.parent.tiles.shape[0] - 3\
+            or x < 4 or y < 4:
+            # print(f"WARNING::Cannot move room to {dx} {dy} dx dy.")
+            return None
+        self.x1 = x
+        self.x2 = x + self.width
+        self.y1 = y
+        self.y2 = y + self.height
         
     @property
     def center(self) -> Tuple[int, int]:

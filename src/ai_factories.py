@@ -84,7 +84,7 @@ class Floating_Eye_Ai(ai.BaseAI):
 
             # Set vision
             monster_vision = np.full(
-                (self.parent.gamemap.grid_width, self.parent.gamemap.grid_height), fill_value=False, order="F"
+                (self.parent.gamemap.width, self.parent.gamemap.height), fill_value=False, order="F"
             )
 
             # Update the vision (The size of the visible area is proportional to this actor's eyesight)
