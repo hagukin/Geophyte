@@ -480,20 +480,22 @@ class BlobRoom(Room):
 
 #
 #
-# ##DEBUG SESSION
+##DEBUG SESSION
 # from terrain import Terrain
 # from biome import Biome
 # print("____________BLOB____________")
+# import time
+# tc = time.time()
 # r = BlobRoom(x=3, y=3, width=16, height=16, parent=GameMap(0, Biome()), terrain=Terrain(), max_fill_gap_size=3, area_min_density=0.2, area_max_density=0.6)
-# for i in r.grid:
-#     for k in i:
-#         if k == 2:
-#             print("#", end="")
-#         elif k == 1:
-#             print("^", end="")
-#         else:
-#             print(".", end="")
-#     print()
+# # for i in r.grid:
+# #     for k in i:
+# #         if k == 2:
+# #             print("#", end="")
+# #         elif k == 1:
+# #             print("^", end="")
+# #         else:
+# #             print(".", end="")
+# #     print()
 #
 # t = BlobRoom.grid_to_slice(r.grid, grid_dx=5, grid_dy=5, search_for=1)
 # t2 = BlobRoom.grid_to_slice(r.grid, grid_dx=5, grid_dy=5, search_for=2)
@@ -504,12 +506,14 @@ class BlobRoom(Room):
 # for sliceobj in t2:
 #     map[sliceobj] = 2
 # print("____________SLICE__________")
-# for x in map:
-#     for y in x:
-#         if y == 1:
-#             print('^', end="")
-#         elif y == 2:
-#             print('#', end="")
-#         else:
-#             print('.', end="")
-#     print()
+# # for x in map:
+# #     for y in x:
+# #         if y == 1:
+# #             print('^', end="")
+# #         elif y == 2:
+# #             print('#', end="")
+# #         else:
+# #             print('.', end="")
+# #     print()
+#
+# print(time.time() - tc)

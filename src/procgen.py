@@ -338,6 +338,35 @@ def door_generation(
             room.doors.append(door_loc)
 
 
+def gen_room(
+        dungeon: GameMap,
+        x: int,
+        y: int,
+        room_width: int,
+        room_height: int,
+        room_shape: str,
+        room_terrain: Terrain,
+) -> Room:
+    # Actual generation of the room
+    if room_shape == "rectangular":
+        new_room = RectangularRoom(x, y, room_width, room_height, parent=dungeon, terrain=room_terrain)
+    elif room_shape == "circular":
+        new_room = CircularRoom(x, y, room_width, room_height, parent=dungeon, terrain=room_terrain)
+    elif room_shape == "perpendicular":
+        new_room = PerpendicularRoom(x, y, room_width, room_height, parent=dungeon, terrain=room_terrain)
+    elif room_shape == "blob":
+        min_dense = 0.2
+        max_dense = 0.5
+        new_room = BlobRoom(x, y, 12, 12, parent=dungeon, terrain=room_terrain, area_min_density=min_dense,
+                            area_max_density=max_dense)
+        # FIXME
+        # new_room.terrain.has_door = False
+    else:
+        new_room = RectangularRoom(x, y, room_width, room_height, parent=dungeon, terrain=room_terrain)
+        print("WARNING::PROCGEN - GENERATE_ROOMS - FAILED TO SET THE ROOM SHAPE")
+    return new_room
+
+
 def generate_rooms(
     dungeon: GameMap,
     rooms: List,
@@ -346,6 +375,7 @@ def generate_rooms(
 ) -> Tuple[GameMap, list]:
     """Generate rooms, stairs, and doors."""
     # Generate rooms
+    nx, ny = 0, 0
     for r in range(max_rooms):
         # Choose the terrain of the room
         if dungeon.biome.terrain == None:
@@ -360,46 +390,33 @@ def generate_rooms(
         # Start location of the room
         # NOTE: There should be at least 4 tiles of free space each sides, so that every room can be connected.
         # It is recommeded to keep the free space as minimum as possible.
-        x = 4
-        y = 4
+        x, y = 4, 4
 
         # Choose the shape of the room
         shape = list(room_terrain.shape.keys())
         shape_weights = list(room_terrain.shape.values())
         room_shape = random.choices(population=shape, weights=shape_weights, cum_weights=None, k=1)[0]
-
-        # Actual generation of the room
-        if room_shape == "rectangular":
-            new_room = RectangularRoom(x, y, room_width, room_height, parent=dungeon, terrain=room_terrain)
-        elif room_shape == "circular":
-            new_room = CircularRoom(x, y, room_width, room_height, parent=dungeon, terrain=room_terrain)
-        elif room_shape == "perpendicular":
-            new_room = PerpendicularRoom(x, y, room_width, room_height, parent=dungeon, terrain=room_terrain)
-        elif room_shape == "blob":
-            min_dense = 0.2
-            max_dense = 0.5
-            new_room = BlobRoom(x, y, 12, 12, parent=dungeon, terrain=room_terrain, area_min_density=min_dense, area_max_density=max_dense)
-            #FIXME
-            # new_room.terrain.has_door = False
-        else:
-            new_room = RectangularRoom(x, y, room_width, room_height, parent=dungeon, terrain=room_terrain)
-            print("WARNING::PROCGEN - GENERATE_ROOMS - FAILED TO SET THE ROOM SHAPE")
+        new_room = gen_room(
+            dungeon, x, y, room_width, room_height, room_shape, room_terrain
+        )
 
         # Run through the other rooms and see if they intersect with this one.
         found = False
-        for x in range(0, dungeon.tiles.shape[0]):
-            for y in range(0, dungeon.tiles.shape[1]): # Map border colliding handled in room.move()
+        for x in range(nx, dungeon.tiles.shape[0]):
+            for y in range(ny, dungeon.tiles.shape[1]): # Map border colliding handled in room.move()
                 if any(new_room.intersects(other_room) for other_room in rooms):
                     new_room.move(x, y)
                     continue  # This room intersects, so go to the next attempt.
                 # If there are no intersections then the room is valid.
                 else:
                     found = True
+                    nx = x
+                    ny = 0
                     break
             if found:
                 break
         if not found:
-            break # Made every room possible
+            break # Made every available rooms
 
         # Fill room's outer area on tilemap.
         for outer_slice in new_room.outer:
