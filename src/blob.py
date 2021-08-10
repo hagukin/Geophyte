@@ -32,13 +32,12 @@ class Blob:
         for x in range(len(self.grid)):
             for y in range(len(self.grid[0])):
                 cell_count = 0
-                for x_add in range(3):
-                    for y_add in range(3):
-                        try:
-                            if self.grid[x - 1 + x_add, y - 1 + y_add] == True:
-                                cell_count += 1
-                        except:
-                            continue
+                for x_add, y_add in ((0,1), (1,0), (0,-1), (-1,0), (1,1), (-1,-1), (1,-1), (-1,1)):
+                    try:
+                        if self.grid[x + x_add, y + y_add] == True:
+                            cell_count += 1
+                    except:
+                        continue
 
                 if self.grid[x][y]:
                     if cell_count == 3:
@@ -154,10 +153,10 @@ class Blob:
         self.grid = self.grid[min_x:max_x + 1, min_y:max_y + 1]
         self.width, self.height = self.grid.shape
 
-    def gooify(self, max_connect_dist: int = 3):
+    def gooify(self, max_fill_gap_size: int = 999):
         """Make blob more denser by filling the gaps.
         Args:
-            max_connect_dist:
+            max_fill_gap_size:
                 the number of maximum False node that are filled with True.
                 if set to 999(or high enough number), this function will fill every visible gaps.
 
@@ -187,14 +186,12 @@ class Blob:
                 if self.grid[x][y] == True:
                     min_y = min(min_y, y)
                     max_y = max(max_y, y)
-                    # for y in range(min_y, max_y):
-                    #     self.grid[x][y] = True
-
-                    if max_y - min_y < max_connect_dist + 2:
-                        for y in range(min_y, max_y):
+                    gap_size = max_y - min_y - 1
+                    if gap_size <= max_fill_gap_size and gap_size > 0:
+                        for y in range(min_y+1, min_y+gap_size+1):
                             self.grid[x][y] = True
-                        min_y = max_y
-                        max_y = 0
+                    min_y += 1+gap_size
+                    max_y = 0
             min_y, max_y = self.height, 0
 
     def print(self):
@@ -207,8 +204,20 @@ class Blob:
             print(end="\n")
 
 
-def generate_blob_of_mass(min_chunk_mass: int, max_chunk_mass: int, density: float, acc_const: int = 4) -> Blob:
-    edge_len = int(np.sqrt(max_chunk_mass) * (1 / density) * acc_const)
+def generate_blob_of_mass(min_chunk_mass: int, max_chunk_mass: int, density: float, acc_const: Optional[float] = None) -> Blob:
+    """
+    Args:
+        acc_const:
+            Higher the number is, the longer the function takes.
+            But the chance of failure reduces.
+            if set to Optional, function automatically assigns a value.
+    """
+    if acc_const is None:
+        C = 1 + 3/np.log10(max_chunk_mass)
+        print(C)
+    else:
+        C = acc_const
+    edge_len = int(np.sqrt(max_chunk_mass) * (1 / density) * C)
     grid = Blob(edge_len, edge_len, density)
     grid.generate()
     while not grid.blobify(min_chunk_mass, max_chunk_mass):
@@ -217,10 +226,14 @@ def generate_blob_of_mass(min_chunk_mass: int, max_chunk_mass: int, density: flo
     grid.crop()
     return grid
 
+
+# import time
+# t = time.time()
 # for _ in range(1):
 #     print("==============BEGIN=========================")
-#     x = generate_blob_of_mass(49, 50, 0.5)
+#     x = generate_blob_of_mass(10000, 10001, 0.5)
 #     x.print()
 #     print("=======================================")
-#     x.gooify()
+#     x.gooify(max_fill_gap_size=0)
 #     x.print()
+# print(time.time() - t)

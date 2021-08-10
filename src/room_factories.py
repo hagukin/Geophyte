@@ -1,5 +1,7 @@
 import random
 
+import numpy as np
+
 from game_map import GameMap
 from terrain import Terrain
 from typing import Tuple, List
@@ -280,4 +282,62 @@ class PerpendicularRoom(Room):
 
 
 class BlobRoom(Room):
-   pass
+    def __init__(self, x: int, y: int, parent: GameMap, terrain: Terrain, min_mass: int=25, max_mass: int=100, density: float=0.5, max_fill_gap_size: int = 1000000):
+        from blob import generate_blob_of_mass
+        self.blob = generate_blob_of_mass(min_chunk_mass=min_mass, max_chunk_mass=max_mass, density=density)
+        self.blob.gooify(max_fill_gap_size) # NOTE: blob.grid indicates only the inner area of the room.
+        width = self.blob.width + 2 # for outer walls
+        height = self.blob.height + 2
+        super().__init__(x, y, width, height, parent, terrain)
+
+    @staticmethod
+    def grid_to_slice(grid: np.ndarray, search_for: int=True) -> List[Tuple[slice, slice]]:
+        lst = []
+        width, height = grid.shape
+        for x in range(len(grid)):
+            y1, y2 = None, None
+            for y in range(len(grid[0])):
+                if grid[x][y] == search_for:
+                    if y1 is None:
+                        y1 = y
+                    else:
+                        y2 = y
+                    if y == height-1:
+                        if y2 is None:
+                            y2 = y
+                        lst.append((slice(x, x + 1), slice(y1, y2 + 1)))
+                        y1, y2 = None, None
+                else:
+                    if y2 is None:
+                        y2 = y1
+                    if y1 is not None:
+                        lst.append((slice(x, x + 1), slice(y1, y2 + 1)))
+                        y1, y2 = None, None
+        return lst
+
+
+
+
+
+## DEBUG SESSION
+# from blob import generate_blob_of_mass
+# print("==============BEGIN=========================")
+# k = generate_blob_of_mass(100, 100, 0.5)
+# k.print()
+# print("=======================================")
+# k.gooify(max_fill_gap_size=0)
+# k.print()
+# t = BlobRoom.grid_to_slice(k.grid)
+#
+# map2 = np.full((50, 50), fill_value=False, order="F")
+#
+# for inner_slice in t:
+#     map2[inner_slice] = True
+# print("____________SLICE__________")
+# for x in map2:
+#     for y in x:
+#         if y == True:
+#             print('#', end="")
+#         else:
+#             print('.', end="")
+#     print()

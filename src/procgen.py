@@ -1,6 +1,7 @@
 from __future__ import annotations
 from tcod.console import Console
 from tcod.context import Context, new
+from terrain import Terrain
 from biome import Biome
 from biome_by_depth import get_dungeon_biome
 
@@ -46,7 +47,7 @@ def choose_biome(
 
 def choose_terrain(
     terrain_dicts: dict=None #if value is given, use it as population and weights
-) -> None:
+) -> Terrain:
     if terrain_dicts == None:
         terrain_id = random.choices(
             population=list(terrain_factories.terrain_dict.keys()),

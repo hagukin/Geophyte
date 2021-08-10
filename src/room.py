@@ -106,7 +106,7 @@ class Room:
         elif y == self.y2:
             return 'd'
         else:
-            raise Exception() #Wrong coordinates
+            raise Exception("FATAL ERROR::Cannot find the door anywhere on the edge of the room.")
     
     def check_if_in_room(self, x:int, y: int) -> bool:
         """Check if the given coordinates is in this room's inner area."""
