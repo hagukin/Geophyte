@@ -282,16 +282,48 @@ class PerpendicularRoom(Room):
 
 
 class BlobRoom(Room):
-    def __init__(self, x: int, y: int, parent: GameMap, terrain: Terrain, min_mass: int=25, max_mass: int=100, density: float=0.5, max_fill_gap_size: int = 1000000):
-        from blob import generate_blob_of_mass
-        self.blob = generate_blob_of_mass(min_chunk_mass=min_mass, max_chunk_mass=max_mass, density=density)
+    def __init__(self, x: int, y: int, width: int, height: int, parent: GameMap, terrain: Terrain, min_mass: int=25, max_mass: int=100, noise_density: float=0.5, max_fill_gap_size: int = 1000000):
+        """
+        Vars:
+            is_valid:
+                used to check if the room can fit in gamemap location.
+                if False, procgen will dump this room.s
+        """
+        from blob import generate_blob_of_size_fast
+        self.blob = generate_blob_of_size_fast(width, height, area_min_density=0.3, area_max_density=1, noise_density=noise_density)
         self.blob.gooify(max_fill_gap_size) # NOTE: blob.grid indicates only the inner area of the room.
         width = self.blob.width + 2 # for outer walls
         height = self.blob.height + 2
         super().__init__(x, y, width, height, parent, terrain)
 
     @staticmethod
-    def grid_to_slice(grid: np.ndarray, search_for: int=True) -> List[Tuple[slice, slice]]:
+    def grid_to_slice(grid: np.ndarray, grid_dx: int=0, grid_dy: int=0, search_for: int=True) -> List[Tuple[slice, slice]]:
+        """
+        Convert the given 2d grid into a list of tuple that contains two slices.
+
+        Args:
+            grid: search_for:
+                2d array that indicates the grid.
+                Can contain any value you want, but you should specify what value to search from using 'search_for' parameter.
+                e.g.
+                grid =
+                000000
+                011110
+                112211
+                122221
+                112211
+                011110
+                000000
+                if you want to convert the '2' parts (the inner area) only, you should pass in 2 to search_for parameter.
+            grid_dx:
+            grid_dy:
+                used to move the given slice objects for certain amount.
+                if both of them are set to 0,
+                the slice objects will start from (0,0).
+
+                NOTE: When creating a slice for Room objects, you should pass in its x1, y1 value here
+                so that the slice objects can contain not the relative coordinates, but the absolute coordinates(gamemap grid coordinates).
+            """
         lst = []
         width, height = grid.shape
         for x in range(len(grid)):
@@ -305,39 +337,58 @@ class BlobRoom(Room):
                     if y == height-1:
                         if y2 is None:
                             y2 = y
-                        lst.append((slice(x, x + 1), slice(y1, y2 + 1)))
+                        lst.append((slice(x + grid_dx, x + grid_dx + 1), slice(y1 + grid_dy, y2 + grid_dy + 1)))
                         y1, y2 = None, None
                 else:
                     if y2 is None:
                         y2 = y1
                     if y1 is not None:
-                        lst.append((slice(x, x + 1), slice(y1, y2 + 1)))
+                        lst.append((slice(x + grid_dx, x + grid_dx + 1), slice(y1 + grid_dy, y2 + grid_dy + 1)))
                         y1, y2 = None, None
         return lst
 
+    @staticmethod
+    def grid_get_door_loc(grid: np.ndarray, door_dir: str="u", grid_dx: int = 0, grid_dy: int = 0, search_for: int = False) -> List[Tuple[slice, slice]]: ###FIXME TODO UP DOOR
+        """
+        Get the valid door location for the given grid and return as slice object.
+        Args:
+            door_dir:
+                the direction of the door relative to center.
+                "u" "d" "l" "r"
+        """
+        lst = []
+        width, height = grid.shape
+
+        if door_dir == "u":
+            for x in range(len(grid)):
+                if grid[x][0] == search_for:
+                    lst.append((slice(x + grid_dx, x + grid_dx + 1), slice(0 + grid_dy, 0 + grid_dy + 1)))
+                    return lst
+        return lst
+
+    @property
+    def inner(self) -> List[Tuple[slice, slice]]:
+        """Return the inner area of this room as a 2D array index."""
+        return BlobRoom.grid_to_slice(self.blob.grid, grid_dx=self.x1+1, grid_dy=self.y1+1, search_for=True)
 
 
 
+###DEBUG SESSION
+from blob import generate_blob_of_mass, generate_blob_of_size_fast, generate_blob_of_size_slow
+print("____________BLOB____________")
+k = generate_blob_of_size_slow(10, 10, 0.3, 1, max_fill_gap_size=3)
+k.print()
 
-## DEBUG SESSION
-# from blob import generate_blob_of_mass
-# print("==============BEGIN=========================")
-# k = generate_blob_of_mass(100, 100, 0.5)
-# k.print()
-# print("=======================================")
-# k.gooify(max_fill_gap_size=0)
-# k.print()
-# t = BlobRoom.grid_to_slice(k.grid)
-#
-# map2 = np.full((50, 50), fill_value=False, order="F")
-#
-# for inner_slice in t:
-#     map2[inner_slice] = True
-# print("____________SLICE__________")
-# for x in map2:
-#     for y in x:
-#         if y == True:
-#             print('#', end="")
-#         else:
-#             print('.', end="")
-#     print()
+t = BlobRoom.grid_to_slice(k.grid, grid_dx=5, grid_dy=5)
+map2 = np.full((50, 50), fill_value=False, order="F")
+
+for inner_slice in t:
+    map2[inner_slice] = True
+print("____________SLICE__________")
+for x in map2:
+    for y in x:
+        if y == True:
+            print('#', end="")
+        else:
+            print('.', end="")
+    print()
