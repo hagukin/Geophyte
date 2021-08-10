@@ -30,6 +30,8 @@ class ChestSemiactor(SemiActor):
         trigger_bump: bool = True,
         storage = None,
         initial_items = None,
+        rarity: int = 0,
+        randomized_items_num_range: Tuple = (0,4),
     ):
         """
         Args:
@@ -68,19 +70,26 @@ class ChestSemiactor(SemiActor):
         self.storage = storage
         if self.storage:
             self.storage.parent = self
-        if initial_items != None:
+        if initial_items is not None:
             self.initial_items = initial_items
         else:
             self.initial_items = []
+        self.randomized_items_num_range = randomized_items_num_range
+        self.rarity = rarity # Rarity of the chest
 
 
     def initialize_chest(self, initial_items: List=None):
         """
         Generate the initial items that this chest spawns with.
         """
+        # Randomize Chest
+        for item in random.choices(self.engine.item_manager.items_lists, self.engine.item_manager.items_rarity,
+                       k=random.randint(self.randomized_items_num_range[0], self.randomized_items_num_range[1])):
+            if item.spawnable:
+                self.initial_items.append((item, 1, (1,1)))
+
         if initial_items:
             self.initial_items = initial_items
-
         for item in self.initial_items:
             if random.random() <= item[1]:
                 temp = item[0].copy(gamemap=self.gamemap)
@@ -99,6 +108,13 @@ class ChestSemiactor(SemiActor):
 from components.inventory import Inventory
 import item_factories
 
+default_chest_checklist = {} # Terrain.gen_chests["checklist"]
+def choose_random_chest(k=1) -> List[str]:
+    """Returns entity_id"""
+    chests_chosen = random.choices(list(default_chest_checklist.keys()), weights=list(default_chest_checklist.values()), k=k)
+    return chests_chosen
+
+
 large_wooden_chest = ChestSemiactor(
         char="▣",
         fg=(191, 128, 0),
@@ -115,5 +131,8 @@ large_wooden_chest = ChestSemiactor(
         rule_cls=None,
         trigger_bump=True,
         storage=Inventory(capacity=52, is_fireproof=False),
-        initial_items=[(item_factories.potion_of_healing, 1, (1,5))],
+        initial_items=None,
+        randomized_items_num_range=(1,4),
+        rarity=10
     )
+default_chest_checklist[large_wooden_chest.entity_id] = large_wooden_chest.rarity

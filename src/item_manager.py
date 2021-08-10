@@ -2,6 +2,7 @@ from entity import Item
 from order import InventoryOrder
 from korean import grammar as g
 from game import Game
+from typing import List
 
 import random
 import copy
@@ -15,7 +16,6 @@ class ItemManager:
         e.g. identification, randomized color, randomized name, etc
         """
         self.items_lists = None
-        self.item_rarity = None
         self.items_identified = {}
         self.items_fake_info = {} # key: item.entity_id, value: dice{"fg":(r,g,b), "bg":(r,g,b), "name":string, "char":string, "entity_desc":string}
         # items_fake_info stores fake information(or the surface information) for EVERY items that exists in game.
@@ -54,6 +54,13 @@ class ItemManager:
         # shuffle color
         random.shuffle(self.colors_for_potions)
         random.shuffle(self.colors_for_scrolls)
+
+    @property
+    def items_rarity(self) -> List:
+        tmp = []
+        for item in self.items_lists:
+            tmp.append(item.rarity)
+        return tmp
 
     def engine(self):
         return Game.engine

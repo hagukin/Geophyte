@@ -199,9 +199,9 @@ def search_empty_convex(
 
     for cor in convex_coordinates:
         wall_count = 0
-        for x_add in range(3):
-            for y_add in range(3):
-                if dungeon.tilemap[cor[0]-1+x_add, cor[1]-1+y_add] == TilemapOrder.VOID.value or dungeon.tilemap[cor[0]-1+x_add, cor[1]-1+y_add] == TilemapOrder.ROOM_WALL.value:
+        for dx in range(3):
+            for dy in range(3):
+                if dungeon.tilemap[cor[0]-1+dx, cor[1]-1+dy] == TilemapOrder.VOID.value or dungeon.tilemap[cor[0]-1+dx, cor[1]-1+dy] == TilemapOrder.ROOM_WALL.value:
                     wall_count += 1
         if wall_count >= 7:# If there is more than 7 walls surrounding the door convex, it is considered as an "empty convex".
             empty_convex.append(cor)
@@ -723,7 +723,7 @@ def debug(dungeon, save_as_txt: bool = False):
 def generate_dungeon(
     console: Console,
     context: Context,
-    depth,
+    depth: int,
     display_process: bool,
     debugmode: bool = True,
     txt_log: bool = False,
@@ -736,11 +736,7 @@ def generate_dungeon(
     from game import Game
     engine = Game.engine
     rooms: List[Room] = []
-    possible_biome = get_dungeon_biome(depth) # If there is certain list of biomes specified for certain depth, choose one from the specified biome list.
-    if possible_biome:
-        biome = choose_biome(possible_biome)
-    else:
-        biome = choose_biome()
+    biome = choose_biome(get_dungeon_biome(depth))# If there is certain list of biomes specified for certain depth, choose one from the specified biome list.
 
     dungeon = GameMap(depth=depth, biome=biome) #NOTE: tilemap initialization happens during  gamemap.__init__()
 

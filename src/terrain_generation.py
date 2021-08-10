@@ -499,7 +499,7 @@ def grow_chest(gamemap, x, y, chest_id:str, lifetime=-1, initial_items: List=Non
     NOTE: This function is based on grow_traps() function
 
     Args:
-        generated_item:
+        initial_items:
             A list that consists of tuples.
             Each tuple consists of 
             (
@@ -511,14 +511,6 @@ def grow_chest(gamemap, x, y, chest_id:str, lifetime=-1, initial_items: List=Non
             If it's set to None, the chest will randomize items based on the default values. (default values are set in chest_factories.)
     """
     tilemap = gamemap.tilemap
-
-    # Check and change tilemap info
-    if tilemap[x][y] == TilemapOrder.ROOM_INNER.value:
-        tilemap[x][y] = TilemapOrder.TRAP.value
-    else:
-        return None
-
-    # Spawn chest of given name
     if chest_id == "large_wooden_chest":
         chest_factories.large_wooden_chest.spawn(gamemap=gamemap, x=x, y=y, lifetime=lifetime, initial_items=initial_items)
 
@@ -539,7 +531,10 @@ def generate_on_empty_convex(gamemap: GameMap, x:int, y:int) -> None:
     """
     Generate a random terrain to the given empty convex location.
     """
-    pass# TODO FIXME
+    if random.random() <= 0.3: #TODO Add more
+        from chest_factories import choose_random_chest
+        grow_chest(gamemap=gamemap, x=x, y=y, chest_id=choose_random_chest(k=1)[0], initial_items=None)
+        gamemap.tiles[x, y] = gamemap.tileset["t_DEBUG"]()
 
 
 def adjust_obstacles(gamemap: GameMap):
@@ -547,26 +542,15 @@ def adjust_obstacles(gamemap: GameMap):
     Delete Semiactors that are placed in the wrong/awkward locations.
     """
     for semiactor in gamemap.semiactors:
-
-        # 1. Delete doors that are generated on water (both opened/closed)
-        if semiactor.entity_id[-4:] == "door":
-            if gamemap.tilemap[semiactor.x, semiactor.y] == TilemapOrder.WATER.value:
-                semiactor.remove_self()
-
-        # 2. Delete traps that are generated on water (all types)
-        if semiactor.entity_id[-4:] == "trap":
-            if gamemap.tilemap[semiactor.x, semiactor.y] == TilemapOrder.WATER.value:
-                semiactor.remove_self()
-
-        # 3. Delete chests that are generated on water (all types)
-        if semiactor.entity_id[-5:] == "chest":
-            if gamemap.tilemap[semiactor.x, semiactor.y] == TilemapOrder.WATER.value:
-                semiactor.remove_self()
-
-        # 3. Delete chests that are generated on water
-        if isinstance(semiactor, chest_factories.ChestSemiactor):
-            if gamemap.tilemap[semiactor.x, semiactor.y] == TilemapOrder.WATER.value:
-                semiactor.remove_self()
-
-
-
+        # Delete doors that are generated on water (both opened/closed)
+        if semiactor.entity_id[-4:] == "door" or semiactor.entity_id[-4:] == "trap" or semiactor.entity_id[-5:] == "chest":
+            if gamemap.tilemap[semiactor.x, semiactor.y] == TilemapOrder.WATER.value \
+                    or gamemap.tilemap[semiactor.x, semiactor.y] == TilemapOrder.WATER_CORE.value \
+                    or gamemap.tilemap[semiactor.x, semiactor.y] == TilemapOrder.HOLE.value \
+                    or gamemap.tilemap[semiactor.x, semiactor.y] == TilemapOrder.HOLE_CORE.value \
+                    or gamemap.tilemap[semiactor.x, semiactor.y] == TilemapOrder.PIT.value\
+                    or gamemap.tilemap[semiactor.x, semiactor.y] == TilemapOrder.PIT_CORE.value \
+                    or gamemap.tilemap[semiactor.x, semiactor.y] == TilemapOrder.ASCEND_STAIR.value \
+                    or gamemap.tilemap[semiactor.x, semiactor.y] == TilemapOrder.DESCEND_STAIR.value:
+                    semiactor.remove_self()
+                    print(f"DEBUG::Removed awkwardly placed semiactor {semiactor.entity_id}.")
