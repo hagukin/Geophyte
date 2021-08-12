@@ -407,10 +407,6 @@ class Engine:
 
     def generate_new_dungeon(self, console, context, depth=1, display_process=True) -> GameMap:
         """Generate new dungeon and return as gamemap object"""
-        if self.config["autosave"] and self.game_map is not None:
-            from base import data_loader
-            data_loader.save_game(self.player, self) # Autosave
-
         return generate_dungeon(
             console,
             context,

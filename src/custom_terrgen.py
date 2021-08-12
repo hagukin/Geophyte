@@ -21,11 +21,6 @@ class ShopTerrGen:
 
     @staticmethod
     def generate_shop_item(gamemap: GameMap, room: Room) -> None:
-        if len(room.doors) != 1:
-            print(f"WARNING::There should be 1 door, instead the room {room.terrain.terrain_id} has {len(room.doors)} door(s).\
-                \nIf there is 0 door attached to this room, the game might have canceled the door spawning if it collided with protected area of the gamemap.\
-                \nIf there are more than 1 doors attached to this room, something might have gone wrong.")
-            return None
         door_dir = room.get_door_dir(room.doors[0][0], room.doors[0][1])
 
         # keep one line as blank tile. (Nethack style shop)
@@ -79,6 +74,11 @@ class ShopTerrGen:
         Custom function for generating shops.
         """
         try:
+            if len(room.doors) != 1:
+                print(f"WARNING::Shop generation cancelled - There should be 1 door, instead the room {room.terrain.terrain_id} has {len(room.doors)} door(s).")
+                # check procgen.generate_doors
+                # door generation ignored by either
+                return None
             ShopTerrGen.generate_shop_item(gamemap, room)
             shopkeeper = ShopTerrGen.spawn_shopkeeper(gamemap, room)
             ShopTerrGen.adjust_items(shopkeeper, room)

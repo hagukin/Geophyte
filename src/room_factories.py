@@ -3,7 +3,6 @@ import random
 import numpy as np
 
 from util import surround_grid_value_with
-from game_map import GameMap
 from terrain import Terrain
 from typing import Tuple, List
 from game_map import GameMap
@@ -37,25 +36,25 @@ class RectangularRoom(Room):
         """Return the outer(walls) + inner area of this room as a 2D array index."""
         return [(slice(self.x1, self.x2 + 1), slice(self.y1, self.y2 + 1))]
 
-    def door_up(self) -> List[Tuple[slice, slice]]:
+    def door_up(self) -> Tuple[slice, slice]:
         """Randomly randomize door convex location next to the upper wall, and return the location as a 2D array index."""
         randloc = random.randint(self.x1 + 2, self.x2 - 2)
-        return [(slice(randloc, randloc + 1), slice(self.y1 - 1, self.y1))]
+        return (slice(randloc, randloc + 1), slice(self.y1 - 1, self.y1))
 
-    def door_left(self) -> List[Tuple[slice, slice]]:
+    def door_left(self) -> Tuple[slice, slice]:
         """Randomly randomize door convex location next to the left wall, and return the location as a 2D array index."""
         randloc = random.randint(self.y2 - self.height + 3, self.y1 + self.height - 3)
-        return [(slice(self.x1 - 1, self.x1), slice(randloc, randloc + 1))]
+        return (slice(self.x1 - 1, self.x1), slice(randloc, randloc + 1))
 
-    def door_right(self) -> List[Tuple[slice, slice]]:
+    def door_right(self) -> Tuple[slice, slice]:
         """Randomly randomize door convex location next to the right wall, and return the location as a 2D array index."""
         randloc = random.randint(self.y2 - self.height + 3, self.y1 + self.height - 3)
-        return [(slice(self.x2 + 1, self.x2 + 2), slice(randloc, randloc + 1))]
+        return (slice(self.x2 + 1, self.x2 + 2), slice(randloc, randloc + 1))
 
-    def door_down(self) -> List[Tuple[slice, slice]]:
+    def door_down(self) -> Tuple[slice, slice]:
         """Randomly randomize door convex location next to the lower wall, and return the location as a 2D array index."""
         randloc = random.randint(self.x1 + 2, self.x2 - 2)
-        return [(slice(randloc, randloc + 1), slice(self.y2 + 1, self.y2 + 2))]
+        return (slice(randloc, randloc + 1), slice(self.y2 + 1, self.y2 + 2))
 
 
 class CircularRoom(Room): # Not using ellipse generation algorithm due to performance issues
@@ -98,25 +97,25 @@ class CircularRoom(Room): # Not using ellipse generation algorithm due to perfor
             outer_list.append((slice(self.x1, self.x2 + 1), slice(self.y1 + 1 + i, self.y1 + 2 + i)))
         return outer_list
 
-    def door_up(self) -> List[Tuple[slice, slice]]:
+    def door_up(self) -> Tuple[slice, slice]:
         """Randomly randomize door convex location next to the upper wall, and return the location as a 2D array index."""
         randloc = random.randint(self.x1 + 2, self.x2 - 2)
-        return [(slice(randloc, randloc + 1), slice(self.y1 - 1, self.y1))]
+        return (slice(randloc, randloc + 1), slice(self.y1 - 1, self.y1))
 
-    def door_left(self) -> List[Tuple[slice, slice]]:
+    def door_left(self) -> Tuple[slice, slice]:
         """Randomly randomize door convex location next to the left wall, and return the location as a 2D array index."""
         randloc = random.randint(self.y2 - self.height + 3, self.y1 + self.height - 3)
-        return [(slice(self.x1 - 1, self.x1), slice(randloc, randloc + 1))]
+        return (slice(self.x1 - 1, self.x1), slice(randloc, randloc + 1))
 
-    def door_right(self) -> List[Tuple[slice, slice]]:
+    def door_right(self) -> Tuple[slice, slice]:
         """Randomly randomize door convex location next to the right wall, and return the location as a 2D array index."""
         randloc = random.randint(self.y2 - self.height + 3, self.y1 + self.height - 3)
-        return [(slice(self.x2 + 1, self.x2 + 2), slice(randloc, randloc + 1))]
+        return (slice(self.x2 + 1, self.x2 + 2), slice(randloc, randloc + 1))
 
-    def door_down(self) -> List[Tuple[slice, slice]]:
+    def door_down(self) -> Tuple[slice, slice]:
         """Randomly randomize door convex location next to the lower wall, and return the location as a 2D array index."""
         randloc = random.randint(self.x1 + 2, self.x2 - 2)
-        return [(slice(randloc, randloc + 1), slice(self.y2 + 1, self.y2 + 2))]
+        return (slice(randloc, randloc + 1), slice(self.y2 + 1, self.y2 + 2))
 
 
 class PerpendicularRoom(Room):
@@ -192,7 +191,7 @@ class PerpendicularRoom(Room):
             ]
         else:
             print("FATAL ERROR::Can't get room.inner")
-            return []
+            return None
         return inner_list
 
     @property
@@ -219,67 +218,67 @@ class PerpendicularRoom(Room):
                 (slice(self.x1, self.x2 - int(self.width / 2) + 1), slice(self.y1, self.y2 - int(self.height / 2) + 1)) # indicates the bottom row of the room
             ]
         else:
-            return []
+            return None
         return outer_list
 
-    def door_up(self) -> List[Tuple[slice, slice]]:
+    def door_up(self) -> Tuple[slice, slice]:
         """Randomly randomize door convex location next to the upper wall, and return the location as a 2D array index."""
         if self.rotation == 1 or self.rotation == 2:
             randloc = random.randint(self.x1 + 2, self.x2 - 2)
-            door_up_list = [(slice(randloc, randloc + 1), slice(self.y1 - 1, self.y1))]
+            door_up_list = (slice(randloc, randloc + 1), slice(self.y1 - 1, self.y1))
         elif self.rotation == 3:
             randloc = random.randint(self.x1 + int(self.width / 2), self.x2 - 1)
-            door_up_list = [(slice(randloc, randloc + 1), slice(self.y1 - 1, self.y1))]
+            door_up_list = (slice(randloc, randloc + 1), slice(self.y1 - 1, self.y1))
         elif self.rotation == 4:
             randloc = random.randint(self.x1 + 1, self.x2 - int(self.width / 2) - 1)
-            door_up_list = [(slice(randloc, randloc + 1), slice(self.y1 - 1, self.y1))]
+            door_up_list = (slice(randloc, randloc + 1), slice(self.y1 - 1, self.y1))
         else:
-            return []
+            return None
         return door_up_list
 
-    def door_left(self) -> List[Tuple[slice, slice]]:
+    def door_left(self) -> Tuple[slice, slice]:
         """Randomly randomize door convex location next to the left wall, and return the location as a 2D array index."""
         if self.rotation == 1 or self.rotation == 4:
             randloc = random.randint(self.y1 + 3, self.y1 + self.height - 3)
-            door_left_list = [(slice(self.x1 - 1, self.x1), slice(randloc, randloc + 1))]
+            door_left_list = (slice(self.x1 - 1, self.x1), slice(randloc, randloc + 1))
         elif self.rotation == 2:
             randloc = random.randint(self.y1 + 1, self.y1 + int(self.height / 2) - 1)
-            door_left_list = [(slice(self.x1 - 1, self.x1), slice(randloc, randloc + 1))]
+            door_left_list = (slice(self.x1 - 1, self.x1), slice(randloc, randloc + 1))
         elif self.rotation == 3:
             randloc = random.randint(self.y1 + int(self.height / 2), self.y2 - 1)
-            door_left_list = [(slice(self.x1 - 1, self.x1), slice(randloc, randloc + 1))]
+            door_left_list = (slice(self.x1 - 1, self.x1), slice(randloc, randloc + 1))
         else:
-            return []
+            return None
         return door_left_list
 
-    def door_right(self) -> List[Tuple[slice, slice]]:
+    def door_right(self) -> Tuple[slice, slice]:
         """Randomly randomize door convex location next to the right wall, and return the location as a 2D array index."""
         if self.rotation == 1:
             randloc = random.randint(self.y1 + 2, self.y1 + int(self.height / 2) - 1)
-            door_right_list = [(slice(self.x2 + 1, self.x2 + 2), slice(randloc, randloc + 1))]
+            door_right_list = (slice(self.x2 + 1, self.x2 + 2), slice(randloc, randloc + 1))
         elif self.rotation == 2 or self.rotation == 3:
             randloc = random.randint(self.y1 + 3, self.y1 + self.height - 3)
-            door_right_list = [(slice(self.x2 + 1, self.x2 + 2), slice(randloc, randloc + 1))]
+            door_right_list = (slice(self.x2 + 1, self.x2 + 2), slice(randloc, randloc + 1))
         elif self.rotation == 4:
             randloc = random.randint(self.y1 + int(self.height / 2), self.y2 - 1)
-            door_right_list = [(slice(self.x2 + 1, self.x2 + 2), slice(randloc, randloc + 1))]
+            door_right_list = (slice(self.x2 + 1, self.x2 + 2), slice(randloc, randloc + 1))
         else:
-            return []
+            return None
         return door_right_list
 
-    def door_down(self) -> List[Tuple[slice, slice]]:
+    def door_down(self) -> Tuple[slice, slice]:
         """Randomly randomize door convex location next to the lower wall, and return the location as a 2D array index."""
         if self.rotation == 1:
             randloc = random.randint(self.x1 + 2, self.x2 - int(self.width / 2) - 1)
-            door_down_list = [(slice(randloc, randloc + 1), slice(self.y2 + 1, self.y2 + 2))]
+            door_down_list = (slice(randloc, randloc + 1), slice(self.y2 + 1, self.y2 + 2))
         elif self.rotation == 2:
             randloc = random.randint(self.x1 + int(self.width / 2), self.x2 - 1)
-            door_down_list = [(slice(randloc, randloc + 1), slice(self.y2 + 1, self.y2 + 2))]
+            door_down_list = (slice(randloc, randloc + 1), slice(self.y2 + 1, self.y2 + 2))
         elif self.rotation == 3 or self.rotation == 4:
             randloc = random.randint(self.x1 + 2, self.x2 - 2)
-            door_down_list = [(slice(randloc, randloc + 1), slice(self.y2 + 1, self.y2 + 2))]
+            door_down_list = (slice(randloc, randloc + 1), slice(self.y2 + 1, self.y2 + 2))
         else:
-            return []
+            return None
         return door_down_list
 
 
@@ -394,7 +393,7 @@ class BlobRoom(Room):
         """Return the inner area of this room as a 2D array index."""
         return BlobRoom.grid_to_slice(self.grid, grid_dx=self.x1, grid_dy=self.y1, search_for=2)
 
-    def door_up(self) -> List[Tuple[slice, slice]]:
+    def door_up(self) -> Tuple[slice, slice]:
         """Randomly randomize door convex location next to the upper wall, and return the location as a 2D array index."""
         cands = deque()
         blob_wall_width = self.grid.shape[0]
@@ -412,10 +411,10 @@ class BlobRoom(Room):
         if not found or len(cands) == 0:
             print("FATAL ERROR::BlobRoom DoorGen error")
         randloc = random.choice(cands)
-        return [(slice(self.x1 + randloc[0], self.x1 + randloc[0] + 1),
-                 slice(self.y1 + randloc[1] - 1, self.y1  + randloc[1]))]
+        return (slice(self.x1 + randloc[0], self.x1 + randloc[0] + 1),
+                 slice(self.y1 + randloc[1] - 1, self.y1  + randloc[1]))
 
-    def door_down(self) -> List[Tuple[slice, slice]]:
+    def door_down(self) -> Tuple[slice, slice]:
         """Randomly randomize door convex location next to the upper wall, and return the location as a 2D array index."""
         cands = deque()
         blob_wall_width = self.grid.shape[0]
@@ -433,10 +432,10 @@ class BlobRoom(Room):
         if not found or len(cands) == 0:
             print("FATAL ERROR::BlobRoom DoorGen error")
         randloc = random.choice(cands)
-        return [(slice(self.x1 + randloc[0], self.x1 + randloc[0] + 1),
-                 slice(self.y1 + randloc[1] + 1, self.y1 + randloc[1] + 2))]
+        return (slice(self.x1 + randloc[0], self.x1 + randloc[0] + 1),
+                 slice(self.y1 + randloc[1] + 1, self.y1 + randloc[1] + 2))
 
-    def door_left(self) -> List[Tuple[slice, slice]]:
+    def door_left(self) -> Tuple[slice, slice]:
         """Randomly randomize door convex location next to the upper wall, and return the location as a 2D array index."""
         cands = deque()
         blob_wall_width = self.grid.shape[0]
@@ -454,10 +453,10 @@ class BlobRoom(Room):
         if not found or len(cands) == 0:
             print("FATAL ERROR::BlobRoom DoorGen error")
         randloc = random.choice(cands)
-        return [(slice(self.x1 + randloc[0] - 1, self.x1 + randloc[0]),
-                 slice(self.y1 + randloc[1], self.y1 + randloc[1] + 1))]
+        return (slice(self.x1 + randloc[0] - 1, self.x1 + randloc[0]),
+                 slice(self.y1 + randloc[1], self.y1 + randloc[1] + 1))
 
-    def door_right(self) -> List[Tuple[slice, slice]]:
+    def door_right(self) -> Tuple[slice, slice]:
         """Randomly randomize door convex location next to the upper wall, and return the location as a 2D array index."""
         cands = deque()
         blob_wall_width = self.grid.shape[0] - 1
@@ -475,8 +474,8 @@ class BlobRoom(Room):
         if not found or len(cands) == 0:
             print("FATAL ERROR::BlobRoom DoorGen error")
         randloc = random.choice(cands)
-        return [(slice(self.x1 + randloc[0] + 1, self.x1 + randloc[0] + 2),
-                 slice(self.y1 + randloc[1], self.y1 + randloc[1] + 1))]
+        return (slice(self.x1 + randloc[0] + 1, self.x1 + randloc[0] + 2),
+                 slice(self.y1 + randloc[1], self.y1 + randloc[1] + 1))
 
 #
 #

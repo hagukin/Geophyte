@@ -199,11 +199,14 @@ def search_empty_convex(
 
     for cor in convex_coordinates:
         wall_count = 0
+        covered_by_door = False
         for dx in range(3):
             for dy in range(3):
                 if dungeon.tilemap[cor[0]-1+dx, cor[1]-1+dy] == TilemapOrder.VOID.value or dungeon.tilemap[cor[0]-1+dx, cor[1]-1+dy] == TilemapOrder.ROOM_WALL.value:
                     wall_count += 1
-        if wall_count >= 7:# If there is more than 7 walls surrounding the door convex, it is considered as an "empty convex".
+                if dungeon.tilemap[cor[0]-1+dx, cor[1]-1+dy] == TilemapOrder.DOOR.value:
+                    covered_by_door = True
+        if wall_count >= 7 and covered_by_door:# If there is more than 7 walls surrounding the door convex, it is considered as an "empty convex".
             empty_convex.append(cor)
     
     return empty_convex
@@ -242,6 +245,17 @@ def adjust_convex(
         terrain_generation.generate_on_empty_convex(dungeon, cor[0], cor[1])
 
 
+def remove_awkward_entities(
+    dungeon: GameMap
+) -> None:
+    check_spawn_err = dungeon.get_any_entity_at_location(location_x=0, location_y=0)
+    if check_spawn_err != None:
+        print(f"WARNING::{check_spawn_err.name} spawned at (0,0)")
+
+    # Adjust map
+    terrain_generation.adjust_obstacles(gamemap=dungeon)
+
+
 def generate_earth(
     dungeon: GameMap,
     map_width: int,
@@ -266,79 +280,9 @@ def generate_earth(
         dungeon.tilemap[-1, y] = TilemapOrder.MAP_BORDER.value
 
     # TODO : Add metals and ores and gems?
-           
-
-def door_generation(
-    dungeon: GameMap,
-    room: Room,
-    door_dir: str
-) -> None:
-    if door_dir == 'u':
-        dx = 0
-        dy = 1
-        door_slices = room.door_up()
-    elif door_dir == 'd':
-        dx = 0
-        dy = -1
-        door_slices = room.door_down()
-    elif door_dir == 'l':
-        dx = 1
-        dy = 0
-        door_slices = room.door_left()
-    elif door_dir == 'r':
-        dx = -1
-        dy = 0
-        door_slices = room.door_right()
-
-    for door_slice in door_slices:
-        # Get door location
-        door_loc = door_slice[0].start + dx, door_slice[1].start + dy
-
-        # Check if door convex collides with protected areas.
-        if 1 in dungeon.protectmap[door_slice] or TilemapOrder.DOOR.value in dungeon.tilemap[door_slice]:
-            continue # NOTE: Warning - Because of this line of code, the actual number of door being spawned can be smaller than the user-defined amount.
-        
-        # Check if door collides with protected areas.
-        if dungeon.protectmap[door_loc] == 1 and room.room_protectmap[door_loc] != 1:
-            print("ERROR::SOMETHING WENT WRONG::DOOR COLLIDED WITH PROTECTED AREA(PROCGEN.PY) - This should've been prevented")
-            continue
-
-        # Adjacent door check
-        flag = False
-        for dx, dy in ((1,0),(0,1),(-1,0),(0,-1),(1,1),(-1,-1),(1,-1),(-1,1)):
-            if dungeon.tilemap[door_loc[0] + dx][door_loc[1] + dy] == TilemapOrder.DOOR.value:
-                flag = True
-                break
-        if flag:
-            print("DEBUG::Prevented adjacent door")
-            continue
-
-        # spawn door convex
-        dungeon.tilemap[door_slice] = TilemapOrder.DOOR_CONVEX.value
-        dungeon.tunnelmap[door_slice] = True
-        if room.terrain.protected:
-            dungeon.protectmap[door_slice] = True
-            room.room_protectmap[door_slice] = True
-        dungeon.tiles[door_slice] = dungeon.tileset["t_floor"]()
-        # if isinstance(room, BlobRoom): #TODO DEBUG
-        #     dungeon.tiles[door_slice] = dungeon.tileset["t_DEBUG"]()
-
-        # spawn door
-        dungeon.tilemap[door_loc] = TilemapOrder.DOOR.value
-        dungeon.tunnelmap[door_loc] = True
-        if room.terrain.protected:
-            dungeon.protectmap[door_loc] = True
-            room.room_protectmap[door_loc] = True
-        dungeon.tiles[door_loc] = dungeon.tileset["t_floor"]()
-
-        # spawn door unless there is nothing on the location
-        if not dungeon.get_any_entity_at_location(door_loc[0], door_loc[1]):
-            semiactor_factories.closed_door.spawn(gamemap=dungeon, x=door_loc[0], y=door_loc[1], lifetime=-1)
-            #semiactor_factories.locked_door.spawn(gamemap=dungeon, x=door_loc[0], y=door_loc[1], lifetime=-1)
-            room.doors.append(door_loc)
 
 
-def gen_room(
+def create_room(
         dungeon: GameMap,
         x: int,
         y: int,
@@ -364,8 +308,68 @@ def gen_room(
     else:
         new_room = RectangularRoom(x, y, room_width, room_height, parent=dungeon, terrain=room_terrain)
         print("WARNING::PROCGEN - GENERATE_ROOMS - FAILED TO SET THE ROOM SHAPE")
+
+    # set door position (Not actually generating)
+    # choose the direction of the door
+    tempdir = ["u", "d", "l", "r"]
+    door_slices = None
+    random.shuffle(tempdir)
+    door_num = random.choices(new_room.terrain.door_num_range, new_room.terrain.door_num_weight, k=1)[0]
+
+    for i in range(door_num):
+        new_room.door_directions.append(tempdir[i % 4])  # udlr 1234
     return new_room
 
+def spawn_room(
+        dungeon: GameMap,
+        room: Room
+) -> None:
+    """Actually spawn the tiles on the gamemap."""
+    # Fill room's outer area on tilemap.
+    for outer_slice in room.outer:
+        dungeon.tilemap[outer_slice] = TilemapOrder.ROOM_WALL.value
+        dungeon.tunnelmap[outer_slice] = False
+        if room.terrain.protected:
+            dungeon.protectmap[outer_slice] = True
+            room.room_protectmap[outer_slice] = True
+
+    # Dig out this rooms inner area.
+    for inner_slice in room.inner:
+        dungeon.tiles[inner_slice] = dungeon.tileset["t_floor"]()
+        dungeon.tilemap[inner_slice] = TilemapOrder.ROOM_INNER.value
+        dungeon.tunnelmap[inner_slice] = True
+        if room.terrain.protected:
+            dungeon.protectmap[inner_slice] = True
+            room.room_protectmap[inner_slice] = True
+
+
+def spawn_doors(
+        dungeon: GameMap,
+        room: Room
+) -> None:
+    """Actually spawn the door on the gamemap.
+    Will use room.doors to get the door locations."""
+    # Convex
+    for convex_pos in room.door_convexes:
+        dungeon.tilemap[convex_pos] = TilemapOrder.DOOR_CONVEX.value
+        dungeon.tunnelmap[convex_pos] = True
+        if room.terrain.protected:
+            dungeon.protectmap[convex_pos] = True
+            room.room_protectmap[convex_pos] = True
+        dungeon.tiles[convex_pos] = dungeon.tileset["t_floor"]()
+        # dungeon.tiles[convex_pos] = dungeon.tileset["t_DEBUG"]()
+
+    # Door
+    for door_pos in room.doors:
+        dungeon.tilemap[door_pos] = TilemapOrder.DOOR.value
+        dungeon.tunnelmap[door_pos] = True
+        if room.terrain.protected:
+            dungeon.protectmap[door_pos] = True
+            room.room_protectmap[door_pos] = True
+        dungeon.tiles[door_pos] = dungeon.tileset["t_floor"]()
+
+        semiactor_factories.closed_door.spawn(gamemap=dungeon, x=door_pos[0], y=door_pos[1], lifetime=-1)
+        # semiactor_factories.locked_door.spawn(gamemap=dungeon, x=door_loc[0], y=door_loc[1], lifetime=-1)
 
 def generate_rooms(
     dungeon: GameMap,
@@ -396,9 +400,7 @@ def generate_rooms(
         shape = list(room_terrain.shape.keys())
         shape_weights = list(room_terrain.shape.values())
         room_shape = random.choices(population=shape, weights=shape_weights, cum_weights=None, k=1)[0]
-        new_room = gen_room(
-            dungeon, x, y, room_width, room_height, room_shape, room_terrain
-        )
+        new_room = create_room(dungeon, x, y, room_width, room_height, room_shape, room_terrain) # Generated door locations as well
 
         # Run through the other rooms and see if they intersect with this one.
         found = False
@@ -418,41 +420,13 @@ def generate_rooms(
         if not found:
             break # Made every available rooms
 
-        # Fill room's outer area on tilemap.
-        for outer_slice in new_room.outer:
-            dungeon.tilemap[outer_slice] = TilemapOrder.ROOM_WALL.value
-            dungeon.tunnelmap[outer_slice] = False
-            if new_room.terrain.protected:
-                dungeon.protectmap[outer_slice] = True
-                new_room.room_protectmap[outer_slice] = True
-
-        # Dig out this rooms inner area.
-        for inner_slice in new_room.inner:
-            dungeon.tiles[inner_slice] = dungeon.tileset["t_floor"]()
-            dungeon.tilemap[inner_slice] = TilemapOrder.ROOM_INNER.value
-            dungeon.tunnelmap[inner_slice] = True
-            if new_room.terrain.protected:
-                dungeon.protectmap[inner_slice] = True
-                new_room.room_protectmap[inner_slice] = True
-
-        # choose the direction of the door
-        doordir = []
-        tempdir = ["u","d","l","r"]
-        random.shuffle(tempdir)
-        door_num = random.choices(new_room.terrain.door_num_range, new_room.terrain.door_num_weight, k=1)[0]
-        for i in range(door_num):
-            doordir.append(tempdir[i%4]) # udlr 1234
-
-        # randomize doors and door convexes
-        if new_room.terrain.has_door:
-            for direction in doordir:
-                door_generation(dungeon=dungeon, room=new_room, door_dir=direction)
+        # Actual entity, tile spawning
+        spawn_room(dungeon, new_room)
+        spawn_doors(dungeon, new_room)
 
         # Finally, append the new room to the list.
         rooms.append(new_room)
-
-        debug(dungeon, save_as_txt=True)
-
+        # debug(dungeon, save_as_txt=True)
     # NOTE: You can save the room data on GameMap by adding something here like "dungeon.rooms = rooms"
     return dungeon, rooms
 
@@ -493,9 +467,6 @@ def generate_terrain(
         # Call custom function if it has one
         if room.terrain.custom_gen:
             room.terrain.custom_gen(gamemap=dungeon, room=room)
-
-        # Adjust map (delete awkwardly placed semiactors)
-        terrain_generation.adjust_obstacles(gamemap=dungeon)
 
     return None
 
@@ -791,20 +762,6 @@ def generate_dungeon(
         t = time.time()
 
     if display_process:
-        randomized_screen_paint(console, context, color.black, diversity=20)
-        console.print(screen_center_x - 5, screen_center_y, "던전을 내려가는 중", fg=color.procgen_fg, bg=color.procgen_bg)
-        console.print(screen_center_x - 6, screen_center_y + 2, "터널 다듬는 중...", fg=color.procgen_fg)
-        context.present(console=console, keep_aspect=True)
-    print("Adjusting Tunnels...")
-    adjust_convex(
-        dungeon=dungeon,
-        rooms=rooms,
-        )
-    if debugmode:
-        print(f"Adjusting Tunnels - {time.time() - t}s")
-        t = time.time()
-
-    if display_process:
         randomized_screen_paint(console, context, color.black, diversity=25)
         console.print(screen_center_x - 5, screen_center_y, "던전을 내려가는 중", fg=color.procgen_fg, bg=color.procgen_bg)
         console.print(screen_center_x - 6, screen_center_y + 2, "지형 생성 중...", fg=color.procgen_fg)
@@ -857,10 +814,24 @@ def generate_dungeon(
         print(f"Spawning Entities - {time.time() - t}s")
         t = time.time()
 
-    # Error check
-    check_spawn_err = dungeon.get_any_entity_at_location(location_x=0, location_y=0)
-    if check_spawn_err != None:
-        print(f"WARNING::{check_spawn_err.name} spawned at (0,0)")
+    if display_process:
+        randomized_screen_paint(console, context, color.black, diversity=20)
+        console.print(screen_center_x - 5, screen_center_y, "던전을 내려가는 중", fg=color.procgen_fg, bg=color.procgen_bg)
+        console.print(screen_center_x - 6, screen_center_y + 2, "던전 다듬는 중...", fg=color.procgen_fg)
+        context.present(console=console, keep_aspect=True)
+    print("Adjusting Dungeon...")
+    adjust_convex(
+        dungeon=dungeon,
+        rooms=rooms,
+        )
+    remove_awkward_entities(
+        dungeon=dungeon
+    )
+    if debugmode:
+        print(f"Adjusting Tunnels - {time.time() - t}s")
+        t = time.time()
+
+
 
     if txt_log:
         debug(dungeon=dungeon, save_as_txt=True)

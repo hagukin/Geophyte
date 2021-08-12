@@ -23,13 +23,9 @@ class Room:
         self.parent = parent # gamemap
         self.room_protectmap = np.full((parent.biome.map_width, parent.biome.map_height), fill_value=False, order="F")
         self.terrain = terrain
-        self.doors = [] # door locations (not convex)
+        self.door_directions = []
 
     def move(self, x: int=0, y: int=0):
-        if x + self.width > self.parent.tiles.shape[0] - 3 or y + self.height > self.parent.tiles.shape[0] - 3\
-            or x < 4 or y < 4:
-            # print(f"WARNING::Cannot move room to {dx} {dy} dx dy.")
-            return None
         self.x1 = x
         self.x2 = x + self.width
         self.y1 = y
@@ -51,6 +47,54 @@ class Room:
     def outer(self) -> Tuple[slice, slice]:
         """Return the outer(walls) + inner area of this room as a 2D array index."""
         raise NotImplementedError()
+
+    @property
+    def door_convexes(self) -> List[Tuple[int,int]]:
+        tmp = []
+        for direction in self.door_directions:
+            if direction == 'u':
+                door_slice = self.door_up()
+            elif direction == 'd':
+                door_slice = self.door_down()
+            elif direction == 'l':
+                door_slice = self.door_left()
+            elif direction == 'r':
+                door_slice = self.door_right()
+            else:
+                print(f"FATAL ERROR::Invalid door direction - {direction}. Using Upper direction instead.")
+                door_slice = self.door_up()
+
+            tmp.append((door_slice[0].start, door_slice[1].start))
+        return tmp
+
+    @property
+    def doors(self) -> List[Tuple[int,int]]:
+        tmp = []
+        for direction in self.door_directions:
+            if direction == 'u':
+                dx = 0
+                dy = 1
+                door_slice = self.door_up()
+            elif direction == 'd':
+                dx = 0
+                dy = -1
+                door_slice = self.door_down()
+            elif direction == 'l':
+                dx = 1
+                dy = 0
+                door_slice = self.door_left()
+            elif direction == 'r':
+                dx = -1
+                dy = 0
+                door_slice = self.door_right()
+            else:
+                print(f"FATAL ERROR::Invalid door direction - {direction}. Using Upper direction instead.")
+                dx = 0
+                dy = 1
+                door_slice = self.door_up()
+
+            tmp.append((door_slice[0].start + dx, door_slice[1].start + dy))
+        return tmp
 
     @property
     def inner_tiles(self): # Returns List of Tuples
@@ -88,7 +132,14 @@ class Room:
         return list(set(self.outer_tiles) - set(self.inner_tiles))
 
     def intersects(self, other) -> bool: # other = other room
-        """Return True if this room overlaps with another room of any type."""
+        """Return True if this room overlaps with another room of any type
+        OR if the room is out of map bound."""
+
+        # Collided with map border
+        if self.x2 > self.parent.tiles.shape[0] - 4 or self.y2 > self.parent.tiles.shape[0] - 4\
+            or self.x1 < 4 or self.y1 < 4:
+            return True
+
         for tile_slice in self.outer:
             # Check for tiles that should not collide with other rooms
             if TilemapOrder.ROOM_INNER.value in self.parent.tilemap[tile_slice]\
@@ -102,7 +153,17 @@ class Room:
                 if TilemapOrder.DOOR.value in self.parent.tilemap[tile_slice]\
                     or TilemapOrder.DOOR_CONVEX.value in self.parent.tilemap[tile_slice]:
                     return True
-
+        for door_loc in self.doors:
+            if (self.parent.protectmap[door_loc] == 1 and self.room_protectmap[door_loc] != 1)\
+                or self.parent.tilemap[door_loc] == TilemapOrder.DOOR.value\
+                or self.parent.tilemap[door_loc] == TilemapOrder.DOOR_CONVEX.value\
+                or self.parent.tilemap[door_loc] == TilemapOrder.MAP_BORDER.value:
+                return True
+        for door_con_loc in self.door_convexes:
+            if (self.parent.protectmap[door_con_loc] == 1 and self.room_protectmap[door_con_loc] != 1)\
+                or self.parent.tilemap[door_con_loc] == TilemapOrder.DOOR.value \
+                or self.parent.tilemap[door_con_loc] == TilemapOrder.MAP_BORDER.value:
+                return True
         return False
 
     def get_door_dir(self, x: int, y: int) -> str:
