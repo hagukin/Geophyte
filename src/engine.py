@@ -3,7 +3,7 @@ from __future__ import annotations
 import tcod
 
 from camera import Camera
-from typing import TYPE_CHECKING, List, Optional, Tuple, Set
+from typing import TYPE_CHECKING, List, Optional, Tuple, Set, Deque
 from util import draw_thick_frame
 from tcod.path import SimpleGraph, Pathfinder
 from tcod.console import Console
@@ -62,10 +62,8 @@ class Engine:
         """
         self.event_handler: EventHandler = MainGameEventHandler()
         self.message_log = MessageLog(engine=self)
-        self.mouse_location = (0, 0)
-        self.mouse_dir = (1, 1)
         self.player = player
-        self.player_path = deque([])
+        self.player_path:Deque = deque([])
         self.player_dir = None
         self.actors_in_sight: Set[Actor] = set()
         self.items_in_sight: Set[Item] = set()
@@ -75,21 +73,33 @@ class Engine:
         self.config = None # Set from initialization
         self.console = None
         self.context = None
+        self._mouse_pos = (0,0)
         self.camera: Camera = None
         self.world = None
         self.game_map: GameMap = None
         self.depth: int = 0
         self.item_manager: ItemManager = None
 
-    @property
-    def mouse_relative_location(self):
-        x, y = self.camera.abs_to_rel(abs_x=self.mouse_location[0], abs_y=self.mouse_location[1])
-        return x, y
+    def set_mouse_pos(self, x, y):
+        self._mouse_pos = x, y
 
-    def clamp_mouse_on_map(self, x: int, y: int) -> Tuple[int, int]:
+    @property
+    def mouse_location(self) -> Tuple[int,int]:
+        if self._mouse_pos:
+            return self._mouse_pos
+        else:
+            return 0,0
+
+    def clamp_mouse_on_map_rel(self, rel_x: int, rel_y: int) -> Tuple[int, int]:
         """Clamp the given x, y coordinates within the game map boundaries."""
-        nx = max(self.camera.xpos, min(x, self.camera.biggest_x - 1))
-        ny = max(self.camera.ypos, min(y, self.camera.biggest_y - 1))
+        nx = max(self.camera.display_x, min(rel_x, self.camera.display_x + self.camera.width - 1))
+        ny = max(self.camera.display_y, min(rel_y, self.camera.display_x + self.camera.height - 1))
+        return nx, ny
+
+    def clamp_mouse_on_map_abs(self, abs_x: int, abs_y: int) -> Tuple[int, int]:
+        """Clamp the given x, y coordinates within the game map boundaries."""
+        nx = max(self.camera.xpos, min(abs_x, self.camera.biggest_x - 1))
+        ny = max(self.camera.ypos, min(abs_y, self.camera.biggest_y - 1))
         return nx, ny
 
     def initialize_item_manager(self):

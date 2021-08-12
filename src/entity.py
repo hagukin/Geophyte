@@ -544,7 +544,7 @@ class Actor(Entity):
         if self.edible:  # if edible is None, no corpse is spawned.
             import item_factories
             new_corpse = item_factories.corpse.spawn(self.gamemap, self.x, self.y)
-            new_corpse.weight = max(float(self.actor_state.size * random.randint(10, 20)), 0.01)
+            new_corpse.weight = max(self.weight * max(0.2, random.random()*0.9), 0.001)
             new_corpse.change_name(self.name + " 시체")
             new_corpse.edible = self.edible  # copy edible value from parent
             new_corpse.edible.parent = new_corpse

@@ -11,8 +11,8 @@ rocky_dungeon = Biome(
     biome_desc="Desc of rocky dungeon biome (TEST)",
     rarity=99,
     biome_color=color.b_rocky_dungeon,
-    map_width=80,
-    map_height=80,
+    map_width=67,
+    map_height=41,
 )
 biome_dict[rocky_dungeon.biome_id] = rocky_dungeon
 biome_rarity.append(rocky_dungeon.rarity)
@@ -23,8 +23,8 @@ desert_dungeon = Biome(
     biome_desc="desert_dungeon (TEST)",
     rarity=1,
     biome_color=color.b_desert_dungeon,
-    map_width=80,
-    map_height=80,
+    map_width=67,
+    map_height=41,
     tileset=tileset({
         "t_wall":tiles.wall_desert,
         "t_floor":tiles.floor_desert,

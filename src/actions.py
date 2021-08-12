@@ -597,7 +597,8 @@ class MovementAction(ActionWithDirection):
         ### Check map boundaries ###
         if not self.engine.game_map.in_bounds(dest_x, dest_y):
             # Destination is out of bounds.
-            raise exceptions.Impossible("길이 막혀 있다.")
+            self.engine.message_log.add_message("길이 막혀 있다.", fg=color.impossible)
+            return None
 
         # If the actor is stuck in pit
         if self.entity.actor_state.is_in_deep_pit:
@@ -618,11 +619,13 @@ class MovementAction(ActionWithDirection):
 
         if not self.engine.game_map.tiles["walkable"][dest_x, dest_y]:
             # Destination is blocked by a tile.
-            raise exceptions.Impossible("길이 막혀 있다.")
+            self.engine.message_log.add_message("길이 막혀 있다.", fg=color.impossible)
+            return None
             
         if self.engine.game_map.get_blocking_entity_at_location(dest_x, dest_y):
             # Destination is blocked by an entity.
-            raise exceptions.Impossible("길이 막혀 있다.")
+            self.engine.message_log.add_message("길이 막혀 있다.", fg=color.impossible)
+            return None
 
         self.entity.move(self.dx, self.dy)
 
@@ -642,6 +645,9 @@ class DoorUnlockAction(ActionWithDirection):
     def ai_unlock(self) -> None:
         dest_x, dest_y = self.dest_xy
         semiactor_on_dir = self.engine.game_map.get_semiactor_at_location(dest_x, dest_y, "door")
+
+        if self.entity.ai:
+            self.entity.ai.path = None
 
         if not semiactor_on_dir:
             print("WARNING::AI tried to unlock void.")
@@ -778,21 +784,15 @@ class DoorBreakAction(ActionWithDirection):
         dest_x, dest_y = self.dest_xy
         semiactor_on_dir = self.engine.game_map.get_semiactor_at_location(dest_x, dest_y, semiactor_id="door")
 
-        # Get actor status
-        strength = self.entity.status.changed_status["strength"]
+        if self.entity.ai:
+            self.entity.ai.path = None
 
         if not semiactor_on_dir:
-            raise exceptions.Impossible("이 곳에는 문이 없다.")
+            self.engine.message_log.add_message("이 곳에는 문이 없다.", fg=color.impossible)
         elif semiactor_on_dir.entity_id == "opened_door":
-            can_try_break_door = self.check_actor_condition(strength)
-            raise exceptions.Impossible("이 문은 이미 열려 있다.")
+            self.engine.message_log.add_message("이 문은 이미 열려 있다.", fg=color.impossible)
         elif semiactor_on_dir.entity_id == "locked_door":
-            can_try_break_door = self.check_actor_condition(strength)
-
-            if can_try_break_door:
-                self.break_door()
-            elif self.entity.ai:
-                self.entity.ai.path = None
+            self.break_door()
             return None
         else:
             raise exceptions.Impossible("이 곳에는 문이 없다.")
@@ -801,7 +801,7 @@ class DoorBreakAction(ActionWithDirection):
 class DoorOpenAction(ActionWithDirection):
     
     def open_door(self, door: SemiActor, dexterity: int, intelligence: int) -> None:
-        open_fail = random.randint(0, 18)
+        open_fail = random.randint(0, 12)
             
         if open_fail > dexterity: # check if the actor failed to open the door
             self.engine.message_log.add_message(f"{g(self.entity.name, '은')} 문을 여는 것에 실패했다!", color.invalid, target=self.entity)

@@ -90,18 +90,18 @@ player = Actor(
     weight = 70,
     spawnable=False,
     growthable=True,
-    edible=edible.RawMeatEdible(nutrition=300),
+    edible=edible.RawMeatEdible(nutrition=400),
     render_order=RenderOrder.PLAYER,
     ai_cls=None,
     status=Status(
-        hp=10000, #300
+        hp=300, #300
         mp=50,
         strength=15,
         dexterity=15,
         agility=15,
         intelligence=15,
         constitution=15,
-        charm=45,
+        charm=15,
         difficulty=0,
         base_melee=10,
         additional_melee=10,
@@ -110,7 +110,7 @@ player = Actor(
         hearing=15,
         ),
     actor_state=ActorState(
-        hunger=1200,
+        hunger=3600,
         heal_wounds=True,
         size=4,
         can_talk=True,

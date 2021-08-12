@@ -48,8 +48,8 @@ class Biome:
         rarity: int = 1,
         biome_color: Tuple = color.black,
         max_rooms: int = 100,
-        map_width: int = 70, # min 70
-        map_height: int = 45, # min 45
+        map_width: int = 67, # min 67
+        map_height: int = 41, # min 41
         respawn_ratio: float = 0.4,
         respawn_time: float = 50,
         generate_descending_stair: bool = True,

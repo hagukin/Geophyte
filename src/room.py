@@ -136,7 +136,7 @@ class Room:
         OR if the room is out of map bound."""
 
         # Collided with map border
-        if self.x2 > self.parent.tiles.shape[0] - 4 or self.y2 > self.parent.tiles.shape[0] - 4\
+        if self.x2 > self.parent.tiles.shape[0] - 4 or self.y2 > self.parent.tiles.shape[1] - 4\
             or self.x1 < 4 or self.y1 < 4:
             return True
 

@@ -92,11 +92,26 @@ class EventHandler(tcod.event.EventDispatch[Action]):
         """
         self.help_msg = "" # message that will show up when user calls the handler.
         self.help_msg_color = color.help_msg
-        self.item_cancel_callback = item_cancel_callback        
+        self.item_cancel_callback = item_cancel_callback
+        self.cursor_loc = (0,0)
 
     @property
     def engine(self):
         return Game.engine
+
+    @property
+    def cursor_dir(self):
+        mx, my = self.engine.camera.rel_to_abs(*self.cursor_loc)
+        dx, dy = mx - self.engine.player.x, my - self.engine.player.y
+        if dx == 0:
+            dir_x = 0
+        else:
+            dir_x = int(dx / abs(dx))
+        if dy == 0:
+            dir_y = 0
+        else:
+            dir_y = int(dy / abs(dy))
+        return dir_x, dir_y
 
     def handle_events(self, event: tcod.event.Event) -> Optional[bool]:
         return self.handle_action(self.dispatch(event))
@@ -123,21 +138,9 @@ class EventHandler(tcod.event.EventDispatch[Action]):
             return False
         return True
 
-    def get_mouse_dir(self) -> None:
-        dx = self.engine.mouse_location[0] - self.engine.player.x 
-        dy = self.engine.mouse_location[1] - self.engine.player.y
-        if dx == 0: dir_x = 0
-        else: dir_x = int(dx / abs(dx))
-        if dy == 0: dir_y = 0
-        else: dir_y = int(dy / abs(dy))
-
-        self.engine.mouse_dir = dir_x, dir_y
-
     def ev_mousemotion(self, event: tcod.event.MouseMotion) -> None:
-        temp_x, temp_y = self.engine.camera.rel_to_abs(rel_x=event.tile.x, rel_y=event.tile.y)
-        if self.engine.camera.in_bounds(temp_x, temp_y):
-            self.engine.mouse_location = temp_x, temp_y
-            self.get_mouse_dir()
+        # Refresh
+        self.cursor_loc = self.engine.mouse_location
 
     def ev_mousebuttondown(self, event: tcod.event.MouseButtonDown) -> None:
         """By default any mouse click exits the event handler."""
@@ -362,7 +365,7 @@ class AbilityEventHandler(AskUserEventHandler):
             return super().ev_keydown(event)
 
         # Check modifier
-        if event.mod & tcod.event.K_LSHIFT:
+        if event.mod & (tcod.event.K_LSHIFT or tcod.event.K_RSHIFT):
             alphabet = {
                 tcod.event.K_a:"A",tcod.event.K_b:"B",tcod.event.K_c:"C",tcod.event.K_d:"D",tcod.event.K_e:"E",tcod.event.K_f:"F",tcod.event.K_g:"G",tcod.event.K_h:"H",tcod.event.K_i:"I",tcod.event.K_j:"J",tcod.event.K_k:"K",tcod.event.K_l:"L",tcod.event.K_m:"M",tcod.event.K_n:"N",tcod.event.K_o:"O",tcod.event.K_p:"P",tcod.event.K_q:"Q",tcod.event.K_r:"R",tcod.event.K_s:"S",tcod.event.K_t:"T",tcod.event.K_u:"U",tcod.event.K_v:"V",tcod.event.K_w:"W",tcod.event.K_x:"X",tcod.event.K_y:"Y",tcod.event.K_z:"Z",
             }
@@ -788,7 +791,7 @@ class StorageSelectSingleEventHandler(StorageSelectEventHandler):
             return self.choice_confirmed()
 
         # Check modifier
-        if event.mod & tcod.event.K_LSHIFT:
+        if event.mod & (tcod.event.K_LSHIFT or tcod.event.K_RSHIFT):
             alphabet = {
                 tcod.event.K_a:"A",tcod.event.K_b:"B",tcod.event.K_c:"C",tcod.event.K_d:"D",tcod.event.K_e:"E",tcod.event.K_f:"F",tcod.event.K_g:"G",tcod.event.K_h:"H",tcod.event.K_i:"I",tcod.event.K_j:"J",tcod.event.K_k:"K",tcod.event.K_l:"L",tcod.event.K_m:"M",tcod.event.K_n:"N",tcod.event.K_o:"O",tcod.event.K_p:"P",tcod.event.K_q:"Q",tcod.event.K_r:"R",tcod.event.K_s:"S",tcod.event.K_t:"T",tcod.event.K_u:"U",tcod.event.K_v:"V",tcod.event.K_w:"W",tcod.event.K_x:"X",tcod.event.K_y:"Y",tcod.event.K_z:"Z",
             }
@@ -1169,7 +1172,7 @@ class StorageSelectMultipleEventHandler(StorageSelectEventHandler):
             return self.choice_confirmed()
 
         # Check modifier
-        if event.mod & tcod.event.K_LSHIFT:
+        if event.mod & (tcod.event.K_LSHIFT or tcod.event.K_RSHIFT):
             alphabet = {
                 tcod.event.K_a:"A",tcod.event.K_b:"B",tcod.event.K_c:"C",tcod.event.K_d:"D",tcod.event.K_e:"E",tcod.event.K_f:"F",tcod.event.K_g:"G",tcod.event.K_h:"H",tcod.event.K_i:"I",tcod.event.K_j:"J",tcod.event.K_k:"K",tcod.event.K_l:"L",tcod.event.K_m:"M",tcod.event.K_n:"N",tcod.event.K_o:"O",tcod.event.K_p:"P",tcod.event.K_q:"Q",tcod.event.K_r:"R",tcod.event.K_s:"S",tcod.event.K_t:"T",tcod.event.K_u:"U",tcod.event.K_v:"V",tcod.event.K_w:"W",tcod.event.K_x:"X",tcod.event.K_y:"Y",tcod.event.K_z:"Z",
             }
@@ -1267,7 +1270,7 @@ class NonHostileBumpHandler(AskUserEventHandler):
             console.print(x + x_space + 1, y + y_space + y_pad, "(u) - 문의 잠금을 해제한다", fg=color.white)
             y_pad += 2
         if self.target.check_if_bump_action_possible(self.engine.player, "break"):
-            console.print(x + x_space + 1, y + y_space + y_pad, "(b) - 문의 힘으로 개방한다", fg=color.white)
+            console.print(x + x_space + 1, y + y_space + y_pad, "(b) - 문을 힘으로 개방한다", fg=color.white)
             y_pad += 2
         if self.target.check_if_bump_action_possible(self.engine.player, "takeout"):
             console.print(x + x_space + 1, y + y_space + y_pad, "(t) - 무언가를 꺼낸다", fg=color.white)
@@ -1407,6 +1410,7 @@ class InventoryDropHandler(StorageSelectMultipleEventHandler):
 
         return self.on_exit()
 
+
 class SelectIndexHandler(AskUserEventHandler):
     """Handles asking the user for an index on the map."""
     def __init__(self, item_cancel_callback: Callable = None):
@@ -1414,14 +1418,18 @@ class SelectIndexHandler(AskUserEventHandler):
         super().__init__(item_cancel_callback)
         self.help_msg += "CTRL키를 누른 채로 카메라를 조작할 수 있습니다."
         player = self.engine.player
-        self.engine.mouse_location = player.x, player.y
+        self.cursor_loc = self.engine.camera.abs_to_rel(player.x, player.y) # use player coordinates instead of 0,0
 
     def on_render(self, console: tcod.Console) -> None:
         """Highlight the tile under the cursor."""
         super().on_render(console)
-        x, y = self.engine.mouse_relative_location
+        x, y = self.cursor_loc
         console.tiles_rgb["bg"][x, y] = color.white
         console.tiles_rgb["fg"][x, y] = color.black
+
+    def ev_mousemotion(self, event: tcod.event.MouseMotion) -> None:
+        # Refresh
+        self.cursor_loc = self.engine.clamp_mouse_on_map_rel(*self.engine.mouse_location)
 
     def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[Action]:
         """Check for key movement or confirmation keys.
@@ -1433,28 +1441,30 @@ class SelectIndexHandler(AskUserEventHandler):
             # Press down ctrl to move camera
             if event.mod & (tcod.event.KMOD_LCTRL | tcod.event.KMOD_RCTRL):
                 self.engine.camera.move(dx, dy)
-                self.engine.mouse_location = self.engine.clamp_mouse_on_map(*self.engine.mouse_location)
+                self.cursor_loc = self.engine.clamp_mouse_on_map_rel(*self.cursor_loc)
                 return None
 
-            x, y = self.engine.mouse_location
+            x, y = self.cursor_loc
             x += dx
             y += dy
-            self.engine.mouse_location = self.engine.clamp_mouse_on_map(x,y)
-            self.get_mouse_dir()
+            self.cursor_loc = self.engine.clamp_mouse_on_map_rel(x, y)
 
             return None
         elif key in CONFIRM_KEYS:
-            return self.on_index_selected(*self.engine.mouse_location)
+            abs_cursor_loc = self.engine.camera.rel_to_abs(*self.cursor_loc)
+            return self.on_index_selected(*abs_cursor_loc)
         return super().ev_keydown(event)
 
     def ev_mousebuttondown(self, event: tcod.event.MouseButtonDown) -> Optional[Action]:
         """Left click confirms a selection."""
-        if self.engine.camera.in_bounds(*self.engine.camera.rel_to_abs(rel_x=event.tile.x, rel_y=event.tile.y)):# Only accepts the input if mouse is in gamemap boundaries
+        abs_cursor_loc = self.engine.camera.rel_to_abs(*self.cursor_loc)
+        if self.engine.camera.in_bounds(*abs_cursor_loc):# Only accepts the input if mouse is in gamemap boundaries
             if event.button == tcod.event.BUTTON_LEFT:
-                return self.on_index_selected(*self.engine.camera.rel_to_abs(rel_x=event.tile.x, rel_y=event.tile.y))
+                return self.on_index_selected(*abs_cursor_loc)
         else:
+            self.engine.message_log.add_message("맵 안의 영역을 클릭하세요.", fg=color.yellow)
             if self.item_cancel_callback != None:
-                return self.item_cancel_callback()
+                return self.item_cancel_callback(0)
         return super().ev_mousebuttondown(event)
 
     def on_index_selected(self, x: int, y: int) -> Optional[Action]:
@@ -1508,45 +1518,6 @@ class SelectDirectionHandler(SelectIndexHandler):
     def __init__(self, item_cancel_callback: Callable = None):
         """Sets the cursor to the player when this handler is constructed."""
         super().__init__(item_cancel_callback)
-        player = self.engine.player
-        self.engine.mouse_location = player.x, player.y
-
-    def on_render(self, console: tcod.Console) -> None:
-        """Highlight the tile under the cursor."""
-        super().on_render(console)
-        x, y = self.engine.mouse_relative_location
-        console.tiles_rgb["bg"][x, y] = color.white
-        console.tiles_rgb["fg"][x, y] = color.black
-
-    def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[Action]:
-        """Check for key movement or confirmation keys."""
-        key = event.sym
-        if key in MOVE_KEYS:
-            dx, dy = MOVE_KEYS[key]
-
-            # Press down ctrl to move camera
-            if event.mod & (tcod.event.KMOD_LCTRL | tcod.event.KMOD_RCTRL):
-                self.engine.camera.move(dx, dy)
-                self.engine.mouse_location = self.engine.clamp_mouse_on_map(*self.engine.mouse_location)
-                return None
-
-            x = self.engine.player.x
-            y = self.engine.player.y
-            x += dx
-            y += dy
-            self.engine.mouse_location = self.engine.clamp_mouse_on_map(x,y)
-            self.get_mouse_dir()
-            return None
-        elif key in CONFIRM_KEYS:
-            return self.on_index_selected(*self.engine.mouse_location)
-        return super().ev_keydown(event)
-
-    def ev_mousebuttondown(self, event: tcod.event.MouseButtonDown) -> Optional[Action]:
-        """Left click confirms a selection."""
-        if self.engine.camera.in_bounds(*self.engine.camera.rel_to_abs(rel_x=event.tile.x, rel_y=event.tile.y)):
-            if event.button == tcod.event.BUTTON_LEFT:
-                return self.on_index_selected(*self.engine.camera.rel_to_abs(rel_x=event.tile.x, rel_y=event.tile.y))
-        return super().ev_mousebuttondown(event)
 
     def on_index_selected(self, x: int, y: int) -> Optional[Action]:
         """Called when an index is selected."""
@@ -1580,7 +1551,7 @@ class AreaRangedAttackHandler(SelectIndexHandler):
         super().on_render(console)
 
         # Use relative coordinates for rendering
-        x, y = self.engine.mouse_relative_location
+        x, y = self.cursor_loc
 
         # Draw a rectangle around the targeted area, so the player can see the affected tiles.
         console.draw_rect(
@@ -1614,7 +1585,7 @@ class RayRangedInputHandler(SelectDirectionHandler):
     def on_render(self, console: tcod.Console) -> None:
         """Highlight the tile under the cursor."""
         super().on_render(console)
-        dx, dy = self.engine.mouse_dir
+        dx, dy = self.cursor_dir
         dest_x, dest_y = self.actor.x + dx, self.actor.y + dy
         path = []
 
@@ -1677,7 +1648,7 @@ class RayDirInputHandler(SelectDirectionHandler):
         """Highlight the tile under the cursor."""
         super().on_render(console)
 
-        dx, dy = self.engine.mouse_dir
+        dx, dy = self.cursor_dir
         dest_x, dest_y = self.actor.x + dx, self.actor.y + dy
         path = []
 
@@ -1779,7 +1750,7 @@ class MainGameEventHandler(EventHandler):
         key = event.sym
         player = self.engine.player
 
-        if event.mod & tcod.event.K_LSHIFT: # Check Shift Modifier
+        if event.mod & (tcod.event.K_LSHIFT or tcod.event.K_RSHIFT): # Check Shift Modifier
             if key == tcod.event.K_PERIOD:
                 action = DescendAction(player)
             elif key == tcod.event.K_COMMA:

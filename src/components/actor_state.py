@@ -265,22 +265,12 @@ class ActorState(BaseComponent):
             hunger hm*12 ~ hm*15 = satiated
             hunger hm*15 ~ hm*50 = overeaten
             hunger hm*50 ~ = death from food choking
-        
-        ex. Human(hunger_measure 100):
-            hunger 0 = Starved to death
-            hunger 1 ~ 100 = fainting
-            hunger 100 ~ 200 = starving
-            hunger 200 ~ 400 = hungry
-            hunger 400 ~ 1200 = normal
-            hunger 1200 ~ 1500 = satiated
-            hunger 1500 ~ 5000 = overeaten
-            hunger 5000 or higher = death from food choking
         """
         if self.hunger < 0:
             # Never gets hungry
             return ""
 
-        hunger_measure = int(25 * self.size)
+        hunger_measure = int(75 * self.size)
 
         if self.hunger == 0:
             return "starved to death"

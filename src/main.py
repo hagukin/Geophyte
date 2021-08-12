@@ -41,7 +41,11 @@ def main() -> None:
         while True:
             try:
                 if engine.player_path or engine.player_dir:
+                    cx, cy = engine.player.x, engine.player.y
                     turn_pass = engine.do_player_queue_actions()
+                    if cx == engine.player.x and cy == engine.player.y:
+                        engine.player_path.clear()
+                    engine.player_dir = None
                     engine.handle_world(turn_pass=turn_pass)
 
                     # Render game
@@ -51,6 +55,8 @@ def main() -> None:
                 else:
                     for event in tcod.event.wait(timeout=None):# set to None = wait indefinitly for any events
                         context.convert_event(event)
+                        if event.type[:5] == "MOUSE":
+                            engine.set_mouse_pos(event.tile.x, event.tile.y)
                         turn_pass = engine.event_handler.handle_events(event)# returns True if player does any action that costs a in-game turn
                         engine.handle_world(turn_pass=turn_pass)
 

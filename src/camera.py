@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import List, Optional, Tuple
 
 import tiles
 import numpy as np
@@ -178,36 +178,22 @@ class Camera:
             util.draw_thick_frame(console, x=self.display_x-1, y=self.display_y-1, width=self.width+2, height=self.height+2, fg=color.camera_frame_fg, bg=color.camera_frame_bg)
             #console.draw_frame(x=self.display_x-1, y=self.display_y-1, width=self.width+2, height=self.height+2, clear=False, fg=color.camera_frame_fg, bg=color.camera_frame_bg)
 
-    def abs_to_rel(self, *, abs_x: int=None, abs_y: int=None) -> int:
+    def abs_to_rel(self, abs_x: int, abs_y: int) -> Tuple[int,int]:
         """
         Changes absolute coordinates into relative coordinates.
         Input : x coordinates on the map
         Output : x coordinates on camera
         """
-        if abs_x != None and abs_y != None:
-            rel_x = abs_x - self.xpos + self.display_x
-            rel_y = abs_y - self.ypos + self.display_y
-            return rel_x, rel_y
-        elif abs_x != None:
-            rel_x = abs_x - self.xpos + self.display_x
-            return rel_x
-        elif abs_y != None:
-            rel_y = abs_y - self.ypos + self.display_y
-            return rel_y
+        rel_x = abs_x - self.xpos + self.display_x
+        rel_y = abs_y - self.ypos + self.display_y
+        return rel_x, rel_y
 
-    def rel_to_abs(self, *, rel_x: int=None, rel_y: int=None) -> int:
+    def rel_to_abs(self, rel_x: int, rel_y: int) -> Tuple[int,int]:
         """
         Changes relative coordinates into absolute coordinates.
         Input : x coordinates on camera
         Output : x coordinates on the map
         """
-        if rel_x != None and rel_y != None:
-            abs_x = rel_x + self.xpos - self.display_x
-            abs_y = rel_y + self.ypos - self.display_y
-            return abs_x, abs_y
-        elif rel_x != None:
-            abs_x = rel_x + self.xpos - self.display_x
-            return abs_x
-        elif rel_y != None:
-            abs_y = rel_y + self.ypos - self.display_y
-            return abs_y
+        abs_x = rel_x + self.xpos - self.display_x
+        abs_y = rel_y + self.ypos - self.display_y
+        return abs_x, abs_y

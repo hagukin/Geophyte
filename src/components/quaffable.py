@@ -56,17 +56,21 @@ class PotionOfHealingQuaffable(Quaffable):
         if amount_recovered > 0:
             if apply_to == self.engine.player:
                 self.engine.message_log.add_message(f"당신의 몸에 에너지가 넘친다!",color.health_recovered,)
+                self.engine.message_log.add_message(f"당신은 {amount_recovered}만큼의 체력을 회복했다.", color.white, )
             else:
                 if self.engine.game_map.visible[apply_to.x, apply_to.y]:
                     self.engine.message_log.add_message(f"{apply_to.name}의 상처가 낫기 시작한다!", color.white, target=apply_to)
         else:# Gain additional health when quaffed while full-health
-            if apply_to == self.engine.player:
-                self.engine.message_log.add_message(f"당신의 몸에 에너지가 넘친다!",color.health_recovered,)
-
-            amount = max(1, round(self.amount / 10))#TODO balance
+            amount = max(1, round(self.amount / 10))  # TODO balance
             apply_to.status.max_hp += amount
             apply_to.status.heal(amount=amount)
 
+            if apply_to == self.engine.player:
+                self.engine.message_log.add_message(f"당신의 몸에 에너지가 넘친다!",color.health_recovered,)
+            if apply_to == self.engine.player:
+                self.engine.message_log.add_message(f"당신의 최대 체력이 {amount}만큼 증가했다.", color.white, )
+
+            
 
 class PotionOfParalysisQuaffable(Quaffable):
     def __init__(self, turn: int):

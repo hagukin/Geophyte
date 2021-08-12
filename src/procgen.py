@@ -76,12 +76,11 @@ def choose_monster_difficulty(depth: int, toughness: int=0) -> int:
     TODO: Make this function affected by the player's status?
     NOTE: This whole function may need some minor adjustments
     """
-    avg_diff = depth + toughness + 1
-    min_diff = max(1, avg_diff - 3)
+    avg_diff = depth + toughness
     max_diff = avg_diff + 3
-        
+
     # Choose the monster difficulty (Using normal distribution; but there are limits to maximum and minimum values)
-    difficulty_chosen = min(max_diff, max(min_diff, round(np.random.normal(avg_diff, 2, 1)[0])))
+    difficulty_chosen = min(max_diff, max(1, round(np.random.normal(avg_diff, 1.5, 1)[0])))
 
     return difficulty_chosen
 
@@ -268,6 +267,7 @@ def remove_awkward_entities(
                 semiactor.remove_self()
                 print(f"DEBUG::Removed awkwardly placed semiactor {semiactor.entity_id}.")
 
+
 def generate_earth(
     dungeon: GameMap,
     map_width: int,
@@ -380,10 +380,13 @@ def spawn_doors(
             room.room_protectmap[door_pos] = True
         dungeon.tiles[door_pos] = dungeon.tileset["t_floor"]()
 
-        if random.random() <= room.terrain.locked_door_chance:
-            semiactor_factories.locked_door.spawn(gamemap=dungeon, x=door_pos[0], y=door_pos[1], lifetime=-1)
+        if dungeon.get_semiactor_at_location(x=door_pos[0], y=door_pos[1], semiactor_id="door") == None:
+            if random.random() <= room.terrain.locked_door_chance:
+                semiactor_factories.locked_door.spawn(gamemap=dungeon, x=door_pos[0], y=door_pos[1], lifetime=-1)
+            else:
+                semiactor_factories.closed_door.spawn(gamemap=dungeon, x=door_pos[0], y=door_pos[1], lifetime=-1)
         else:
-            semiactor_factories.closed_door.spawn(gamemap=dungeon, x=door_pos[0], y=door_pos[1], lifetime=-1)
+            print(f"WARNING::Door already exists on {door_pos}. Cancelled Spawning.")
 
 def generate_rooms(
     dungeon: GameMap,

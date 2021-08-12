@@ -16,7 +16,7 @@
     "ignore_enemy_spotted_during_mouse_movement": true,
     "tileset_path": "resources\\tileset.ttf",
     "world_depth": 25,
-    "monster_activation_distance": 30,
+    "monster_activation_distance": 10,
     "lang": "ko",
     "autosave": true
 }
