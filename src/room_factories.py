@@ -292,7 +292,7 @@ class BlobRoom(Room):
                  terrain: Terrain,
                  area_min_density: float,
                  area_max_density: float,
-                 rotate_chance: float = 0.5,
+                 random_rotate: bool = True,
                  max_fill_gap_size: int = 99):
         """
         Vars:
@@ -302,12 +302,12 @@ class BlobRoom(Room):
         """
         from blob import generate_blob_of_size
         self.grid = np.full((width, height), fill_value=0, order="F")
-        tmp = generate_blob_of_size(width-2, height-2, area_min_density=area_min_density, area_max_density=area_max_density, int_grid=True, max_fill_gap_size=3) #ignore walls
+        tmp = generate_blob_of_size(width-2, height-2, area_min_density=area_min_density, area_max_density=area_max_density, int_grid=True, max_fill_gap_size=max_fill_gap_size) #ignore walls
         tmp = tmp.grid
         self.grid[1:1+tmp.shape[0], 1:1+tmp.shape[1]] = tmp
         surround_grid_value_with(self.grid, search_for=1, surround_with=2) # 2 - outer wall
 
-        if random.random() <= rotate_chance:
+        if random_rotate:
             self.width = height
             self.height = width
             self.grid = np.rot90(self.grid,k=random.randint(1,4))

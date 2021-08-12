@@ -81,7 +81,7 @@ class Title():
 
         # Copyright Note, version mark
         console.print(width - 32, height - 4, string="Copyright (C) 2020 by Haguk Kim", fg=color.white)
-        console.print(width - 24, height - 2, string="Geophyte Pre-Alpha v1.0", fg=color.white)
+        console.print(width - 20, height - 2, string="Geophyte Alpha v1.0", fg=color.white)
 
     @staticmethod
     def get_title_action(sec_per_frame):

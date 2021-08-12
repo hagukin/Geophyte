@@ -102,7 +102,7 @@ class Blob:
                             self.grid[nx][ny] = False
                             q.append((nx, ny))
 
-    def blobify(self, min_chunk_mass=None, max_chunk_mass=None) -> bool:
+    def blobify(self, min_chunk_mass=None, max_chunk_mass=None, randomize_bfs_dir: bool=True) -> bool:
         """Make current noise map into one big blob so that every node is connected.
         NOTE: 'Connected' means either one of the 4 sides of the node is connected to other living node.
         NOTE: There can be several different blobs in self.grid after running blobify(). So you must run remove_non_chunks() afterwards.
@@ -123,7 +123,18 @@ class Blob:
                     curr = q.popleft()
                     if curr == None:
                         break
-                    for dxdy in ((1, 0), (0, 1), (-1, 0), (0, -1)):
+
+                    if randomize_bfs_dir:
+                        dir = random.choice([
+                            ((1, 0), (0, 1), (-1, 0), (0, -1)),
+                            ((0, -1), (1, 0), (0, 1), (-1, 0)),
+                            ((0, -1), (1, 0), (0, 1), (-1, 0)),
+                            ((0, -1), (1, 0), (0, 1), (-1, 0))
+                        ])
+                    else:
+                        dir = ((1, 0), (0, 1), (-1, 0), (0, -1))
+
+                    for dxdy in dir:
                         nx = curr[0] + dxdy[0]
                         ny = curr[1] + dxdy[1]
                         if nx >= 0 and nx < self.grid_width \
@@ -295,16 +306,12 @@ def debug(grid: np.ndarray):
                 print(".", end="")
         print(end="\n")
 
-#
+
 # import time
 # t = time.time()
 # for _ in range(1):
 #     print("==============BEGIN=========================")
-#     y = generate_blob_of_size(width=10, height=10, area_min_density=0.3, area_max_density=0.5)
-#     y.gooify(5)
-#     debug(y.blob)
-#     print("^Size")
-#     x = generate_blob_of_mass(min_chunk_mass=100, max_chunk_mass=100, noise_density=0.5)
+#     x = generate_blob_of_mass(min_chunk_mass=250, max_chunk_mass=250, max_fill_gap_size=3)
 #     x.gooify(5)
 #     debug(x.blob)
 #     print("^Mass")
