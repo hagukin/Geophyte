@@ -476,6 +476,7 @@ class Actor(Entity):
             from components.experience import Experience
             self.status.experience = Experience()
             self.status.experience.parent = self.status
+            self.status.experience.init_experience()
 
         self.inventory = inventory
         self.inventory.parent = self

@@ -119,7 +119,8 @@ class ScrollOfTameReadable(SelectTileReadable):
                 self.engine.message_log.add_message(f"{g(consumer.name, '은')} 자신감이 넘쳐 보인다.", color.gray, target=consumer)
             
             # Apply
-            target.status.gain_constitution(1)
+            if consumer.status.experience:
+                consumer.status.experience.gain_charm_exp(200)
         else:
             # Try taming
             if target.ai.try_tame(consumer, 3): #TODO FIXME: Adjust tame power
@@ -132,6 +133,9 @@ class ScrollOfTameReadable(SelectTileReadable):
                         self.engine.message_log.add_message(f"{g(target.name, '이')} 당신에 대한 신뢰를 보였다.", color.status_effect_applied, target=target)
                 else:
                     self.engine.message_log.add_message(f"{g(target.name, '은')} 이제 {g(consumer.name, '을')} 주인으로 섬긴다!", color.white, target=target)
+
+                if consumer.status.experience:
+                    consumer.status.experience.gain_charm_exp(100, exp_limit=1000)
             else:
                 if consumer == self.engine.player:
                     self.engine.message_log.add_message(f"{g(target.name, '은')} 당신의 정신적 지배에 저항했다!", color.player_damaged, target=target)
@@ -223,6 +227,9 @@ class ScrollOfIdentifyReadable(SelectItemFromInventoryReadable):
     def effects_on_selected_item(self, consumer: Actor, selected_item: Item):
         selected_item.item_state.identify_self(2)
 
+        if consumer.status.experience:
+            consumer.status.experience.gain_intelligence_exp(20, exp_limit=2000)
+
         # Log TODO
         #TODO: identify multiple when blessed?
         #NOTE: Currently self-identification is possible
@@ -254,6 +261,9 @@ class ScrollOfRemoveCurseReadable(SelectItemFromInventoryReadable):
         else:
             self.engine.message_log.add_message(f"백색 빛이 {consumer.name}의 {g(selected_item.name, '을')} 감쌌다.", color.status_effect_applied, target=consumer)
         #NOTE: Currently self-uncursing is possible
+
+        if consumer.status.experience:
+            consumer.status.experience.gain_charm_exp(40)
 
 
 class ScrollOfMagicMappingReadable(Readable): #TODO: make parent class like other readables

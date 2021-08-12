@@ -131,6 +131,19 @@ def sign(num: int):
         return f"+{num}"
 
 
+def get_stats_string_and_fg(changed_stat: int, origin_stat: int, change_fg: bool=True) -> Tuple[str, Tuple[int,int,int]]:
+    string = f"{changed_stat}"
+    fg = color.light_gray
+    diff = changed_stat - origin_stat
+    if diff != 0:
+        string += f"({origin_stat}{(changed_stat - origin_stat):+d})"
+        if change_fg:
+            if diff < 0:
+                fg = color.player_damaged
+            else:
+                fg = color.health_recovered
+    return string, fg
+
 def render_character_status(
     console: Console, x: int, y: int, width: int, height: int, character: Actor, draw_frame:bool = True,
 ) -> None:
@@ -157,15 +170,22 @@ def render_character_status(
     )
 
     stat = character.status.changed_status
+    origin = character.status.origin_status
     y_span = 5
 
     # Status
-    console.print(x=x, y=y+y_span, string=f"힘: {stat['strength']}", fg=color.light_gray)
-    console.print(x=x+13, y=y+y_span, string=f"재주: {stat['dexterity']}", fg=color.light_gray)
-    console.print(x=x, y=y+y_span+1, string=f"활력: {stat['constitution']}", fg=color.light_gray)
-    console.print(x=x+13, y=y+y_span+1, string=f"민첩: {stat['agility']}", fg=color.light_gray)
-    console.print(x=x, y=y+y_span+2, string=f"지능: {stat['intelligence']}", fg=color.light_gray)
-    console.print(x=x+13, y=y+y_span+2, string=f"매력: {stat['charm']}", fg=color.light_gray)
+    str, fg = get_stats_string_and_fg(stat["strength"], origin["strength"])
+    console.print(x=x, y=y+y_span, string="힘: "+str, fg=fg)
+    str, fg = get_stats_string_and_fg(stat["dexterity"], origin["dexterity"])
+    console.print(x=x+13, y=y+y_span, string="재주: "+str, fg=fg)
+    str, fg = get_stats_string_and_fg(stat["constitution"], origin["constitution"])
+    console.print(x=x, y=y+y_span+1, string="활력: "+str, fg=fg)
+    str, fg = get_stats_string_and_fg(stat["agility"], origin["agility"])
+    console.print(x=x+13, y=y+y_span+1, string="민첩: "+str, fg=fg)
+    str, fg = get_stats_string_and_fg(stat["intelligence"], origin["intelligence"])
+    console.print(x=x, y=y+y_span+2, string="지능: "+str, fg=fg)
+    str, fg = get_stats_string_and_fg(stat["charm"], origin["charm"])
+    console.print(x=x+13, y=y+y_span+2, string="매력: "+str, fg=fg)
 
     # Armor
     console.print(x=x, y=y+y_span+4, string=f"보호도: {stat['protection']}", fg=color.white)

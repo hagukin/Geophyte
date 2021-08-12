@@ -70,6 +70,9 @@ class PotionOfHealingQuaffable(Quaffable):
             if apply_to == self.engine.player:
                 self.engine.message_log.add_message(f"당신의 최대 체력이 {amount}만큼 증가했다.", color.white, )
 
+        if apply_to.status.experience:
+            apply_to.status.experience.gain_constitution_exp(60, 17)
+
             
 
 class PotionOfParalysisQuaffable(Quaffable):
@@ -109,6 +112,9 @@ class PotionOfMonsterDetectionQuaffable(Quaffable):
         else:
             if self.engine.game_map.visible[apply_to.x, apply_to.y]:
                 self.engine.message_log.add_message(f"{g(apply_to.name, '는')} 무언가를 눈치챈 듯 하다.", color.white, target=apply_to)
+
+        if apply_to.status.experience:
+            apply_to.status.experience.gain_intelligence_exp(20, 17)
 
 
 class PotionOfFlameQuaffable(Quaffable):

@@ -1791,40 +1791,28 @@ class MainGameEventHandler(EventHandler):
                     )
             elif key == tcod.event.K_a:
                 self.engine.event_handler = AbilityActivateHandler()
-
+            elif key == tcod.event.K_b:
+                import book
+                self.engine.event_handler = book.MonsterBookIndexHandler()
+                return None
             elif key == tcod.event.K_F12:
                 time_str = time.strftime('%Y-%m-%d-%H-%M-%S', time.localtime(time.time()))
                 pic_name = time_str
                 #pic_name = self.engine.player.name + "-" + time_str # bugs occur when using certain unicode chars.
                 self.engine.context.save_screenshot(f"./screenshots/{pic_name}.png")
-                self.engine.message_log.add_message(f"Screenshot saved as {pic_name}.png", color.help_msg)
+                self.engine.message_log.add_message(f"스크린샷 저장됨. {pic_name}.png", color.help_msg)
+
+
             elif key == tcod.event.K_F11:#TODO DEBUG
                 from explosion_action import ExplodeAction
                 ExplodeAction(self.engine.player, False, True, radius=50, expl_dmg=3000, cause_fire=5).perform()
-            elif key == tcod.event.K_F10:#TODO DEBUG
-                for actor in self.engine.game_map.actors:
-                    if actor.ai:
-                        actor.ai.activate()
-            elif key == tcod.event.K_F9:#TODO DEBUG
-                self.engine.player.actor_state.is_poisoned = [1,1,0,3]
-                print("ACTIVATED ALL ACTORS IN THIS LEVEL")
-            elif key == tcod.event.K_F8:#TODO DEBUG
-                import actor_factories
-                x = actor_factories.dog.spawn(self.engine.game_map, self.engine.player.x + 1, self.engine.player.y)
-                x.ai.activate()
-                print("SPAWNED DOG")
             elif key == tcod.event.K_F7:#TODO DEBUG
-                self.engine.player.status.experience.gain_strength_exp(10000)
-                self.engine.player.status.experience.gain_dexterity_exp(10000)
-                self.engine.player.status.experience.gain_agility_exp(10000)
-                self.engine.player.status.experience.gain_constitution_exp(10000)
-                self.engine.player.status.experience.gain_intelligence_exp(10000)
-                self.engine.player.status.experience.gain_charm_exp(10000)
-            elif key == tcod.event.K_F2:
-                print("book")
-                import book
-                self.engine.event_handler = book.MonsterBookIndexHandler()
-                return None
+                self.engine.player.status.experience.gain_strength_exp(100)
+                self.engine.player.status.experience.gain_dexterity_exp(100)
+                self.engine.player.status.experience.gain_agility_exp(100)
+                self.engine.player.status.experience.gain_constitution_exp(100)
+                self.engine.player.status.experience.gain_intelligence_exp(100)
+                self.engine.player.status.experience.gain_charm_exp(100)
             elif key == tcod.event.K_F1:
                 print("You flied")
                 self.engine.player.actor_state.actor_fly()
