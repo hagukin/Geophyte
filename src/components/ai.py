@@ -801,5 +801,10 @@ class BaseAI(BaseComponent):
                 self.parent,
                 dx=bumped_entity.x - self.parent.x,
                 dy=bumped_entity.y - self.parent.y)
+        elif bumped_entity.entity_id[-11:] == "locked_door":
+            return actions.DoorUnlockAction(
+                self.parent,
+                dx=bumped_entity.x - self.parent.x,
+                dy=bumped_entity.y - self.parent.y)
         else:
             return actions.WaitAction(self.parent)

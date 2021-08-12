@@ -32,6 +32,12 @@ class Inventory(BaseComponent):
             tmp += i.weight * i.stack_count
         return tmp
 
+    def is_empty(self) -> bool:
+        for item in self.item_hotkeys.values():
+            if item != None:
+                return False
+        return True
+
     def update_burden(self):
         """Check current inventory weight and apply actor state.
         Must be called when either inventory or strength is updated.

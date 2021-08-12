@@ -30,6 +30,7 @@ class Terrain:
         can_have_stair: bool = True,
         door_num_range = (1,2,3,4),
         door_num_weight = (3,7,2,1),
+        locked_door_chance: float=0.05,
         gen_grass = None,
         gen_holes = None,
         gen_water = None,
@@ -141,6 +142,7 @@ class Terrain:
         self.can_have_stair = can_have_stair
         self.door_num_range = door_num_range
         self.door_num_weight = door_num_weight
+        self.locked_door_chance = locked_door_chance
 
         self.gen_grass = gen_grass
         self.gen_holes = gen_holes

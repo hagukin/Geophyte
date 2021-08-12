@@ -157,7 +157,7 @@ class Entity:
 
     def get_possible_bump_action_keywords(self, actor: Actor) -> List[str]:
         """Returns the amount of different bump actions this entity can do."""
-        allactions = ("move", "swap", "force_attack", "attack", "takeout", "putin", "open", "close", "unlock")
+        allactions = ("move", "swap", "force_attack", "attack", "takeout", "putin", "open", "close", "unlock", "break")
         tmp = []
         for action in allactions:
             if self.check_if_bump_action_possible(actor, action):
@@ -197,6 +197,8 @@ class Entity:
             return True
         elif keyword == "unlock" and self.entity_id[-11:] == "locked_door":#TODO Add lock
             return True
+        elif keyword == "break" and self.entity_id[-11:] == "locked_door":
+            return True
         return False
 
     def get_bumpaction(self, actor: Actor, keyword: str) -> Optional[Action]:
@@ -229,6 +231,8 @@ class Entity:
             return actions.DoorCloseAction(actor, dx, dy)
         elif keyword == "unlock":
             return actions.DoorUnlockAction(actor, dx, dy)
+        elif keyword == "break":
+            return actions.DoorBreakAction(actor, dx, dy)
         raise Exception(f"FATAL ERROR::Cannot find the given keyword {keyword}")
 
     def environmental_hole(self):

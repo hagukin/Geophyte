@@ -168,11 +168,19 @@ class GameMap:
 
         return None
 
-    def get_semiactor_at_location(self, x: int, y: int) -> Optional[SemiActor]:
+    def get_semiactor_at_location(self, x: int, y: int, semiactor_id: Optional[str]=None) -> Optional[SemiActor]:
+        """
+        Args:
+            semiactor_id:
+                you can pass part of the string such as 'door' to get only the semiactor with id ending with door.
+        """
         for semiactor in self.semiactors:
             if semiactor.x == x and semiactor.y == y:
-                return semiactor
-
+                if semiactor_id:
+                    if semiactor.entity_id[-len(semiactor_id):] == semiactor_id:
+                        return semiactor
+                else:
+                    return semiactor
         return None
 
     def get_semiactor_that_bump(self, x: int, y: int) -> Optional[SemiActor]:

@@ -831,7 +831,7 @@ class InventoryChooseItemAndCallbackHandler(StorageSelectSingleEventHandler):
             inventory_component: Inventory,
             callback: Callable,
             title: str = "인벤토리",
-            show_only_types: Tuple[InventoryOrder] =None,
+            show_only_types: Optional[Tuple[InventoryOrder,...]] =None,
             show_only_status: Tuple[str] = None,
             show_if_satisfy_both: bool = True,
             item_cancel_callback: Callable = None,
@@ -1203,64 +1203,6 @@ class StorageSelectMultipleEventHandler(StorageSelectEventHandler):
             self.selected_items.add(item)
 
 
-class LockedDoorEventHandler(AskUserEventHandler):
-    def __init__(self, door: SemiActor):
-        super().__init__()
-        self.door = door
-        self.TITLE = "문이 잠겨 있습니다. 무엇을 하시겠습니까?"
-
-    def on_render(self, console: tcod.Console) -> None:
-        """
-        Render an action selection menu, which displays the possible actions of the selected item.
-        """
-        super().on_render(console)
-
-        height = 7 #TODO hard-coded
-        if height <= 3:
-            height = 3
-
-        x = 0
-        y = 0
-        x_space = 5 # per side
-        y_space = 3
-        width = self.engine.config["screen_width"] - (x_space * 2)
-
-        # draw frame
-        console.draw_frame(
-            x=x + x_space,
-            y=y + y_space,
-            width=width,
-            height=height,
-            title=self.TITLE,
-            clear=True,
-            fg=color.gui_action_fg,
-            bg=color.gui_inventory_bg,
-        )
-
-        # Message log
-        console.print(x + x_space + 1, y + y_space + 2, "(u) - 잠금 해제", fg=color.white)
-        console.print(x + x_space + 1, y + y_space + 4, "(b) - 파괴", fg=color.white)
-        console.print(x + x_space + 1, y + y_space + 6, "ESC - 취소", fg=color.white)
-
-    def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[Action]:
-        key = event.sym
-
-        if key == tcod.event.K_u:
-            DoorUnlockAction(self.engine.player, self.door.x - self.engine.player.x, self.door.y - self.engine.player.y).perform()
-            return None
-        elif key == tcod.event.K_b:
-            DoorBreakAction(self.engine.player, self.door.x - self.engine.player.x, self.door.y - self.engine.player.y)\
-                .break_door(self.door, self.engine.player.status.changed_status["strength"])
-            return None
-        elif key == tcod.event.K_ESCAPE:
-            self.engine.event_handler = MainGameEventHandler()
-            return None
-        else:
-            self.engine.message_log.add_message("잘못된 입력입니다.", color.invalid)
-            self.engine.event_handler = MainGameEventHandler()
-            return None
-
-
 class NonHostileBumpHandler(AskUserEventHandler):
     def __init__(self, target: Entity):
         """
@@ -1324,6 +1266,9 @@ class NonHostileBumpHandler(AskUserEventHandler):
         if self.target.check_if_bump_action_possible(self.engine.player, "unlock"):
             console.print(x + x_space + 1, y + y_space + y_pad, "(u) - 문의 잠금을 해제한다", fg=color.white)
             y_pad += 2
+        if self.target.check_if_bump_action_possible(self.engine.player, "break"):
+            console.print(x + x_space + 1, y + y_space + y_pad, "(b) - 문의 힘으로 개방한다", fg=color.white)
+            y_pad += 2
         if self.target.check_if_bump_action_possible(self.engine.player, "takeout"):
             console.print(x + x_space + 1, y + y_space + y_pad, "(t) - 무언가를 꺼낸다", fg=color.white)
             y_pad += 2
@@ -1379,6 +1324,8 @@ class NonHostileBumpHandler(AskUserEventHandler):
             return self.target.get_bumpaction(self.engine.player, "close")
         elif key == tcod.event.K_u:
             return self.target.get_bumpaction(self.engine.player, "unlock")
+        elif key == tcod.event.K_b:
+            return self.target.get_bumpaction(self.engine.player, "break")
         elif key == tcod.event.K_ESCAPE:
             self.engine.event_handler = MainGameEventHandler()
             return None

@@ -380,8 +380,10 @@ def spawn_doors(
             room.room_protectmap[door_pos] = True
         dungeon.tiles[door_pos] = dungeon.tileset["t_floor"]()
 
-        semiactor_factories.closed_door.spawn(gamemap=dungeon, x=door_pos[0], y=door_pos[1], lifetime=-1)
-        # semiactor_factories.locked_door.spawn(gamemap=dungeon, x=door_loc[0], y=door_loc[1], lifetime=-1)
+        if random.random() <= room.terrain.locked_door_chance:
+            semiactor_factories.locked_door.spawn(gamemap=dungeon, x=door_pos[0], y=door_pos[1], lifetime=-1)
+        else:
+            semiactor_factories.closed_door.spawn(gamemap=dungeon, x=door_pos[0], y=door_pos[1], lifetime=-1)
 
 def generate_rooms(
     dungeon: GameMap,
