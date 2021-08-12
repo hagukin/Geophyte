@@ -62,7 +62,6 @@ class World():
 
         with shelve.open(os.getcwd()+f"\\saves\\worlds\\{self.engine.player.entity_id}") as save_file:
             gamemap = save_file["depth"+str(depth)]
-            gamemap.engine = self.engine
             self.mem_world[depth] = gamemap
             save_file.close()
         return self.mem_world[depth]

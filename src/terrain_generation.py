@@ -534,23 +534,5 @@ def generate_on_empty_convex(gamemap: GameMap, x:int, y:int) -> None:
     if random.random() <= 0.3: #TODO Add more
         from chest_factories import choose_random_chest
         grow_chest(gamemap=gamemap, x=x, y=y, chest_id=choose_random_chest(k=1)[0], initial_items=None)
-        gamemap.tiles[x, y] = gamemap.tileset["t_DEBUG"]()
+        # gamemap.tiles[x, y] = gamemap.tileset["t_DEBUG"]()
 
-
-def adjust_obstacles(gamemap: GameMap):
-    """
-    Delete Semiactors that are placed in the wrong/awkward locations.
-    """
-    for semiactor in gamemap.semiactors:
-        # Delete doors that are generated on water (both opened/closed)
-        if semiactor.entity_id[-4:] == "door" or semiactor.entity_id[-4:] == "trap" or semiactor.entity_id[-5:] == "chest":
-            if gamemap.tilemap[semiactor.x, semiactor.y] == TilemapOrder.WATER.value \
-                    or gamemap.tilemap[semiactor.x, semiactor.y] == TilemapOrder.WATER_CORE.value \
-                    or gamemap.tilemap[semiactor.x, semiactor.y] == TilemapOrder.HOLE.value \
-                    or gamemap.tilemap[semiactor.x, semiactor.y] == TilemapOrder.HOLE_CORE.value \
-                    or gamemap.tilemap[semiactor.x, semiactor.y] == TilemapOrder.PIT.value\
-                    or gamemap.tilemap[semiactor.x, semiactor.y] == TilemapOrder.PIT_CORE.value \
-                    or gamemap.tilemap[semiactor.x, semiactor.y] == TilemapOrder.ASCEND_STAIR.value \
-                    or gamemap.tilemap[semiactor.x, semiactor.y] == TilemapOrder.DESCEND_STAIR.value:
-                    semiactor.remove_self()
-                    print(f"DEBUG::Removed awkwardly placed semiactor {semiactor.entity_id}.")

@@ -246,15 +246,27 @@ def adjust_convex(
 
 
 def remove_awkward_entities(
-    dungeon: GameMap
+    gamemap: GameMap
 ) -> None:
-    check_spawn_err = dungeon.get_any_entity_at_location(location_x=0, location_y=0)
+    # Check 0,0
+    check_spawn_err = gamemap.get_any_entity_at_location(location_x=0, location_y=0)
     if check_spawn_err != None:
         print(f"WARNING::{check_spawn_err.name} spawned at (0,0)")
 
-    # Adjust map
-    terrain_generation.adjust_obstacles(gamemap=dungeon)
-
+    # Delete semiactors that are generated on water (both opened/closed)
+    for semiactor in gamemap.semiactors:
+        if semiactor.entity_id[-4:] == "door" or semiactor.entity_id[-4:] == "trap" or semiactor.entity_id[-5:] == "chest":
+            if gamemap.tilemap[semiactor.x, semiactor.y] == TilemapOrder.WATER.value \
+                    or gamemap.tilemap[semiactor.x, semiactor.y] == TilemapOrder.WATER_CORE.value \
+                    or gamemap.tilemap[semiactor.x, semiactor.y] == TilemapOrder.HOLE.value \
+                    or gamemap.tilemap[semiactor.x, semiactor.y] == TilemapOrder.HOLE_CORE.value \
+                    or gamemap.tilemap[semiactor.x, semiactor.y] == TilemapOrder.PIT.value \
+                    or gamemap.tilemap[semiactor.x, semiactor.y] == TilemapOrder.PIT_CORE.value \
+                    or gamemap.tilemap[semiactor.x, semiactor.y] == TilemapOrder.ASCEND_STAIR.value \
+                    or gamemap.tilemap[semiactor.x, semiactor.y] == TilemapOrder.DESCEND_STAIR.value\
+                    or gamemap.tilemap[semiactor.x, semiactor.y] == TilemapOrder.MAP_BORDER.value:
+                semiactor.remove_self()
+                print(f"DEBUG::Removed awkwardly placed semiactor {semiactor.entity_id}.")
 
 def generate_earth(
     dungeon: GameMap,
@@ -825,7 +837,7 @@ def generate_dungeon(
         rooms=rooms,
         )
     remove_awkward_entities(
-        dungeon=dungeon
+        gamemap=dungeon
     )
     if debugmode:
         print(f"Adjusting Tunnels - {time.time() - t}s")

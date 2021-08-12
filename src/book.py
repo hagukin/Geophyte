@@ -168,8 +168,8 @@ class MonsterInfoHandler(AskUserEventHandler):
             if self.page != None:
                 self.engine.event_handler = MonsterBookIndexHandler(page=self.page)
             else:
-                self.engine.event_handler = MainGameEventHandler()
-        return None
+                return self.on_exit()
+        return self.on_exit()
 
 
 class ItemInfoHandler(AskUserEventHandler):
@@ -216,8 +216,8 @@ class ItemInfoHandler(AskUserEventHandler):
     def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[Action]:
         """By default any key exits this input handler."""
         if event.sym == tcod.event.K_ESCAPE:
-            self.engine.event_handler = MainGameEventHandler()
-        return None
+            return self.on_exit()
+        return self.on_exit()
 
 
 class SemiActorInfoHandler(AskUserEventHandler):
@@ -264,5 +264,5 @@ class SemiActorInfoHandler(AskUserEventHandler):
     def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[Action]:
         """By default any key exits this input handler."""
         if event.sym == tcod.event.K_ESCAPE:
-            self.engine.event_handler = MainGameEventHandler()
-        return None
+            return self.on_exit()
+        return self.on_exit()
