@@ -50,10 +50,30 @@ class ItemManager:
             ("검정색",(10,10,10), None),
         ] # NOTE: Currently 24 colors available TODO: Multi lang support
         self.colors_for_scrolls = copy.copy(self.colors_for_potions)
+        self.colors_for_amulets = copy.copy(self.colors_for_potions)
 
-        # shuffle color
+        self.shapes_for_amulets = [
+            "오각형",
+            "사각형",
+            "별 모양",
+            "칠각형",
+            "팔각형",
+            "구형",
+            "원뿔형",
+            "피라미드 모양",
+            "눈송이 모양",
+            "십자가 모양",
+            "다이아몬드 모양",
+            "역삼각형",
+            "삼각형",
+            "반구형",
+            ]
+
+        # shuffle
         random.shuffle(self.colors_for_potions)
         random.shuffle(self.colors_for_scrolls)
+        random.shuffle(self.colors_for_amulets)
+        random.shuffle(self.shapes_for_amulets)
 
     @property
     def items_rarity(self) -> List:
@@ -109,6 +129,11 @@ class ItemManager:
         elif item.item_type == InventoryOrder.GEM:
             self.items_fake_info[item.entity_id]["name"] = "반짝거리는 돌맹이"
             self.items_fake_info[item.entity_id]["entity_desc"] = "투명하고 반짝거리는 돌맹이. 종류를 정확히 식별할 수 없다."
+        elif item.item_type == InventoryOrder.AMULET:
+            color_name, fg, bg = self.gen_randomized_color(item_type=InventoryOrder.AMULET)
+            shape = self.gen_randomized_shape(item_type=InventoryOrder.AMULET)
+            self.items_fake_info[item.entity_id]["name"] = f"{shape} 아뮬렛"
+            self.items_fake_info[item.entity_id]["entity_desc"] = f"{shape} 아뮬렛. 종류를 정확히 식별할 수 없다."
         else:
             print(f"ERROR::Cannot randomize {item.name} of {item.item_type} type.")
             return None
@@ -134,4 +159,9 @@ class ItemManager:
             return self.colors_for_potions.pop()
         elif item_type == InventoryOrder.SCROLL:
             return self.colors_for_scrolls.pop()
+        elif item_type == InventoryOrder.AMULET:
+            return self.colors_for_amulets.pop()
 
+    def gen_randomized_shape(self, item_type):
+        if item_type == InventoryOrder.AMULET:
+            return self.shapes_for_amulets.pop()

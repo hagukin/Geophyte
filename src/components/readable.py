@@ -231,7 +231,9 @@ class ScrollOfIdentifyReadable(SelectItemFromInventoryReadable):
         return None
     
     def effects_on_selected_item(self, consumer: Actor, selected_item: Item):
-        selected_item.item_state.identify_self(2)
+        if consumer == self.engine.player:
+            selected_item.item_state.identify_self(2)
+            self.engine.message_log.add_message(f"당신은 {g(selected_item.name, '을')} 감정했다.", color.player_success)
 
         if consumer.status.experience:
             consumer.status.experience.gain_intelligence_exp(20, exp_limit=2000)

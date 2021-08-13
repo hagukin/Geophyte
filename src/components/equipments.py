@@ -227,9 +227,16 @@ class Equipments(BaseComponent):
     def update_dual_wielding(self) -> None:
         """Update the boolean self.is_dual_wielding."""
         if self.equipments["main hand"] != None and self.equipments["off hand"] != None:
-            debuff_dex = (self.equipments["main hand"].weight + self.equipments["off hand"].weight) * 5
+            debuff_dex = max(1, round((self.equipments["main hand"].weight + self.equipments["off hand"].weight)*0.8) * max(1,30/self.parent.status.changed_status["dexterity"] + self.parent.status.changed_status["strength"]))
             if self.parent == self.engine.player:
                 self.engine.message_log.add_message(text=f"당신은 {g(self.equipments['main hand'].name, '와')} {g(self.equipments['off hand'].name, '을')} 쌍수로 장비했다.", fg=color.player_buff)
+
+            from order import EqiupableOrder
+            b1 = self.equipments["main hand"].equipable.equipable_type == EquipableOrder.SHIELD
+            b2 = self.equipments["main hand"].equipable.equipable_type == EqiupableOrder.SHIELD
+            if  (b1 or b2) and (not b1 or not b2):
+                debuff_dex = max(0, round(debuff_dex*0.8)) # Little advantage for shield dual wielding
+
             self.parent.status.add_bonus(Bonus(bonus_id="dual_wield", bonus_dexterity=-debuff_dex))
         else:
             self.parent.status.remove_bonus("dual_wield", ignore_warning=True)

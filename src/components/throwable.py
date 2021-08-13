@@ -14,7 +14,7 @@ import random
 
 class Throwable(BaseComponent):
 
-    def __init__(self, base_throw: int=0, additional_throw: int=0, penetration: bool=False, break_chance: float=0, air_friction: int=1, sec_per_frame:float=0.025, trigger_if_thrown_at: bool = False):
+    def __init__(self, base_throw: int=0, additional_throw: int=0, penetration: bool=False, break_chance: float=0, air_friction: float=1, sec_per_frame:float=0.025, trigger_if_thrown_at: bool = False):
         super().__init__(None)
         self.penetration = penetration
         self.break_chance = break_chance # 0~1

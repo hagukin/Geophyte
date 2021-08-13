@@ -661,6 +661,32 @@ item_rarity.append(silk_dress.rarity)
 ######################### MELEE WEAPONS #################################
 #########################################################################
 
+###### BLADES
+### Wooden Dagger
+wooden_dagger = Item(
+    char=")",
+    fg=(128, 84, 38),
+    name="나무 단검",
+    entity_id="wooden_dagger",
+    entity_desc="WoodenDagger desc",
+    rarity=8,
+    weight=0.14,
+    price=3,
+    item_type=InventoryOrder.MELEE_WEAPON,
+    item_state=ItemState(is_identified=1),
+    flammable=0.3,
+    corrodible=0.2,
+    spawnable=True,
+    droppable=True,
+    stackable=False,
+    throwable=throwable.NormalThrowable(base_throw=3, additional_throw=2, penetration=True, air_friction=1),
+    equipable=equipable.WoodenDaggerEquipable(),
+    lockpickable=(0.5,0.5),
+)
+temp_items_lists.append(wooden_dagger)
+item_rarity.append(wooden_dagger.rarity)
+
+
 ### Iron Dagger
 iron_dagger = Item(
     char=")",
@@ -668,7 +694,7 @@ iron_dagger = Item(
     name="철제 단검",
     entity_id="iron_dagger",
     entity_desc="Irondagger desc",
-    rarity=10,
+    rarity=9,
     weight=0.4,
     price=8,
     item_type=InventoryOrder.MELEE_WEAPON,
@@ -680,10 +706,36 @@ iron_dagger = Item(
     stackable=False,
     throwable=throwable.NormalThrowable(base_throw=6, additional_throw=3, penetration=True, air_friction=1),
     equipable=equipable.IronDaggerEquipable(),
-    lockpickable=(1,0.1),
+    lockpickable=(0.9,0.1),
 )
 temp_items_lists.append(iron_dagger)
 item_rarity.append(iron_dagger.rarity)
+
+
+### Scalpel
+scalpel = Item(
+    char=")",
+    fg=(255, 77, 77),
+    name="스칼펠",
+    entity_id="scalpel",
+    entity_desc="scalpel desc",
+    rarity=2,
+    weight=0.19,
+    price=50,
+    item_type=InventoryOrder.MELEE_WEAPON,
+    item_state=ItemState(is_identified=1),
+    flammable=0,
+    corrodible=0,
+    spawnable=True,
+    droppable=True,
+    stackable=False,
+    throwable=throwable.NormalThrowable(base_throw=6, additional_throw=1, penetration=True, air_friction=1),
+    equipable=equipable.ScalpelEquipable(),
+    lockpickable=(1,0.3),
+)
+temp_items_lists.append(scalpel)
+item_rarity.append(scalpel.rarity)
+
 
 ### Shortsword
 shortsword = Item(
@@ -692,7 +744,7 @@ shortsword = Item(
     name="숏소드",
     entity_id="shortsword",
     entity_desc="Shortsword desc",
-    rarity=9,
+    rarity=5,
     weight=1.5,
     price=25,
     item_type=InventoryOrder.MELEE_WEAPON,
@@ -717,7 +769,7 @@ longsword = Item(
     name="롱소드",
     entity_id="longsword",
     entity_desc="longsword desc",
-    rarity=5,
+    rarity=3,
     weight=1.8,
     price=75,
     item_type=InventoryOrder.MELEE_WEAPON,
@@ -735,6 +787,83 @@ temp_items_lists.append(longsword)
 item_rarity.append(longsword.rarity)
 
 
+###### BLADES - MISC
+swordstick = Item(
+    char=")",
+    fg=(196, 255, 202),
+    name="소드 스틱",
+    entity_id="swordstick",
+    entity_desc="swordstick desc",
+    rarity=3,
+    weight=0.62,
+    price=350,
+    item_type=InventoryOrder.MELEE_WEAPON,
+    item_state=ItemState(is_identified=1),
+    flammable=0,
+    corrodible=0.01,
+    spawnable=True,
+    droppable=True,
+    stackable=False,
+    throwable=throwable.NormalThrowable(base_throw=1, additional_throw=1, penetration=False, air_friction=3),
+    equipable=equipable.SwordstickEquipable(),
+    lockpickable=(0.2,0.5),
+)
+temp_items_lists.append(swordstick)
+item_rarity.append(swordstick.rarity)
+
+
+
+###### AXES
+# Axe
+axe = Item(
+    char=")",
+    fg=(112, 105, 255),
+    name="도끼",
+    entity_id="axe",
+    entity_desc="axe desc",
+    rarity=9,
+    weight=3,
+    price=5,
+    item_type=InventoryOrder.MELEE_WEAPON,
+    item_state=ItemState(is_identified=1),
+    flammable=0.01,
+    corrodible=0.01,
+    spawnable=True,
+    droppable=True,
+    stackable=False,
+    throwable=throwable.NormalThrowable(base_throw=2, additional_throw=2, penetration=False, air_friction=1),
+    equipable=equipable.AxeEquipable(),
+    lockpickable=(0.8,0.05),
+)
+temp_items_lists.append(axe)
+item_rarity.append(axe.rarity)
+
+
+tomahawk = Item(
+    char=")",
+    fg=(120, 66, 245),
+    name="토마호크",
+    entity_id="tomahawk",
+    entity_desc="tomahawk desc",
+    rarity=3,
+    weight=0.35,
+    price=120,
+    item_type=InventoryOrder.MELEE_WEAPON,
+    item_state=ItemState(is_identified=1),
+    flammable=0,
+    corrodible=0.01,
+    spawnable=True,
+    droppable=True,
+    stackable=False,
+    throwable=throwable.NormalThrowable(base_throw=6, additional_throw=8, penetration=False, air_friction=0.2),
+    equipable=equipable.TomahawkEquipable(),
+    lockpickable=(0.8,0.1),
+)
+temp_items_lists.append(tomahawk)
+item_rarity.append(tomahawk.rarity)
+
+
+###### CLUBS
 ### Giant Wood Club
 giant_wood_club = Item(
     char=")",
@@ -760,6 +889,108 @@ temp_items_lists.append(giant_wood_club)
 item_rarity.append(giant_wood_club.rarity)
 
 
+###### SHIELDS
+### Wooden Shield
+wooden_shield = Item(
+    char=")",
+    fg=(252, 186, 3),
+    name="나무 방패",
+    entity_id="wooden_shield",
+    entity_desc="wooden_shield desc",
+    rarity=5,
+    weight=3.2,
+    price=5,
+    item_type=InventoryOrder.MELEE_WEAPON,
+    item_state=ItemState(is_identified=1),
+    flammable=0.2,
+    corrodible=0.2,
+    spawnable=False,
+    droppable=True,
+    stackable=False,
+    throwable=throwable.NormalThrowable(base_throw=0, additional_throw=0, penetration=False, air_friction=55),
+    equipable=equipable.WoodenShieldEquipable(),
+    lockpickable=(0.05,0),
+)
+temp_items_lists.append(wooden_shield)
+item_rarity.append(wooden_shield.rarity)
+
+
+### Silver Shield
+silver_shield = Item(
+    char=")",
+    fg=(189, 189, 189),
+    name="은 방패",
+    entity_id="silver_shield",
+    entity_desc="silver_shield desc",
+    rarity=1,
+    weight=2.7,
+    price=650,
+    item_type=InventoryOrder.MELEE_WEAPON,
+    item_state=ItemState(is_identified=1),
+    flammable=0,
+    corrodible=0,
+    spawnable=False,
+    droppable=True,
+    stackable=False,
+    throwable=throwable.NormalThrowable(base_throw=0, additional_throw=0, penetration=False, air_friction=55),
+    equipable=equipable.SilverShieldEquipable(),
+    lockpickable=(0.1,0),
+)
+temp_items_lists.append(silver_shield)
+item_rarity.append(silver_shield.rarity)
+
+
+### Platinum Shield
+platinum_shield = Item(
+    char=")",
+    fg=(255, 255, 255),
+    name="백금 방패",
+    entity_id="platinum_shield",
+    entity_desc="platinum_shield desc",
+    rarity=1,
+    weight=2.9,
+    price=1250,
+    item_type=InventoryOrder.MELEE_WEAPON,
+    item_state=ItemState(is_identified=1),
+    flammable=0,
+    corrodible=0,
+    spawnable=False,
+    droppable=True,
+    stackable=False,
+    throwable=throwable.NormalThrowable(base_throw=0, additional_throw=0, penetration=False, air_friction=55),
+    equipable=equipable.PlatinumShieldEquipable(),
+    lockpickable=(0.1,0),
+)
+temp_items_lists.append(platinum_shield)
+item_rarity.append(platinum_shield.rarity)
+
+
+### Iron Shield
+iron_shield = Item(
+    char=")",
+    fg=(252, 186, 3),
+    name="강철 방패",
+    entity_id="iron_shield",
+    entity_desc="iron_shield desc",
+    rarity=5,
+    weight=3.5,
+    price=5,
+    item_type=InventoryOrder.MELEE_WEAPON,
+    item_state=ItemState(is_identified=1),
+    flammable=0.2,
+    corrodible=0.2,
+    spawnable=False,
+    droppable=True,
+    stackable=False,
+    throwable=throwable.NormalThrowable(base_throw=0, additional_throw=0, penetration=False, air_friction=55),
+    equipable=equipable.IronShieldEquipable(),
+    lockpickable=(0.1,0),
+)
+temp_items_lists.append(iron_shield)
+item_rarity.append(iron_shield.rarity)
+
+
+
 #########################################################################
 ############################### AMULETS #################################
 #########################################################################
@@ -767,6 +998,7 @@ item_rarity.append(giant_wood_club.rarity)
 ### Amulet of Kugah
 amulet_of_kugah = Item(
     indestructible=True,
+    should_randomize=False,
     char="⊕",
     fg = (255, 72, 0),
     name="쿠가의 아뮬렛",
@@ -790,6 +1022,32 @@ amulet_of_kugah = Item(
 temp_items_lists.append(amulet_of_kugah)
 item_rarity.append(amulet_of_kugah.rarity)
 
+
+### Amulet of Brilliance
+amulet_of_brilliance = Item(
+    should_randomize=True,
+    char="⊕",
+    fg = (255, 72, 0),
+    name="지적 각성의 아뮬렛",
+    entity_id="amulet_of_brilliance",
+    entity_desc="amulet of brilliance desc",
+    rarity=1,
+    weight=0.2,
+    price=320,
+    item_type=InventoryOrder.AMULET,
+    item_state=ItemState(is_identified=0),
+    tradable=True,
+    spawnable=True,
+    flammable=0,
+    corrodible=0,
+    droppable=True,
+    stackable=False,
+    throwable=throwable.NormalThrowable(base_throw=1, additional_throw=2, penetration=False, air_friction=15),
+    equipable=equipable.AmuletOfBrillianceEquipable(),
+    edible=None
+)
+temp_items_lists.append(amulet_of_brilliance)
+item_rarity.append(amulet_of_brilliance.rarity)
 
 
 #########################################################################

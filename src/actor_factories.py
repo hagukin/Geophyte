@@ -83,11 +83,11 @@ DEBUG = Actor(
 player = Actor(
     char="@",
     fg=(0, 255, 0),
-    name="갬장장이",
+    name="모험가",
     entity_id="player",
     entity_desc=("당신은 쿠가의 아뮬렛을 가져오라는 임무를 받고 끝이 보이지 않는 던전으로 발을 들였다. "),
     rarity=0,
-    weight = 70,
+    weight=70,
     spawnable=False,
     growthable=True,
     edible=edible.RawMeatEdible(nutrition=400),
@@ -114,28 +114,34 @@ player = Actor(
         heal_wounds=True,
         size=4,
         can_talk=True,
-        has_telepathy=True, #DEBUG
-        has_right_arm=True,  #DEBUG
+        # has_telepathy=True, #DEBUG
+        # has_right_arm=True,  #DEBUG
     ),
     inventory=Inventory(capacity=52, is_fireproof=False),
     ability_inventory=AbilityInventory(capacity=10),
     equipments=Equipments(),
     initial_items=[
-        (item_factories.scroll_of_magic_mapping, 1, (3,5)),
-        (item_factories.diamond, 1, (3,4)),
-        (item_factories.worthless_piece_of_white_glass, 1, (3,4)),
-        (item_factories.scroll_of_identify, 1, (3,4)),
-        (item_factories.potion_of_monster_detection, 1, (3,4)),
-        (item_factories.scroll_of_confusion, 1, (3,5)),
-        (item_factories.scroll_of_scorching_ray, 1, (3,5)),
-        (item_factories.shine, 1, (5000,5001)),
-        (item_factories.leather_armor, 1, (1,1)),
+        # (item_factories.scroll_of_magic_mapping, 1, (3,5)),
+        # (item_factories.diamond, 1, (3,4)),
+        # (item_factories.worthless_piece_of_white_glass, 1, (3,4)),
+        # (item_factories.scroll_of_identify, 1, (3,4)),
+        # (item_factories.potion_of_monster_detection, 1, (3,4)),
+        # (item_factories.scroll_of_confusion, 1, (3,5)),
+        # (item_factories.scroll_of_scorching_ray, 1, (3,5)),
+        # (item_factories.shine, 1, (5000,5001)),
+        # (item_factories.amulet_of_brilliance, 1, (1,1)),
+        # (item_factories.amulet_of_brilliance, 1, (1,1)),
+        # (item_factories.amulet_of_brilliance, 1, (1,1)),
+        # (item_factories.amulet_of_kugah, 1, (1,1)),
         ],
     initial_equipments=[
-        (item_factories.leather_armor, 1),
-        (item_factories.longsword, 1),
+        # (item_factories.leather_armor, 1),
+        # (item_factories.longsword, 1),
         ],
-    initial_abilities=[(ability_factories.lightning_bolt, 1), (ability_factories.steal, 1)],
+    initial_abilities=[
+        # (ability_factories.lightning_bolt, 1),
+        # (ability_factories.steal, 1)
+    ],
 )
 
 

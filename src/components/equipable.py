@@ -299,14 +299,18 @@ class Equipable(BaseComponent):
     def corrosion_debuf(self) -> float:
         """Can be overwritten."""
         if self.parent.item_state:
-            return 0.8 * self.parent.item_state.corrosion
+            if self.parent.item_state.burntness == 0:
+                return 1
+            return 0.8 ** self.parent.item_state.corrosion
         return 1
 
     @property
     def burnt_debuf(self) -> float:
         """Can be overwritten."""
         if self.parent.item_state:
-            return 0.8 * self.parent.item_state.burntness
+            if self.parent.item_state.burntness == 0:
+                return 1
+            return 0.8 ** self.parent.item_state.burntness
         return 1
 
 
@@ -551,7 +555,7 @@ class TomahawkEquipable(Equipable):
 
 
 ################### BLADES - Misc ######################
-class CaneSwordEquipable(Equipable):
+class SwordstickEquipable(Equipable):
     def __init__(self, upgrade=0):
         super().__init__(
             equipable_type=EquipableOrder.BLADE,
@@ -561,6 +565,8 @@ class CaneSwordEquipable(Equipable):
             str_requirement=12,
             base_melee=11,
             additional_melee=2,
+            charm=3,
+            intelligence=1,
             )
 
     def update_stat(self):
@@ -570,7 +576,6 @@ class CaneSwordEquipable(Equipable):
 
         self.add_base_melee = round(self.upgrade * 1)
         self.add_additional_melee = round(self.upgrade * 1)
-        self.eq_charm = 3
 
 
 ################### CLUBS ######################
@@ -676,6 +681,7 @@ class PlatinumShieldEquipable(Equipable):
             shock_resistance=0.3,
             poison_resistance=0.3,
             acid_resistance=0.3,
+            magic_resistance=0.1,
             )
 
     def update_stat(self):
@@ -702,3 +708,18 @@ class AmuletOfKugahEquipable(Equipable):
 
     def update_stat(self):
         super().update_stat()
+
+
+class AmuletOfBrillianceEquipable(Equipable):
+    def __init__(self, upgrade=0):
+        super().__init__(
+            equipable_type=EquipableOrder.AMULET,
+            upgrade=upgrade,
+            possible_regions=("amulet",),
+            intelligence=4,
+            )
+
+    def update_stat(self):
+        super().update_stat()
+
+        self.add_intelligence = round(self.upgrade * 1)

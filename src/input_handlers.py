@@ -840,9 +840,13 @@ class InventoryChooseItemAndCallbackHandler(StorageSelectSingleEventHandler):
             show_only_types: Optional[Tuple[InventoryOrder,...]] =None,
             show_only_status: Tuple[str] = None,
             show_if_satisfy_both: bool = True,
+            hide_not_tradable: bool = False,
+            hide_not_owned: bool = False,  # e.g. stolen items
+            hide_equipped: bool = False,
+            render_sell_price: bool = False,
             item_cancel_callback: Callable = None,
         ):
-        super().__init__(inventory_component, show_only_types, show_only_status, show_if_satisfy_both, item_cancel_callback)
+        super().__init__(inventory_component, show_only_types, show_only_status, show_if_satisfy_both, hide_not_tradable, hide_not_owned, hide_equipped, render_sell_price, item_cancel_callback)
         self.TITLE = title
         self.selected_item = None
         self.callback = callback
