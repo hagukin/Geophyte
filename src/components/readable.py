@@ -44,7 +44,7 @@ class Readable(BaseComponent):
         Only the player should be able to call this function.
         """
         self.consume()
-        self.engine.message_log.add_message(f"당신의 {g(self.parent.name, '이')} 먼지가 되어 사라졌다.", color.white)
+        self.engine.message_log.add_message(f"당신의 {g(self.parent.name, '이')} 먼지가 되어 사라졌다.", color.player_bad)
         return actions.WaitAction(actor)
 
 
@@ -91,16 +91,19 @@ class ScrollOfConfusionReadable(SelectTileReadable):
         self.number_of_turns = number_of_turns
     
     def effects_on_selected_tile_with_no_actor(self, consumer: Actor):
-        self.engine.message_log.add_message(f"{g(consumer.name, '은')} 허공을 향해 주문서를 읽었고, 아무 일도 일어나지 않았다.", color.gray, target=consumer)
+        if consumer == self.engine.player:
+            self.engine.message_log.add_message(f"당신은 허공을 향해 주문서를 읽었고, 아무 일도 일어나지 않았다.", color.player_neutral)
+        else:
+            self.engine.message_log.add_message(f"{g(consumer.name, '은')} 허공을 향해 주문서를 읽었고, 아무 일도 일어나지 않았다.",color.player_neutral, target=consumer)
 
     def effects_on_selected_tile_with_actor(self, consumer: Actor, target: Actor):
         # Log
         if consumer == self.engine.player and target == consumer:
-            self.engine.message_log.add_message(f"당신은 굉장히 어지럽다.", color.player_damaged,)
+            self.engine.message_log.add_message(f"당신은 굉장히 어지럽다.", color.player_not_good,)
         elif target == consumer:
-            self.engine.message_log.add_message(f"{g(consumer.name, '은')} 이상한 행동을 하기 시작했다.", color.white, target=target)
+            self.engine.message_log.add_message(f"{g(consumer.name, '은')} 이상한 행동을 하기 시작했다.", color.player_sense, target=target)
         else:
-            self.engine.message_log.add_message(f"{g(target.name, '이')} 휘청거리기 시작한다.", color.status_effect_applied, target=target)
+            self.engine.message_log.add_message(f"{g(target.name, '이')} 휘청거리기 시작한다.", color.player_sense, target=target)
 
         target.actor_state.apply_confusion([0,self.number_of_turns])
 
@@ -108,15 +111,18 @@ class ScrollOfConfusionReadable(SelectTileReadable):
 class ScrollOfTameReadable(SelectTileReadable):
     
     def effects_on_selected_tile_with_no_actor(self, consumer: Actor):
-        self.engine.message_log.add_message(f"{g(consumer.name, '은')} 허공을 향해 주문서를 읽었고, 아무 일도 일어나지 않았다.", color.gray, target=consumer)
+        if consumer == self.engine.player:
+            self.engine.message_log.add_message(f"당신은 허공을 향해 주문서를 읽었고, 아무 일도 일어나지 않았다.", color.player_neutral)
+        else:
+            self.engine.message_log.add_message(f"{g(consumer.name, '은')} 허공을 향해 주문서를 읽었고, 아무 일도 일어나지 않았다.",color.player_neutral, target=consumer)
 
     def effects_on_selected_tile_with_actor(self, consumer: Actor, target: Actor):
         if not target.ai or target == consumer:
             # Log
             if consumer == self.engine.player:
-                self.engine.message_log.add_message(f"당신의 자신감이 차오른다.", color.stats_gained)
+                self.engine.message_log.add_message(f"당신의 자신감이 차오른다.", color.player_buff)
             else:
-                self.engine.message_log.add_message(f"{g(consumer.name, '은')} 자신감이 넘쳐 보인다.", color.gray, target=consumer)
+                self.engine.message_log.add_message(f"{g(consumer.name, '은')} 자신감이 넘쳐 보인다.", color.player_sense, target=consumer)
             
             # Apply
             if consumer.status.experience:
@@ -126,21 +132,21 @@ class ScrollOfTameReadable(SelectTileReadable):
             if target.ai.try_tame(consumer, 3): #TODO FIXME: Adjust tame power
                 # Log
                 if consumer == self.engine.player:
-                    self.engine.message_log.add_message(f"{g(target.name, '을')} 길들였다!", color.status_effect_applied, target=target)
+                    self.engine.message_log.add_message(f"{g(target.name, '을')} 길들였다!", color.player_success, target=target)
                     if target.actor_state.can_talk:
-                        self.engine.message_log.add_message(f"{g(target.name, '이')} 당신에게 충성을 표했다.", color.status_effect_applied, target=target)
+                        self.engine.message_log.add_message(f"{g(target.name, '이')} 당신에게 충성을 표했다.", color.player_success, target=target)
                     else:
-                        self.engine.message_log.add_message(f"{g(target.name, '이')} 당신에 대한 신뢰를 보였다.", color.status_effect_applied, target=target)
+                        self.engine.message_log.add_message(f"{g(target.name, '이')} 당신에 대한 신뢰를 보였다.", color.player_success, target=target)
                 else:
-                    self.engine.message_log.add_message(f"{g(target.name, '은')} 이제 {g(consumer.name, '을')} 주인으로 섬긴다!", color.white, target=target)
+                    self.engine.message_log.add_message(f"{g(target.name, '은')} 이제 {g(consumer.name, '을')} 주인으로 섬긴다!", color.enemy_unique, target=target)
 
                 if consumer.status.experience:
                     consumer.status.experience.gain_charm_exp(100, exp_limit=1000)
             else:
                 if consumer == self.engine.player:
-                    self.engine.message_log.add_message(f"{g(target.name, '은')} 당신의 정신적 지배에 저항했다!", color.player_damaged, target=target)
+                    self.engine.message_log.add_message(f"{g(target.name, '은')} 당신의 정신적 지배에 저항했다!", color.player_failed, target=target)
                 else:
-                    self.engine.message_log.add_message(f"{g(target.name, '은')} {consumer.name}의 명령을 거부했다!", color.white, target=target)
+                    self.engine.message_log.add_message(f"{g(target.name, '은')} {consumer.name}의 명령을 거부했다!", color.enemy_unique, target=target)
 
 
 class SelectItemFromInventoryReadable(Readable):
@@ -200,11 +206,11 @@ class ScrollOfEnchantmentReadable(SelectItemFromInventoryReadable):
         
         # Log
         if consumer == self.engine.player:
-            self.engine.message_log.add_message(f"당신의 {g(selected_item.name, '이')} 밝은 빛을 내뿜었다!", color.status_effect_applied, target=consumer)
+            self.engine.message_log.add_message(f"당신의 {g(selected_item.name, '이')} 밝은 빛을 내뿜었다!", color.player_success, target=consumer)
             if selected_item.item_state.equipped_region:
-                self.engine.message_log.add_message(f"당신의 {selected_item.name}에서 이전보다 더 강한 힘이 느껴진다.", color.status_effect_applied, target=consumer)
+                self.engine.message_log.add_message(f"당신의 {selected_item.name}에서 이전보다 더 강한 힘이 느껴진다.", color.player_success, target=consumer)
         else:
-            self.engine.message_log.add_message(f"{consumer.name}의 {g(selected_item.name, '이')} 밝은 빛을 내뿜었다.", color.white, target=consumer)
+            self.engine.message_log.add_message(f"{consumer.name}의 {g(selected_item.name, '이')} 밝은 빛을 내뿜었다.", color.player_sense, target=consumer)
             # TODO: auto-identify if the scroll is used in sight?
 
 
@@ -257,9 +263,9 @@ class ScrollOfRemoveCurseReadable(SelectItemFromInventoryReadable):
 
         # Log
         if temp <= -1: #If item was cursed before
-            self.engine.message_log.add_message(f"{consumer.name}의 {g(selected_item.name, '로')}부터 사악한 기운이 사라졌다!", color.status_effect_applied, target=consumer)
+            self.engine.message_log.add_message(f"{consumer.name}의 {g(selected_item.name, '로')}부터 사악한 기운이 사라졌다!", color.player_success, target=consumer)
         else:
-            self.engine.message_log.add_message(f"백색 빛이 {consumer.name}의 {g(selected_item.name, '을')} 감쌌다.", color.status_effect_applied, target=consumer)
+            self.engine.message_log.add_message(f"백색 빛이 {consumer.name}의 {g(selected_item.name, '을')} 감쌌다.", color.player_sense, target=consumer)
         #NOTE: Currently self-uncursing is possible
 
         if consumer.status.experience:
@@ -283,7 +289,7 @@ class ScrollOfMagicMappingReadable(Readable): #TODO: make parent class like othe
 
     def get_action(self, consumer):
         if self.tier == 1:
-            self.engine.message_log.add_message(f"당신의 머리 속에 이 층의 모든 비밀들이 전해졌다.", color.status_effect_applied,)
+            self.engine.message_log.add_message(f"당신의 머리 속에 이 층의 모든 비밀들이 전해졌다.", color.player_neutral_important,)
             for y in range(len(self.engine.game_map.visible[0])):
                 for x in range(len(self.engine.game_map.visible)):
                     self.engine.game_map.visible[x, y] = True
@@ -291,7 +297,7 @@ class ScrollOfMagicMappingReadable(Readable): #TODO: make parent class like othe
                 for x in range(len(self.engine.game_map.explored)):
                     self.engine.game_map.explored[x, y] = True
         elif self.tier == 2:
-            self.engine.message_log.add_message( f"당신의 머리 속이 기하학적 정보들로 가득 차기 시작했다.", color.status_effect_applied,)
+            self.engine.message_log.add_message( f"당신의 머리 속이 기하학적 정보들로 가득 차기 시작했다.", color.player_neutral_important,)
             for y in range(len(self.engine.game_map.explored[0])):
                 for x in range(len(self.engine.game_map.explored)):
                     self.engine.game_map.explored[x, y] = True
@@ -332,7 +338,7 @@ class ScrollOfMeteorStormReadable(Readable): #TODO: Make parent class like other
         if not self.engine.game_map.visible[target_xy]:
             raise Impossible("보이지 않는 지역을 선택할 수는 없습니다.")
 
-        self.engine.message_log.add_message(f"허공에서 운석이 나타났다!", target=consumer)
+        self.engine.message_log.add_message(f"허공에서 운석이 나타났다!", target=consumer, fg=color.world)
 
         # Set fire on the given radius
         import semiactor_factories
@@ -348,12 +354,15 @@ class ScrollOfMeteorStormReadable(Readable): #TODO: Make parent class like other
                 target.status.take_damage(amount=self.damage, attacked_from=consumer)
 
                 # Log
-                self.engine.message_log.add_message(f"{g(target.name, '이')} 운석에 맞아 {self.damage} 데미지를 받았다!", target=target)
-
+                if self.engine.game_map.visible[target_xy[0], target_xy[1]]:
+                    if target == self.engine.player:
+                        self.engine.message_log.add_message(f"당신은 운석에 맞아 {self.damage} 데미지를 받았다!",target=target, fg=color.player_bad)
+                    else:
+                        self.engine.message_log.add_message(f"{g(target.name, '이')} 운석에 맞아 {self.damage} 데미지를 받았다!", target=target, fg=color.enemy_unique)
                 targets_hit = True
 
-        if not targets_hit:# nothing was hit
-            self.engine.message_log.add_message(f"운석이 바닥과 충돌했다.")
+        if not targets_hit and self.engine.game_map.visible[target_xy[0], target_xy[1]]:# nothing was hit
+            self.engine.message_log.add_message(f"운석이 바닥과 충돌했다.", fg=color.player_sense)
         self.consume()
 
         
@@ -512,7 +521,10 @@ class ScrollOfMagicMissileReadable(RayReadable):
         real_damage = target.status.calculate_dmg_reduction(damage=self.damage, damage_type="magic")
 
         # Log
-        self.engine.message_log.add_message(f"마법 광선이 {g(target.name, '을')} 강타해 {real_damage} 데미지를 입혔다.", target=target)
+        if target == self.engine.player:
+            self.engine.message_log.add_message(f"마법 광선이 당신을 강타해 {real_damage} 데미지를 입혔다.", fg=color.player_bad)
+        else:
+            self.engine.message_log.add_message(f"마법 광선이 {g(target.name, '을')} 강타해 {real_damage} 데미지를 입혔다.",target=target, fg=color.enemy_unique)
         target.status.take_damage(amount=real_damage, attacked_from=consumer)
 
 
@@ -521,7 +533,10 @@ class ScrollOfScorchingRayReadable(RayReadable):
         real_damage = target.status.calculate_dmg_reduction(damage=self.damage,
                                                             damage_type="fire")  # No direct state effect applied since fire entity is about to spawn
         # Log
-        self.engine.message_log.add_message(f"화염 광선이 {g(target.name, '을')} 꿰뚫으며 {real_damage} 데미지를 입혔다.", target=target)
+        if target == self.engine.player:
+            self.engine.message_log.add_message(f"화염 광선이 당신을 꿰뚫으며 {real_damage} 데미지를 입혔다.",fg=color.player_bad)
+        else:
+            self.engine.message_log.add_message(f"화염 광선이 {g(target.name, '을')} 꿰뚫으며 {real_damage} 데미지를 입혔다.", target=target, fg=color.enemy_unique)
         target.status.take_damage(amount=real_damage, attacked_from=consumer)
     
     def effects_on_path(self, x: int, y: int):
@@ -534,7 +549,10 @@ class ScrollOfFreezingRayReadable(RayReadable):
     def effects_on_collided_actor(self, consumer: Actor, target: Actor):
         real_damage = target.status.calculate_dmg_reduction(damage=self.damage, damage_type="cold")
         # Log
-        self.engine.message_log.add_message(f"얼음 광선이 {g(target.name, '을')} 꿰뚫으며 {real_damage} 데미지를 입혔다.", target=target)
+        if target == self.engine.player:
+            self.engine.message_log.add_message(f"얼음 광선이 당신을 꿰뚫으며 {real_damage} 데미지를 입혔다.", fg=color.player_bad)
+        else:
+            self.engine.message_log.add_message(f"얼음 광선이 {g(target.name, '을')} 꿰뚫으며 {real_damage} 데미지를 입혔다.",fg=color.enemy_unique, target=target)
         target.actor_state.apply_freezing([self.effect_dmg, 5, 0.2, 0, 4])
         target.status.take_damage(amount=real_damage, attacked_from=consumer)
 
@@ -546,9 +564,14 @@ class ScrollOfFreezingRayReadable(RayReadable):
 class ScrollOfThunderStormReadable(AutoTargetingReadable):
     def effects_on_target_actor(self, consumer:Actor, target: Actor):
         # Log
-        self.engine.message_log.add_message(
-            f"번개가 큰 천둥소리와 함께 {g(target.name, '을')} 내리쳤다!", target=target
-        )
+        if target == self.engine.player:
+            self.engine.message_log.add_message(
+                f"번개가 큰 천둥소리와 함께 당신을 내리쳤다!", fg=color.player_bad
+            )
+        else:
+            self.engine.message_log.add_message(
+                f"번개가 큰 천둥소리와 함께 {g(target.name, '을')} 내리쳤다!", target=target, fg=color.enemy_unique
+            )
 
         # trigger target
         target.status.take_damage(amount=0, attacked_from=consumer)

@@ -97,14 +97,14 @@ class Inventory(BaseComponent):
         if show_msg:
             if self.parent == self.engine.player:
                 if item.stack_count > 1:
-                    self.engine.message_log.add_message(f"당신은 {g(item.name, '을')} 땅에 떨어뜨렸다. (x{item.stack_count}).")
+                    self.engine.message_log.add_message(f"당신은 {g(item.name, '을')} 땅에 떨어뜨렸다. (x{item.stack_count}).", fg=color.player_neutral_important)
                 else:
-                    self.engine.message_log.add_message(f"당신은 {g(item.name, '을')} 땅에 떨어뜨렸다.")
+                    self.engine.message_log.add_message(f"당신은 {g(item.name, '을')} 땅에 떨어뜨렸다.", fg=color.player_neutral_important)
             else:
                 if item.stack_count > 1:
-                    self.engine.message_log.add_message(f"{g(self.parent.name, '이')} {g(item.name, '을')} 땅에 떨어뜨렸다. (x{item.stack_count}).", fg=color.gray, target=self.parent)
+                    self.engine.message_log.add_message(f"{g(self.parent.name, '이')} {g(item.name, '을')} 땅에 떨어뜨렸다. (x{item.stack_count}).", fg=color.enemy_neutral, target=self.parent)
                 else:
-                    self.engine.message_log.add_message(f"{g(self.parent.name, '이')} {g(item.name, '을')} 땅에 떨어뜨렸다.", fg=color.gray, target=self.parent)
+                    self.engine.message_log.add_message(f"{g(self.parent.name, '이')} {g(item.name, '을')} 땅에 떨어뜨렸다.", fg=color.enemy_neutral, target=self.parent)
 
         self.update_burden()
         return True
@@ -128,9 +128,9 @@ class Inventory(BaseComponent):
 
         if show_msg:
             if self.parent == self.engine.player:
-                self.engine.message_log.add_message(f"당신은 {g(item.name, '을')} 던졌다.")
+                self.engine.message_log.add_message(f"당신은 {g(item.name, '을')} 던졌다.", fg=color.player_neutral_important)
             else:
-                self.engine.message_log.add_message(f"{g(self.parent.name, '이')} {g(item.name, '을')} 던졌다.", fg=color.gray, target=self.parent)
+                self.engine.message_log.add_message(f"{g(self.parent.name, '이')} {g(item.name, '을')} 던졌다.", fg=color.enemy_unique, target=self.parent)
 
         self.update_burden()
         return True

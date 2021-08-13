@@ -46,7 +46,7 @@ class PickupAction(Action):
         # Checking for inability
         if self.entity.check_for_immobility():
             if self.entity == self.engine.player:
-                self.engine.message_log.add_message(f"아무 것도 할 수 없다!", color.red)
+                self.engine.message_log.add_message(f"아무 것도 할 수 없다!", color.player_severe)
             return None
 
         actor_location_x = self.entity.x
@@ -65,18 +65,20 @@ class PickupAction(Action):
 
                 if self.entity == self.engine.player:
                     if item.stack_count > 1:
-                        self.engine.message_log.add_message(f"{g(item.name, '을')} 주웠다. (x{item.stack_count}).", target=self.entity, fg=color.obtain_item)
+                        self.engine.message_log.add_message(f"당신은 {g(item.name, '을')} 주웠다. (x{item.stack_count}).", fg=color.obtain_item)
                     else:
-                        self.engine.message_log.add_message(f"{g(item.name, '을')} 주웠다.", target=self.entity, fg=color.obtain_item)
+                        self.engine.message_log.add_message(f"당신은 {g(item.name, '을')} 주웠다.", fg=color.obtain_item)
                     return #prevents picking up everything at once. # TODO : Add feature to pickup everything at once
                 else:
                     if item.stack_count > 1:
-                        self.engine.message_log.add_message(f"{g(self.entity.name, '이')} {g(item.name, '을')} 주웠다. (x{item.stack_count}).", target=self.entity, fg=color.gray)
+                        self.engine.message_log.add_message(f"{g(self.entity.name, '이')} {g(item.name, '을')} 주웠다. (x{item.stack_count}).", target=self.entity, fg=color.enemy_unique)
                     else:
-                        self.engine.message_log.add_message(f"{g(self.entity.name, '이')} {g(item.name, '을')} 주웠다.", target=self.entity, fg=color.gray)
+                        self.engine.message_log.add_message(f"{g(self.entity.name, '이')} {g(item.name, '을')} 주웠다.", target=self.entity, fg=color.enemy_unique)
                     return #prevents picking up everything at once. # TODO : Add feature to pickup everything at once
 
-        raise exceptions.Impossible("주울 만한 물건이 아무 것도 없습니다.")
+        if self.entity == self.engine.player:
+            self.engine.message_log.add_message("주울 만한 물건이 아무 것도 없습니다.",fg=color.impossible)
+        return None
 
 
 class DescendAction(Action):
@@ -95,7 +97,7 @@ class DescendAction(Action):
         # Checking for inability
         if self.entity.check_for_immobility():
             if self.entity == self.engine.player:
-                self.engine.message_log.add_message(f"아무 것도 할 수 없다!", color.red)
+                self.engine.message_log.add_message(f"아무 것도 할 수 없다!", color.player_severe)
             return None
 
         if self.engine.game_map.tiles[self.entity.x, self.entity.y]["tile_id"] == "descending_stair":
@@ -125,7 +127,7 @@ class AscendAction(Action):
         # Checking for inability
         if self.entity.check_for_immobility():
             if self.entity == self.engine.player:
-                self.engine.message_log.add_message(f"아무 것도 할 수 없다!", color.red)
+                self.engine.message_log.add_message(f"아무 것도 할 수 없다!", color.player_severe)
             return None
 
         if self.engine.game_map.tiles[self.entity.x, self.entity.y]["tile_id"] == "ascending_stair":
@@ -184,7 +186,7 @@ class ThrowItem(ItemAction):
         # Checking for inability
         if self.entity.check_for_immobility():
             if self.entity == self.engine.player:
-                self.engine.message_log.add_message(f"아무 것도 할 수 없다!", color.red)
+                self.engine.message_log.add_message(f"아무 것도 할 수 없다!", color.player_severe)
             return None
 
         if self.entity.status.experience:
@@ -199,7 +201,7 @@ class DropItem(ItemAction):
         # Checking for inability
         if self.entity.check_for_immobility():
             if self.entity == self.engine.player:
-                self.engine.message_log.add_message(f"아무 것도 할 수 없다!", color.red)
+                self.engine.message_log.add_message(f"아무 것도 할 수 없다!", color.player_severe)
             return None
 
         self.entity.inventory.drop(self.item)
@@ -215,7 +217,7 @@ class SplitItem(Action):
         # Checking for inability
         if self.entity.check_for_immobility():
             if self.entity == self.engine.player:
-                self.engine.message_log.add_message(f"아무 것도 할 수 없다!", color.red)
+                self.engine.message_log.add_message(f"아무 것도 할 수 없다!", color.player_severe)
             return None
 
         self.entity.inventory.split_item(item=self.item, split_amount=self.split_amount)
@@ -226,7 +228,7 @@ class ReadItem(ItemAction):
         # Checking for inability
         if self.entity.check_for_immobility():
             if self.entity == self.engine.player:
-                self.engine.message_log.add_message(f"아무 것도 할 수 없다!", color.red)
+                self.engine.message_log.add_message(f"아무 것도 할 수 없다!", color.player_severe)
             return None
         
         if self.entity.status.experience:
@@ -240,7 +242,7 @@ class QuaffItem(ItemAction):
         # Checking for inability
         if self.entity.check_for_immobility():
             if self.entity == self.engine.player:
-                self.engine.message_log.add_message(f"아무 것도 할 수 없다!", color.red)
+                self.engine.message_log.add_message(f"아무 것도 할 수 없다!", color.player_severe)
             return None
 
         if self.entity.status.experience:
@@ -254,7 +256,7 @@ class EatItem(ItemAction):
         # Checking for inability
         if self.entity.check_for_immobility():
             if self.entity == self.engine.player:
-                self.engine.message_log.add_message(f"아무 것도 할 수 없다!", color.red)
+                self.engine.message_log.add_message(f"아무 것도 할 수 없다!", color.player_severe)
             return None
 
         if self.entity.status.experience:
@@ -268,7 +270,7 @@ class EquipItem(ItemAction):
         # Checking for inability
         if self.entity.check_for_immobility():
             if self.entity == self.engine.player:
-                self.engine.message_log.add_message(f"아무 것도 할 수 없다!", color.red)
+                self.engine.message_log.add_message(f"아무 것도 할 수 없다!", color.player_severe)
             return None
 
         self.entity.equipments.equip_equipment(self.item)
@@ -279,7 +281,7 @@ class UnequipItem(ItemAction):
         # Checking for inability
         if self.entity.check_for_immobility():
             if self.entity == self.engine.player:
-                self.engine.message_log.add_message(f"아무 것도 할 수 없다!", color.red)
+                self.engine.message_log.add_message(f"아무 것도 할 수 없다!", color.player_severe)
             return None
 
         self.entity.equipments.remove_equipment(self.item.item_state.equipped_region)
@@ -299,7 +301,7 @@ class AbilityAction(Action):
         # Checking for inability
         if self.entity.check_for_immobility():
             if self.entity == self.engine.player:
-                self.engine.message_log.add_message(f"아무 것도 할 수 없다!", color.red)
+                self.engine.message_log.add_message(f"아무 것도 할 수 없다!", color.player_severe)
             return None
 
         # gaining exp is handled in .activate()
@@ -350,9 +352,9 @@ class ChestTakeAction(ChestAction):
                     self.engine.message_log.add_message(f"{g(item.name, '을')} 얻었다. (x{item.stack_count})", color.obtain_item)
             else:
                 if item.stack_count <= 1:
-                    self.engine.message_log.add_message(f"{g(self.entity.name, '이')} {g(item.name, '을')} {self.chest_name}에서 꺼냈다.", color.white)
+                    self.engine.message_log.add_message(f"{g(self.entity.name, '이')} {g(item.name, '을')} {self.chest_name}에서 꺼냈다.", color.enemy_unique)
                 else:
-                    self.engine.message_log.add_message(f"{g(self.entity.name, '이')} {g(item.name, '을')} {self.chest_name}에서 꺼냈다. (x{item.stack_count})", color.white)
+                    self.engine.message_log.add_message(f"{g(self.entity.name, '이')} {g(item.name, '을')} {self.chest_name}에서 꺼냈다. (x{item.stack_count})", color.enemy_unique)
 
 
 class ChestPutAction(ChestAction):
@@ -362,14 +364,14 @@ class ChestPutAction(ChestAction):
 
             if self.entity == self.engine.player:
                 if item.stack_count <= 1:
-                    self.engine.message_log.add_message(f"{g(item.name, '을')} 집어넣었다.", color.white)
+                    self.engine.message_log.add_message(f"{g(item.name, '을')} 집어넣었다.", color.player_success)
                 else:
-                    self.engine.message_log.add_message(f"{g(item.name, '을')} 집어넣었다. (x{item.stack_count})", color.white)
+                    self.engine.message_log.add_message(f"{g(item.name, '을')} 집어넣었다. (x{item.stack_count})", color.player_success)
             else:
                 if item.stack_count <= 1:
-                    self.engine.message_log.add_message(f"{g(self.entity.name, '이')} {g(item.name, '을')} {self.chest_name}에 집어넣었다.", color.white)
+                    self.engine.message_log.add_message(f"{g(self.entity.name, '이')} {g(item.name, '을')} {self.chest_name}에 집어넣었다.", color.enemy_unique)
                 else:
-                    self.engine.message_log.add_message(f"{g(self.entity.name, '이')} {g(item.name, '을')} {self.chest_name}에서 집어넣었다. (x{item.stack_count})", color.white)
+                    self.engine.message_log.add_message(f"{g(self.entity.name, '이')} {g(item.name, '을')} {self.chest_name}에서 집어넣었다. (x{item.stack_count})", color.enemy_unique)
 
 
 class ActionWithDirection(Action):
@@ -398,7 +400,7 @@ class ActionWithDirection(Action):
             
             # Message log
             if self.entity == self.engine.player:
-                self.engine.message_log.add_message(f"당신은 휘청거렸다!", color.white)
+                self.engine.message_log.add_message(f"당신은 휘청거렸다!", color.player_not_good)
 
     @property
     def dest_xy(self) -> Tuple[int, int]:
@@ -525,11 +527,15 @@ class MeleeAction(ActionWithDirection):
             if self.entity == self.engine.player:
                 atk_name = "당신"
                 tar_name = f"{target.name}"
-                fg = color.green
-            else:
+                fg = color.player_crit
+            elif target == self.engine.player:
                 atk_name = f"{self.entity.name}"
                 tar_name = "당신"
-                fg = color.yellow
+                fg = color.player_bad
+            else:
+                atk_name = f"{self.entity.name}"
+                tar_name = f"{target.name}"
+                fg = color.enemy_unique
 
             # Apply status effects
             for type, eff in effect_set.items():
@@ -603,19 +609,36 @@ class MeleeAction(ActionWithDirection):
         # Checking for inability
         if self.entity.check_for_immobility():
             if self.entity == self.engine.player:
-                self.engine.message_log.add_message(f"아무 것도 할 수 없다!", color.red)
+                self.engine.message_log.add_message(f"아무 것도 할 수 없다!", color.player_severe)
             return None
 
         # Set target
         target = self.target_actor
         if not target:
-            raise exceptions.Impossible("공격 대상이 없다.")
+            if self.entity == self.engine.player:
+                self.engine.message_log.add_message("공격 대상이 없다.", color.impossible)
+                return None
+            else:
+                print("WARNING::Enemy has no target but attacked. - meleeaction")
+                return None
+
+        # Name
+        if target == self.engine.player:
+            att_name = f"{self.entity.name}"
+            tar_name = "당신"
+            miss_fg = color.enemy_atk_missed
+        elif self.entity == self.engine.player:
+            att_name = "당신"
+            tar_name = f"{target.name}"
+            miss_fg = color.player_not_good
+        else:
+            att_name = f"{self.entity.name}"
+            tar_name = f"{target.name}"
+            miss_fg = color.enemy_neutral
 
         # Attack missing calculation
         if self.is_miss():
-            self.engine.message_log.add_message(
-                f"{g(self.entity.name, '이')} {g(target.name, '을')} 공격했지만 빗나갔다.", color.enemy_atk_missed, target=self.entity,
-            )
+            self.engine.message_log.add_message(f"{g(att_name, '은')} {g(tar_name, '을')} 공격했지만 빗나갔다.", miss_fg, target=self.entity)
             target.status.take_damage(amount=0, attacked_from=self.entity) #Trigger
             if target.status.experience: # gain exp when attack was successful
                 target.status.experience.gain_agility_exp(10, 17, exp_limit=1000)
@@ -636,7 +659,7 @@ class MeleeAction(ActionWithDirection):
         damage = self.damage_calculation(crit_multiplier=crit_multiplier)
 
         # Messege log
-        attack_desc = f"{g(self.entity.name, '이')} {g(target.name, '을')} 공격"
+        attack_desc = f"{g(att_name, '이')} {g(tar_name, '을')} 공격"
         if self.entity is self.engine.player:
             if critical_hit:
                 attack_color = color.player_crit
@@ -644,24 +667,20 @@ class MeleeAction(ActionWithDirection):
                 attack_color = color.player_atk
         elif target is self.engine.player:
             if critical_hit:
-                attack_color = color.red
+                attack_color = color.player_severe
             else:
-                attack_color = color.player_damaged
+                attack_color = color.player_melee_hit
         else:
-            attack_color = color.gray
+            attack_color = color.enemy_neutral
 
         # If there is damage
         if damage > 0:
-            if self.engine.game_map.visible[self.entity.x, self.entity.y] and self.engine.game_map.visible[target.x, target.y]:# 시야에 보이는 엔티티의 전투만 프린트함. (공격자, 피공격자 중 하나라도 시야 내에 있으면 로그를 표시함.)
-                self.engine.message_log.add_message(
-                    f"{attack_desc}해 {damage} 데미지를 입혔다.", attack_color
-                )
+            if self.engine.game_map.visible[self.entity.x, self.entity.y] or self.engine.game_map.visible[target.x, target.y]:
+                self.engine.message_log.add_message(f"{attack_desc}해 {damage} 데미지를 입혔다.", attack_color)
             target.status.take_damage(amount=damage, attacked_from=self.entity)
         else:
             if self.engine.game_map.visible[self.entity.x, self.entity.y] or self.engine.game_map.visible[target.x, target.y]:
-                self.engine.message_log.add_message(
-                    f"{attack_desc}했지만 아무런 데미지도 주지 못했다.", color.gray
-                )
+                self.engine.message_log.add_message(f"{attack_desc}했지만 아무런 데미지도 주지 못했다.", miss_fg)
             target.status.take_damage(amount=0, attacked_from=self.entity)  # Trigger
         
         # If the target is alive after calculating the pure melee damage hit, apply melee status effects.
@@ -675,7 +694,7 @@ class MovementAction(ActionWithDirection):
         # Checking for inability
         if self.entity.check_for_immobility():
             if self.entity == self.engine.player:
-                self.engine.message_log.add_message(f"아무 것도 할 수 없다!", color.red)
+                self.engine.message_log.add_message(f"아무 것도 할 수 없다!", color.player_severe)
             return None
         
         # Set destination
@@ -701,7 +720,10 @@ class MovementAction(ActionWithDirection):
                     crawl_out_chance = 0.005 * self.entity.status.changed_status["dexterity"] * (self.entity.actor_state.size ** 2) # crawl-out chance calculation
 
             if random.random() > crawl_out_chance:
-                self.engine.message_log.add_message(f"{g(self.entity.name, '은')} 구덩이에서 빠져나오려 했으나 실패했다.", color.gray, target=self.entity)
+                if self.entity == self.engine.player:
+                    self.engine.message_log.add_message(f"당신은 구덩이에서 빠져나오려 시도했으나 실패했다.", color.player_failed)
+                else:
+                    self.engine.message_log.add_message(f"{g(self.entity.name, '은')} 구덩이에서 빠져나오려 했으나 실패했다.", color.enemy_neutral, target=self.entity)
                 return None # Turn passes
 
         if not self.engine.game_map.tiles["walkable"][dest_x, dest_y]:
@@ -745,7 +767,10 @@ class DoorUnlockAction(ActionWithDirection):
             chance_of_unlocking = max(0, self.entity.status.changed_status["dexterity"] - 10/50)
             if random.random() <= chance_of_unlocking:
                 # Unlock succeded
-                self.engine.message_log.add_message(f"{g(self.entity.name, '이')} 문의 잠금을 해제했다!", color.yellow, target=self.entity)
+                if self.entity == self.engine.player:
+                    self.engine.message_log.add_message(f"당신은 문의 잠금을 해제하는데 성공했다!", color.player_success)
+                else:
+                    self.engine.message_log.add_message(f"{g(self.entity.name, '이')} 문의 잠금을 해제했다!", color.enemy_unique, target=self.entity)
 
                 import semiactor_factories
                 tmp = semiactor_factories.closed_door.spawn(self.engine.game_map, dest_x, dest_y, -1)
@@ -756,7 +781,10 @@ class DoorUnlockAction(ActionWithDirection):
                     self.entity.status.experience.gain_dexterity_exp(30, 18, 600)
             else:
                 # Unlock failed
-                self.engine.message_log.add_message(f"{g(self.entity.name, '은')} 문의 잠금을 해제하는 데 실패했다.", color.gray, target=self.entity)
+                if self.entity == self.engine.player:
+                    self.engine.message_log.add_message(f"당신은 문의 잠금을 해제하는데 실패했다.", color.player_failed)
+                else:
+                    self.engine.message_log.add_message(f"{g(self.entity.name, '은')} 문의 잠금을 해제하는데 실패했다.", color.enemy_unique, target=self.entity)
 
 
     def unlock(self, item: Item) -> None:
@@ -765,7 +793,7 @@ class DoorUnlockAction(ActionWithDirection):
         # Checking for inability
         if self.entity.check_for_immobility():
             if self.entity == self.engine.player:
-                self.engine.message_log.add_message(f"아무 것도 할 수 없다!", color.red)
+                self.engine.message_log.add_message(f"아무 것도 할 수 없다!", color.player_severe)
             return None
 
         # Get door coordinates
@@ -788,7 +816,10 @@ class DoorUnlockAction(ActionWithDirection):
 
             if random.random() <= chance_of_unlocking:
                 # Unlock succeded
-                self.engine.message_log.add_message(f"{g(self.entity.name, '이')} {g(item.name, '을')} 사용해 문의 잠금을 해제했다!", color.white, target=self.entity)
+                if self.entity == self.engine.player:
+                    self.engine.message_log.add_message(f"{g(self.entity.name, '이')} {g(item.name, '을')} 사용해 문의 잠금을 해제했다!", color.player_success)
+                else:
+                    self.engine.message_log.add_message(f"{g(self.entity.name, '이')} {g(item.name, '을')} 사용해 문의 잠금을 해제했다!", color.enemy_unique, target=self.entity)
 
                 tmp = semiactor_factories.closed_door.spawn(self.engine.game_map, dest_x, dest_y, -1)
                 semiactor_on_dir.semiactor_info.move_self_to(tmp)
@@ -798,12 +829,14 @@ class DoorUnlockAction(ActionWithDirection):
                     self.entity.status.experience.gain_dexterity_exp(30, 18, 600)
             else:
                 # Unlock failed
-                self.engine.message_log.add_message(f"{g(self.entity.name, '은')} {g(item.name, '을')} 사용해 문의 잠금을 해제하는 데 실패했다.", color.invalid, target=self.entity)
+                if self.entity == self.engine.player:
+                    self.engine.message_log.add_message(f"당신은 문의 잠금을 해제하는데 실패했다.", color.player_failed)
 
             # Item can break regardless of the result
             if random.random() <= tool_chance_of_breaking:
+                if self.entity == self.engine.player:
+                    self.engine.message_log.add_message(f"잠금을 해제하는 과정에서 {g(item.name, '이')} 파괴되었다.", color.player_bad, target=self.entity)
                 item.remove_self()
-                self.engine.message_log.add_message(f"잠금을 해제하는 과정에서 {g(item.name, '이')} 파괴되었다.", color.player_damaged, target=self.entity)
 
             from input_handlers import MainGameEventHandler
             self.engine.event_handler = MainGameEventHandler()
@@ -841,15 +874,24 @@ class DoorBreakAction(ActionWithDirection):
         break_fail = random.randint(10, 20)
 
         if break_fail > strength:
-            self.engine.message_log.add_message(f"{g(self.entity.name, '이')} 문을 강제로 열려고 시도했지만 실패했다.", color.invalid, target=self.entity)
+            if self.entity == self.engine.player:
+                self.engine.message_log.add_message(f"당신은 문을 강제로 열려고 시도했지만 실패했다.",color.player_failed)
+            else:
+                self.engine.message_log.add_message(f"{g(self.entity.name, '은')} 문을 강제로 열려고 시도했지만 실패했다.", color.enemy_neutral, target=self.entity)
         elif break_fail * 2 <= strength: # if the strength value is higher than the break_fail * 2, break open the door (Minimum str req. for breaking the door: 20)
-            self.engine.message_log.add_message(f"{g(self.entity.name, '이')} 문을 파괴했다!", color.yellow, target=self.entity)
+            if self.entity == self.engine.player:
+                self.engine.message_log.add_message(f"당신은 문을 파괴했다!", color.player_success)
+            else:
+                self.engine.message_log.add_message(f"{g(self.entity.name, '은')} 문을 파괴했다!", color.enemy_unique, target=self.entity)
             door.remove_self()
             if self.entity.status.experience:
                 self.entity.status.experience.gain_strength_exp(30, 15, 5000)
             # TODO: drop the wooden door pieces?
         else: # Bust open the door but not break it
-            self.engine.message_log.add_message(f"{g(self.entity.name, '이')} 문을 힘으로 열었다!", color.yellow, target=self.entity)
+            if self.entity == self.engine.player:
+                self.engine.message_log.add_message(f"당신은 문을 강제로 열었다!", color.player_success)
+            else:
+                self.engine.message_log.add_message(f"{g(self.entity.name, '은')} 문을 강제로 열었다!", color.enemy_unique,target=self.entity)
 
             import semiactor_factories
             tmp = semiactor_factories.opened_door.spawn(self.engine.game_map, door.x, door.y, -1)
@@ -866,7 +908,7 @@ class DoorBreakAction(ActionWithDirection):
         # Checking for inability
         if self.entity.check_for_immobility():
             if self.entity == self.engine.player:
-                self.engine.message_log.add_message(f"아무 것도 할 수 없다!", color.red)
+                self.engine.message_log.add_message(f"아무 것도 할 수 없다!", color.player_severe)
             return None
 
         # Get door coordinates
@@ -893,7 +935,10 @@ class DoorOpenAction(ActionWithDirection):
         open_fail = random.randint(0, 12)
             
         if open_fail > dexterity: # check if the actor failed to open the door
-            self.engine.message_log.add_message(f"{g(self.entity.name, '은')} 문을 여는 것에 실패했다!", color.invalid, target=self.entity)
+            if self.entity == self.engine.player:
+                self.engine.message_log.add_message(f"당신은 문을 여는 것에 실패했다!", color.player_failed)
+            else:
+                self.engine.message_log.add_message(f"{g(self.entity.name, '은')} 문을 여는 것에 실패했다!", color.enemy_neutral, target=self.entity)
             from input_handlers import MainGameEventHandler
             self.engine.event_handler = MainGameEventHandler()
             return None
@@ -929,7 +974,7 @@ class DoorOpenAction(ActionWithDirection):
         # Checking for inability
         if self.entity.check_for_immobility():
             if self.entity == self.engine.player:
-                self.engine.message_log.add_message(f"아무 것도 할 수 없다!", color.red)
+                self.engine.message_log.add_message(f"아무 것도 할 수 없다!", color.player_severe)
             return None
 
         # Get door coordinates
@@ -955,12 +1000,13 @@ class DoorOpenAction(ActionWithDirection):
             return None
         elif semiactor_on_dir.entity_id == "opened_door":
             if self.entity == self.engine.player:
-                raise exceptions.Impossible("이 문은 이미 열려 있다.")
+                self.engine.message_log.add_message("이 문은 이미 열려 있다.", color.impossible)
         elif semiactor_on_dir.entity_id == "locked_door":
             if self.entity == self.engine.player:
-                raise self.engine.message_log.add_message(f"문이 굳게 잠겨 열리지 않는다.", color.invalid)
+                self.engine.message_log.add_message(f"문이 굳게 잠겨 열리지 않는다.", color.player_failed)
         else:
-            raise exceptions.Impossible("이 곳에는 문이 없다.")
+            if self.entity == self.engine.player:
+                self.engine.message_log.add_message(f"이 곳에는 문이 없다.", color.impossible)
 
 
 class DoorCloseAction(ActionWithDirection):
@@ -970,7 +1016,7 @@ class DoorCloseAction(ActionWithDirection):
         # Checking for inability
         if self.entity.check_for_immobility():
             if self.entity == self.engine.player:
-                self.engine.message_log.add_message(f"아무 것도 할 수 없다!", color.red)
+                self.engine.message_log.add_message(f"아무 것도 할 수 없다!", color.player_severe)
             return None
 
         # Set coordinates
@@ -998,7 +1044,10 @@ class DoorCloseAction(ActionWithDirection):
             # Try to close the door
             close_fail = random.randint(0, 10) # if dex > 10, actor will not fail closing the door by chance
             if not can_close_door or close_fail > dexterity: # check if the actor has no capabilities, or if the actor failed closing it by chance
-                self.engine.message_log.add_message(f"{g(self.entity.name, '은')} 문을 닫는 것에 실패했다!", color.invalid, target=self.entity)
+                if self.entity == self.engine.player:
+                    self.engine.message_log.add_message(f"당신은 문을 닫는 것에 실패했다!", color.player_failed)
+                else:
+                    self.engine.message_log.add_message(f"{g(self.entity.name, '은')} 문을 닫는 것에 실패했다!", color.enemy_neutral, target=self.entity)
                 return None
 
             tmp = semiactor_factories.closed_door.spawn(self.engine.game_map, dest_x, dest_y, -1)
@@ -1051,7 +1100,7 @@ class PlaceSwapAction(Action):
         # Checking for inability
         if self.entity.check_for_immobility():
             if self.entity == self.engine.player:
-                self.engine.message_log.add_message(f"아무 것도 할 수 없다!", color.red)
+                self.engine.message_log.add_message(f"아무 것도 할 수 없다!", color.player_severe)
             return None
 
         temp_x, temp_y = self.entity.x, self.entity.y
@@ -1067,7 +1116,7 @@ class PlaceSwapAction(Action):
                 self.target.ai.path = None
 
         if self.entity == self.engine.player:
-            self.engine.message_log.add_message(f"당신은 {g(self.target.name, '와')} 자리를 바꾸었다.", color.white)
+            self.engine.message_log.add_message(f"당신은 {g(self.target.name, '와')} 자리를 바꾸었다.", color.player_neutral)
 
         # exp
         if self.entity.status.experience:
@@ -1079,7 +1128,7 @@ class BumpAction(ActionWithDirection):
         # Checking for inability
         if self.entity.check_for_immobility():
             if self.entity == self.engine.player:
-                self.engine.message_log.add_message(f"아무 것도 할 수 없다!", color.red)
+                self.engine.message_log.add_message(f"아무 것도 할 수 없다!", color.player_severe)
             return None
 
         if self.bump_entity:

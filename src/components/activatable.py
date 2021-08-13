@@ -71,7 +71,10 @@ class StealActivatable(Activatable):
 
         # If there is no target
         if not target:
-            self.engine.message_log.add_message(f"{g(attacker.name, '은')} 허공에서 훔칠만한 것을 찾아보았지만 실패했다.", target=attacker, fg=color.gray)
+            if attacker == self.engine.player:
+                self.engine.message_log.add_message(f"당신은 허공에서 훔칠만한 것을 찾아보았지만 실패했다.", target=attacker, fg=color.player_failed)
+            else:
+                self.engine.message_log.add_message(f"{g(attacker.name, '은')} 허공에서 훔칠만한 것을 찾아보았지만 실패했다.",target=attacker, fg=color.enemy_unique)
             return None
 
         # Chance of successfully stealing depends on the caster's dexterity.
@@ -104,18 +107,33 @@ class StealActivatable(Activatable):
                     attacker.inventory.add_item(dup_item)
 
                 # Log
-                if item_count > 1:
-                    self.engine.message_log.add_message(f"{g(attacker.name, '은')} {g(target.name, '로')}부터 {g(dup_item.name, '을')} 훔쳤다! (x{dup_item.stack_count})", target=attacker)
-                    target.status.take_damage(amount=0, attacked_from=attacker)# make target hostile
+                if attacker == self.engine.player:
+                    if item_count > 1:
+                        self.engine.message_log.add_message(
+                            f"당신은 {g(target.name, '로')}부터 {g(dup_item.name, '을')} 훔쳤다! (x{dup_item.stack_count})", fg=color.player_success)
+                    else:
+                        self.engine.message_log.add_message(
+                            f"당신은 {g(target.name, '로')}부터 {g(dup_item.name, '을')} 훔쳤다!", fg=color.player_success)
                 else:
-                    self.engine.message_log.add_message(f"{g(attacker.name, '은')} {g(target.name, '로')}부터 {g(dup_item.name, '을')} 훔쳤다!", target=attacker)
-                    target.status.take_damage(amount=0, attacked_from=attacker)# make target hostile
+                    if item_count > 1:
+                        self.engine.message_log.add_message(f"{g(attacker.name, '은')} {g(target.name, '로')}부터 {g(dup_item.name, '을')} 훔쳤다! (x{dup_item.stack_count})", target=attacker, fg=color.enemy_unique)
+                    else:
+                        self.engine.message_log.add_message(f"{g(attacker.name, '은')} {g(target.name, '로')}부터 {g(dup_item.name, '을')} 훔쳤다!", target=attacker, fg=color.enemy_unique)
+
+                target.status.take_damage(amount=0, attacked_from=attacker)# make target hostile
             else:
-                self.engine.message_log.add_message(f"{g(attacker.name, '은')} {g(target.name, '로')}부터 무언가를 훔치려 시도했지만 훔칠 만한 것이 아무 것도 없었다.", target=attacker)
+                if attacker == self.engine.player:
+                    self.engine.message_log.add_message(
+                        f"당신은 {g(target.name, '로')}부터 무언가를 훔치려 시도했지만 훔칠 만한 것이 아무 것도 없었다.", fg=color.player_failed)
+                else:
+                    self.engine.message_log.add_message(f"{g(attacker.name, '은')} {g(target.name, '로')}부터 무언가를 훔치려 시도했지만 훔칠 만한 것이 아무 것도 없었다.", target=attacker, fg=color.enemy_unique)
                 target.status.take_damage(amount=0, attacked_from=attacker)# make target hostile
         # B. Stealing Failed
         else:
-            self.engine.message_log.add_message(f"{g(attacker.name, '은')} {g(target.name, '로')}부터 무언가를 훔치려 시도했지만 실패했다.", target=attacker)
+            if attacker == self.engine.player:
+                self.engine.message_log.add_message(f"당신은 {g(target.name, '로')}부터 무언가를 훔치려 시도했지만 실패했다.", fg=color.player_failed)
+            else:
+                self.engine.message_log.add_message(f"{g(attacker.name, '은')} {g(target.name, '로')}부터 무언가를 훔치려 시도했지만 실패했다.", target=attacker, fg=color.enemy_unique)
             target.status.take_damage(amount=0, attacked_from=attacker)# make target hostile
 
 
@@ -154,7 +172,9 @@ class SpellActivateable(Activatable):
             self.cast(action=action)
         else:
             if action.entity == self.engine.player:
-                self.engine.message_log.add_message(f"{g(action.entity.name, '은')} 마나 부족으로 인해 마법 사용에 실패했다.", target=action.entity)
+                self.engine.message_log.add_message(f"당신은 마나 부족으로 인해 마법 사용에 실패했다.", fg=color.player_not_good)
+            else:
+                self.engine.message_log.add_message(f"{g(action.entity.name, '은')} 마나 부족으로 인해 마법 사용에 실패했다.", target=action.entity, fg=color.enemy_neutral)
         
 
 class LightningStrikeActivatable(SpellActivateable):
@@ -177,7 +197,10 @@ class LightningStrikeActivatable(SpellActivateable):
                     closest_distance = distance
 
         if target:
-            self.engine.message_log.add_message(f"번개가 {g(target.name, '을')} 내리쳤다!", target=caster)
+            if target == self.engine.player:
+                self.engine.message_log.add_message(f"번개가 당신을 내리쳤다!", fg=color.player_bad)
+            else:
+                self.engine.message_log.add_message(f"번개가 {g(target.name, '을')} 내리쳤다!", target=caster, fg=color.enemy_unique)
 
             target.status.take_damage(amount=0, attacked_from=caster) # trigger target
             target.actor_state.apply_electrocution([self.damage, 0.5])

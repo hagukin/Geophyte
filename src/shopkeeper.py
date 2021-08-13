@@ -182,24 +182,33 @@ class Shopkeeper_Ai(ai.BaseAI):
         NOTE: in order to sell an item, item should have no owner, and it should be located in shop's inner area.
         """
         if not item.tradable:
-            self.engine.message_log.add_message("거래가 불가능한 아이템을 판매할 수 없습니다.", fg=color.gray)
+            if customer == self.engine.player:
+                self.engine.message_log.add_message("거래가 불가능한 아이템을 판매할 수 없습니다.", fg=color.impossible)
             # This part should never be reached in the first place since you cannot select non-tradable items from SellItemHandler
             return None
         if item.item_state.equipped_region is not None:
-            self.engine.message_log.add_message("장착하고 있는 아이템을 판매할 수 없습니다.", fg=color.gray)
+            if customer == self.engine.player:
+                self.engine.message_log.add_message("장착하고 있는 아이템을 판매할 수 없습니다.", fg=color.impossible)
             # This part should never be reached in the first place since you cannot select equipped items from SellItemHandler
             return None
         if item.item_state.is_being_sold_from is not None:
-            self.engine.message_log.add_message("소유권이 없는 아이템을 판매할 수 없습니다.", fg=color.gray)
+            if customer == self.engine.player:
+                self.engine.message_log.add_message("소유권이 없는 아이템을 판매할 수 없습니다.", fg=color.impossible)
             # This part should never be reached in the first place since you cannot select not-owned items from SellItemHandler
             return None
 
         buying_price = item.price_of_all_stack(is_shopkeeper_is_selling=False, discount=0.5)
         if self.parent.inventory.check_has_enough_money(buying_price):
-            if item.stack_count > 1:
-                self.engine.message_log.add_message(f"{g(customer.name, '이')} {item.name} (x{item.stack_count}) 을 총 {buying_price}샤인에 판매했다.", fg=color.shop_sold)
+            if customer == self.engine.player:
+                if item.stack_count > 1:
+                    self.engine.message_log.add_message(f"당신은 {item.name} (x{item.stack_count}) 을 총 {buying_price}샤인에 판매했다.", fg=color.shop_sold)
+                else:
+                    self.engine.message_log.add_message(f"당신은 {g(item.name, '을')} {buying_price}샤인에 판매했다.", fg=color.shop_sold)
             else:
-                self.engine.message_log.add_message(f"{g(customer.name, '이')} {g(item.name, '을')} {buying_price}샤인에 판매했다.", fg=color.shop_sold)
+                if item.stack_count > 1:
+                    self.engine.message_log.add_message(f"{g(customer.name, '이')} {item.name} (x{item.stack_count}) 을 총 {buying_price}샤인에 판매했다.", fg=color.enemy_unique)
+                else:
+                    self.engine.message_log.add_message(f"{g(customer.name, '이')} {g(item.name, '을')} {buying_price}샤인에 판매했다.", fg=color.enemy_unique)
             self.give_cash(customer, buying_price)
             tmp = customer.inventory.delete_item_from_inv(item)
             self.add_item_to_shop(tmp)
@@ -218,7 +227,10 @@ class Shopkeeper_Ai(ai.BaseAI):
         if customer.inventory.check_has_enough_money(selling_price):
             self.take_cash(customer, selling_price)
             self.remove_item_from_shop(item)
-            self.engine.message_log.add_message(f"{g(customer.name, '이')} {g(item.name, '을')} {selling_price}샤인에 구매했다.", fg=color.shop_purchased)
+            if customer == self.engine.player:
+                self.engine.message_log.add_message(f"당신은 {g(item.name, '을')} {selling_price}샤인에 구매했다.", fg=color.shop_purchased)
+            else:
+                self.engine.message_log.add_message(f"{g(customer.name, '이')} {g(item.name, '을')} {selling_price}샤인에 구매했다.",fg=color.shop_purchased)
         else:
             return None
 

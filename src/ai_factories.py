@@ -86,13 +86,16 @@ class Floating_Eye_Ai(ai.BaseAI):
 
             # Check if the target is in radius, and if the target is not already paralyzed
             if monster_vision[self.attacked_from.x, self.attacked_from.y] and self.attacked_from.actor_state.is_paralyzing == [0,0]:
-                self.attacked_from.actor_state.apply_paralyzation([0, 15])
-
                 # Message log
                 if self.engine.game_map.visible[self.parent.x, self.parent.y] or self.engine.game_map.visible[self.attacked_from.x, self.attacked_from.y]:
-                    self.engine.message_log.add_message(f"{g(self.parent.name, '이')} {g(self.attacked_from.name, '을')} 바라본다.", color.white)
+                    if self.attacked_from.name == self.engine.player:
+                        self.engine.message_log.add_message(f"{g(self.parent.name, '이')} 당신을 바라본다.", color.player_debuff)
+                    else:
+                        self.engine.message_log.add_message(f"{g(self.parent.name, '이')} {g(self.attacked_from.name, '을')} 바라본다.", color.enemy_unique)
 
-                self.attacked_from = None
+            if self.attacked_from.actor_state.has_eye:
+                self.attacked_from.actor_state.apply_paralyzation([0, 15])
+            self.attacked_from = None
 
         return super().perform_peaceful()
 

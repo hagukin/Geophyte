@@ -229,7 +229,7 @@ class Equipments(BaseComponent):
         if self.equipments["main hand"] != None and self.equipments["off hand"] != None:
             debuff_dex = (self.equipments["main hand"].weight + self.equipments["off hand"].weight) * 5
             if self.parent == self.engine.player:
-                self.engine.message_log.add_message(text=f"당신은 {g(self.equipments['main hand'].name, '와')} {g(self.equipments['off hand'].name, '을')} 쌍수로 장비했다.", fg=color.green)
+                self.engine.message_log.add_message(text=f"당신은 {g(self.equipments['main hand'].name, '와')} {g(self.equipments['off hand'].name, '을')} 쌍수로 장비했다.", fg=color.player_buff)
             self.parent.status.add_bonus(Bonus(bonus_id="dual_wield", bonus_dexterity=-debuff_dex))
         else:
             self.parent.status.remove_bonus("dual_wield", ignore_warning=True)
@@ -271,9 +271,9 @@ class Equipments(BaseComponent):
 
         if not forced:
             if self.parent == self.engine.player:
-                self.engine.message_log.add_message(f"당신은 {g(item.name, '을')} {equip_region_name_to_str(curr_equipped_region)} 부위에 장착했다.", fg=color.health_recovered)
+                self.engine.message_log.add_message(f"당신은 {g(item.name, '을')} {equip_region_name_to_str(curr_equipped_region)} 부위에 장착했다.", fg=color.player_buff)
             else:
-                self.engine.message_log.add_message(f"{g(self.parent.name, '이')} {g(item.name, '을')} {equip_region_name_to_str(curr_equipped_region)} 부위에 장착했다.", fg=color.gray, target=self.parent)
+                self.engine.message_log.add_message(f"{g(self.parent.name, '이')} {g(item.name, '을')} {equip_region_name_to_str(curr_equipped_region)} 부위에 장착했다.", fg=color.enemy_unique, target=self.parent)
         self.update_dual_wielding() # update
 
     def remove_equipment(self, region: str, forced: bool=False):# forced는 parent의 의지에 의해 이루어진 게 아닐 경우 True.
@@ -297,9 +297,9 @@ class Equipments(BaseComponent):
 
             if not forced: # If the equipments is burned, rotted, etc(forced), do not display the log message.
                 if self.parent == self.engine.player:
-                    self.engine.message_log.add_message(f"당신은 {g(self.equipments[region].name, '을')} {equip_region_name_to_str(region)} 부위에서 장착 해제했다.", fg=color.health_recovered)
+                    self.engine.message_log.add_message(f"당신은 {g(self.equipments[region].name, '을')} {equip_region_name_to_str(region)} 부위에서 장착 해제했다.", fg=color.player_neutral)
                 else:
-                    self.engine.message_log.add_message(f"{g(self.parent.name, '이')} {g(self.equipments[region].name, '을')} 장착 해제했다.", fg=color.gray, target=self.parent)
+                    self.engine.message_log.add_message(f"{g(self.parent.name, '이')} {g(self.equipments[region].name, '을')} 장착 해제했다.", fg=color.enemy_unique, target=self.parent)
 
             self.equipments[region] = None
             self.update_dual_wielding()  # update

@@ -494,7 +494,7 @@ class Status(BaseComponent):
             self.engine.event_handler = GameOverEventHandler()
         elif self.engine.game_map.visible[self.parent.x, self.parent.y]:  # if dead entity is in player's visible range
             death_message += f"{g(self.parent.name, '이')} 죽었다!"
-            death_message_color = color.enemy_die
+            death_message_color = color.enemy_unique
         else:
             death_message_color = color.white
             pass  # Show nothing if entity is not in visible radius.

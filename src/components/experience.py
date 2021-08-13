@@ -89,11 +89,11 @@ class Experience(BaseComponent):
         msg_color = color.white
         if self.parent.parent == self.parent.engine.player:
             flag = True
-            msg_color = color.player_lvl_up
+            msg_color = color.player_buff
         elif self.parent.parent.ai:
             if self.parent.parent.ai.owner == self.parent.engine.player:
                 flag = True
-                msg_color = color.pet_lvl_up
+                msg_color = color.player_buff
         
         if not flag:
             return None

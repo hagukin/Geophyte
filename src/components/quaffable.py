@@ -41,7 +41,8 @@ class Quaffable(BaseComponent):
     def consume(self) -> None:
         """Remove the consumed item from its containing inventory."""
         # fully identify used instance, and semi-identify the same item types.
-        self.parent.item_state.identify_self(identify_level=2)
+        if self.owner == self.engine.player:
+            self.parent.item_state.identify_self(identify_level=1)
         self.parent.parent.decrease_item_stack(self.parent, remove_count=1)
 
 
@@ -55,20 +56,21 @@ class PotionOfHealingQuaffable(Quaffable):
 
         if amount_recovered > 0:
             if apply_to == self.engine.player:
-                self.engine.message_log.add_message(f"당신의 몸에 에너지가 넘친다!",color.health_recovered,)
-                self.engine.message_log.add_message(f"당신은 {amount_recovered}만큼의 체력을 회복했다.", color.white, )
+                self.engine.message_log.add_message(f"당신의 몸에 에너지가 넘친다!",color.player_buff,)
+                self.engine.message_log.add_message(f"당신은 {amount_recovered}만큼의 체력을 회복했다.", color.player_neutral_important, )
             else:
                 if self.engine.game_map.visible[apply_to.x, apply_to.y]:
-                    self.engine.message_log.add_message(f"{apply_to.name}의 상처가 낫기 시작한다!", color.white, target=apply_to)
+                    self.engine.message_log.add_message(f"{apply_to.name}의 상처가 낫기 시작한다!", color.player_sense, target=apply_to)
+                    self.parent.item_state.identify_self(identify_level=1)
         else:# Gain additional health when quaffed while full-health
             amount = max(1, round(self.amount / 10))  # TODO balance
             apply_to.status.max_hp += amount
             apply_to.status.heal(amount=amount)
 
             if apply_to == self.engine.player:
-                self.engine.message_log.add_message(f"당신의 몸에 에너지가 넘친다!",color.health_recovered,)
+                self.engine.message_log.add_message(f"당신의 몸에 에너지가 넘친다!",color.player_buff,)
             if apply_to == self.engine.player:
-                self.engine.message_log.add_message(f"당신의 최대 체력이 {amount}만큼 증가했다.", color.white, )
+                self.engine.message_log.add_message(f"당신의 최대 체력이 {amount}만큼 증가했다.", color.player_neutral_important, )
 
         if apply_to.status.experience:
             apply_to.status.experience.gain_constitution_exp(60, 17)
@@ -87,14 +89,15 @@ class PotionOfParalysisQuaffable(Quaffable):
         # Log
         if temp == [0, 0]:
             if apply_to == self.engine.player:
-                self.engine.message_log.add_message(f"당신은 갑자기 몸이 뻣뻣해지는 것을 느꼈다!", color.player_damaged, )
+                self.engine.message_log.add_message(f"당신은 갑자기 몸이 뻣뻣해지는 것을 느꼈다!", color.player_debuff, )
             else:
                 if self.engine.game_map.visible[apply_to.x, apply_to.y]:
-                    self.engine.message_log.add_message(f"{g(apply_to.name, '이')} 갑자기 모든 움직임을 멈추었다.", color.white,
+                    self.engine.message_log.add_message(f"{g(apply_to.name, '이')} 갑자기 모든 움직임을 멈추었다.", color.player_sense,
                                                         target=apply_to)
+                    self.parent.item_state.identify_self(identify_level=1)
         else:
             if apply_to == self.engine.player:
-                self.engine.message_log.add_message(f"당신의 몸이 더 뻣뻣해졌다!", color.player_damaged, )
+                self.engine.message_log.add_message(f"당신의 몸이 더 뻣뻣해졌다!", color.player_bad, )
 
 
 class PotionOfMonsterDetectionQuaffable(Quaffable):
@@ -108,10 +111,10 @@ class PotionOfMonsterDetectionQuaffable(Quaffable):
         
         # Log
         if apply_to == self.engine.player:
-            self.engine.message_log.add_message(f"당신은 다른 생명체들의 존재를 감지하기 시작했다.", color.player_damaged,)
+            self.engine.message_log.add_message(f"당신은 다른 생명체들의 존재를 감지하기 시작했다.", color.player_buff,)
         else:
             if self.engine.game_map.visible[apply_to.x, apply_to.y]:
-                self.engine.message_log.add_message(f"{g(apply_to.name, '는')} 무언가를 눈치챈 듯 하다.", color.white, target=apply_to)
+                self.engine.message_log.add_message(f"{g(apply_to.name, '는')} 무언가를 눈치챈 듯 하다.", color.player_sense, target=apply_to)
 
         if apply_to.status.experience:
             apply_to.status.experience.gain_intelligence_exp(20, 17)
@@ -142,10 +145,11 @@ class PotionOfFlameQuaffable(Quaffable):
 
         # Log
         if apply_to == self.engine.player:
-            self.engine.message_log.add_message(f"당신의 몸에서 강렬한 열기가 느껴진다!", color.player_damaged, )
+            self.engine.message_log.add_message(f"당신의 몸에서 강렬한 열기가 느껴진다!", color.player_debuff, )
         else:
             if self.engine.game_map.visible[apply_to.x, apply_to.y]:
-                self.engine.message_log.add_message(f"{apply_to.name}에게서 연기가 피어오르기 시작한다.", color.white, target=apply_to)
+                self.engine.message_log.add_message(f"{apply_to.name}에게서 불꽃이 피어오르기 시작한다.", color.player_sense, target=apply_to)
+                self.parent.item_state.identify_self(identify_level=1)
 
 
 class PotionOfAcidQuaffable(Quaffable):
@@ -163,10 +167,11 @@ class PotionOfAcidQuaffable(Quaffable):
 
         # Log
         if apply_to == self.engine.player:
-            self.engine.message_log.add_message(f"당신의 몸이 조금씩 흘러내리기 시작한다.", color.player_damaged, )
+            self.engine.message_log.add_message(f"당신의 몸이 조금씩 흘러내리기 시작한다.", color.player_debuff, )
         else:
             if self.engine.game_map.visible[apply_to.x, apply_to.y]:
-                self.engine.message_log.add_message(f"{apply_to.name}에게서 시큼한 냄새가 나기 시작한다.", color.white, target=apply_to)
+                self.engine.message_log.add_message(f"{apply_to.name}에게서 시큼한 냄새가 나기 시작한다.", color.player_sense, target=apply_to)
+                self.parent.item_state.identify_self(identify_level=1)
 
 
 class PotionOfFrostQuaffable(Quaffable):
@@ -187,10 +192,11 @@ class PotionOfFrostQuaffable(Quaffable):
 
         # Log
         if apply_to == self.engine.player:
-            self.engine.message_log.add_message(f"차가운 냉기가 당신의 뼈를 타고 전해진다.", color.player_damaged, )
+            self.engine.message_log.add_message(f"차가운 냉기가 당신의 뼈를 타고 전해진다.", color.player_debuff, )
         else:
             if self.engine.game_map.visible[apply_to.x, apply_to.y]:
-                self.engine.message_log.add_message(f"{apply_to.name}의 움직임이 점점 둔해진다.", color.white, target=apply_to)
+                self.engine.message_log.add_message(f"{apply_to.name}의 움직임이 점점 둔해진다.", color.player_sense, target=apply_to)
+                self.parent.item_state.identify_self(identify_level=1)
 
 
 class PotionOfPoisonQuaffable(Quaffable):
@@ -209,8 +215,11 @@ class PotionOfPoisonQuaffable(Quaffable):
 
         # Log
         if apply_to == self.engine.player:
-            self.engine.message_log.add_message(f"당신은 전신의 핏줄이 요동치는 듯한 느낌을 받았다.", color.player_damaged, )
-
+            self.engine.message_log.add_message(f"당신은 전신의 핏줄이 요동치는 듯한 느낌을 받았다.", color.player_debuff, )
+        else:
+            if self.engine.game_map.visible[apply_to.x, apply_to.y]:
+                self.engine.message_log.add_message(f"{g(apply_to.name, '이')} 고통 속에 몸부림친다.", color.player_sense, target=apply_to)
+                self.parent.item_state.identify_self(identify_level=1)
 
 class PotionOfLevitationQuaffable(Quaffable):
     def __init__(self, turn: int):
@@ -223,6 +232,11 @@ class PotionOfLevitationQuaffable(Quaffable):
         # Log
         if apply_to == self.engine.player:
             self.engine.message_log.add_message(f"당신은 몸이 붕 뜨는 듯한 느낌을 받았다.", color.player_damaged, )
+        else:
+            if self.engine.game_map.visible[apply_to.x, apply_to.y]:
+                if not apply_to.is_on_air:
+                    self.engine.message_log.add_message(f"{g(apply_to.name, '이')} 돌연 공중에 떠오르기 시작한다.", color.player_sense, target=apply_to)
+                    self.parent.item_state.identify_self(identify_level=1)
 
 
 class PotionOfLiquifiedAntsQuaffable(Quaffable):

@@ -4,6 +4,7 @@ from tcod.tileset import get_default
 import copy
 import math
 import random
+import color
 import numpy as np
 
 from typing import Optional, Tuple, Type, TypeVar, TYPE_CHECKING, List
@@ -696,7 +697,10 @@ class Actor(Entity):
         super().collided_with_fire()
         # Burn the actor
         if self.actor_state.is_burning == [0,0,0,0]: # was not already burning
-            self.engine.message_log.add_message(f"{self.name}에 불이 붙었다!",target=self)
+            if self == self.engine.player:
+                self.engine.message_log.add_message(f"당신의 몸에 불이 붙었다!",target=self, fg=color.player_bad)
+            else:
+                self.engine.message_log.add_message(f"{self.name}에게 불이 붙었다!", target=self, fg=color.enemy_unique)
             self.actor_state.apply_burning([fire.rule.base_damage, fire.rule.add_damage, 0, fire.rule.fire_duration])
 
     def change_tile_on_path(self):

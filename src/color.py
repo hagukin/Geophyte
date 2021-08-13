@@ -1,7 +1,7 @@
-import color
 
 white = (0xFF, 0xFF, 0xFF)
 black = (0x0, 0x0, 0x0)
+blue = (0, 0, 255)
 red = (0xFF, 0x0, 0x0)
 green = (0x0, 0xFF, 0x0)
 blood = (191, 0, 0)
@@ -11,6 +11,7 @@ lime = (0xbf, 0xff, 0x00)
 cyan = (0x0, 0xff, 0xff)
 brass = (181, 166, 66)
 brown = (101, 67, 33)
+reddish_brown = (140, 42, 0)
 light_brown = (171, 103, 0)
 yellow = (0xff, 0xff, 0x00)
 orange = (0xFF, 0xA5, 0x00)
@@ -23,8 +24,14 @@ grayish_blue = (0x49, 0x69, 0x80)
 soothing_blue = (0x03, 0x5D, 0x96)
 darkish_red = (0x49, 0x13, 0x09)
 gold = (0xd4, 0xaf, 0x37)
+light_pink = (255, 158, 239)
+pink = (255, 0, 251)
 old_paper_yellow = (235, 213, 179)
+dying_red = (138, 72, 72)
+weak_yellow = (242, 234, 111)
+violet = (104, 10, 255)
 
+##############
 procgen_bg = None
 procgen_fg = white
 
@@ -41,31 +48,58 @@ camera_frame_bg = gui_frame_bg
 option_bg = (0xD0, 0xCF, 0xD7)
 option_fg = black
 
-player_atk = white
-player_crit = yellow
-player_atk_missed = white
-enemy_atk = gray
-enemy_crit = gray
-enemy_atk_missed = gray
-help_msg = (0x3F, 0xFF, 0xFF)
-status_effect_applied = (0x3F, 0xFF, 0x3F)
-burdened = color.yellow
-stressed = (255, 179, 0)
-overloaded = (255, 106, 0)
-immovable = (255, 34, 0)
 
-obtain_item = (3, 252, 211)
+##################
 
-actor_detection = (252, 3, 219)
+player_severe = red
+player_bad = orange
+player_not_good = yellow
 
-player_damaged = (0xff, 0x70, 0x03)
-enemy_damaged = gray
+player_neutral = white
+player_neutral_important = (0, 201, 0)
+
+player_buff = green
+player_debuff = reddish_brown
+
+player_success = cyan
+player_failed = purple
+
+player_atk = light_pink
+player_crit = pink
+player_atk_missed = weak_yellow
+player_melee_hit = (255, 110, 110)
+
+player_sense = (148, 171, 255)
 
 player_die = (0xFF, 0x30, 0x30)
 enemy_die = (0xFF, 0xA0, 0x30)
 
-player_lvl_up = cyan
-pet_lvl_up = soothing_blue
+
+enemy_atk = gray
+enemy_crit = gray
+enemy_atk_missed = gray
+enemy_neutral = gray
+
+enemy_unique = white
+
+world = (255, 221, 148)
+
+obtain_item = (3, 252, 211)
+
+
+###################
+
+help_msg = violet
+status_effect_applied = (0x3F, 0xFF, 0x3F)
+burdened = yellow
+stressed = (255, 179, 0)
+overloaded = (255, 106, 0)
+immovable = (255, 34, 0)
+
+actor_detection = (252, 3, 219)
+player_damaged = (0xff, 0x70, 0x03)
+enemy_damaged = gray
+
 
 invalid = (0xFF, 0xFF, 0x00)
 impossible = (0x80, 0x80, 0x80)

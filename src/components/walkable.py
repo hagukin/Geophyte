@@ -208,17 +208,17 @@ class AcidSprayTrapWalkable(TrapWalkable):
         # No effects when levitating(flying)
         if target.is_on_air:
             if self.gamemap.visible[target.x, target.y]:
-                self.engine.message_log.add_message(f"{g(target.name, '이')} {self.parent.name} 위를 넘어갔다.", target=target)
+                self.engine.message_log.add_message(f"{g(target.name, '이')} {self.parent.name} 위를 넘어갔다.", target=target, fg=color.player_sense)
 
             return None
 
         # else
         if target == self.engine.player:
-            self.engine.message_log.add_message(f"당신은 {g(self.parent.name, '을')} 밟았다.", target=target)
+            self.engine.message_log.add_message(f"당신은 {g(self.parent.name, '을')} 밟았다.", target=target, fg=color.player_not_good)
+            self.engine.message_log.add_message(f"{g(target.name, '이')} 산성 물질을 분사한다!", target=target, fg=color.player_bad)
         else:
-            self.engine.message_log.add_message(f"{g(target.name, '이')} {g(self.parent.name, '을')} 밟았다.", target=target)
+            self.engine.message_log.add_message(f"{g(target.name, '이')} {g(self.parent.name, '을')} 밟았다.", target=target, fg=color.enemy_neutral)
         if not target.actor_state.is_dead:
-            self.engine.message_log.add_message(f"{g(target.name, '이')} 산성 물질을 분사한다!", fg=color.red, target=target)
             target.actor_state.apply_melting(list(self.melt_value))
 
 
@@ -234,27 +234,29 @@ class PoisonSpikeTrapWalkable(TrapWalkable):
         # No effects when levitating(flying)
         if target.is_on_air:
             if self.gamemap.visible[target.x, target.y]:
-                self.engine.message_log.add_message(f"{g(target.name, '이')} {self.parent.name} 위를 넘어갔다.", target=target)
-
+                self.engine.message_log.add_message(f"{g(target.name, '이')} {self.parent.name} 위를 넘어갔다.", target=target,
+                                                    fg=color.player_sense)
             return None
 
         # No damage when something is equipped on feet
         feet_item = target.equipments.equipments["feet"]
         if feet_item:
-            if self.gamemap.visible[target.x, target.y]:
-                self.engine.message_log.add_message(
-                    f"{g(target.name, '은')} {g(self.parent.name, '을')} 밟았지만, {g(feet_item.name, '이')} {g(target.name, '을')} 보호했다!",
-                    target=target)
+            if feet_item.equipable:
+                if feet_item.equipable.eq_protection > 0: # Solid boots
+                    if target == self.engine.player:
+                        self.engine.message_log.add_message(
+                            f"당신은 {g(self.parent.name, '을')} 밟았지만, {g(feet_item.name, '이')} {g(target.name, '을')} 보호했다!",
+                            fg=color.player_neutral)
 
-            return None
+                    return None
 
         # else
         dmg = self.base_damage + random.randint(0, self.add_damage)
         if target == self.engine.player:
-            self.engine.message_log.add_message(f"당신은 {g(self.parent.name, '을')} 밟아 {dmg} 데미지를 받았다.")
+            self.engine.message_log.add_message(f"당신은 {g(self.parent.name, '을')} 밟아 {dmg} 데미지를 받았다.", fg=color.player_bad)
         else:
             self.engine.message_log.add_message(f"{g(target.name, '이')} {g(self.parent.name, '을')} 밟아 {dmg} 데미지를 받았다.",
-                                                target=target)
+                                                target=target, fg=color.enemy_unique)
         target.status.take_damage(dmg)
         if not target.actor_state.is_dead:
             target.actor_state.apply_poisoning(list(self.poison_value))
@@ -275,11 +277,11 @@ class SonicBoomTrapWalkable(TrapWalkable):
     def sonic_boom(self, target) -> None:
         from util import get_distance
         if self.parent == self.engine.player:
-            self.engine.message_log.add_message(f"던전 전체에 굉음이 울린다!", fg=color.red, target=self.parent)
+            self.engine.message_log.add_message(f"던전 전체에 굉음이 울린다!", fg=color.world, target=self.parent)
         elif self.engine.game_map.visible[self.parent.x, self.parent.y]:
-            self.engine.message_log.add_message(f"던전 전체에 굉음이 울린다!", fg=color.red, target=self.parent)
+            self.engine.message_log.add_message(f"던전 전체에 굉음이 울린다!", fg=color.world, target=self.parent)
         elif get_distance(self.parent.x, self.parent.y, self.engine.player.x, self.engine.player.y) <= self.engine.player.status.changed_status["hearing"]:
-            self.engine.message_log.add_message(f"던전 어디에선가 굉음이 들린다.", fg=color.red, target=self.parent)
+            self.engine.message_log.add_message(f"던전 어디에선가 굉음이 들린다.", fg=color.player_sense, target=self.parent)
         for actor in self.engine.game_map.actors:
             if actor.ai:
                 if get_distance(self.parent.x, self.parent.y, actor.x, actor.y) <= actor.status.changed_status["hearing"]:
@@ -292,8 +294,8 @@ class SonicBoomTrapWalkable(TrapWalkable):
         # No effects when levitating(flying)
         if target.is_on_air:
             if self.gamemap.visible[target.x, target.y]:
-                self.engine.message_log.add_message(f"{g(target.name, '이')} {self.parent.name} 위를 넘어갔다.", target=target)
-
+                self.engine.message_log.add_message(f"{g(target.name, '이')} {self.parent.name} 위를 넘어갔다.", target=target,
+                                                    fg=color.player_sense)
             return None
 
         if target == self.engine.player:
@@ -325,7 +327,7 @@ class ExplosionTrapWalkable(TrapWalkable):
         self.cause_fire = cause_fire
 
     def explode(self, entity: Entity) -> None:
-        self.engine.message_log.add_message(f"{g(self.parent.name, '이')} 폭발했다!", target=self.parent)
+        self.engine.message_log.add_message(f"{g(self.parent.name, '이')} 폭발했다!", target=self.parent, fg=color.world)
         from explosion_action import ExplodeAction
         expl = ExplodeAction(
             self.parent,
@@ -345,15 +347,15 @@ class ExplosionTrapWalkable(TrapWalkable):
         # No effects when levitating(flying)
         if target.is_on_air:
             if self.gamemap.visible[target.x, target.y]:
-                self.engine.message_log.add_message(f"{g(target.name, '이')} {self.parent.name} 위를 넘어갔다.", target=target)
-
+                self.engine.message_log.add_message(f"{g(target.name, '이')} {self.parent.name} 위를 넘어갔다.", target=target,
+                                                    fg=color.player_sense)
             return None
 
         # else
         if target == self.engine.player:
-            self.engine.message_log.add_message(f"당신은 {g(self.parent.name, '을')} 밟았다.", target=target)
+            self.engine.message_log.add_message(f"당신은 {g(self.parent.name, '을')} 밟았다.", fg=color.player_not_good)
         else:
-            self.engine.message_log.add_message(f"{g(target.name, '이')} {g(self.parent.name, '을')} 밟았다.", target=target)
+            self.engine.message_log.add_message(f"{g(target.name, '이')} {g(self.parent.name, '을')} 밟았다.", target=target, fg=color.enemy_unique)
         self.explode(target)
 
 ############################################################

@@ -1465,7 +1465,7 @@ class SelectIndexHandler(AskUserEventHandler):
             if event.button == tcod.event.BUTTON_LEFT:
                 return self.on_index_selected(*abs_cursor_loc)
         else:
-            self.engine.message_log.add_message("맵 안의 영역을 클릭하세요.", fg=color.yellow)
+            self.engine.message_log.add_message("맵 안의 영역을 클릭하세요.", fg=color.invalid)
             if self.item_cancel_callback != None:
                 return self.item_cancel_callback(0)
         return super().ev_mousebuttondown(event)
@@ -1803,7 +1803,7 @@ class MainGameEventHandler(EventHandler):
                 pic_name = time_str
                 #pic_name = self.engine.player.name + "-" + time_str # bugs occur when using certain unicode chars.
                 self.engine.context.save_screenshot(f"./screenshots/{pic_name}.png")
-                self.engine.message_log.add_message(f"스크린샷 저장됨. {pic_name}.png", color.help_msg)
+                self.engine.message_log.add_message(f"스크린샷 저장됨. {pic_name}.png", color.cyan)
 
 
             elif key == tcod.event.K_F11:#TODO DEBUG

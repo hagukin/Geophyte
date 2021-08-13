@@ -354,7 +354,14 @@ class PotionOfLiquifiedAntsThrowable(NormalThrowable):
         # Spawn 8 ants maximum surrounding the consumer.
         from actor_factories import ant
         from util import spawn_entity_8way
-        spawn_entity_8way(entity=ant, gamemap=self.engine.game_map, center_x=self.shattered_x - self.dx, center_y=self.shattered_y - self.dy, spawn_cnt=random.randint(5,8), spawn_on_center=True)
+        spawn = ant
+        spawn_entity_8way(entity=spawn, gamemap=self.engine.game_map, center_x=self.shattered_x - self.dx, center_y=self.shattered_y - self.dy, spawn_cnt=random.randint(5,8), spawn_on_center=True)
+
+        if self.engine.game_map.visible[self.shattered_x, self.shattered_y]:
+            self.engine.message_log.add_message(f"{self.parent.name}이 깨진 자리에서 {spawn.name}들이 생겨났다!",color.player_sense)
+            self.parent.item_state.identify_self(identify_level=1)
+            self.engine.message_log.add_message(f"당신은 {self.parent.name}의 존재를 알게 되었다.",
+                                                color.player_neutral_important)
 
 
 class ToxicGooThrowable(NormalThrowable):
