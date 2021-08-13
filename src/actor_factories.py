@@ -291,7 +291,9 @@ fire_ant = Actor(
         protection=9,
         hearing=7,
         eyesight=15,
-        fire_resistance=0.9,
+        fire_resistance=1,
+        melee_effects_var=((3,1,0,4),),
+        melee_effects=(("burn_target", 0.2),),
         ),
     actor_state=ActorState(
         size=2,
@@ -341,7 +343,9 @@ volt_ant = Actor(
         protection=9,
         hearing=7,
         eyesight=15,
-        shock_resistance=0.9,
+        shock_resistance=1,
+        melee_effects_var=((5, 0.5),),
+        melee_effects=(("electrocute_target", 0.8),),
         ),
     actor_state=ActorState(
         size=2,
@@ -756,6 +760,8 @@ cerberus = Actor(
         protection=18,
         hearing=14,
         eyesight=23,
+        melee_effects_var=((3, 2, 0, 6),),
+        melee_effects=(("burn_target", 0.3),),
         ),
     actor_state=ActorState(
         size=4,
@@ -923,6 +929,8 @@ giant_wasp = Actor(
         hearing=7,
         eyesight=20,
         poison_resistance=0.4,
+        melee_effects_var=((1, 1, 0, 8),),
+        melee_effects=(("poison_target", 0.2),),
         ),
     actor_state=ActorState(
         size=3,
@@ -979,6 +987,8 @@ black_jelly = Actor(
         poison_resistance=1,
         psychic_resistance=1,
         sleep_resistance=1,
+        melee_effects_var=((2, 3, 0, 3),),
+        melee_effects=(("poison_target", 0.15),),
         ),
     actor_state=ActorState(
         size=3,
@@ -1320,6 +1330,8 @@ fire_elemental = Actor(
         sleep_resistance=1,
         psychic_resistance=1,
         magic_resistance=0.2,
+        melee_effects_var=((5, 5, 0, 6),),
+        melee_effects=(("burn_target", 0.5),),
         ),
     actor_state=ActorState(
         size=4,
@@ -1380,6 +1392,8 @@ ice_elemental = Actor(
         sleep_resistance=1,
         psychic_resistance=1,
         magic_resistance=0.2,
+        melee_effects_var=((2, 1, 0.2, 0, 3),),
+        melee_effects=(("freeze_target", 0.5),),
         ),
     actor_state=ActorState(
         size=4,
@@ -1503,6 +1517,8 @@ acid_elemental = Actor(
         sleep_resistance=1,
         psychic_resistance=1,
         magic_resistance=0.2,
+        melee_effects_var=((9, 1, 0, 6),),
+        melee_effects=(("melt_target", 0.5),),
         ),
     actor_state=ActorState(
         size=4,
@@ -1562,6 +1578,8 @@ poison_elemental = Actor(
         sleep_resistance=1,
         psychic_resistance=1,
         magic_resistance=0.2,
+        melee_effects_var=((4, 2, 0, 10),),
+        melee_effects=(("poison_target", 0.2),),
         ),
     actor_state=ActorState(
         size=4,
@@ -1621,6 +1639,8 @@ lightning_elemental = Actor(
         sleep_resistance=1,
         psychic_resistance=1,
         magic_resistance=0.2,
+        melee_effects_var=((5, 0.7),),
+        melee_effects=(("electrocute_target", 1),),
         ),
     actor_state=ActorState(
         size=4,
@@ -1680,6 +1700,8 @@ chatterbox = Actor(
         protection=16,
         hearing=40,
         eyesight=2,
+        melee_effects_var=((1, 0, 4),),
+        melee_effects=(("bleed_target", 0.3),),
         ),
     actor_state=ActorState(
         size=4,
@@ -1741,6 +1763,8 @@ baby_phoenix = Actor(
         sleep_resistance=0.5,
         shock_resistance=0.5,
         magic_resistance=0.2,
+        melee_effects_var=((7, 2, 0, 4),),
+        melee_effects=(("burn_target", 0.8),),
         ),
     actor_state=ActorState(
         size=4,
@@ -1805,6 +1829,8 @@ phoenix = Actor(
         sleep_resistance=1,
         shock_resistance=1,
         magic_resistance=0.2,
+        melee_effects_var=((10, 5, 0, 6),),
+        melee_effects=(("burn_target", 0.9),),
         ),
     actor_state=ActorState(
         size=5,

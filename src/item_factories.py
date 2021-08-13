@@ -35,7 +35,7 @@ potion_of_healing = Item(
     stackable=True,
     throwable=throwable.PotionQuaffAndThrowSameEffectThrowable(break_chance=1),
     readable=None,
-    quaffable=quaffable.PotionOfHealingQuaffable(amount=10),
+    quaffable=quaffable.PotionOfHealingQuaffable(amount=100),
 )
 temp_items_lists.append(potion_of_healing)
 item_rarity.append(potion_of_healing.rarity)
@@ -674,7 +674,7 @@ iron_dagger = Item(
     item_type=InventoryOrder.MELEE_WEAPON,
     item_state=ItemState(is_identified=1),
     flammable=0,
-    corrodible=0.5,
+    corrodible=0.05,
     spawnable=True,
     droppable=True,
     stackable=False,
@@ -698,7 +698,7 @@ shortsword = Item(
     item_type=InventoryOrder.MELEE_WEAPON,
     item_state=ItemState(is_identified=1),
     flammable=0,
-    corrodible=0.4,
+    corrodible=0.05,
     spawnable=True,
     droppable=True,
     stackable=False,
@@ -723,7 +723,7 @@ longsword = Item(
     item_type=InventoryOrder.MELEE_WEAPON,
     item_state=ItemState(is_identified=1),
     flammable=0,
-    corrodible=0.4,
+    corrodible=0.05,
     spawnable=True,
     droppable=True,
     stackable=False,

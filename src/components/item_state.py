@@ -162,6 +162,8 @@ class ItemState(BaseComponent):
         if will_burn < self.parent.flammable:
 
             self.burntness += 1
+            if self.parent.equipable:
+                self.parent.equipable.update_stat()
 
             # Burning state log
             if owner:
@@ -215,6 +217,8 @@ class ItemState(BaseComponent):
     def corrode(self, owner: Actor=None, amount: int=1):
         if random.random() <= self.parent.corrodible:
             self.corrosion += amount
+            if self.parent.equipable:
+                self.parent.equipable.update_stat()
         else:
             return None
 

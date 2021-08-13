@@ -448,14 +448,13 @@ class ActionWithDirection(Action):
 
 
 class MeleeAction(ActionWithDirection):
-    def __init__(self, entity: Actor, dx: int, dy: int, effects: List=None, effects_var: List=None):
+    def __init__(self, entity: Actor, dx: int, dy: int):
         """
         Args:
             Check engine.add_effects_to_actors for more info.
         """
         super().__init__(entity, dx, dy)
-        self.effects = effects
-        self.effects_var = effects_var
+        self.effect_set = entity.status.changed_melee_effect_set
                       
     def is_miss(self) -> bool:
         """Returns whether the attack was successful or not."""
@@ -579,7 +578,7 @@ class MeleeAction(ActionWithDirection):
         # If the target is alive after calculating the pure melee damage hit, apply melee status effects.
         # Status effects are still applied if the damage is zero
         if not target.actor_state.is_dead:
-            self.engine.add_special_effect_to_target(target=target, effects=self.effects, effects_var=self.effects_var, caused_by=self.entity)
+            self.engine.add_special_effect_to_target(target=target, effect_set=self.effect_set, caused_by=self.entity)
 
 
 class MovementAction(ActionWithDirection):

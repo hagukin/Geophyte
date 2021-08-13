@@ -48,6 +48,16 @@ class InventoryOrder(Enum):
     MISC = auto()
 
 
+class EquipableOrder(Enum):
+    BLADE = auto()
+    CLUB = auto()
+    SHIELD = auto()
+    LIGHT_ARMOR = auto()
+    HEAVY_ARMOR = auto() # including robes, capes
+    AMULET = auto()
+    MISC = auto()
+
+
 class AbilityOrder(Enum):
     """
     SKILL - Non-magics

@@ -42,18 +42,11 @@ class Fire_Ant_Ai(ai.BaseAI):
     def __init__(self, alignment:str="hostile", do_melee_atk:bool=True, do_ranged_atk: bool=False, use_ability: bool=False):
         super().__init__(alignment, do_melee_atk, do_ranged_atk, use_ability)
         self.hostile_type.add('@')
-        # Fire dmg, 50%
-        self.melee_effects_var.append((1, 0, 0, 4))
-        self.melee_effects.append(("burn_target", 0.5))
 
 class Volt_Ant_Ai(ai.BaseAI):
     def __init__(self, alignment:str="hostile", do_melee_atk:bool=True, do_ranged_atk: bool=False, use_ability: bool=False):
         super().__init__(alignment, do_melee_atk, do_ranged_atk, use_ability)
         self.hostile_type.add('@')
-        # Elec dmg, 80%
-        self.melee_effects_var.append((2, 0.5))
-        self.melee_effects.append(("electrocute_target", 0.8))
-
 
 ####################################################
 #####################  d - dogs  ###################
@@ -63,9 +56,6 @@ class Cerberus_Ai(ai.BaseAI):
     def __init__(self, alignment:str="hostile", do_melee_atk:bool=True, do_ranged_atk: bool=False, use_ability: bool=False):
         super().__init__(alignment, do_melee_atk, do_ranged_atk, use_ability)
         self.hostile_type.add('@')
-        # Fire dmg, 50%
-        self.melee_effects_var.append((3, 1, 0, 6))
-        self.melee_effects.append(("burn_target", 0.2))
 
 
 ####################################################
@@ -115,9 +105,6 @@ class Giant_Wasp_Ai(ai.BaseAI):
     def __init__(self, alignment:str="hostile", do_melee_atk:bool=True, do_ranged_atk: bool=False, use_ability: bool=False):
         super().__init__(alignment, do_melee_atk, do_ranged_atk, use_ability)
         self.hostile_type.add('@')
-        # Poison dmg, 20%
-        self.melee_effects_var.append((1, 1, 0, 3))
-        self.melee_effects.append(("poison_target", 0.2))
 
 class Fly_Ai(ai.BaseAI):
     def __init__(self, alignment:str="hostile", do_melee_atk:bool=True, do_ranged_atk: bool=False, use_ability: bool=False):
@@ -134,9 +121,6 @@ class Black_Jelly_Ai(ai.BaseAI):
     def __init__(self, alignment:str="hostile", do_melee_atk:bool=True, do_ranged_atk: bool=True,  use_ability: bool=False):
         super().__init__(alignment, do_melee_atk, do_ranged_atk, use_ability)
         self.hostile_type.add('@')
-        # Poison dmg, 10%
-        self.melee_effects_var.append((2, 1, 0, 2))
-        self.melee_effects.append(("poison_target", 0.3))
 
     def check_is_ranged_atk_possible(self, attacker, target):
         # Check for ammo
@@ -209,18 +193,10 @@ class Fire_Elemental_Ai(ai.BaseAI):
         super().__init__(alignment, do_melee_atk, do_ranged_atk, use_ability)
         self.hostile_type.add('@')
 
-        # Fire dmg, 50%
-        self.melee_effects_var.append((5, 5, 0, 6)) # 20% chance of freezing target
-        self.melee_effects.append(("burn_target", 0.5))
-
 class Ice_Elemental_Ai(ai.BaseAI):
     def __init__(self, alignment:str="hostile", do_melee_atk:bool=True, do_ranged_atk: bool=False, use_ability: bool=False):
         super().__init__(alignment, do_melee_atk, do_ranged_atk, use_ability)
         self.hostile_type.add('@')
-
-        # Cold dmg, 50%
-        self.melee_effects_var.append((2, 1, 0.2, 0, 3)) # 20% chance of freezing target
-        self.melee_effects.append(("freeze_target", 0.5))
 
 class Earth_Elemental_Ai(ai.BaseAI):
     def __init__(self, alignment:str="hostile", do_melee_atk:bool=True, do_ranged_atk: bool=False, use_ability: bool=False):
@@ -233,26 +209,14 @@ class Acid_Elemental_Ai(ai.BaseAI):
         super().__init__(alignment, do_melee_atk, do_ranged_atk, use_ability)
         self.hostile_type.add('@')
 
-        # Acid dmg, 50%
-        self.melee_effects_var.append((9, 1, 0, 6))
-        self.melee_effects.append(("melt_target", 0.5))
-
 class Poison_Elemental_Ai(ai.BaseAI):
     def __init__(self, alignment:str="hostile", do_melee_atk:bool=True, do_ranged_atk: bool=False, use_ability: bool=False):
         super().__init__(alignment, do_melee_atk, do_ranged_atk, use_ability)
-
-        # Poison dmg, 20%
-        self.melee_effects_var.append((4, 2, 0, 10))
-        self.melee_effects.append(("poison_target", 0.2))
 
 class Lightning_Elemental_Ai(ai.BaseAI):
     def __init__(self, alignment:str="hostile", do_melee_atk:bool=True, do_ranged_atk: bool=False, use_ability: bool=False):
         super().__init__(alignment, do_melee_atk, do_ranged_atk, use_ability)
         self.hostile_type.add('@')
-
-        # Electrical dmg, 100%
-        self.melee_effects_var.append((5, 0.7))
-        self.melee_effects.append(("electrocute_target", 1))
 
 
 ####################################################
@@ -264,10 +228,6 @@ class Chatterbox_Ai(ai.BaseAI):
     def __init__(self, alignment:str="allied", do_melee_atk:bool=True, do_ranged_atk: bool=False, use_ability: bool=False):
         super().__init__(alignment, do_melee_atk, do_ranged_atk, use_ability)
         self.allied_id.add('chatterbox')
-
-        # Bleed dmg, 30%
-        self.melee_effects_var.append((1, 0, 4))
-        self.melee_effects.append(("bleed_target", 0.3))
 
     def lure_speech(self):
         lure = random.choice(self.engine.item_manager.items_lists)
@@ -300,18 +260,10 @@ class Baby_Phoenix_Ai(ai.BaseAI):
     def __init__(self, alignment:str="neutral", do_melee_atk:bool=True, do_ranged_atk: bool=False,  use_ability: bool=False):
         super().__init__(alignment, do_melee_atk, do_ranged_atk, use_ability)
 
-        # Fire dmg, 90%
-        self.melee_effects_var.append((7, 2, 0, 4))
-        self.melee_effects.append(("burn_target", 0.8))
-
 
 class Phoenix_Ai(ai.BaseAI):
     def __init__(self, alignment:str="neutral", do_melee_atk:bool=True, do_ranged_atk: bool=False,  use_ability: bool=False):
         super().__init__(alignment, do_melee_atk, do_ranged_atk, use_ability)
-
-        # Fire dmg, 90%
-        self.melee_effects_var.append((10, 5, 0, 6))
-        self.melee_effects.append(("burn_target", 0.9))
 
 
 ####################################################

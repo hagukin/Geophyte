@@ -544,11 +544,14 @@ class StorageSelectEventHandler(AskUserEventHandler):
             item_text += f"{item.stack_count} "
 
         if item.item_state.check_if_full_identified(): # Display BUC only if fully identified
+            if item.equipable:
+                item_text += f"{item.equipable.upgrade:+d} "
+
             if item.item_state.BUC == 0:
                 item_text += "저주받지 않은 "
-            if item.item_state.BUC >= 1:
+            elif item.item_state.BUC >= 1:
                 item_text += "축복받은 "
-            if item.item_state.BUC <= -1:
+            elif item.item_state.BUC <= -1:
                 item_text += "저주받은 "
 
         item_text += f"{item.name} "

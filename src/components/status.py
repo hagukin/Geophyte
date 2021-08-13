@@ -1,7 +1,10 @@
 from __future__ import annotations
+
+import copy
+
 from components.experience import Experience
 
-from typing import List, TYPE_CHECKING, Optional
+from typing import List, TYPE_CHECKING, Optional, Tuple
 
 import random
 import color
@@ -44,7 +47,10 @@ class Bonus():
         bonus_sleep_resistance: float=0,
         bonus_shock_resistance: float=0,
         bonus_magic_resistance: float=0,
-         ):
+
+        bonus_melee_effects: Tuple=(),
+        bonus_melee_effects_var: Tuple=(),
+        ):
         self.bonus_id = bonus_id
 
         self.bonus_hp = bonus_hp
@@ -72,6 +78,32 @@ class Bonus():
         self.bonus_sleep_resistance = bonus_sleep_resistance
         self.bonus_shock_resistance = bonus_shock_resistance
         self.bonus_magic_resistance = bonus_magic_resistance
+
+        self.bonus_melee_effect_set = {
+            "burn_target": None,
+            "poison_target": None,
+            "freeze_target": None,
+            "electrocute_target": None,
+            "bleed_target": None,
+            "paralyze_target": None,
+            "slow_target": None,
+            "sleep_target": None,
+            "melt_target": None,
+            "sick_target": None,
+            "anger_target": None,
+            "confuse_target": None,
+            "hallucinate_target": None,
+            "fast_target": None,
+            "invisible_target": None,
+            "phase_target": None,
+            "levitate_target": None
+        }
+        if bonus_melee_effects and bonus_melee_effects_var:
+            if len(bonus_melee_effects) == len(bonus_melee_effects_var):
+                for i in range(len(bonus_melee_effects)):
+                    self.bonus_melee_effect_set[bonus_melee_effects[i][0]] = {"chance": bonus_melee_effects[i][1],"var": bonus_melee_effects_var[i]}
+            else:
+                print("ERROR::melee effects != melee effects var")
 
 
 class Status(BaseComponent):
@@ -110,6 +142,12 @@ class Status(BaseComponent):
     sleep_resistance: float=0,
     shock_resistance: float=0,
     magic_resistance: float=0,
+
+    # melee effects
+    # NOTE: Pass in arguments if the actor has natural power of effecting the target when melee attacking.
+    # If not, use equipable instead.
+    melee_effects: Optional[Tuple] = None,
+    melee_effects_var: Optional[Tuple] = None,
     ):
         super().__init__(None)
         self.difficulty = None
@@ -145,6 +183,35 @@ class Status(BaseComponent):
         self.sleep_resistance = sleep_resistance
         self.shock_resistance = shock_resistance
         self.magic_resistance = magic_resistance
+
+        # Use engine.add_special_effects_to_actor() as a reference
+        # Apply these effects to target
+        # e.g. burn_target: {"chance":0.8, "var":(1,1,0,5)}
+        self.melee_effect_set = {
+            "burn_target":None,
+            "poison_target":None,
+            "freeze_target":None,
+            "electrocute_target":None,
+            "bleed_target":None,
+            "paralyze_target":None,
+            "slow_target":None,
+            "sleep_target":None,
+            "melt_target":None,
+            "sick_target":None,
+            "anger_target":None,
+            "confuse_target":None,
+            "hallucinate_target":None,
+            "fast_target":None,
+            "invisible_target":None,
+            "phase_target":None,
+            "levitate_target":None
+        }
+        if melee_effects and melee_effects_var:
+            if len(melee_effects) == len(melee_effects_var):
+                for i in range(len(melee_effects)):
+                    self.melee_effect_set[melee_effects[i][0]] = {"chance":melee_effects[i][1], "var":melee_effects_var[i]}
+            else:
+                print("ERROR::melee effects != melee effects var")
 
     @property
     def bonus_hp(self):
@@ -306,6 +373,27 @@ class Status(BaseComponent):
         for bonus in self.bonuses.values():
             tmp += bonus.bonus_magic_resistance
         return tmp
+
+    @property
+    def origin_melee_effect_set(self):
+        return self.melee_effect_set
+
+    @property
+    def changed_melee_effect_set(self):
+        melee_effect_set = copy.deepcopy(self.origin_melee_effect_set)
+        for bonus in self.bonuses.values():
+            for k, v in bonus.bonus_melee_effect_set.items():
+                if v == None:
+                    continue
+                else:
+                    if melee_effect_set[k] == None:
+                        melee_effect_set[k] = {}
+                        melee_effect_set[k]["chance"] = v["chance"]
+                        melee_effect_set[k]["var"] = v["var"]
+                    else:
+                        melee_effect_set[k]["chance"] = max(melee_effect_set[k]["chance"], v["chance"])
+                        melee_effect_set[k]["var"] = tuple(map(sum, zip(melee_effect_set[k]["var"], v["var"])))
+        return melee_effect_set
 
     @property
     def origin_status(self):

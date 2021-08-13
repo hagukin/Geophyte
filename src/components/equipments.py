@@ -64,6 +64,8 @@ class Equipments(BaseComponent):
             bonus_sleep_resistance = item.equipable.changed_status["eq_sleep_resistance"],
             bonus_shock_resistance = item.equipable.changed_status["eq_shock_resistance"],
             bonus_magic_resistance = item.equipable.changed_status["eq_magic_resistance"],
+            bonus_melee_effects = item.equipable.changed_status["eq_melee_effects"],
+            bonus_melee_effects_var = item.equipable.changed_status["eq_melee_effects_var"],
         )
         self.parent.status.add_bonus(bonus)
 
