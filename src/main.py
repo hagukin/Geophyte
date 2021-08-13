@@ -66,8 +66,9 @@ def main() -> None:
                         context.present(root_console, keep_aspect=True)
 
                 ### WRITE DEBUG FUNCTIONS HERE ###
-                print(engine.player.status.changed_status.items())
-                print(engine.player.status.changed_melee_effect_set)
+                # print(engine.player.status.changed_status.items())
+                # print(engine.player.status.changed_melee_effect_set)
+                # print(engine.player.equipments.equipments.items())
 
             except Exception:
                 # Print error to stderr then print the error to the message log

@@ -326,66 +326,6 @@ class Engine:
         """
         self.game_map.respawn_monsters()
 
-    def add_special_effect_to_target(self, target: Actor, effect_set: Dict, caused_by: Optional[Actor]=None) -> None:
-        """
-        This method takes two lists, applies the status effects to the given actor.
-
-        It is usually done by calling apply_xxxing methods,
-        but on some cases, if the special effects should be handled immediatly,
-        a function can be directly called from this method. (e.g. electric shock)
-        """
-        # Check if this melee attack has any special effects
-        if effect_set:
-
-            # Apply status effects
-            for type, eff in effect_set.items():
-                if eff is None:
-                    continue
-
-                # Calcultate the odds
-                if random.random() <= eff["chance"]:
-                    pass
-                else:
-                    continue
-
-                # Negative status effects
-                if type == "burn_target":
-                    target.actor_state.apply_burning(list(eff["var"]))
-                elif type == "poison_target":
-                    target.actor_state.apply_poisoning(list(eff["var"]))
-                elif type == "freeze_target":
-                    target.actor_state.apply_freezing(list(eff["var"]))
-                elif type == "electrocute_target":
-                    target.actor_state.apply_electrocution(list(eff["var"]))
-                    target.actor_state.actor_electrocuted(source_actor=caused_by)
-                elif type == "bleed_target":
-                    target.actor_state.apply_bleeding(list(eff["var"]))
-                elif type == "paralyze_target":
-                    target.actor_state.apply_paralyzation(list(eff["var"]))
-                elif type == "slow_target":
-                    target.actor_state.apply_slowness(list(eff["var"]))
-                elif type == "sleep_target":
-                    target.actor_state.apply_sleeping(list(eff["var"]))
-                elif type == "melt_target":
-                    target.actor_state.apply_melting(list(eff["var"]))
-                elif type == "sick_target":
-                    target.actor_state.apply_sickness(list(eff["var"]))
-                elif type == "anger_target":
-                    target.actor_state.apply_anger(list(eff["var"]))
-                elif type == "confuse_target":
-                    target.actor_state.apply_confusion(list(eff["var"]))
-                elif type == "hallucinate_target":
-                    target.actor_state.apply_hallucination(list(eff["var"]))
-                
-                # Other status effects
-                elif type == "fast_target":
-                    target.actor_state.apply_haste(list(eff["var"]))
-                elif type == "invisible_target":
-                    target.actor_state.apply_invisibility(list(eff["var"]))
-                elif type == "phase_target":
-                    target.actor_state.apply_phasing(list(eff["var"]))
-                elif type == "levitate_target":
-                    target.actor_state.apply_levitation(list(eff["var"]))
 
     def generate_new_dungeon(self, console, context, depth=1, display_process=True) -> GameMap:
         """Generate new dungeon and return as gamemap object"""

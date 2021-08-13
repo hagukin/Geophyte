@@ -508,7 +508,96 @@ class MeleeAction(ActionWithDirection):
         # round the damage to integer
         damage = max(0, round(damage))
 
-        return damage  
+        return damage
+
+
+    def add_melee_effect_to_target(self, target: Actor, effect_set: Dict, caused_by: Optional[Actor] = None) -> None:
+        """
+        This method takes two lists, applies the status effects to the given actor.
+
+        It is usually done by calling apply_xxxing methods,
+        but on some cases, if the special effects should be handled immediatly,
+        a function can be directly called from this method. (e.g. electric shock)
+        """
+        # Check if this melee attack has any special effects
+        if effect_set:
+
+            if self.entity == self.engine.player:
+                atk_name = "당신"
+                tar_name = f"{target.name}"
+                fg = color.green
+            else:
+                atk_name = f"{self.entity.name}"
+                tar_name = "당신"
+                fg = color.yellow
+
+            # Apply status effects
+            for type, eff in effect_set.items():
+                if eff is None:
+                    continue
+
+                # Calcultate the odds
+                if random.random() <= eff["chance"]:
+                    pass
+                else:
+                    continue
+
+                # Negative status effects
+                if type == "burn_target":
+                    self.engine.message_log.add_message(f"{atk_name}의 공격이 {tar_name}에게 화염 피해를 가했다!", fg=fg, target=self.entity)
+                    target.actor_state.apply_burning(list(eff["var"]))
+                elif type == "poison_target":
+                    self.engine.message_log.add_message(f"{atk_name}의 공격이 {tar_name}에게 독성 피해를 가했다!", fg=fg, target=self.entity)
+                    target.actor_state.apply_poisoning(list(eff["var"]))
+                elif type == "freeze_target":
+                    self.engine.message_log.add_message(f"{atk_name}의 공격이 {tar_name}에게 냉기 피해를 가했다!", fg=fg, target=self.entity)
+                    target.actor_state.apply_freezing(list(eff["var"]))
+                elif type == "electrocute_target":
+                    self.engine.message_log.add_message(f"{atk_name}의 공격이 {tar_name}에게 전격 피해를 가했다!", fg=fg, target=self.entity)
+                    target.actor_state.apply_electrocution(list(eff["var"]))
+                    target.actor_state.actor_electrocuted(source_actor=caused_by)
+                elif type == "bleed_target":
+                    self.engine.message_log.add_message(f"{atk_name}의 공격이 {tar_name}에게 출혈 피해를 가했다!", fg=fg, target=self.entity)
+                    target.actor_state.apply_bleeding(list(eff["var"]))
+                elif type == "paralyze_target":
+                    self.engine.message_log.add_message(f"{atk_name}의 공격이 {tar_name}에게 마비 상태이상을 부여했다!", fg=fg, target=self.entity)
+                    target.actor_state.apply_paralyzation(list(eff["var"]))
+                elif type == "slow_target":
+                    self.engine.message_log.add_message(f"{atk_name}의 공격이 {tar_name}에게 속도저하 상태이상을 부여했다!", fg=fg, target=self.entity)
+                    target.actor_state.apply_slowness(list(eff["var"]))
+                elif type == "sleep_target":
+                    self.engine.message_log.add_message(f"{atk_name}의 공격이 {tar_name}에게 수면 상태이상을 부여했다!", fg=fg, target=self.entity)
+                    target.actor_state.apply_sleeping(list(eff["var"]))
+                elif type == "melt_target":
+                    self.engine.message_log.add_message(f"{atk_name}의 공격이 {tar_name}에게 산성 피해를 가했다!", fg=fg, target=self.entity)
+                    target.actor_state.apply_melting(list(eff["var"]))
+                elif type == "sick_target":
+                    self.engine.message_log.add_message(f"{atk_name}의 공격이 {tar_name}에게 질병 피해를 가했다!", fg=fg, target=self.entity)
+                    target.actor_state.apply_sickness(list(eff["var"]))
+                elif type == "anger_target":
+                    self.engine.message_log.add_message(f"{atk_name}의 공격이 {tar_name}에게 분노 상태이상을 부여했다!", fg=fg, target=self.entity)
+                    target.actor_state.apply_anger(list(eff["var"]))
+                elif type == "confuse_target":
+                    self.engine.message_log.add_message(f"{atk_name}의 공격이 {tar_name}에게 혼란 상태이상을 부여했다!", fg=fg, target=self.entity)
+                    target.actor_state.apply_confusion(list(eff["var"]))
+                elif type == "hallucinate_target":
+                    self.engine.message_log.add_message(f"{atk_name}의 공격이 {tar_name}에게 환각 상태이상을 부여했다!", fg=fg, target=self.entity)
+                    target.actor_state.apply_hallucination(list(eff["var"]))
+
+                # Other status effects
+                elif type == "fast_target":
+                    self.engine.message_log.add_message(f"{atk_name}의 공격이 {tar_name}에게 속도증가 상태이상을 부여했다!", fg=fg, target=self.entity)
+                    target.actor_state.apply_haste(list(eff["var"]))
+                elif type == "invisible_target":
+                    self.engine.message_log.add_message(f"{atk_name}의 공격이 {tar_name}에게 투명화 상태이상을 부여했다!", fg=fg, target=self.entity)
+                    target.actor_state.apply_invisibility(list(eff["var"]))
+                elif type == "phase_target":
+                    self.engine.message_log.add_message(f"{atk_name}의 공격이 {tar_name}에게 페이징 상태이상을 부여했다!", fg=fg, target=self.entity)
+                    target.actor_state.apply_phasing(list(eff["var"]))
+                elif type == "levitate_target":
+                    self.engine.message_log.add_message(f"{atk_name}의 공격이 {tar_name}에게 공중부양 상태이상을 부여했다!", fg=fg, target=self.entity)
+                    target.actor_state.apply_levitation(list(eff["var"]))
+                    
 
     def perform(self) -> None:
         # Checking for inability
@@ -578,7 +667,7 @@ class MeleeAction(ActionWithDirection):
         # If the target is alive after calculating the pure melee damage hit, apply melee status effects.
         # Status effects are still applied if the damage is zero
         if not target.actor_state.is_dead:
-            self.engine.add_special_effect_to_target(target=target, effect_set=self.effect_set, caused_by=self.entity)
+            self.add_melee_effect_to_target(target=target, effect_set=self.effect_set, caused_by=self.entity)
 
 
 class MovementAction(ActionWithDirection):
