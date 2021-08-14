@@ -1,6 +1,8 @@
 from __future__ import annotations
 from tcod.console import Console
 from tcod.context import Context, new
+
+from entity import SemiActor
 from terrain import Terrain
 from biome import Biome
 from biome_by_depth import get_dungeon_biome
@@ -18,7 +20,7 @@ import terrain_generation
 
 from order import TilemapOrder
 from typing import Iterator, List, Tuple, TYPE_CHECKING
-from room_factories import Room, RectangularRoom, CircularRoom, PerpendicularRoom, BlobRoom
+from room_factories import Room, RectangularRoom, CircularRoom, BlobRoom
 from game_map import GameMap
 from render import randomized_screen_paint
 
@@ -199,12 +201,16 @@ def search_empty_convex(
     for cor in convex_coordinates:
         wall_count = 0
         covered_by_door = False
-        for dx in range(3):
-            for dy in range(3):
-                if dungeon.tilemap[cor[0]-1+dx, cor[1]-1+dy] == TilemapOrder.VOID.value or dungeon.tilemap[cor[0]-1+dx, cor[1]-1+dy] == TilemapOrder.ROOM_WALL.value:
+        for dx, dy in ((1,0),(0,1),(-1,0),(0,-1),(1,1),(-1,-1),(1,-1),(-1,1)):
+            nx = cor[0]+dx
+            ny = cor[1]+dy
+            if nx < dungeon.width and nx >= 0 and ny < dungeon.height and ny >= 0:
+                if dungeon.tilemap[cor[0]+dx, cor[1]+dy] == TilemapOrder.VOID.value or dungeon.tilemap[cor[0]+dx, cor[1]+dy] == TilemapOrder.ROOM_WALL.value:
                     wall_count += 1
-                if dungeon.tilemap[cor[0]-1+dx, cor[1]-1+dy] == TilemapOrder.DOOR.value:
+                if dungeon.tilemap[cor[0]+dx, cor[1]+dy] == TilemapOrder.DOOR.value:
                     covered_by_door = True
+            else:
+                continue
         if wall_count >= 7 and covered_by_door:# If there is more than 7 walls surrounding the door convex, it is considered as an "empty convex".
             empty_convex.append(cor)
     
@@ -252,21 +258,22 @@ def remove_awkward_entities(
     if check_spawn_err != None:
         print(f"WARNING::{check_spawn_err.name} spawned at (0,0)")
 
-    # Delete semiactors that are generated on water (both opened/closed)
-    for semiactor in gamemap.semiactors:
-        if semiactor.entity_id[-4:] == "door" or semiactor.entity_id[-4:] == "trap" or semiactor.entity_id[-5:] == "chest":
-            if gamemap.tilemap[semiactor.x, semiactor.y] == TilemapOrder.WATER.value \
-                    or gamemap.tilemap[semiactor.x, semiactor.y] == TilemapOrder.WATER_CORE.value \
-                    or gamemap.tilemap[semiactor.x, semiactor.y] == TilemapOrder.HOLE.value \
-                    or gamemap.tilemap[semiactor.x, semiactor.y] == TilemapOrder.HOLE_CORE.value \
-                    or gamemap.tilemap[semiactor.x, semiactor.y] == TilemapOrder.PIT.value \
-                    or gamemap.tilemap[semiactor.x, semiactor.y] == TilemapOrder.PIT_CORE.value \
-                    or gamemap.tilemap[semiactor.x, semiactor.y] == TilemapOrder.ASCEND_STAIR.value \
-                    or gamemap.tilemap[semiactor.x, semiactor.y] == TilemapOrder.DESCEND_STAIR.value\
-                    or gamemap.tilemap[semiactor.x, semiactor.y] == TilemapOrder.MAP_BORDER.value:
-                semiactor.remove_self()
-                print(f"DEBUG::Removed awkwardly placed semiactor {semiactor.entity_id}.")
-
+    trash = []
+    for e in gamemap.entities:
+        if isinstance(e, SemiActor): # Delete semiactors that are generated on water (both opened/closed)
+            if e.entity_id[-4:] == "door" or e.entity_id[-4:] == "trap" or e.entity_id[-5:] == "chest":
+                if gamemap.tiles[e.x, e.y]["tile_id"] == "deep_water"\
+                    or gamemap.tiles[e.x, e.y]["tile_id"] == "shallow_water"\
+                    or gamemap.tiles[e.x, e.y]["tile_id"] == "hole"\
+                    or gamemap.tiles[e.x, e.y]["tile_id"] == "deep_pit"\
+                    or gamemap.tiles[e.x, e.y]["tile_id"] == "shallow_pit"\
+                    or gamemap.tiles[e.x, e.y]["tile_id"] == "ascending_stair"\
+                    or gamemap.tiles[e.x, e.y]["tile_id"] == "descending_stair"\
+                    or gamemap.tilemap[e.x, e.y] == TilemapOrder.MAP_BORDER.value:
+                    trash.append(e)
+    for e in trash: # 별도의 루프에서 처리해줘야함
+        print(f"DEBUG::Removed awkwardly placed entity {e.entity_id}.")
+        e.remove_self()
 
 def generate_earth(
     dungeon: GameMap,
@@ -308,12 +315,10 @@ def create_room(
         new_room = RectangularRoom(x, y, room_width, room_height, parent=dungeon, terrain=room_terrain)
     elif room_shape == "circular":
         new_room = CircularRoom(x, y, room_width, room_height, parent=dungeon, terrain=room_terrain)
-    elif room_shape == "perpendicular":
-        new_room = PerpendicularRoom(x, y, room_width, room_height, parent=dungeon, terrain=room_terrain)
     elif room_shape == "blob":
         min_dense = 0.2
         max_dense = 0.5
-        new_room = BlobRoom(x, y, 12, 12, parent=dungeon, terrain=room_terrain, area_min_density=min_dense,
+        new_room = BlobRoom(x, y, 8, 8, parent=dungeon, terrain=room_terrain, area_min_density=min_dense,
                             area_max_density=max_dense)
         # FIXME
         # new_room.terrain.has_door = False
@@ -321,15 +326,6 @@ def create_room(
         new_room = RectangularRoom(x, y, room_width, room_height, parent=dungeon, terrain=room_terrain)
         print("WARNING::PROCGEN - GENERATE_ROOMS - FAILED TO SET THE ROOM SHAPE")
 
-    # set door position (Not actually generating)
-    # choose the direction of the door
-    tempdir = ["u", "d", "l", "r"]
-    door_slices = None
-    random.shuffle(tempdir)
-    door_num = random.choices(new_room.terrain.door_num_range, new_room.terrain.door_num_weight, k=1)[0]
-
-    for i in range(door_num):
-        new_room.door_directions.append(tempdir[i % 4])  # udlr 1234
     return new_room
 
 def spawn_room(
@@ -343,7 +339,7 @@ def spawn_room(
         dungeon.tunnelmap[outer_slice] = False
         if room.terrain.protected:
             dungeon.protectmap[outer_slice] = True
-            room.room_protectmap[outer_slice] = True
+        # dungeon.tiles[outer_slice] = dungeon.tileset["t_DEBUG"]()
 
     # Dig out this rooms inner area.
     for inner_slice in room.inner:
@@ -352,7 +348,6 @@ def spawn_room(
         dungeon.tunnelmap[inner_slice] = True
         if room.terrain.protected:
             dungeon.protectmap[inner_slice] = True
-            room.room_protectmap[inner_slice] = True
 
 
 def spawn_doors(
@@ -362,22 +357,20 @@ def spawn_doors(
     """Actually spawn the door on the gamemap.
     Will use room.doors to get the door locations."""
     # Convex
-    for convex_pos in room.door_convexes:
+    for convex_pos in room.door_convexes.values():
         dungeon.tilemap[convex_pos] = TilemapOrder.DOOR_CONVEX.value
         dungeon.tunnelmap[convex_pos] = True
         if room.terrain.protected:
             dungeon.protectmap[convex_pos] = True
-            room.room_protectmap[convex_pos] = True
         dungeon.tiles[convex_pos] = dungeon.tileset["t_floor"]()
         # dungeon.tiles[convex_pos] = dungeon.tileset["t_DEBUG"]()
 
     # Door
-    for door_pos in room.doors:
+    for door_pos in room.doors.values():
         dungeon.tilemap[door_pos] = TilemapOrder.DOOR.value
         dungeon.tunnelmap[door_pos] = True
         if room.terrain.protected:
             dungeon.protectmap[door_pos] = True
-            room.room_protectmap[door_pos] = True
         dungeon.tiles[door_pos] = dungeon.tileset["t_floor"]()
 
         if dungeon.get_semiactor_at_location(x=door_pos[0], y=door_pos[1], semiactor_id="door") == None:
@@ -646,10 +639,10 @@ def generate_entities(
                     continue
         
                 # Choose difficulty
-                difficulty_chosen = choose_monster_difficulty(depth=depth, toughness=0)#TODO: Adjust toughness?
+                difficulty_chosen = choose_monster_difficulty(depth=depth, toughness=dungeon.engine.toughness)
 
                 while not actor_factories.ActorDB.monster_difficulty[difficulty_chosen]:
-                    difficulty_chosen = choose_monster_difficulty(depth=depth, toughness=0)
+                    difficulty_chosen = choose_monster_difficulty(depth=depth, toughness=dungeon.engine.toughness)
 
                 # Spawn
                 spawn_monsters_by_difficulty(x=place_tile[0], y=place_tile[1], difficulty=difficulty_chosen, dungeon=dungeon, spawn_awake=False, is_first_generation=True)

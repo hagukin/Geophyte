@@ -157,7 +157,7 @@ class NormalThrowable(Throwable):
             thrower.inventory.throw(item=self.parent, x=thrower.x, y=thrower.y, show_msg=False)
         else:
             from order import InventoryOrder
-            if self.parent.item_type == InventoryOrder.POTION:
+            if self.parent.item_type.value == InventoryOrder.POTION.value:
                 self.engine.message_log.add_message(f"{g(self.parent.name, '이')} 깨졌다.", fg=color.gray, target=thrower)
             else:
                 self.engine.message_log.add_message(f"{g(self.parent.name, '이')} 파괴되었다.", fg=color.gray, target=thrower)
@@ -236,7 +236,7 @@ class NormalThrowable(Throwable):
                     thrower.inventory.throw(item=self.parent, x=thrower.x, y=thrower.y, show_msg=False)
         else:# Destroyed
             from order import InventoryOrder
-            if self.parent.item_type == InventoryOrder.POTION:
+            if self.parent.item_type.value == InventoryOrder.POTION.value:
                 self.engine.message_log.add_message(f"{g(self.parent.name, '이')} 깨졌다.", fg=color.gray, target=thrower)
             else:
                 self.engine.message_log.add_message(f"{g(self.parent.name, '이')} 파괴되었다.", fg=color.gray, target=thrower)

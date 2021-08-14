@@ -79,6 +79,7 @@ class Engine:
         self.game_map: GameMap = None
         self.depth: int = 0
         self.item_manager: ItemManager = None
+        self.toughness = 0
 
     def set_mouse_pos(self, x, y):
         self._mouse_pos = x, y

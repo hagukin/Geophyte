@@ -177,6 +177,9 @@ class Equipable(BaseComponent):
         changed = [(2,4,0,4), (2,2,0,5)]
         None - does nothing
         """
+        if len(self.add_melee_effects_var) == 0:
+            return self.eq_melee_effects_var # No add_melee_effects_var given
+
         changed = []
         if len(self.eq_melee_effects_var) != len(self.add_melee_effects_var):
             print("ERROR::Equipable - melee_effects_var differs in length")
@@ -210,9 +213,12 @@ class Equipable(BaseComponent):
         changed = [("electrocute_target", 0.2), ("bleed_target", 0.5)]
         NOTE: first value has been overwritten since they are completely different
         """
+        if len(self.add_melee_effects) == 0:
+            return self.eq_melee_effects # No add_melee_effects given
+
         changed = []
         if len(self.eq_melee_effects) != len(self.add_melee_effects):
-            print("ERROR::Equipable - melee_effectr differs in length")
+            print(f"ERROR::Equipable - melee_effects differs in length - {self.eq_melee_effects}, {self.add_melee_effects}")
             return self.eq_melee_effects
 
         for i in range(len(self.eq_melee_effects)):
@@ -281,19 +287,22 @@ class Equipable(BaseComponent):
         """
         return None
 
+    def reset_upgrade(self):
+        """Reset upgrade to 0"""
+        self.upgrade = 0
+        self.update_stat()
+        if self.owner:
+            self.owner.equipments.update_equipment_bonus(self.parent)  # Change bonus values
+
     def upgrade_this(self, amount:int):
         """
         Upgrade this equipment.
         And refresh the equiper's status bonus values.
         """
-        # actual upgrading parts
         self.upgrade += amount
         self.update_stat()
         if self.owner:
             self.owner.equipments.update_equipment_bonus(self.parent) # Change bonus values
-
-        # upadte bonus
-        self.owner.equipments.update_equipment_bonus(self.parent)
 
     @property
     def corrosion_debuf(self) -> float:

@@ -7,7 +7,7 @@ import random
 import color
 import numpy as np
 
-from typing import Optional, Tuple, Type, TypeVar, TYPE_CHECKING, List
+from typing import Optional, Tuple, Type, TypeVar, TYPE_CHECKING, List, Dict
 from numpy.core.shape_base import block
 
 from input_handlers import ForceAttackInputHandler, ChestPutEventHandler, ChestTakeEventHandler
@@ -323,7 +323,7 @@ class Entity:
                 print(f"WARNING::entity.remove_self() - Tried to remove {self.name}, but its not in gamemap.entities. (It has self.gamemap)")
                 pass
 
-    def copy(self, gamemap: GameMap):
+    def copy(self, gamemap: GameMap) -> Entity:
         clone = copy.deepcopy(self)
         clone.gamemap = gamemap
         return clone
@@ -407,9 +407,9 @@ class Actor(Entity):
         inventory: Inventory,
         ability_inventory: AbilityInventory,
         equipments: Equipments,
-        initial_items: List = None,
-        initial_abilities: List = None,
-        initial_equipments: List = None,
+        initial_items: Tuple[Dict] = None,
+        initial_abilities: Tuple[Tuple] = None,
+        initial_equipments: Tuple[Dict] = None,
         tile_effect_on_path: str = None,
         actor_to_spawn_on_path: Actor = None,
     ):
@@ -426,7 +426,13 @@ class Actor(Entity):
             initial_items:
                 List of items that this actor spawns with.
                 The list could contains multiple tuples, and tuple contains the following
-                ( Item object, chance of spawning with the item, Tuple(min number of item, max number of item) )
+                {
+                    "item":Item object,
+                    "chance":chance of spawning with the item,
+                    "count":Tuple(min number of item,max number of item),
+                    "BUC":format - same as Item.initial_BUC,
+                    "upgrade":format - same as Item.initial_upgrades,
+                }
             initial_abilities:
                 List of abilities that this actor spawns with.
                 The list could contains multiple tuples, and tuple contains the following
@@ -434,7 +440,7 @@ class Actor(Entity):
             initial_equipments:
                 List of equipments that this actor spawns with.
                 The list could contains multiple tuples, and tuple contains the following
-                ( Item object(that is equippable), chance of spawning with the item )
+                format same as initial_items
         """
         super().__init__(
             gamemap=gamemap,
@@ -495,17 +501,17 @@ class Actor(Entity):
         if initial_items == None:
             self.initial_items = []
         else:
-            self.initial_items = initial_items
+            self.initial_items = list(initial_items)
 
         if initial_abilities == None:
             self.initial_abilities = []
         else:
-            self.initial_abilities = initial_abilities
+            self.initial_abilities = list(initial_abilities)
 
         if initial_equipments == None:
             self.initial_equipments = []
         else:
-            self.initial_equipments = initial_equipments
+            self.initial_equipments = list(initial_equipments)
 
     @property
     def actor_desc(self):
@@ -634,6 +640,21 @@ class Actor(Entity):
         """
         self.action_point = min(180, self.action_point + self.actor_speed)
 
+    def initialize_actor_possesion(self, args) -> Item:
+        """Initialize items that the actor owns.
+        a single args represents a single item."""
+        temp = args["item"].copy(gamemap=self.gamemap)
+        temp.stack_count = random.randint(args["count"][0], args["count"][1])
+        temp.parent = self.inventory
+
+        if args["BUC"] != None or "BUC" not in args.keys():
+            temp.initialize_BUC(use_custom=args["BUC"])
+        if args["upgrade"] != None and temp.equipable or "upgrade" not in args.keys():
+            temp.equipable.reset_upgrade()
+            temp.initialize_upgrade(use_custom=args["upgrade"])
+        self.inventory.add_item(temp)
+        return temp
+
     def initialize_actor(self):
         """
         Sets initial items, abilities, and equipments of this actor.
@@ -642,24 +663,21 @@ class Actor(Entity):
         if self.ai:
             self.ai.init_vision()
 
-        for item in self.initial_items:
-            if random.random() <= item[1]:
-                temp = item[0].copy(gamemap=self.gamemap)
-                temp.stack_count = random.randint(item[2][0], item[2][1])
-                temp.parent = self.inventory
-                self.inventory.add_item(temp)
-        
-        for equipment in self.initial_equipments:
-            if equipment != None:
-                if random.random() <= equipment[1]:
-                    eq = equipment[0].copy(gamemap=self.gamemap)
-                    eq.parent = self.inventory
-                    self.inventory.add_item(eq)
-                    self.equipments.equip_equipment(item=eq, forced=True)
-
+        for args in self.initial_items:
+            if random.random() <= args["chance"]:
+                self.initialize_actor_possesion(args)
+        for args in self.initial_equipments:
+            if random.random() <= args["chance"]:
+                item = self.initialize_actor_possesion(args)
+                self.equipments.equip_equipment(item=item, forced=True)
         for ability in self.initial_abilities:
             if random.random() <= ability[1]:
                 self.ability_inventory.add_ability(ability[0].copy())
+
+    def copy(self, gamemap: GameMap):
+        clone = super().copy(gamemap=gamemap)
+        clone.initialize_actor() # must be called after entity.copy(gamemap)
+        return clone
 
     def spawn(self: T, gamemap: GameMap, x: int, y: int, is_active: bool=False) -> T:
         """
@@ -668,7 +686,6 @@ class Actor(Entity):
         clone = super().spawn(gamemap, x, y)
         if is_active and clone.ai:
             clone.ai.activate()
-        clone.initialize_actor()#NOTE: initialize_actor() should be called AFTER super().spawn(), so that the actor's gamemap is set.
         return clone
 
     def check_for_immobility(self):
@@ -753,6 +770,9 @@ class Item(Entity):
         blocks_sight: bool = False,
         tradable: bool = True,
         spawnable: bool = False,
+        uncursable: bool = True,
+        cursable: bool = True,
+        blessable: bool = True,
         walkable: Walkable=None,
         swappable: bool=False,
         flammable: float = 0, # 0 to 1, 1 being always flammable
@@ -768,7 +788,7 @@ class Item(Entity):
         edible: Edible = None,
         lockpickable: Tuple[float, float] = (0, 0),
         counter_at_front: bool = False,
-        initial_BUC: dict = { 1: 0, 0: 1, -1: 0 },
+        initial_BUC=None,
         initial_identified: float = 0,
         initial_upgrades: List = None, #TODO
     ):
@@ -781,7 +801,9 @@ class Item(Entity):
             initial_identified:
                 Chance of this item spawning as already identified. (semi-identified)
             initial_upgrades:
-                TODO
+                default = {-3:1, -2:2, -1:4, 0:15, 1:4, 2:2, 3:1}
+                can customize.
+                e.g. {-5:1, 0:10, 1:1} -> Can only be spawned as -5 or 0 or 1
             lockpickable:
                 0 to 1 OR -1, 1 being always successfully unlocking something when used by actor of dex 18 or higher, and -1 being ALWAYS unlocking regardless of the actor's status. 
                 0 to 1, 1 being item always being broken when used to lockpick/unlock things.
@@ -823,6 +845,9 @@ class Item(Entity):
 
         self.tradable = tradable
         self.flammable = flammable
+        self.uncursable = uncursable # whether can change BUC to 0 from -1
+        self.cursable = cursable
+        self.blessable = blessable
         self.corrodible = corrodible
         self.droppable = droppable
         self.change_stack_count_when_dropped = change_stack_count_when_dropped
@@ -850,11 +875,14 @@ class Item(Entity):
 
         self.counter_at_front = counter_at_front
 
-        self.initial_BUC = initial_BUC
+        if initial_BUC is None:
+            self.initial_BUC = {1: 1, 0: 8, -1: 2} # Default not-cursed
+        else:
+            self.initial_BUC = initial_BUC
         self.initial_identified = initial_identified
 
         if initial_upgrades == None:
-            self.initial_upgrades = []
+            self.initial_upgrades = {-4:1, -3:2, -2:3, -1:6, 0:15, 1:7, 2:4, 3:2, 4:1}
         else:
             self.initial_upgrades = initial_upgrades
         
@@ -911,7 +939,7 @@ class Item(Entity):
         NOTE: This function will not handle the change of the price depending on the actor's charm.
         NOTE: If dicount value is over 1, the function will return an overrated price for the item.
         """
-        if self.item_type == InventoryOrder.GEM:
+        if self.item_type.value == InventoryOrder.GEM.value:
             if self.item_state.is_identified == 0:
                 if is_shopkeeper_is_selling:
                     return round(discount * 3000)
@@ -942,6 +970,24 @@ class Item(Entity):
                     self.parent.parent.equipments.remove_equipment(region=self.item_state.equipped_region, forced=True)
             self.parent.delete_item_from_inv(self)
 
+    def initialize_BUC(self, use_custom: Optional[dict] = None) -> None:
+        if use_custom:
+            using = use_custom
+        else:
+            using = self.initial_BUC
+        buc = random.choices(list(using.keys()), list(using.values()), k=1)[0]
+        if not self.item_state.change_buc(BUC=buc):
+            print(f"DEBUG::Cannot initialize buc of {self.entity_id} as given value {buc}.")
+
+    def initialize_upgrade(self, use_custom: Optional[dict] = None) -> None:
+        if use_custom:
+            using = use_custom
+        else:
+            using = self.initial_upgrades
+        if self.equipable:
+            upgrade = random.choices(list(using.keys()), list(using.values()), k=1)[0]
+            self.equipable.upgrade_this(amount=upgrade)
+
     def initialize_item(self):
         """
         Sets initial BUC, identification status, etc.
@@ -953,13 +999,13 @@ class Item(Entity):
             self.item_state.unidentify_self()
 
         self.item_state.parent = self
-        self.item_state.BUC = random.choices(list(self.initial_BUC.keys()), list(self.initial_BUC.values()), k=1)[0]
-
-        #TODO: upgrades initialization
+        self.initialize_BUC(use_custom=None)
+        self.initialize_upgrade(use_custom=None)
 
     def copy(self, gamemap: GameMap, parent: Optional[Inventory]=None):
         clone = super().copy(gamemap=gamemap)
         clone.parent = parent
+        clone.initialize_item() # must be called after entity.copy(gamemap) so that gamemap is set
         return clone
 
     def spawn(self: T, gamemap: GameMap, x: int, y: int) -> T:
@@ -967,7 +1013,6 @@ class Item(Entity):
         Spawn a copy of this instance at the given location.
         """
         clone = super().spawn(gamemap, x, y)
-        clone.initialize_item()#NOTE: initialize_item() should be called AFTER super().spawn(), so that the actor's gamemap is set.
         return clone
 
     def update_component_parent_to(self, item: Item) -> None:

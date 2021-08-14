@@ -127,9 +127,8 @@ class Terrain:
             self.shape = {
             "rectangular":2,
             "circular":4,
-            "perpendicular":4,
-            "blob":6,
-        }
+            "blob":5,
+            }
         else:
             self.shape = shape
 

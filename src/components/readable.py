@@ -261,11 +261,13 @@ class ScrollOfRemoveCurseReadable(SelectItemFromInventoryReadable):
     
     def effects_on_selected_item(self, consumer: Actor, selected_item: Item):
         temp = selected_item.item_state.BUC
-        selected_item.item_state.uncurse_self() #TODO: uncurse multiple when blessed?
+        success = selected_item.item_state.change_buc(BUC=0)
 
         # Log
-        if temp <= -1: #If item was cursed before
+        if temp <= -1 and success: #If item was cursed before
             self.engine.message_log.add_message(f"{consumer.name}의 {g(selected_item.name, '로')}부터 사악한 기운이 사라졌다!", color.player_success, target=consumer)
+        elif temp <= -1 and not success:
+            self.engine.message_log.add_message(f"{consumer.name}의 {g(selected_item.name, '로')}부터 뿜어져 나오는 사악한 기운이 너무 강력해, 저주를 해제할 수 없다!",color.player_failed, target=consumer)
         else:
             self.engine.message_log.add_message(f"백색 빛이 {consumer.name}의 {g(selected_item.name, '을')} 감쌌다.", color.player_sense, target=consumer)
         #NOTE: Currently self-uncursing is possible

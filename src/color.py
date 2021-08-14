@@ -30,6 +30,7 @@ old_paper_yellow = (235, 213, 179)
 dying_red = (138, 72, 72)
 weak_yellow = (242, 234, 111)
 violet = (104, 10, 255)
+reddish_pink = (189, 0, 94)
 
 ##############
 procgen_bg = None
@@ -62,7 +63,7 @@ player_buff = green
 player_debuff = reddish_brown
 
 player_success = cyan
-player_failed = purple
+player_failed = reddish_pink
 
 player_atk = light_pink
 player_crit = pink

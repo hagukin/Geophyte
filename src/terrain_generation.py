@@ -531,8 +531,11 @@ def generate_on_empty_convex(gamemap: GameMap, x:int, y:int) -> None:
     """
     Generate a random terrain to the given empty convex location.
     """
-    if random.random() <= 0.3: #TODO Add more
+    if random.random() <= 0.5:
         from chest_factories import choose_random_chest
         grow_chest(gamemap=gamemap, x=x, y=y, chest_id=choose_random_chest(k=1)[0], initial_items=None)
         # gamemap.tiles[x, y] = gamemap.tileset["t_DEBUG"]()
+    else:
+        from procgen import spawn_monsters_by_difficulty, choose_monster_difficulty
+        spawn_monsters_by_difficulty(x=x, y=y, difficulty=choose_monster_difficulty(gamemap.depth, gamemap.engine.toughness), dungeon=gamemap)
 

@@ -80,9 +80,7 @@ class ShopTerrain(Terrain):
         """
         if shape == None:
             self.shape = {
-            "rectangular":1, #Shops can be in any shape, but rectangular is most stable
-            "circular":1,
-            "perpendicular":1,
+            "rectangular":1 #Shops can be in any shape, but rectangular is most stable
             }
         else:
             self.shape = shape

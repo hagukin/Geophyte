@@ -278,6 +278,7 @@ class BaseAI(BaseComponent):
     def move_path(self) -> None:
         if self.path:
             dest_x, dest_y = self.path[0]
+
             try:
                 # Check if there is any actor blocking.
                 # If there is one, check if that actor is this ai's potential target. If so, proceeds(BumpAction). If not, consider the path blocked.
@@ -286,7 +287,10 @@ class BaseAI(BaseComponent):
                     if self.check_if_enemy(bump_actor):
                         BumpAction(self.parent, dest_x - self.parent.x, dest_y - self.parent.y,).perform()
                     else:
-                        raise None
+                        if self.target:  # if the AI was chasing the target
+                            pass  # keep chasing regardless of valid path existing it since new path will be generated next turn
+                        else:  # if the AI was wandering
+                            return self.wander()  # Select new destination to wander
                 else:
                     BumpAction(self.parent, dest_x - self.parent.x, dest_y - self.parent.y,).perform()
 
@@ -296,10 +300,12 @@ class BaseAI(BaseComponent):
                     self.path.pop(0)
                 return None
             except:
-                if self.target: # if the AI was chasing the target
-                    pass # keep chasing regardless of valid path existing it since new path will be generated next turn
-                else: # if the AI was wandering
-                    self.wander() # Select new destination to wander
+                print("ERROR::SOMETHING WENT WRONG DURING AI.MOVE_PATH()")
+                self.wander()
+        else:
+            print("ERROR::AI HAS NO PATH BUT CALLED MOVE_PATH()")
+            self.wander()
+
 
     def perform_melee_action(self, dx, dy):
         """

@@ -111,25 +111,33 @@ class Shopkeeper_Ai(ai.BaseAI):
                 # Found a thief
                 self.thieves.add(picked_actor)
 
+    def wander(self) -> None:
+        """Shopkeeper will never wander around."""
+        return WaitAction(self.parent).perform()
+
     def wait_for_customer(self) -> None:
         """
         There are no customers in the shop, or the customer doesn't own anything from the shop yet.
         The shopkeeper will not block the exit.
         """
-        if self.parent.x != self.room.terrain.shopkeeper_loc[0] and self.parent.y != self.room.terrain.shopkeeper_loc[1]\
-            and not self.path:
-            self.path = self.get_path_to(self.room.terrain.shopkeeper_loc[0], self.room.terrain.shopkeeper_loc[1])
-        return self.move_path()
+        if self.parent.x != self.room.terrain.shopkeeper_loc[0] or self.parent.y != self.room.terrain.shopkeeper_loc[1]:
+            if not self.path:
+                self.path = self.get_path_to(self.room.terrain.shopkeeper_loc[0], self.room.terrain.shopkeeper_loc[1])
+            return self.move_path()
+        else:
+            return WaitAction(self.parent).perform()
 
-    def waiting_for_payment(self):
+    def waiting_for_payment(self) -> None:
         """
         The customer has picked up an item and still has it.
         The shopkeeper will try to block the exit, and if customer leaves the shop, the shopkeeper will consider that customer as a thief.
         """
-        if self.parent.x != self.room.doors[0][0] and self.parent.y != self.room.doors[0][1]\
-            and not self.path:
-            self.path = self.get_path_to(self.room.doors[0][0], self.room.doors[0][1])
-        return self.move_path()
+        if self.parent.x != self.room.single_door[0] or self.parent.y != self.room.single_door[1]:
+            if not self.path:
+                self.path = self.get_path_to(self.room.single_door[0], self.room.single_door[1])
+            return self.move_path()
+        else:
+            return WaitAction(self.parent).perform()
 
     def place_item_in_shop(self, item: Item) -> None: #TODO DEBUG
         """Physically move the item into the shop.

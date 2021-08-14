@@ -93,11 +93,36 @@ class ItemState(BaseComponent):
         else:
             return False
 
-    def uncurse_self(self):
-        """
-        Remove this parent's curse
-        """
-        self.BUC = 0
+    def change_buc(self, BUC: int) -> bool:
+        """Change BUC to given value
+        BUC 1 0 -1
+        Return:
+            Boolean. Whether the change was successful or not.
+            """
+        if BUC == 1:
+            if self.parent.blessable:
+                self.BUC = 1
+                return True
+            else:
+                return False
+        elif BUC == -1:
+            if self.parent.cursable:
+                self.BUC = -1
+                return True
+            else:
+                return False
+        elif BUC == 0:
+            if self.BUC == -1:
+                if self.parent.uncursable:
+                    self.BUC = 0
+                    return True
+                else:
+                    return False
+            self.BUC = 0
+            return True
+        else:
+            print(f"ERROR::Cannot change {self.parent.entity_id}'s BUC to {BUC}")
+            return False
 
     def check_if_state_identical(self, comparing_item: Item, compare_stack_count: bool = False) -> bool:
         """

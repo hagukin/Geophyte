@@ -157,11 +157,7 @@ general_shop = ShopTerrain(
     max_height=8,
     custom_gen=ShopTerrGen.generate_shop,
     sell_items=None,
-    shape={
-        "rectangular":2,
-        "circular":4,
-        "perpendicular":4,
-    },
+    shape=None
 )
 terrain_dict[general_shop.terrain_id] = general_shop
 terrain_rarity.append(general_shop.rarity)
@@ -192,11 +188,7 @@ potion_shop = ShopTerrain(
         item_factories.potion_of_acid : item_factories.potion_of_acid.rarity,
         item_factories.potion_of_frost : item_factories.potion_of_frost.rarity,
     },
-    shape={
-        "rectangular":2,
-        "circular":4,
-        "perpendicular":4,
-    },
+    shape=None,
 )
 terrain_dict[potion_shop.terrain_id] = potion_shop
 terrain_rarity.append(potion_shop.rarity)

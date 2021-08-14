@@ -227,15 +227,15 @@ class Equipments(BaseComponent):
     def update_dual_wielding(self) -> None:
         """Update the boolean self.is_dual_wielding."""
         if self.equipments["main hand"] != None and self.equipments["off hand"] != None:
-            debuff_dex = max(1, round((self.equipments["main hand"].weight + self.equipments["off hand"].weight)*0.8) * max(1,30/self.parent.status.changed_status["dexterity"] + self.parent.status.changed_status["strength"]))
+            debuff_dex = max(1, round((self.equipments["main hand"].weight + self.equipments["off hand"].weight) * 0.1 * max(1, 45/self.parent.status.changed_status["dexterity"]*2+self.parent.status.changed_status["strength"])))
             if self.parent == self.engine.player:
                 self.engine.message_log.add_message(text=f"당신은 {g(self.equipments['main hand'].name, '와')} {g(self.equipments['off hand'].name, '을')} 쌍수로 장비했다.", fg=color.player_buff)
 
-            from order import EqiupableOrder
-            b1 = self.equipments["main hand"].equipable.equipable_type == EquipableOrder.SHIELD
-            b2 = self.equipments["main hand"].equipable.equipable_type == EqiupableOrder.SHIELD
-            if  (b1 or b2) and (not b1 or not b2):
-                debuff_dex = max(0, round(debuff_dex*0.8)) # Little advantage for shield dual wielding
+            from order import EquipableOrder
+            b1 = self.equipments["main hand"].equipable.equipable_type.value == EquipableOrder.SHIELD.value
+            b2 = self.equipments["off hand"].equipable.equipable_type.value == EquipableOrder.SHIELD.value
+            if (b1 or b2) and (not b1 or not b2):
+                debuff_dex = max(1, round(debuff_dex * 0.4))  # Little advantage for single-shield dual wielding
 
             self.parent.status.add_bonus(Bonus(bonus_id="dual_wield", bonus_dexterity=-debuff_dex))
         else:
@@ -295,9 +295,13 @@ class Equipments(BaseComponent):
         if self.equipments[region] == None: 
             if not forced:
                 if self.parent == self.engine.player:
-                    raise exceptions.Impossible("당신은 해당 위치에 아무 것도 장착하고 있지 않다.")
+                    self.engine.message_log.add_message("당신은 해당 위치에 아무 것도 장착하고 있지 않다.", fg=color.impossible)
 
             return None
+        elif self.equipments[region].item_state.BUC <= -1 and not forced:
+            if self.parent == self.engine.player:
+                self.engine.message_log.add_message(f"{g(self.equipments[region].name, '이')} 몸에서 떨어지지 않는다!", fg=color.player_failed)
+                self.equipments[region].item_state.identify_self(2)
         else:
             self.remove_equipable_bonuses(self.equipments[region])
             self.equipments[region].item_state.equipped_region = None

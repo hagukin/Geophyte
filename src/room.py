@@ -1,3 +1,5 @@
+import random
+import copy
 from game_map import GameMap
 from terrain import Terrain
 from typing import Tuple, List
@@ -13,23 +15,102 @@ class Room:
             protectmap:
                 Similar to gamemap's protect map, except it only shows the protected area of this particular room.
                 (Only this room's area is marked as 1 if its protected.)
+            width:
+                including outer walls
         """
         self.x1 = x
         self.y1 = y
-        self.x2 = x + width
-        self.y2 = y + height
         self.width = width
         self.height = height
         self.parent = parent # gamemap
-        self.room_protectmap = np.full((parent.biome.map_width, parent.biome.map_height), fill_value=False, order="F")
         self.terrain = terrain
-        self.door_directions = []
+        self.doors_rel = {} # Contains ("dir": (x,y))
+        self.door_convexes_rel = {}  # Contains ("dir": (x,y))
+        self.init_doors_rel()
+
+    @property
+    def single_door(self) -> Tuple[int,int]:
+        """Return the only door location this room has. Used in shops, etc."""
+        tmp = list(self.doors.values())
+        if len(tmp) != 1:
+            print("WARNING::Room has more or less than 1 door but called room.single_door property.")
+        return list(self.doors.values())[0]
+
+    @property
+    def doors(self):
+        """Returns absolute coordinates"""
+        tmp = copy.copy(self.doors_rel)
+        for k, coor in tmp.items():
+            tmp[k] = (coor[0]+self.x1, coor[1]+self.y1)
+        return tmp
+
+    @property
+    def door_convexes(self):
+        """Returns absolute coordinates"""
+        tmp = copy.copy(self.door_convexes_rel)
+        for k, coor in tmp.items():
+            tmp[k] = (coor[0] + self.x1, coor[1] + self.y1)
+        return tmp
+
+    def door_ups_rel(self) -> List[Tuple[int, int]]:
+        raise NotImplementedError()
+
+    def door_lefts_rel(self) -> List[Tuple[int, int]]:
+        raise NotImplementedError()
+
+    def door_rights_rel(self) -> List[Tuple[int, int]]:
+        raise NotImplementedError()
+
+    def door_downs_rel(self) -> List[Tuple[int, int]]:
+        raise NotImplementedError()
+
+    def init_doors_rel(self) -> None:
+        # set door position (Not actually generating)
+        # choose the direction of the door
+        tempdir = ["u", "d", "l", "r"]
+        random.shuffle(tempdir)
+        door_num = random.choices(self.terrain.door_num_range, self.terrain.door_num_weight, k=1)[0]
+        door_directions = []
+        for i in range(door_num):
+            door_directions.append(tempdir[i % 4])  # udlr 1234
+
+        for direction in door_directions:
+            if direction == 'u':
+                dx = 0
+                dy = -1
+                door_x, door_y = random.choice(self.door_ups_rel())
+            elif direction == 'd':
+                dx = 0
+                dy = 1
+                door_x, door_y = random.choice(self.door_downs_rel())
+            elif direction == 'l':
+                dx = -1
+                dy = 0
+                door_x, door_y = random.choice(self.door_lefts_rel())
+            elif direction == 'r':
+                dx = 1
+                dy = 0
+                door_x, door_y = random.choice(self.door_rights_rel())
+            else:
+                print(f"FATAL ERROR::Invalid door direction - {direction}. Using Upper direction instead.")
+                dx = 0
+                dy = -1
+                door_x, door_y = random.choice(self.door_ups_rel())
+
+            self.door_convexes_rel[direction] = (door_x + dx, door_y + dy)
+            self.doors_rel[direction] = (door_x, door_y)
+
+    @property
+    def x2(self):
+        return self.x1 + self.width - 1
+
+    @property
+    def y2(self):
+        return self.y1 + self.height - 1
 
     def move(self, x: int=0, y: int=0):
         self.x1 = x
-        self.x2 = x + self.width
         self.y1 = y
-        self.y2 = y + self.height
         
     @property
     def center(self) -> Tuple[int, int]:
@@ -39,62 +120,14 @@ class Room:
         return center_x, center_y
 
     @property
-    def inner(self) -> Tuple[slice, slice]:
+    def inner(self) -> List[Tuple[slice, slice]]:
         """Return the inner area of this room as a 2D array indexes."""
         raise NotImplementedError()
 
     @property
-    def outer(self) -> Tuple[slice, slice]:
+    def outer(self) -> List[Tuple[slice, slice]]:
         """Return the outer(walls) + inner area of this room as a 2D array index."""
         raise NotImplementedError()
-
-    @property
-    def door_convexes(self) -> List[Tuple[int,int]]:
-        tmp = []
-        for direction in self.door_directions:
-            if direction == 'u':
-                door_slice = self.door_up()
-            elif direction == 'd':
-                door_slice = self.door_down()
-            elif direction == 'l':
-                door_slice = self.door_left()
-            elif direction == 'r':
-                door_slice = self.door_right()
-            else:
-                print(f"FATAL ERROR::Invalid door direction - {direction}. Using Upper direction instead.")
-                door_slice = self.door_up()
-
-            tmp.append((door_slice[0].start, door_slice[1].start))
-        return tmp
-
-    @property
-    def doors(self) -> List[Tuple[int,int]]:
-        tmp = []
-        for direction in self.door_directions:
-            if direction == 'u':
-                dx = 0
-                dy = 1
-                door_slice = self.door_up()
-            elif direction == 'd':
-                dx = 0
-                dy = -1
-                door_slice = self.door_down()
-            elif direction == 'l':
-                dx = 1
-                dy = 0
-                door_slice = self.door_left()
-            elif direction == 'r':
-                dx = -1
-                dy = 0
-                door_slice = self.door_right()
-            else:
-                print(f"FATAL ERROR::Invalid door direction - {direction}. Using Upper direction instead.")
-                dx = 0
-                dy = 1
-                door_slice = self.door_up()
-
-            tmp.append((door_slice[0].start + dx, door_slice[1].start + dy))
-        return tmp
 
     @property
     def inner_tiles(self): # Returns List of Tuples
@@ -143,7 +176,8 @@ class Room:
         for tile_slice in self.outer:
             # Check for tiles that should not collide with other rooms
             if TilemapOrder.ROOM_INNER.value in self.parent.tilemap[tile_slice]\
-                or TilemapOrder.TUNNEL.value in self.parent.tilemap[tile_slice]\
+                or TilemapOrder.TUNNEL.value in self.parent.tilemap[tile_slice] \
+                or TilemapOrder.DOOR_CONVEX.value in self.parent.tilemap[tile_slice]\
                 or 1 in self.parent.protectmap[tile_slice]: #NOTE: Warning - It's only checking the room area, not the door convex area. Which means that door convexes can still collided with protected area!
                 return True
             # NOTE: The following lines of code prevents protected room being generated onto door/door convex location.
@@ -153,54 +187,30 @@ class Room:
                 if TilemapOrder.DOOR.value in self.parent.tilemap[tile_slice]\
                     or TilemapOrder.DOOR_CONVEX.value in self.parent.tilemap[tile_slice]:
                     return True
-        for door_loc in self.doors:
-            if (self.parent.protectmap[door_loc] == 1 and self.room_protectmap[door_loc] != 1)\
+        for door_loc in self.doors.values():
+            if (self.parent.protectmap[door_loc] == 1 and not self.check_if_in_room(*door_loc))\
                 or self.parent.tilemap[door_loc] == TilemapOrder.DOOR.value\
                 or self.parent.tilemap[door_loc] == TilemapOrder.DOOR_CONVEX.value\
                 or self.parent.tilemap[door_loc] == TilemapOrder.MAP_BORDER.value:
                 return True
-        for door_con_loc in self.door_convexes:
-            if (self.parent.protectmap[door_con_loc] == 1 and self.room_protectmap[door_con_loc] != 1)\
+            for dx, dy in ((1,0),(0,1),(-1,0),(0,-1),(1,1),(-1,-1),(1,-1),(-1,1)):
+                if self.parent.tilemap[door_loc[0]+dx, door_loc[1]+dy] == TilemapOrder.DOOR.value:
+                    print("LOG::Prevented adjacent door generation")
+                    return True
+        for door_con_loc in self.door_convexes.values():
+            if (self.parent.protectmap[door_con_loc] == 1 and not self.check_if_in_room(*door_con_loc)) \
+                or self.parent.tilemap[door_con_loc] == TilemapOrder.ROOM_WALL.value\
                 or self.parent.tilemap[door_con_loc] == TilemapOrder.DOOR.value \
                 or self.parent.tilemap[door_con_loc] == TilemapOrder.MAP_BORDER.value:
                 return True
         return False
-
-    def get_door_dir(self, x: int, y: int) -> str:
-        """returns direction of the given location of the door convex."""
-        if x == self.x2:
-            return 'r'
-        elif x == self.x1:
-            return 'l'
-        elif y == self.y1:
-            return 'u'
-        elif y == self.y2:
-            return 'd'
-        else:
-            raise Exception("FATAL ERROR::Cannot find the door anywhere on the edge of the room.")
     
     def check_if_in_room(self, x:int, y: int) -> bool:
         """Check if the given coordinates is in this room's inner area."""
-        for cor in self.inner_tiles:
-            if cor[0] == x and cor[1] == y:
+        for inner_slice in self.inner:
+            if x <= inner_slice[0].stop and x >= inner_slice[0].start and y <= inner_slice[1].stop and y >= inner_slice[1].start:
                 return True
         return False
-
-    def door_up(self) -> Tuple[slice, slice]:
-        """Randomly randomize door convex location next to the upper wall, and return the location as a 2D array index."""
-        raise NotImplementedError()
-
-    def door_left(self) -> Tuple[slice, slice]:
-        """Randomly randomize door convex location next to the left wall, and return the location as a 2D array index."""
-        raise NotImplementedError()
-
-    def door_right(self) -> Tuple[slice, slice]:
-        """Randomly randomize door convex location next to the right wall, and return the location as a 2D array index."""
-        raise NotImplementedError()
-
-    def door_down(self) -> Tuple[slice, slice]:
-        """Randomly randomize door convex location next to the lower wall, and return the location as a 2D array index."""
-        raise NotImplementedError()
 
     def get_actors_in_room(self) -> List[Actor]:
         """

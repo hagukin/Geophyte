@@ -21,34 +21,41 @@ class ShopTerrGen:
 
     @staticmethod
     def generate_shop_item(gamemap: GameMap, room: Room) -> None:
-        door_dir = room.get_door_dir(room.doors[0][0], room.doors[0][1])
+        door_dir = list(room.doors_rel.keys())[0]
+        if len(room.doors_rel.keys()) != 1:
+            print(f"WARNING::Shop generation cancelled - There should be 1 door, instead the room {room.terrain.terrain_id} has {len(door_dir)} door(s).")
 
-        # keep one line as blank tile. (Nethack style shop)
+        # keep 2 line as blank tile. (Nethack style shop)
         tmp = room.inner_tiles
-        idle_tile = room.doors[0] # tile where shopkeeper idles.
+        idle_tile = room.doors[door_dir] # tile where shopkeeper idles.
         for tile in tmp:
             if (door_dir == 'u' and tile[1] <= room.y1 + 1):
-                if tile[0] != room.doors[0][0]: # preventing shopkeeper blocking the passage
+                if tile[0] != room.doors[door_dir][0]: # preventing shopkeeper blocking the passage
                     idle_tile = tile
                 continue
             elif (door_dir == 'd' and tile[1] >= room.y2 - 1):
-                if tile[0] != room.doors[0][0]: # preventing shopkeeper blocking the passage
+                if tile[0] != room.doors[door_dir][0]: # preventing shopkeeper blocking the passage
                     idle_tile = tile
                 continue
             elif (door_dir == 'l' and tile[0] <= room.x1 + 1):
-                if tile[1] != room.doors[0][1]: # preventing shopkeeper blocking the passage
+                if tile[1] != room.doors[door_dir][1]: # preventing shopkeeper blocking the passage
                     idle_tile = tile
                 continue
             elif (door_dir == 'r' and tile[0] >= room.x2 - 1):
-                if tile[1] != room.doors[0][1]: # preventing shopkeeper blocking the passage
+                if tile[1] != room.doors[door_dir][1]: # preventing shopkeeper blocking the passage
                     idle_tile = tile
                 continue
             else:
                 # Spawn item
                 ShopTerrGen.grow_shop_item(gamemap=gamemap, x=tile[0], y=tile[1], room=room)
 
-        if idle_tile == room.doors[0]:
-            print("ERROR::Couldn't find a valid location for shopkeeper to idle. Using door location instead. - custom_terrgen.generate_shop_item()")
+        if idle_tile == room.doors[door_dir]:
+            print("WARNING::Couldn't find a valid location for shopkeeper to idle. Using random indoor location instead. - custom_terrgen.generate_shop_item()", end=' ')
+            for tile in tmp:
+                if tile[0] != room.single_door[0] and tile[1] != room.single_door[1]:
+                    idle_tile = tile
+                    print("Random tile found.")
+                    break
         room.terrain.shopkeeper_loc = idle_tile
 
     @staticmethod
@@ -73,17 +80,12 @@ class ShopTerrGen:
         """
         Custom function for generating shops.
         """
-        try:
-            if len(room.doors) != 1:
-                print(f"WARNING::Shop generation cancelled - There should be 1 door, instead the room {room.terrain.terrain_id} has {len(room.doors)} door(s).")
-                # check procgen.generate_doors
-                # door generation ignored by either
-                return None
-            ShopTerrGen.generate_shop_item(gamemap, room)
-            shopkeeper = ShopTerrGen.spawn_shopkeeper(gamemap, room)
-            ShopTerrGen.adjust_items(shopkeeper, room)
-        except AttributeError:
-            print("ERROR::Tried to randomize a shop onto a non-shop-terrain room. - custom_terrgen.generate_shop()")
+        ShopTerrGen.generate_shop_item(gamemap, room)
+        shopkeeper = ShopTerrGen.spawn_shopkeeper(gamemap, room)
+        ShopTerrGen.adjust_items(shopkeeper, room)
+        # except AttributeError as e:
+        #     print(e)
+        #     print("ERROR::Tried to randomize a shop onto a non-shop-terrain room. - custom_terrgen.generate_shop()")
 
 
 class ChamberOfKugahTerrGen:

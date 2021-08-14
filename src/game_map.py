@@ -19,7 +19,7 @@ if TYPE_CHECKING:
 
 class GameMap:
     def __init__(
-        self, depth: int, biome: Biome, entities: Iterable[Entity] = (),
+        self, depth: int, biome: Biome, entities: Iterable[Entity] = (), difficulty_rise_rate: float = 0.05
     ):
         self.depth = depth
         self.biome = biome
@@ -39,6 +39,9 @@ class GameMap:
         self.respawn_ratio = biome.respawn_ratio # go to biome.py for detailed description
         self.respawn_time = biome.respawn_time
         self.respawn_turn_left = 0
+
+        self.difficulty_rise = 0 # Float. used for calculating respawn monster toughness
+        self.difficulty_rise_rate = difficulty_rise_rate # amount of difficulty rising per respawn tick
 
         self.visible = np.full(
             (biome.map_width, biome.map_height), fill_value=False, order="F"
@@ -336,6 +339,7 @@ class GameMap:
         if self.respawn_turn_left == self.respawn_time:
             # Reset time left
             self.respawn_turn_left = 0
+            self.difficulty_rise += self.difficulty_rise_rate
 
             # Check if there is enough monsters in this gamemap or not
             actor_num = 0
@@ -359,11 +363,10 @@ class GameMap:
                         continue
                     else:
                         # TODO: change tpyes of monster spawned depending on the biome type
-                        # TODO: the monster difficulty should rise as time goes on to prevent farming. This can be done by adjusting the toughness parameter.
+                        # the monster difficulty rise as time goes on to prevent farming. This can be done by adjusting the toughness parameter.
                         import procgen
-                        difficulty_chosen = procgen.choose_monster_difficulty(depth=self.depth, toughness=1)
+                        difficulty_chosen = procgen.choose_monster_difficulty(depth=self.depth, toughness=self.engine.toughness + max(4, round(self.difficulty_rise)))
                         procgen.spawn_monsters_by_difficulty(x=random_x, y=random_y, difficulty=difficulty_chosen, dungeon=self, spawn_awake=True, is_first_generation=False)
-                        
                         break
         # Add turn
         self.respawn_turn_left += 1

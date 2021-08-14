@@ -1,3 +1,5 @@
+import random
+
 import ai_factories
 import item_factories
 import ability_factories
@@ -120,28 +122,15 @@ player = Actor(
     inventory=Inventory(capacity=52, is_fireproof=False),
     ability_inventory=AbilityInventory(capacity=10),
     equipments=Equipments(),
-    initial_items=[
-        # (item_factories.scroll_of_magic_mapping, 1, (3,5)),
-        # (item_factories.diamond, 1, (3,4)),
-        # (item_factories.worthless_piece_of_white_glass, 1, (3,4)),
-        # (item_factories.scroll_of_identify, 1, (3,4)),
-        # (item_factories.potion_of_monster_detection, 1, (3,4)),
-        # (item_factories.scroll_of_confusion, 1, (3,5)),
-        # (item_factories.scroll_of_scorching_ray, 1, (3,5)),
-        # (item_factories.shine, 1, (5000,5001)),
-        # (item_factories.amulet_of_brilliance, 1, (1,1)),
-        # (item_factories.amulet_of_brilliance, 1, (1,1)),
-        # (item_factories.amulet_of_brilliance, 1, (1,1)),
-        # (item_factories.amulet_of_kugah, 1, (1,1)),
-        ],
-    initial_equipments=[
-        # (item_factories.leather_armor, 1),
-        # (item_factories.longsword, 1),
-        ],
-    initial_abilities=[
-        # (ability_factories.lightning_bolt, 1),
-        # (ability_factories.steal, 1)
-    ],
+    initial_items=(
+        {"item":item_factories.scroll_of_magic_mapping, "chance":1, "count":(3,10), "BUC":{-1:1, 0:1, 1:1}, "upgrade":None},
+        ),
+    initial_equipments=(
+        {"item":item_factories.leather_armor, "chance":1, "count":(1,1), "BUC":{-1:1, 0:1, 1:1}, "upgrade": {1:1,2:1,3:1,4:1}},
+        ),
+    initial_abilities=(
+        (ability_factories.lightning_bolt, 1),
+    ),
 )
 
 
@@ -199,14 +188,13 @@ shopkeeper = Actor(
     inventory=Inventory(capacity=52, is_fireproof=True),
     ability_inventory=AbilityInventory(capacity=10),
     equipments=Equipments(),
-    initial_items=[
-        (item_factories.scroll_of_enchantment, 0.8, (1,1)),
-        (item_factories.shine, 1, (402,1003)),
-    ],
-    initial_equipments=[
-        (item_factories.merchant_robe, 1),
-    ],
-    initial_abilities=[],
+    initial_items=(
+        {"item":item_factories.shine, "chance":1, "count":(2000,3500), "BUC":None, "upgrade":None},
+        ),
+    initial_equipments=(
+        {"item":item_factories.merchant_robe, "chance":1, "count":(1,1), "BUC": None, "upgrade":None},
+    ),
+    initial_abilities=None,
 )
 ActorDB.monster_difficulty[shopkeeper.status.difficulty].append(shopkeeper)
 
@@ -1012,7 +1000,9 @@ black_jelly = Actor(
     inventory=Inventory(capacity=1),
     ability_inventory=AbilityInventory(capacity=1),
     equipments=Equipments(),
-    initial_items=[(item_factories.toxic_goo, 1, (-1,-1))],
+    initial_items=(
+        {"item":item_factories.toxic_goo, "chance":1, "count":(-1,-1), "BUC": {-1:0,0:1,1:0}, "upgrade":None},
+        ),
 )
 ActorDB.monster_difficulty[black_jelly.status.difficulty].append(black_jelly)
 
@@ -1069,14 +1059,13 @@ nymph = Actor(
     inventory=Inventory(capacity=3),
     ability_inventory=AbilityInventory(capacity=2),
     equipments=Equipments(),
-    initial_items=[
-            (item_factories.scroll_of_lightning, 0.2, (1,1)),
-            (item_factories.shine, 1, (0,120)),
-    ],
-    initial_equipments=[
-        (item_factories.silk_dress, 1),
-    ],
-    initial_abilities=[(ability_factories.steal, 1)],
+    initial_items=(
+        {"item":item_factories.shine, "chance":0.2, "count":(50,180), "BUC": None, "upgrade":None},
+    ),
+    initial_equipments=(
+        {"item":item_factories.silk_dress, "chance":1, "count":(1,1), "BUC": None, "upgrade":None},
+    ),
+    initial_abilities=((ability_factories.steal, 1),)
 )
 ActorDB.monster_difficulty[nymph.status.difficulty].append(nymph)
 
@@ -1914,9 +1903,9 @@ ogre = Actor(
     inventory=Inventory(capacity=20),
     ability_inventory=AbilityInventory(capacity=2),
     equipments=Equipments(),
-    initial_equipments=[
-        (item_factories.rags, 1),
-    ]
+    initial_equipments=(
+        {"item":item_factories.rags, "chance":1, "count":(1,1), "BUC": None, "upgrade":None},
+    ),
 )
 ActorDB.monster_difficulty[ogre.status.difficulty].append(ogre)
 
@@ -1979,10 +1968,10 @@ giant = Actor(
     inventory=Inventory(capacity=5),
     ability_inventory=AbilityInventory(capacity=2),
     equipments=Equipments(),
-    initial_equipments=[
-        (item_factories.giant_wood_club, 0.9),
-        (item_factories.rags, 1),
-    ]
+    initial_equipments=(
+        {"item":item_factories.rags, "chance":1, "count":(1,1), "BUC": None, "upgrade":None},
+        {"item":item_factories.giant_wood_club, "chance":0.8, "count":(1,1), "BUC": None, "upgrade":None},
+    )
 )
 ActorDB.monster_difficulty[giant.status.difficulty].append(giant)
 

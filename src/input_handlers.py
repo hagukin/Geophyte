@@ -568,11 +568,11 @@ class StorageSelectEventHandler(AskUserEventHandler):
             item_count += f"(x{item.stack_count}) "
 
         # Assign color of its type
-        if item.item_type == InventoryOrder.POTION:
+        if item.item_type.value == InventoryOrder.POTION.value:
             item_text_color = color.gui_potion_name
-        elif item.item_type == InventoryOrder.SCROLL:
+        elif item.item_type.value == InventoryOrder.SCROLL.value:
             item_text_color = color.gui_scroll_name
-        elif item.item_type == InventoryOrder.ARMOR:
+        elif item.item_type.value == InventoryOrder.ARMOR.value:
             item_text_color = color.gui_armor_name
 
         # Change color of the selected items
