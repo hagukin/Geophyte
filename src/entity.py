@@ -725,6 +725,12 @@ class Actor(Entity):
             for item in self.inventory.items:
                 item.collided_with_acid()
 
+    def inventory_on_water(self):
+        # Corrode items in inventory
+        if self.inventory.is_waterproof == False:
+            for item in self.inventory.items:
+                item.collided_with_water()
+
     def collided_with_fire(self, fire):
         """
         Args:
@@ -1069,6 +1075,15 @@ class Item(Entity):
             if self.parent.parent:
                 owner = self.parent.parent
         if will_corrode < self.corrodible:
+            self.item_state.corrode(owner, amount=1)
+
+    def collided_with_water(self):
+        will_corrode = random.random() * 0.1 # its less likely to corrode in water than acid
+        owner = None
+        if self.parent:
+            if self.parent.parent:
+                owner = self.parent.parent
+        if will_corrode < self.corrodible and self.corrodible >= 0.1: # only corrodes when corrodible 0.08 or higher
             self.item_state.corrode(owner, amount=1)
 
 class SemiActor(Entity):

@@ -802,6 +802,8 @@ class ActorState(BaseComponent):
 
         # Debuffs on agi and dex if you cant swim
         if self.is_underwater:
+            self.parent.inventory_on_water()
+
             if not self.can_swim and self.size <= 5: #TODO: Size
                 if self.is_drowning == [0,0] and not self.can_breathe_underwater and self.need_breathe:
                     self.apply_drowning([0, 80])
