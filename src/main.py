@@ -25,7 +25,7 @@ def main() -> None:
             tile_width=cfg["tile_width"], 
             tile_height=cfg["tile_height"]
         ),
-        title="Geophyte Alpha v1.0",
+        title="Geophyte Alpha v1.1",
         sdl_window_flags=set_screen,
         vsync=False,
     ) as context:
@@ -69,11 +69,12 @@ def main() -> None:
                 # print(engine.player.status.changed_status.items())
                 # print(engine.player.status.changed_melee_effect_set)
                 # print(engine.player.equipments.equipments.items())
-                for e in engine.game_map.items:
-                    print(e.entity_id + str(e.item_state.BUC))
-                    if e.equipable:
-                        print(e.equipable.upgrade)
-                    print("#######################################")
+                # for e in engine.game_map.items:
+                #     print(e.entity_id + str(e.item_state.BUC))
+                #     if e.equipable:
+                #         print(e.equipable.upgrade)
+                #     print("#######################################")
+                # print(engine.player.actor_state.hunger)
 
             except Exception:
                 # Print error to stderr then print the error to the message log

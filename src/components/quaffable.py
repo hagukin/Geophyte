@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import copy
 import random
-from typing import Optional, TYPE_CHECKING
+from typing import Optional, TYPE_CHECKING, Tuple
 from tiles import TileUtil
 
 import actions
@@ -47,23 +47,30 @@ class Quaffable(BaseComponent):
 
 
 class PotionOfHealingQuaffable(Quaffable):
-    def __init__(self, amount: int):
+    def __init__(self, heal_range: Tuple[int,int]):
         super().__init__()
-        self.amount = amount
+        self.amount = random.randint(*heal_range)
 
     def apply_effect(self, apply_to: Actor) -> None:
-        amount_recovered = apply_to.status.heal(self.amount)
+        amount = self.amount
+        if self.parent.item_state.BUC == 1:
+            amount *= 1.3
+        elif self.parent.item_state.BUC == -1:
+            amount *= 0.8
+        amount = round(amount)
+
+        amount_recovered = apply_to.status.heal(amount)
 
         if amount_recovered > 0:
             if apply_to == self.engine.player:
-                self.engine.message_log.add_message(f"당신의 몸에 에너지가 넘친다!",color.player_buff,)
+                self.engine.message_log.add_message(f"당신의 상처가 낫기 시작한다!",color.player_buff,)
                 self.engine.message_log.add_message(f"당신은 {amount_recovered}만큼의 체력을 회복했다.", color.player_neutral_important, )
             else:
                 if self.engine.game_map.visible[apply_to.x, apply_to.y]:
                     self.engine.message_log.add_message(f"{apply_to.name}의 상처가 낫기 시작한다!", color.player_sense, target=apply_to)
                     self.parent.item_state.identify_self(identify_level=1)
         else:# Gain additional health when quaffed while full-health
-            amount = max(1, round(self.amount / 10))  # TODO balance
+            amount = max(1, round(amount / 8))
             apply_to.status.max_hp += amount
             apply_to.status.heal(amount=amount)
 
@@ -75,7 +82,6 @@ class PotionOfHealingQuaffable(Quaffable):
         if apply_to.status.experience:
             apply_to.status.experience.gain_constitution_exp(60, 17)
 
-            
 
 class PotionOfParalysisQuaffable(Quaffable):
     def __init__(self, turn: int):
@@ -84,7 +90,10 @@ class PotionOfParalysisQuaffable(Quaffable):
 
     def apply_effect(self, apply_to: Actor) -> None:
         temp = copy.copy(apply_to.actor_state.is_paralyzing)
-        apply_to.actor_state.apply_paralyzation([0,self.turn])
+        turn = self.turn
+        if self.parent.item_state.BUC == 1:
+            turn *= 2
+        apply_to.actor_state.apply_paralyzation([0,turn])
 
         # Log
         if temp == [0, 0]:
@@ -107,7 +116,10 @@ class PotionOfMonsterDetectionQuaffable(Quaffable):
         self.turn = turn
     
     def apply_effect(self, apply_to: Actor) -> None:
-        apply_to.actor_state.apply_object_detection([0,self.turn,["actor"]])
+        turn = self.turn
+        if self.parent.item_state.BUC == 1:
+            turn *= 2
+        apply_to.actor_state.apply_object_detection([0,turn,["actor"]])
         
         # Log
         if apply_to == self.engine.player:
@@ -130,11 +142,14 @@ class PotionOfFlameQuaffable(Quaffable):
         self.fire_lifetime = fire_lifetime
 
     def apply_effect(self, apply_to: Actor) -> None:
+        turn = self.turn
+        if self.parent.item_state.BUC == 1:
+            turn *= 2
         apply_to.actor_state.apply_burning([
             self.base_dmg,
             self.add_dmg,
             0,
-            self.turn])
+            turn])
 
         # Spawn fire
         import semiactor_factories
@@ -158,7 +173,12 @@ class PotionOfAcidQuaffable(Quaffable):
         self.turn = turn
 
     def apply_effect(self, apply_to: Actor) -> None:
-        initial_dmg = random.randint(1, 1+int(apply_to.status.changed_status["max_hp"] / 40))
+        initial_dmg = max(1, min(8, random.randint(1, 1+int(apply_to.status.changed_status["max_hp"] / 40))))
+        if self.parent.item_state.BUC == 1:
+            initial_dmg = round(initial_dmg * 1.3)
+        elif self.parent.item_state.BUC == -1:
+            initial_dmg = round(initial_dmg * 0.8)
+
         apply_to.actor_state.apply_melting([
             initial_dmg,
             int(initial_dmg / self.turn),
@@ -180,9 +200,14 @@ class PotionOfFrostQuaffable(Quaffable):
         self.turn = turn
 
     def apply_effect(self, apply_to: Actor) -> None:
-        dmg_per_turn = max(1, 1+int(apply_to.status.changed_status["max_hp"] / 150))
+        dmg_per_turn = max(1, min(10, 1+int(apply_to.status.changed_status["max_hp"] / 150)))
         agility_decrease = max(int(apply_to.status.changed_status["agility"] / 10), int(apply_to.status.changed_status["agility"] / 5))
         frozen_chance = random.randint(1,3) * 0.1
+        if self.parent.item_state.BUC == 1:
+            frozen_chance += 0.7
+        elif self.parent.item_state.BUC == -1:
+            frozen_chance -= 0.2
+
         apply_to.actor_state.apply_freezing([
             dmg_per_turn,
             agility_decrease,
@@ -205,8 +230,10 @@ class PotionOfPoisonQuaffable(Quaffable):
         self.turn = turn
 
     def apply_effect(self, apply_to: Actor) -> None:
-        init_dmg = max(1, int(apply_to.status.changed_status["max_hp"] / 200))
+        init_dmg = max(5, min(20, int(apply_to.status.changed_status["max_hp"] / 100)))
         dmg_increase = int(init_dmg/self.turn)
+        if self.parent.item_state.BUC == 1:
+            dmg_increase = round(dmg_increase * 1.3)
         apply_to.actor_state.apply_poisoning([
             init_dmg,
             dmg_increase,
@@ -219,7 +246,7 @@ class PotionOfPoisonQuaffable(Quaffable):
         else:
             if self.engine.game_map.visible[apply_to.x, apply_to.y]:
                 self.engine.message_log.add_message(f"{g(apply_to.name, '이')} 고통 속에 몸부림친다.", color.player_sense, target=apply_to)
-                self.parent.item_state.identify_self(identify_level=1)
+
 
 class PotionOfLevitationQuaffable(Quaffable):
     def __init__(self, turn: int):
@@ -227,7 +254,10 @@ class PotionOfLevitationQuaffable(Quaffable):
         self.turn = turn
 
     def apply_effect(self, apply_to: Actor) -> None:
-        apply_to.actor_state.apply_levitation([0,self.turn])
+        turn = self.turn
+        if self.parent.item_state.BUC == 1:
+            turn *= 2
+        apply_to.actor_state.apply_levitation([0,turn])
 
         # Log
         if apply_to == self.engine.player:
@@ -246,7 +276,7 @@ class PotionOfLiquifiedAntsQuaffable(Quaffable):
         self.turn = turn
 
     def apply_effect(self, apply_to: Actor) -> None:
-        dmg = 8
+        dmg = random.randint(2,8)
         apply_to.actor_state.apply_bleeding([
             dmg,
             0,

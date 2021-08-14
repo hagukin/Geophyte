@@ -112,7 +112,7 @@ player = Actor(
         hearing=15,
         ),
     actor_state=ActorState(
-        hunger=3600,
+        hunger=1100,
         heal_wounds=True,
         size=4,
         can_talk=True,
@@ -124,7 +124,9 @@ player = Actor(
     equipments=Equipments(),
     initial_items=(
         {"item":item_factories.scroll_of_magic_mapping, "chance":1, "count":(3,10), "BUC":{-1:1, 0:1, 1:1}, "upgrade":None},
-        ),
+        {"item": item_factories.rags, "chance": 1, "count": (1, 1), "BUC": None, "upgrade": None},
+        {"item": item_factories.potion_of_paralysis, "chance": 1, "count": (1, 3), "BUC": None, "upgrade": None},
+    ),
     initial_equipments=(
         {"item":item_factories.leather_armor, "chance":1, "count":(1,1), "BUC":{-1:1, 0:1, 1:1}, "upgrade": {1:1,2:1,3:1,4:1}},
         ),
@@ -216,7 +218,7 @@ ant = Actor(
     rarity=10,
     weight = 0.07,
     spawnable=True,
-    edible=edible.InsectEdible(nutrition=5),
+    edible=edible.InsectEdible(nutrition=10),
     ai_cls=ai_factories.ant_ai,
     status=Status(
         hp=28,
@@ -268,7 +270,7 @@ fire_ant = Actor(
     rarity=7,
     weight=0.1,
     spawnable=True,
-    edible=edible.FireAntEdible(),
+    edible=edible.FireAntEdible(nutrition=40),
     ai_cls=ai_factories.fire_ant_ai,
     status=Status(
         hp=36,
@@ -320,7 +322,7 @@ volt_ant = Actor(
     rarity=7,
     weight=0.1,
     spawnable=True,
-    edible=edible.VoltAntEdible(),
+    edible=edible.VoltAntEdible(nutrition=40),
     ai_cls=ai_factories.volt_ant_ai,
     status=Status(
         hp=36,
@@ -377,7 +379,7 @@ bat = Actor(
     rarity=32,
     weight=3,
     spawnable=True,
-    edible=edible.RawMeatEdible(nutrition=30, cook_bonus=10),
+    edible=edible.RawMeatEdible(nutrition=70, cook_bonus=10),
     ai_cls=ai_factories.bat_ai,
     status=Status(
         hp=56,
@@ -435,7 +437,7 @@ kitten = Actor(
     rarity=4,
     weight=3.3,
     spawnable=True,
-    edible=edible.RawMeatEdible(nutrition=70, cook_bonus=30),
+    edible=edible.RawMeatEdible(nutrition=100, cook_bonus=30),
     ai_cls=ai_factories.kitten_ai,
     status=Status(
         hp=32,
@@ -485,7 +487,7 @@ cat = Actor(
     rarity=7,
     weight=6.5,
     spawnable=True,
-    edible=edible.RawMeatEdible(nutrition=80, cook_bonus=50),
+    edible=edible.RawMeatEdible(nutrition=120, cook_bonus=50),
     ai_cls=ai_factories.cat_ai,
     status=Status(
         hp=92,
@@ -534,7 +536,7 @@ large_cat = Actor(
     rarity=4,
     weight=18.5,
     spawnable=True,
-    edible=edible.RawMeatEdible(nutrition=110, cook_bonus=60),
+    edible=edible.RawMeatEdible(nutrition=150, cook_bonus=60),
     ai_cls=ai_factories.large_cat_ai,
     status=Status(
         hp=104,
@@ -590,7 +592,7 @@ puppy = Actor(
     rarity=5,
     weight=5.7,
     spawnable=True,
-    edible=edible.RawMeatEdible(nutrition=75, cook_bonus=12),
+    edible=edible.RawMeatEdible(nutrition=110, cook_bonus=12),
     ai_cls=ai_factories.puppy_ai,
     status=Status(
         hp=32,
@@ -639,7 +641,7 @@ dog = Actor(
     rarity=10,
     weight=38.5,
     spawnable=True,
-    edible=edible.RawMeatEdible(nutrition=90, cook_bonus=50),
+    edible=edible.RawMeatEdible(nutrition=160, cook_bonus=50),
     ai_cls=ai_factories.dog_ai,
     status=Status(
         hp=93,
@@ -688,7 +690,7 @@ large_dog = Actor(
     rarity=7,
     weight=55.3,
     spawnable=True,
-    edible=edible.RawMeatEdible(nutrition=120, cook_bonus=30),
+    edible=edible.RawMeatEdible(nutrition=200, cook_bonus=30),
     ai_cls=ai_factories.large_dog_ai,
     status=Status(
         hp=105,
@@ -737,7 +739,7 @@ cerberus = Actor(
     rarity=3,
     weight=165,
     spawnable=True,
-    edible=edible.RawMeatEdible(nutrition=210, cook_bonus=85),
+    edible=edible.RawMeatEdible(nutrition=350, cook_bonus=85),
     ai_cls=ai_factories.cerberus_ai,
     status=Status(
         hp=112,
@@ -793,7 +795,7 @@ floating_eye = Actor(
     rarity=3,
     weight=255.8,
     spawnable=True,
-    edible=edible.FloatingEyeEdible(),#cannot be cooked
+    edible=edible.FloatingEyeEdible(nutrition=120),#cannot be cooked
     ai_cls=ai_factories.floating_eye_ai,
     status=Status(
         hp=68,
@@ -905,7 +907,7 @@ giant_wasp = Actor(
     rarity=5,
     weight=1.5,
     spawnable=True,
-    edible=edible.GiantWaspEdible(),
+    edible=edible.GiantWaspEdible(nutrition=30),
     ai_cls=ai_factories.giant_wasp_ai,
     status=Status(
         hp=80,
@@ -917,14 +919,14 @@ giant_wasp = Actor(
         constitution=9,
         charm=6,
         difficulty=6,
-        base_melee=13,
+        base_melee=6,
         additional_melee=7,
         protection=11,
         hearing=7,
         eyesight=20,
         poison_resistance=0.4,
-        melee_effects_var=((1, 1, 0, 8),),
-        melee_effects=(("poison_target", 0.2),),
+        melee_effects_var=((2, 1, 0, 8),),
+        melee_effects=(("poison_target", 0.8),),
         ),
     actor_state=ActorState(
         size=3,
@@ -962,7 +964,7 @@ black_jelly = Actor(
     rarity=4,
     weight=187,
     spawnable=True,
-    edible=edible.BlackJellyEdible(),
+    edible=edible.BlackJellyEdible(nutrition=50),
     ai_cls=ai_factories.black_jelly_ai,
     status=Status(
         hp=45,
@@ -1147,7 +1149,7 @@ jumping_spider = Actor(
     rarity=3,
     weight=0.01,
     spawnable=True,
-    edible=edible.InsectEdible(nutrition=1),
+    edible=edible.InsectEdible(nutrition=5),
     ai_cls=ai_factories.jumping_spider_ai,
     status=Status(
         hp=12,
@@ -1202,7 +1204,7 @@ earthworm = Actor(
     rarity=9,
     weight=0.1,
     spawnable=True,
-    edible=edible.InsectEdible(nutrition=8, cook_bonus=2),
+    edible=edible.InsectEdible(nutrition=10, cook_bonus=2),
     ai_cls=ai_factories.earthworm_ai,
     status=Status(
         hp=8,
@@ -1634,7 +1636,7 @@ lightning_elemental = Actor(
         sleep_resistance=1,
         psychic_resistance=1,
         magic_resistance=0.2,
-        melee_effects_var=((5, 0.7),),
+        melee_effects_var=((8, 0.7),),
         melee_effects=(("electrocute_target", 1),),
         ),
     actor_state=ActorState(
@@ -1695,7 +1697,7 @@ chatterbox = Actor(
         protection=16,
         hearing=40,
         eyesight=2,
-        melee_effects_var=((1, 0, 4),),
+        melee_effects_var=((4, 0, 6),),
         melee_effects=(("bleed_target", 0.3),),
         ),
     actor_state=ActorState(
@@ -1863,7 +1865,7 @@ ogre = Actor(
     fg=(160, 176, 111),
     name="오우거",
     entity_id="Ogre",
-    entity_desc=("\거대한 인간형 신체와 흉폭한 성격을 지닌 오우거들은 극단적으로 공격적인 성향을 보인다. "
+    entity_desc=("거대한 인간형 신체와 흉폭한 성격을 지닌 오우거들은 극단적으로 공격적인 성향을 보인다. "
         "이들은 지적으로 뛰어나지 못하며, 항상 피를 갈구하는 위험한 생명체이다. "
         "일부 학자들은 오우거들은 사실 선한 심성을 가진 생명체라고 주장하지만, 학계에서는 이 이론은 아직 받아들여지고 있지 않다. "),
     actor_quote=("오우거들이 사실은 착한 놈들이라느니 뭐니 하는 안경잽이 나부랭이들이 있는 모양인데, 내 앞에 보이면 눈알을 뽑아버릴 거야. "
@@ -1871,7 +1873,7 @@ ogre = Actor(
     rarity=2,
     weight=1855,
     spawnable=True,
-    edible=edible.RawMeatEdible(nutrition=1200),
+    edible=edible.RawMeatEdible(nutrition=350),
     ai_cls=ai_factories.ogre_ai,
     status=Status(
         hp=156,
@@ -1928,7 +1930,7 @@ giant = Actor(
     rarity=3,
     weight=4802,
     spawnable=True,
-    edible=edible.RawMeatEdible(nutrition=1200),
+    edible=edible.RawMeatEdible(nutrition=420),
     ai_cls=ai_factories.giant_ai,
     status=Status(
         hp=192,

@@ -270,21 +270,21 @@ class ActorState(BaseComponent):
             # Never gets hungry
             return ""
 
-        hunger_measure = int(75 * self.size)
+        hunger_measure = int(25 * self.size)
 
         if self.hunger == 0:
             return "starved to death"
-        elif self.hunger <= hunger_measure:
+        elif self.hunger <= hunger_measure * 1:
             return "fainting"
-        elif self.hunger <= hunger_measure * 2:
+        elif self.hunger <= hunger_measure * 3:
             return "starving"
-        elif self.hunger <= hunger_measure * 4:
+        elif self.hunger <= hunger_measure * 7:
             return "hungry"
         elif self.hunger <= hunger_measure * 12:
             return ""
-        elif self.hunger <= hunger_measure * 15:
+        elif self.hunger <= hunger_measure * 17:
             return "satiated"
-        elif self.hunger <= hunger_measure * 50:
+        elif self.hunger <= hunger_measure * 48:
             return "overeaten"
         else:
             return "choked by food"
@@ -293,19 +293,33 @@ class ActorState(BaseComponent):
         self.hunger -= 1
         hunger_state = self.hunger_state
 
-        if self.parent == self.engine.player: #Currently the message log will only print messages about player's hunger. (TODO: when pets are added, add pets' hunger)
-            if self.previous_hunger_state != hunger_state:
-                self.previous_hunger_state = hunger_state
-                if hunger_state == "hungry":
+        if self.previous_hunger_state != hunger_state:
+            from components.status import Status
+            if self.parent.status.check_if_has_bonus("hunger"): # remove prev hunger bonus
+                self.parent.status.remove_bonus(bonus_id="hunger")
+
+            self.previous_hunger_state = hunger_state
+            if hunger_state == "overeaten":
+                if self.parent == self.engine.player:
+                    self.engine.message_log.add_message(f"당신은 불쾌할 정도로 배가 부르다.", fg=color.player_severe)
+                self.parent.status.add_bonus(Bonus(bonus_id="hunger", bonus_agility=-4))
+            elif hunger_state == "satiated":
+                if self.parent == self.engine.player:
+                    self.engine.message_log.add_message(f"당신은 배가 부르다.", fg=color.player_not_good)
+                self.parent.status.add_bonus(Bonus(bonus_id="hunger", bonus_agility=-2, bonus_constitution=+1, bonus_strength=+1))
+            elif hunger_state == "hungry":
+                if self.parent == self.engine.player:
                     self.engine.message_log.add_message(f"당신은 배가 고프다.", fg=color.player_not_good)
-                elif hunger_state == "starving":
+                self.parent.status.add_bonus(Bonus(bonus_id="hunger", bonus_constitution=-2, bonus_strength=-1))
+            elif hunger_state == "starving":
+                if self.parent == self.engine.player:
                     self.engine.message_log.add_message(f"당신은 굶주리고 있다!", fg=color.player_bad)
-                elif hunger_state == "fainting":
+                self.parent.status.add_bonus(Bonus(bonus_id="hunger", bonus_constitution=-4, bonus_strength=-2,bonus_intelligence=-1, bonus_dexterity=-1))
+            elif hunger_state == "fainting":
+                if self.parent == self.engine.player:
                     self.engine.message_log.add_message(f"당신은 배고픔에 허덕이고 있다!", fg=color.player_severe)
-                elif hunger_state == "starved to death":
-                    self.parent.status.death(cause="starvation")
-        else:
-            if hunger_state == "starved to death":
+                self.parent.status.add_bonus(Bonus(bonus_id="hunger", bonus_constitution=-8, bonus_strength=-3,bonus_intelligence=-1, bonus_dexterity=-1))
+            elif hunger_state == "starved to death":
                 self.parent.status.death(cause="starvation")
 
     def gain_nutrition(self, nutrition: int) -> None:
@@ -389,15 +403,15 @@ class ActorState(BaseComponent):
                 # Damage reduction
                 fire_dmg = self.parent.status.calculate_dmg_reduction(damage=fire_dmg, damage_type="fire")
 
+                # Inventory on fire
+                self.parent.inventory_on_fire()
+
                 # Log before actual damage
                 if self.parent == self.engine.player:
                     self.engine.message_log.add_message(f"당신은 화염으로부터 {fire_dmg} 데미지를 받았다.", fg=color.player_bad)
                 else:
                     self.engine.message_log.add_message(f"{g(self.parent.name, '은')} 화염으로부터 {fire_dmg} 데미지를 받았다.", fg=color.enemy_neutral, target=self.parent)
                 self.parent.status.take_damage(amount=fire_dmg)
-            
-                # Inventory on fire
-                self.parent.inventory_on_fire()
 
             # Chance of fire going off
             extinguish_chance = random.random()
@@ -653,6 +667,9 @@ class ActorState(BaseComponent):
             acid_dmg = self.is_melting[0]
             acid_dmg = self.parent.status.calculate_dmg_reduction(damage=acid_dmg, damage_type="acid")
 
+            # Inventory on acid
+            self.parent.inventory_on_acid()
+
             # Log before dmg
             if self.parent == self.engine.player:
                 self.engine.message_log.add_message(f"당신은 산성 물질로 인해 녹아내리고 있다. {acid_dmg} 데미지를 받았다.", fg=color.player_bad, target=self.parent)
@@ -663,10 +680,6 @@ class ActorState(BaseComponent):
             # dmg
             self.parent.status.take_damage(amount=acid_dmg)
 
-            # corrode equipped items if possible (chance of getting corroded is calculated inside of corrode() function.)
-            for equipment in self.parent.equipments.equipments.values():
-                if equipment:
-                    equipment.item_state.corrode(owner=self.parent, amount=1)
 
     def actor_bleed(self):
         """
@@ -781,7 +794,11 @@ class ActorState(BaseComponent):
         # Remove fire unless the fire lasts eternally (Check if current turn value is negative or not)
         # NOTE: Items in actor's inv will not be effected. TODO: fix? add wet items?
         if self.is_burning[2] >= 0:
-            self.apply_burning([0,0,0,0])
+            self.apply_burning([0, 0, 0, 0])
+            self.parent.inventory_extinguish()
+        if self.is_melting[2] >= 0:
+            self.apply_melting([0, 0, 0, 0])
+            # No need for removing the corrosion
 
         # Debuffs on agi and dex if you cant swim
         if self.is_underwater:

@@ -55,7 +55,7 @@ class ItemState(BaseComponent):
         self.equipped_region = equipped_region
 
         # values that are stored in item_state dictionaty (entity.Item.set_info())
-        self.is_burning = is_burning
+        self.is_burning = is_burning #NOTE: 'flaming sword' should have this value as FALSE no true. this is merely a systemic value.
         self.burntness = burntness
         self.corrosion = corrosion
         self.BUC = BUC
@@ -66,7 +66,12 @@ class ItemState(BaseComponent):
         """
         NOTE: When identifying an entire type, use item_manager.identify_type instead.
         """
-        self.is_identified = identify_level # Full-identification
+        if identify_level == 0:
+            self.unidentify_self()
+            self.engine.item_manager.unidentify_type(self.parent.entity_id)
+            print("WARNING::Use unidentify_self() instead.")
+            return None
+        self.is_identified = max(identify_level, self.is_identified)
         self.engine.item_manager.identify_type(self.parent.entity_id, 1) # "semi identify" the entire item type.
     
     def unidentify_self(self):
@@ -210,10 +215,6 @@ class ItemState(BaseComponent):
 
         # if Burnt out
         if self.burntness == 3:
-            # Delete item from the game
-            self.parent.remove_self()
-            
-            # Log
             if owner:
                 if owner == self.engine.player:
                     self.engine.message_log.add_message(f"당신의 {g(self.parent.name, '이')} 연소했다!", fg=color.player_severe)
@@ -226,6 +227,9 @@ class ItemState(BaseComponent):
             #Adjust variables
             self.is_burning = False
             self.was_burning = False
+
+            # Delete item from the game
+            self.parent.remove_self()
 
         # Extinguish Chance
         extinguish_chance = random.random()

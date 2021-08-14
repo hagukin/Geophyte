@@ -14,7 +14,25 @@ import random
 
 class Throwable(BaseComponent):
 
-    def __init__(self, base_throw: int=0, additional_throw: int=0, penetration: bool=False, break_chance: float=0, air_friction: float=1, sec_per_frame:float=0.025, trigger_if_thrown_at: bool = False):
+    def __init__(self,
+                 base_throw: int=0,
+                 additional_throw: int=0,
+                 penetration: bool=False,
+                 break_chance: float=0,
+                 air_friction: float=1,
+                 sec_per_frame:float=0.025,
+                 trigger_if_thrown_at: bool = False,
+                 identify_when_shattered: int = 0,
+                 identify_when_collided_with_actor: int = 0,
+                 identify_when_collided_with_entity: int = 0,
+                 ):
+        """
+        Args:
+            identify_when_shattered:
+                0 - do nothing
+                1 - semi identify
+                2 - full identify
+        """
         super().__init__(None)
         self.penetration = penetration
         self.break_chance = break_chance # 0~1
@@ -30,6 +48,9 @@ class Throwable(BaseComponent):
         self.collision_y = None
         self.dx = None
         self.dy = None
+        self.identify_when_shattered = identify_when_shattered
+        self.identify_when_collided_with_actor = identify_when_collided_with_actor
+        self.identify_when_collided_with_entity = identify_when_collided_with_entity
 
     def is_miss(self, thrower: Actor, target: Actor) -> bool:
         """return boolean indicating whether the attack is missed or not"""
@@ -116,23 +137,23 @@ class NormalThrowable(Throwable):
         """
         When collided withg the entity.
         """
-        pass
+        if self.identify_when_collided_with_entity > 0 and self.engine.game_map.visible[target.x, target.y]:
+            self.parent.item_state.identify_self(self.identify_when_collided_with_entity)
 
-    def effect_when_collided_with_actor(self, target: Actor, thrower: Actor, trigger: bool=False) -> None:
+    def effect_when_collided_with_actor(self, target: Actor, thrower: Actor) -> None:
         """
         Can have additional effects when the throw was successful
         
         Target is always actor type since activate() will filter out other types of entities
-        
-        Args:
-            trigger:
-                if True, target/collided actor will consider the throw as an attack.
         """
         self.effect_when_collided_with_entity(target, thrower)
+        if self.identify_when_collided_with_actor > 0 and self.engine.game_map.visible[target.x, target.y]:
+            self.parent.item_state.identify_self(self.identify_when_collided_with_actor)
 
-        if trigger:
-            # Trigger target regardless of damage / lethality
-            target.status.take_damage(amount=0, attacked_from=thrower)
+        if self.trigger_if_thrown_at:
+            if thrower != target:
+                # Trigger target regardless of damage / lethality
+                target.status.take_damage(amount=0, attacked_from=thrower)
 
     def collided_with_thrower(self, thrower, target):
         # set dmg (NOTE: Self-firing is undodgeable)
@@ -143,7 +164,7 @@ class NormalThrowable(Throwable):
             self.engine.message_log.add_message(f"{g(thrower.name, '이')} {g(self.parent.name, '을')} 자신에게 던져 {dmg} 데미지를 입혔다!", target=thrower,)
         else:
             self.engine.message_log.add_message(f"{g(thrower.name, '이')} {g(self.parent.name, '을')} 자신에게 던졌다!", target=thrower,)
-        thrower.status.take_damage(amount=self.damage) # cannot trigger itself
+        # cannot trigger itself
 
         # apply special effects (if the thrower survived the initial damage)
         if not target.actor_state.is_dead:
@@ -182,7 +203,7 @@ class NormalThrowable(Throwable):
 
             # apply special effects (if the target survived the initial damage)
             if not collided.actor_state.is_dead:
-                self.effect_when_collided_with_actor(target=collided, thrower=thrower, trigger=self.trigger_if_thrown_at)
+                self.effect_when_collided_with_actor(target=collided, thrower=thrower)
 
             # check destruction
             self.break_calculation()
@@ -245,7 +266,8 @@ class NormalThrowable(Throwable):
     def effects_when_shattered(self):
         """Effects when the item is broken. e.g. spawn fire when fire potion is broken
         NOTE: Think seperately from collided_with_entity functions."""
-        pass
+        if self.identify_when_shattered > 0 and self.engine.game_map.visible[self.shattered_x, self.shattered_y]:
+            self.parent.item_state.identify_self(self.identify_when_shattered)
 
     def activate(self, action: actions.ThrowItem) -> None:
         thrower = action.entity
@@ -319,11 +341,22 @@ class NormalThrowable(Throwable):
 class PotionQuaffAndThrowSameEffectThrowable(NormalThrowable):
     """Potion that applies the same effect when quaffed and when thrown(collided) should use this general throwable component.
     If there is any difference between the two, you should override NormalThrowable class and make a new one."""
-    def __init__(self, base_throw: int=4, additional_throw: int=1, penetration: bool=False, break_chance: float=1, air_friction: int=1, sec_per_frame:float=0.025, trigger_if_thrown_at: bool = True):
-        super().__init__(base_throw, additional_throw, penetration, break_chance, air_friction, sec_per_frame, trigger_if_thrown_at)
+    def __init__(self,
+                 base_throw: int=4,
+                 additional_throw: int=1,
+                 penetration: bool=False,
+                 break_chance: float=1,
+                 air_friction: int=1,
+                 sec_per_frame:float=0.025,
+                 trigger_if_thrown_at: bool = True,
+                 identify_when_shattered: int = 0,
+                 identify_when_collided_with_actor: int = 0,
+                 identify_when_collided_with_entity: int = 0
+                 ):
+        super().__init__(base_throw, additional_throw, penetration, break_chance, air_friction, sec_per_frame, trigger_if_thrown_at, identify_when_shattered, identify_when_collided_with_actor, identify_when_collided_with_entity)
 
-    def effect_when_collided_with_actor(self, target: Actor, thrower: Actor, trigger: bool) -> None:
-        super().effect_when_collided_with_actor(target, thrower, trigger)
+    def effect_when_collided_with_actor(self, target: Actor, thrower: Actor) -> None:
+        super().effect_when_collided_with_actor(target, thrower)
         if hasattr(self.parent, "quaffable"):
             self.parent.quaffable.apply_effect(apply_to=target)
         else:
@@ -333,17 +366,22 @@ class PotionQuaffAndThrowSameEffectThrowable(NormalThrowable):
 class PotionOfFlameThrowable(NormalThrowable):
     """Additional freezing tile effect."""
     def effects_when_shattered(self):
+        super().effects_when_shattered()
         import semiactor_factories
         from util import spawn_entity_8way
         tmp = semiactor_factories.fire.copy(self.engine.game_map, lifetime=self.parent.quaffable.fire_lifetime)
         tmp.rule.base_damage = int(self.parent.quaffable.base_dmg / 2)
         tmp.rule.add_damage = int(self.parent.quaffable.add_dmg / 2)
         spawn_entity_8way(entity=tmp, gamemap=self.engine.game_map, center_x=self.shattered_x-self.dx, center_y=self.shattered_y-self.dy, spawn_cnt=8, spawn_on_center=True)
+        if self.engine.game_map.visible[self.shattered_x, self.shattered_y]:
+            self.engine.message_log.add_message(f"{self.parent.name}이 깨진 자리에서 불꽃이 피어났다!",color.player_sense)
+            self.parent.item_state.identify_self(self.identify_when_shattered)
 
 
 class PotionOfFrostThrowable(PotionQuaffAndThrowSameEffectThrowable):
     """Additional freezing tile effect."""
     def effects_when_shattered(self):
+        super().effects_when_shattered()
         for dx in (1, 0, -1):
             for dy in (1, 0, -1):
                 self.engine.game_map.tiles[self.shattered_x-self.dx+dx, self.shattered_y-self.dy+dy] = TileUtil.freeze(self.engine.game_map.tiles[self.shattered_x-self.dx+dx, self.shattered_y-self.dy+dy])
@@ -351,25 +389,24 @@ class PotionOfFrostThrowable(PotionQuaffAndThrowSameEffectThrowable):
 
 class PotionOfLiquifiedAntsThrowable(NormalThrowable):
     def effects_when_shattered(self):
+        super().effects_when_shattered()
         # Spawn 8 ants maximum surrounding the consumer.
         from actor_factories import ant
         from util import spawn_entity_8way
         spawn = ant
-        spawn_entity_8way(entity=spawn, gamemap=self.engine.game_map, center_x=self.shattered_x - self.dx, center_y=self.shattered_y - self.dy, spawn_cnt=random.randint(5,8), spawn_on_center=True)
+        spawn_cnt = random.randint(5,8)
+        if self.parent.item_state.BUC == 1:
+            spawn_cnt = 8
+        spawn_entity_8way(entity=spawn, gamemap=self.engine.game_map, center_x=self.shattered_x - self.dx, center_y=self.shattered_y - self.dy, spawn_cnt=spawn_cnt, spawn_on_center=True)
 
         if self.engine.game_map.visible[self.shattered_x, self.shattered_y]:
-            self.engine.message_log.add_message(f"{self.parent.name}이 깨진 자리에서 {spawn.name}들이 생겨났다!",color.player_sense)
-            self.parent.item_state.identify_self(identify_level=1)
-            self.engine.message_log.add_message(f"당신은 {self.parent.name}의 존재를 알게 되었다.",
-                                                color.player_neutral_important)
+            self.engine.message_log.add_message(f"{self.parent.name}이 깨진 자리에서 {g(spawn.name, '이')} 생겨났다!",color.player_sense)
+            self.parent.item_state.identify_self(self.identify_when_shattered)
 
 
 class ToxicGooThrowable(NormalThrowable):
-    def __init__(self, base_throw: int=4, additional_throw: int=1, penetration: bool=False, break_chance: float=1, air_friction: int=1, sec_per_frame:float=0.025, trigger_if_thrown_at: bool = True):
-        super().__init__(base_throw, additional_throw, penetration, break_chance, air_friction, sec_per_frame, trigger_if_thrown_at)
-    
-    def effect_when_collided_with_actor(self, target: Actor, thrower: Actor, trigger: bool) -> None:
-        super().effect_when_collided_with_actor(target, thrower, trigger)
+    def effect_when_collided_with_actor(self, target: Actor, thrower: Actor) -> None:
+        super().effect_when_collided_with_actor(target, thrower)
         if target.actor_state.is_poisoned == [0,0,0,0]:
             # Log
             self.engine.message_log.add_message(f"{g(target.name, '은')} 독성 점액에 뒤덮였다.", color.white, target=target)

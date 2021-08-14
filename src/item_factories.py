@@ -33,9 +33,14 @@ potion_of_healing = Item(
     corrodible=0,
     droppable=True,
     stackable=True,
-    throwable=throwable.PotionQuaffAndThrowSameEffectThrowable(break_chance=1),
+    throwable=throwable.PotionQuaffAndThrowSameEffectThrowable(
+        break_chance=1,
+        identify_when_shattered=0,
+        identify_when_collided_with_entity=0,
+        identify_when_collided_with_actor=0
+    ), # Handle in quaffable. Only identified when actor is healed.
     readable=None,
-    quaffable=quaffable.PotionOfHealingQuaffable(amount=100),
+    quaffable=quaffable.PotionOfHealingQuaffable(heal_range=(70,100)),
 )
 temp_items_lists.append(potion_of_healing)
 item_rarity.append(potion_of_healing.rarity)
@@ -59,7 +64,13 @@ potion_of_paralysis = Item(
     corrodible=0,
     droppable=True,
     stackable=True,
-    throwable=throwable.PotionQuaffAndThrowSameEffectThrowable(break_chance=1, trigger_if_thrown_at=True),
+    throwable=throwable.PotionQuaffAndThrowSameEffectThrowable(
+        break_chance=1,
+        trigger_if_thrown_at=True,
+        identify_when_shattered=0,
+        identify_when_collided_with_entity=0,
+        identify_when_collided_with_actor=0
+    ), # Handle in quaffable
     readable=None,
     quaffable=quaffable.PotionOfParalysisQuaffable(turn=10),
 )
@@ -85,7 +96,12 @@ potion_of_monster_detection = Item(
     corrodible=0,
     droppable=True,
     stackable=True,
-    throwable=throwable.NormalThrowable(break_chance=1),
+    throwable=throwable.NormalThrowable(
+        break_chance=1,
+        identify_when_shattered=0,
+        identify_when_collided_with_entity=0,
+        identify_when_collided_with_actor=0
+        ),
     readable=None,
     quaffable=quaffable.PotionOfMonsterDetectionQuaffable(turn=50),
 )
@@ -111,9 +127,15 @@ potion_of_flame = Item(
     corrodible=0,
     droppable=True,
     stackable=True,
-    throwable=throwable.PotionOfFlameThrowable(break_chance=1, trigger_if_thrown_at=True),
+    throwable=throwable.PotionOfFlameThrowable(
+        break_chance=1,
+        trigger_if_thrown_at=True,
+        identify_when_shattered=1,
+        identify_when_collided_with_entity=1,
+        identify_when_collided_with_actor=1, # handle in quaffable
+    ),
     readable=None,
-    quaffable=quaffable.PotionOfFlameQuaffable(base_dmg=10, add_dmg=2, turn=8, fire_lifetime=8),
+    quaffable=quaffable.PotionOfFlameQuaffable(base_dmg=5, add_dmg=2, turn=10, fire_lifetime=10),
 )
 temp_items_lists.append(potion_of_flame)
 item_rarity.append(potion_of_flame.rarity)
@@ -137,7 +159,13 @@ potion_of_acid = Item(
     corrodible=0,
     droppable=True,
     stackable=True,
-    throwable=throwable.PotionQuaffAndThrowSameEffectThrowable(break_chance=1, trigger_if_thrown_at=True),
+    throwable=throwable.PotionQuaffAndThrowSameEffectThrowable(
+        break_chance=1,
+        trigger_if_thrown_at=True,
+        identify_when_shattered=0,
+        identify_when_collided_with_entity=0,
+        identify_when_collided_with_actor=0, # Handle in quaffable
+    ),
     readable=None,
     quaffable=quaffable.PotionOfAcidQuaffable(turn=15),
 )
@@ -163,7 +191,13 @@ potion_of_frost = Item(
     corrodible=0,
     droppable=True,
     stackable=True,
-    throwable=throwable.PotionOfFrostThrowable(break_chance=1, trigger_if_thrown_at=True),
+    throwable=throwable.PotionOfFrostThrowable(
+        break_chance=1,
+        trigger_if_thrown_at=True,
+        identify_when_shattered=0,
+        identify_when_collided_with_entity=0,
+        identify_when_collided_with_actor=0, # Handle in quaffable
+    ),
     readable=None,
     quaffable=quaffable.PotionOfFrostQuaffable(turn=7),
 )
@@ -189,7 +223,13 @@ potion_of_poison = Item(
     corrodible=0,
     droppable=True,
     stackable=True,
-    throwable=throwable.PotionQuaffAndThrowSameEffectThrowable(break_chance=1, trigger_if_thrown_at=True),
+    throwable=throwable.PotionQuaffAndThrowSameEffectThrowable(
+        break_chance=1,
+        trigger_if_thrown_at=True,
+        identify_when_shattered=0,
+        identify_when_collided_with_entity=0,
+        identify_when_collided_with_actor=0,
+    ),
     readable=None,
     quaffable=quaffable.PotionOfPoisonQuaffable(turn=16),
 )
@@ -215,7 +255,13 @@ potion_of_levitation = Item(
     corrodible=0,
     droppable=True,
     stackable=True,
-    throwable=throwable.PotionQuaffAndThrowSameEffectThrowable(break_chance=1, trigger_if_thrown_at=True),
+    throwable=throwable.PotionQuaffAndThrowSameEffectThrowable(
+        break_chance=1,
+        trigger_if_thrown_at=True,
+        identify_when_shattered=0,
+        identify_when_collided_with_entity=0,
+        identify_when_collided_with_actor=0, # handle in quaffable
+    ),
     readable=None,
     quaffable=quaffable.PotionOfLevitationQuaffable(turn=50),
 )
@@ -241,7 +287,13 @@ potion_of_liquified_ants = Item(
     corrodible=0,
     droppable=True,
     stackable=True,
-    throwable=throwable.PotionOfLiquifiedAntsThrowable(break_chance=1, trigger_if_thrown_at=True),
+    throwable=throwable.PotionOfLiquifiedAntsThrowable(
+        break_chance=1,
+        trigger_if_thrown_at=True,
+        identify_when_shattered=1,
+        identify_when_collided_with_entity=0,
+        identify_when_collided_with_actor=0,
+    ),
     readable=None,
     quaffable=quaffable.PotionOfLiquifiedAntsQuaffable(turn=5),
 )
@@ -287,7 +339,7 @@ scroll_of_meteor_storm = Item(
     name="운석 폭풍의 주문서",
     entity_id="scroll_of_meteor_storm",
     entity_desc="Scroll of meteor storm desc",
-    rarity=20,
+    rarity=12,
     weight=0.1,
     price=300,
     item_type=InventoryOrder.SCROLL,
@@ -298,37 +350,11 @@ scroll_of_meteor_storm = Item(
     droppable=True,
     stackable=True,
     throwable=throwable.NormalThrowable(air_friction=20),
-    readable=readable.ScrollOfMeteorStormReadable(damage=12, radius=1),
+    readable=readable.ScrollOfMeteorStormReadable(damage_range=(50,85), radius=1),
     quaffable=None,
 )
 temp_items_lists.append(scroll_of_meteor_storm)
 item_rarity.append(scroll_of_meteor_storm.rarity)
-
-
-### Scroll of Thunderstorm
-scroll_of_thunderstorm = Item(
-    should_randomize=True,
-    char="~",
-    fg=(255, 255, 0),
-    name="천둥 폭풍의 주문서",
-    entity_id="scroll_of_thunderstorm",
-    entity_desc="Scroll of thunderstorm desc",
-    rarity=10,
-    weight=0.1,
-    price=400,
-    item_type=InventoryOrder.SCROLL,
-    item_state=ItemState(),
-    spawnable=True,
-    flammable=0.5,
-    corrodible=0.3,
-    droppable=True,
-    stackable=True,
-    throwable=throwable.NormalThrowable(air_friction=20),
-    readable=readable.ScrollOfThunderStormReadable(damage=20, maximum_range=5, tier=1),
-    quaffable=None,
-)
-temp_items_lists.append(scroll_of_thunderstorm)
-item_rarity.append(scroll_of_thunderstorm.rarity)
 
 
 ### Scroll of Lightning
@@ -350,7 +376,7 @@ scroll_of_lightning = Item(
     droppable=True,
     stackable=True,
     throwable=throwable.NormalThrowable(air_friction=20),
-    readable=readable.ScrollOfThunderStormReadable(damage=20, maximum_range=5, tier=2),
+    readable=readable.ScrollOfThunderStormReadable(damage_range=(38,45), maximum_range=20),
     quaffable=None,
 )
 temp_items_lists.append(scroll_of_lightning)
@@ -376,7 +402,7 @@ scroll_of_magic_missile = Item(
     droppable=True,
     stackable=True,
     throwable=throwable.NormalThrowable(air_friction=20),
-    readable=readable.ScrollOfMagicMissileReadable(anim_graphic=anim_graphics.magic_missile, damage=20, penetration=False),
+    readable=readable.ScrollOfMagicMissileReadable(anim_graphic=anim_graphics.magic_missile, damage_range=(45, 65), penetration=True),
     quaffable=None,
 )
 temp_items_lists.append(scroll_of_magic_missile)
@@ -402,7 +428,7 @@ scroll_of_magic_mapping = Item(
     droppable=True,
     stackable=True,
     throwable=throwable.NormalThrowable(air_friction=20),
-    readable=readable.ScrollOfMagicMappingReadable(tier=1),
+    readable=readable.ScrollOfMagicMappingReadable(),
     quaffable=None,
 )
 temp_items_lists.append(scroll_of_magic_mapping)
@@ -428,7 +454,7 @@ scroll_of_scorching_ray = Item(
     droppable=True,
     stackable=True,
     throwable=throwable.NormalThrowable(air_friction=20),
-    readable=readable.ScrollOfScorchingRayReadable(anim_graphic=anim_graphics.scorching_ray, damage=20, penetration=True),
+    readable=readable.ScrollOfScorchingRayReadable(anim_graphic=anim_graphics.scorching_ray, damage_range=(20,50), penetration=True),
     quaffable=None,
 )
 temp_items_lists.append(scroll_of_scorching_ray)
@@ -454,7 +480,7 @@ scroll_of_freezing_ray = Item(
     droppable=True,
     stackable=True,
     throwable=throwable.NormalThrowable(air_friction=20),
-    readable=readable.ScrollOfFreezingRayReadable(anim_graphic=anim_graphics.freezing_ray, damage=10, effect_dmg=6, penetration=True),
+    readable=readable.ScrollOfFreezingRayReadable(anim_graphic=anim_graphics.freezing_ray, damage_range=(18,66), penetration=True),
     quaffable=None,
 )
 temp_items_lists.append(scroll_of_freezing_ray)
@@ -531,6 +557,7 @@ scroll_of_identify = Item(
     throwable=throwable.NormalThrowable(air_friction=20),
     readable=readable.ScrollOfIdentifyReadable(),
     quaffable=None,
+    initial_BUC={1:1,0:10,-1:1} # rarely blessed
 )
 temp_items_lists.append(scroll_of_identify)
 item_rarity.append(scroll_of_identify.rarity)
@@ -1335,7 +1362,16 @@ toxic_goo = Item(
     droppable=True,
     change_stack_count_when_dropped=(1,1),
     stackable=False,
-    throwable=throwable.ToxicGooThrowable(base_throw=1, additional_throw=1, break_chance=1, air_friction=1, trigger_if_thrown_at=True),
+    throwable=throwable.ToxicGooThrowable(
+        base_throw=1,
+        additional_throw=1,
+        break_chance=1,
+        air_friction=1,
+        trigger_if_thrown_at=True,
+        identify_when_shattered=0,
+        identify_when_collided_with_entity=0,
+        identify_when_collided_with_actor=0
+    ),
     edible=edible.BlackJellyEdible()
 )
 temp_items_lists.append(toxic_goo)

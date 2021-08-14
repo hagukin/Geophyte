@@ -397,6 +397,7 @@ class Actor(Entity):
         walkable: Walkable = None,
         swappable: bool = True,
         growthable: bool = False,
+        tameable: float = None, # If None use default. Set to 0 to make untameable.
         blocks_movement: bool = True,
         blocks_sight: bool = False,
         render_order: RenderOrder = RenderOrder.ACTOR,
@@ -441,6 +442,9 @@ class Actor(Entity):
                 List of equipments that this actor spawns with.
                 The list could contains multiple tuples, and tuple contains the following
                 format same as initial_items
+            tameable:
+                Integer. 0 means the actor(ai) is always tameable, and the higher the number is, the harder it becomes to tame it.
+                Negative values means that the actor cannot be tamed.
         """
         super().__init__(
             gamemap=gamemap,
@@ -497,6 +501,11 @@ class Actor(Entity):
         self.edible = edible
         if self.edible:
             self.edible.parent = None
+
+        if tameable is not None: # tameable can be set to 0
+            self.tameable = tameable
+        else:
+            self.tameable = self.status.difficulty
 
         if initial_items == None:
             self.initial_items = []
@@ -704,6 +713,17 @@ class Actor(Entity):
         if self.inventory.is_fireproof == False:
             for item in self.inventory.items:
                 item.collided_with_fire()
+
+    def inventory_extinguish(self):
+        # Ignite items in inventory
+        for item in self.inventory.items:
+            item.item_state.is_burning = False
+
+    def inventory_on_acid(self):
+        # Corrode items in inventory
+        if self.inventory.is_acidproof == False:
+            for item in self.inventory.items:
+                item.collided_with_acid()
 
     def collided_with_fire(self, fire):
         """
@@ -1041,7 +1061,15 @@ class Item(Entity):
         will_catch_fire = random.random()
         if will_catch_fire < self.flammable:
             self.item_state.is_burning = True
-        
+
+    def collided_with_acid(self):
+        will_corrode = random.random()
+        owner = None
+        if self.parent:
+            if self.parent.parent:
+                owner = self.parent.parent
+        if will_corrode < self.corrodible:
+            self.item_state.corrode(owner, amount=1)
 
 class SemiActor(Entity):
     def __init__(

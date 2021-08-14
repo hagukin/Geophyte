@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-from typing import Optional, TYPE_CHECKING
+import random
+from typing import Optional, TYPE_CHECKING, Tuple, List
 
 import tiles
 from animation import Animation
@@ -97,15 +98,23 @@ class ScrollOfConfusionReadable(SelectTileReadable):
             self.engine.message_log.add_message(f"{g(consumer.name, '은')} 허공을 향해 주문서를 읽었고, 아무 일도 일어나지 않았다.",color.player_neutral, target=consumer)
 
     def effects_on_selected_tile_with_actor(self, consumer: Actor, target: Actor):
-        # Log
-        if consumer == self.engine.player and target == consumer:
-            self.engine.message_log.add_message(f"당신은 굉장히 어지럽다.", color.player_not_good,)
-        elif target == consumer:
-            self.engine.message_log.add_message(f"{g(consumer.name, '은')} 이상한 행동을 하기 시작했다.", color.player_sense, target=target)
-        else:
-            self.engine.message_log.add_message(f"{g(target.name, '이')} 휘청거리기 시작한다.", color.player_sense, target=target)
+        if self.parent.item_state.BUC == -1:
+            # Log
+            new_target = consumer
+            if new_target == self.engine.player:
+                self.engine.message_log.add_message(f"당신은 굉장히 어지럽다.", color.player_not_good, )
+            else:
+                self.engine.message_log.add_message(f"{g(new_target.name, '이')} 휘청거리기 시작한다.", color.player_sense, target=target)
 
-        target.actor_state.apply_confusion([0,self.number_of_turns])
+            new_target.actor_state.apply_confusion([0, self.number_of_turns])
+        else:
+            # Log
+            if target == self.engine.player:
+                self.engine.message_log.add_message(f"당신은 굉장히 어지럽다.", color.player_not_good,)
+            else:
+                self.engine.message_log.add_message(f"{g(target.name, '이')} 휘청거리기 시작한다.", color.player_sense, target=target)
+
+            target.actor_state.apply_confusion([0,self.number_of_turns])
 
 
 class ScrollOfTameReadable(SelectTileReadable):
@@ -123,13 +132,19 @@ class ScrollOfTameReadable(SelectTileReadable):
                 self.engine.message_log.add_message(f"당신의 자신감이 차오른다.", color.player_buff)
             else:
                 self.engine.message_log.add_message(f"{g(consumer.name, '은')} 자신감이 넘쳐 보인다.", color.player_sense, target=consumer)
-            
-            # Apply
+
             if consumer.status.experience:
                 consumer.status.experience.gain_charm_exp(200)
         else:
-            # Try taming
-            if target.ai.try_tame(consumer, 3): #TODO FIXME: Adjust tame power
+            if self.parent.item_state.BUC == 1:
+                tame_bonus = 5
+            elif self.parent.item_state.BUC == -1:
+                tame_bonus = -3
+                target.take_damage(amount=0, attacked_from=consumer) # trigger
+            else:
+                tame_bonus = 0
+
+            if target.ai.try_tame(consumer, tame_bonus=tame_bonus):
                 # Log
                 if consumer == self.engine.player:
                     self.engine.message_log.add_message(f"{g(target.name, '을')} 길들였다!", color.player_success, target=target)
@@ -171,10 +186,7 @@ class SelectItemFromInventoryReadable(Readable):
 
     def activate(self, action: actions.ReadItem) -> None:
         consumer = action.entity
-        enchanted_item = action.item_selected
-
-        self.effects_on_selected_item(consumer, enchanted_item)
-        
+        self.effects_on_selected_item(consumer, action.item_selected)
         self.consume()
 
 
@@ -202,16 +214,22 @@ class ScrollOfEnchantmentReadable(SelectItemFromInventoryReadable):
         return None
     
     def effects_on_selected_item(self, consumer: Actor, selected_item: Item):
-        selected_item.equipable.upgrade_this(1) #TODO: Add more powerful enchanting scrolls? blessed?
-        
         # Log
         if consumer == self.engine.player:
-            self.engine.message_log.add_message(f"당신의 {g(selected_item.name, '이')} 밝은 빛을 내뿜었다!", color.player_success, target=consumer)
+            if self.parent.item_state.BUC == 1:
+                if selected_item.equipable:
+                    selected_item.equipable.upgrade_this(random.randint(1,2))
+                self.engine.message_log.add_message(f"당신의 {g(selected_item.name, '이')} 황금색 빛을 내뿜었다!",color.player_success, target=consumer)
+            else:
+                if selected_item.equipable:
+                    selected_item.equipable.upgrade_this(1)
+                self.engine.message_log.add_message(f"당신의 {g(selected_item.name, '이')} 밝은 빛을 내뿜었다!", color.player_success, target=consumer)
             if selected_item.item_state.equipped_region:
                 self.engine.message_log.add_message(f"당신의 {selected_item.name}에서 이전보다 더 강한 힘이 느껴진다.", color.player_success, target=consumer)
         else:
-            self.engine.message_log.add_message(f"{consumer.name}의 {g(selected_item.name, '이')} 밝은 빛을 내뿜었다.", color.player_sense, target=consumer)
-            # TODO: auto-identify if the scroll is used in sight?
+            if selected_item.equipable:
+                selected_item.equipable.upgrade_this(1)
+            self.engine.message_log.add_message(f"{consumer.name}의 {g(selected_item.name, '이')} 빛을 내뿜었다.", color.player_sense, target=consumer)
 
 
 class ScrollOfIdentifyReadable(SelectItemFromInventoryReadable):
@@ -232,8 +250,13 @@ class ScrollOfIdentifyReadable(SelectItemFromInventoryReadable):
     
     def effects_on_selected_item(self, consumer: Actor, selected_item: Item):
         if consumer == self.engine.player:
-            selected_item.item_state.identify_self(2)
-            self.engine.message_log.add_message(f"당신은 {g(selected_item.name, '을')} 감정했다.", color.player_success)
+            items = [selected_item]
+            if self.parent.item_state.BUC == 1:
+                for inv_item in consumer.inventory.items:
+                    items.append(inv_item)
+            for i in items:
+                i.item_state.identify_self(2)
+                self.engine.message_log.add_message(f"당신은 {g(i.name, '을')} 감정했다.", color.player_success)
 
         if consumer.status.experience:
             consumer.status.experience.gain_intelligence_exp(20, exp_limit=2000)
@@ -260,20 +283,34 @@ class ScrollOfRemoveCurseReadable(SelectItemFromInventoryReadable):
         return None
     
     def effects_on_selected_item(self, consumer: Actor, selected_item: Item):
-        temp = selected_item.item_state.BUC
-        success = selected_item.item_state.change_buc(BUC=0)
+        buc = selected_item.item_state.BUC
 
-        # Log
-        if temp <= -1 and success: #If item was cursed before
-            self.engine.message_log.add_message(f"{consumer.name}의 {g(selected_item.name, '로')}부터 사악한 기운이 사라졌다!", color.player_success, target=consumer)
-        elif temp <= -1 and not success:
-            self.engine.message_log.add_message(f"{consumer.name}의 {g(selected_item.name, '로')}부터 뿜어져 나오는 사악한 기운이 너무 강력해, 저주를 해제할 수 없다!",color.player_failed, target=consumer)
+        if self.parent.item_state.BUC == 1 or self.parent.item_state.BUC == 0:
+            success = selected_item.item_state.change_buc(BUC=0)
+
+            # Log
+            if consumer == self.engine.player:
+                if buc == -1 and success: #If item was cursed before
+                    self.engine.message_log.add_message(f"당신의 {g(selected_item.name, '로')}부터 사악한 기운이 사라졌다!", color.player_success, target=consumer)
+                elif buc == -1 and not success:
+                    self.engine.message_log.add_message(f"당신의 {g(selected_item.name, '로')}부터 뿜어져 나오는 사악한 기운이 너무 강력해, 저주를 해제할 수 없다!",color.player_failed, target=consumer)
+                else:
+                    self.engine.message_log.add_message(f"백색 빛이 당신의 {g(selected_item.name, '을')} 감쌌다.", color.player_sense, target=consumer)
+            #NOTE: Currently self-uncursing is possible
         else:
-            self.engine.message_log.add_message(f"백색 빛이 {consumer.name}의 {g(selected_item.name, '을')} 감쌌다.", color.player_sense, target=consumer)
-        #NOTE: Currently self-uncursing is possible
+            success = selected_item.item_state.change_buc(BUC=-1)
+            # Log
+            if consumer == self.engine.player:
+                if buc != -1 and success:  # If item was not cursed before
+                    self.engine.message_log.add_message(f"당신의 {g(selected_item.name, '로')}부터 사악한 기운이 뿜어져 나온다!",color.player_success, target=consumer)
+                elif buc != -1 and not success:
+                    self.engine.message_log.add_message(
+                        f"당신의 {g(selected_item.name, '은')} 사악한 기운에 저항했다!",color.player_failed, target=consumer)
+                else:
+                    self.engine.message_log.add_message(f"검은 빛이 당신의 {g(selected_item.name, '을')} 감쌌다.",color.player_sense, target=consumer)
 
         if consumer.status.experience:
-            consumer.status.experience.gain_charm_exp(40)
+            consumer.status.experience.gain_intelligence_exp(10)
 
 
 class ScrollOfMagicMappingReadable(Readable): #TODO: make parent class like other readables
@@ -283,40 +320,44 @@ class ScrollOfMagicMappingReadable(Readable): #TODO: make parent class like othe
     this readable will first apply the effect and after wait for an input. 
     When input is reveived, this will return 0 to callback and finish the whole process. (0 is just a trash value it doesn't matter what you pass)
     """
-    def __init__(self, tier:int=1):
-        super().__init__()
-        self.tier = tier
-
     def activate(self, consumer) -> None:
         self.engine.update_fov()
         self.consume()
 
     def get_action(self, consumer):
-        if self.tier == 1:
-            self.engine.message_log.add_message(f"당신의 머리 속에 이 층의 모든 비밀들이 전해졌다.", color.player_neutral_important,)
+        if consumer == self.engine.player:
+            if self.parent.item_state.BUC == 1:
+                self.engine.message_log.add_message(f"당신의 머리 속에 이 층의 모든 비밀들이 전해졌다.", color.player_neutral_important,)
+            elif self.parent.item_state.BUC == -1:
+                self.engine.message_log.add_message(f"기괴한 기하학적 문양들이 당신의 머릿속을 가득 채운다!", color.player_bad, )
+            else:
+                self.engine.message_log.add_message( f"당신의 머리 속이 기하학적 정보들로 가득 차기 시작했다.", color.player_neutral_important,)
+
             for y in range(len(self.engine.game_map.visible[0])):
                 for x in range(len(self.engine.game_map.visible)):
                     self.engine.game_map.visible[x, y] = True
             for y in range(len(self.engine.game_map.explored[0])):
                 for x in range(len(self.engine.game_map.explored)):
                     self.engine.game_map.explored[x, y] = True
-        elif self.tier == 2:
-            self.engine.message_log.add_message( f"당신의 머리 속이 기하학적 정보들로 가득 차기 시작했다.", color.player_neutral_important,)
-            for y in range(len(self.engine.game_map.explored[0])):
-                for x in range(len(self.engine.game_map.explored)):
-                    self.engine.game_map.explored[x, y] = True
 
-        from input_handlers import MagicMappingLookHandler
-        self.engine.event_handler = MagicMappingLookHandler(
-            callback=lambda trash_value: actions.ReadItem(consumer, self.parent),
-        )#NOTE: Has no item_cancel_callback parameter, since the item already has been consumed.
+            from input_handlers import MagicMappingLookHandler
+            self.engine.event_handler = MagicMappingLookHandler(
+                callback=lambda trash_value: actions.ReadItem(consumer, self.parent),
+            )#NOTE: Has no item_cancel_callback parameter, since the item already has been consumed.
+        else:
+            print("WARNING::AI read magic mapping")
+
+        if self.parent.item_state.BUC == -1:
+            if consumer == self.engine.player:
+                self.engine.message_log.add_message(f"머리가 지끈거린다!", color.player_bad, )
+            consumer.actor_state.apply_confusion([0, 15])
         return None
 
 
 class ScrollOfMeteorStormReadable(Readable): #TODO: Make parent class like other readables
-    def __init__(self, damage: int, radius: int):
+    def __init__(self, damage_range: Tuple[int, int], radius: int):
         super().__init__()
-        self.damage = damage
+        self.damage = random.randint(*damage_range)
         self.radius = radius
 
     def get_action(self, consumer: Actor, cancelled: bool = False) -> Optional[actions.Action]:
@@ -354,15 +395,19 @@ class ScrollOfMeteorStormReadable(Readable): #TODO: Make parent class like other
         for target in self.engine.game_map.actors:
             if target.chebyshevDist(*target_xy) <= self.radius:
                 # damage
-                self.damage = target.status.calculate_dmg_reduction(damage=self.damage, damage_type="physical")
-                target.status.take_damage(amount=self.damage, attacked_from=consumer)
+                real_damage = target.status.calculate_dmg_reduction(damage=self.damage, damage_type="physical")
+                if self.parent.item_state.BUC == 1:
+                    real_damage *= 1.2
+                elif self.parent.item_state.BUC == -1:
+                    real_damage *= 0.8
+                target.status.take_damage(amount=real_damage, attacked_from=consumer)
 
                 # Log
                 if self.engine.game_map.visible[target_xy[0], target_xy[1]]:
                     if target == self.engine.player:
-                        self.engine.message_log.add_message(f"당신은 운석에 맞아 {self.damage} 데미지를 받았다!",target=target, fg=color.player_bad)
+                        self.engine.message_log.add_message(f"당신은 운석에 맞아 {real_damage} 데미지를 받았다!",target=target, fg=color.player_bad)
                     else:
-                        self.engine.message_log.add_message(f"{g(target.name, '이')} 운석에 맞아 {self.damage} 데미지를 받았다!", target=target, fg=color.enemy_unique)
+                        self.engine.message_log.add_message(f"{g(target.name, '이')} 운석에 맞아 {real_damage} 데미지를 받았다!", target=target, fg=color.enemy_unique)
                 targets_hit = True
 
         if not targets_hit and self.engine.game_map.visible[target_xy[0], target_xy[1]]:# nothing was hit
@@ -370,11 +415,9 @@ class ScrollOfMeteorStormReadable(Readable): #TODO: Make parent class like other
         self.consume()
 
         
-class AutoTargetingReadable(Readable):
-    def __init__(self, damage: int, maximum_range: int, tier: int=1):
+class AutoTargetingHarmfulReadable(Readable):
+    def __init__(self, maximum_range: int):
         super().__init__()
-        self.tier = tier
-        self.damage = damage
         self.maximum_range = maximum_range
 
     def effects_on_target_actor(self, consumer:Actor, target: Actor):
@@ -385,40 +428,46 @@ class AutoTargetingReadable(Readable):
         target = None
         closest_distance = self.maximum_range + 1.0
 
-        if self.tier == 2: # tier 2: apply effect to one random actor nearby. 
+
+        if self.parent.item_state.BUC == 1:
+            targets = []
+
+            if consumer == self.engine.player:
+                for actor in self.engine.game_map.actors:
+                    if actor != self.engine.player and self.parent.gamemap.visible[actor.x, actor.y]:
+                        targets.append(actor)
+            else:
+                if consumer.ai:
+                    for actor in self.engine.game_map.actors:
+                        if actor != consumer and consumer.ai.vision[actor.x, actor.y]:
+                            targets.append(actor)
+
+            for target in set(targets):
+                self.effects_on_target_actor(consumer=consumer, target=target)
+        elif self.parent.item_state.BUC == -1:
+            self.effects_on_target_actor(consumer=consumer, target=consumer)
+        else:
             for actor in self.engine.game_map.actors:
                 if actor is not consumer and self.parent.gamemap.visible[actor.x, actor.y]:
                     distance = consumer.distance(actor.x, actor.y)
-
-                    if distance < closest_distance:
+                    if distance <= closest_distance:
                         target = actor
                         closest_distance = distance
-
             if target:
                 # apply effect
                 self.effects_on_target_actor(consumer=consumer, target=target)
             else:
                 # if there is no valid target, it will target the reader instead.
                 self.effects_on_target_actor(consumer=consumer, target=consumer)
-        elif self.tier == 1: # tier 1: apply effect to every nearby actor except for the reader. (Nothing will happen if there is no valid target)
-            targets = []
-
-            for actor in self.engine.game_map.actors:
-                if actor is not consumer and self.parent.gamemap.visible[actor.x, actor.y]:
-                    targets.append(actor)
-
-            for target in set(targets):
-                self.effects_on_target_actor(consumer=consumer, target=target)
 
         self.consume()
 
 
 class RayReadable(Readable):
-    def __init__(self, anim_graphic, damage: int=0, effect_dmg: int=0, penetration: bool=False, max_range: int=1000):
+    def __init__(self, anim_graphic, damage_range: Tuple[int,int]=(0,0), penetration: bool=False, max_range: int=1000):
         super().__init__()
         self.anim_graphic = anim_graphic
-        self.damage = damage
-        self.effect_dmg = effect_dmg
+        self.damage = random.randint(*damage_range)
         self.penetration = penetration
         self.max_range = max_range
 
@@ -523,6 +572,10 @@ class RayReadable(Readable):
 class ScrollOfMagicMissileReadable(RayReadable):
     def effects_on_collided_actor(self, consumer: Actor, target: Actor):
         real_damage = target.status.calculate_dmg_reduction(damage=self.damage, damage_type="magic")
+        if self.parent.item_state.BUC == 1:
+            real_damage *= 1.2
+        elif self.parent.item_state.BUC == -1:
+            real_damage *= 0.8
 
         # Log
         if target == self.engine.player:
@@ -536,11 +589,17 @@ class ScrollOfScorchingRayReadable(RayReadable):
     def effects_on_collided_actor(self, consumer: Actor, target: Actor):
         real_damage = target.status.calculate_dmg_reduction(damage=self.damage,
                                                             damage_type="fire")  # No direct state effect applied since fire entity is about to spawn
+        if self.parent.item_state.BUC == 1:
+            real_damage *= 1.2
+        elif self.parent.item_state.BUC == -1:
+            real_damage *= 0.8
+
         # Log
         if target == self.engine.player:
             self.engine.message_log.add_message(f"화염 광선이 당신을 꿰뚫으며 {real_damage} 데미지를 입혔다.",fg=color.player_bad)
         else:
             self.engine.message_log.add_message(f"화염 광선이 {g(target.name, '을')} 꿰뚫으며 {real_damage} 데미지를 입혔다.", target=target, fg=color.enemy_unique)
+        target.actor_state.apply_burning([max(1,int(real_damage / 8)), 2, 0, 6])
         target.status.take_damage(amount=real_damage, attacked_from=consumer)
     
     def effects_on_path(self, x: int, y: int):
@@ -552,12 +611,17 @@ class ScrollOfScorchingRayReadable(RayReadable):
 class ScrollOfFreezingRayReadable(RayReadable):
     def effects_on_collided_actor(self, consumer: Actor, target: Actor):
         real_damage = target.status.calculate_dmg_reduction(damage=self.damage, damage_type="cold")
+        if self.parent.item_state.BUC == 1:
+            real_damage *= 1.2
+        elif self.parent.item_state.BUC == -1:
+            real_damage *= 0.8
+
         # Log
         if target == self.engine.player:
             self.engine.message_log.add_message(f"얼음 광선이 당신을 꿰뚫으며 {real_damage} 데미지를 입혔다.", fg=color.player_bad)
         else:
             self.engine.message_log.add_message(f"얼음 광선이 {g(target.name, '을')} 꿰뚫으며 {real_damage} 데미지를 입혔다.",fg=color.enemy_unique, target=target)
-        target.actor_state.apply_freezing([self.effect_dmg, 5, 0.2, 0, 4])
+        target.actor_state.apply_freezing([max(1,int(real_damage/8)), 5, 0.2, 0, 4])
         target.status.take_damage(amount=real_damage, attacked_from=consumer)
 
     def effects_on_path(self, x: int, y: int):
@@ -565,7 +629,11 @@ class ScrollOfFreezingRayReadable(RayReadable):
         self.engine.game_map.tiles[x, y] = TileUtil.freeze(self.engine.game_map.tiles[x, y])
 
 
-class ScrollOfThunderStormReadable(AutoTargetingReadable):
+class ScrollOfThunderStormReadable(AutoTargetingHarmfulReadable):
+    def __init__(self, maximum_range: int, damage_range: Tuple[int,int]):
+        super().__init__(maximum_range)
+        self.damage = random.randint(*damage_range)
+
     def effects_on_target_actor(self, consumer:Actor, target: Actor):
         # Log
         if target == self.engine.player:

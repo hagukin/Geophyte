@@ -455,10 +455,18 @@ class Status(BaseComponent):
             }
         return changed_status
 
+    def check_if_has_bonus(self, bonus_id: str) -> bool:
+        for b in self.bonuses.keys():
+            if b == bonus_id:
+                return True
+        return False
+
     def add_bonus(self, bonus: Bonus) -> None:
         # Removed the lines below because there are too many cases of overwriting a bonus.
         # if bonus.bonus_id in self.bonuses.keys(): # If there is bonus of same id, replace it.
         #     print(f"WARNING::status - bonus {bonus.bonus_id} has been overwritten.")
+        if self.check_if_has_bonus(bonus.bonus_id):
+            print(f"WARNING::{bonus.bonus_id} Bonus already exists. Overwritten.")
         self.bonuses[bonus.bonus_id] = bonus
 
     def remove_bonus(self, bonus_id: str, ignore_warning: bool=False) -> None:
@@ -471,9 +479,13 @@ class Status(BaseComponent):
         except:
             raise Exception("FATAL ERROR::status.remove_bonus()")
 
+    def remove_all_bonuses(self):
+        self.bonuses.clear()
+
     def death(self, cause: str="low_hp") -> None:
         self.parent.actor_state.is_dead = True
         self.parent.actor_state.remove_all_actor_states(include_spatial_states=True)
+        self.remove_all_bonuses()
 
         # death cause
         if cause == "low_hp":

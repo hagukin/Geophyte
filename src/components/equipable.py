@@ -507,8 +507,8 @@ class LongswordEquipable(Equipable):
             str_requirement=16,
             base_melee=12,
             additional_melee=10,
-            melee_effects=(("burn_target", 1),),
-            melee_effects_var=((1,1,0,3),)
+            # melee_effects=(("burn_target", 1),),
+            # melee_effects_var=((1,1,0,3),)
             )
 
     def update_stat(self):

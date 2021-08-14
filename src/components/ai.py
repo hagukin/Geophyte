@@ -42,16 +42,8 @@ class BaseAI(BaseComponent):
             attracted_own_type:set=None,
             attracted_own_id:set=None,
             attracted_own_with:set=None,
-
-            tameable: int = 1,
             owner: Actor = None,
         ):
-        """
-        Vars:
-            tameable:
-                Integer. 0 means the ai is always tameable, and the higher the number is, the harder it becomes to tame it.
-                Negative values means that the ai cannot be tamed.
-        """
         super().__init__()
         self.attacked_from = None
         self.target = None
@@ -126,8 +118,6 @@ class BaseAI(BaseComponent):
         else:
             self.attracted_own_with = attracted_own_with
 
-        # Owner
-        self.tameable = tameable
         self.owner = owner
     
     def init_vision(self) -> None:
@@ -161,12 +151,12 @@ class BaseAI(BaseComponent):
             self.parent.actor_state.hunger = self.parent.actor_state.size * 25 * 12 # Set to "normal" hunger state.
             # From now on, this actor can starve to death.
 
-    def try_tame(self, tamer: Actor, tame_power: int) -> bool:
+    def try_tame(self, tamer: Actor, tame_bonus: int) -> bool:
         """
         Returns:
             boolean. returns True if tamer successfully tamed this ai. return False if failed.
         """
-        if self.tameable > 0 and self.tameable >= tame_power:
+        if self.parent.tameable > 0 and self.parent.tameable >= max(0, tamer.status.changed_status["charm"] - random.randint(0,10)) + tame_bonus:
             self.set_owner(tamer)
             return True
         else:
