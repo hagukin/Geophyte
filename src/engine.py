@@ -80,6 +80,7 @@ class Engine:
         self.depth: int = 0
         self.item_manager: ItemManager = None
         self.toughness = 0
+        self.easteregg = 0
 
     def set_mouse_pos(self, x, y):
         self._mouse_pos = x, y

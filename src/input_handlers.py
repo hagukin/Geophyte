@@ -1798,7 +1798,7 @@ class MainGameEventHandler(EventHandler):
                     )
             elif key == tcod.event.K_a:
                 self.engine.event_handler = AbilityActivateHandler()
-            elif key == tcod.event.K_b:
+            elif key == tcod.event.K_TAB or key == tcod.event.K_KP_TAB:
                 import book
                 self.engine.event_handler = book.MonsterBookIndexHandler()
                 return None
@@ -1808,21 +1808,13 @@ class MainGameEventHandler(EventHandler):
                 #pic_name = self.engine.player.name + "-" + time_str # bugs occur when using certain unicode chars.
                 self.engine.context.save_screenshot(f"./screenshots/{pic_name}.png")
                 self.engine.message_log.add_message(f"스크린샷 저장됨. {pic_name}.png", color.cyan)
+            elif key == tcod.event.K_F11:
+                if self.engine.easteregg > 50:
+                    return None
+                self.engine.easteregg += 1
+                if self.engine.easteregg == 50:
+                    self.engine.message_log.add_message(f"당신은 슬픈 기분이 든다.", color.white)
 
-
-            elif key == tcod.event.K_F11:#TODO DEBUG
-                from explosion_action import ExplodeAction
-                ExplodeAction(self.engine.player, False, True, radius=50, expl_dmg=3000, cause_fire=5).perform()
-            elif key == tcod.event.K_F7:#TODO DEBUG
-                self.engine.player.status.experience.gain_strength_exp(100)
-                self.engine.player.status.experience.gain_dexterity_exp(100)
-                self.engine.player.status.experience.gain_agility_exp(100)
-                self.engine.player.status.experience.gain_constitution_exp(100)
-                self.engine.player.status.experience.gain_intelligence_exp(100)
-                self.engine.player.status.experience.gain_charm_exp(100)
-            elif key == tcod.event.K_F1:
-                print("You flied")
-                self.engine.player.actor_state.actor_fly()
 
         # No valid key was pressed
         return action
