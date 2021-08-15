@@ -507,17 +507,17 @@ class Actor(Entity):
         else:
             self.tameable = self.status.difficulty
 
-        if initial_items == None:
+        if initial_items == None or initial_items == ():
             self.initial_items = []
         else:
             self.initial_items = list(initial_items)
 
-        if initial_abilities == None:
+        if initial_abilities == None or initial_abilities == ():
             self.initial_abilities = []
         else:
             self.initial_abilities = list(initial_abilities)
 
-        if initial_equipments == None:
+        if initial_equipments == None or initial_equipments == ():
             self.initial_equipments = []
         else:
             self.initial_equipments = list(initial_equipments)
