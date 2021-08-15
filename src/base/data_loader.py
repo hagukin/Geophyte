@@ -73,3 +73,20 @@ def load_book():
     with shelve.open(os.getcwd() + "\\saves\\book\\book", "r") as b:
         book.actor_db = b["actors"]
     return book.actor_db
+
+
+def delete_saved_game() -> None:
+    # Check if file exists (os.getcwd() = current folder directory)
+    import os
+    if not os.path.isfile(os.getcwd()+"\\saves\\save_file.dat"):
+        print("ERROR::Savefile not found. - delete_saved_game()")
+        return None
+
+    import os
+    try:
+        os.remove(os.getcwd()+"\\saves\\save_file.dat")
+        os.remove(os.getcwd() + "\\saves\\save_file.bak")
+        os.remove(os.getcwd() + "\\saves\\save_file.dir")
+    except Exception as e:
+        print(f"WARNING::{e}")
+    return None

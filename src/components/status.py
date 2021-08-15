@@ -502,6 +502,8 @@ class Status(BaseComponent):
         if self.engine.player is self.parent:
             death_message += "당신은 죽었다!"
             death_message_color = color.player_die
+            from base.data_loader import delete_saved_game
+            delete_saved_game()
             from input_handlers import GameOverEventHandler
             self.engine.event_handler = GameOverEventHandler()
         elif self.engine.game_map.visible[self.parent.x, self.parent.y]:  # if dead entity is in player's visible range
