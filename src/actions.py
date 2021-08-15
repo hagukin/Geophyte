@@ -1,7 +1,6 @@
 from __future__ import annotations
-from typing import Optional, Tuple, List, TYPE_CHECKING
+from typing import Optional, Tuple, List, TYPE_CHECKING, Dict
 
-import math
 import color
 import exceptions
 import random
@@ -172,6 +171,15 @@ class ItemAction(Action):
         self.target_xy = target_xy
         self.item_selected = item_selected
 
+        # Warning
+        warning = True
+        if self.item.parent:
+            if self.item.parent.parent:
+                if self.item.parent.parent == self.entity:
+                    warning = False
+        if warning:
+            print(f"WARNING::Item Action must only be called from item's owner. entity-{self.entity}, item-{self.item}")
+
     @property
     def target_actor(self) -> Optional[Actor]:
         """Return the actor at this actions destination."""
@@ -189,10 +197,21 @@ class ThrowItem(ItemAction):
                 self.engine.message_log.add_message(f"아무 것도 할 수 없다!", color.player_severe)
             return None
 
+        # Check can remove
+        if self.item.item_state.equipped_region:
+            if self.entity == self.engine.player:
+                self.engine.message_log.add_message("장착하고 있는 아이템을 던질 수 없습니다.", color.invalid)
+            return None
+        if not self.item.droppable:
+            if self.entity == self.engine.player:
+                self.engine.message_log.add_message(f"{g(self.item.name, '을')} 던질 수 없습니다.", color.invalid)
+            return None
+
         if self.entity.status.experience:
             self.entity.status.experience.gain_dexterity_exp(15)
             self.entity.status.experience.gain_strength_exp(10, 13)
 
+        # Actual throw logic handled here
         self.item.throwable.activate(self)
 
 
@@ -202,6 +221,15 @@ class DropItem(ItemAction):
         if self.entity.check_for_immobility():
             if self.entity == self.engine.player:
                 self.engine.message_log.add_message(f"아무 것도 할 수 없다!", color.player_severe)
+            return None
+
+        if self.item.item_state.equipped_region:
+            if self.entity == self.engine.player:
+                self.engine.message_log.add_message("장착하고 있는 아이템을 드랍할 수 없습니다.", color.invalid)
+            return None
+        if not self.item.droppable:
+            if self.entity == self.engine.player:
+                self.engine.message_log.add_message(f"{g(self.item.name, '을')} 드랍할 수 없습니다.", color.invalid)
             return None
 
         self.entity.inventory.drop(self.item)
@@ -277,11 +305,23 @@ class EquipItem(ItemAction):
 
 
 class UnequipItem(ItemAction):
+    """Unequip item that the actor owns. (By itself)"""
     def perform(self) -> None:
         # Checking for inability
         if self.entity.check_for_immobility():
             if self.entity == self.engine.player:
                 self.engine.message_log.add_message(f"아무 것도 할 수 없다!", color.player_severe)
+            return None
+
+        # Check can remove
+        if self.entity.equipments.equipments[self.item.item_state.equipped_region] == None:
+            if self.entity == self.engine.player:
+                self.engine.message_log.add_message("당신은 해당 위치에 아무 것도 장착하고 있지 않다.", fg=color.impossible)
+            return None
+        elif self.item.item_state.BUC == -1:
+            if self.entity == self.engine.player:
+                self.engine.message_log.add_message(f"{g(self.item.name, '이')} 몸에서 떨어지지 않는다!",fg=color.player_failed)
+                self.item.item_state.identify_self(2)
             return None
 
         self.entity.equipments.remove_equipment(self.item.item_state.equipped_region)
@@ -318,6 +358,16 @@ class WaitAction(Action):
         pass
 
 
+class TurnPassAction(Action):
+    """
+    Skips the turn doing nothing.
+    Difference with WaitAction:
+        You can 'purposely' do an wait action while you cannot purposely do a turnpassaction.
+    """
+    def perform(self) -> None:
+        pass
+
+
 class MultiEntitiesAction(Action):
     """Handles actions that uses multiple items.
     NOTE: You should not use this function when handling item usage."""
@@ -343,6 +393,12 @@ class ChestAction(MultiEntitiesAction):
 class ChestTakeAction(ChestAction):
     def perform(self) -> None:
         for item in self.entities:
+            # Check can remove
+            if item.item_state.equipped_region:
+                if self.entity == self.engine.player:
+                    self.engine.message_log.add_message("장착되어 있는 아이템을 가져갈 수 없습니다.", color.invalid)
+                continue
+
             self.actor_storage.add_item(self.chest_storage.delete_item_from_inv(item))
 
             if self.entity == self.engine.player:
@@ -360,6 +416,16 @@ class ChestTakeAction(ChestAction):
 class ChestPutAction(ChestAction):
     def perform(self) -> None:
         for item in self.entities:
+            # Check can remove
+            if item.item_state.equipped_region:
+                if self.entity == self.engine.player:
+                    self.engine.message_log.add_message("장착하고 있는 아이템을 넣을 수 없습니다.", color.invalid)
+                continue
+            elif not item.droppable and self.entity.inventory.check_if_in_inv_object(item):
+                if self.entity == self.engine.player:
+                    self.engine.message_log.add_message(f"{g(item.name, '을')} 넣을 수 없습니다.", color.invalid)
+                continue
+
             self.chest_storage.add_item(self.actor_storage.delete_item_from_inv(item))
 
             if self.entity == self.engine.player:
@@ -1085,7 +1151,7 @@ class CashExchangeAction(Action):
         You should check whether the transaction is valid BEFORE you perform the action."""
         from item_factories import shines
         self.taker.inventory.add_item(shines(self.cash_amount))
-        self.giver.inventory.decrease_item_stack(self.giver.inventory.check_if_in_inv("shine"), self.cash_amount)
+        self.giver.inventory.decrease_item_stack(self.giver.inventory.check_if_in_inv("shine"), self.cash_amount) # Equipped/Cursed/Droppable check in inputhandler
 
 
 class PlaceSwapAction(Action):
@@ -1146,7 +1212,7 @@ class BumpAction(ActionWithDirection):
                     return None
                 else:
                     if self.entity.ai:
-                        tmp = self.entity.ai.get_action_when_bumped_with(self.bump_entity)
+                        tmp = self.entity.ai.get_action_when_bumped_with(bumped_entity=self.bump_entity)
                         if tmp:
                             return tmp.perform()
                         else:

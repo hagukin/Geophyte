@@ -54,7 +54,7 @@ class World():
             raise Exception(f"ERROR::world.load_map() - Cannot find {depth} depth map.")
 
         if self.check_if_map_on_mem(depth):
-            print(f"WARNING::Depth {depth} already exists on the memory. Will ignore the loading request.")
+            print(f"ERROR::Depth {depth} already exists on the memory. Will ignore the loading request.")
             return self.mem_world[depth]
         # Check if file exists
         if not os.path.isfile(os.getcwd()+f"\\saves\\worlds\\{self.engine.player.entity_id}.dat"):
@@ -86,6 +86,10 @@ class World():
         if depth not in list(self.mem_world.keys()) or self.mem_world[depth] is None:
             return False
         return True
+
+    def update_map(self, depth: int):
+        """Update saved maps"""
+        self.save_map(self.load_map(depth), depth)
 
     def get_map(self, depth:int):
         """

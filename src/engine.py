@@ -124,6 +124,10 @@ class Engine:
         self.game_map = self.world.get_map(goal_depth)
         self.depth = goal_depth
 
+        # Update serialized map
+        for depth in self.world.saved_maps:
+            self.world.update_map(depth)
+
         # Optimize memory
         self.world.optimize()
 
@@ -136,7 +140,7 @@ class Engine:
         so you should calculate the appropriate xpos, ypos in advance and pass it to this function.
         """
         if not self.world.check_has_map(depth): # If there is no level below current level, randomize new level.
-            print("WARNING::Something went wrong, Pre-generated level missing!")
+            print("ERROR::Something went wrong, Pre-generated level missing!")
             self.world.set_map(self.generate_new_dungeon(depth=depth, console=self.console, context=self.context, display_process=False), depth)
 
         if entity == self.player:

@@ -194,11 +194,6 @@ class Edible(BaseComponent):
                     f"당신은 아직 배고프다.",
                     color.player_not_good,
                 )
-            elif consumer.actor_state.hunger_state == "":
-                self.engine.message_log.add_message(
-                    f"당신은 배가 고프지 않다.",
-                    color.player_neutral,
-                )
             elif consumer.actor_state.hunger_state == "satiated":
                 self.engine.message_log.add_message(
                     f"당신은 배가 부르다.",

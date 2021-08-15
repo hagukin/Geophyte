@@ -101,11 +101,16 @@ def spawn_monsters_by_difficulty(
             (=is this the first time that the monster is being generated to this dungeon?)
     """
     rarity_list = actor_factories.ActorDB.monster_rarity_for_each_difficulty[difficulty]
-    monster_to_spawn = random.choices(
-        population=actor_factories.ActorDB.monster_difficulty[difficulty],
-        weights=rarity_list,
-        k=1
-        )[0]
+
+    try:
+        monster_to_spawn = random.choices(
+            population=actor_factories.ActorDB.monster_difficulty[difficulty],
+            weights=rarity_list,
+            k=1
+            )[0]
+    except IndexError as e:
+        print(f"ERROR::Cannot spawn monster of difficulty {difficulty}.")
+        return None
 
     # Spawn new monster
     new_monster = monster_to_spawn.spawn(dungeon, x, y)

@@ -204,6 +204,10 @@ class Shopkeeper_Ai(ai.BaseAI):
                 self.engine.message_log.add_message("소유권이 없는 아이템을 판매할 수 없습니다.", fg=color.impossible)
             # This part should never be reached in the first place since you cannot select not-owned items from SellItemHandler
             return None
+        if not item.droppable:
+            if customer == self.engine.player:
+                self.engine.message_log.add_message("드랍할 수 없는 아이템을 판매할 수 없습니다.", fg=color.impossible) # This part CAN be reached.
+            return None
 
         buying_price = item.price_of_all_stack(is_shopkeeper_is_selling=False, discount=0.5)
         if self.parent.inventory.check_has_enough_money(buying_price):

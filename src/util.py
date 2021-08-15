@@ -168,7 +168,7 @@ def multiline(
         newline_cnt: int=1
 ) -> Tuple[str, int]:
     x = 0
-    line_cnt = 0
+    line_cnt = 1
     tmp = ""
     while x < len(string):
         tmp += string[x:width + x]

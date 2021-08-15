@@ -146,7 +146,7 @@ class MonsterInfoHandler(AskUserEventHandler):
         if self.monster.actor_type_desc != "":
             text, line_cnt = multiline(self.monster.actor_type_desc, self.width, 2)
             console.print(start_x, start_y + ypad, text, fg=color.white)
-            ypad += line_cnt
+            ypad += line_cnt + 1
 
         # Entity Description
         if self.monster.entity_desc != "":
@@ -167,6 +167,7 @@ class MonsterInfoHandler(AskUserEventHandler):
         if event.sym == tcod.event.K_ESCAPE:
             if self.page != None:
                 self.engine.event_handler = MonsterBookIndexHandler(page=self.page)
+                return None
             else:
                 return self.on_exit()
         return self.on_exit()

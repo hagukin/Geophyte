@@ -283,6 +283,19 @@ class Equipments(BaseComponent):
                 self.engine.message_log.add_message(f"{g(self.parent.name, '이')} {g(item.name, '을')} {equip_region_name_to_str(curr_equipped_region)} 부위에 장착했다.", fg=color.enemy_unique, target=self.parent)
         self.update_dual_wielding() # update
 
+    def can_unequip_by_equipper(self, item: Item) -> bool:
+        if item.equipable:
+            for region in item.equipable.possible_regions:
+                if self.equipments[region] == None:
+                    continue
+                elif self.equipments[region] == item:
+                    if item.item_state.BUC != -1: #NOTE: You can remove an non droppable item
+                        return True
+                    return False
+            return False
+        print(f"WARNING::can_unequip_by_equipper(item={item.entity_id}) called even the item is not equipable.")
+        return False
+
     def remove_equipment(self, region: str, forced: bool=False):# forced는 parent의 의지에 의해 이루어진 게 아닐 경우 True.
         """
         Remove item from certain region.
@@ -290,27 +303,20 @@ class Equipments(BaseComponent):
         Args:
             forced:
                 If the removing an equipments was not intended by the equipper, set to True.
+                NOTE: Even if forced is False, the function will always try to remove equipment.
+                forced only indicates wheter the action is called by the equipment owner or not.
         """
-        # Nothing to remove
-        if self.equipments[region] == None: 
-            if not forced:
-                if self.parent == self.engine.player:
-                    self.engine.message_log.add_message("당신은 해당 위치에 아무 것도 장착하고 있지 않다.", fg=color.impossible)
-
+        if self.equipments[region] == None:
+            print(f"WARNING::Tried to remove equipment from {region}, but its empty")
             return None
-        elif self.equipments[region].item_state.BUC <= -1 and not forced:
+        self.remove_equipable_bonuses(self.equipments[region])
+        self.equipments[region].item_state.equipped_region = None
+
+        if not forced: # If the equipments is burned, rotted, etc(forced), do not display the log message.
             if self.parent == self.engine.player:
-                self.engine.message_log.add_message(f"{g(self.equipments[region].name, '이')} 몸에서 떨어지지 않는다!", fg=color.player_failed)
-                self.equipments[region].item_state.identify_self(2)
-        else:
-            self.remove_equipable_bonuses(self.equipments[region])
-            self.equipments[region].item_state.equipped_region = None
+                self.engine.message_log.add_message(f"당신은 {g(self.equipments[region].name, '을')} {equip_region_name_to_str(region)} 부위에서 장착 해제했다.", fg=color.player_neutral)
+            else:
+                self.engine.message_log.add_message(f"{g(self.parent.name, '이')} {g(self.equipments[region].name, '을')} 장착 해제했다.", fg=color.enemy_unique, target=self.parent)
 
-            if not forced: # If the equipments is burned, rotted, etc(forced), do not display the log message.
-                if self.parent == self.engine.player:
-                    self.engine.message_log.add_message(f"당신은 {g(self.equipments[region].name, '을')} {equip_region_name_to_str(region)} 부위에서 장착 해제했다.", fg=color.player_neutral)
-                else:
-                    self.engine.message_log.add_message(f"{g(self.parent.name, '이')} {g(self.equipments[region].name, '을')} 장착 해제했다.", fg=color.enemy_unique, target=self.parent)
-
-            self.equipments[region] = None
-            self.update_dual_wielding()  # update
+        self.equipments[region] = None
+        self.update_dual_wielding()  # update

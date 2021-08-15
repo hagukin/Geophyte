@@ -55,7 +55,7 @@ def main() -> None:
                 else:
                     for event in tcod.event.wait(timeout=None):# set to None = wait indefinitly for any events
                         context.convert_event(event)
-                        if event.type[:5] == "MOUSE":
+                        if event.type[:5] == "MOUSE" and event.type != "MOUSEWHEEL":
                             engine.set_mouse_pos(event.tile.x, event.tile.y)
                         turn_pass = engine.event_handler.handle_events(event)# returns True if player does any action that costs a in-game turn
                         engine.handle_world(turn_pass=turn_pass)

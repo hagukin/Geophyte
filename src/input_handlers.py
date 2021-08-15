@@ -13,6 +13,7 @@ from actions import (
     WaitAction,
     DoorCloseAction,
     DropItem,
+    TurnPassAction,
     SplitItem,
     EquipItem,
     UnequipItem,
@@ -27,6 +28,7 @@ from base.data_loader import save_game, quit_game
 from game import Game
 from korean import grammar as g
 
+import math
 import tcod
 import time
 import color
@@ -142,15 +144,6 @@ class EventHandler(tcod.event.EventDispatch[Action]):
         # Refresh
         self.cursor_loc = self.engine.mouse_location
 
-    def ev_mousebuttondown(self, event: tcod.event.MouseButtonDown) -> None:
-        """By default any mouse click exits the event handler."""
-        # ESCAPE
-        if self.item_cancel_callback is None:
-            return self.on_exit()
-        else:
-            self.engine.event_handler = ItemUseCancelHandler(self.item_cancel_callback)
-            return None
-
     def on_exit(self) -> Optional[Action]:
         """
         Called when the user is trying to exit or cancel an action.
@@ -160,6 +153,9 @@ class EventHandler(tcod.event.EventDispatch[Action]):
 
     def ev_quit(self, event: tcod.event.Quit) -> Optional[Action]:
         raise SystemExit()
+
+    def ev_mousewheel(self, event: tcod.event.MouseWheel):
+        return None
 
     def on_render(self, console: tcod.Console) -> None:
         self.engine.message_log.add_message(self.help_msg, self.help_msg_color, show_once=True)
@@ -991,17 +987,11 @@ class InventoryActionSelectHandler(AskUserEventHandler):
                 return UnequipItem(self.engine.player, self.item)
             elif key == tcod.event.K_s:
                 self.engine.event_handler = InventorySplitHandler(self.item)
+                return TurnPassAction(self.engine.player) # Spliting does cost a turn
             elif key == tcod.event.K_t:
-                if self.item.item_state.equipped_region:
-                    self.engine.message_log.add_message("장착하고 있는 아이템을 던질 수 없습니다.", color.invalid)
-                    self.engine.event_handler = MainGameEventHandler()
-                    return None
-                return self.item.throwable.get_action(self.engine.player)
+                self.item.throwable.get_action(self.engine.player) # ThrowAction.perform() called internally
+                return TurnPassAction(entity=self.engine.player)
             elif key == tcod.event.K_d:
-                if self.item.item_state.equipped_region:
-                    self.engine.message_log.add_message("장착하고 있는 아이템을 떨어뜨릴 수 없습니다.", color.invalid)
-                    self.engine.event_handler = MainGameEventHandler()
-                    return None
                 return DropItem(self.engine.player, self.item)
         elif key == tcod.event.K_ESCAPE:
             self.engine.event_handler = MainGameEventHandler()
@@ -1098,7 +1088,7 @@ class StorageSelectMultipleEventHandler(StorageSelectEventHandler):
             render_sell_price: bool = False,
             hide_not_tradable: bool = False,
             hide_not_owned: bool = False,
-            hide_equipped: bool = False
+            hide_equipped: bool = False,
             ):
         super().__init__(inventory_component, show_only_types, show_only_status, show_if_satisfy_both, render_sell_price, hide_not_tradable, hide_not_owned, hide_equipped)
         self.selected_items = set()
@@ -1359,6 +1349,7 @@ class SellItemsHandler(StorageSelectMultipleEventHandler):
             from shopkeeper import Shopkeeper_Ai
             if isinstance(self.sell_to.ai, Shopkeeper_Ai):
                 self.sell_to.ai.purchase_items(customer=self.engine.player, items=list(self.selected_items))
+                return TurnPassAction(entity=self.engine.player)
         return self.on_exit()
 
 
@@ -1370,6 +1361,7 @@ class ChestTakeEventHandler(StorageSelectMultipleEventHandler):
         else:
             self.TITLE = "가져갈 아이템들을 선택하세요."
         self.chest_inv = chest_inventory_component
+
 
     def choice_confirmed(self):
         """
@@ -1389,9 +1381,10 @@ class ChestPutEventHandler(StorageSelectMultipleEventHandler):
         self.actor_inv = actor_inventory_component
         self.chest_inv = chest_inventory_component
 
+
     def choice_confirmed(self):
         """
-        Move the selected items to player's inventory.
+        Remove the selected items from player's inventory.
         """
         return ChestPutAction(entity=self.engine.player, entities=list(self.selected_items), chest_storage=self.chest_inv)
 
@@ -1407,15 +1400,9 @@ class InventoryDropHandler(StorageSelectMultipleEventHandler):
         Drop all the selected items.
         """
         for item in self.selected_items:
-            if item.item_state.equipped_region:
-                self.engine.message_log.add_message("장착하고 있는 아이템을 드랍할 수 없습니다.", color.invalid)
-                continue
-            if not item.droppable:
-                self.engine.message_log.add_message(f"{g(item.name, '을')} 드랍할 수 없습니다.", color.invalid)
-                continue
             DropItem(self.engine.player, item).perform()
 
-        return self.on_exit()
+        return TurnPassAction(self.engine.player)  # Return an action if the item is the last one to drop to cost a turn
 
 
 class SelectIndexHandler(AskUserEventHandler):
@@ -1697,24 +1684,6 @@ class RayDirInputHandler(SelectDirectionHandler):
         return self.callback(self.dx, self.dy)
 
 
-class BuyInputHandler(AskUserEventHandler):
-    def on_render(self, console: tcod.Console) -> None:
-        super().on_render(console)
-        self.engine.draw_window(console, text="정말 현재 게임을 종료하시겠습니까? 모든 저장하지 않은 내역은 지워집니다. (Y/N)", title="Quit", frame_fg=color.lime, frame_bg=color.gui_inventory_bg)
-
-    def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[Action]:
-        player = self.engine.player
-        engine = self.engine
-
-        if event.sym == tcod.event.K_y or event.sym == tcod.event.K_KP_ENTER:
-            self.engine.event_handler = MainGameEventHandler()
-            save_game(player=player, engine=engine)
-            quit_game()
-        elif event.sym == tcod.event.K_n or event.sym == tcod.event.K_ESCAPE:
-            self.engine.message_log.add_message(f"취소됨.", color.lime, stack=False)
-        return super().ev_keydown(event)
-
-
 class QuitInputHandler(AskUserEventHandler):
     def on_render(self, console: tcod.Console) -> None:
         super().on_render(console)
@@ -1728,6 +1697,7 @@ class QuitInputHandler(AskUserEventHandler):
             self.engine.event_handler = MainGameEventHandler()
             save_game(player=player, engine=engine)
             quit_game()
+            return None
         elif event.sym == tcod.event.K_n or event.sym == tcod.event.K_ESCAPE:
             self.engine.message_log.add_message(f"취소됨.", color.lime, stack=False)
         return super().ev_keydown(event)
@@ -1801,7 +1771,6 @@ class MainGameEventHandler(EventHandler):
             elif key == tcod.event.K_TAB or key == tcod.event.K_KP_TAB:
                 import book
                 self.engine.event_handler = book.MonsterBookIndexHandler()
-                return None
             elif key == tcod.event.K_F12:
                 time_str = time.strftime('%Y-%m-%d-%H-%M-%S', time.localtime(time.time()))
                 pic_name = time_str
@@ -1842,11 +1811,34 @@ class MainGameEventHandler(EventHandler):
         return None
 
 
+class GameOverQuitHandler(AskUserEventHandler):
+    def on_render(self, console: tcod.Console) -> None:
+        self.engine.draw_window(console, text="게임을 종료하시겠습니까? (Y/N)", title="Quit", frame_fg=color.lime, frame_bg=color.gui_inventory_bg)
+
+    def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[Action]:
+        player = self.engine.player
+        engine = self.engine
+
+        if event.sym == tcod.event.K_y or event.sym == tcod.event.K_KP_ENTER:
+            quit_game()
+            return None
+        elif event.sym == tcod.event.K_n or event.sym == tcod.event.K_ESCAPE:
+            self.engine.event_handler = GameOverEventHandler()
+        return None
+
+
 class GameOverEventHandler(EventHandler):
+    """Renders Game Over Screen and wait for player to quit.
+    TODO: Render player History"""
+    def on_render(self, console: tcod.Console) -> None:
+        super().on_render(console)
+        self.engine.draw_window(console, text="ESC 키를 눌러 게임을 종료할 수 있습니다.", title="당신은 죽었습니다.", frame_fg=color.lime, frame_bg=color.gui_inventory_bg)
+
     def ev_keydown(self, event: tcod.event.KeyDown) -> None:
         if event.sym == tcod.event.K_ESCAPE:
-            raise SystemExit()
+            self.engine.event_handler = GameOverQuitHandler()
         return None
+
 
 CURSOR_Y_KEYS = {
     tcod.event.K_UP: -1,
@@ -1884,6 +1876,13 @@ class HistoryViewer(EventHandler):
             self.engine.message_log.messages[: self.cursor + 1],
         )
         log_console.blit(console, 3, 3)
+
+    def ev_mousewheel(self, event: tcod.event.MouseWheel) -> None:
+        if event.y > 0:
+            adjust = -1
+        else:
+            adjust = 1
+        self.cursor = max(0, min(self.cursor + adjust, self.log_length - 1))
 
     def ev_keydown(self, event: tcod.event.KeyDown) -> None:
         if event.sym in CURSOR_Y_KEYS:

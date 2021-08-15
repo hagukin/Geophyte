@@ -75,9 +75,18 @@ class Inventory(BaseComponent):
         for item in self.items:
             if item.entity_id == item_id:
                 return item
-            else:
-                continue
         
+        return False
+
+    def check_if_in_inv_object(self, obj: Item) -> bool:
+        """
+        Check if the inventory has exact same item as given.
+        If so, return the item.
+        """
+        for item in self.items:
+            if item is obj:
+                return True
+
         return False
 
     def check_if_full(self) -> bool:
@@ -125,7 +134,7 @@ class Inventory(BaseComponent):
         # Duplicate and place the item
         spliten_item = item.copy(gamemap=item.gamemap)
         spliten_item.stack_count = 1
-        self.decrease_item_stack(item, remove_count=1)
+        self.decrease_item_stack(item, remove_count=1) # NOTE: Curse/droppable check in inputhandler
         spliten_item.place(x, y, self.gamemap)
 
         if show_msg:
@@ -225,6 +234,9 @@ class Inventory(BaseComponent):
         """
         De-stack / Split an item from a pile.
         """
+        if item.stack_count <= 1:
+            raise Impossible(f"{g(item.name, '은')} 더 이상 나눌 수 없습니다.")
+
         if item.stack_count > split_amount:
             if  split_amount >= 1:
                 # Create new stack
@@ -233,7 +245,7 @@ class Inventory(BaseComponent):
                 spliten_item.stackable = False
 
                 # Remove item from stack
-                self.decrease_item_stack(item, split_amount)
+                self.decrease_item_stack(item, remove_count=split_amount) # NOTE: Curse/droppable check in inputhandler
 
                 # Drop item to the floor if there is no room in the inventory
                 if len(self.items) >= self.capacity:
