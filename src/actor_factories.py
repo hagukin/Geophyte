@@ -122,12 +122,11 @@ player = Actor(
     inventory=Inventory(capacity=52, is_fireproof=False, is_acidproof=False, is_waterproof=False),
     ability_inventory=AbilityInventory(capacity=10),
     equipments=Equipments(),
-    initial_items=None,
-    # (
-    #     {"item":item_factories.scroll_of_magic_mapping, "chance":1, "count":(3,10), "BUC":{-1:1, 0:1, 1:1}, "upgrade":None},
-    #     {"item": item_factories.rags, "chance": 1, "count": (1, 1), "BUC": None, "upgrade": None},
-    #     {"item": item_factories.potion_of_paralysis, "chance": 1, "count": (1, 3), "BUC": None, "upgrade": None},
-    # )
+    initial_items=(
+        {"item":item_factories.scroll_of_magic_mapping, "chance":1, "count":(30,45), "BUC":{-1:1, 0:1, 1:1}, "upgrade":None},
+        {"item": item_factories.scroll_of_tame, "chance": 1, "count": (1, 5), "BUC": None, "upgrade": None},
+        {"item": item_factories.scroll_of_teleportation, "chance": 1, "count": (1, 3), "BUC": None, "upgrade": None},
+    ),
     initial_equipments=None,
     # (
     #     # {"item":item_factories.leather_armor, "chance":1, "count":(1,1), "BUC":{-1:1, 0:1, 1:1}, "upgrade": {1:1,2:1,3:1,4:1}},

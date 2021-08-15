@@ -114,6 +114,9 @@ class GameMap:
         else:
             return True
 
+    def get_all_entities_at_location(self, location_x, location_y) -> Iterator[Entity]:
+        yield from (entity for entity in self.entities if entity.x == location_x and entity.y == location_y)
+
     def get_all_blocking_entities_at_location(self, location_x, location_y) -> Iterator[Entity]:
         yield from (entity for entity in reversed(self.entities) if (entity.blocks_movement and entity.x == location_x and entity.y == location_y))
 

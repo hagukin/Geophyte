@@ -12,6 +12,7 @@ if TYPE_CHECKING:
     from engine import Engine
     from entity import Actor, Entity, Item, SemiActor
     from ability import Ability
+    from game_map import GameMap
 
 class Action:
     """
@@ -32,6 +33,73 @@ class Action:
         This method must be overridden by Action subclasses.
         """
         raise NotImplementedError()
+
+
+class ActionWithCoordinate(Action):
+    def __init__(self, entity: Actor, x: int, y: int, gamemap: Optional[GameMap]=None):
+        """
+        Vars:
+            x, y:
+                coordinates. Must be an absolute (gamemap) coordinates.
+            gamemap:
+                gamemap that the coordinates belongs to.
+                if None, use engine.gamemap.
+        """
+        super().__init__(entity)
+        self.x = x
+        self.y = y
+        if gamemap:
+            self.action_gamemap = gamemap
+        else:
+            self.action_gamemap = self.engine.game_map
+
+
+class TeleportAction(ActionWithCoordinate):
+    def __init__(self, entity: Actor, x: int, y: int, gamemap: Optional[GameMap]=None, stability: int = 0):
+        """
+        Vars:
+            stability:
+                0 - always teleport to given location
+                1 - randomly teleport to a safe tile
+                2 - randomly teleport to any tile
+        """
+        super().__init__(entity, x, y, gamemap)
+        self.stability = stability
+
+    def teleport_to_random(self) -> None:
+        x, y = self.action_gamemap.get_random_tile(should_no_entity=True, should_walkable=True, should_safe_to_walk=True,
+                                           should_not_protected=True)
+        self.entity.gamemap.remove_entity(self.entity)
+        self.entity.place(x, y, gamemap=self.action_gamemap)
+
+    def teleport_to_random_can_be_dangerous(self) -> None:
+        x, y = self.action_gamemap.get_random_tile(should_no_entity=True, should_walkable=True, should_safe_to_walk=False,
+                                           should_not_protected=True)
+        self.entity.gamemap.remove_entity(self.entity)
+        self.entity.place(x, y, gamemap=self.action_gamemap)
+
+    def teleport_to_given(self) -> None:
+        if self.action_gamemap.get_blocking_entity_at_location(self.x,self.y): # Blocked.
+            return self.teleport_to_random()
+        self.entity.gamemap.remove_entity(self.entity)
+        self.entity.place(self.x, self.y, gamemap=self.action_gamemap)
+
+    def perform(self) -> None:
+        if self.entity == self.engine.player:
+            self.engine.message_log.add_message("당신은 순간이동했다!", fg=color.player_neutral_important)
+        else:
+            if self.engine.game_map.visible[self.entity.x, self.entity.y]:
+                self.engine.message_log.add_message(f"{g(self.entity.name, '이')} 순간이동했다!")
+
+        if self.stability == 0:
+            return self.teleport_to_given()
+        elif self.stability == 1:
+            return self.teleport_to_random()
+        elif self.stability == 2:
+            return self.teleport_to_random_can_be_dangerous()
+        else:
+            print(f"ERROR::TeleportAction - inappropriate stability value {self.stability}")
+            return self.teleport_to_given()
 
 
 class PickupAction(Action):

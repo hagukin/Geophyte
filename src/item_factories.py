@@ -592,6 +592,33 @@ temp_items_lists.append(scroll_of_remove_curse)
 item_rarity.append(scroll_of_remove_curse.rarity)
 
 
+### Scroll of Teleportation
+scroll_of_teleportation = Item(
+    should_randomize=True,
+    char="~",
+    fg=(255, 255, 200),
+    name="순간 이동의 주문서",
+    entity_id="scroll_of_teleportation",
+    entity_desc="Scroll of teleportation desc",
+    rarity=40,
+    weight=0.1,
+    price=175,
+    item_type=InventoryOrder.SCROLL,
+    item_state=ItemState(),
+    spawnable=True,
+    flammable=0.3,
+    corrodible=0.1,
+    droppable=True,
+    stackable=True,
+    throwable=throwable.NormalThrowable(air_friction=20),
+    readable=readable.ScrollOfTeleportationReadable(),
+    quaffable=None,
+)
+temp_items_lists.append(scroll_of_teleportation)
+item_rarity.append(scroll_of_teleportation.rarity)
+
+
+
 #########################################################################
 ################################ ARMORS #################################
 #########################################################################
@@ -1106,7 +1133,7 @@ corpse = Item(
     tradable=False,
     spawnable=False,
     flammable=0.2,
-    corrodible=0.2,
+    corrodible=0,
     droppable=True,
     stackable=False,
     throwable=throwable.NormalThrowable(),

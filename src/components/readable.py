@@ -50,10 +50,15 @@ class Readable(BaseComponent):
 
 
 class SelectTileReadable(Readable):
-    def __init__(self):
+    def __init__(self,
+                 can_select_not_visible_tile: bool=True,
+                 can_select_not_explored_tile: bool=True,
+                 ):
         super().__init__()
-        
-    def get_action(self, consumer: Actor, cancelled: bool=False) -> Optional[actions.Action]:
+        self.can_select_not_visible_tile = can_select_not_visible_tile
+        self.can_select_not_explored_tile = can_select_not_explored_tile
+
+    def get_action(self, consumer: Actor, cancelled: bool = False) -> Optional[actions.Action]:
         if cancelled:
             return self.item_use_cancelled(actor=consumer)
 
@@ -65,30 +70,61 @@ class SelectTileReadable(Readable):
             item_cancel_callback=lambda x: self.get_action(consumer, x),
         )
         return None
-    
+
     def effects_on_selected_tile_with_no_actor(self, consumer: Actor):
         pass
 
-    def effects_on_selected_tile_with_actor(self, consumer:Actor, target: Actor):
+    def effects_on_selected_tile_with_actor(self, consumer: Actor, target: Actor):
         pass
 
     def activate(self, action: actions.ReadItem) -> None:
         consumer = action.entity
         target = action.target_actor
 
-        if not self.engine.game_map.visible[action.target_xy]:
+        if not self.can_select_not_visible_tile and not self.engine.game_map.visible[action.target_xy]:
             raise Impossible("보이지 않는 지역을 선택할 수는 없습니다.")
+        if not self.can_select_not_explored_tile and not self.engine.game_map.explored[action.target_xy]:
+            raise Impossible("모험하지 않은 지역을 선택할 수는 없습니다.")
+
         if not target:
             self.effects_on_selected_tile_with_no_actor(consumer=consumer)
         else:
             self.effects_on_selected_tile_with_actor(consumer=consumer, target=target)
-        
+
+        self.consume()
+
+
+class ScrollOfTeleportationReadable(SelectTileReadable):
+    def __init__(self):
+        super().__init__()
+        self.can_select_not_visible_tile = True
+        self.can_select_not_explored_tile = False
+
+    def activate(self, action: actions.ReadItem) -> None:
+        consumer = action.entity
+        target = action.target_actor
+
+        if not self.can_select_not_visible_tile and not self.engine.game_map.visible[action.target_xy]:
+            raise Impossible("보이지 않는 지역을 선택할 수는 없습니다.")
+        if not self.can_select_not_explored_tile and not self.engine.game_map.explored[action.target_xy]:
+            raise Impossible("모험하지 않은 지역을 선택할 수는 없습니다.")
+
+        if self.parent.item_state.BUC == 1:
+            stability = 0
+        elif self.parent.item_state.BUC == 0:
+            stability = 1
+        else:
+            stability = 2
+
+        from actions import TeleportAction
+        TeleportAction(entity=consumer, x=action.target_xy[0], y=action.target_xy[1], gamemap=self.engine.game_map,stability=stability).perform()
         self.consume()
 
 
 class ScrollOfConfusionReadable(SelectTileReadable):
     def __init__(self, number_of_turns: int):
         super().__init__()
+        self.can_select_not_visible_tile = False
         self.number_of_turns = number_of_turns
     
     def effects_on_selected_tile_with_no_actor(self, consumer: Actor):
@@ -118,6 +154,9 @@ class ScrollOfConfusionReadable(SelectTileReadable):
 
 
 class ScrollOfTameReadable(SelectTileReadable):
+    def __init__(self):
+        super().__init__()
+        self.can_select_not_visible_tile = False
     
     def effects_on_selected_tile_with_no_actor(self, consumer: Actor):
         if consumer == self.engine.player:
@@ -313,7 +352,7 @@ class ScrollOfRemoveCurseReadable(SelectItemFromInventoryReadable):
             consumer.status.experience.gain_intelligence_exp(10)
 
 
-class ScrollOfMagicMappingReadable(Readable): #TODO: make parent class like other readables
+class ScrollOfMagicMappingReadable(Readable):
     """
     Unlike most items that receives input and call callback function,
     or items that receives no inputs,
@@ -365,7 +404,7 @@ class ScrollOfMeteorStormReadable(Readable): #TODO: Make parent class like other
             return self.item_use_cancelled(actor=consumer)
 
         self.engine.message_log.add_message(
-            "목표 지점을 선택하세요.", color.help_msg
+            f"{g(self.parent.name, '을')} 사용할 영역을 선택하세요.", color.help_msg
         )
 
         from input_handlers import AreaRangedAttackHandler
@@ -493,9 +532,8 @@ class RayReadable(Readable):
         if cancelled:
             return self.item_use_cancelled(actor=consumer)
 
-        self.engine.message_log.add_message(
-            "방향을 선택하세요. (1~9)", color.help_msg
-        )
+        self.engine.message_log.add_message(f"{g(self.parent.name, '을')} 사용할 방향을 선택하세요.", color.help_msg)
+        self.engine.message_log.add_message(f"방향키/마우스 이동 - 위치 선택, 엔터/마우스 클릭 - 결정", color.help_msg)
 
         from input_handlers import RayRangedInputHandler
         self.engine.event_handler = RayRangedInputHandler(
@@ -576,7 +614,7 @@ class ScrollOfMagicMissileReadable(RayReadable):
             real_damage *= 1.2
         elif self.parent.item_state.BUC == -1:
             real_damage *= 0.8
-
+        real_damage = round(real_damage)
         # Log
         if target == self.engine.player:
             self.engine.message_log.add_message(f"마법 광선이 당신을 강타해 {real_damage} 데미지를 입혔다.", fg=color.player_bad)

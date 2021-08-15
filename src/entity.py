@@ -604,6 +604,7 @@ class Actor(Entity):
 
     def environmental_water(self):
         """Handles when actor is in water"""
+        super().environmental_water()
         self.actor_state.was_submerged = self.actor_state.is_submerged
 
         if self.gamemap.tiles[self.x, self.y]["tile_id"] == "deep_water":
@@ -624,6 +625,23 @@ class Actor(Entity):
         # Immediate debuff
         if self.actor_state.is_submerged:
             self.actor_state.actor_submerged()
+
+    def environmental_hole(self):# Is a override, do not call super().environmental_hole in this function. You should manually sync the changes.
+        """Handle entity on a hole tile."""
+        if self.gamemap.tiles[self.x, self.y]["tile_id"] == "hole":
+            new_gamemap = self.engine.world.get_map(depth=self.gamemap.depth + 1)
+            x, y = new_gamemap.get_random_tile(should_no_entity=True, should_walkable=True, should_safe_to_walk=True,
+                                               should_not_protected=True)
+            self.engine.change_entity_depth(entity=self, depth=self.gamemap.depth + 1, xpos=x, ypos=y)
+
+            fall_damage = int(min(200, round(self.weight)))
+            fall_damage = max(0, random.randint(int(fall_damage/2), fall_damage))
+            if self == self.engine.player:
+                self.engine.message_log.add_message(f"당신은 추락으로부터 {fall_damage} 데미지를 받았다!", fg=color.player_severe)
+            self.status.take_damage(amount=fall_damage, attacked_from=None)
+            if not self.actor_state.is_dead:
+                bleed_damage = max(0, int(fall_damage / 10))
+                self.actor_state.apply_bleeding([bleed_damage, 0, 6])
 
     def do_environmental_effects(self):
         """
@@ -815,7 +833,6 @@ class Item(Entity):
         lockpickable: Tuple[float, float] = (0, 0),
         counter_at_front: bool = False,
         initial_BUC=None,
-        initial_identified: float = 0,
         initial_upgrades: List = None, #TODO
     ):
         """
@@ -824,8 +841,6 @@ class Item(Entity):
                 Chance of this item spawning with certain BUC status.
                 { BUC number : chance of having that BUC number indicated as weight, ...)
                 e.g. { 1: 3, 0: 5, -1: 1 } -> Has highest chance of spawing as uncursed.
-            initial_identified:
-                Chance of this item spawning as already identified. (semi-identified)
             initial_upgrades:
                 default = {-3:1, -2:2, -1:4, 0:15, 1:4, 2:2, 3:1}
                 can customize.
@@ -905,7 +920,6 @@ class Item(Entity):
             self.initial_BUC = {1: 1, 0: 8, -1: 2} # Default not-cursed
         else:
             self.initial_BUC = initial_BUC
-        self.initial_identified = initial_identified
 
         if initial_upgrades == None:
             self.initial_upgrades = {-4:1, -3:2, -2:3, -1:6, 0:15, 1:7, 2:4, 3:2, 4:1}
@@ -1019,11 +1033,6 @@ class Item(Entity):
         Sets initial BUC, identification status, etc.
         This method is called from spawn().
         """
-        if random.random() <= self.initial_identified:
-            self.item_state.identify_self()
-        else:
-            self.item_state.unidentify_self()
-
         self.item_state.parent = self
         self.initialize_BUC(use_custom=None)
         self.initialize_upgrade(use_custom=None)

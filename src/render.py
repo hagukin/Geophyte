@@ -94,8 +94,8 @@ def render_gameinfo(
     console: Console, x: int, y: int, depth: int, game_turn: int,
 ) -> None:
     """print dungeon depth, game turn, etc."""
-    console.print(x=x, y=y, string=f"층: {depth}", fg=color.white)
-    console.print(x=x+11, y=y, string=f"턴수: {game_turn}", fg=color.gray)
+    console.print(x=x, y=y, string=f"층: {depth}", fg=color.cyan)
+    console.print(x=x+11, y=y, string=f"턴수: {game_turn}", fg=color.white)
 
 
 def render_health_bar(

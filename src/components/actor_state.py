@@ -180,7 +180,7 @@ class ActorState(BaseComponent):
         super().__init__(None)
 
         self.hunger = hunger
-        self.previous_hunger_state = None
+        self.previous_hunger_state = self.hunger
 
         self.heal_wounds = heal_wounds
         self.heal_interval = 0 # Interval between health regenerations
@@ -194,6 +194,7 @@ class ActorState(BaseComponent):
         self.is_right_handed = is_right_handed
 
         self.encumbrance = 0 # Burden bonus is handled in inventory.
+        self.previous_encumbrance = self.encumbrance
 
         self.is_burning = is_burning
         self.is_poisoned = is_poisoned

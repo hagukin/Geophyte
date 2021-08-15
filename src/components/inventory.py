@@ -50,22 +50,36 @@ class Inventory(BaseComponent):
         w = self.inv_weight
         strength = self.parent.status.changed_status["strength"]
         if w < strength * 2:
+            self.parent.actor_state.previous_encumbrance = self.parent.actor_state.encumbrance
             self.parent.actor_state.encumbrance = 0
-            self.parent.status.add_bonus(Bonus("burden_bonus", bonus_agility=0, bonus_dexterity=0))
+            if self.parent.actor_state.previous_encumbrance != self.parent.actor_state.encumbrance:
+                self.parent.status.add_bonus(Bonus("burden_bonus", bonus_agility=0, bonus_dexterity=0))
         elif w < strength * 3:
+            self.parent.actor_state.previous_encumbrance = self.parent.actor_state.encumbrance
             self.parent.actor_state.encumbrance = 1
-            self.parent.status.add_bonus(Bonus("burden_bonus", bonus_agility=-1, bonus_dexterity=-1))
+            if self.parent.actor_state.previous_encumbrance != self.parent.actor_state.encumbrance:
+                self.engine.message_log.add_message("당신은 약간의 불편함을 느낀다.", fg=color.player_white)
+                self.parent.status.add_bonus(Bonus("burden_bonus", bonus_agility=-1, bonus_dexterity=-1))
         elif w < strength * 4:
+            self.parent.actor_state.previous_encumbrance = self.parent.actor_state.encumbrance
             self.parent.actor_state.encumbrance = 2
-            self.parent.status.add_bonus(Bonus("burden_bonus", bonus_agility=-5, bonus_dexterity=-5))
+            if self.parent.actor_state.previous_encumbrance != self.parent.actor_state.encumbrance:
+                self.engine.message_log.add_message("당신은 다소 불편함을 느낀다.", fg=color.player_not_good)
+                self.parent.status.add_bonus(Bonus("burden_bonus", bonus_agility=-5, bonus_dexterity=-5))
         elif w < strength * 5:
+            self.parent.actor_state.previous_encumbrance = self.parent.actor_state.encumbrance
             self.parent.actor_state.encumbrance = 3
-            self.parent.status.add_bonus(Bonus("burden_bonus", bonus_agility=-10, bonus_dexterity=-10))
+            if self.parent.actor_state.previous_encumbrance != self.parent.actor_state.encumbrance:
+                self.engine.message_log.add_message("당신은 불편함을 느낀다.", fg=color.player_bad)
+                self.parent.status.add_bonus(Bonus("burden_bonus", bonus_agility=-10, bonus_dexterity=-10))
         else:
+            self.parent.actor_state.previous_encumbrance = self.parent.actor_state.encumbrance
             self.parent.actor_state.encumbrance = 4
-            self.parent.status.add_bonus(Bonus("burden_bonus",
-                                               bonus_agility=min(0, -self.parent.status.changed_status["agility"]),
-                                               bonus_dexterity=-20))
+            if self.parent.actor_state.previous_encumbrance != self.parent.actor_state.encumbrance:
+                self.engine.message_log.add_message("당신은 심한 불편함을 느낀다.", fg=color.player_severe)
+                self.parent.status.add_bonus(Bonus("burden_bonus",
+                                                   bonus_agility=min(0, -self.parent.status.changed_status["agility"]),
+                                                   bonus_dexterity=-20))
 
     def check_if_in_inv(self, item_id: str) -> Optional[Item]:
         """
