@@ -40,17 +40,30 @@ class Throwable(BaseComponent):
         self.base_throw = base_throw
         self.additional_throw = additional_throw
         self.sec_per_frame = sec_per_frame
-        self.shattered = False # if True, item can be destroyed after being thrown (depending on the break_chance)
         self.trigger_if_thrown_at = trigger_if_thrown_at
+        self.identify_when_shattered = identify_when_shattered
+        self.identify_when_collided_with_actor = identify_when_collided_with_actor
+        self.identify_when_collided_with_entity = identify_when_collided_with_entity
+
+        #### Modified for each throw ####
+        self.shattered = False # if True, item can be destroyed after being thrown (depending on the break_chance)
         self.shattered_x = None
         self.shattered_y = None
         self.collision_x = None # Set this value When collided with a monster, and when this throwable's penetrate == False. When collided with a wall, this value remains None.
         self.collision_y = None
         self.dx = None
         self.dy = None
-        self.identify_when_shattered = identify_when_shattered
-        self.identify_when_collided_with_actor = identify_when_collided_with_actor
-        self.identify_when_collided_with_entity = identify_when_collided_with_entity
+
+
+    def reset_values(self) -> None:
+        """Is called after activate() function finishes."""
+        self.shattered = False
+        self.shattered_x = None
+        self.shattered_y = None
+        self.collision_x = None
+        self.collision_y = None
+        self.dx = None
+        self.dy = None
 
     def is_miss(self, thrower: Actor, target: Actor) -> bool:
         """return boolean indicating whether the attack is missed or not"""
@@ -124,12 +137,16 @@ class Throwable(BaseComponent):
         )
         return None
 
+    def activate_logic(self, action: actions.ThrowItem) -> None:
+        raise NotImplementedError()
+
     def activate(self, action: actions.ThrowItem) -> None:
         """Invoke this items ability.
 
         `action` is the context for this activation.
         """
-        raise NotImplementedError()
+        self.activate_logic(action)
+        self.reset_values() # Must be called AFTER all functions are done
 
 
 class NormalThrowable(Throwable):
@@ -175,7 +192,7 @@ class NormalThrowable(Throwable):
         
         # actual destruction / item dropping
         if not self.shattered:
-            thrower.inventory.throw(item=self.parent, x=thrower.x, y=thrower.y, show_msg=False)
+            thrower.inventory.drop(item=self.parent, x=thrower.x, y=thrower.y)
         else:
             from order import InventoryOrder
             if self.parent.item_type.value == InventoryOrder.POTION.value:
@@ -249,19 +266,19 @@ class NormalThrowable(Throwable):
         if not self.shattered:
             # If collided with actor, drop it on the actor's location
             if self.collision_x and self.collision_y:
-                thrower.inventory.throw(item=self.parent, x=self.collision_x, y=self.collision_y, show_msg=False)
+                thrower.inventory.drop(item=self.parent, x=self.collision_x, y=self.collision_y, drop_count=None) # Drop all given count (usually 1)
             else:
                 if loc: # if loc exists (if the object flied one or more tile)
-                    thrower.inventory.throw(item=self.parent, x=loc[0], y=loc[1], show_msg=False)
+                    thrower.inventory.drop(item=self.parent, x=loc[0], y=loc[1], drop_count=None) # Drop all given count (usually 1)
                 else: # if loc doesn't exists (e.g. thrown against the wall)
-                    thrower.inventory.throw(item=self.parent, x=thrower.x, y=thrower.y, show_msg=False)
+                    thrower.inventory.drop(item=self.parent, x=thrower.x, y=thrower.y, drop_count=None) # Drop all given count (usually 1)
         else:# Destroyed
             from order import InventoryOrder
             if self.parent.item_type.value == InventoryOrder.POTION.value:
                 self.engine.message_log.add_message(f"{g(self.parent.name, '이')} 깨졌다.", fg=color.gray, target=thrower)
             else:
                 self.engine.message_log.add_message(f"{g(self.parent.name, '이')} 파괴되었다.", fg=color.gray, target=thrower)
-            self.parent.parent.decrease_item_stack(self.parent, remove_count=1)
+            self.parent.remove_self()
 
     def effects_when_shattered(self):
         """Effects when the item is broken. e.g. spawn fire when fire potion is broken
@@ -269,7 +286,7 @@ class NormalThrowable(Throwable):
         if self.identify_when_shattered > 0 and self.engine.game_map.visible[self.shattered_x, self.shattered_y]:
             self.parent.item_state.identify_self(self.identify_when_shattered)
 
-    def activate(self, action: actions.ThrowItem) -> None:
+    def activate_logic(self, action: actions.ThrowItem) -> None:
         thrower = action.entity
         target = None
 
@@ -329,7 +346,9 @@ class NormalThrowable(Throwable):
             self.effects_when_shattered()
             # throwable component is shared through the entire stack, so .shattered should be set back to False after the item was thrown
             # (So that the rest of the item stack can work properly)
-            self.shattered = False
+
+        # Call is necessary
+        self.reset_values()
 
 
 
@@ -369,7 +388,7 @@ class PotionOfFlameThrowable(NormalThrowable):
         super().effects_when_shattered()
         import semiactor_factories
         from util import spawn_entity_8way
-        tmp = semiactor_factories.fire.copy(self.engine.game_map, lifetime=self.parent.quaffable.fire_lifetime)
+        tmp = semiactor_factories.fire.copy(self.engine.game_map, exact_copy=False, lifetime=self.parent.quaffable.fire_lifetime)
         tmp.rule.base_damage = int(self.parent.quaffable.base_dmg / 2)
         tmp.rule.add_damage = int(self.parent.quaffable.add_dmg / 2)
         spawn_entity_8way(entity=tmp, gamemap=self.engine.game_map, center_x=self.shattered_x-self.dx, center_y=self.shattered_y-self.dy, spawn_cnt=8, spawn_on_center=True)

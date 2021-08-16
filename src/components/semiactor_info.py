@@ -48,7 +48,7 @@ class SemiactorInfo(BaseComponent):
         # Catch on fire log
         if self.was_burning == False:
             self.was_burning = True
-            self.engine.message_log.add_message(f"{self.parent.name}에 불이 붙었다.", fg=color.white)
+            self.engine.message_log.add_message(f"{self.parent.name}에 불이 붙었다.", fg=color.white, target=self.parent)
 
         # Further burning calculation
         will_burn = random.random()
@@ -59,7 +59,7 @@ class SemiactorInfo(BaseComponent):
         if self.burntness == 3:
             # Delete item from the game
             self.parent.remove_self()
-            self.engine.message_log.add_message(f"{g(self.parent.name, '이')} 완전히 연소했다!", fg=color.red)
+            self.engine.message_log.add_message(f"{g(self.parent.name, '이')} 완전히 연소했다!", fg=color.red, target=self.parent)
             
             #Adjust variables
             self.is_burning = False
@@ -79,13 +79,13 @@ class SemiactorInfo(BaseComponent):
             return None
 
         if self.corrosion > 2:
-            self.engine.message_log.add_message(f"{g(self.parent.name, '이')} 완전히 부식되어 사라졌다.", fg=color.red)
+            self.engine.message_log.add_message(f"{g(self.parent.name, '이')} 완전히 부식되어 사라졌다.", fg=color.red, target=self.parent)
             # Completely corroded
             self.parent.remove_self()
         elif self.corrosion == 2:
-            self.engine.message_log.add_message(f"{g(self.parent.name, '이')} 심하게 부식되었다.", fg=color.white)
+            self.engine.message_log.add_message(f"{g(self.parent.name, '이')} 심하게 부식되었다.", fg=color.white, target=self.parent)
         elif self.corrosion == 1:
-            self.engine.message_log.add_message(f"{g(self.parent.name, '이')} 다소 부식되었다.", fg=color.white)
+            self.engine.message_log.add_message(f"{g(self.parent.name, '이')} 다소 부식되었다.", fg=color.white, target=self.parent)
 
     def move_self_to(self, semiactor) -> None:
         """
@@ -151,7 +151,7 @@ class Chest(SemiactorInfo):
         if self.burntness == 3: # if burnt out, drop all items to the ground and light them
             if hasattr(self.parent, "storage"):
                 for item in self.parent.storage.items:
-                    self.parent.storage.drop(item=item, show_msg=False)
+                    self.parent.storage.drop(item=item)
                     item.collided_with_fire()
             else:
                 print(f"ERROR: A NON-CHEST SEMIACTOR {self.parent.name} HAS CHEST SEMIACTION_INFO.")

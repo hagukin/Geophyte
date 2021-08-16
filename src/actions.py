@@ -122,13 +122,13 @@ class PickupAction(Action):
 
         for item in self.engine.game_map.items:
             if actor_location_x == item.x and actor_location_y == item.y:
-                if inventory.check_if_full():
-                    raise exceptions.Impossible("인벤토리가 가득 찼습니다.")
+                # Failed to add an item
+                if not inventory.add_item(item):
+                    return None
 
                 # Remove the item from current gamemap
                 self.engine.game_map.remove_entity(entity=item)
                 item.parent = self.entity.inventory
-                inventory.add_item(item)
 
                 if self.entity == self.engine.player:
                     if item.stack_count > 1:
@@ -279,8 +279,22 @@ class ThrowItem(ItemAction):
             self.entity.status.experience.gain_dexterity_exp(15)
             self.entity.status.experience.gain_strength_exp(10, 13)
 
+        throw_item = None
+        if self.item.stack_count > 1:
+            split = self.entity.inventory.split_item(item=self.item, split_amount=1) #TODO : Throw multiple?
+            if split:
+                throw_item = split
+            else:
+                raise Exception("FATAL ERROR::Unable to split item when performing throwaction")
+        else:
+            throw_item = self.item # Throwing an item that has stack count 1
+
         # Actual throw logic handled here
-        self.item.throwable.activate(self)
+        if self.entity == self.engine.player:
+            self.engine.message_log.add_message(f"당신은 {g(throw_item.name, '을')} 던졌다.", fg=color.player_neutral_important)
+        else:
+            self.engine.message_log.add_message(f"{g(self.entity.name, '이')} {g(throw_item.name, '을')} 던졌다.", fg=color.enemy_unique, target=self.entity)
+        throw_item.throwable.activate(self)
 
 
 class DropItem(ItemAction):
@@ -300,6 +314,18 @@ class DropItem(ItemAction):
                 self.engine.message_log.add_message(f"{g(self.item.name, '을')} 드랍할 수 없습니다.", color.invalid)
             return None
 
+        if self.entity == self.engine.player:
+            if self.item.stack_count > 1:
+                self.engine.message_log.add_message(f"당신은 {g(self.item.name, '을')} 땅에 떨어뜨렸다. (x{self.item.stack_count}).",fg=color.player_neutral_important)
+            else:
+                self.engine.message_log.add_message(f"당신은 {g(self.item.name, '을')} 땅에 떨어뜨렸다.",fg=color.player_neutral_important)
+        else:
+            if self.item.stack_count > 1:
+                self.engine.message_log.add_message(
+                    f"{g(self.entity.name, '이')} {g(self.item.name, '을')} 땅에 떨어뜨렸다. (x{self.item.stack_count}).",
+                    fg=color.enemy_neutral, target=self.entity)
+            else:
+                self.engine.message_log.add_message(f"{g(self.entity.name, '이')} {g(self.item.name, '을')} 땅에 떨어뜨렸다.",fg=color.enemy_neutral, target=self.entity)
         self.entity.inventory.drop(self.item)
 
 
@@ -316,7 +342,14 @@ class SplitItem(Action):
                 self.engine.message_log.add_message(f"아무 것도 할 수 없다!", color.player_severe)
             return None
 
-        self.entity.inventory.split_item(item=self.item, split_amount=self.split_amount)
+        spliten_item = self.entity.inventory.split_item(item=self.item, split_amount=self.split_amount)
+        if spliten_item:
+            spliten_item.stackable = False
+            self.entity.inventory.add_item(item=spliten_item)
+            spliten_item.stackable = True
+        else:# Something went wrong during spliting.
+            print("WARNING::Failed to split")
+            return None
 
 
 class ReadItem(ItemAction):

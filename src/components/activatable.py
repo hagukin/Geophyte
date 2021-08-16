@@ -97,7 +97,7 @@ class StealActivatable(Activatable):
                         item.parent.parent.equipments.remove_equipment(region=item.item_state.equipped_region, forced=True)
 
                 # Make duplicate
-                dup_item = item.copy(gamemap=item.gamemap)
+                dup_item = item.copy(gamemap=item.gamemap, exact_copy=True)
                 dup_item.stack_count = item_count
                 target.inventory.decrease_item_stack(item=item, remove_count=item_count)
 

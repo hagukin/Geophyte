@@ -153,7 +153,7 @@ class PotionOfFlameQuaffable(Quaffable):
 
         # Spawn fire
         import semiactor_factories
-        tmp = semiactor_factories.fire.copy(apply_to.gamemap, self.fire_lifetime)
+        tmp = semiactor_factories.fire.copy(apply_to.gamemap, exact_copy=False, lifetime=self.fire_lifetime)
         tmp.rule.base_damage = int(self.base_dmg / 2)
         tmp.rule.add_damage = int(self.add_dmg / 2)
         tmp.spawn(apply_to.gamemap, apply_to.x, apply_to.y, self.fire_lifetime)

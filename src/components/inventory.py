@@ -9,6 +9,7 @@ from korean import grammar as g
 
 if TYPE_CHECKING:
     from entity import Actor, Item
+    from game_map import GameMap
 
 class Inventory(BaseComponent):
     def __init__(self, capacity: int, is_fireproof: bool=False, is_acidproof: bool=False, is_waterproof: bool=False):
@@ -106,59 +107,43 @@ class Inventory(BaseComponent):
     def check_if_full(self) -> bool:
         return len(self.items) >= self.capacity
 
-    def drop(self, item: Item, show_msg: bool=True) -> None:
+    def drop(self, item: Item, drop_count: Optional[int]=None, x: int=None, y: int=None, gamemap: GameMap=None) -> None:
         """
-        Removes an item from the inventory and restores it to the game map, at the player's current location.
+        Place the item at the location.
+        Args:
+            drop_count:
+                if drop_count is None, drop all stack count. (e.g. DropAction)
+            x, y:
+                if location is None, drop at inventory owner's current location.
+            gamemap:
+                if gamemap is NOne, drop at inventory owner's current gamemap.
         """
         item.parent = None
         item.item_state.equipped_region = None
-        
-        self.delete_item_from_inv(item=item) # remove all stack
+
+        if drop_count == None:
+            drop_count = item.stack_count
+        else:
+            drop_count = drop_count
+
+        if x != None and y != None:
+            drop_x, drop_y = x, y
+        else:
+            drop_x, drop_y = self.parent.x, self.parent.y
+
+        if gamemap != None:
+            drop_gamemap = gamemap
+        else:
+            drop_gamemap = self.parent.gamemap
+
+        self.delete_item_from_inv(item=item)
         if item.change_stack_count_when_dropped != None: # set new drop count if it has one. (e.g. toxic goo drop from black jelly)
             new_stack_count = random.randint(item.change_stack_count_when_dropped[0], item.change_stack_count_when_dropped[1])
             item.stack_count = new_stack_count
-        item.place(self.parent.x, self.parent.y, self.gamemap)# self.gamemap belongs to BaseComponent, which is equivalent to self.parent.gamemap.
-
-        if show_msg:
-            if self.parent == self.engine.player:
-                if item.stack_count > 1:
-                    self.engine.message_log.add_message(f"당신은 {g(item.name, '을')} 땅에 떨어뜨렸다. (x{item.stack_count}).", fg=color.player_neutral_important)
-                else:
-                    self.engine.message_log.add_message(f"당신은 {g(item.name, '을')} 땅에 떨어뜨렸다.", fg=color.player_neutral_important)
-            else:
-                if item.stack_count > 1:
-                    self.engine.message_log.add_message(f"{g(self.parent.name, '이')} {g(item.name, '을')} 땅에 떨어뜨렸다. (x{item.stack_count}).", fg=color.enemy_neutral, target=self.parent)
-                else:
-                    self.engine.message_log.add_message(f"{g(self.parent.name, '이')} {g(item.name, '을')} 땅에 떨어뜨렸다.", fg=color.enemy_neutral, target=self.parent)
+        item.place(drop_x, drop_y, drop_gamemap)# self.gamemap belongs to BaseComponent, which is equivalent to self.parent.gamemap.
 
         self.update_burden()
-        return True
-    
-    def throw(self, item: Item, x: int, y: int, show_msg: bool=True) -> None:
-        """
-        Remove an item from the inventory and place it on the given location.
-        This process is more of a "teleporting item" rather than throwing, since the actual throwing/collision is handled in throwable component of an item.
-        
-        NOTE: You can only throw one item at a time.
-
-        Args:
-            show_msg:
-                Whether to show a message to the log or not.
-        """
-        # Duplicate and place the item
-        spliten_item = item.copy(gamemap=item.gamemap)
-        spliten_item.stack_count = 1
-        self.decrease_item_stack(item, remove_count=1) # NOTE: Curse/droppable check in inputhandler
-        spliten_item.place(x, y, self.gamemap)
-
-        if show_msg:
-            if self.parent == self.engine.player:
-                self.engine.message_log.add_message(f"당신은 {g(item.name, '을')} 던졌다.", fg=color.player_neutral_important)
-            else:
-                self.engine.message_log.add_message(f"{g(self.parent.name, '이')} {g(item.name, '을')} 던졌다.", fg=color.enemy_unique, target=self.parent)
-
-        self.update_burden()
-        return True
+        return None
 
     def sort_inventory(self) -> None:
         """
@@ -184,16 +169,23 @@ class Inventory(BaseComponent):
             
         self.item_hotkeys = dict(sorted(self.item_hotkeys.items(), key=sort_hotkeys))
 
-    def add_item(self, item: Item) -> None:
+    def add_item(self, item: Item) -> bool:
         """
         Add item to inventory. Also stack items if possible.
         Using this function is recommended instead of using .append()
+        Return:
+            Whether the adding was successful or not
         """
+        if self.check_if_full():
+            self.engine.message_log.add_message("인벤토리가 가득 찼습니다.", fg=color.impossible)
+            return False
+
         if item.stackable:
             for inv_item in self.items:
                 if item.item_state.check_if_state_identical(inv_item):
                     inv_item.stack_count += item.stack_count # Stack item
-                    return None
+                    self.update_burden()
+                    return True
         item.parent = self
 
         # Allocate alphabets
@@ -203,7 +195,7 @@ class Inventory(BaseComponent):
                 break
 
         self.update_burden()
-        return None
+        return True
 
     def get_key_of(self, item: Item) -> Optional[str]:
         for key, inv_item in self.item_hotkeys.items():
@@ -231,11 +223,11 @@ class Inventory(BaseComponent):
         """
         if item.stack_count > 0 and remove_count > item.stack_count:
             raise Exception("FATAL ERROR::Cannot remove item stack count higher than its original stack count. - inventory.decrease_item_stack")
-        elif remove_count < 0:
-            raise Exception("FATAL ERROR::Cannot remove stack count by negative integer. - inventory.decrease_item_stack")
         elif remove_count == 0:
             print("WARNING::Tried to remove stack count by 0. Possibly an error?")
         else:
+            if remove_count < 0:
+                print("WARNING::Remove stack count by negative integer. - inventory.decrease_item_stack")
             item.stack_count -= remove_count
             if item.stack_count == 0:
                 self.delete_item_from_inv(item)
@@ -244,38 +236,33 @@ class Inventory(BaseComponent):
         self.update_burden()
         return None
 
-    def split_item(self, item: Item, split_amount: int=1) -> None:
+    def split_item(self, item: Item, split_amount: int=1) -> Optional[Item]:
         """
-        De-stack / Split an item from a pile.
+        De-stack / Split an item from a pile, and return the item.
+        WARNING: This function does not automatically puts item in the inventory.
         """
         if item.stack_count <= 1:
-            raise Impossible(f"{g(item.name, '은')} 더 이상 나눌 수 없습니다.")
+            self.engine.message_log.add_message(f"{g(item.name, '은')} 더 이상 나눌 수 없습니다.", fg=color.impossible)
+            # This part of the code should never be reached. filtered from input handler.
+            return None
 
         if item.stack_count > split_amount:
             if  split_amount >= 1:
                 # Create new stack
-                spliten_item = item.copy(gamemap=item.gamemap)
+                spliten_item = item.copy(gamemap=item.gamemap, exact_copy=True)
                 spliten_item.stack_count = split_amount
-                spliten_item.stackable = False
 
                 # Remove item from stack
-                self.decrease_item_stack(item, remove_count=split_amount) # NOTE: Curse/droppable check in inputhandler
-
-                # Drop item to the floor if there is no room in the inventory
-                if len(self.items) >= self.capacity:
-                    spliten_item.place(self.parent.x, self.parent.y, self.gamemap)
-                else:
-                    self.add_item(spliten_item)
-
-                # Reset the stackable of the copied item.
-                # NOTE: This line of code is important, since it lets items to be stacked again even after they are spliten.
-                spliten_item.stackable = True
-                spliten_item.gamemap = item.gamemap
+                self.decrease_item_stack(item, remove_count=split_amount) # item is removed automatically, but is not added automatically.
                 return spliten_item
             else:
-                raise Impossible(f"최소한 하나 이상을 선택하세요.")
+                self.engine.message_log.add_message(f"최소한 하나 이상을 선택하세요.", fg=color.impossible)
+                # This part of the code should never be reached. filtered from input handler.
+                return None
         else:
-            raise Impossible(f"최대 {item.stack_count - 1}개 까지만 선택할 수 있습니다.")
+            self.engine.message_log.add_message(f"최대 {item.stack_count - 1}개 까지만 선택할 수 있습니다.", fg=color.impossible)
+            # This part of the code should never be reached. filtered from input handler.
+            return None
 
     def check_has_enough_money(self, amount: int) -> bool:
         """check if there is enough money(shine) in this inventory component as given amount."""

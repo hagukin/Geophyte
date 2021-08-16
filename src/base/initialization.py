@@ -20,7 +20,7 @@ def init_game_variables(cfg, console: Console, context: Context):
     seed = random.random() #TODO: Let player enter whatever seed they want
 
     # Set Player TODO: Character Building
-    player = copy.deepcopy(actor_factories.player)
+    player = copy.deepcopy(actor_factories.player) # Cannot use entity.copy() yet
     # NOTE: player.initialize_actor() is called from procgen.generate_entities()
 
     # Generate Engine
@@ -58,7 +58,7 @@ def init_game_variables(cfg, console: Console, context: Context):
     engine.player.gamemap = engine.world.get_map(engine.depth)
 
     # Initialize player (give initial items, skils, etc)
-    engine.player.initialize_actor()
+    engine.player.initialize_self()
 
     # Give player a complete encyclopedia TODO: delete?
     from base.data_loader import save_actor_book

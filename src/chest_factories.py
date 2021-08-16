@@ -92,7 +92,7 @@ class ChestSemiactor(SemiActor):
             self.initial_items = initial_items
         for item in self.initial_items:
             if random.random() <= item[1]:
-                temp = item[0].copy(gamemap=self.gamemap)
+                temp = item[0].copy(gamemap=self.gamemap, exact_copy=False)
                 temp.stack_count = random.randint(item[2][0], item[2][1])
                 self.storage.add_item(temp)
 

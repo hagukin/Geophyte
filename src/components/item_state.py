@@ -39,6 +39,7 @@ class ItemState(BaseComponent):
                 0 - uncursed (regular)
                 1 - blessed
             is_identified:
+                IMPORTANT - This value indicates whether a single item object is identified, and not whether the whole item_id is identified.
                 0 - unidentified
                 1 - semi-identified (You know the id(type) of an item, but BUC is unknown)
                 2 - full-identified (You know the id(type) AND the BUC.)
@@ -77,8 +78,11 @@ class ItemState(BaseComponent):
     def unidentify_self(self):
         self.is_identified = 0 # Full-identification
         self.engine.item_manager.unidentify_type(self.parent.entity_id)
+
+    def check_if_unidentified(self) -> bool:
+        return self.is_identified == 0
     
-    def check_if_semi_identified(self):
+    def check_if_semi_identified(self) -> bool:
         """
         return True if item is semi-identified OR full-identified.
         """
@@ -87,7 +91,7 @@ class ItemState(BaseComponent):
         else:
             return False
 
-    def check_if_full_identified(self):
+    def check_if_full_identified(self) -> bool:
         """
         return True if item is full-identified.
         """
@@ -129,7 +133,7 @@ class ItemState(BaseComponent):
             print(f"ERROR::Cannot change {self.parent.entity_id}'s BUC to {BUC}")
             return False
 
-    def check_if_state_identical(self, comparing_item: Item, compare_stack_count: bool = False) -> bool:
+    def check_if_state_identical(self, comparing_item: Item, compare_stack_count: bool = False, ignore_identification_state: bool=False) -> bool:
         """
         Check if the two items received as arguments are the "same". (they might have different memory address)
         We only care about certain status that could affect the item's in-game abilities.
@@ -144,6 +148,12 @@ class ItemState(BaseComponent):
         The main reason for this is when you pick up an item,
         it should stack with the item that is in your inventory
         that has different memory address but has the exact same informations.
+
+        Args:
+            ignore_identification_state:
+                if True, the function will still return True if two items have different identified_state, other values are exactly the same.
+                Set this to True when the game has to check if the two items are technically (functionally) the same or not.
+                Set this to False otherwise. e.g. inventory stack
         """
         # 0. compare memory address
         if id(self.parent) == id(comparing_item):
@@ -157,9 +167,14 @@ class ItemState(BaseComponent):
             # 2. Compare item states
             if self.BUC != comparing_item.item_state.BUC:
                 return False
-            if self.check_if_semi_identified() != comparing_item.item_state.check_if_semi_identified()\
-                and self.check_if_full_identified() != comparing_item.item_state.check_if_full_identified():
-                return False
+            if not ignore_identification_state:
+                if self.check_if_semi_identified() != comparing_item.item_state.check_if_semi_identified()\
+                    and self.check_if_full_identified() != comparing_item.item_state.check_if_full_identified():
+                    return False
+                if self.is_identified != comparing_item.item_state.is_identified:
+                    # Even if items are technically the same, if they have different is_identified state they can be considered differnet.
+                    # e.g. When you have a set of scroll, throw one, identify others, and pick up the thrown item, the thrown item is 'different' from items you identified.
+                    return False
             if(
                 self.burntness != comparing_item.item_state.burntness or
                 self.is_burning != comparing_item.item_state.is_burning or

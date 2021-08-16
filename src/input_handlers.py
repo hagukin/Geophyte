@@ -987,9 +987,9 @@ class InventoryActionSelectHandler(AskUserEventHandler):
                 return UnequipItem(self.engine.player, self.item)
             elif key == tcod.event.K_s:
                 self.engine.event_handler = InventorySplitHandler(self.item)
-                return TurnPassAction(self.engine.player) # Spliting does cost a turn
+                return None
             elif key == tcod.event.K_t:
-                self.item.throwable.get_action(self.engine.player) # ThrowAction.perform() called internally
+                self.item.throwable.get_action(self.engine.player)
                 return None
             elif key == tcod.event.K_d:
                 return DropItem(self.engine.player, self.item)

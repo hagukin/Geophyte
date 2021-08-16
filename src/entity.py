@@ -323,15 +323,22 @@ class Entity:
                 print(f"WARNING::entity.remove_self() - Tried to remove {self.name}, but its not in gamemap.entities. (It has self.gamemap)")
                 pass
 
-    def copy(self, gamemap: GameMap) -> Entity:
+    def initialize_self(self) -> None:
+        """Initialize this entity.
+        Most of the time it is overwritten."""
+        pass
+
+    def copy(self, gamemap: GameMap, exact_copy: bool=False) -> Entity:
         clone = copy.deepcopy(self)
         clone.gamemap = gamemap
+        if not exact_copy:
+            clone.initialize_self()
         return clone
 
-    def spawn(self: T, gamemap: GameMap, x: int, y: int) -> T:
+    def spawn(self: T, gamemap: GameMap, x: int, y: int, exact_copy: bool=False) -> T:
         """Spawn a new copy of this instance at the given location.
         NOTE: So technically you are not spawning THIS SPECIFIC ENTITY, instead you are copying this entity and spawning the copy."""
-        clone = self.copy(gamemap)
+        clone = self.copy(gamemap, exact_copy=exact_copy) # Most of the time, spawn() will have exact_copy param as False
         clone.x = x
         clone.y = y
         clone.gamemap = gamemap
@@ -551,11 +558,12 @@ class Actor(Entity):
 
     def drop_all_items(self) -> None:
         """Drop all items this status' parent owns. Mainly used during die()"""
+        from actions import DropItem
         drop_list = []
         for item in self.inventory.items:
             drop_list.append(item)
         for drop_item in drop_list:
-            self.inventory.drop(item=drop_item, show_msg=False)
+            DropItem(entity=self, item=drop_item).perform()
 
     def drop_corpse(self) -> None:
         if self.edible:  # if edible is None, no corpse is spawned.
@@ -670,7 +678,7 @@ class Actor(Entity):
     def initialize_actor_possesion(self, args) -> Item:
         """Initialize items that the actor owns.
         a single args represents a single item."""
-        temp = args["item"].copy(gamemap=self.gamemap)
+        temp = args["item"].copy(gamemap=self.gamemap, exact_copy=False)
         temp.stack_count = random.randint(args["count"][0], args["count"][1])
         temp.parent = self.inventory
 
@@ -682,7 +690,7 @@ class Actor(Entity):
         self.inventory.add_item(temp)
         return temp
 
-    def initialize_actor(self):
+    def initialize_self(self) -> None:
         """
         Sets initial items, abilities, and equipments of this actor.
         This method is called from spawn().
@@ -701,9 +709,11 @@ class Actor(Entity):
             if random.random() <= ability[1]:
                 self.ability_inventory.add_ability(ability[0].copy())
 
-    def copy(self, gamemap: GameMap):
-        clone = super().copy(gamemap=gamemap)
-        clone.initialize_actor() # must be called after entity.copy(gamemap)
+    def copy(self, gamemap: GameMap, exact_copy: bool=False):
+        """
+        No additional input required
+        """
+        clone = super().copy(gamemap=gamemap, exact_copy=exact_copy)
         return clone
 
     def spawn(self: T, gamemap: GameMap, x: int, y: int, is_active: bool=False) -> T:
@@ -980,7 +990,7 @@ class Item(Entity):
         NOTE: If dicount value is over 1, the function will return an overrated price for the item.
         """
         if self.item_type.value == InventoryOrder.GEM.value:
-            if self.item_state.is_identified == 0:
+            if self.item_state.check_if_unidentified():
                 if is_shopkeeper_is_selling:
                     return round(discount * 3000)
                 else:
@@ -1028,7 +1038,7 @@ class Item(Entity):
             upgrade = random.choices(list(using.keys()), list(using.values()), k=1)[0]
             self.equipable.upgrade_this(amount=upgrade)
 
-    def initialize_item(self):
+    def initialize_self(self):
         """
         Sets initial BUC, identification status, etc.
         This method is called from spawn().
@@ -1037,17 +1047,20 @@ class Item(Entity):
         self.initialize_BUC(use_custom=None)
         self.initialize_upgrade(use_custom=None)
 
-    def copy(self, gamemap: GameMap, parent: Optional[Inventory]=None):
-        clone = super().copy(gamemap=gamemap)
+    def copy(self, gamemap: GameMap, exact_copy: bool=False, parent: Optional[Inventory]=None):
+        """
+        Item initialized at super.copy()
+        """
+        clone = super().copy(gamemap=gamemap, exact_copy=exact_copy)
         clone.parent = parent
-        clone.initialize_item() # must be called after entity.copy(gamemap) so that gamemap is set
         return clone
 
-    def spawn(self: T, gamemap: GameMap, x: int, y: int) -> T:
+    def spawn(self: T, gamemap: GameMap, x: int, y: int, exact_copy: bool=False) -> T:
         """
         Spawn a copy of this instance at the given location.
+        Item cannot be spawned with parent(Inventory)
         """
-        clone = super().spawn(gamemap, x, y)
+        clone = super().spawn(gamemap, x, y, exact_copy)
         return clone
 
     def update_component_parent_to(self, item: Item) -> None:
@@ -1186,8 +1199,8 @@ class SemiActor(Entity):
     def remove_self(self):
         super().remove_self()
 
-    def copy(self, gamemap: GameMap, lifetime: int=3) -> SemiActor:
-        clone = super(SemiActor, self).copy(gamemap)
+    def copy(self, gamemap: GameMap, exact_copy: bool=False, lifetime: int=3) -> SemiActor:
+        clone = super().copy(gamemap=gamemap, exact_copy=exact_copy)
         clone.lifetime = lifetime
         return clone
         
