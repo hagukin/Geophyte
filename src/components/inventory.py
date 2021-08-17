@@ -59,7 +59,7 @@ class Inventory(BaseComponent):
             self.parent.actor_state.previous_encumbrance = self.parent.actor_state.encumbrance
             self.parent.actor_state.encumbrance = 1
             if self.parent.actor_state.previous_encumbrance != self.parent.actor_state.encumbrance:
-                self.engine.message_log.add_message("당신은 약간의 불편함을 느낀다.", fg=color.player_white)
+                self.engine.message_log.add_message("당신은 약간의 불편함을 느낀다.", fg=color.white)
                 self.parent.status.add_bonus(Bonus("burden_bonus", bonus_agility=-1, bonus_dexterity=-1))
         elif w < strength * 4:
             self.parent.actor_state.previous_encumbrance = self.parent.actor_state.encumbrance

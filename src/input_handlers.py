@@ -1475,7 +1475,8 @@ class LookHandler(SelectIndexHandler):
     def on_index_selected(self, x: int, y: int) -> None:
         """Return to main handler."""
         from entity import Actor, Item, SemiActor
-        entity = self.engine.game_map.get_any_entity_at_location(x, y)
+        entity = self.engine.game_map.get_any_type_entity_prioritize_actor_item_semiactor(x=x, y=y) # View entity
+
         if isinstance(entity, Actor):
             from book import MonsterInfoHandler
             self.engine.event_handler = MonsterInfoHandler(entity, page=None)

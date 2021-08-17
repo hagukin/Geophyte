@@ -66,8 +66,8 @@ def main() -> None:
                         context.present(root_console, keep_aspect=True)
 
                 ### WRITE DEBUG FUNCTIONS HERE ###
-                # for k, v in engine.world.mem_world.items():
-                #     print(k, v)
+
+
 
             except Exception:
                 # Print error to stderr then print the error to the message log

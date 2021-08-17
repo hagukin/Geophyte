@@ -966,7 +966,7 @@ wooden_shield = Item(
     item_state=ItemState(is_identified=1),
     flammable=0.2,
     corrodible=0.04,
-    spawnable=False,
+    spawnable=True,
     droppable=True,
     stackable=False,
     throwable=throwable.NormalThrowable(base_throw=0, additional_throw=0, penetration=False, air_friction=55),
@@ -991,7 +991,7 @@ silver_shield = Item(
     item_state=ItemState(is_identified=1),
     flammable=0,
     corrodible=0,
-    spawnable=False,
+    spawnable=True,
     droppable=True,
     stackable=False,
     throwable=throwable.NormalThrowable(base_throw=0, additional_throw=0, penetration=False, air_friction=55),
@@ -1016,7 +1016,7 @@ platinum_shield = Item(
     item_state=ItemState(is_identified=1),
     flammable=0,
     corrodible=0,
-    spawnable=False,
+    spawnable=True,
     droppable=True,
     stackable=False,
     throwable=throwable.NormalThrowable(base_throw=0, additional_throw=0, penetration=False, air_friction=55),
@@ -1041,7 +1041,7 @@ iron_shield = Item(
     item_state=ItemState(is_identified=1),
     flammable=0.2,
     corrodible=0.02,
-    spawnable=False,
+    spawnable=True,
     droppable=True,
     stackable=False,
     throwable=throwable.NormalThrowable(base_throw=0, additional_throw=0, penetration=False, air_friction=55),
@@ -1060,6 +1060,7 @@ item_rarity.append(iron_shield.rarity)
 ### Amulet of Kugah
 amulet_of_kugah = Item(
     indestructible=True,
+    should_initialize=False,
     should_randomize=False,
     char="⊕",
     fg = (255, 72, 0),
@@ -1081,7 +1082,9 @@ amulet_of_kugah = Item(
     stackable=False,
     throwable=throwable.NormalThrowable(base_throw=1, additional_throw=2, penetration=False, air_friction=15),
     equipable=equipable.AmuletOfKugahEquipable(),
-    edible=None
+    edible=None,
+    initial_BUC={1:1, 0:0, -1:0},
+    initial_upgrades={0:1}
 )
 temp_items_lists.append(amulet_of_kugah)
 item_rarity.append(amulet_of_kugah.rarity)

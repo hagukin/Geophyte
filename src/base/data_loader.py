@@ -8,14 +8,12 @@ def save_game(player, engine):
     # Serialize all cached gamemaps
     engine.world.save_world()
 
-    with shelve.open(os.getcwd()+"\\storage\\data\\game", "n") as gamedata:
+    with shelve.open(os.getcwd()+"\\storage\\data\\game") as gamedata:
         # prevent pickle lib error(cannot serialize c objects)
-        from game import Game
-
-        temp_console = Game.engine.console
-        temp_context = Game.engine.context
-        Game.engine.console = None
-        Game.engine.context = None
+        temp_console = engine.console
+        temp_context = engine.context
+        engine.console = None
+        engine.context = None
 
         # Player
         gamedata["player_index"] = engine.game_map.entities.index(player) # Save the index number of a player instead of the entire object to reduce savefile size.
@@ -24,6 +22,8 @@ def save_game(player, engine):
         gamedata["engine"] = engine
         engine.console = temp_console
         engine.context = temp_context
+
+        gamedata.close()
 
 
 def load_game():

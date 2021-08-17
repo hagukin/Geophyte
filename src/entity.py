@@ -346,10 +346,13 @@ class Entity:
         return clone
 
     def place(self, x: int, y: int, gamemap: Optional[GameMap] = None) -> None:
-        """Place this entitiy at a new location.  Handles moving across GameMaps."""
+        """
+        Place this entitiy at a new location.
+        If new gamemap is given, remove entity from previous gamemap, and place it onto new gamemap."""
         self.x = x
         self.y = y
         if gamemap:
+            self.gamemap.remove_entity(self)
             self.gamemap = gamemap
             gamemap.entities.append(self)
 
@@ -678,15 +681,15 @@ class Actor(Entity):
     def initialize_actor_possesion(self, args) -> Item:
         """Initialize items that the actor owns.
         a single args represents a single item."""
-        temp = args["item"].copy(gamemap=self.gamemap, exact_copy=False)
+        temp = args["item"].copy(gamemap=self.gamemap, exact_copy=False) # First initialization done here
+
+        # Override initialization if one of these values are not None (using custom)
+        temp.initialize_BUC(use_custom=args["BUC"]) # Override initialized values
+        temp.initialize_upgrade(use_custom=args["upgrade"])
+
         temp.stack_count = random.randint(args["count"][0], args["count"][1])
         temp.parent = self.inventory
 
-        if args["BUC"] != None or "BUC" not in args.keys():
-            temp.initialize_BUC(use_custom=args["BUC"])
-        if args["upgrade"] != None and temp.equipable or "upgrade" not in args.keys():
-            temp.equipable.reset_upgrade()
-            temp.initialize_upgrade(use_custom=args["upgrade"])
         self.inventory.add_item(temp)
         return temp
 
@@ -804,6 +807,7 @@ class Item(Entity):
         indestructible: bool = False,
         x: int = 0,
         y: int = 0,
+        should_initialize: bool = True,
         should_randomize: bool = False,
         char: str = "?",
         fg: Tuple[int, int, int] = (255, 255, 255),
@@ -843,7 +847,7 @@ class Item(Entity):
         lockpickable: Tuple[float, float] = (0, 0),
         counter_at_front: bool = False,
         initial_BUC=None,
-        initial_upgrades: List = None, #TODO
+        initial_upgrades=None,
     ):
         """
         Args:
@@ -882,6 +886,7 @@ class Item(Entity):
             blocks_sight=blocks_sight,
             render_order=RenderOrder.ITEM,
         )
+        self.should_initialize = should_initialize
         self.should_randomize = should_randomize
         self.parent = parent
         self.weight = weight
@@ -926,7 +931,7 @@ class Item(Entity):
 
         self.counter_at_front = counter_at_front
 
-        if initial_BUC is None:
+        if initial_BUC == None:
             self.initial_BUC = {1: 1, 0: 8, -1: 2} # Default not-cursed
         else:
             self.initial_BUC = initial_BUC
@@ -1043,9 +1048,10 @@ class Item(Entity):
         Sets initial BUC, identification status, etc.
         This method is called from spawn().
         """
-        self.item_state.parent = self
-        self.initialize_BUC(use_custom=None)
-        self.initialize_upgrade(use_custom=None)
+        if self.should_initialize:
+            self.item_state.parent = self
+            self.initialize_BUC(use_custom=None)
+            self.initialize_upgrade(use_custom=None)
 
     def copy(self, gamemap: GameMap, exact_copy: bool=False, parent: Optional[Inventory]=None):
         """

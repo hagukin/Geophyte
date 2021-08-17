@@ -114,6 +114,17 @@ class GameMap:
         else:
             return True
 
+    def get_any_type_entity_prioritize_actor_item_semiactor(self, x: int, y: int) -> Optional[Entity]:
+        """Get any entity. Priority - Actor > item > semiactor"""
+        temp = None
+        for entity in self.engine.game_map.entities:
+            if entity.x == x and entity.y == y:
+                if isinstance(entity, Actor) or temp == None:
+                    temp = entity
+                elif isinstance(entity, Item) and isinstance(temp, SemiActor):
+                    temp = entity
+        return temp
+
     def get_all_entities_at_location(self, location_x, location_y) -> Iterator[Entity]:
         yield from (entity for entity in self.entities if entity.x == location_x and entity.y == location_y)
 
@@ -343,8 +354,8 @@ class GameMap:
 
             # Check if there is enough monsters in this gamemap or not
             actor_num = 0
-            for entity in self.entities:
-                if isinstance(entity, Actor) and not entity.is_dead:
+            for entity in self.actors:
+                if entity.is_dead and entity.entity_id != "maggot": # Ignore maggots
                     actor_num += 1
 
             if actor_num > int(self.starting_monster_num * self.respawn_ratio):

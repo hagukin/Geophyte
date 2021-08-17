@@ -439,6 +439,7 @@ class ScrollOfMeteorStormReadable(Readable): #TODO: Make parent class like other
                     real_damage *= 1.2
                 elif self.parent.item_state.BUC == -1:
                     real_damage *= 0.8
+                real_damage = round(real_damage)
                 target.status.take_damage(amount=real_damage, attacked_from=consumer)
 
                 # Log
@@ -631,6 +632,7 @@ class ScrollOfScorchingRayReadable(RayReadable):
             real_damage *= 1.2
         elif self.parent.item_state.BUC == -1:
             real_damage *= 0.8
+        real_damage = round(real_damage)
 
         # Log
         if target == self.engine.player:
@@ -653,6 +655,7 @@ class ScrollOfFreezingRayReadable(RayReadable):
             real_damage *= 1.2
         elif self.parent.item_state.BUC == -1:
             real_damage *= 0.8
+        real_damage = round(real_damage)
 
         # Log
         if target == self.engine.player:

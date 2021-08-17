@@ -43,7 +43,13 @@ class World():
     def seed(self):
         return copy.deepcopy(self.__seed) # Prevent passing a reference
 
+    @property
+    def depths_in_mem(self):
+        """When changing this function, check check_if_should_exist_in_memory() for any change."""
+        return list(self.mem_world.keys()) + self.depths_that_are_permanently_on_memory
+
     def check_if_should_exist_in_memory(self, depth: int) -> bool:
+        """When changing this function, check depths_in_mem() for any change."""
         if (depth >= self.engine.depth - self.mem_capacity and depth <= self.engine.depth + self.mem_capacity) or depth in self.depths_that_are_permanently_on_memory:
             return True
         return False
@@ -60,12 +66,10 @@ class World():
         return None
 
     def save_map_to_serialized_data(self, gamemap, depth:int) -> None:
-        with shelve.open(os.getcwd()+f"\\storage\\data\\game") as save_file:
+        with shelve.open(os.getcwd()+f"\\storage\\data\\game") as gamedata:
             # prevent pickle lib error(cannot serialize c objects)
-            if gamemap == None:
-                print("D")
-            save_file["cache_depth_"+str(depth)] = gamemap
-            save_file.close()
+            gamedata["cache_depth_"+str(depth)] = gamemap
+            gamedata.close()
 
     def load_map_from_memory(self, depth: int):
         return self.mem_world[depth]
@@ -76,8 +80,9 @@ class World():
         if not os.path.isfile(os.getcwd()+f"\\storage\\data\\game.dat"):
             raise FileNotFoundError
 
-        with shelve.open(os.getcwd()+f"\\storage\\data\\game") as save_file:
-            gamemap = save_file["cache_depth_"+str(depth)]
+        with shelve.open(os.getcwd()+f"\\storage\\data\\game") as gamedata:
+            gamemap = gamedata["cache_depth_"+str(depth)]
+            gamedata.close()
         return gamemap
 
     def optimize(self) -> None:
@@ -103,7 +108,7 @@ class World():
 
     def save_mem(self):
         """Update saved maps"""
-        for depth in self.mem_world.keys():
+        for depth in self.depths_in_mem:
             if self.check_if_map_on_mem(depth):
                 self.save_map_to_serialized_data(self.load_map_from_memory(depth), depth)
 

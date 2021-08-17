@@ -1100,7 +1100,7 @@ class DoorBreakAction(ActionWithDirection):
 class DoorOpenAction(ActionWithDirection):
     
     def open_door(self, door: SemiActor, dexterity: int, intelligence: int) -> None:
-        open_fail = random.randint(0, 12)
+        open_fail = random.randint(4, 12) # dex lower than 4 always fails to open the door, higher than 12 always success
             
         if open_fail > dexterity: # check if the actor failed to open the door
             if self.entity == self.engine.player:
