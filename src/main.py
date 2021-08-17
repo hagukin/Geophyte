@@ -68,15 +68,6 @@ def main() -> None:
                 ### WRITE DEBUG FUNCTIONS HERE ###
                 # for k, v in engine.world.mem_world.items():
                 #     print(k, v)
-                # print(engine.player.status.changed_status.items())
-                # print(engine.player.status.changed_melee_effect_set)
-                # print(engine.player.equipments.equipments.items())
-                # for e in engine.game_map.items:
-                #     print(e.entity_id + str(e.item_state.BUC))
-                #     if e.equipable:
-                #         print(e.equipable.upgrade)
-                #     print("#######################################")
-                # print(engine.player.actor_state.hunger)
 
             except Exception:
                 # Print error to stderr then print the error to the message log
