@@ -669,7 +669,7 @@ def debug(dungeon, save_as_txt: bool = False):
     """
     import sys
     if save_as_txt:
-        sys.stdout = open('./saves/procgen_debug.txt', 'a')
+        sys.stdout = open('storage/procgen_debug.txt', 'a')
     
     print("\n")
     

@@ -5,6 +5,7 @@ import color
 import exceptions
 import random
 
+from game import Game
 from components.inventory import Inventory
 from korean import grammar as g
 
@@ -26,7 +27,7 @@ class Action:
 
     @property
     def engine(self) -> Engine:
-        return self.entity.gamemap.engine
+        return Game.engine
 
     def perform(self) -> None:
         """
@@ -1154,7 +1155,8 @@ class DoorOpenAction(ActionWithDirection):
         intelligence = self.entity.status.changed_status["intelligence"]
 
         if not semiactor_on_dir:
-            raise exceptions.Impossible("이 곳에는 문이 없다.")
+            self.engine.message_log.add_message("이 곳에는 문이 없다.", fg=color.impossible)
+            return None
         elif semiactor_on_dir.entity_id == "closed_door":
             can_open_door = self.check_can_open_door(dexterity, intelligence)
             

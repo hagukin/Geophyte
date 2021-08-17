@@ -66,6 +66,8 @@ def main() -> None:
                         context.present(root_console, keep_aspect=True)
 
                 ### WRITE DEBUG FUNCTIONS HERE ###
+                # for k, v in engine.world.mem_world.items():
+                #     print(k, v)
                 # print(engine.player.status.changed_status.items())
                 # print(engine.player.status.changed_melee_effect_set)
                 # print(engine.player.equipments.equipments.items())

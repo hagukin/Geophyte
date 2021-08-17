@@ -5,7 +5,10 @@ import copy
 
 
 def save_game(player, engine):
-    with shelve.open(os.getcwd()+"\\saves\\save_file", "n") as save_file:
+    # Serialize all cached gamemaps
+    engine.world.save_world()
+
+    with shelve.open(os.getcwd()+"\\storage\\data\\game", "n") as gamedata:
         # prevent pickle lib error(cannot serialize c objects)
         from game import Game
 
@@ -15,20 +18,20 @@ def save_game(player, engine):
         Game.engine.context = None
 
         # Player
-        save_file["player_index"] = engine.game_map.entities.index(player) # Save the index number of a player instead of the entire object to reduce savefile size.
+        gamedata["player_index"] = engine.game_map.entities.index(player) # Save the index number of a player instead of the entire object to reduce savefile size.
 
         # Engine
-        save_file["engine"] = engine
+        gamedata["engine"] = engine
         engine.console = temp_console
         engine.context = temp_context
 
 
 def load_game():
     # Check if file exists (os.getcwd() = current folder directory)
-    if not os.path.isfile(os.getcwd()+"\\saves\\save_file.dat"):
+    if not os.path.isfile(os.getcwd()+"\\storage\\data\\game.dat"):
         raise FileNotFoundError
 
-    with shelve.open(os.getcwd()+"\\saves\\save_file", "r") as savefile:
+    with shelve.open(os.getcwd()+"\\storage\\data\\game", "r") as savefile:
         player_index = savefile["player_index"]
         engine = savefile["engine"]
         engine.player = engine.game_map.entities[player_index]
@@ -40,7 +43,7 @@ def quit_game():
 
 
 def save_actor_book(get_all_monsters: bool=False):
-    with shelve.open(os.getcwd() + "\\saves\\book\\book", "n") as f:
+    with shelve.open(os.getcwd() + "\\storage\\book\\book", "n") as f:
         if get_all_monsters:
             # reset and init dictionary
             from book import monchar
@@ -66,11 +69,11 @@ def save_actor_book(get_all_monsters: bool=False):
 
 def load_book():
     # Check if file exists (os.getcwd() = current folder directory)
-    if not os.path.isfile(os.getcwd() + "\\saves\\book\\book.dat"):
+    if not os.path.isfile(os.getcwd() + "\\storage\\book\\book.dat"):
         raise FileNotFoundError
 
     import book
-    with shelve.open(os.getcwd() + "\\saves\\book\\book", "r") as b:
+    with shelve.open(os.getcwd() + "\\storage\\book\\book", "r") as b:
         book.actor_db = b["actors"]
     return book.actor_db
 
@@ -78,15 +81,15 @@ def load_book():
 def delete_saved_game() -> None:
     # Check if file exists (os.getcwd() = current folder directory)
     import os
-    if not os.path.isfile(os.getcwd()+"\\saves\\save_file.dat"):
+    if not os.path.isfile(os.getcwd()+"\\storage\\data\\game.dat"):
         print("ERROR::Savefile not found. - delete_saved_game()")
         return None
 
     import os
     try:
-        os.remove(os.getcwd()+"\\saves\\save_file.dat")
-        os.remove(os.getcwd() + "\\saves\\save_file.bak")
-        os.remove(os.getcwd() + "\\saves\\save_file.dir")
+        os.remove(os.getcwd()+"\\storage\\data\\game.dat")
+        os.remove(os.getcwd() + "\\storage\\data\\game.bak")
+        os.remove(os.getcwd() + "\\storage\\data\\game.dir")
     except Exception as e:
         print(f"WARNING::{e}")
     return None

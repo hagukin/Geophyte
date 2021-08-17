@@ -326,12 +326,9 @@ class GameMap:
             #     or actor.actor_state.is_detecting_obj[2]:
             #     self.update_additional_vision(actor=actor)
 
-    def adjustments_before_new_map(self, update_player_fov: bool=False):
+    def adjustments_before_new_map(self):
         self.remove_dup_entities()
         self.sort_entities()
-        if update_player_fov:
-            self.engine.update_fov()
-            self.engine.update_entity_in_sight(is_initialization=True)
         self.update_enemy_fov(is_initialization=True)
 
     def respawn_monsters(self) -> None:

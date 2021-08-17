@@ -52,20 +52,28 @@ def init_game_variables(cfg, console: Console, context: Context):
     console.print(int(console.width/2) - 4, int(console.height/2), "던전 초기화 중", fg=color.procgen_fg, bg=color.procgen_bg)
     console.print(int(console.width / 2) - 12, int(console.height / 2)+2, "이 작업은 약간의 시간이 걸릴 수 있습니다.", fg=color.procgen_fg, bg=color.procgen_bg)
     context.present(console=console, keep_aspect=True)
-    engine.world.set_map(engine.generate_new_dungeon(console, context, 1, False), 1)
-    engine.change_gamemap_depth(1)
-    engine.change_entity_depth(engine.player, 1, engine.game_map.ascend_loc[0], engine.game_map.ascend_loc[1])
-    engine.player.gamemap = engine.world.get_map(engine.depth)
 
-    # Initialize player (give initial items, skils, etc)
-    engine.player.initialize_self()
+
+    engine.depth = 1
+    engine.world.save_map_to_memory(engine.generate_new_dungeon(console, context, engine.depth, False), engine.depth)
+    engine.game_map = engine.world.get_map(depth=engine.depth) # Has to manually set player gamemap so that
+
+    # Normally setting up gamemap is handled in entity.copy(gamemap=gamemap), but this is the only exception.
+    engine.player.gamemap = engine.game_map
+
+    # You should not directly use .append
+    # but this is an exception.
+    engine.player.gamemap.entities.append(engine.player)
+
+    engine.player.initialize_self() # Initialize player (give initial items, skils, etc)
+    engine.game_map.adjustments_before_new_map()
+    engine.change_entity_depth(entity=engine.player, depth=engine.depth, xpos=engine.game_map.ascend_loc[0], ypos=engine.game_map.ascend_loc[1])
+    engine.world.save_world()
 
     # Give player a complete encyclopedia TODO: delete?
     from base.data_loader import save_actor_book
     save_actor_book(get_all_monsters=True)
 
-
-    engine.game_map.adjustments_before_new_map(update_player_fov=True)
     return engine
 
 def update_game_variables(engine: Engine):

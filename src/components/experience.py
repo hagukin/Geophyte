@@ -199,7 +199,7 @@ class Experience(BaseComponent):
         self.mp_exp += int(amount * 0.5)
         self.level_up()
 
-        print(f"DEBUG::{self.parent.parent} gained strength")
+        # print(f"DEBUG::{self.parent.parent} gained strength")
     
     def gain_dexterity_exp(self, amount, dex_limit=inf, exp_limit=inf, chance:float = 1) -> None:
         """
@@ -217,7 +217,7 @@ class Experience(BaseComponent):
         self.mp_exp += int(amount * 1)
         self.level_up()
 
-        print(f"DEBUG::{self.parent.parent} gained dexterity")
+        # print(f"DEBUG::{self.parent.parent} gained dexterity")
 
     def gain_constitution_exp(self, amount, con_limit=inf, exp_limit=inf, chance: float = 1) -> None:
         """
@@ -235,7 +235,7 @@ class Experience(BaseComponent):
         self.mp_exp += int(amount * 1.5)
         self.level_up()
 
-        print(f"DEBUG::{self.parent.parent} gained constitution")
+        # print(f"DEBUG::{self.parent.parent} gained constitution")
 
     def gain_agility_exp(self, amount, agi_limit=inf, exp_limit=inf, chance: float = 1) -> None:
         """
@@ -253,7 +253,7 @@ class Experience(BaseComponent):
         self.mp_exp += int(amount * 1)
         self.level_up()
 
-        print(f"DEBUG::{self.parent.parent} gained agility")
+        # print(f"DEBUG::{self.parent.parent} gained agility")
 
     def gain_intelligence_exp(self, amount, int_limit=inf, exp_limit=inf, chance: float = 1) -> None:
         """
@@ -271,7 +271,7 @@ class Experience(BaseComponent):
         self.mp_exp += int(amount * 2.5)
         self.level_up()
 
-        print(f"DEBUG::{self.parent.parent} gained intelligence")
+        # print(f"DEBUG::{self.parent.parent} gained intelligence")
 
     def gain_charm_exp(self, amount, char_limit=inf, exp_limit=inf, chance: float = 1) -> None:
         """
@@ -289,4 +289,4 @@ class Experience(BaseComponent):
         self.mp_exp += int(amount * 0.5)
         self.level_up()
 
-        print(f"DEBUG::{self.parent.parent} gained charm")
+        # print(f"DEBUG::{self.parent.parent} gained charm")

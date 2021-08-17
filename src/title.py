@@ -1,7 +1,7 @@
 from base.initialization import init_game_variables
 from base.data_loader import load_game
 from render import render_img
-from base.data_loader import quit_game
+from base.data_loader import quit_game, delete_saved_game
 
 import color
 import tcod
@@ -160,6 +160,7 @@ class Title():
 
             # Get input from title screen
             if title_action == "new_game":
+                delete_saved_game()
                 engine = init_game_variables(cfg, console, context)
                 engine.message_log.add_message(f"{engine.player.name}님, 지오파이트의 세계에 오신 것을 환영합니다!", color.welcome_text)
                 return engine

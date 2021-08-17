@@ -77,7 +77,7 @@ class Engine:
         self.camera: Camera = None
         self.world = None
         self.game_map: GameMap = None
-        self.depth: int = 0
+        self.depth: int = 0 # NOTE: engine.depth != gamemap.depth. Latter is a constant.
         self.item_manager: ItemManager = None
         self.toughness = 0
         self.easteregg = 0
@@ -111,52 +111,53 @@ class Engine:
 
         return None
 
-    def change_gamemap_depth(self, depth: int) -> None:
-        """Change the current floor as given depth. Generate new gamemap if there are no gamemap of the given depth.
-        NOTE: Calling this method solely is not recommended. Try using DescendAction.perform()"""
-        goal_depth = depth
-        if not self.world.check_has_map(goal_depth):
-            raise Exception("ERROR::engine.change_gamemap_depth() - gamemap not generated")
-
-        if not self.world.check_has_map(goal_depth+1): # Check if gamemap below the goal depth already exists. (Pre-generating a level for falling down to next level and stuffs)
-            self.world.set_map(self.generate_new_dungeon(depth=goal_depth+1, console=self.console, context=self.context), goal_depth+1)
-        
-        self.game_map = self.world.get_map(goal_depth)
-        self.depth = goal_depth
-
-        # Update serialized map
-        for depth in self.world.saved_maps:
-            self.world.update_map(depth)
-
-        # Optimize memory
-        self.world.optimize()
-
-        # Adjust things (AI's vision is initialized here)
-        self.game_map.adjustments_before_new_map(update_player_fov=False)##TEST TODO
-
     def change_entity_depth(self, entity: Entity, depth: int, xpos: int, ypos: int) -> None:
         """This function does not prevent entity from falling onto a wall.
         This means entity can get stuck after falling(going down a level), 
         so you should calculate the appropriate xpos, ypos in advance and pass it to this function.
         """
-        if not self.world.check_has_map(depth): # If there is no level below current level, randomize new level.
-            print("ERROR::Something went wrong, Pre-generated level missing!")
-            self.world.set_map(self.generate_new_dungeon(depth=depth, console=self.console, context=self.context, display_process=False), depth)
+        if not self.world.check_if_map_on_mem(depth):
+            # neither player nor other entities cannot move outside of memory capacity.
+            # TODO: Might have to fix this part to make feature like multiple depth teleportation
+            print(f"FATAL ERROR::SOMETHING WENT WRONG, CANNOT FIND MAP FROM MEMORY. ENTITY SHOULD NOT BE ABLE TO REACH DEPTH {depth}, which is higher than (current engine depth + world.mem_capacity). (={self.depth+self.world.mem_capacity}). FUNCTION CANCELLED.")
+            return None # do nothing
 
-        if entity == self.player:
-            self.change_gamemap_depth(depth)
+        if entity == self.player: # Map can be only generated when player moves.
+            # world[depth] should've been already generated from previous map generations.
+            if not self.world.check_if_map_has_been_generated(depth):
+                raise Exception(f"FATAL ERROR::SOMETHING WENT WRONG. PLAYER IS JUMPING TO DEPTH {self.depth} TO NONGENERATED DEPTH {depth}. CONSIDER INCREASING WORLD.MEM_CAPACITY. - world[depth] should've been already generated from previous map generations.")
+            self.game_map = self.world.get_map(depth)
+            self.depth = depth
 
-        if entity.gamemap:
-            entity.gamemap.entities.remove(entity)# Remove entity from previous gamemap if it has one
+            for tmp_depth in range(depth-self.world.mem_capacity, depth+self.world.mem_capacity+1): #USING (depth-self.world.mem_capacity, depth+self.world.mem_capacity+1) in order to make negative depth level generations.
+                if not self.world.check_if_map_has_been_generated(tmp_depth)\
+                    and self.world.check_if_should_exist_in_memory(depth):
+                        # MOST OF THE TIME THERE IS GOING TO BE ONLY 1 NEW GAMEMAP THATS BEING GENERATED.
+                        print(f"DEBUG::GENERATING DEPTH {tmp_depth}")
+                        new_map = self.generate_new_dungeon(depth=tmp_depth, console=self.console, context=self.context,display_process=False)
+                        new_map.adjustments_before_new_map() # Adjust things (AI's vision, etc. player's vision is initialized AFTER player has been placed.)
+                        self.world.save_map_to_memory(new_map, tmp_depth)
+                if not self.world.check_if_map_on_mem(tmp_depth):
+                    self.world.save_map_to_memory(self.world.load_map_from_seriallized_data(tmp_depth), tmp_depth)
+        else:
+            if not self.world.check_if_map_has_been_generated(depth): # When entity moves to an ungenerated map, it causes FATAL ERROR as seen below.
+                print("FATAL ERROR::NON-PLAYER ENTITY TRIED TO MOVE TO A NONGENERATED DEPTH. FUNCTION CANCELLED.")
+                return None # do nothing
 
-        new_gamemap = self.world.get_map(depth)
-        new_gamemap.entities.append(entity)
-        new_gamemap.sort_entities()
-        entity.place(xpos, ypos, new_gamemap)
-        entity.gamemap = new_gamemap
+        # place physically (also removing entity from its old gamemap, and adding it to new one which is done internally)
+        entity.place(xpos, ypos, self.world.get_map(depth=depth))
 
+        # Update fov since player is now placed on new gamemap.
         if entity == self.player:
             self.update_fov()
+
+        """
+        IMPORTANT: ALL CHANGES MADE TO GAMEMAPS THAT ARE OUTSIDE OF CURRENT self.depth +- self.world.mam_capaicty ARE NOT SAVED.
+        TO SAVE ALL AND EVERY SINGLE CHANGES MADE TO THE ENTIRE GAMEMAPS, USE SELF.WORLD.SAVE_WORLD() INSTEAD. (But its a heavy function)
+        ALSO world.save_mem() and world.optimize() should be called at last.
+        """
+        self.world.save_mem()  # Save all updated memories as data
+        self.world.optimize()  # Optimize memory (delete and load)
 
 
     def handle_world(self, turn_pass: bool) -> None:
