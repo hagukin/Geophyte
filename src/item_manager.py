@@ -51,6 +51,7 @@ class ItemManager:
         ] # NOTE: Currently 24 colors available TODO: Multi lang support
         self.colors_for_scrolls = copy.copy(self.colors_for_potions)
         self.colors_for_amulets = copy.copy(self.colors_for_potions)
+        self.colors_for_spellbooks = copy.copy(self.colors_for_potions)
 
         self.shapes_for_amulets = [
             "오각형",
@@ -74,6 +75,7 @@ class ItemManager:
         random.shuffle(self.colors_for_scrolls)
         random.shuffle(self.colors_for_amulets)
         random.shuffle(self.shapes_for_amulets)
+        random.shuffle(self.colors_for_spellbooks)
 
     @property
     def items_rarity(self) -> List:
@@ -134,6 +136,12 @@ class ItemManager:
             shape = self.gen_randomized_shape(item_type=InventoryOrder.AMULET)
             self.items_fake_info[item.entity_id]["name"] = f"{shape} 아뮬렛"
             self.items_fake_info[item.entity_id]["entity_desc"] = f"{shape} 아뮬렛. 종류를 정확히 식별할 수 없다."
+        elif item.item_type.value == InventoryOrder.SPELLBOOK.value:
+            color_name, fg, bg = self.gen_randomized_color(item_type=InventoryOrder.SPELLBOOK) # Skillbooks are not randomized.
+            self.items_fake_info[item.entity_id]["name"] = color_name + " 마법서"
+            self.items_fake_info[item.entity_id]["entity_desc"] = f"{color_name} 마법서. 복잡한 고대 문자들이 적혀 있다."
+            self.items_fake_info[item.entity_id]["fg"] = fg
+            self.items_fake_info[item.entity_id]["bg"] = bg
         else:
             print(f"ERROR::Cannot randomize {item.name} of {item.item_type} type.")
             return None
@@ -161,6 +169,8 @@ class ItemManager:
             return self.colors_for_scrolls.pop()
         elif item_type.value == InventoryOrder.AMULET.value:
             return self.colors_for_amulets.pop()
+        elif item_type.value == InventoryOrder.SPELLBOOK.value:
+            return self.colors_for_spellbooks.pop()
 
     def gen_randomized_shape(self, item_type):
         if item_type.value == InventoryOrder.AMULET.value:

@@ -4,6 +4,7 @@ from entity import Item
 import color
 import anim_graphics
 import components.edible as edible
+import ability_factories
 
 from order import InventoryOrder
 
@@ -616,6 +617,77 @@ scroll_of_teleportation = Item(
 )
 temp_items_lists.append(scroll_of_teleportation)
 item_rarity.append(scroll_of_teleportation.rarity)
+
+
+#########################################################################
+############################# SKILLBOOKS ################################
+#########################################################################
+
+### steal skillbook
+steal_skillbook = Item(
+    should_randomize=False, # NOTE: Skillbook names are not randomized.
+    char="=",
+    fg=(255, 255, 200),
+    name="'대도둑 레오파드의 소매치기 특강'이라고 적힌 책",
+    entity_id="steal_skillbook",
+    entity_desc="steal_skillbook desc",
+    rarity=999, #FIXME 1
+    weight=0.67,
+    price=320,
+    item_type=InventoryOrder.SKILLBOOK,
+    item_state=ItemState(is_identified=1), # Skillbooks are identified
+    spawnable=True,
+    flammable=0.3,
+    corrodible=0.08,
+    droppable=True,
+    stackable=False,
+    cursable=False, # Skillbooks are not cursable
+    blessable=False, # Skillbooks are not blessable
+    throwable=throwable.NormalThrowable(air_friction=20),
+    readable=readable.BookReadable(
+        ability=ability_factories.steal,
+        int_req=11,
+        read_msg="책에는 어떻게 하면 들키지 않고 소매치기를 할 수 있는지에 대한 내용들이 적혀 있었다.",
+        comprehension_chance_per_int_bonus=1, # Guarenteed
+    ),
+    quaffable=None,
+)
+temp_items_lists.append(steal_skillbook)
+item_rarity.append(steal_skillbook.rarity)
+
+
+#########################################################################
+############################# SPELLBOOKS ################################
+#########################################################################
+
+### lightning bolt spellbook
+lightning_bolt_spellbook = Item(
+    should_randomize=True,
+    char="=",
+    fg=(255, 255, 200),
+    name="뇌격 마법서",
+    entity_id="lightning_bolt_spellbook",
+    entity_desc="lightning_bolt_spellbook desc",
+    rarity=999, #FIXME 1
+    weight=0.85,
+    price=480,
+    item_type=InventoryOrder.SPELLBOOK,
+    item_state=ItemState(),
+    spawnable=True,
+    flammable=0.3,
+    corrodible=0.08,
+    droppable=True,
+    stackable=False,
+    throwable=throwable.NormalThrowable(air_friction=20),
+    readable=readable.BookReadable(
+        ability=ability_factories.lightning_bolt,
+        int_req=14,
+        comprehension_chance_per_int_bonus=0.1,
+    ),
+    quaffable=None,
+)
+temp_items_lists.append(lightning_bolt_spellbook)
+item_rarity.append(lightning_bolt_spellbook.rarity)
 
 
 

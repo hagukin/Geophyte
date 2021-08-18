@@ -360,9 +360,21 @@ class ReadItem(ItemAction):
             if self.entity == self.engine.player:
                 self.engine.message_log.add_message(f"아무 것도 할 수 없다!", color.player_severe)
             return None
+
+        if self.entity.actor_state.is_confused != [0,0] or self.entity.status.changed_status["intelligence"] < 10:
+            if self.entity == self.engine.player:
+                self.engine.message_log.add_message(f"당신은 문자를 읽는 데 어려움을 겪었다.", color.player_failed)
+            else:
+                print(f"WARNING::{self.entity} failed to read {self.item}.")
+            return None
+        
+        if self.entity == self.engine.player:
+            self.engine.message_log.add_message(f"당신은 {g(self.item.name, '을')} 읽었다.", color.player_neutral_important)
+        else:
+            self.engine.message_log.add_message(f"{g(self.entity.name, '은')} {g(self.item.name, '을')} 읽었다.", color.enemy_unique)
         
         if self.entity.status.experience:
-            self.entity.status.experience.gain_intelligence_exp(35, 18)
+            self.entity.status.experience.gain_intelligence_exp(35, 12)
 
         self.item.readable.activate(self)
 

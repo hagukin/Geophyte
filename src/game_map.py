@@ -103,8 +103,9 @@ class GameMap:
         Its recommended to use this method instead of doing gamemap.entities.remove(something)"""
         try:
             self.entities.remove(entity)
+            entity.gamemap = None
         except ValueError:
-            raise Exception(f"ERROR::{entity.entity_id} is not in gamemap.entities.")
+            print(f"ERROR::{entity.entity_id} is not in gamemap.entities.")
 
     def check_tile_monster_spawnable(self, x:int, y:int, must_not_be_in_sight: bool=False):
         if must_not_be_in_sight and self.visible[x, y]:

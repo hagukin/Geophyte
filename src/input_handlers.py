@@ -216,7 +216,7 @@ class ItemUseCancelHandler(AskUserEventHandler):
 
     def on_render(self, console: tcod.Console,) -> None:
         super().on_render(console)
-        self.engine.draw_window(console, text="정말 아이템 사용을 취소하시겠습니까? 아이템은 여전히 소모됩니다. (Y/N)", title="아이템 사용 취소", frame_fg=color.red, frame_bg=color.gui_inventory_bg)
+        self.engine.draw_window(console, text="정말 아이템 사용을 취소하시겠습니까? 아이템은 여전히 소모될 수 있습니다. (Y/N)", title="아이템 사용 취소", frame_fg=color.red, frame_bg=color.gui_inventory_bg)
 
     def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[Action]:
         if event.sym == tcod.event.K_y or event.sym == tcod.event.K_KP_ENTER:

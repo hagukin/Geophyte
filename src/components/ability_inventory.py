@@ -1,6 +1,10 @@
 from __future__ import annotations
 from typing import List, TYPE_CHECKING
 from components.base_component import BaseComponent
+from korean import grammar as g
+from order import AbilityOrder
+
+import color
 
 if TYPE_CHECKING:
     from entity import Actor, Item
@@ -53,14 +57,29 @@ class AbilityInventory(BaseComponent):
 
         return None
 
+    def gain_ability(self, ability: Ability) -> None:
+        """Wraps add_ability function and print message log."""
+        for have_ab in self.abilities:
+            if have_ab.ability_id == ability.ability_id:
+                print(f"WARNING::Tried to gain ability {ability.name} while already having it.")
+                return None
+
+        if self.parent == self.engine.player:
+            if ability.ability_type == AbilityOrder.REGULAR_SKILL or ability.ability_type == AbilityOrder.PASSIVE_SKILL:
+                self.engine.message_log.add_message(f"당신은 {ability.name} 기술을 습득했다!", fg=color.player_success)
+            else:
+                self.engine.message_log.add_message(f"당신은 {ability.name} 마법을 습득했다!", fg=color.player_success)
+        self.add_ability(ability)
+
     def add_ability(self, ability: Ability) -> None:
         """
         Add ability to ability inventory.
         Using this function is recommended instead of using .append()
         """
         # Prevent duplicates
-        if ability in self.abilities:
-            return None
+        for have_ab in self.abilities:
+            if have_ab.ability_id == ability.ability_id:
+                return None
 
         ability.parent = self
         self.abilities.append(ability)

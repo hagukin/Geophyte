@@ -17,6 +17,4 @@ class BaseComponent:
 
     @property
     def engine(self) -> Engine:
-        if self.parent.gamemap == None:
-            print(f"WARNING::{self.parent.entity_id} tried to access engine object from its component '{self}' without having a gamemap.")
         return Game.engine

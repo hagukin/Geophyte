@@ -38,7 +38,7 @@ def init_game_variables(cfg, console: Console, context: Context):
     # Set current depth
     engine.depth = 1
 
-    # Set GameMap.engine. All in-game access to engine object is handled using this class variable.
+    # Set Game.engine. All in-game access to engine object is handled using this class variable.
     from game import Game
     Game.engine = engine
 

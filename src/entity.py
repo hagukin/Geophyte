@@ -14,6 +14,7 @@ from input_handlers import ForceAttackInputHandler, ChestPutEventHandler, ChestT
 from order import RenderOrder, InventoryOrder
 from korean import grammar as g
 from tiles import TileUtil
+from game import Game
 
 if TYPE_CHECKING:
     from components.ai import BaseAI
@@ -120,7 +121,7 @@ class Entity:
     
     @property
     def engine(self):
-        return self.gamemap.engine
+        return Game.engine
 
     @property
     def char(self):
@@ -352,7 +353,8 @@ class Entity:
         self.x = x
         self.y = y
         if gamemap:
-            self.gamemap.remove_entity(self)
+            if self.gamemap:
+                self.gamemap.remove_entity(self)
             self.gamemap = gamemap
             gamemap.entities.append(self)
 
@@ -944,7 +946,7 @@ class Item(Entity):
 
     @property
     def char(self):
-        char = self.gamemap.engine.item_manager.items_fake_info[self.entity_id]["char"]
+        char = self.engine.item_manager.items_fake_info[self.entity_id]["char"]
         if char:
             return char
         else:
@@ -952,7 +954,7 @@ class Item(Entity):
     
     @property
     def fg(self):
-        fg = self.gamemap.engine.item_manager.items_fake_info[self.entity_id]["fg"]
+        fg = self.engine.item_manager.items_fake_info[self.entity_id]["fg"]
         if fg:
             return fg
         else:
@@ -960,7 +962,7 @@ class Item(Entity):
 
     @property
     def bg(self):
-        bg = self.gamemap.engine.item_manager.items_fake_info[self.entity_id]["bg"]
+        bg = self.engine.item_manager.items_fake_info[self.entity_id]["bg"]
         if bg:
             return bg
         else:
@@ -971,7 +973,7 @@ class Item(Entity):
         if self.item_state.check_if_semi_identified():
             return self._name
         else:
-            name = self.gamemap.engine.item_manager.items_fake_info[self.entity_id]["name"]
+            name = self.engine.item_manager.items_fake_info[self.entity_id]["name"]
             if name:
                 return name
             else:
@@ -982,7 +984,7 @@ class Item(Entity):
         if self.item_state.check_if_semi_identified():
             return self._entity_desc
         else:
-            entity_desc = self.gamemap.engine.item_manager.items_fake_info[self.entity_id]["entity_desc"]
+            entity_desc = self.engine.item_manager.items_fake_info[self.entity_id]["entity_desc"]
             if entity_desc:
                 return entity_desc
             else:
@@ -1048,8 +1050,8 @@ class Item(Entity):
         Sets initial BUC, identification status, etc.
         This method is called from spawn().
         """
+        self.item_state.parent = self
         if self.should_initialize:
-            self.item_state.parent = self
             self.initialize_BUC(use_custom=None)
             self.initialize_upgrade(use_custom=None)
 

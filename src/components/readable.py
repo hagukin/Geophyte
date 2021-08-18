@@ -693,4 +693,88 @@ class ScrollOfThunderStormReadable(AutoTargetingHarmfulReadable):
         target.actor_state.apply_electrocution([self.damage, 0.5])
         target.actor_state.actor_electrocuted(source_actor=consumer)
 
-        
+
+
+from ability import Ability
+
+class BookReadable(Readable):
+    def __init__(
+            self,
+            ability: Ability,
+            read_msg: Optional[str]=None,
+            int_req: int=10, # NOTE: in ReadItem, Intelligence 10 or higher is required to read something.
+            comprehension_chance_per_int_bonus: float=0.2,
+    ):
+        """
+        Args:
+            ability:
+                ability object.
+                Reader will gain the ability when they complete the book.
+            read_msg:
+                message to print when player read and succeded to comprehend the book.
+            int_req:
+                the minimum intelligence requirement for one to comprehend the book.
+            comprehension_chance_per_int_bonus:
+                if the reader's intelligence surpass the minimum intelligence required to read,
+                you gain this amount of chance to successfully read and comprehending the book.
+        """
+        super().__init__()
+        self.ability = ability
+        self.read_msg = read_msg
+        self.int_req = int_req
+        self.comprehension_chance_per_int_bonus = comprehension_chance_per_int_bonus
+
+    def try_comprehend(self, reader: Actor) -> bool:
+        """
+        Return:
+            Whether the reader was able to comprehend the book or not.
+        """
+        success_chance = (reader.status.changed_status["intelligence"] - self.int_req + 1) * self.comprehension_chance_per_int_bonus
+        if self.parent.item_state.check_if_unidentified:
+            success_chance -= 0.1
+        if self.parent.item_state.BUC == 1:
+            success_chance += 0.05
+        elif self.parent.item_state.BUC == -1:
+            success_chance -= 0.2 # Harder to understand cursed spellbooks
+        if self.parent.item_state.burntness > 0:
+            success_chance -= 0.1 * self.parent.item_state.burntness
+
+        if random.random() <= success_chance:
+            return True
+        return False
+
+    def get_action(self, consumer: Actor) -> Optional[actions.Action]:
+        """Try to return the action for this item."""
+        return actions.ReadItem(consumer, self.parent)
+
+    def activate(self, action: actions.ReadItem) -> None:
+        """Invoke this items ability.
+
+        `action` is the context for this activation.
+        """
+        reader = action.entity
+
+        if self.try_comprehend(reader=reader):
+            if reader == self.engine.player and self.read_msg:
+                self.engine.message_log.add_message(self.read_msg, fg=color.player_neutral_important)
+            reader.ability_inventory.gain_ability(self.ability)
+            self.consume()  # Identify when successful
+            return None
+        else:
+            # failed or cursed.
+            if reader == self.engine.player:
+                self.engine.message_log.add_message(f"당신은 {self.parent.name}의 내용을 이해하는 것에 실패했다.", fg=color.player_failed)
+            reader.actor_state.apply_confusion([0,5])
+            return None
+
+    def consume(self) -> None:
+        """Does not get removed from the inventory."""
+        # fully identify used instance, and semi-identify the same item types.
+        self.parent.item_state.identify_self(identify_level=1)
+
+    def item_use_cancelled(self, actor: Actor) -> actions.Action:
+        """
+        Does nothing.
+        """
+        return actions.WaitAction(actor)
+

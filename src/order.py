@@ -40,6 +40,8 @@ class InventoryOrder(Enum):
     RING = auto()
     POTION = auto()
     SCROLL = auto()
+    SKILLBOOK = auto()
+    SPELLBOOK = auto()
     WAND = auto()
     FOOD = auto()
     CORPSE = auto()

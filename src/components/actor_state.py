@@ -61,69 +61,69 @@ class ActorState(BaseComponent):
         # NOTE: 'Effect lasting for negative turns' are considered as lasting infinitly. = if max turn is negative, effects goes on forever
         # Actor is on fire / Actor is emitting fire from its body
         # Value: [Initial damage, Damage decrease per turn, Current turn, Max lasting turn]
-        is_burning: list = [0, 0, 0, 0], 
+         is_burning=None,
         # Actor is poisoned
         # Value: [Initial damage, Damage increase per turn, Current turn, Max lasting turn]
-        is_poisoned: list = [0, 0, 0, 0], 
+         is_poisoned=None,
         # Actor is freezing
         # Value: [Damage per turn, Agility decrease per turn(will stack), Chance of getting frozen per turn, Current turn, Max lasting turn]
-        is_freezing: list = [0, 0, 0, 0, 0],
+         is_freezing=None,
         # Actor is completely frozen
         # Value: [Damage per turn, Current turn, Max lasting turn]
-        is_frozen: list = [0, 0, 0],
+         is_frozen=None,
         # Actor is being electrocuted / Actor is emitting electricity from its body
         # Value: [Damage taken by this actor, Damage taken by adjacent actor indicated as ratio(0~1) to the damage taken by this actor]
-        is_electrocuting: list = [0, 0],
+         is_electrocuting=None,
         # Actor is invisible
         # Value: [Current turn, Max lasting turn]
-        is_invisible: list = [0, 0],
+         is_invisible=None,
         # Actor is phasing (or is able to phase)
         # Value: [Current turn, Max lasting turn]
-        is_phasing: list = [0, 0],
+         is_phasing=None,
         # Actor is paralyzed
         # Value: [Current turn, Max lasting turn]
-        is_paralyzing: list = [0, 0],
+         is_paralyzing=None,
         # Actor is bleeding
         # Value: [Damage per turn, Current turn, Max lasting turn]
-        is_bleeding: list = [0, 0, 0],
+         is_bleeding=None,
         # Actor is slowed down
         # Value: [Agility decrease each turn(will not stack), Current turn, Max lasting turn]
-        is_acting_slower: list = [0, 0, 0],
+         is_acting_slower=None,
         # Actor is sped up
         # Value: [Agility increase each turn(will not stack), Current turn, Max lasting turn]
-        is_acting_faster: list = [0, 0, 0],
+         is_acting_faster=None,
         # Actor is melting from acid
         # Value: [Damage per turn, Damage decrease per turn, Current turn, Max lasting turn]
-        is_melting: list = [0, 0, 0, 0],
+         is_melting=None,
         # Actor is sick (besides from poison)
         # Value: [Damage per turn(Percentage of maximum health, range from 0~1), Current turn, Max lasting turn]
-        is_sick: list = [0.0, 0, 0],
+         is_sick=None,
         # Actor is floating unwillingly
         # NOTE: To check whether the actor is on air or not, use entity.is_on_air instead.
         # is_levitating value's sole purpose is to give actor a status effect of floation.
         # Value: [Current turn, Max lasting turn]
-        is_levitating: list = [0, 0],
+         is_levitating=None,
         # Actor is drowning
         # Value: [Current turn, Turns needed for drowning(this is NOT turns left before drowning)]
-        is_drowning: list = [0, 0],
+         is_drowning=None,
 
         ### Status effects - Non-physical
         # Actor is sleeping
         # Value: [Current turn, Max lasting turn]
-        is_sleeping: list = [0, 0],
+         is_sleeping=None,
         # Actor is angry (most possibly unwillingly)
         # Value: [Current turn, Max lasting turn]
-        is_angry: list = [0, 0],
+         is_angry=None,
         # Actor is confused
         # Value: [Current turn, Max lasting turn]
-        is_confused: list = [0, 0],
+         is_confused=None,
         # Actor is hallucinating
         # Value: [Current turn, Max lasting turn]
-        is_hallucinating: list = [0, 0],
+         is_hallucinating=None,
         # Actor can detect things that are out of sight
         # Value: [Current turn, Max lasting turn, List with strings: object type]
         # NOTE: Detection != telepathy
-        is_detecting_obj: list = [0, 0, []],
+         is_detecting_obj=None,
 
         ### Spatial states
         # Actor is on air (whether willingly or unwillingly)
@@ -179,6 +179,46 @@ class ActorState(BaseComponent):
         """
         super().__init__(None)
 
+        if is_burning is None:
+            is_burning = [0, 0, 0, 0]
+        if is_poisoned is None:
+            is_poisoned = [0, 0, 0, 0]
+        if is_freezing is None:
+            is_freezing = [0, 0, 0, 0, 0]
+        if is_frozen is None:
+            is_frozen = [0, 0, 0]
+        if is_electrocuting is None:
+            is_electrocuting = [0, 0]
+        if is_invisible is None:
+            is_invisible = [0, 0]
+        if is_phasing is None:
+            is_phasing = [0, 0]
+        if is_paralyzing is None:
+            is_paralyzing = [0, 0]
+        if is_bleeding is None:
+            is_bleeding = [0, 0, 0]
+        if is_acting_slower is None:
+            is_acting_slower = [0, 0, 0]
+        if is_acting_faster is None:
+            is_acting_faster = [0, 0, 0]
+        if is_melting is None:
+            is_melting = [0, 0, 0, 0]
+        if is_sick is None:
+            is_sick = [0.0, 0, 0]
+        if is_levitating is None:
+            is_levitating = [0, 0]
+        if is_drowning is None:
+            is_drowning = [0, 0]
+        if is_sleeping is None:
+            is_sleeping = [0, 0]
+        if is_angry is None:
+            is_angry = [0, 0]
+        if is_confused is None:
+            is_confused = [0, 0]
+        if is_hallucinating is None:
+            is_hallucinating = [0, 0]
+        if is_detecting_obj is None:
+            is_detecting_obj = [0, 0, []]
         self.hunger = hunger
         self.previous_hunger_state = self.hunger
 
