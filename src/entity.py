@@ -353,8 +353,6 @@ class Entity:
         self.x = x
         self.y = y
         if gamemap:
-            if self.gamemap:
-                self.gamemap.remove_entity(self)
             self.gamemap = gamemap
             gamemap.entities.append(self)
 
@@ -622,18 +620,21 @@ class Actor(Entity):
 
         if self.gamemap.tiles[self.x, self.y]["tile_id"] == "deep_water":
             self.actor_state.is_submerged = True
-            if self.actor_state.size < 6: #TODO Size
+            if self.actor_state.size < 6:
                 self.actor_state.is_underwater = True
         elif self.gamemap.tiles[self.x, self.y]["tile_id"] == "shallow_water":
             self.actor_state.is_submerged = True
-            if self.actor_state.size <= 1: #TODO Size
+            if self.actor_state.size <= 1:
                 self.actor_state.is_underwater = True
+            else:
+                self.actor_state.is_underwater = False
         else:
             self.actor_state.is_submerged = False
             self.actor_state.is_underwater = False
+
+        if not self.actor_state.is_underwater:
             self.actor_state.apply_drowning([0, 0])
-            if not self.actor_state.is_underwater:
-                self.status.remove_bonus("submerged_bonus", ignore_warning=True)
+            self.status.remove_bonus("submerged_bonus", ignore_warning=True)
 
         # Immediate debuff
         if self.actor_state.is_submerged:

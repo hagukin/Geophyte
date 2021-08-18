@@ -852,7 +852,7 @@ class ActorState(BaseComponent):
                 # agility, dexterity reduce in half (will not stack)
                 self.parent.status.add_bonus(Bonus("submerged_bonus",
                                                    bonus_agility=-10,
-                                                   bonus_dexterity=-10))
+                                                   bonus_dexterity=-10), ignore_warning=True)
             else:
                 if self.is_drowning != [0, 0]:
                     self.apply_drowning([0, 0])
@@ -860,7 +860,7 @@ class ActorState(BaseComponent):
                 # agility, dexterity reduce in half (will not stack)
                 self.parent.status.add_bonus(Bonus("submerged_bonus",
                                                    bonus_agility=-5,
-                                                   bonus_dexterity=-5))
+                                                   bonus_dexterity=-5), ignore_warning=True)
         else:
             if self.is_drowning != [0, 0]:
                 self.apply_drowning([0, 0])

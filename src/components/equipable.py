@@ -464,6 +464,8 @@ class ScalpelEquipable(Equipable):
             str_requirement=10,
             base_melee=6,
             additional_melee=1,
+            melee_effects=(("bleed_target", 0.2),),
+            melee_effects_var=((3,0,3),)
             )
 
     def update_stat(self):

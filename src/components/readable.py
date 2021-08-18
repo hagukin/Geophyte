@@ -757,7 +757,8 @@ class BookReadable(Readable):
         if self.try_comprehend(reader=reader):
             if reader == self.engine.player and self.read_msg:
                 self.engine.message_log.add_message(self.read_msg, fg=color.player_neutral_important)
-            reader.ability_inventory.gain_ability(self.ability)
+            if self.ability:
+                reader.ability_inventory.gain_ability(self.ability)
             self.consume()  # Identify when successful
             return None
         else:

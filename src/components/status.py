@@ -461,12 +461,13 @@ class Status(BaseComponent):
                 return True
         return False
 
-    def add_bonus(self, bonus: Bonus) -> None:
+    def add_bonus(self, bonus: Bonus, ignore_warning: bool=False) -> None:
         # Removed the lines below because there are too many cases of overwriting a bonus.
         # if bonus.bonus_id in self.bonuses.keys(): # If there is bonus of same id, replace it.
         #     print(f"WARNING::status - bonus {bonus.bonus_id} has been overwritten.")
         if self.check_if_has_bonus(bonus.bonus_id):
-            print(f"WARNING::{bonus.bonus_id} Bonus already exists. Overwritten.")
+            if not ignore_warning:
+                print(f"WARNING::{bonus.bonus_id} Bonus already exists. Overwritten.")
         self.bonuses[bonus.bonus_id] = bonus
 
     def remove_bonus(self, bonus_id: str, ignore_warning: bool=False) -> None:

@@ -50,8 +50,8 @@ class Biome:
         max_rooms: int = 100,
         map_width: int = 67, # min 67
         map_height: int = 41, # min 41
-        respawn_ratio: float = 0.4,
-        respawn_time: float = 50,
+        respawn_ratio: float = 1,
+        respawn_time: float = 20,
         generate_descending_stair: bool = True,
         tileset: dict = tileset(),
         terrain: dict = None,
