@@ -124,8 +124,8 @@ player = Actor(
     equipments=Equipments(),
     initial_items=None,
     # (
-    #     {"item": item_factories.scroll_of_magic_mapping, "chance":1, "count":(50,50), "BUC": {1:1, 0:0, -1:0}, "upgrade": None}, # NOTE: actor possesion BUC, upgrade has higher priority than item type inital_BUC, initial_upgrade
-    #     {"item": item_factories.scroll_of_tame, "chance": 1, "count": (1, 5), "BUC": None, "upgrade": None},
+    #     {"item": item_factories.lightning_bolt_spellbook, "chance":1, "count":(50,50), "BUC": {1:1, 0:0, -1:0}, "upgrade": None}, # NOTE: actor possesion BUC, upgrade has higher priority than item type inital_BUC, initial_upgrade
+    #     {"item": item_factories.steal_skillbook, "chance": 1, "count": (1, 5), "BUC": None, "upgrade": None},
     #     {"item": item_factories.scroll_of_teleportation, "chance": 1, "count": (1, 3), "BUC": None, "upgrade": None},
     # ),
     initial_equipments=None,

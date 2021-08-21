@@ -125,21 +125,21 @@ class ItemManager:
         elif item.item_type.value == InventoryOrder.POTION.value:
             color_name, fg, bg = self.gen_randomized_color(item_type=InventoryOrder.POTION)
             self.items_fake_info[item.entity_id]["name"] = color_name + " 물약"
-            self.items_fake_info[item.entity_id]["entity_desc"] = f"{color_name} 물약. 마시면 무슨 일이 일어날지 알 수 없다."
+            self.items_fake_info[item.entity_id]["entity_desc"] = f"{color_name} 물약이다. 마시면 무슨 일이 일어날지 알 수 없다."
             self.items_fake_info[item.entity_id]["fg"] = fg
             self.items_fake_info[item.entity_id]["bg"] = bg
         elif item.item_type.value == InventoryOrder.GEM.value:
             self.items_fake_info[item.entity_id]["name"] = "반짝거리는 돌맹이"
-            self.items_fake_info[item.entity_id]["entity_desc"] = "투명하고 반짝거리는 돌맹이. 종류를 정확히 식별할 수 없다."
+            self.items_fake_info[item.entity_id]["entity_desc"] = "투명하고 반짝거리는 돌맹이이다. 종류를 정확히 식별할 수 없다."
         elif item.item_type.value == InventoryOrder.AMULET.value:
             color_name, fg, bg = self.gen_randomized_color(item_type=InventoryOrder.AMULET)
             shape = self.gen_randomized_shape(item_type=InventoryOrder.AMULET)
             self.items_fake_info[item.entity_id]["name"] = f"{shape} 아뮬렛"
-            self.items_fake_info[item.entity_id]["entity_desc"] = f"{shape} 아뮬렛. 종류를 정확히 식별할 수 없다."
+            self.items_fake_info[item.entity_id]["entity_desc"] = f"{shape} 아뮬렛이다. 종류를 정확히 식별할 수 없다."
         elif item.item_type.value == InventoryOrder.SPELLBOOK.value:
             color_name, fg, bg = self.gen_randomized_color(item_type=InventoryOrder.SPELLBOOK) # Skillbooks are not randomized.
             self.items_fake_info[item.entity_id]["name"] = color_name + " 마법서"
-            self.items_fake_info[item.entity_id]["entity_desc"] = f"{color_name} 마법서. 복잡한 고대 문자들이 적혀 있다."
+            self.items_fake_info[item.entity_id]["entity_desc"] = f"{color_name} 마법서이다. 복잡한 고대 문자들이 적혀 있다."
             self.items_fake_info[item.entity_id]["fg"] = fg
             self.items_fake_info[item.entity_id]["bg"] = bg
         else:

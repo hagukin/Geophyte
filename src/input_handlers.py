@@ -946,7 +946,7 @@ class InventoryActionSelectHandler(AskUserEventHandler):
         )
 
         # print item description
-        console.print(x + x_space + 1, y + y_space + 1, self.item.entity_desc, fg=color.gui_item_description)
+        console.print(x + x_space + 1, y + y_space + 2, "(/) 아이템 정보", fg=color.gui_item_action)
 
         # print possible actions
         for i, action in enumerate(self.possible_actions):
@@ -973,6 +973,11 @@ class InventoryActionSelectHandler(AskUserEventHandler):
     def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[Action]:
         player = self.engine.player
         key = event.sym
+
+        if key == tcod.event.K_SLASH or key == tcod.event.K_KP_DIVIDE:
+            from book import ItemInfoHandler
+            self.engine.event_handler = ItemInfoHandler(item=self.item)
+            return None
 
         if key in self.possible_keys:
             if key == tcod.event.K_r:

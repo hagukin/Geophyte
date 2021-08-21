@@ -1,5 +1,5 @@
 from __future__ import annotations
-from input_handlers import AskUserEventHandler, MainGameEventHandler
+from input_handlers import AskUserEventHandler
 from entity import Actor, Item, SemiActor
 from base.data_loader import load_book
 from typing import Optional
@@ -139,22 +139,22 @@ class MonsterInfoHandler(AskUserEventHandler):
         ypad = 0
 
         # Name
-        console.print(start_x, start_y, self.monster.name, fg=color.white)
+        console.print(start_x, start_y, self.monster.name, fg=color.cyan)
         ypad += 4
 
         # Type Description
         if self.monster.actor_type_desc != "":
             text, line_cnt = multiline(self.monster.actor_type_desc, self.width, 2)
             console.print(start_x, start_y + ypad, text, fg=color.white)
-            ypad += line_cnt + 1
+            ypad += line_cnt
+            ypad += 4
 
         # Entity Description
         if self.monster.entity_desc != "":
             text, line_cnt = multiline(self.monster.entity_desc, self.width, 2)
             console.print(start_x, start_y + ypad, text, fg=color.white)
             ypad += line_cnt
-
-        ypad += 4
+            ypad += 4
 
         # Actor quote
         if self.monster.actor_quote != "":
@@ -179,6 +179,7 @@ class ItemInfoHandler(AskUserEventHandler):
         super().__init__()
         self.item = item
         self.page = page # If this input handler is called from MonsterBookIndexHandler, pass in the page number so it could callback the indexhandler when cancelled.
+        # NOTE: page value currently(20210821) unused.
 
     def on_render(self, console: tcod.Console) -> None:
         console.draw_frame(0, 0, console.width, console.height, bg=color.book_bg)
@@ -191,7 +192,7 @@ class ItemInfoHandler(AskUserEventHandler):
         ypad = 0
 
         # Name
-        console.print(start_x, start_y, self.item.name, fg=color.white)
+        console.print(start_x, start_y, self.item.name, fg=color.cyan)
         ypad += 4
 
         # Type Description
@@ -199,14 +200,14 @@ class ItemInfoHandler(AskUserEventHandler):
             text, line_cnt = multiline(self.item.item_type_desc, self.width, 2)
             console.print(start_x, start_y + ypad, text, fg=color.white)
             ypad += line_cnt
+            ypad += 4
 
         # Entity Description
         if self.item.entity_desc != "":
             text, line_cnt = multiline(self.item.entity_desc, self.width, 2)
             console.print(start_x, start_y + ypad, text, fg=color.white)
             ypad += line_cnt
-
-        ypad += 4
+            ypad += 4
 
         # Item quote
         if self.item.item_quote != "":
@@ -239,7 +240,7 @@ class SemiActorInfoHandler(AskUserEventHandler):
         ypad = 0
 
         # Name
-        console.print(start_x, start_y, self.semiactor.name, fg=color.white)
+        console.print(start_x, start_y, self.semiactor.name, fg=color.cyan)
         ypad += 4
 
         # Type Description
@@ -247,14 +248,14 @@ class SemiActorInfoHandler(AskUserEventHandler):
             text, line_cnt = multiline(self.semiactor.semiactor_type_desc, self.width, 2)
             console.print(start_x, start_y + ypad, text, fg=color.white)
             ypad += line_cnt
+            ypad += 4
 
         # Entity Description
         if self.semiactor.entity_desc != "":
             text, line_cnt = multiline(self.semiactor.entity_desc, self.width, 2)
             console.print(start_x, start_y + ypad, text, fg=color.white)
             ypad += line_cnt
-
-        ypad += 4
+            ypad += 4
 
         # Item quote
         if self.semiactor.semiactor_quote != "":
