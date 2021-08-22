@@ -136,6 +136,8 @@ class ItemManager:
             shape = self.gen_randomized_shape(item_type=InventoryOrder.AMULET)
             self.items_fake_info[item.entity_id]["name"] = f"{shape} 아뮬렛"
             self.items_fake_info[item.entity_id]["entity_desc"] = f"{shape} 아뮬렛이다. 종류를 정확히 식별할 수 없다."
+            self.items_fake_info[item.entity_id]["fg"] = fg
+            self.items_fake_info[item.entity_id]["bg"] = bg
         elif item.item_type.value == InventoryOrder.SPELLBOOK.value:
             color_name, fg, bg = self.gen_randomized_color(item_type=InventoryOrder.SPELLBOOK) # Skillbooks are not randomized.
             self.items_fake_info[item.entity_id]["name"] = color_name + " 마법서"
