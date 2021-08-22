@@ -1,7 +1,8 @@
 from terrain import Terrain
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Tuple, Optional
 from entity import Actor
 from actor_factories import shopkeeper
+from order import InventoryOrder
 
 if TYPE_CHECKING:
     from room_factories import Room
@@ -37,6 +38,7 @@ class ShopTerrain(Terrain):
         gen_chests = None,
         custom_gen = None, # Must have one
         sell_items = None,
+        sell_items_type_limit: Optional[Tuple[InventoryOrder]] = None,
         items_on_stock = None,
         shopkeeper_type: Actor = shopkeeper,
     ):
@@ -89,12 +91,18 @@ class ShopTerrain(Terrain):
         self.shopkeeper_type = shopkeeper_type
         self.shopkeeper = None
 
+        self.sell_items_type_limit = sell_items_type_limit
         if sell_items == None:
             self.sell_items = {} # Spawn all items
             from item_factories import item_rarity, temp_items_lists
             for i in range(len(temp_items_lists)):
                 if temp_items_lists[i].spawnable:
-                    self.sell_items[temp_items_lists[i]] = item_rarity[i]
+                    if self.sell_items_type_limit:
+                        tmp = [x.value for x in sell_items_type_limit]
+                        if temp_items_lists[i].item_type.value in tmp:
+                            self.sell_items[temp_items_lists[i]] = item_rarity[i]
+                    else:
+                        self.sell_items[temp_items_lists[i]] = item_rarity[i]
         else:
             self.sell_items = sell_items
 

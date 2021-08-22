@@ -1,7 +1,7 @@
 import numpy as np
 import random
 
-from typing import List, Tuple, TYPE_CHECKING
+from typing import List, Tuple, TYPE_CHECKING, Optional
 
 from entity import SemiActor
 from order import TilemapOrder
@@ -493,7 +493,7 @@ def generate_pits(gamemap: GameMap, room: Room) -> None:
 
 
 
-def grow_chest(gamemap, x, y, chest_id:str, lifetime=-1, initial_items: List=None) -> None:
+def grow_chest(gamemap, x, y, chest_id:str, lifetime=-1, initial_items: List=None) -> chest_factories.ChestSemiactor:
     """
     Spawn a chest type SemiActor instance of given name at given location.
     NOTE: This function is based on grow_traps() function
@@ -511,20 +511,20 @@ def grow_chest(gamemap, x, y, chest_id:str, lifetime=-1, initial_items: List=Non
             If it's set to None, the chest will randomize items based on the default values. (default values are set in chest_factories.)
     """
     tilemap = gamemap.tilemap
-    if chest_id == "large_wooden_chest":
-        chest_factories.large_wooden_chest.spawn(gamemap=gamemap, x=x, y=y, lifetime=lifetime, initial_items=initial_items)
+    if chest_id:
+        return chest_factories.chest_id_to_chest[chest_id].spawn(gamemap=gamemap, x=x, y=y, lifetime=lifetime, initial_items=initial_items)
 
 
 def generate_chest(gamemap: GameMap, room: Room) -> None:
 
     possible_gen_tiles = room.inner_tiles
     checklist = room.terrain.gen_chests["checklist"]
-    chest_chosen = random.choices(list(checklist.keys()), weights=list(checklist.values()), k=1)[0]
+    chest_id_chosen = random.choices(list(checklist.keys()), weights=list(checklist.values()), k=1)[0]
     chest_num = random.randint(room.terrain.gen_chests["chest_num_range"][0], room.terrain.gen_chests["chest_num_range"][1])
     chest_coordinates = random.choices(possible_gen_tiles, k=chest_num)
 
     for loc in set(chest_coordinates):
-        grow_chest(gamemap=gamemap, x=loc[0], y=loc[1], chest_id=chest_chosen, initial_items=room.terrain.gen_chests["initial_items"])
+        grow_chest(gamemap=gamemap, x=loc[0], y=loc[1], chest_id=chest_id_chosen, initial_items=room.terrain.gen_chests["initial_items"])
 
 
 def generate_on_empty_convex(gamemap: GameMap, x:int, y:int) -> None:
@@ -532,8 +532,8 @@ def generate_on_empty_convex(gamemap: GameMap, x:int, y:int) -> None:
     Generate a random terrain to the given empty convex location.
     """
     if random.random() <= 0.5:
-        from chest_factories import choose_random_chest
-        grow_chest(gamemap=gamemap, x=x, y=y, chest_id=choose_random_chest(k=1)[0], initial_items=None)
+        from chest_factories import choose_random_chest_id
+        grow_chest(gamemap=gamemap, x=x, y=y, chest_id=choose_random_chest_id(k=1)[0], initial_items=None)
         # gamemap.tiles[x, y] = gamemap.tileset["t_DEBUG"]()
     else:
         from procgen import spawn_monsters_by_difficulty, choose_monster_difficulty

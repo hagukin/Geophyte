@@ -96,7 +96,7 @@ player = Actor(
     render_order=RenderOrder.PLAYER,
     ai_cls=None,
     status=Status(
-        hp=300, #300
+        hp=10000, #300
         mp=50,
         strength=15,
         dexterity=15,
@@ -122,12 +122,11 @@ player = Actor(
     inventory=Inventory(capacity=52, is_fireproof=False, is_acidproof=False, is_waterproof=False),
     ability_inventory=AbilityInventory(capacity=10),
     equipments=Equipments(),
-    initial_items=None,
-    # (
-    #     {"item": item_factories.lightning_bolt_spellbook, "chance":1, "count":(50,50), "BUC": {1:1, 0:0, -1:0}, "upgrade": None}, # NOTE: actor possesion BUC, upgrade has higher priority than item type inital_BUC, initial_upgrade
-    #     {"item": item_factories.steal_skillbook, "chance": 1, "count": (1, 5), "BUC": None, "upgrade": None},
-    #     {"item": item_factories.scroll_of_teleportation, "chance": 1, "count": (1, 3), "BUC": None, "upgrade": None},
-    # ),
+    initial_items=(
+        {"item": item_factories.potion_of_sleep, "chance":1, "count":(50,50), "BUC": {1:1, 0:0, -1:0}, "upgrade": None}, # NOTE: actor possesion BUC, upgrade has higher priority than item type inital_BUC, initial_upgrade
+        {"item": item_factories.potion_of_flame, "chance": 1, "count": (1, 5), "BUC": None, "upgrade": None},
+        {"item": item_factories.potion_of_liquified_ants, "chance": 1, "count": (1, 50), "BUC": None, "upgrade": None},
+    ),
     initial_equipments=None,
     # (
     #     # {"item":item_factories.leather_armor, "chance":1, "count":(1,1), "BUC":{-1:1, 0:1, 1:1}, "upgrade": {1:1,2:1,3:1,4:1}},
@@ -1938,7 +1937,7 @@ giant = Actor(
     status=Status(
         hp=192,
         mp=20,
-        strength=25,
+        strength=27,
         dexterity=14,
         agility=11,
         intelligence=15,
@@ -1950,14 +1949,9 @@ giant = Actor(
         protection=18,
         hearing=10,
         eyesight=14,
-        fire_resistance=0.5,
-        cold_resistance=0.5,
+        fire_resistance=0.2,
+        cold_resistance=0.2,
         poison_resistance=0.9,
-        acid_resistance=0.3,
-        shock_resistance=0.3,
-        magic_resistance=0.05,
-        sleep_resistance=0.8,
-        psychic_resistance=0.9
         ),
     actor_state=ActorState(
         size=6,

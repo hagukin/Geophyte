@@ -4,7 +4,7 @@ import random
 from typing import Tuple, Optional, List, Any
 from tcod.map import compute_fov
 from tcod import Console, console_get_width
-from entity import Actor
+from entity import Actor, Entity
 
 import math
 import numpy as np
@@ -211,17 +211,20 @@ def equip_region_name_to_str(region_name) -> str:
     return translated
 
 
-def spawn_entity_8way(entity, gamemap, center_x: int, center_y: int, spawn_cnt: int=8, spawn_on_center: bool=False, randomize: bool=True) -> None:
-    def spawn(_entity, _gamemap, _x: int, _y: int):
+def spawn_entity_8way(entity, gamemap, center_x: int, center_y: int, spawn_cnt: int=8, spawn_on_center: bool=False, randomize: bool=True) -> List[Entity]:
+    def spawn(_entity, _gamemap, _x: int, _y: int) -> Entity:
         if isinstance(_entity, Actor):
             if gamemap.check_tile_monster_spawnable(_x, _y):
-                entity.spawn(_gamemap, _x, _y, is_active=True)
+                return entity.spawn(_gamemap, _x, _y, is_active=True)
         else:
-            entity.spawn(_gamemap, _x, _y)
+            return entity.spawn(_gamemap, _x, _y)
 
+    spawned_list = []
 
     if spawn_on_center:
-        spawn(entity, gamemap, center_x, center_y)
+        tmp = spawn(entity, gamemap, center_x, center_y)
+        if tmp:
+            spawned_list.append(tmp)
 
     curr_spawn_cnt = 0
     xs = [1, 0, -1]
@@ -235,10 +238,14 @@ def spawn_entity_8way(entity, gamemap, center_x: int, center_y: int, spawn_cnt: 
             if dx == 0 and dy == 0:
                 continue
             if curr_spawn_cnt >= spawn_cnt:
-                return None
-            spawn(entity, gamemap, center_x+dx, center_y+dy)
+                return spawned_list
+            tmp = spawn(entity, gamemap, center_x+dx, center_y+dy)
+            if tmp:
+                spawned_list.append(tmp)
 
             curr_spawn_cnt += 1
+
+    return spawned_list
 
 
 def surround_grid_value_with(grid: np.ndarray, search_for: Any, surround_with: Any, surround_8way: bool = True) -> None:

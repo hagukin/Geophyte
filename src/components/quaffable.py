@@ -109,6 +109,32 @@ class PotionOfParalysisQuaffable(Quaffable):
                 self.engine.message_log.add_message(f"당신의 몸이 더 뻣뻣해졌다!", color.player_bad, )
 
 
+class PotionOfSleepQuaffable(Quaffable):
+    def __init__(self, turn: int):
+        super().__init__()
+        self.turn = turn
+
+    def apply_effect(self, apply_to: Actor) -> None:
+        temp = copy.copy(apply_to.actor_state.is_sleeping)
+        turn = self.turn
+        if self.parent.item_state.BUC == 1:
+            turn *= 2
+        apply_to.actor_state.apply_sleeping([0,turn], forced=False)
+
+        # Log
+        if temp == [0, 0]:
+            if apply_to == self.engine.player:
+                self.engine.message_log.add_message(f"당신은 급격한 나른함을 느낀다!", color.player_debuff, )
+            else:
+                if self.engine.game_map.visible[apply_to.x, apply_to.y]:
+                    self.engine.message_log.add_message(f"{g(apply_to.name, '이')} 잠을 자기 시작한다.", color.player_sense,
+                                                        target=apply_to)
+                    self.parent.item_state.identify_self(identify_level=1)
+        else:
+            if apply_to == self.engine.player:
+                self.engine.message_log.add_message(f"당신은 보다 깊은 잠에 빠져든다.", color.player_bad, )
+
+
 class PotionOfMonsterDetectionQuaffable(Quaffable):
     """The actor will gain a temporary ability to see far away actors that are on this level."""
     def __init__(self, turn: int):

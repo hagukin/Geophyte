@@ -250,6 +250,9 @@ class Engine:
             # Paralyzed
             if actor.actor_state.is_paralyzing != [0,0]:
                 actor.actor_state.actor_paralyzing()
+            # Sleeping
+            if actor.actor_state.is_sleeping != [0,0]:
+                actor.actor_state.actor_sleeping()
             # Confusion
             if actor.actor_state.is_confused != [0,0]:
                 actor.actor_state.actor_confused()

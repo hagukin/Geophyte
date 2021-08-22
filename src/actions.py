@@ -113,8 +113,6 @@ class PickupAction(Action):
 
         # Checking for inability
         if self.entity.check_for_immobility():
-            if self.entity == self.engine.player:
-                self.engine.message_log.add_message(f"아무 것도 할 수 없다!", color.player_severe)
             return None
 
         actor_location_x = self.entity.x
@@ -164,8 +162,6 @@ class DescendAction(Action):
 
         # Checking for inability
         if self.entity.check_for_immobility():
-            if self.entity == self.engine.player:
-                self.engine.message_log.add_message(f"아무 것도 할 수 없다!", color.player_severe)
             return None
 
         if self.engine.game_map.tiles[self.entity.x, self.entity.y]["tile_id"] == "descending_stair":
@@ -194,8 +190,6 @@ class AscendAction(Action):
 
         # Checking for inability
         if self.entity.check_for_immobility():
-            if self.entity == self.engine.player:
-                self.engine.message_log.add_message(f"아무 것도 할 수 없다!", color.player_severe)
             return None
 
         if self.engine.game_map.tiles[self.entity.x, self.entity.y]["tile_id"] == "ascending_stair":
@@ -262,8 +256,6 @@ class ThrowItem(ItemAction):
     def perform(self) -> None:
         # Checking for inability
         if self.entity.check_for_immobility():
-            if self.entity == self.engine.player:
-                self.engine.message_log.add_message(f"아무 것도 할 수 없다!", color.player_severe)
             return None
 
         # Check can remove
@@ -302,8 +294,6 @@ class DropItem(ItemAction):
     def perform(self) -> None:
         # Checking for inability
         if self.entity.check_for_immobility():
-            if self.entity == self.engine.player:
-                self.engine.message_log.add_message(f"아무 것도 할 수 없다!", color.player_severe)
             return None
 
         if self.item.item_state.equipped_region:
@@ -339,8 +329,6 @@ class SplitItem(Action):
     def perform(self) -> None:
         # Checking for inability
         if self.entity.check_for_immobility():
-            if self.entity == self.engine.player:
-                self.engine.message_log.add_message(f"아무 것도 할 수 없다!", color.player_severe)
             return None
 
         spliten_item = self.entity.inventory.split_item(item=self.item, split_amount=self.split_amount)
@@ -357,8 +345,6 @@ class ReadItem(ItemAction):
     def perform(self) -> None:
         # Checking for inability
         if self.entity.check_for_immobility():
-            if self.entity == self.engine.player:
-                self.engine.message_log.add_message(f"아무 것도 할 수 없다!", color.player_severe)
             return None
 
         if self.entity.actor_state.is_confused != [0,0] or self.entity.status.changed_status["intelligence"] < 10:
@@ -383,8 +369,6 @@ class QuaffItem(ItemAction):
     def perform(self) -> None:
         # Checking for inability
         if self.entity.check_for_immobility():
-            if self.entity == self.engine.player:
-                self.engine.message_log.add_message(f"아무 것도 할 수 없다!", color.player_severe)
             return None
 
         if self.entity.status.experience:
@@ -397,8 +381,6 @@ class EatItem(ItemAction):
     def perform(self) -> None:
         # Checking for inability
         if self.entity.check_for_immobility():
-            if self.entity == self.engine.player:
-                self.engine.message_log.add_message(f"아무 것도 할 수 없다!", color.player_severe)
             return None
 
         if self.entity.status.experience:
@@ -411,8 +393,6 @@ class EquipItem(ItemAction):
     def perform(self) -> None:
         # Checking for inability
         if self.entity.check_for_immobility():
-            if self.entity == self.engine.player:
-                self.engine.message_log.add_message(f"아무 것도 할 수 없다!", color.player_severe)
             return None
 
         self.entity.equipments.equip_equipment(self.item)
@@ -423,8 +403,6 @@ class UnequipItem(ItemAction):
     def perform(self) -> None:
         # Checking for inability
         if self.entity.check_for_immobility():
-            if self.entity == self.engine.player:
-                self.engine.message_log.add_message(f"아무 것도 할 수 없다!", color.player_severe)
             return None
 
         # Check can remove
@@ -454,8 +432,6 @@ class AbilityAction(Action):
     def perform(self) -> None:
         # Checking for inability
         if self.entity.check_for_immobility():
-            if self.entity == self.engine.player:
-                self.engine.message_log.add_message(f"아무 것도 할 수 없다!", color.player_severe)
             return None
 
         # gaining exp is handled in .activate()
@@ -525,6 +501,8 @@ class ChestTakeAction(ChestAction):
                     self.engine.message_log.add_message(f"{g(self.entity.name, '이')} {g(item.name, '을')} {self.chest_name}에서 꺼냈다.", color.enemy_unique)
                 else:
                     self.engine.message_log.add_message(f"{g(self.entity.name, '이')} {g(item.name, '을')} {self.chest_name}에서 꺼냈다. (x{item.stack_count})", color.enemy_unique)
+
+        self.chest_storage.parent.on_actor_take_trigger(interacted_with=self.entity)
 
 
 class ChestPutAction(ChestAction):
@@ -753,7 +731,7 @@ class MeleeAction(ActionWithDirection):
                     target.actor_state.apply_slowness(list(eff["var"]))
                 elif type == "sleep_target":
                     self.engine.message_log.add_message(f"{atk_name}의 공격이 {tar_name}에게 수면 상태이상을 부여했다!", fg=fg, target=self.entity)
-                    target.actor_state.apply_sleeping(list(eff["var"]))
+                    target.actor_state.apply_sleeping(list(eff["var"]), forced=False)
                 elif type == "melt_target":
                     self.engine.message_log.add_message(f"{atk_name}의 공격이 {tar_name}에게 산성 피해를 가했다!", fg=fg, target=self.entity)
                     target.actor_state.apply_melting(list(eff["var"]))
@@ -788,8 +766,6 @@ class MeleeAction(ActionWithDirection):
     def perform(self) -> None:
         # Checking for inability
         if self.entity.check_for_immobility():
-            if self.entity == self.engine.player:
-                self.engine.message_log.add_message(f"아무 것도 할 수 없다!", color.player_severe)
             return None
 
         # Set target
@@ -873,8 +849,6 @@ class MovementAction(ActionWithDirection):
     def perform(self) -> None:
         # Checking for inability
         if self.entity.check_for_immobility():
-            if self.entity == self.engine.player:
-                self.engine.message_log.add_message(f"아무 것도 할 수 없다!", color.player_severe)
             return None
         
         # Set destination
@@ -883,7 +857,8 @@ class MovementAction(ActionWithDirection):
         ### Check map boundaries ###
         if not self.engine.game_map.in_bounds(dest_x, dest_y):
             # Destination is out of bounds.
-            self.engine.message_log.add_message("길이 막혀 있다.", fg=color.impossible)
+            if self.entity == self.engine.player:
+                self.engine.message_log.add_message("길이 막혀 있다.", fg=color.impossible)
             return None
 
         # If the actor is stuck in pit
@@ -908,12 +883,14 @@ class MovementAction(ActionWithDirection):
 
         if not self.engine.game_map.tiles["walkable"][dest_x, dest_y]:
             # Destination is blocked by a tile.
-            self.engine.message_log.add_message("길이 막혀 있다.", fg=color.impossible)
+            if self.entity == self.engine.player:
+                self.engine.message_log.add_message("길이 막혀 있다.", fg=color.impossible)
             return None
             
         if self.engine.game_map.get_blocking_entity_at_location(dest_x, dest_y):
             # Destination is blocked by an entity.
-            self.engine.message_log.add_message("길이 막혀 있다.", fg=color.impossible)
+            if self.entity == self.engine.player:
+                self.engine.message_log.add_message("길이 막혀 있다.", fg=color.impossible)
             return None
 
         self.entity.move(self.dx, self.dy)
@@ -972,8 +949,6 @@ class DoorUnlockAction(ActionWithDirection):
 
         # Checking for inability
         if self.entity.check_for_immobility():
-            if self.entity == self.engine.player:
-                self.engine.message_log.add_message(f"아무 것도 할 수 없다!", color.player_severe)
             return None
 
         # Get door coordinates
@@ -1087,8 +1062,6 @@ class DoorBreakAction(ActionWithDirection):
     def perform(self) -> None:
         # Checking for inability
         if self.entity.check_for_immobility():
-            if self.entity == self.engine.player:
-                self.engine.message_log.add_message(f"아무 것도 할 수 없다!", color.player_severe)
             return None
 
         # Get door coordinates
@@ -1153,8 +1126,6 @@ class DoorOpenAction(ActionWithDirection):
         """
         # Checking for inability
         if self.entity.check_for_immobility():
-            if self.entity == self.engine.player:
-                self.engine.message_log.add_message(f"아무 것도 할 수 없다!", color.player_severe)
             return None
 
         # Get door coordinates
@@ -1196,8 +1167,6 @@ class DoorCloseAction(ActionWithDirection):
 
         # Checking for inability
         if self.entity.check_for_immobility():
-            if self.entity == self.engine.player:
-                self.engine.message_log.add_message(f"아무 것도 할 수 없다!", color.player_severe)
             return None
 
         # Set coordinates
@@ -1280,8 +1249,6 @@ class PlaceSwapAction(Action):
     def perform(self) -> None:
         # Checking for inability
         if self.entity.check_for_immobility():
-            if self.entity == self.engine.player:
-                self.engine.message_log.add_message(f"아무 것도 할 수 없다!", color.player_severe)
             return None
 
         temp_x, temp_y = self.entity.x, self.entity.y
@@ -1308,8 +1275,6 @@ class BumpAction(ActionWithDirection):
     def perform(self) -> None:
         # Checking for inability
         if self.entity.check_for_immobility():
-            if self.entity == self.engine.player:
-                self.engine.message_log.add_message(f"아무 것도 할 수 없다!", color.player_severe)
             return None
 
         if self.bump_entity:

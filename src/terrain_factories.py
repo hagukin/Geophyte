@@ -1,7 +1,9 @@
 from terrain import Terrain
 from unique_terrains.shop import ShopTerrain
 from unique_terrains.chamber_of_kugah import ChamberOfKugahTerrain
+from unique_terrains.guarded_treasure import GuardedTreasureTerrain
 import semiactor_factories
+from order import InventoryOrder
 
 terrain_dict = {}
 terrain_rarity = []
@@ -90,7 +92,7 @@ large_pit = Terrain(
     shape={
         "blob":1,
     },
-    gen_pits={"core_num_range":(1,1), "scale_range":(5,8), "density":0.9, "no_border":True},
+    gen_pits={"core_num_range":(1,8), "scale_range":(1,4), "density":0.9, "no_border":True},
 )
 terrain_dict[large_pit.terrain_id] = large_pit
 terrain_rarity.append(large_pit.rarity)
@@ -130,10 +132,6 @@ swamp = Terrain(
     terrain_id="swamp",
     terrain_desc="Desc of swamp terrain (TEST)",
     rarity=2,
-    min_width=15,
-    min_height=15,
-    max_width=20,
-    max_height=20,
     spawn_item=True,
     spawn_monster=True,
     gen_grass={"core_num_range":(4,8), "scale_range":(2,4), "density":0.7},
@@ -157,6 +155,7 @@ general_shop = ShopTerrain(
     max_height=8,
     custom_gen=ShopTerrGen.generate_shop,
     sell_items=None,
+    sell_items_type_limit=None,
     shape=None
 )
 terrain_dict[general_shop.terrain_id] = general_shop
@@ -170,24 +169,14 @@ potion_shop = ShopTerrain(
     name="포션 상점",
     terrain_id="potion_shop",
     terrain_desc="potion shop desc",
-    rarity=1,
+    rarity=99,
     min_width=6,
     max_width=8,
     min_height=6,
     max_height=8,
     custom_gen=ShopTerrGen.generate_shop,
-    sell_items=
-    {
-        item_factories.potion_of_healing : item_factories.potion_of_healing.rarity,
-        item_factories.potion_of_flame : item_factories.potion_of_flame.rarity,
-        item_factories.potion_of_levitation : item_factories.potion_of_levitation.rarity,
-        item_factories.potion_of_liquified_ants : item_factories.potion_of_liquified_ants.rarity,
-        item_factories.potion_of_monster_detection : item_factories.potion_of_monster_detection.rarity,
-        item_factories.potion_of_poison : item_factories.potion_of_poison.rarity,
-        item_factories.potion_of_paralysis : item_factories.potion_of_paralysis.rarity,
-        item_factories.potion_of_acid : item_factories.potion_of_acid.rarity,
-        item_factories.potion_of_frost : item_factories.potion_of_frost.rarity,
-    },
+    sell_items=None,
+    sell_items_type_limit=(InventoryOrder.POTION, ),
     shape=None,
 )
 terrain_dict[potion_shop.terrain_id] = potion_shop
@@ -212,3 +201,22 @@ chamber_of_kugah = ChamberOfKugahTerrain(
 )
 terrain_dict[chamber_of_kugah.terrain_id] = chamber_of_kugah
 terrain_rarity.append(chamber_of_kugah.rarity)
+
+
+# Chamber Of Kugah
+from custom_terrgen import GuardedTreasureTerrGen
+guarded_treasure = GuardedTreasureTerrain(
+    name="보호받는 보물",
+    terrain_id="guarded_treasure",
+    terrain_desc="guarded treasure desc",
+    rarity=120,
+    spawn_item=False,
+    spawn_monster=False,
+    custom_gen=GuardedTreasureTerrGen.generate_guarded_treasure,
+    gen_chests=None, # Disable procedural chest spawning
+    gen_treasure_chests={"checklist":{"golden_chest" : 10},
+                "chest_num_range":(1,1),
+                "initial_items": None},
+)
+terrain_dict[guarded_treasure.terrain_id] = guarded_treasure
+terrain_rarity.append(guarded_treasure.rarity)

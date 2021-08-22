@@ -61,7 +61,7 @@ potion_of_paralysis = Item(
     fg=(255, 0, 255),
     name="마비 물약",
     entity_id="potion_of_paralysis",
-    entity_desc=("마비의 물약은 생명체를 일시적으로 마비시킬 수 있는 위험한 포션이다. "
+    entity_desc=("마비 물약은 생명체를 일시적으로 마비시킬 수 있는 위험한 포션이다. "
                  "주로 사냥꾼들이 위험한 야수들을 사냥할 때 사용하곤 한다. "
                  ),
     item_type_desc=("예로부터 물약은 인간, 비인간을 막론하고 다양한 지적 생명체들에게 널리 연구되어왔다. "
@@ -90,6 +90,44 @@ potion_of_paralysis = Item(
 )
 temp_items_lists.append(potion_of_paralysis)
 item_rarity.append(potion_of_paralysis.rarity)
+
+
+### Potion of sleep
+potion_of_sleep = Item(
+    should_randomize=True,
+    char="!",
+    fg=(255, 0, 255),
+    name="수면 물약",
+    entity_id="potion_of_paralysis",
+    entity_desc=("수면 물약은 생명체를 순식간에 깊은 잠에 빠지게 만든다. "
+                 "생명체는 통상적인 수면보다 깊게 잠들게 되지만, 외부로부터의 충격을 받으면 잠에서 깰 수 있다. "
+                 ),
+    item_type_desc=("예로부터 물약은 인간, 비인간을 막론하고 다양한 지적 생명체들에게 널리 연구되어왔다. "
+                    "때문에 지금은 그 종류도 굉장히 다양한데, 이 중 일부는 생명체에게 치명적인 효과를 부여하기도 한다. "
+                    "대부분의 물약들은 신체에 빠르게 흡수되며 극도로 높은 반응성을 띄기 때문에 주로 유리병에 담아 보관한다."
+                    ),
+    rarity=20,
+    weight=0.2,
+    price=100,
+    item_type=InventoryOrder.POTION,
+    item_state=ItemState(),
+    spawnable=True,
+    flammable=0,
+    corrodible=0,
+    droppable=True,
+    stackable=True,
+    throwable=throwable.PotionQuaffAndThrowSameEffectThrowable(
+        break_chance=1,
+        trigger_if_thrown_at=True,
+        identify_when_shattered=0,
+        identify_when_collided_with_entity=0,
+        identify_when_collided_with_actor=1
+    ), # Handle in quaffable
+    readable=None,
+    quaffable=quaffable.PotionOfSleepQuaffable(turn=20),
+)
+temp_items_lists.append(potion_of_sleep)
+item_rarity.append(potion_of_sleep.rarity)
 
 
 ### Potion of mosnter detection
@@ -1072,7 +1110,7 @@ giant_wood_club = Item(
     entity_id="giant_wood_club",
     entity_desc="성인 남성 정도 크기의 거대한 나무 곤봉이다. ",
     rarity=1,
-    weight=284,
+    weight=80,
     price=5,
     item_type=InventoryOrder.MELEE_WEAPON,
     item_state=ItemState(is_identified=1),

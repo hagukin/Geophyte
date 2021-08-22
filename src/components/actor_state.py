@@ -424,18 +424,16 @@ class ActorState(BaseComponent):
 
     def actor_burn(self):
         if self.parent.status.changed_status["fire_resistance"] >= 1:
-            if self.is_burning[2] < 0:
-                return None
             if self.parent == self.engine.player:
                 self.engine.message_log.add_message(f"당신은 화염에 저항했다!", fg=color.player_success)
             else:
                 self.engine.message_log.add_message(f"{g(self.parent.name, '은')} 화염에 저항했다!", fg=color.enemy_unique, target=self.parent)
             self.apply_burning([0, 0, 0, 0])
         else:
-            if self.is_burning[3] > 0 and self.is_burning[2] >= self.is_burning[3]: # No damage if the fire goes off
+            if self.is_burning[3] > 0 and self.is_burning[2] >= self.is_burning[3]: # Stop burning
                 self.apply_burning([0, 0, 0, 0])
             else:
-                if self.is_burning[2] >= 0: # Last infinitly if negetive
+                if self.is_burning[3] >= 0: # INf
                     self.is_burning[2] += 1 # current turn += 1
 
                 # Calculate dmg for current turn
@@ -468,7 +466,7 @@ class ActorState(BaseComponent):
         Actor is currently paralyzed.
         """
         # Reduce turn
-        if self.is_paralyzing[0] >= self.is_paralyzing[1]:
+        if self.is_paralyzing[0] >= self.is_paralyzing[1] and self.is_paralyzing[1] > 0: # Stop paralyzing
             # Log
             if self.parent == self.engine.player:
                 self.engine.message_log.add_message(f"당신은 다시 움직일 수 있게 되었다.", fg=color.white)
@@ -478,8 +476,28 @@ class ActorState(BaseComponent):
             self.apply_paralyzation([0,0])
             return None
         else:
-            if self.is_paralyzing[0] >= 0: # Last infinitly if negative
+            if self.is_paralyzing[1] >= 0: # Last infinitly if negative
                 self.is_paralyzing[0] += 1
+
+    def actor_sleeping(self):
+        """
+        Actor is currently sleeping.
+        """
+        # Reduce turn
+        if self.is_sleeping[0] >= self.is_sleeping[1] and self.is_sleeping[1] > 0: # Stop sleeping
+            # Log
+            if self.parent == self.engine.player:
+                self.engine.message_log.add_message(f"당신은 잠에서 깨어났다.", fg=color.white)
+            else:
+                self.engine.message_log.add_message(f"{g(self.parent.name, '이')} 잠에서 깨어났다.", fg=color.white, target=self.parent)
+            # Remove sleeping
+            self.parent.status.remove_bonus(bonus_id="sleep_bonus")
+            self.apply_sleeping([0,0], forced=True)
+            return None
+        else:
+            if self.is_sleeping[1] >= 0: # Last infinitly if negative
+                self.parent.status.add_bonus(bonus=Bonus(bonus_id="sleep_bonus",bonus_constitution=7), ignore_warning=True)
+                self.is_sleeping[0] += 1
 
     def actor_freeze(self):
         """
@@ -491,8 +509,6 @@ class ActorState(BaseComponent):
             return None
 
         if self.parent.status.changed_status["cold_resistance"] >= 1:
-            if self.is_freezing[3] < 0:
-                return None
             if self.parent == self.engine.player:
                 self.engine.message_log.add_message(f"당신은 냉기에 저항했다!", fg=color.player_success)
             else:
@@ -501,11 +517,11 @@ class ActorState(BaseComponent):
             # Reset this actor's agility value
             self.parent.status.remove_bonus("freeze_bonus")
         else:
-            if self.is_freezing[3] >= self.is_freezing[4]: # If past max turn, reset stats
+            if self.is_freezing[3] >= self.is_freezing[4] and self.is_freezing[4] > 0: # Stop freezing
                 self.apply_freezing([0, 0, 0, 0, 0])
                 self.parent.status.remove_bonus("freeze_bonus")
             else:
-                if self.is_freezing[3] >= 0: # Last infinitly if negative
+                if self.is_freezing[4] >= 0: # Last infinitly if negative
                     self.is_freezing[3] += 1 # current_turn += 1
                 
                 # Damage reduction
@@ -552,11 +568,11 @@ class ActorState(BaseComponent):
         """
         Actor is completely frozen
         """
-        if self.is_frozen[1] >= self.is_frozen[2]:# Stats reset after max turn
+        if self.is_frozen[1] >= self.is_frozen[2] and self.is_frozen[2] > 0: # Stop frozen
             self.apply_frozen([0,0,0])
             self.parent.status.remove_bonus("frozen_bonus")
         else:
-            if self.is_frozen[1] >= 0: # will last infinitly if negetive
+            if self.is_frozen[2] >= 0: # will last infinitly if negetive
                 self.is_frozen[1] += 1 #current_turn += 1
 
             # dmg calc
@@ -670,7 +686,7 @@ class ActorState(BaseComponent):
         Actual features are usually handled in action. (e.g. MovementAction handles staggering effect)
         """
         # Check turns
-        if self.is_confused[0] >= self.is_confused[1]:
+        if self.is_confused[0] >= self.is_confused[1] and self.is_confused[1] > 0: # stop confused
             if self.parent == self.engine.player:
                 self.engine.message_log.add_message(f"당신은 다시 정신을 차렸다.", fg=color.player_neutral)
             else:
@@ -692,7 +708,7 @@ class ActorState(BaseComponent):
                 self.engine.message_log.add_message(f"{g(self.parent.name, '은')} 더 이상 산으로부터 데미지를 받고 있지 않다.",fg=color.enemy_neutral, target=self.parent)
                 
         # Check turns
-        if self.is_melting[2] >= self.is_melting[3]:
+        if self.is_melting[2] >= self.is_melting[3] and self.is_melting > 0: # Stop melting
             self.apply_melting([0, 0, 0, 0])
             if self.parent == self.engine.player:
                 self.engine.message_log.add_message(f"당신은 더 이상 산으로부터 데미지를 받고 있지 않다.", fg=color.player_neutral)
@@ -732,14 +748,14 @@ class ActorState(BaseComponent):
             return None
 
         # Check turns
-        if self.is_bleeding[1] >= self.is_bleeding[2]:
+        if self.is_bleeding[1] >= self.is_bleeding[2] and self.is_bleeding[2] > 0: # Stop bleeding
             if self.parent == self.engine.player:
                 self.engine.message_log.add_message(f"당신은 더 이상 출혈 상태가 아니다.", fg=color.player_neutral)
             else:
                 self.engine.message_log.add_message(f"{self.parent.name}의 출혈이 멎은 듯 하다.", fg=color.enemy_neutral, target=self.parent)
             self.apply_bleeding([0,0,0])
         else:
-            if self.is_bleeding[1] >= 0: # lasts forever if negative
+            if self.is_bleeding[2] >= 0: # lasts forever if negative
                 self.is_bleeding[1] += 1
 
             blood_dmg = self.is_bleeding[0]
@@ -763,12 +779,12 @@ class ActorState(BaseComponent):
         """
         Actor is levitating.
         """
-        if self.is_levitating[0] >= self.is_levitating[1]:
+        if self.is_levitating[0] >= self.is_levitating[1] and self.is_levitating[1] > 0: # Stop levitating
             if self.parent == self.engine.player:
                 self.engine.message_log.add_message(f"당신은 더 이상 공중 부양 상태가 아니다.", fg=color.player_neutral)
             self.apply_levitation([0, 0])
             self.parent.float(False)
-        elif self.is_levitating[0] >= 0:  # lasts forever if negative
+        elif self.is_levitating[1] >= 0:  # lasts forever if negative
             self.is_levitating[0] += 1
 
         if self.is_levitating != [0, 0]:
@@ -786,7 +802,7 @@ class ActorState(BaseComponent):
             self.apply_poisoning([0, 0, 0, 0])
             self.parent.status.remove_bonus("poison_bonus")
         else:
-            if self.is_poisoned[2] >= self.is_poisoned[3]:
+            if self.is_poisoned[2] >= self.is_poisoned[3] and self.is_poisoned[3] > 0: # Stop poisoning
                 if self.parent == self.engine.player:
                     self.engine.message_log.add_message(f"당신은 더 이상 중독 상태가 아니다.", fg=color.player_neutral)
                 else:
@@ -794,7 +810,7 @@ class ActorState(BaseComponent):
                 self.apply_poisoning([0, 0, 0, 0])
                 self.parent.status.remove_bonus("poison_bonus")
             else:
-                if self.is_poisoned[2] >= 0: # lasts forever if negative
+                if self.is_poisoned[3] >= 0: # lasts forever if negative
                     self.is_poisoned[2] += 1
                     # Damage will rise each turn
                     self.is_poisoned[0] += self.is_poisoned[1]
@@ -834,12 +850,9 @@ class ActorState(BaseComponent):
         """
         # Remove fire unless the fire lasts eternally (Check if current turn value is negative or not)
         # NOTE: Items in actor's inv will not be effected. TODO: fix? add wet items?
-        if self.is_burning[2] >= 0:
-            self.apply_burning([0, 0, 0, 0])
-            self.parent.inventory_extinguish()
-        if self.is_melting[2] >= 0:
-            self.apply_melting([0, 0, 0, 0])
-            # No need for removing the corrosion
+        self.apply_burning([0, 0, 0, 0])
+        self.parent.inventory_extinguish()
+        self.apply_melting([0, 0, 0, 0])
 
         # Debuffs on agi and dex if you cant swim
         if self.is_underwater:
@@ -886,11 +899,11 @@ class ActorState(BaseComponent):
         Actual detection calculation occurs during update_fov()
         """
         # Check turns
-        if self.is_detecting_obj[0] >= self.is_detecting_obj[1]:
+        if self.is_detecting_obj[0] >= self.is_detecting_obj[1] and self.is_detecting_obj[1] > 0: # Stop detecting
             if self.parent == self.engine.player:
                 self.engine.message_log.add_message(f"당신은 감각이 다시 원래대로 돌아오는 것을 느꼈다.", target=self.parent, fg=color.player_neutral)
             self.apply_object_detection([0,0,[]])
-        elif self.is_detecting_obj[0] >= 0: # lasts forever if negative
+        elif self.is_detecting_obj[1] >= 0: # lasts forever if negative
             self.is_detecting_obj[0] += 1
 
     def remove_all_actor_states(self, include_spatial_states: bool = False):
@@ -926,7 +939,7 @@ class ActorState(BaseComponent):
         self.apply_levitation([0, 0])
         self.apply_drowning([0, 0])
         # nonphysical states
-        self.apply_sleeping([0, 0])
+        self.apply_sleeping([0, 0], forced=True)
         self.apply_anger([0, 0])
         self.apply_confusion([0, 0])
         self.apply_hallucination([0, 0])
@@ -1176,7 +1189,7 @@ class ActorState(BaseComponent):
             self.is_phasing = value
 
     def apply_paralyzation(self, value: List[int,int]) -> None:
-        if self.is_paralyzing[1] < 0:
+        if self.is_paralyzing[1] < 0 and value != [0,0]: # Ignore less fatal paralyzation. although you can still unparalyze infinitely paralyzing actor
             return None
         if self.is_paralyzing != [0,0] and value != [0,0]:
             # keep current turn unchanged
@@ -1201,15 +1214,34 @@ class ActorState(BaseComponent):
         else:
             self.is_drowning = value
 
-    def apply_sleeping(self, value: List[int,int]) -> None:
-        if self.is_sleeping[1] < 0:
-            return None
-        if self.is_sleeping != [0,0] and value != [0,0]:
-            # keep current turn unchanged
-            # keep max turn unchanged
-            pass
+    def apply_sleeping(self, value: List[int,int], forced:bool=False) -> None:
+        """
+        Args:
+            Sleep on will:
+                indicates whether the actor is sleeping on its own will.
+                if True, ignore sleep resistance.
+        """
+        # NOTE: Sleeping is the only state effect that checks for resistance BEFORE actually handle the state effects.
+        if forced or (value != [0,0] and self.parent.status.changed_status["sleep_resistance"] < random.random()):
+            if self.is_sleeping[1] < 0 and value != [0,0]:  # Ignore less fatal sleeping. Althoguh you can wake up infinitely sleeping actor
+                return None
+            if self.is_sleeping != [0,0] and value != [0,0]:
+                # keep current turn unchanged
+                self.is_sleeping[1] = max(self.is_sleeping[1], value[1])
+            else:
+                # Wakeup log
+                if self.is_sleeping != [0,0] and value == [0,0]:
+                    if self.parent == self.engine.player:
+                        self.engine.message_log.add_message(f"당신은 잠에서 깨어났다!", fg=color.player_neutral_important)
+                    else:
+                        self.engine.message_log.add_message(f"{g(self.parent.name, '은')} 잠에서 깨어났다!", fg=color.enemy_unique)
+                self.is_sleeping = value
         else:
-            self.is_sleeping = value
+            if value != [0,0]:
+                if self.parent == self.engine.player:
+                    self.engine.message_log.add_message(f"당신은 잠에 저항했다!", fg=color.player_success)
+                else:
+                    self.engine.message_log.add_message(f"{g(self.parent.name, '은')} 잠에 저항했다!", fg=color.enemy_unique)
 
     def apply_anger(self, value: List[int,int]) -> None:
         if self.is_angry[1] < 0:
@@ -1288,7 +1320,7 @@ class ActorState(BaseComponent):
         elif state_name == "is_drowning":
             self.apply_drowning(value)
         elif state_name == "is_sleeping":
-            self.apply_sleeping(value)
+            self.apply_sleeping(value, forced=False)
         elif state_name == "is_angry":
             self.apply_anger(value)
         elif state_name == "is_confused":

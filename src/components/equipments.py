@@ -320,3 +320,8 @@ class Equipments(BaseComponent):
 
         self.equipments[region] = None
         self.update_dual_wielding()  # update
+
+    def remove_all_equipments(self, forced: bool=False):
+        for k, v in self.equipments.items():
+            if v != None:
+                self.remove_equipment(region=k, forced=forced)

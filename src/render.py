@@ -275,6 +275,13 @@ def render_character_state(
         else:
             num1 += 1
             console.print(x=lane1_x, y=y+num1, string="마비됨", fg=color.yellow)
+    if character.actor_state.is_sleeping != [0,0]:
+        if num1 > window_height:
+            num2 += 1
+            console.print(x=lane2_x, y=y+num2, string="잠이 듬", fg=color.pink)
+        else:
+            num1 += 1
+            console.print(x=lane1_x, y=y+num1, string="잠이 듬", fg=color.pink)
     if character.actor_state.is_confused != [0,0]:
         if num1 > window_height:
             num2 += 1

@@ -579,6 +579,7 @@ class Actor(Entity):
 
     def die(self, cause:str="low_hp", drop_item: bool=True, drop_edible: bool=True):
         if drop_item:
+            self.equipments.remove_all_equipments(forced=True)
             self.drop_all_items()
         if drop_edible:
             self.drop_corpse()
@@ -737,9 +738,18 @@ class Actor(Entity):
         This function should be called inside of every action subclasses' top row.
         """
         # Paralyzation
-        if self.actor_state.is_paralyzing != [0,0] or self.actor_state.is_frozen != [0,0,0]:
+        if self.actor_state.is_paralyzing != [0,0]:
+            if self == self.engine.player:
+                self.engine.message_log.add_message(f"당신은 마비되어 아무 것도 할 수 없다!", color.player_severe)
             return True
-
+        if self.actor_state.is_frozen != [0,0,0]:
+            if self == self.engine.player:
+                self.engine.message_log.add_message(f"당신은 완전히 얼어붙어 아무 것도 할 수 없다!", color.player_severe)
+            return True
+        if self.actor_state.is_sleeping != [0,0]:
+            if self == self.engine.player:
+                self.engine.message_log.add_message(f"당신은 잠에 들어 아무 것도 할 수 없다!", color.player_severe)
+            return True
         return False
     
     def inventory_on_fire(self):
