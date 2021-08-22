@@ -38,7 +38,7 @@ class GuardedTreasureTerrain(Terrain):
         gen_chests = None, # NOTE: Set this to None.
         gen_treasure_chests = None, # Modify this value.
         custom_gen = None, # Must have one
-        guardian_type: Actor = giant,
+        guardian_type: Actor = giant, # If none, choose dynamically.
     ):
         super().__init__(
             name=name,
@@ -92,7 +92,8 @@ class GuardedTreasureTerrain(Terrain):
 
         self.gen_treasure_chests = gen_treasure_chests
 
-        self.guardian_type = guardian_type # Actor
+        self.guardian_type = guardian_type# Actor
+
         self.guardians = [] # List
 
 

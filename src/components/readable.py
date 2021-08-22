@@ -534,7 +534,7 @@ class RayReadable(Readable):
             return self.item_use_cancelled(actor=consumer)
 
         self.engine.message_log.add_message(f"{g(self.parent.name, '을')} 사용할 방향을 선택하세요.", color.help_msg)
-        self.engine.message_log.add_message(f"방향키/마우스 이동 - 위치 선택, 엔터/마우스 클릭 - 결정", color.help_msg)
+        self.engine.message_log.add_message(f"방향키/마우스 이동:위치 선택 | 엔터/마우스 클릭:결정", color.help_msg)
 
         from input_handlers import RayRangedInputHandler
         self.engine.event_handler = RayRangedInputHandler(

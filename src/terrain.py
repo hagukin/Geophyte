@@ -1,9 +1,13 @@
 import random
+import game
 
 class Terrain:
     """
     Terrain component for the rooms.
     """
+    @property
+    def engine(self):
+        return game.Game.engine
 
     def __init__(
         self,

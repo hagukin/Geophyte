@@ -2,7 +2,7 @@ from __future__ import annotations
 from tcod.console import Console
 from tcod.context import Context, new
 
-from entity import SemiActor
+from entity import SemiActor, Actor
 from terrain import Terrain
 from biome import Biome
 from biome_by_depth import get_dungeon_biome
@@ -19,7 +19,7 @@ import biome_factories
 import terrain_generation
 
 from order import TilemapOrder
-from typing import Iterator, List, Tuple, TYPE_CHECKING
+from typing import Iterator, List, Tuple, TYPE_CHECKING, Optional
 from room_factories import Room, RectangularRoom, CircularRoom, BlobRoom
 from game_map import GameMap
 from render import randomized_screen_paint
@@ -87,6 +87,21 @@ def choose_monster_difficulty(depth: int, toughness: int=0) -> int:
     return difficulty_chosen
 
 
+def choose_monster_by_difficulty(difficulty: int) -> Optional[Actor]:
+    rarity_list = actor_factories.ActorDB.monster_rarity_for_each_difficulty[difficulty]
+
+    try:
+        monster_to_spawn = random.choices(
+            population=actor_factories.ActorDB.monster_difficulty[difficulty],
+            weights=rarity_list,
+            k=1
+        )[0]
+        return monster_to_spawn
+    except IndexError as e:
+        print(f"ERROR::Cannot spawn monster of difficulty {difficulty}.")
+        return None # FIXME
+
+
 def spawn_monsters_by_difficulty(
     x: int, y: int, difficulty: int, dungeon: GameMap, spawn_awake=False, is_first_generation=False,
 ) -> None:
@@ -100,16 +115,8 @@ def spawn_monsters_by_difficulty(
             Boolean, Is this function called by the gamemap generation function?
             (=is this the first time that the monster is being generated to this dungeon?)
     """
-    rarity_list = actor_factories.ActorDB.monster_rarity_for_each_difficulty[difficulty]
-
-    try:
-        monster_to_spawn = random.choices(
-            population=actor_factories.ActorDB.monster_difficulty[difficulty],
-            weights=rarity_list,
-            k=1
-            )[0]
-    except IndexError as e:
-        print(f"ERROR::Cannot spawn monster of difficulty {difficulty}.")
+    monster_to_spawn = choose_monster_by_difficulty(difficulty)
+    if monster_to_spawn is None:
         return None
 
     # Spawn new monster

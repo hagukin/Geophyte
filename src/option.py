@@ -172,7 +172,7 @@ class Option():
             cfg = json.load(f)
 
         console.print(Option.opt_x + 2, Option.opt_y + 2, string=f"<<---- 현재 컨트롤 설정 ---->>\
-                \n\nTODO", fg=color.option_fg)
+                \n\n추가 예정", fg=color.option_fg)
         Option.render_gui_keys(console, context, 'control', initial_y=5)  # TODO Hard-coded
         context.present(console, keep_aspect=True)
 
@@ -183,7 +183,7 @@ class Option():
             cfg = json.load(f)
 
         console.print(Option.opt_x + 2, Option.opt_y + 2, string=f"<<---- 현재 언어 설정 ---->>\
-                \n\nTODO", fg=color.option_fg)
+                \n\nalpha v1.1에서는 한국어만을 지원합니다. 곧 영어가 추가될 예정입니다!", fg=color.option_fg)
         Option.render_gui_keys(console, context, 'language', initial_y=5)  # TODO Hard-coded
         context.present(console, keep_aspect=True)
 
@@ -194,7 +194,7 @@ class Option():
             cfg = json.load(f)
 
         console.print(Option.opt_x + 2, Option.opt_y + 2, string=f"<<---- 현재 게임플레이 설정 ---->>\
-                \n\nTODO", fg=color.option_fg)
+                \n\n추가 예정", fg=color.option_fg)
         Option.render_gui_keys(console, context, 'gameplay', initial_y=5)  # TODO Hard-coded
         context.present(console, keep_aspect=True)
 
@@ -204,8 +204,7 @@ class Option():
         with open("./config/config.json", "r") as f:
             cfg = json.load(f)
 
-        console.print(Option.opt_x + 2, Option.opt_y + 2, string=f"설정 초기화를 적용하려면 게임을 다시 시작해야 적용됩니다.\
-                \n\nTODO", fg=color.option_fg)
+        console.print(Option.opt_x + 2, Option.opt_y + 2, string=f"설정 초기화는 게임을 다시 시작해야 적용됩니다.", fg=color.option_fg)
         Option.render_gui_keys(console, context, 'reset', initial_y=5)  # TODO Hard-coded
         context.present(console, keep_aspect=True)
 

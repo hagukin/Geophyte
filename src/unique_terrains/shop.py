@@ -38,7 +38,7 @@ class ShopTerrain(Terrain):
         gen_chests = None,
         custom_gen = None, # Must have one
         sell_items = None,
-        sell_items_type_limit: Optional[Tuple[InventoryOrder]] = None,
+        sell_items_type_limit: Optional[Tuple[InventoryOrder, ...]] = None,
         items_on_stock = None,
         shopkeeper_type: Actor = shopkeeper,
     ):

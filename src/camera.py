@@ -68,12 +68,18 @@ class Camera:
         self.adjust()
         return self.ypos + self.height
 
-    def move(self, dx: int=0, dy: int=0) -> None:
+    def move(self, dx: int=0, dy: int=0) -> bool:
         """Move the camera position."""
+        failed = False
         if 0 <= self.xpos + dx <= self.engine.game_map.width - self.width:
             self.dx = self.dx + dx
+        else:
+            failed = True
         if 0 <= self.ypos + dy <= self.engine.game_map.height - self.height:
             self.dy = self.dy + dy
+        else:
+            failed = True
+        return not failed
 
     def reset_dxdy(self, adjust:bool=True) -> None:
         self.dx = 0

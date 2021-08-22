@@ -90,7 +90,7 @@ obtain_item = (3, 252, 211)
 
 ###################
 
-help_msg = violet
+help_msg = yellow
 status_effect_applied = (0x3F, 0xFF, 0x3F)
 burdened = yellow
 stressed = (255, 179, 0)

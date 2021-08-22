@@ -3,7 +3,7 @@
     "screen_height": 54,
     "tile_width": 16,
     "tile_height": 16,
-    "fullscreen": false,
+    "fullscreen": true,
     "camera_width": 67,
     "camera_height": 41,
     "camera_xpos": 1,

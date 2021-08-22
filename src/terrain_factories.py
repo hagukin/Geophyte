@@ -13,13 +13,36 @@ dungeon_chamber = Terrain(
     name="던전 챔버",
     terrain_id="dungeon_chamber",
     terrain_desc="Desc of dungeon chamber terrain (TEST)",
-    rarity=30,
+    rarity=40,
     spawn_item=True,
     spawn_monster=True,
     gen_grass=None,
 )
 terrain_dict[dungeon_chamber.terrain_id] = dungeon_chamber
 terrain_rarity.append(dungeon_chamber.rarity)
+
+
+# Landmine chamber
+landmine_chamber = Terrain(
+    name="지뢰밭",
+    terrain_id="landmine_chamber",
+    terrain_desc="Desc of dungeon chamber terrain (TEST)",
+    rarity=10,
+    spawn_item=True,
+    spawn_monster=False,
+    gen_grass=None,
+    gen_traps={
+        "checklist":{
+            semiactor_factories.explosion_trap:5,
+        },
+        "max_traps_per_room":100,
+        "spawn_chance":0.9,
+        "forced_traps_gen_number":1
+    },
+    gen_chests={"checklist":{"large_wooden_chest" : 10}, "chest_num_range":(1,1), "initial_items":None},
+)
+terrain_dict[landmine_chamber.terrain_id] = landmine_chamber
+terrain_rarity.append(landmine_chamber.rarity)
 
 
 # Grass Field
@@ -72,7 +95,7 @@ chest_room = Terrain(
     rarity=1,
     spawn_item=False,
     spawn_monster=True,
-    gen_chests={"checklist":{"large_wooden_chest" : 10}, "chest_num_range":(1,8), "initial_items":None},
+    gen_chests={"checklist":{"large_wooden_chest" : 10}, "chest_num_range":(1,3), "initial_items":None},
 )
 terrain_dict[chest_room.terrain_id] = chest_room
 terrain_rarity.append(chest_room.rarity)
@@ -82,7 +105,7 @@ large_pit = Terrain(
     name="큰 구덩이",
     terrain_id="large_pit",
     terrain_desc="Desc of large_pit terrain (TEST)",
-    rarity=2,
+    rarity=1,
     min_width=12,
     min_height=12,
     max_width=16,
@@ -103,7 +126,7 @@ giant_hole = Terrain(
     name="큰 구멍",
     terrain_id="giant_hole",
     terrain_desc="Desc of giant_hole terrain (TEST)",
-    rarity=2,
+    rarity=3,
     spawn_item=False,
     spawn_monster=False,
     gen_holes={"core_num_range":(1,8), "scale_range":(1,4), "density":0.6, "no_border":True},
@@ -117,7 +140,7 @@ ocean = Terrain(
     name="바다",
     terrain_id="Ocean",
     terrain_desc="Desc of ocean terrain (TEST)",
-    rarity=1,
+    rarity=2,
     spawn_item=True,
     spawn_monster=True,
     gen_water={"core_num_range":(3,6), "scale_range":(4,8), "density":0.9, "no_border":True},
@@ -131,7 +154,7 @@ swamp = Terrain(
     name="늪지대",
     terrain_id="swamp",
     terrain_desc="Desc of swamp terrain (TEST)",
-    rarity=2,
+    rarity=15,
     spawn_item=True,
     spawn_monster=True,
     gen_grass={"core_num_range":(4,8), "scale_range":(2,4), "density":0.7},
@@ -169,7 +192,7 @@ potion_shop = ShopTerrain(
     name="포션 상점",
     terrain_id="potion_shop",
     terrain_desc="potion shop desc",
-    rarity=99,
+    rarity=1,
     min_width=6,
     max_width=8,
     min_height=6,
@@ -181,6 +204,48 @@ potion_shop = ShopTerrain(
 )
 terrain_dict[potion_shop.terrain_id] = potion_shop
 terrain_rarity.append(potion_shop.rarity)
+
+
+# Weapon shop
+from custom_terrgen import ShopTerrGen
+import item_factories
+weapon_shop = ShopTerrain(
+    name="무기 상점",
+    terrain_id="weapon_shop",
+    terrain_desc="weapon shop desc",
+    rarity=1,
+    min_width=6,
+    max_width=8,
+    min_height=6,
+    max_height=8,
+    custom_gen=ShopTerrGen.generate_shop,
+    sell_items=None,
+    sell_items_type_limit=(InventoryOrder.MELEE_WEAPON, InventoryOrder.THROWING_WEAPON,),
+    shape=None,
+)
+terrain_dict[weapon_shop.terrain_id] = weapon_shop
+terrain_rarity.append(weapon_shop.rarity)
+
+
+# Scroll shop
+from custom_terrgen import ShopTerrGen
+import item_factories
+scroll_shop = ShopTerrain(
+    name="주문서 상점",
+    terrain_id="scroll_shop",
+    terrain_desc="scroll shop desc",
+    rarity=1,
+    min_width=6,
+    max_width=8,
+    min_height=6,
+    max_height=8,
+    custom_gen=ShopTerrGen.generate_shop,
+    sell_items=None,
+    sell_items_type_limit=(InventoryOrder.SCROLL,),
+    shape=None,
+)
+terrain_dict[scroll_shop.terrain_id] = scroll_shop
+terrain_rarity.append(scroll_shop.rarity)
 
 
 # Chamber Of Kugah
@@ -209,7 +274,7 @@ guarded_treasure = GuardedTreasureTerrain(
     name="보호받는 보물",
     terrain_id="guarded_treasure",
     terrain_desc="guarded treasure desc",
-    rarity=120,
+    rarity=1,
     spawn_item=False,
     spawn_monster=False,
     custom_gen=GuardedTreasureTerrGen.generate_guarded_treasure,

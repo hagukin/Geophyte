@@ -708,7 +708,7 @@ class ActorState(BaseComponent):
                 self.engine.message_log.add_message(f"{g(self.parent.name, '은')} 더 이상 산으로부터 데미지를 받고 있지 않다.",fg=color.enemy_neutral, target=self.parent)
                 
         # Check turns
-        if self.is_melting[2] >= self.is_melting[3] and self.is_melting > 0: # Stop melting
+        if self.is_melting[2] >= self.is_melting[3] and self.is_melting[3] > 0: # Stop melting
             self.apply_melting([0, 0, 0, 0])
             if self.parent == self.engine.player:
                 self.engine.message_log.add_message(f"당신은 더 이상 산으로부터 데미지를 받고 있지 않다.", fg=color.player_neutral)
