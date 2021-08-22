@@ -59,7 +59,8 @@ class BaseAI(BaseComponent):
         self.active: bool = False # whether to wait or wander during its idle state
         self.in_player_sight: bool = False
 
-        self.alignment = random.choices(list(alignment[0]), list(alignment[1]), k=1)[0]
+        self.alignment = None
+        self.alignment_chance = alignment
 
         # Vision
         self.vision = None # initialized in engine.update_enemy_fov() which is called from engine.handle_world()
@@ -126,6 +127,13 @@ class BaseAI(BaseComponent):
             self.attracted_own_with = set(attracted_own_with)
 
         self.owner = owner
+
+    def initialize(self):
+        self.init_alignment()
+        self.init_vision()
+
+    def init_alignment(self) -> None:
+        self.alignment = random.choices(list(self.alignment_chance[0]), list(self.alignment_chance[1]), k=1)[0]
     
     def init_vision(self) -> None:
         """Initialize this ai's vision"""

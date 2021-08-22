@@ -703,7 +703,7 @@ class Actor(Entity):
         This method is called from spawn().
         """
         if self.ai:
-            self.ai.init_vision()
+            self.ai.initialize()
 
         for args in self.initial_items:
             if random.random() <= args["chance"]:

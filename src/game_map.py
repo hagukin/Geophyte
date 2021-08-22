@@ -19,7 +19,7 @@ if TYPE_CHECKING:
 
 class GameMap:
     def __init__(
-        self, depth: int, biome: Biome, entities: Iterable[Entity] = (), difficulty_rise_rate: float = 0.05
+        self, depth: int, biome: Biome, entities: Iterable[Entity] = (), difficulty_rise_rate: float = 0.005
     ):
         self.depth = depth
         self.biome = biome

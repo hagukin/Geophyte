@@ -640,7 +640,7 @@ puppy = Actor(
     entity_desc=("강아지들은 호기심이 넘치는 존재들이다. "
         "이들은 성체에 비해 한참 뒤떨어지는 신체능력을 가졌지만, 넘치는 에너지 만큼은 성체를 압도한다. "),
     actor_quote=("포션술사는 절대 강아지를 길러선 안돼. 집이 언제 불바다가 될 지 모르거든. "),
-    rarity=5,
+    rarity=999,
     weight=5.7,
     spawnable=True,
     edible=edible.RawMeatEdible(nutrition=110, cook_bonus=12),
