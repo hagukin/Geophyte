@@ -524,7 +524,8 @@ def generate_chest(gamemap: GameMap, room: Room) -> None:
     chest_coordinates = random.choices(possible_gen_tiles, k=chest_num)
 
     for loc in set(chest_coordinates):
-        grow_chest(gamemap=gamemap, x=loc[0], y=loc[1], chest_id=chest_id_chosen, initial_items=room.terrain.gen_chests["initial_items"])
+        if not gamemap.get_any_entity_at_location(location_x=loc[0], location_y=loc[1]):
+            grow_chest(gamemap=gamemap, x=loc[0], y=loc[1], chest_id=chest_id_chosen, initial_items=room.terrain.gen_chests["initial_items"])
 
 
 def generate_on_empty_convex(gamemap: GameMap, x:int, y:int) -> None:

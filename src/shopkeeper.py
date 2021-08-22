@@ -5,14 +5,14 @@ import copy
 import color
 
 from actions import Action
-from typing import List, Tuple, Optional
+from typing import List, Tuple, Optional, Dict
 from actions import WaitAction, CashExchangeAction
 from entity import Actor, Item
 from korean import grammar as g
 
 
 class Shopkeeper_Ai(ai.BaseAI):
-    def __init__(self, alignment:str="neutral", do_melee_atk:bool=True, do_ranged_atk: bool=False,  use_ability: bool=False):
+    def __init__(self, alignment:Dict=(("neutral",),(1,)), do_melee_atk:bool=True, do_ranged_atk: bool=False,  use_ability: bool=False):
         """
         Vars:
             customers:
@@ -54,7 +54,7 @@ class Shopkeeper_Ai(ai.BaseAI):
                 continue
         return tmp
 
-    def perform_idle_action(self) -> Action: #Override
+    def perform_idle_action(self) -> None: #Override
         return self.wait_for_customer()
 
     def perform_shopkeeping(self) -> None:

@@ -7,7 +7,7 @@ from numpy.core.shape_base import block
 import tcod
 import actions
 
-from typing import List, Tuple, Optional
+from typing import List, Tuple, Optional, Dict
 from util import get_distance
 from ability import Ability
 from skill_ai import Skill_AI
@@ -22,28 +22,34 @@ class BaseAI(BaseComponent):
     """
     def __init__(
             self,
-            alignment: str, 
+            alignment: Tuple,
             do_melee_atk: bool,
             do_ranged_atk: bool,
             use_ability: bool,
 
-            allied_type:set=None,
-            allied_id:set=None,
-            allied_with:set=None,
+            allied_type:Tuple=None,
+            allied_id:Tuple=None,
+            allied_with:Tuple=None,
 
-            hostile_type:set=None,
-            hostile_id:set=None,
-            hostile_with:set=None,
+            hostile_type:Tuple=None,
+            hostile_id:Tuple=None,
+            hostile_with:Tuple=None,
 
-            attracted_eat_type:set=None,
-            attracted_eat_id:set=None,
-            attracted_eat_with:set=None,
+            attracted_eat_type:Tuple=None,
+            attracted_eat_id:Tuple=None,
+            attracted_eat_with:Tuple=None,
 
-            attracted_own_type:set=None,
-            attracted_own_id:set=None,
-            attracted_own_with:set=None,
+            attracted_own_type:Tuple=None,
+            attracted_own_id:Tuple=None,
+            attracted_own_with:Tuple=None,
             owner: Actor = None,
         ):
+        """
+        Args:
+            alignment:
+                Tuple.
+                (("hostile", "neutral", "allied", "peaceful"), (1,0,3,4))
+        """
         super().__init__()
         self.attacked_from = None
         self.target = None
@@ -52,7 +58,8 @@ class BaseAI(BaseComponent):
         self.path: List[Tuple[int, int]] = []
         self.active: bool = False # whether to wait or wander during its idle state
         self.in_player_sight: bool = False
-        self.alignment = alignment
+
+        self.alignment = random.choices(list(alignment[0]), list(alignment[1]), k=1)[0]
 
         # Vision
         self.vision = None # initialized in engine.update_enemy_fov() which is called from engine.handle_world()
@@ -66,57 +73,57 @@ class BaseAI(BaseComponent):
         if allied_type is None:
             self.allied_type = set()
         else:
-            self.allied_type = allied_type  # species that are alligned with (e.g. char "a")
+            self.allied_type = set(allied_type)  # species that are alligned with (e.g. char "a")
         if allied_id is None:
             self.allied_id = set()
         else:
-            self.allied_id = allied_id  # monster type(monster_id) that are alligned with (e.g. fire_ant)
+            self.allied_id = set(allied_id)  # monster type(monster_id) that are alligned with (e.g. fire_ant)
         if allied_with is None:
             self.allied_with = set()
         else:
-            self.allied_with = allied_with  # actor that is alligned with
+            self.allied_with = set(allied_with)  # actor that is alligned with
 
         # Enemy
         if hostile_type is None:
             self.hostile_type = set()
         else:
-            self.hostile_type = hostile_type  # species that is considered as an enemy
+            self.hostile_type = set(hostile_type)  # species that is considered as an enemy
         if hostile_id is None:
             self.hostile_id = set()
         else:
-            self.hostile_id = hostile_id  # monster type(monster_id) that is considered as an enemy
+            self.hostile_id = set(hostile_id)  # monster type(monster_id) that is considered as an enemy
         if hostile_with is None:
             self.hostile_with = set()
         else:
-            self.hostile_with = hostile_with # actor that is considered as an enemy
+            self.hostile_with = set(hostile_with) # actor that is considered as an enemy
 
         # Attraction - Ai wants to eat these
         if attracted_eat_type is None:
             self.attracted_eat_type = set()
         else:
-            self.attracted_eat_type = attracted_eat_type  # edible.edible_type (string)
+            self.attracted_eat_type = set(attracted_eat_type)  # edible.edible_type (string)
         if attracted_eat_id is None:
             self.attracted_eat_id = set()
         else:
-            self.attracted_eat_id = attracted_eat_id
+            self.attracted_eat_id = set(attracted_eat_id)
         if attracted_eat_with is None:
             self.attracted_eat_with = set()
         else:
-            self.attracted_eat_with = attracted_eat_with
+            self.attracted_eat_with = set(attracted_eat_with)
 
         # Attraction - Ai wants to own(possess) these
         if attracted_own_type is None:
             self.attracted_own_type = set()
         else:
-            self.attracted_own_type = attracted_own_type  # item.InventoryOrder (enum)
+            self.attracted_own_type = set(attracted_own_type)  # item.InventoryOrder (enum)
         if attracted_own_id is None:
             self.attracted_own_id = set()
         else:
-            self.attracted_own_id = attracted_own_id
+            self.attracted_own_id = set(attracted_own_id)
         if attracted_own_with is None:
             self.attracted_own_with = set()
         else:
-            self.attracted_own_with = attracted_own_with
+            self.attracted_own_with = set(attracted_own_with)
 
         self.owner = owner
     
@@ -519,7 +526,7 @@ class BaseAI(BaseComponent):
         # Check hostile types, ids, and entities.
         if isinstance(entity, Item): #TODO: and if entity is hungry
             if entity.edible:
-                if entity.edible.edible_type in self.attracted_eat_type:
+                if entity.edible.edible_type in self.attracted_eat_type: # String
                     self.do_what_to_attraction = "eat"
                     return True
                 elif entity.entity_id in self.attracted_eat_id:
@@ -529,7 +536,7 @@ class BaseAI(BaseComponent):
                     self.do_what_to_attraction = "eat"
                     return True
             elif not self.parent.inventory.check_if_full(): # Only wishes for more if it's inventory isnt full
-                if entity.item_type in self.attracted_own_type:
+                if entity.item_type.value in [x.value for x in self.attracted_own_type]:
                     self.do_what_to_attraction = "own"
                     return True
                 elif entity.entity_id in self.attracted_own_id:

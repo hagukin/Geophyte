@@ -43,7 +43,8 @@ class Edible(BaseComponent):
                     food (e.g. Every ai who are willing to eat something will gladly eat "food" typed item.)
                     meat
                     insect
-                    vegetable (including fruits)
+                    fruit
+                    vegetable
                     snack (e.g. candy bar)
                     misc (e.g. jelly corpse)
         """
@@ -52,7 +53,7 @@ class Edible(BaseComponent):
         self.cook_bonus= cook_bonus
         self.spoil_speed = spoil_speed
         self.can_cook = can_cook
-        self.edible_type = edible_type
+        self.edible_type = edible_type # String
 
         # Values that need manual copying when copying the component
         self.time_after_spawned = 0 # passed time after the food(or the corpse) was generated on the dungeon. (NOTE: This DOES NOT indicate the turn passed. This is a relative value.)

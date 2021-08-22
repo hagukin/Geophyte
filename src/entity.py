@@ -412,7 +412,7 @@ class Actor(Entity):
         blocks_sight: bool = False,
         render_order: RenderOrder = RenderOrder.ACTOR,
         edible: Edible = None,
-        ai_cls: Optional[Type[BaseAI]],
+        ai_cls: Optional,
         status: Status,
         actor_state: ActorState,
         inventory: Inventory,

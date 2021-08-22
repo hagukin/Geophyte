@@ -10,9 +10,9 @@ from components.ability_inventory import AbilityInventory
 from components.equipments import Equipments
 from components.actor_state import ActorState
 from entity import Actor
-from order import RenderOrder
+from order import RenderOrder, InventoryOrder
 from typing import Optional
-
+from components.ai import BaseAI
 
 ### NOTE: Rarity can have value between 0 and 10 ###
 class ActorDB:
@@ -50,7 +50,7 @@ DEBUG = Actor(
     weight = 70,
     spawnable=False,
     edible=edible.RawMeatEdible(nutrition=300),
-    ai_cls=ai_factories.DEBUG_ai,
+    ai_cls=None,
     status=Status(
         hp=30,
         mp=0,
@@ -154,7 +154,7 @@ shopkeeper = Actor(
     swappable=False, # Cannot swap
     spawnable=False,
     edible=edible.RawMeatEdible(nutrition=300),
-    ai_cls=ai_factories.shopkeeper_ai,
+    ai_cls=ai_factories.Shopkeeper_Ai(),
     status=Status(
         hp=650,
         mp=450,
@@ -222,7 +222,14 @@ ant = Actor(
     weight = 0.07,
     spawnable=True,
     edible=edible.InsectEdible(nutrition=10),
-    ai_cls=ai_factories.ant_ai,
+    ai_cls=BaseAI(
+        alignment=(("hostile",),(1,)),
+        do_melee_atk=True,
+        do_ranged_atk=False,
+        use_ability=False,
+        hostile_type=('@',),
+        attracted_eat_type=("meat", "insect",),
+    ),
     status=Status(
         hp=28,
         mp=0,
@@ -274,7 +281,14 @@ fire_ant = Actor(
     weight=0.1,
     spawnable=True,
     edible=edible.FireAntEdible(nutrition=40),
-    ai_cls=ai_factories.fire_ant_ai,
+    ai_cls=BaseAI(
+        alignment=(("hostile",),(1,)),
+        do_melee_atk=True,
+        do_ranged_atk=False,
+        use_ability=False,
+        hostile_type=('@',),
+        attracted_eat_type=("meat", "insect",),
+    ),
     status=Status(
         hp=36,
         mp=0,
@@ -326,7 +340,14 @@ volt_ant = Actor(
     weight=0.1,
     spawnable=True,
     edible=edible.VoltAntEdible(nutrition=40),
-    ai_cls=ai_factories.volt_ant_ai,
+    ai_cls=BaseAI(
+        alignment=(("hostile",),(1,)),
+        do_melee_atk=True,
+        do_ranged_atk=False,
+        use_ability=False,
+        hostile_type=('@',),
+        attracted_eat_type=("meat", "insect",),
+    ),
     status=Status(
         hp=36,
         mp=0,
@@ -383,7 +404,13 @@ bat = Actor(
     weight=3,
     spawnable=True,
     edible=edible.RawMeatEdible(nutrition=70, cook_bonus=10),
-    ai_cls=ai_factories.bat_ai,
+    ai_cls=BaseAI(
+        alignment=(("neutral",),(1,)),
+        do_melee_atk=True,
+        do_ranged_atk=False,
+        use_ability=False,
+        attracted_eat_type=("insect", "fruit"),
+    ),
     status=Status(
         hp=56,
         mp=0,
@@ -441,7 +468,14 @@ kitten = Actor(
     weight=3.3,
     spawnable=True,
     edible=edible.RawMeatEdible(nutrition=100, cook_bonus=30),
-    ai_cls=ai_factories.kitten_ai,
+    ai_cls=BaseAI(
+        alignment=(("hostile","neutral"),(1,1)),
+        do_melee_atk=True,
+        do_ranged_atk=False,
+        use_ability=False,
+        hostile_type=('@',),
+        attracted_eat_type=("insect", ),
+    ),
     status=Status(
         hp=32,
         mp=10,
@@ -491,7 +525,14 @@ cat = Actor(
     weight=6.5,
     spawnable=True,
     edible=edible.RawMeatEdible(nutrition=120, cook_bonus=50),
-    ai_cls=ai_factories.cat_ai,
+    ai_cls=BaseAI(
+        alignment=(("hostile","neutral"),(3,1)),
+        do_melee_atk=True,
+        do_ranged_atk=False,
+        use_ability=False,
+        hostile_type=('@',),
+        attracted_eat_type=("insect", "meat"),
+    ),
     status=Status(
         hp=92,
         mp=15,
@@ -540,7 +581,14 @@ large_cat = Actor(
     weight=18.5,
     spawnable=True,
     edible=edible.RawMeatEdible(nutrition=150, cook_bonus=60),
-    ai_cls=ai_factories.large_cat_ai,
+    ai_cls=BaseAI(
+        alignment=(("hostile", "neutral"), (7, 1)),
+        do_melee_atk=True,
+        do_ranged_atk=False,
+        use_ability=False,
+        hostile_type=('@',),
+        attracted_eat_type=("meat",),
+    ),
     status=Status(
         hp=104,
         mp=25,
@@ -596,7 +644,14 @@ puppy = Actor(
     weight=5.7,
     spawnable=True,
     edible=edible.RawMeatEdible(nutrition=110, cook_bonus=12),
-    ai_cls=ai_factories.puppy_ai,
+    ai_cls=BaseAI(
+        alignment=(("hostile", "neutral"), (1, 1)),
+        do_melee_atk=True,
+        do_ranged_atk=False,
+        use_ability=False,
+        hostile_type=('@',),
+        attracted_eat_type=("meat",),
+    ),
     status=Status(
         hp=32,
         mp=0,
@@ -645,7 +700,14 @@ dog = Actor(
     weight=38.5,
     spawnable=True,
     edible=edible.RawMeatEdible(nutrition=160, cook_bonus=50),
-    ai_cls=ai_factories.dog_ai,
+    ai_cls=BaseAI(
+        alignment=(("hostile", "neutral"), (3, 1)),
+        do_melee_atk=True,
+        do_ranged_atk=False,
+        use_ability=False,
+        hostile_type=('@',),
+        attracted_eat_type=("meat",),
+    ),
     status=Status(
         hp=93,
         mp=10,
@@ -694,7 +756,14 @@ large_dog = Actor(
     weight=55.3,
     spawnable=True,
     edible=edible.RawMeatEdible(nutrition=200, cook_bonus=30),
-    ai_cls=ai_factories.large_dog_ai,
+    ai_cls=BaseAI(
+        alignment=(("hostile", ), (1, )),
+        do_melee_atk=True,
+        do_ranged_atk=False,
+        use_ability=False,
+        hostile_type=('@',),
+        attracted_eat_type=("meat",),
+    ),
     status=Status(
         hp=105,
         mp=10,
@@ -743,7 +812,13 @@ cerberus = Actor(
     weight=165,
     spawnable=True,
     edible=edible.RawMeatEdible(nutrition=350, cook_bonus=85),
-    ai_cls=ai_factories.cerberus_ai,
+    ai_cls=BaseAI(
+        alignment=(("hostile", ), (1,)),
+        do_melee_atk=True,
+        do_ranged_atk=False,
+        hostile_type=('@',),
+        use_ability=False,
+    ),
     status=Status(
         hp=112,
         mp=66,
@@ -799,7 +874,7 @@ floating_eye = Actor(
     weight=255.8,
     spawnable=True,
     edible=edible.FloatingEyeEdible(nutrition=120),#cannot be cooked
-    ai_cls=ai_factories.floating_eye_ai,
+    ai_cls=ai_factories.Floating_Eye_Ai(),
     status=Status(
         hp=68,
         mp=30,
@@ -858,7 +933,14 @@ fly = Actor(
     weight=0.07,
     spawnable=True,
     edible=edible.InsectEdible(nutrition=12, cook_bonus=2),
-    ai_cls=ai_factories.fly_ai,
+    ai_cls=BaseAI(
+        alignment=(("hostile", ), (1, )),
+        do_melee_atk=True,
+        do_ranged_atk=False,
+        use_ability=False,
+        hostile_type=('@',),
+        attracted_eat_type=("meat", "insect", "fruit", "vegetable", "food"),
+    ),
     status=Status(
         hp=28,
         mp=0,
@@ -911,7 +993,15 @@ giant_wasp = Actor(
     weight=1.5,
     spawnable=True,
     edible=edible.GiantWaspEdible(nutrition=30),
-    ai_cls=ai_factories.giant_wasp_ai,
+    ai_cls=BaseAI(
+        alignment=(("hostile",), (1,)),
+        do_melee_atk=True,
+        do_ranged_atk=False,
+        use_ability=False,
+        hostile_type=('@',),
+        hostile_id=('fly',),
+        attracted_eat_type=("insect",),
+    ),
     status=Status(
         hp=80,
         mp=0,
@@ -968,7 +1058,7 @@ black_jelly = Actor(
     weight=187,
     spawnable=True,
     edible=edible.BlackJellyEdible(nutrition=50),
-    ai_cls=ai_factories.black_jelly_ai,
+    ai_cls=ai_factories.Black_Jelly_Ai(),
     status=Status(
         hp=45,
         mp=0,
@@ -1031,7 +1121,14 @@ nymph = Actor(
     weight=53,
     spawnable=True,
     edible=edible.RawMeatEdible(nutrition=200),
-    ai_cls=ai_factories.nymph_ai,
+    ai_cls=BaseAI(
+        alignment=(("hostile",), (1,)),
+        do_melee_atk=True,
+        do_ranged_atk=False,
+        use_ability=True,
+        hostile_type=('@',),
+        attracted_own_type=(InventoryOrder.GEM, InventoryOrder.CASH, InventoryOrder.AMULET, )
+    ),
     status=Status(
         hp=68,
         mp=45,
@@ -1093,7 +1190,13 @@ sphere_of_acid = Actor(
     weight=0.8,
     spawnable=True,
     edible=None,
-    ai_cls=ai_factories.sphere_of_acid_ai,
+    ai_cls=BaseAI(
+        alignment=(("hostile",), (1,)),
+        do_melee_atk=True,
+        do_ranged_atk=False,
+        use_ability=False,
+        hostile_type=('@',),
+    ),
     status=Status(
         hp=10,
         mp=0,
@@ -1153,7 +1256,14 @@ jumping_spider = Actor(
     weight=0.01,
     spawnable=True,
     edible=edible.InsectEdible(nutrition=5),
-    ai_cls=ai_factories.jumping_spider_ai,
+    ai_cls=BaseAI(
+        alignment=(("hostile",), (1,)),
+        do_melee_atk=True,
+        do_ranged_atk=False,
+        use_ability=False,
+        hostile_id=("maggot",),
+        attracted_eat_type=("insect",),
+    ),
     status=Status(
         hp=12,
         mp=0,
@@ -1208,7 +1318,13 @@ earthworm = Actor(
     weight=0.1,
     spawnable=True,
     edible=edible.InsectEdible(nutrition=10, cook_bonus=2),
-    ai_cls=ai_factories.earthworm_ai,
+    ai_cls=BaseAI(
+        alignment=(("neutral",), (1, )),
+        do_melee_atk=True,
+        do_ranged_atk=False,
+        use_ability=False,
+        attracted_eat_type=("fruit", "vegetable",),
+    ),
     status=Status(
         hp=8,
         mp=0,
@@ -1255,7 +1371,14 @@ maggot = Actor(
     weight=0.01,
     spawnable=False, # NOTE: does not spawn naturally.
     edible=edible.InsectEdible(nutrition=1, maggot_chance=0), # Cannot spawn maggots to prevent continuos spawning
-    ai_cls=ai_factories.maggot_ai,
+    ai_cls=BaseAI(
+        alignment=(("hostile",), (1,)),
+        do_melee_atk=True,
+        do_ranged_atk=False,
+        use_ability=False,
+        hostile_type=('@',),
+        attracted_eat_type=("fruit", "vegetable", "meat", "insect", "food",),
+    ),
     status=Status(
         hp=4,
         mp=0,
@@ -1310,7 +1433,13 @@ fire_elemental = Actor(
     weight=203,
     spawnable=True,
     edible=None,
-    ai_cls=ai_factories.fire_elemental_ai,
+    ai_cls=BaseAI(
+        alignment=(("hostile","neutral"), (5,1,)),
+        do_melee_atk=True,
+        do_ranged_atk=False,
+        use_ability=False,
+        hostile_type=('@',),
+    ),
     status=Status(
         hp=140,
         mp=205,
@@ -1372,7 +1501,13 @@ ice_elemental = Actor(
     weight=461,
     spawnable=True,
     edible=None,
-    ai_cls=ai_factories.ice_elemental_ai,
+    ai_cls=BaseAI(
+        alignment=(("hostile", "neutral"), (5, 1,)),
+        do_melee_atk=True,
+        do_ranged_atk=False,
+        use_ability=False,
+        hostile_type=('@',),
+    ),
     status=Status(
         hp=160,
         mp=205,
@@ -1434,7 +1569,13 @@ earth_elemental = Actor(
     weight=550,
     spawnable=True,
     edible=None,
-    ai_cls=ai_factories.earth_elemental_ai,
+    ai_cls=BaseAI(
+        alignment=(("hostile", "neutral"), (5, 1,)),
+        do_melee_atk=True,
+        do_ranged_atk=False,
+        use_ability=False,
+        hostile_type=('@',),
+    ),
     status=Status(
         hp=150,
         mp=205,
@@ -1497,7 +1638,13 @@ acid_elemental = Actor(
     weight=430,
     spawnable=True,
     edible=None,
-    ai_cls=ai_factories.acid_elemental_ai,
+    ai_cls=BaseAI(
+        alignment=(("hostile", "neutral"), (5, 1,)),
+        do_melee_atk=True,
+        do_ranged_atk=False,
+        use_ability=False,
+        hostile_type=('@',),
+    ),
     status=Status(# TODO
         hp=155,
         mp=205,
@@ -1558,7 +1705,13 @@ poison_elemental = Actor(
     weight=417,
     spawnable=True,
     edible=None,
-    ai_cls=ai_factories.poison_elemental_ai,
+    ai_cls=BaseAI(
+        alignment=(("hostile", "neutral"), (5, 1,)),
+        do_melee_atk=True,
+        do_ranged_atk=False,
+        use_ability=False,
+        hostile_type=('@',),
+    ),
     status=Status(
         hp=153,
         mp=205,
@@ -1619,7 +1772,13 @@ lightning_elemental = Actor(
     weight=153,
     spawnable=True,
     edible=None,
-    ai_cls=ai_factories.lightning_elemental_ai,
+    ai_cls=BaseAI(
+        alignment=(("hostile", "neutral"), (5, 1,)),
+        do_melee_atk=True,
+        do_ranged_atk=False,
+        use_ability=False,
+        hostile_type=('@',),
+    ),
     status=Status(# TODO
         hp=152,
         mp=205,
@@ -1684,7 +1843,7 @@ chatterbox = Actor(
     weight=81,
     spawnable=True,
     edible=edible.RawMeatEdible(nutrition=280),
-    ai_cls=ai_factories.chatterbox_ai,
+    ai_cls=ai_factories.Chatterbox_Ai(),
     status=Status(
         hp=92,
         mp=13,
@@ -1740,7 +1899,13 @@ baby_phoenix = Actor(
     weight=10.3,
     spawnable=True,
     edible=None,
-    ai_cls=ai_factories.baby_phoenix_ai,
+    ai_cls=BaseAI(
+        alignment=(("hostile", "neutral"), (1, 5,)),
+        do_melee_atk=True,
+        do_ranged_atk=False,
+        use_ability=False,
+        hostile_type=('@','F'),
+    ),
     status=Status(
         hp=96,
         mp=320,
@@ -1806,7 +1971,13 @@ phoenix = Actor(
     weight=157,
     spawnable=True,
     edible=None,
-    ai_cls=ai_factories.phoenix_ai,
+    ai_cls=BaseAI(
+        alignment=(("hostile", "neutral"), (1, 5,)),
+        do_melee_atk=True,
+        do_ranged_atk=False,
+        use_ability=False,
+        hostile_type=('@','F',),
+    ),
     status=Status(
         hp=176,
         mp=632,
@@ -1877,7 +2048,13 @@ ogre = Actor(
     weight=1855,
     spawnable=True,
     edible=edible.RawMeatEdible(nutrition=350),
-    ai_cls=ai_factories.ogre_ai,
+    ai_cls=BaseAI(
+        alignment=(("hostile",), (1,)),
+        do_melee_atk=True,
+        do_ranged_atk=False,
+        use_ability=False,
+        hostile_type=('@',),
+    ),
     status=Status(
         hp=156,
         mp=16,
@@ -1934,7 +2111,13 @@ giant = Actor(
     weight=4802,
     spawnable=True,
     edible=edible.RawMeatEdible(nutrition=420),
-    ai_cls=ai_factories.giant_ai,
+    ai_cls=BaseAI(
+        alignment=(("hostile","neutral"), (1,10)),
+        do_melee_atk=True,
+        do_ranged_atk=False,
+        use_ability=False,
+        hostile_type=('@',),
+    ),
     status=Status(
         hp=192,
         mp=20,

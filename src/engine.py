@@ -661,7 +661,14 @@ class Engine:
                 console.print(x=x, y=num, string="...", fg=color.gray)
                 break
             console.print(x=x, y=num, string=actor.char, fg=actor.fg)
-            console.print(x=x+2, y=num, string=actor.name, fg=color.light_gray)
+            if actor.ai:
+                if actor.ai.check_if_enemy(self.player):
+                    console.print(x=x+2, y=num, string=actor.name, fg=color.light_red)
+                else:
+                    console.print(x=x + 2, y=num, string=actor.name, fg=color.light_gray)
+            else:
+                console.print(x=x + 2, y=num, string=actor.name, fg=color.light_gray)
+
             num += 1
 
         for item in self.items_in_sight:

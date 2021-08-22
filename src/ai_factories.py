@@ -1,4 +1,5 @@
 import random
+from typing import Tuple
 
 import components.ai as ai
 import color
@@ -8,54 +9,10 @@ from shopkeeper import Shopkeeper_Ai
 from order import InventoryOrder
 from korean import grammar as g
 
-class Melee_Ai(ai.BaseAI):
-    """Melee AI that only attacks humans."""
-    def __init__(self, alignment:str="hostile", do_melee_atk:bool=True, do_ranged_atk: bool=False, use_ability: bool=False):
-        super().__init__(alignment, do_melee_atk, do_ranged_atk, use_ability)
-        self.hostile_type.add('@')
-
-class Melee_Neutral_Ai(ai.BaseAI):
-    """Neutral melee AI."""
-    def __init__(self, alignment:str="neutral", do_melee_atk:bool=True, do_ranged_atk: bool=False,  use_ability: bool=False):
-        super().__init__(alignment, do_melee_atk, use_ability, do_ranged_atk)
-
-class Test_Ai(ai.BaseAI):
-    """Pickup Eat testing"""
-    def __init__(self, alignment:str="hostile", do_melee_atk:bool=True, do_ranged_atk: bool=False, use_ability: bool=False):
-        super().__init__(alignment, do_melee_atk, do_ranged_atk, use_ability)
-        self.attracted_eat_type.add("meat")
-        self.attracted_own_type.add(InventoryOrder.POTION)
-
 
 ####################################################
 #################### @ - humans  ###################
 ####################################################
-
-
-
-
-####################################################
-###################### a - ants  ###################
-####################################################
-
-class Fire_Ant_Ai(ai.BaseAI):
-    def __init__(self, alignment:str="hostile", do_melee_atk:bool=True, do_ranged_atk: bool=False, use_ability: bool=False):
-        super().__init__(alignment, do_melee_atk, do_ranged_atk, use_ability)
-        self.hostile_type.add('@')
-
-class Volt_Ant_Ai(ai.BaseAI):
-    def __init__(self, alignment:str="hostile", do_melee_atk:bool=True, do_ranged_atk: bool=False, use_ability: bool=False):
-        super().__init__(alignment, do_melee_atk, do_ranged_atk, use_ability)
-        self.hostile_type.add('@')
-
-####################################################
-#####################  d - dogs  ###################
-####################################################
-
-class Cerberus_Ai(ai.BaseAI):
-    def __init__(self, alignment:str="hostile", do_melee_atk:bool=True, do_ranged_atk: bool=False, use_ability: bool=False):
-        super().__init__(alignment, do_melee_atk, do_ranged_atk, use_ability)
-        self.hostile_type.add('@')
 
 
 ####################################################
@@ -63,7 +20,7 @@ class Cerberus_Ai(ai.BaseAI):
 ####################################################
 
 class Floating_Eye_Ai(ai.BaseAI):
-    def __init__(self, alignment:str="peaceful", do_melee_atk:bool=True, do_ranged_atk: bool=False,  use_ability: bool=False):#do_ranged_atk은 마법과 투사체 모두 포함한다.
+    def __init__(self, alignment:Tuple=(("peaceful",),(1,)), do_melee_atk:bool=True, do_ranged_atk: bool=False,  use_ability: bool=False):#do_ranged_atk은 마법과 투사체 모두 포함한다.
         super().__init__(alignment, do_melee_atk, do_ranged_atk, use_ability)
 
     def perform_peaceful(self):
@@ -104,24 +61,13 @@ class Floating_Eye_Ai(ai.BaseAI):
 ############### i = flying insects  ################
 ####################################################
 
-class Giant_Wasp_Ai(ai.BaseAI):
-    def __init__(self, alignment:str="hostile", do_melee_atk:bool=True, do_ranged_atk: bool=False, use_ability: bool=False):
-        super().__init__(alignment, do_melee_atk, do_ranged_atk, use_ability)
-        self.hostile_type.add('@')
-
-class Fly_Ai(ai.BaseAI):
-    def __init__(self, alignment:str="hostile", do_melee_atk:bool=True, do_ranged_atk: bool=False, use_ability: bool=False):
-        super().__init__(alignment, do_melee_atk, do_ranged_atk, use_ability)
-        self.hostile_type.add('@')
-        self.attracted_eat_type.add('meat')
-        self.attracted_eat_type.add('insect')
 
 ####################################################
 ############### j - jellies / slimes  ##############
 ####################################################
 
 class Black_Jelly_Ai(ai.BaseAI):
-    def __init__(self, alignment:str="hostile", do_melee_atk:bool=True, do_ranged_atk: bool=True,  use_ability: bool=False):
+    def __init__(self, alignment:Tuple=(("hostile",),(1,)), do_melee_atk:bool=True, do_ranged_atk: bool=True,  use_ability: bool=False):
         super().__init__(alignment, do_melee_atk, do_ranged_atk, use_ability)
         self.hostile_type.add('@')
 
@@ -144,17 +90,12 @@ class Black_Jelly_Ai(ai.BaseAI):
 #################### n - nymphs  ###################
 ####################################################
 
-class Nymph_Ai(ai.BaseAI):
-    def __init__(self, alignment:str="hostile", do_melee_atk:bool=True, do_ranged_atk: bool=False, use_ability: bool=True):
-        super().__init__(alignment, do_melee_atk, do_ranged_atk, use_ability)
-        self.hostile_type.add('@')
-
 ####################################################
 #################### o - spheres  ##################
 ####################################################
 
 class Sphere_Of_Acid_Ai(ai.BaseAI):
-    def __init__(self, alignment:str="hostile", do_melee_atk:bool=True, do_ranged_atk: bool=False, use_ability: bool=False):
+    def __init__(self, alignment:Tuple=(("hostile",),(1,)), do_melee_atk:bool=True, do_ranged_atk: bool=False, use_ability: bool=False):
         super().__init__(alignment, do_melee_atk, do_ranged_atk, use_ability)
         self.hostile_type.add('@')
 
@@ -170,57 +111,13 @@ class Sphere_Of_Acid_Ai(ai.BaseAI):
 ############# s - spiders & scorpions  #############
 ####################################################
 
-class Jumping_Spider_Ai(ai.BaseAI):
-    """Only attacks earthworms"""
-    def __init__(self, alignment:str="hostile", do_melee_atk:bool=True, do_ranged_atk: bool=False, use_ability: bool=False):
-        super().__init__(alignment, do_melee_atk, do_ranged_atk, use_ability)
-        self.hostile_id.add('maggot')
-
 ####################################################
 #####################  w - worms  ##################
 ####################################################
 
-class Maggot_Ai(Melee_Neutral_Ai):
-    """Prioritize eating over fighting (is neutral)"""
-    def __init__(self, alignment:str="neutral", do_melee_atk:bool=True, do_ranged_atk: bool=False,  use_ability: bool=False):
-        super().__init__(alignment, do_melee_atk, do_ranged_atk, use_ability)
-        self.attracted_eat_type.add('meat')
-        self.attracted_eat_type.add('insect')
-
 ####################################################
 ################## E - ELEMENTALS  #################
 ####################################################
-
-class Fire_Elemental_Ai(ai.BaseAI):
-    def __init__(self, alignment:str="hostile", do_melee_atk:bool=True, do_ranged_atk: bool=False, use_ability: bool=False):
-        super().__init__(alignment, do_melee_atk, do_ranged_atk, use_ability)
-        self.hostile_type.add('@')
-
-class Ice_Elemental_Ai(ai.BaseAI):
-    def __init__(self, alignment:str="hostile", do_melee_atk:bool=True, do_ranged_atk: bool=False, use_ability: bool=False):
-        super().__init__(alignment, do_melee_atk, do_ranged_atk, use_ability)
-        self.hostile_type.add('@')
-
-class Earth_Elemental_Ai(ai.BaseAI):
-    def __init__(self, alignment:str="hostile", do_melee_atk:bool=True, do_ranged_atk: bool=False, use_ability: bool=False):
-        super().__init__(alignment, do_melee_atk, do_ranged_atk, use_ability)
-        self.hostile_type.add('@')
-        # No special melee effect
-
-class Acid_Elemental_Ai(ai.BaseAI):
-    def __init__(self, alignment:str="hostile", do_melee_atk:bool=True, do_ranged_atk: bool=False, use_ability: bool=False):
-        super().__init__(alignment, do_melee_atk, do_ranged_atk, use_ability)
-        self.hostile_type.add('@')
-
-class Poison_Elemental_Ai(ai.BaseAI):
-    def __init__(self, alignment:str="hostile", do_melee_atk:bool=True, do_ranged_atk: bool=False, use_ability: bool=False):
-        super().__init__(alignment, do_melee_atk, do_ranged_atk, use_ability)
-
-class Lightning_Elemental_Ai(ai.BaseAI):
-    def __init__(self, alignment:str="hostile", do_melee_atk:bool=True, do_ranged_atk: bool=False, use_ability: bool=False):
-        super().__init__(alignment, do_melee_atk, do_ranged_atk, use_ability)
-        self.hostile_type.add('@')
-
 
 ####################################################
 ################## I - IMPOSTERS  ##################
@@ -228,7 +125,7 @@ class Lightning_Elemental_Ai(ai.BaseAI):
 
 class Chatterbox_Ai(ai.BaseAI):
     #TODO: make Chatterbox chatter
-    def __init__(self, alignment:str="allied", do_melee_atk:bool=True, do_ranged_atk: bool=False, use_ability: bool=False):
+    def __init__(self, alignment:Tuple=(("allied",),(1,)), do_melee_atk:bool=True, do_ranged_atk: bool=False, use_ability: bool=False):
         super().__init__(alignment, do_melee_atk, do_ranged_atk, use_ability)
         self.allied_id.add('chatterbox')
 
@@ -259,74 +156,6 @@ class Chatterbox_Ai(ai.BaseAI):
 ################ M - Mythical Beasts  ##############
 ####################################################)
 
-class Baby_Phoenix_Ai(ai.BaseAI):
-    def __init__(self, alignment:str="neutral", do_melee_atk:bool=True, do_ranged_atk: bool=False,  use_ability: bool=False):
-        super().__init__(alignment, do_melee_atk, do_ranged_atk, use_ability)
-
-
-class Phoenix_Ai(ai.BaseAI):
-    def __init__(self, alignment:str="neutral", do_melee_atk:bool=True, do_ranged_atk: bool=False,  use_ability: bool=False):
-        super().__init__(alignment, do_melee_atk, do_ranged_atk, use_ability)
-
-
 ####################################################
 ################ O - Orcs & Ogres ##################
 ####################################################
-
-class Ogre_Ai(ai.BaseAI):
-    def __init__(self, alignment:str="allied", do_melee_atk:bool=True, do_ranged_atk: bool=False,  use_ability: bool=False):
-        super().__init__(alignment, do_melee_atk, do_ranged_atk, use_ability)
-        self.allied_id.add('ogre')
-
-
-#@
-shopkeeper_ai = Shopkeeper_Ai()
-#a
-ant_ai = Melee_Ai()
-fire_ant_ai = Fire_Ant_Ai()
-volt_ant_ai = Volt_Ant_Ai()
-#b
-bat_ai = Melee_Neutral_Ai()
-#c
-kitten_ai = Melee_Ai()
-cat_ai = Melee_Ai()
-large_cat_ai = Melee_Ai()
-#d
-puppy_ai = Melee_Ai()
-dog_ai = Melee_Ai()
-large_dog_ai = Melee_Ai()
-cerberus_ai = Cerberus_Ai()
-#e
-floating_eye_ai = Floating_Eye_Ai()
-#s
-jumping_spider_ai = Melee_Ai()
-#i
-fly_ai = Melee_Ai()
-giant_wasp_ai = Giant_Wasp_Ai()
-#j
-black_jelly_ai = Black_Jelly_Ai()
-#n
-nymph_ai = Nymph_Ai()
-#o
-sphere_of_acid_ai = Sphere_Of_Acid_Ai()
-#w
-earthworm_ai = Melee_Neutral_Ai()
-maggot_ai = Maggot_Ai()
-#E
-fire_elemental_ai = Fire_Elemental_Ai()
-ice_elemental_ai = Ice_Elemental_Ai()
-earth_elemental_ai = Earth_Elemental_Ai()
-poison_elemental_ai = Poison_Elemental_Ai()
-acid_elemental_ai = Acid_Elemental_Ai()
-lightning_elemental_ai = Lightning_Elemental_Ai()
-#I
-chatterbox_ai = Chatterbox_Ai()
-#M
-baby_phoenix_ai = Baby_Phoenix_Ai()
-phoenix_ai = Phoenix_Ai()
-#O
-ogre_ai = Ogre_Ai()
-#T
-giant_ai = Melee_Ai()
-
-DEBUG_ai = Melee_Ai()

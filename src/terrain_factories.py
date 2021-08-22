@@ -36,8 +36,8 @@ landmine_chamber = Terrain(
             semiactor_factories.explosion_trap:5,
         },
         "max_traps_per_room":100,
-        "spawn_chance":0.9,
-        "forced_traps_gen_number":1
+        "spawn_chance":0.5,
+        "forced_traps_gen_number":0
     },
     gen_chests={"checklist":{"large_wooden_chest" : 10}, "chest_num_range":(1,1), "initial_items":None},
 )
