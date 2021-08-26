@@ -6,9 +6,13 @@ def get_dungeon_biome(depth: int) -> Optional[Dict]:
         return {
             biome_factories.forest:1
         }
-    elif depth < 20:
+    elif depth < 10:
         return {
             biome_factories.rocky_dungeon:1
+        }
+    elif depth < 20:
+        return {
+            biome_factories.forest:1
         }
     if depth == 20:
         return {

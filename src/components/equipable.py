@@ -56,6 +56,42 @@ class Equipable(BaseComponent):
         # Melee Effects
         melee_effects: Tuple[Tuple] = (),
         melee_effects_var: Tuple[Tuple] = (),
+
+
+        # Magnifiers
+        hp_mag: float = 0,
+        mp_mag: float = 0,
+        max_hp_mag: float = 0,
+        max_mp_mag: float = 0,
+        strength_mag: float = 0,
+        dexterity_mag: float = 0,
+        agility_mag: float = 0,
+        intelligence_mag: float = 0,
+        constitution_mag: float = 0,
+        charm_mag: float = 0,
+
+        # Melee Damages
+        base_melee_mag: float = 0,
+        additional_melee_mag: float = 0,
+
+        # Protections
+        protection_mag: float = 0,
+
+        # Senses
+        hearing_mag: float = 0,
+        eyesight_mag: float = 0,
+
+        # Resistances (0 ~ 1)
+        fire_resistance_mag: float = 0,
+        poison_resistance_mag: float = 0,
+        cold_resistance_mag: float = 0,
+        acid_resistance_mag: float = 0,
+        psychic_resistance_mag: float = 0,
+        sleep_resistance_mag: float = 0,
+        shock_resistance_mag: float = 0,
+        magic_resistance_mag: float = 0,
+
+        # TODO: Melee Effects magnifier
     ):
         """
         Args:
@@ -68,6 +104,9 @@ class Equipable(BaseComponent):
             str_requirement:
                 recommended strength requirement to use this item efficiently.
                 Each items can have different bonuses when the wielder's strength exceeded the requirement.
+            hp_mag, ...:
+                magnifiers.
+                is multiplied to status when upgraded.
         """
         super().__init__()
         self.equipable_type = equipable_type
@@ -130,6 +169,31 @@ class Equipable(BaseComponent):
         self.add_magic_resistance = 0
         self.add_melee_effects = []
         self.add_melee_effects_var = []
+
+        # Magnifiers
+        self.hp_mag = hp_mag
+        self.mp_mag = mp_mag
+        self.max_hp_mag = max_hp_mag
+        self.max_mp_mag = max_mp_mag
+        self.strength_mag = strength_mag
+        self.dexterity_mag = dexterity_mag
+        self.agility_mag = agility_mag
+        self.intelligence_mag = intelligence_mag
+        self.constitution_mag = constitution_mag
+        self.charm_mag = charm_mag
+        self.base_melee_mag = base_melee_mag
+        self.additional_melee_mag = additional_melee_mag
+        self.protection_mag = protection_mag
+        self.hearing_mag = hearing_mag
+        self.eyesight_mag = eyesight_mag
+        self.fire_resistance_mag = fire_resistance_mag
+        self.poison_resistance_mag = poison_resistance_mag
+        self.cold_resistance_mag = cold_resistance_mag
+        self.acid_resistance_mag = acid_resistance_mag
+        self.psychic_resistance_mag = psychic_resistance_mag
+        self.sleep_resistance_mag = sleep_resistance_mag
+        self.shock_resistance_mag = shock_resistance_mag
+        self.magic_resistance_mag = magic_resistance_mag
 
         if upgrade > 0:
             self.update_stat()
@@ -285,7 +349,33 @@ class Equipable(BaseComponent):
         """
         Actual increase/decrease of equipper's status are handled here.
         """
-        return None
+        self.eq_protection = round(self.eq_protection * self.corrosion_debuf * self.burnt_debuf)
+        self.eq_base_melee = round(self.eq_base_melee * self.corrosion_debuf * self.burnt_debuf)
+        self.eq_additional_melee = round(self.eq_additional_melee * self.corrosion_debuf * self.burnt_debuf)
+
+        self.add_hp = round(self.upgrade * self.hp_mag)
+        self.add_mp = round(self.upgrade * self.mp_mag)
+        self.add_max_hp = round(self.upgrade * self.max_hp_mag)
+        self.add_max_mp = round(self.upgrade * self.max_mp_mag)
+        self.add_strength = round(self.upgrade * self.strength_mag)
+        self.add_dexterity = round(self.upgrade * self.dexterity_mag)
+        self.add_agility = round(self.upgrade * self.agility_mag)
+        self.add_intelligence = round(self.upgrade * self.intelligence_mag)
+        self.add_constitution = round(self.upgrade * self.constitution_mag)
+        self.add_charm = round(self.upgrade * self.charm_mag)
+        self.add_base_melee = round(self.upgrade * self.base_melee_mag)
+        self.add_additional_melee = round(self.upgrade * self.additional_melee_mag)
+        self.add_protection = round(self.upgrade * self.protection_mag)
+        self.add_hearing = round(self.upgrade * self.hearing_mag)
+        self.add_eyesight = round(self.upgrade * self.eyesight_mag)
+        self.add_fire_resistance = round(self.upgrade * self.fire_resistance_mag)
+        self.add_poison_resistance = round(self.upgrade * self.poison_resistance_mag)
+        self.add_cold_resistance = round(self.upgrade * self.cold_resistance_mag)
+        self.add_acid_resistance = round(self.upgrade * self.acid_resistance_mag)
+        self.add_psychic_resistance = round(self.upgrade * self.psychic_resistance_mag)
+        self.add_sleep_resistance = round(self.upgrade * self.sleep_resistance_mag)
+        self.add_shock_resistance = round(self.upgrade * self.shock_resistance_mag)
+        self.add_magic_resistance = round(self.upgrade * self.magic_resistance_mag)
 
     def reset_upgrade(self):
         """Reset upgrade to 0"""
@@ -322,415 +412,3 @@ class Equipable(BaseComponent):
             return 0.8 ** self.parent.item_state.burntness
         return 1
 
-
-
-#################################################
-################### ARMORS ######################
-#################################################
-
-class RagsEquipable(Equipable):
-    def __init__(self, upgrade=0):
-        super().__init__(
-            equipable_type=EquipableOrder.LIGHT_ARMOR,
-            upgrade=upgrade,
-            equip_size=(3, 6),
-            possible_regions=("leg", "torso",),
-            str_requirement=4,
-            protection=1,
-            )
-
-    def update_stat(self):
-        super().update_stat()
-        self.eq_protection = round(self.eq_protection * self.corrosion_debuf * self.burnt_debuf)
-
-        self.add_protection = round(self.upgrade * 1)
-
-
-class LeatherArmorEquipable(Equipable):
-    def __init__(self, upgrade=0):
-        super().__init__(
-            equipable_type=EquipableOrder.LIGHT_ARMOR,
-            upgrade=upgrade,
-            equip_size=(3, 4),
-            possible_regions=("torso",),
-            str_requirement=10,
-            protection=5,
-            )
-
-    def update_stat(self):
-        super().update_stat()
-        self.eq_protection = round(self.eq_protection * self.corrosion_debuf * self.burnt_debuf)
-
-        self.add_protection = round(self.upgrade * 1.4)
-
-
-class MerchantRobeEquipable(Equipable):
-    def __init__(self, upgrade=0):
-        super().__init__(
-            equipable_type=EquipableOrder.LIGHT_ARMOR,
-            upgrade=upgrade,
-            equip_size=(3, 4),
-            possible_regions=("torso", ),
-            str_requirement=6,
-            protection=4,
-            fire_resistance=0.3,
-            cold_resistance=0.3,
-            shock_resistance=0.3,
-            acid_resistance=0.3,
-            poison_resistance=0.3,
-            )
-
-    def update_stat(self):
-        super().update_stat()
-        self.eq_protection = round(self.eq_protection * self.corrosion_debuf * self.burnt_debuf)
-
-        self.add_protection = round(self.upgrade * 1.4)
-
-
-class SilkDressEquipable(Equipable):
-    def __init__(self, upgrade=0):
-        super().__init__(
-            equipable_type=EquipableOrder.LIGHT_ARMOR,
-            upgrade=upgrade,
-            equip_size=(3, 4),
-            possible_regions=("torso", ),
-            protection=1,
-            magic_resistance=0.1,
-            sleep_resistance=0.6,
-            )
-
-    def update_stat(self):
-        super().update_stat()
-        self.eq_protection = round(self.eq_protection * self.corrosion_debuf * self.burnt_debuf)
-
-        self.add_protection = round(self.upgrade * 1)
-        self.add_sleep_resistance = self.upgrade * 0.08
-
-
-#################################################
-################ MELEE WEAPONS ##################
-#################################################
-
-################### BLADES - Swords ######################
-class WoodenDaggerEquipable(Equipable):
-    def __init__(self, upgrade=0):
-        super().__init__(
-            equipable_type=EquipableOrder.BLADE,
-            upgrade=upgrade,
-            possible_regions=("main hand", "off hand"),
-            equip_size=(2, 5),
-            str_requirement=8,
-            base_melee=3,
-            additional_melee=2,
-            )
-
-    def update_stat(self):
-        super().update_stat()
-        self.eq_base_melee = round(self.eq_base_melee * self.corrosion_debuf * self.burnt_debuf)
-        self.eq_additional_melee = round(self.eq_additional_melee * self.corrosion_debuf * self.burnt_debuf)
-
-        self.add_base_melee = round(self.upgrade * 1)
-        self.add_additional_melee = round(self.upgrade * 1)
-
-
-class IronDaggerEquipable(Equipable):
-    def __init__(self, upgrade=0):
-        super().__init__(
-            equipable_type=EquipableOrder.BLADE,
-            upgrade=upgrade,
-            possible_regions=("main hand", "off hand"),
-            equip_size=(3, 5),
-            str_requirement=10,
-            base_melee=7,
-            additional_melee=5,
-            )
-
-    def update_stat(self):
-        super().update_stat()
-        self.eq_base_melee = round(self.eq_base_melee * self.corrosion_debuf * self.burnt_debuf)
-        self.eq_additional_melee = round(self.eq_additional_melee * self.corrosion_debuf * self.burnt_debuf)
-
-        self.add_base_melee = round(self.upgrade * 1.1)
-        self.add_additional_melee = round(self.upgrade * 1.3)
-
-
-class ScalpelEquipable(Equipable):
-    def __init__(self, upgrade=0):
-        super().__init__(
-            equipable_type=EquipableOrder.BLADE,
-            upgrade=upgrade,
-            possible_regions=("main hand", "off hand"),
-            equip_size=(3, 5),
-            str_requirement=10,
-            base_melee=6,
-            additional_melee=1,
-            melee_effects=(("bleed_target", 0.2),),
-            melee_effects_var=((3,0,3),)
-            )
-
-    def update_stat(self):
-        super().update_stat()
-        self.eq_base_melee = round(self.eq_base_melee * self.corrosion_debuf * self.burnt_debuf)
-        self.eq_additional_melee = round(self.eq_additional_melee * self.corrosion_debuf * self.burnt_debuf)
-
-        self.add_base_melee = round(self.upgrade * 1.1)
-        self.add_additional_melee = round(self.upgrade * 1.3)
-        self.eq_poison_resistance = 0.1
-
-
-class ShortswordEquipable(Equipable):
-    def __init__(self, upgrade=0):
-        super().__init__(
-            equipable_type=EquipableOrder.BLADE,
-            upgrade=upgrade,
-            possible_regions=("main hand", "off hand"),
-            equip_size=(3, 6),
-            str_requirement=13,
-            base_melee=10,
-            additional_melee=8,
-            )
-
-    def update_stat(self):
-        super().update_stat()
-        self.eq_base_melee = round(self.eq_base_melee * self.corrosion_debuf * self.burnt_debuf)
-        self.eq_additional_melee = round(self.eq_additional_melee * self.corrosion_debuf * self.burnt_debuf)
-
-        self.add_base_melee = round(self.upgrade * 1.4)
-        self.add_additional_melee = round(self.upgrade * 1.6)
-
-
-class LongswordEquipable(Equipable):
-    def __init__(self, upgrade=0):
-        super().__init__(
-            equipable_type=EquipableOrder.BLADE,
-            upgrade=upgrade,
-            possible_regions=("main hand", "off hand"),
-            equip_size=(3, 6),
-            str_requirement=16,
-            base_melee=12,
-            additional_melee=10,
-            # melee_effects=(("burn_target", 1),),
-            # melee_effects_var=((1,1,0,3),)
-            )
-
-    def update_stat(self):
-        super().update_stat()
-        self.eq_base_melee = round(self.eq_base_melee * self.corrosion_debuf * self.burnt_debuf)
-        self.eq_additional_melee = round(self.eq_additional_melee * self.corrosion_debuf * self.burnt_debuf)
-
-        self.add_base_melee = round(self.upgrade * 1.9)
-        self.add_additional_melee = round(self.upgrade * 1.8)
-
-
-################### BLADES _ Axes ######################
-class AxeEquipable(Equipable):
-    def __init__(self, upgrade=0):
-        super().__init__(
-            equipable_type=EquipableOrder.BLADE,
-            upgrade=upgrade,
-            possible_regions=("main hand", "off hand"),
-            equip_size=(4, 6),
-            str_requirement=15,
-            base_melee=8,
-            additional_melee=17,
-            )
-
-    def update_stat(self):
-        super().update_stat()
-        self.eq_base_melee = round(self.eq_base_melee * self.corrosion_debuf * self.burnt_debuf)
-        self.eq_additional_melee = round(self.eq_additional_melee * self.corrosion_debuf * self.burnt_debuf)
-
-        self.add_base_melee = round(self.upgrade * 1.3)
-        self.add_additional_melee = round(self.upgrade * 2.1)
-
-
-class TomahawkEquipable(Equipable):
-    def __init__(self, upgrade=0):
-        super().__init__(
-            equipable_type=EquipableOrder.BLADE,
-            upgrade=upgrade,
-            possible_regions=("main hand", "off hand"),
-            equip_size=(3, 5),
-            str_requirement=13,
-            base_melee=6,
-            additional_melee=12,
-            )
-
-    def update_stat(self):
-        super().update_stat()
-        self.eq_base_melee = round(self.eq_base_melee * self.corrosion_debuf * self.burnt_debuf)
-        self.eq_additional_melee = round(self.eq_additional_melee * self.corrosion_debuf * self.burnt_debuf)
-
-        self.add_base_melee = round(self.upgrade * 1.2)
-        self.add_additional_melee = round(self.upgrade * 1.8)
-
-
-################### BLADES - Misc ######################
-class SwordstickEquipable(Equipable):
-    def __init__(self, upgrade=0):
-        super().__init__(
-            equipable_type=EquipableOrder.BLADE,
-            upgrade=upgrade,
-            possible_regions=("main hand", "off hand"),
-            equip_size=(3, 4),
-            str_requirement=12,
-            base_melee=11,
-            additional_melee=2,
-            charm=3,
-            intelligence=1,
-            )
-
-    def update_stat(self):
-        super().update_stat()
-        self.eq_base_melee = round(self.eq_base_melee * self.corrosion_debuf * self.burnt_debuf)
-        self.eq_additional_melee = round(self.eq_additional_melee * self.corrosion_debuf * self.burnt_debuf)
-
-        self.add_base_melee = round(self.upgrade * 1)
-        self.add_additional_melee = round(self.upgrade * 1)
-
-
-################### CLUBS ######################
-class GiantWoodClubEquipable(Equipable):
-    def __init__(self, upgrade=0):
-        super().__init__(
-            equipable_type=EquipableOrder.CLUB,
-            upgrade=upgrade,
-            possible_regions=("main hand", "off hand"),
-            equip_size=(5,7),
-            str_requirement=20,
-            base_melee=6,
-            additional_melee=10,
-            )
-
-    def update_stat(self):
-        super().update_stat()
-        self.eq_base_melee = round(self.eq_base_melee * self.corrosion_debuf * self.burnt_debuf)
-        self.eq_additional_melee = round(self.eq_additional_melee * self.corrosion_debuf * self.burnt_debuf)
-
-        self.add_base_melee = round(self.upgrade * 1.3)
-        self.add_additional_melee = round(self.upgrade * 1.3)
-
-
-
-################### SHIELDS ######################
-class WoodenShieldEquipable(Equipable):
-    def __init__(self, upgrade=0):
-        super().__init__(
-            equipable_type=EquipableOrder.SHIELD,
-            upgrade=upgrade,
-            possible_regions=("main hand", "off hand"),
-            equip_size=(3,5),
-            str_requirement=11,
-            protection=5,
-            shock_resistance=0.5,
-            cold_resistance=0.3,
-            )
-
-    def update_stat(self):
-        super().update_stat()
-        self.eq_protection = round(self.eq_protection * self.corrosion_debuf * self.burnt_debuf)
-
-        self.add_protection = round(self.upgrade * 1.6)
-
-
-class IronShieldEquipable(Equipable):
-    def __init__(self, upgrade=0):
-        super().__init__(
-            equipable_type=EquipableOrder.SHIELD,
-            upgrade=upgrade,
-            possible_regions=("main hand", "off hand"),
-            equip_size=(3,5),
-            str_requirement=15,
-            base_melee=2,
-            protection=8,
-            fire_resistance=0.4,
-            )
-
-    def update_stat(self):
-        super().update_stat()
-        self.eq_protection = round(self.eq_protection * self.corrosion_debuf * self.burnt_debuf)
-        self.eq_base_melee = round(self.eq_base_melee * self.corrosion_debuf * self.burnt_debuf)
-
-        self.add_protection = round(self.upgrade * 1.6)
-        self.add_base_melee = round(self.upgrade * 1)
-
-
-class SilverShieldEquipable(Equipable):
-    def __init__(self, upgrade=0):
-        super().__init__(
-            equipable_type=EquipableOrder.SHIELD,
-            upgrade=upgrade,
-            possible_regions=("main hand", "off hand"),
-            equip_size=(3,5),
-            str_requirement=13,
-            base_melee=3,
-            protection=7,
-            magic_resistance=0.2
-            )
-
-    def update_stat(self):
-        super().update_stat()
-        self.eq_protection = round(self.eq_protection * self.corrosion_debuf * self.burnt_debuf)
-        self.eq_base_melee = round(self.eq_base_melee * self.corrosion_debuf * self.burnt_debuf)
-
-        self.add_protection = round(self.upgrade * 1.6)
-        self.add_base_melee = round(self.upgrade * 1)
-
-
-class PlatinumShieldEquipable(Equipable):
-    def __init__(self, upgrade=0):
-        super().__init__(
-            equipable_type=EquipableOrder.SHIELD,
-            upgrade=upgrade,
-            possible_regions=("main hand", "off hand"),
-            equip_size=(3,5),
-            str_requirement=15,
-            base_melee=3,
-            protection=7,
-            fire_resistance=0.3,
-            cold_resistance=0.3,
-            shock_resistance=0.3,
-            poison_resistance=0.3,
-            acid_resistance=0.3,
-            magic_resistance=0.1,
-            )
-
-    def update_stat(self):
-        super().update_stat()
-        self.eq_protection = round(self.eq_protection * self.corrosion_debuf * self.burnt_debuf)
-        self.eq_base_melee = round(self.eq_base_melee * self.corrosion_debuf * self.burnt_debuf)
-
-        self.add_protection = round(self.upgrade * 1.6)
-        self.add_base_melee = round(self.upgrade * 1)
-
-
-
-#################################################
-################### AMULETS #####################
-#################################################
-
-class AmuletOfKugahEquipable(Equipable):
-    def __init__(self, upgrade=0):
-        super().__init__(
-            equipable_type=EquipableOrder.AMULET,
-            upgrade=upgrade,
-            possible_regions=("amulet",),
-            )
-
-    def update_stat(self):
-        super().update_stat()
-
-
-class AmuletOfBrillianceEquipable(Equipable):
-    def __init__(self, upgrade=0):
-        super().__init__(
-            equipable_type=EquipableOrder.AMULET,
-            upgrade=upgrade,
-            possible_regions=("amulet",),
-            intelligence=4,
-            )
-
-    def update_stat(self):
-        super().update_stat()
-
-        self.add_intelligence = round(self.upgrade * 1)

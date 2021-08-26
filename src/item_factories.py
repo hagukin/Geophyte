@@ -6,7 +6,7 @@ import anim_graphics
 import components.edible as edible
 import ability_factories
 
-from order import InventoryOrder
+from order import InventoryOrder, EquipableOrder
 
 temp_items_lists = []
 item_rarity = []
@@ -799,6 +799,8 @@ item_rarity.append(lightning_bolt_spellbook.rarity)
 ################################ ARMORS #################################
 #########################################################################
 
+
+####################### TORSO ################################
 ### Rags
 rags = Item(
     char="[",
@@ -817,7 +819,15 @@ rags = Item(
     droppable=True,
     stackable=False,
     throwable=throwable.NormalThrowable(air_friction=40),
-    equipable=equipable.RagsEquipable()
+    equipable=equipable.Equipable(
+        equipable_type=EquipableOrder.LIGHT_ARMOR,
+        upgrade=0,
+        equip_size=(3, 6),
+        possible_regions=("leg", "torso",),
+        str_requirement=4,
+        protection=1,
+        protection_mag=1,
+    )
 )
 temp_items_lists.append(rags)
 item_rarity.append(rags.rarity)
@@ -841,10 +851,114 @@ leather_armor = Item(
     droppable=True,
     stackable=False,
     throwable=throwable.NormalThrowable(),
-    equipable=equipable.LeatherArmorEquipable()
+    equipable=equipable.Equipable(
+        equipable_type=EquipableOrder.LIGHT_ARMOR,
+        upgrade=0,
+        equip_size=(3, 5),
+        possible_regions=("torso",),
+        str_requirement=10,
+        protection=5,
+        protection_mag=1.4,
+    )
 )
 temp_items_lists.append(leather_armor)
 item_rarity.append(leather_armor.rarity)
+
+
+### Iron Chain mail
+iron_chain_mail = Item(
+    char="[",
+    fg=(94, 255, 0),
+    name="강철 사슬 갑옷",
+    entity_id="iron_chain_mail",
+    entity_desc=("강철 사슬들을 엮어 만든 갑옷이다. "),
+    rarity=5,
+    weight=17.9,
+    price=10,
+    item_type=InventoryOrder.ARMOR,
+    item_state=ItemState(is_identified=1),
+    spawnable=True,
+    flammable=0,
+    corrodible=0.02,
+    droppable=True,
+    stackable=False,
+    throwable=throwable.NormalThrowable(),
+    equipable=equipable.Equipable(
+        equipable_type=EquipableOrder.HEAVY_ARMOR,
+        upgrade=0,
+        equip_size=(3, 5),
+        possible_regions=("torso",),
+        str_requirement=12,
+        protection=9,
+        protection_mag=1.8,
+    )
+)
+temp_items_lists.append(iron_chain_mail)
+item_rarity.append(iron_chain_mail.rarity)
+
+
+### Iron Scale Armor
+iron_scale_armor = Item(
+    char="[",
+    fg=(166, 255, 254),
+    name="강철 비늘 갑옷",
+    entity_id="iron_scale_armor",
+    entity_desc=("작은 강철 판들을 가죽에 덧대 만든 갑옷이다. "),
+    rarity=3,
+    weight=16.9,
+    price=15,
+    item_type=InventoryOrder.ARMOR,
+    item_state=ItemState(is_identified=1),
+    spawnable=True,
+    flammable=0,
+    corrodible=0.02,
+    droppable=True,
+    stackable=False,
+    throwable=throwable.NormalThrowable(),
+    equipable=equipable.Equipable(
+        equipable_type=EquipableOrder.HEAVY_ARMOR,
+        upgrade=0,
+        equip_size=(3, 5),
+        possible_regions=("torso",),
+        str_requirement=14,
+        protection=12,
+        protection_mag=2.1,
+    )
+)
+temp_items_lists.append(iron_scale_armor)
+item_rarity.append(iron_scale_armor.rarity)
+
+
+### Iron Plate armor
+iron_plate_armor = Item(
+    char="[",
+    fg=(255, 100, 50),
+    name="강철 판금 갑옷",
+    entity_id="iron_plate_armor",
+    entity_desc=("강철판들을 이어붙여 만든 갑옷이다. "),
+    rarity=1,
+    weight=18.5,
+    price=10,
+    item_type=InventoryOrder.ARMOR,
+    item_state=ItemState(is_identified=1),
+    spawnable=True,
+    flammable=0,
+    corrodible=0.02,
+    droppable=True,
+    stackable=False,
+    throwable=throwable.NormalThrowable(),
+    equipable=equipable.Equipable(
+        equipable_type=EquipableOrder.HEAVY_ARMOR,
+        upgrade=0,
+        equip_size=(3, 5),
+        possible_regions=("torso",),
+        str_requirement=15,
+        protection=15,
+        protection_mag=2.5,
+    )
+)
+temp_items_lists.append(iron_plate_armor)
+item_rarity.append(iron_plate_armor.rarity)
 
 
 ### Merchant robe
@@ -865,7 +979,20 @@ merchant_robe = Item(
     droppable=True,
     stackable=False,
     throwable=throwable.NormalThrowable(air_friction=25),
-    equipable=equipable.MerchantRobeEquipable()
+    equipable=equipable.Equipable(
+        equipable_type=EquipableOrder.LIGHT_ARMOR,
+        upgrade=0,
+        equip_size=(3, 4),
+        possible_regions=("torso",),
+        str_requirement=6,
+        protection=4,
+        fire_resistance=0.3,
+        cold_resistance=0.3,
+        shock_resistance=0.3,
+        acid_resistance=0.3,
+        poison_resistance=0.3,
+        protection_mag=2,
+    )
 )
 temp_items_lists.append(merchant_robe)
 item_rarity.append(merchant_robe.rarity)
@@ -889,10 +1016,316 @@ silk_dress = Item(
     droppable=True,
     stackable=False,
     throwable=throwable.NormalThrowable(air_friction=25),
-    equipable=equipable.SilkDressEquipable()
+    equipable=equipable.Equipable(
+        equipable_type=EquipableOrder.LIGHT_ARMOR,
+        upgrade=0,
+        equip_size=(3, 4),
+        possible_regions=("torso",),
+        protection=1,
+        magic_resistance=0.1,
+        sleep_resistance=0.6,
+        protection_mag=1,
+        sleep_resistance_mag=0.08,
+    )
 )
 temp_items_lists.append(silk_dress)
 item_rarity.append(silk_dress.rarity)
+
+
+
+################################## HEAD ######################################
+### Iron Headpiece
+iron_headpiece = Item(
+    char="[",
+    fg=(201, 168, 0),
+    name="강철 전투모",
+    entity_id="iron_headpiece",
+    entity_desc=("머리 윗 부분을 보호해주는 강철 전투모이다. 가죽 끈을 턱에 둘러 머리에 고정시킬 수 있다. "),
+    rarity=5,
+    weight=3.2,
+    price=8,
+    item_type=InventoryOrder.ARMOR,
+    item_state=ItemState(is_identified=1),
+    spawnable=True,
+    flammable=0,
+    corrodible=0.02,
+    droppable=True,
+    stackable=False,
+    throwable=throwable.NormalThrowable(),
+    equipable=equipable.Equipable(
+        equipable_type=EquipableOrder.HEAVY_ARMOR,
+        upgrade=0,
+        equip_size=(3, 5),
+        possible_regions=("head",),
+        str_requirement=10,
+        protection=4,
+        protection_mag=1.4,
+    )
+)
+temp_items_lists.append(iron_headpiece)
+item_rarity.append(iron_headpiece.rarity)
+
+
+### Iron Helmet
+iron_helmet = Item(
+    char="[",
+    fg=(0, 201, 70),
+    name="강철 투구",
+    entity_id="iron_helmet",
+    entity_desc=("강철로 만들어진 투구이다. 얼굴 부분을 제외한 모든 부분이 강철 판으로 둘러쌓여 있다. "),
+    rarity=5,
+    weight=4.3,
+    price=15,
+    item_type=InventoryOrder.ARMOR,
+    item_state=ItemState(is_identified=1),
+    spawnable=True,
+    flammable=0,
+    corrodible=0.02,
+    droppable=True,
+    stackable=False,
+    throwable=throwable.NormalThrowable(),
+    equipable=equipable.Equipable(
+        equipable_type=EquipableOrder.HEAVY_ARMOR,
+        upgrade=0,
+        equip_size=(3, 4),
+        possible_regions=("head",),
+        str_requirement=12,
+        protection=7,
+        protection_mag=1.8,
+    )
+)
+temp_items_lists.append(iron_helmet)
+item_rarity.append(iron_helmet.rarity)
+
+
+### Spiked Iron Helmet
+iron_armet = Item(
+    char="[",
+    fg=(10, 104, 255),
+    name="강철 아멧",
+    entity_id="iron_armet",
+    entity_desc=("머리 전체를 보호하는 투구이다. 얼굴 부분에 강철로 만들어진 바이저가 부착되어 있다. "),
+    rarity=5,
+    weight=5,
+    price=15,
+    item_type=InventoryOrder.ARMOR,
+    item_state=ItemState(is_identified=1),
+    spawnable=True,
+    flammable=0,
+    corrodible=0.02,
+    droppable=True,
+    stackable=False,
+    throwable=throwable.NormalThrowable(),
+    equipable=equipable.Equipable(
+        equipable_type=EquipableOrder.HEAVY_ARMOR,
+        upgrade=0,
+        equip_size=(3, 4),
+        possible_regions=("head",),
+        str_requirement=13,
+        protection=9,
+        protection_mag=2.2,
+    )
+)
+temp_items_lists.append(iron_armet)
+item_rarity.append(iron_armet.rarity)
+
+
+### Horned Helmet
+horned_helmet = Item(
+    char="[",
+    fg=(166, 255, 254),
+    name="뿔 달린 투구",
+    entity_id="horned_helmet",
+    entity_desc=("머리를 보호하는 투구이다. 머리 양쪽에 강철로 만들어진 뿔 한 쌍이 달려 있다. "),
+    rarity=5,
+    weight=3.8,
+    price=15,
+    item_type=InventoryOrder.ARMOR,
+    item_state=ItemState(is_identified=1),
+    spawnable=True,
+    flammable=0,
+    corrodible=0.01,
+    droppable=True,
+    stackable=False,
+    throwable=throwable.NormalThrowable(),
+    equipable=equipable.Equipable(
+        equipable_type=EquipableOrder.LIGHT_ARMOR,
+        upgrade=0,
+        equip_size=(3, 4),
+        possible_regions=("head",),
+        str_requirement=8,
+        protection=6,
+        charm=1,
+        protection_mag=1.4,
+    )
+)
+temp_items_lists.append(horned_helmet)
+item_rarity.append(horned_helmet.rarity)
+
+
+
+
+################################## PANTS ######################################
+### Leather Pants
+leather_pants = Item(
+    char="[",
+    fg=(255, 61, 71),
+    name="가죽 바지",
+    entity_id="leather_pants",
+    entity_desc=("질긴 가죽으로 만들어진 바지이다. "),
+    rarity=5,
+    weight=1.2,
+    price=10,
+    item_type=InventoryOrder.ARMOR,
+    item_state=ItemState(is_identified=1),
+    spawnable=True,
+    flammable=0,
+    corrodible=0.05,
+    droppable=True,
+    stackable=False,
+    throwable=throwable.NormalThrowable(),
+    equipable=equipable.Equipable(
+        equipable_type=EquipableOrder.LIGHT_ARMOR,
+        upgrade=0,
+        equip_size=(3, 4),
+        possible_regions=("leg",),
+        str_requirement=7,
+        protection=5,
+        protection_mag=1.2,
+    )
+)
+temp_items_lists.append(leather_pants)
+item_rarity.append(leather_pants.rarity)
+
+
+### Leather Armored Pants
+leather_armored_pants = Item(
+    char="[",
+    fg=(120, 214, 175),
+    name="가죽 장갑 하의",
+    entity_id="leather_armored_pants",
+    entity_desc=("가죽에 강철판을 덧대 만든 하의이다. "),
+    rarity=5,
+    weight=3.8,
+    price=15,
+    item_type=InventoryOrder.ARMOR,
+    item_state=ItemState(is_identified=1),
+    spawnable=True,
+    flammable=0,
+    corrodible=0.03,
+    droppable=True,
+    stackable=False,
+    throwable=throwable.NormalThrowable(),
+    equipable=equipable.Equipable(
+        equipable_type=EquipableOrder.LIGHT_ARMOR,
+        upgrade=0,
+        equip_size=(3, 4),
+        possible_regions=("leg",),
+        str_requirement=10,
+        protection=8,
+        protection_mag=1.4,
+    )
+)
+temp_items_lists.append(leather_armored_pants)
+item_rarity.append(leather_armored_pants.rarity)
+
+
+### Iron Armored Pants
+iron_armored_pants = Item(
+    char="[",
+    fg=(159, 224, 90),
+    name="강철 장갑 하의",
+    entity_id="iron_armored_pants",
+    entity_desc=("강철판으로 만들어진 하의이다. "),
+    rarity=5,
+    weight=8.5,
+    price=15,
+    item_type=InventoryOrder.ARMOR,
+    item_state=ItemState(is_identified=1),
+    spawnable=True,
+    flammable=0,
+    corrodible=0.02,
+    droppable=True,
+    stackable=False,
+    throwable=throwable.NormalThrowable(),
+    equipable=equipable.Equipable(
+        equipable_type=EquipableOrder.HEAVY_ARMOR,
+        upgrade=0,
+        equip_size=(3, 4),
+        possible_regions=("leg",),
+        str_requirement=12,
+        protection=10,
+        protection_mag=1.66,
+    )
+)
+temp_items_lists.append(iron_armored_pants)
+item_rarity.append(iron_armored_pants.rarity)
+
+
+
+################################## BOOTS ######################################
+### Leather boots
+leather_boots = Item(
+    char="[",
+    fg=(17, 168, 45),
+    name="가죽 부츠",
+    entity_id="leather_boots",
+    entity_desc=("발목까지 올라오는 가죽 부츠이다. "),
+    rarity=5,
+    weight=1.54,
+    price=15,
+    item_type=InventoryOrder.ARMOR,
+    item_state=ItemState(is_identified=1),
+    spawnable=True,
+    flammable=0,
+    corrodible=0.02,
+    droppable=True,
+    stackable=False,
+    throwable=throwable.NormalThrowable(),
+    equipable=equipable.Equipable(
+        equipable_type=EquipableOrder.LIGHT_ARMOR,
+        upgrade=0,
+        equip_size=(3, 4),
+        possible_regions=("feet",),
+        str_requirement=7,
+        protection=4,
+        protection_mag=1.23,
+    )
+)
+temp_items_lists.append(leather_boots)
+item_rarity.append(leather_boots.rarity)
+
+
+### Iron boots
+iron_boots = Item(
+    char="[",
+    fg=(17, 113, 168),
+    name="강철 부츠",
+    entity_id="iron_boots",
+    entity_desc=("발목까지 올라오는 강철 부츠이다. "),
+    rarity=5,
+    weight=8.3,
+    price=15,
+    item_type=InventoryOrder.ARMOR,
+    item_state=ItemState(is_identified=1),
+    spawnable=True,
+    flammable=0,
+    corrodible=0.02,
+    droppable=True,
+    stackable=False,
+    throwable=throwable.NormalThrowable(),
+    equipable=equipable.Equipable(
+        equipable_type=EquipableOrder.HEAVY_ARMOR,
+        upgrade=0,
+        equip_size=(3, 4),
+        possible_regions=("feet",),
+        str_requirement=11,
+        protection=6,
+        protection_mag=1.38,
+    )
+)
+temp_items_lists.append(iron_boots)
+item_rarity.append(iron_boots.rarity)
 
 
 #########################################################################
@@ -918,7 +1351,17 @@ wooden_dagger = Item(
     droppable=True,
     stackable=False,
     throwable=throwable.NormalThrowable(base_throw=3, additional_throw=2, penetration=True, air_friction=1),
-    equipable=equipable.WoodenDaggerEquipable(),
+    equipable=equipable.Equipable(
+        equipable_type=EquipableOrder.BLADE,
+        upgrade=0,
+        possible_regions=("main hand", "off hand"),
+        equip_size=(2, 5),
+        str_requirement=8,
+        base_melee=3,
+        additional_melee=2,
+        base_melee_mag=1,
+        additional_melee_mag=1,
+    ),
     lockpickable=(0.5,0.5),
 )
 temp_items_lists.append(wooden_dagger)
@@ -943,7 +1386,17 @@ iron_dagger = Item(
     droppable=True,
     stackable=False,
     throwable=throwable.NormalThrowable(base_throw=6, additional_throw=3, penetration=True, air_friction=1),
-    equipable=equipable.IronDaggerEquipable(),
+    equipable=equipable.Equipable(
+        equipable_type=EquipableOrder.BLADE,
+        upgrade=0,
+        possible_regions=("main hand", "off hand"),
+        equip_size=(3, 5),
+        str_requirement=10,
+        base_melee=7,
+        additional_melee=5,
+        base_melee_mag=1.3,
+        additional_melee_mag=1.4,
+    ),
     lockpickable=(0.9,0.1),
 )
 temp_items_lists.append(iron_dagger)
@@ -968,7 +1421,19 @@ scalpel = Item(
     droppable=True,
     stackable=False,
     throwable=throwable.NormalThrowable(base_throw=6, additional_throw=1, penetration=True, air_friction=1),
-    equipable=equipable.ScalpelEquipable(),
+    equipable=equipable.Equipable(
+        equipable_type=EquipableOrder.BLADE,
+        upgrade=0,
+        possible_regions=("main hand", "off hand"),
+        equip_size=(3, 5),
+        str_requirement=10,
+        base_melee=6,
+        additional_melee=1,
+        melee_effects=(("bleed_target", 0.2),),
+        melee_effects_var=((3, 0, 3),),
+        base_melee_mag=1.2,
+        additional_melee_mag=2.5,
+    ),
     lockpickable=(1,0.3),
 )
 temp_items_lists.append(scalpel)
@@ -993,7 +1458,17 @@ shortsword = Item(
     droppable=True,
     stackable=False,
     throwable=throwable.NormalThrowable(base_throw=1, additional_throw=2, penetration=False, air_friction=15),
-    equipable=equipable.ShortswordEquipable(),
+    equipable=equipable.Equipable(
+        equipable_type=EquipableOrder.BLADE,
+        upgrade=0,
+        possible_regions=("main hand", "off hand"),
+        equip_size=(3, 6),
+        str_requirement=13,
+        base_melee=10,
+        additional_melee=8,
+        base_melee_mag=1.4,
+        additional_melee_mag=1.6
+    ),
     lockpickable=(1,0.1),
 )
 temp_items_lists.append(shortsword)
@@ -1018,7 +1493,17 @@ longsword = Item(
     droppable=True,
     stackable=False,
     throwable=throwable.NormalThrowable(base_throw=1, additional_throw=2, penetration=False, air_friction=20),
-    equipable=equipable.LongswordEquipable(),
+    equipable=equipable.Equipable(
+        equipable_type=EquipableOrder.BLADE,
+        upgrade=0,
+        possible_regions=("main hand", "off hand"),
+        equip_size=(3, 6),
+        str_requirement=16,
+        base_melee=12,
+        additional_melee=10,
+        base_melee_mag=1.9,
+        additional_melee_mag=1.8,
+    ),
     lockpickable=(0.8,0.1),
 )
 temp_items_lists.append(longsword)
@@ -1043,7 +1528,19 @@ swordstick = Item(
     droppable=True,
     stackable=False,
     throwable=throwable.NormalThrowable(base_throw=1, additional_throw=1, penetration=False, air_friction=3),
-    equipable=equipable.SwordstickEquipable(),
+    equipable=equipable.Equipable(
+        equipable_type=EquipableOrder.BLADE,
+        upgrade=0,
+        possible_regions=("main hand", "off hand"),
+        equip_size=(3, 4),
+        str_requirement=12,
+        base_melee=11,
+        additional_melee=2,
+        charm=3,
+        intelligence=1,
+        base_melee_mag=1.5,
+        additional_melee_mag=2,
+    ),
     lockpickable=(0.2,0.5),
 )
 temp_items_lists.append(swordstick)
@@ -1070,7 +1567,17 @@ axe = Item(
     droppable=True,
     stackable=False,
     throwable=throwable.NormalThrowable(base_throw=2, additional_throw=2, penetration=False, air_friction=1),
-    equipable=equipable.AxeEquipable(),
+    equipable=equipable.Equipable(
+        equipable_type=EquipableOrder.BLADE,
+        upgrade=0,
+        possible_regions=("main hand", "off hand"),
+        equip_size=(4, 6),
+        str_requirement=15,
+        base_melee=8,
+        additional_melee=17,
+        base_melee_mag=1.3,
+        additional_melee_mag=2.1,
+    ),
     lockpickable=(0.8,0.05),
 )
 temp_items_lists.append(axe)
@@ -1094,7 +1601,17 @@ tomahawk = Item(
     droppable=True,
     stackable=False,
     throwable=throwable.NormalThrowable(base_throw=6, additional_throw=8, penetration=False, air_friction=0.2),
-    equipable=equipable.TomahawkEquipable(),
+    equipable=equipable.Equipable(
+        equipable_type=EquipableOrder.BLADE,
+        upgrade=0,
+        possible_regions=("main hand", "off hand"),
+        equip_size=(3, 5),
+        str_requirement=13,
+        base_melee=6,
+        additional_melee=12,
+        base_melee_mag=1.2,
+        additional_melee_mag=1.9,
+    ),
     lockpickable=(0.8,0.1),
 )
 temp_items_lists.append(tomahawk)
@@ -1120,7 +1637,17 @@ giant_wood_club = Item(
     droppable=True,
     stackable=False,
     throwable=throwable.NormalThrowable(base_throw=1, additional_throw=2, penetration=False, air_friction=20),
-    equipable=equipable.GiantWoodClubEquipable(),
+    equipable=equipable.Equipable(
+        equipable_type=EquipableOrder.CLUB,
+        upgrade=0,
+        possible_regions=("main hand", "off hand"),
+        equip_size=(5,7),
+        str_requirement=20,
+        base_melee=6,
+        additional_melee=10,
+        base_melee_mag=2,
+        additional_melee_mag=2
+    ),
     lockpickable=(0,0),
 )
 temp_items_lists.append(giant_wood_club)
@@ -1146,7 +1673,20 @@ wooden_shield = Item(
     droppable=True,
     stackable=False,
     throwable=throwable.NormalThrowable(base_throw=0, additional_throw=0, penetration=False, air_friction=55),
-    equipable=equipable.WoodenShieldEquipable(),
+    equipable=equipable.Equipable(
+        equipable_type=EquipableOrder.SHIELD,
+        upgrade=0,
+        possible_regions=("main hand", "off hand"),
+        equip_size=(3,5),
+        str_requirement=11,
+        base_melee=1,
+        additional_melee=3,
+        protection=5,
+        shock_resistance=0.5,
+        cold_resistance=0.3,
+        protection_mag=2.1,
+        base_melee_mag=0.5,
+    ),
     lockpickable=(0.05,0),
 )
 temp_items_lists.append(wooden_shield)
@@ -1171,7 +1711,19 @@ silver_shield = Item(
     droppable=True,
     stackable=False,
     throwable=throwable.NormalThrowable(base_throw=0, additional_throw=0, penetration=False, air_friction=55),
-    equipable=equipable.SilverShieldEquipable(),
+    equipable=equipable.Equipable(
+        equipable_type=EquipableOrder.SHIELD,
+        upgrade=0,
+        possible_regions=("main hand", "off hand"),
+        equip_size=(3, 5),
+        str_requirement=13,
+        base_melee=3,
+        additional_melee=3,
+        protection=7,
+        magic_resistance=0.2,
+        protection_mag=2.2,
+        base_melee_mag=1,
+    ),
     lockpickable=(0.1,0),
 )
 temp_items_lists.append(silver_shield)
@@ -1196,7 +1748,24 @@ platinum_shield = Item(
     droppable=True,
     stackable=False,
     throwable=throwable.NormalThrowable(base_throw=0, additional_throw=0, penetration=False, air_friction=55),
-    equipable=equipable.PlatinumShieldEquipable(),
+    equipable=equipable.Equipable(
+        equipable_type=EquipableOrder.SHIELD,
+        upgrade=0,
+        possible_regions=("main hand", "off hand"),
+        equip_size=(3,5),
+        str_requirement=15,
+        base_melee=3,
+        additional_melee=5,
+        protection=7,
+        fire_resistance=0.3,
+        cold_resistance=0.3,
+        shock_resistance=0.3,
+        poison_resistance=0.3,
+        acid_resistance=0.3,
+        magic_resistance=0.1,
+        protection_mag=2.1,
+        base_melee_mag=1.1,
+    ),
     lockpickable=(0.1,0),
 )
 temp_items_lists.append(platinum_shield)
@@ -1221,7 +1790,19 @@ iron_shield = Item(
     droppable=True,
     stackable=False,
     throwable=throwable.NormalThrowable(base_throw=0, additional_throw=0, penetration=False, air_friction=55),
-    equipable=equipable.IronShieldEquipable(),
+    equipable=equipable.Equipable(
+        equipable_type=EquipableOrder.SHIELD,
+        upgrade=0,
+        possible_regions=("main hand", "off hand"),
+        equip_size=(3,5),
+        str_requirement=15,
+        base_melee=2,
+        additional_melee=2,
+        protection=8,
+        fire_resistance=0.4,
+        protection_mag=1.9,
+        base_melee_mag=1,
+    ),
     lockpickable=(0.1,0),
 )
 temp_items_lists.append(iron_shield)
@@ -1257,7 +1838,11 @@ amulet_of_kugah = Item(
     droppable=True,
     stackable=False,
     throwable=throwable.NormalThrowable(base_throw=1, additional_throw=2, penetration=False, air_friction=15),
-    equipable=equipable.AmuletOfKugahEquipable(),
+    equipable=equipable.Equipable(
+        equipable_type=EquipableOrder.AMULET,
+        upgrade=0,
+        possible_regions=("amulet",),
+    ),
     edible=None,
     initial_BUC={1:1, 0:0, -1:0},
     initial_upgrades={0:1}
@@ -1286,7 +1871,12 @@ amulet_of_brilliance = Item(
     droppable=True,
     stackable=False,
     throwable=throwable.NormalThrowable(base_throw=1, additional_throw=2, penetration=False, air_friction=15),
-    equipable=equipable.AmuletOfBrillianceEquipable(),
+    equipable=equipable.Equipable(
+        equipable_type=EquipableOrder.AMULET,
+        upgrade=0,
+        possible_regions=("amulet",),
+        intelligence=4,
+    ),
     edible=None
 )
 temp_items_lists.append(amulet_of_brilliance)

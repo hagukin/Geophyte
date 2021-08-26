@@ -60,7 +60,7 @@ class Inventory(BaseComponent):
             self.parent.actor_state.previous_encumbrance = self.parent.actor_state.encumbrance
             self.parent.actor_state.encumbrance = 1
             if self.parent.actor_state.previous_encumbrance != self.parent.actor_state.encumbrance:
-                if self.parent == self.engine.player:
+                if self.parent == self.engine.player and not self.parent.is_dead:
                     self.engine.message_log.add_message("당신은 약간의 불편함을 느낀다.", fg=color.white)
                 else:
                     print(f"WARNING::{self.parent.name} is burdened - encumbrance:{self.parent.actor_state.encumbrance}")
@@ -69,7 +69,7 @@ class Inventory(BaseComponent):
             self.parent.actor_state.previous_encumbrance = self.parent.actor_state.encumbrance
             self.parent.actor_state.encumbrance = 2
             if self.parent.actor_state.previous_encumbrance != self.parent.actor_state.encumbrance:
-                if self.parent == self.engine.player:
+                if self.parent == self.engine.player and not self.parent.is_dead:
                     self.engine.message_log.add_message("당신은 다소 불편함을 느낀다.", fg=color.player_not_good)
                 else:
                     print(f"WARNING::{self.parent.name} is burdened - encumbrance:{self.parent.actor_state.encumbrance}")
@@ -78,7 +78,7 @@ class Inventory(BaseComponent):
             self.parent.actor_state.previous_encumbrance = self.parent.actor_state.encumbrance
             self.parent.actor_state.encumbrance = 3
             if self.parent.actor_state.previous_encumbrance != self.parent.actor_state.encumbrance:
-                if self.parent == self.engine.player:
+                if self.parent == self.engine.player and not self.parent.is_dead:
                     self.engine.message_log.add_message("당신은 불편함을 느낀다.", fg=color.player_bad)
                 else:
                     print(f"WARNING::{self.parent.name} is burdened - encumbrance:{self.parent.actor_state.encumbrance}")
@@ -87,7 +87,7 @@ class Inventory(BaseComponent):
             self.parent.actor_state.previous_encumbrance = self.parent.actor_state.encumbrance
             self.parent.actor_state.encumbrance = 4
             if self.parent.actor_state.previous_encumbrance != self.parent.actor_state.encumbrance:
-                if self.parent == self.engine.player:
+                if self.parent == self.engine.player and not self.parent.is_dead:
                     self.engine.message_log.add_message("당신은 심한 불편함을 느낀다.", fg=color.player_severe)
                 else:
                     print(f"WARNING::{self.parent.name} is burdened - encumbrance:{self.parent.actor_state.encumbrance}")

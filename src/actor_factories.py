@@ -122,18 +122,23 @@ player = Actor(
     inventory=Inventory(capacity=52, is_fireproof=False, is_acidproof=False, is_waterproof=False),
     ability_inventory=AbilityInventory(capacity=10),
     equipments=Equipments(),
-    initial_items=(
-        {"item": item_factories.scroll_of_magic_mapping, "chance":1, "count":(50,50), "BUC": {1:1, 0:0, -1:0}, "upgrade": None}, # NOTE: actor possesion BUC, upgrade has higher priority than item type inital_BUC, initial_upgrade
-        {"item": item_factories.potion_of_flame, "chance": 1, "count": (1, 5), "BUC": None, "upgrade": None},
-        {"item": item_factories.potion_of_liquified_ants, "chance": 1, "count": (1, 50), "BUC": None, "upgrade": None},
-    ),
+    initial_items=None,
+    # (
+    #     {"item": item_factories.scroll_of_magic_mapping, "chance":1, "count":(50,50), "BUC": {1:1, 0:0, -1:0}, "upgrade": None}, # NOTE: actor possesion BUC, upgrade has higher priority than item type inital_BUC, initial_upgrade
+    #     {"item": item_factories.scroll_of_enchantment, "chance": 1, "count": (20, 20), "BUC": None, "upgrade": None},
+    #     {"item": item_factories.scroll_of_identify, "chance": 1, "count": (1, 50), "BUC": None, "upgrade": None},
+    # ),
     initial_equipments=None,
     # (
-    #     # {"item":item_factories.leather_armor, "chance":1, "count":(1,1), "BUC":{-1:1, 0:1, 1:1}, "upgrade": {1:1,2:1,3:1,4:1}},
+    #     {"item":item_factories.iron_armored_pants, "chance":1, "count":(1,1), "BUC":{-1:1, 0:1, 1:1}, "upgrade": {1:1,2:1,3:1,4:1}},
+    #     {"item":item_factories.iron_armet, "chance":1, "count":(1,1), "BUC":{-1:1, 0:1, 1:1}, "upgrade": {1:1,2:1,3:1,4:1}},
+    #     {"item":item_factories.iron_plate_armor, "chance":1, "count":(1,1), "BUC":{-1:1, 0:1, 1:1}, "upgrade": {1:1,2:1,3:1,4:1}},
+    #     {"item":item_factories.iron_boots, "chance":1, "count":(1,1), "BUC":{-1:1, 0:1, 1:1}, "upgrade": {1:1,2:1,3:1,4:1}},
+    # ),
+    initial_abilities=None,
+    # (
+    #     (ability_factories.spectral_beam, 1),
     # )
-    initial_abilities=(
-        (ability_factories.spectral_beam, 1),
-    )
 )
 
 
@@ -216,7 +221,7 @@ ant = Actor(
     "그렇지만 개중에는 어두운 기운의 영향을 덜 받은 개체들도 있기 마련이다. "
     "비교적 던전의 기운을 덜 받은 이 개미들은 기껏해야 사람 손가락 남짓한 크기로, 대체로 별 위협이 되지 않는다. "),
     actor_quote=("우리 엄마는 저보고 항상 개미같이 열심히 일하는 사람이 되라고 말했어요. "),
-    rarity=10,
+    rarity=50,
     weight = 0.07,
     spawnable=True,
     edible=edible.InsectEdible(nutrition=10),
@@ -275,7 +280,7 @@ fire_ant = Actor(
     "이들이 턱에서 쏘는 작은 불꽃은 인간에게 크게 위협적이지는 않지만, "
     "책이나 주문서를 가지고 다니는 마법사들에게는 큰 골칫거리로 여겨진다. "),
     actor_quote=("썅, 빌어먹을 불개미녀석들, 이번에는 400샤인짜리 주문서를 태워먹었다고. "),
-    rarity=7,
+    rarity=30,
     weight=0.1,
     spawnable=True,
     edible=edible.FireAntEdible(nutrition=40),
@@ -334,7 +339,7 @@ volt_ant = Actor(
     entity_desc=("스파크 개미들은 몸에 두른 전류를 통해 적으로부터 자신을 보호한다. "
     "스파크 개미는 시큼텁텁한 맛이 나는 것으로 알려져 있으며, 일부 모험가들 사이에서는 별미로 꼽힌다. "),
     actor_quote=("이놈들을 잔뜩 잡아서 안주로 팔면 대박이 날 거야. "),
-    rarity=7,
+    rarity=35,
     weight=0.1,
     spawnable=True,
     edible=edible.VoltAntEdible(nutrition=40),
@@ -462,7 +467,7 @@ kitten = Actor(
     "작고 귀여운 동물, "
     "혹은 영양가 넘치는 자그마한 고깃덩어리. "),
     actor_quote=("얼마 전 옆집 고양이가 새끼를 낳았다던데, 그 집 식구들이 요즘 기운이 넘쳐보이는 건 기분 탓인가? "),
-    rarity=4,
+    rarity=10,
     weight=3.3,
     spawnable=True,
     edible=edible.RawMeatEdible(nutrition=100, cook_bonus=30),
@@ -519,7 +524,7 @@ cat = Actor(
     "이들은 잡식성이고 시력이 좋기 때문에 많은 모험가들에게 애완동물로 사랑받는다. "
     "고양이들이 사람의 꿈을 조종하는 영적인 능력을 지녔다고 주장하는 학자들도 있지만, 명확히 밝혀진 것은 없다. "),
     actor_quote=("그 녀석하고 눈이 마주친 날이면 난 항상 악몽을 꿔. 그런데도 왜일까, 녀석만 보면 자꾸 먹이를 주게 돼. "),
-    rarity=7,
+    rarity=38,
     weight=6.5,
     spawnable=True,
     edible=edible.RawMeatEdible(nutrition=120, cook_bonus=50),
@@ -575,7 +580,7 @@ large_cat = Actor(
     entity_desc=("던전의 기운을 받은 고양이들은 지상의 맹수에 가까운 크기로 자라기도 한다. " 
         "이들은 결코 맹수는 아니지만, 무방비한 모험가에게는 충분한 위협이 될 수 있다. "),
     actor_quote=("내 흉터가 고양이 때문에 생겼다는 건 죽어도 비밀이다, 알겠지? "),
-    rarity=4,
+    rarity=25,
     weight=18.5,
     spawnable=True,
     edible=edible.RawMeatEdible(nutrition=150, cook_bonus=60),
@@ -638,7 +643,7 @@ puppy = Actor(
     entity_desc=("강아지들은 호기심이 넘치는 존재들이다. "
         "이들은 성체에 비해 한참 뒤떨어지는 신체능력을 가졌지만, 넘치는 에너지 만큼은 성체를 압도한다. "),
     actor_quote=("포션술사는 절대 강아지를 길러선 안돼. 집이 언제 불바다가 될 지 모르거든. "),
-    rarity=4,
+    rarity=10,
     weight=5.7,
     spawnable=True,
     edible=edible.RawMeatEdible(nutrition=110, cook_bonus=12),
@@ -694,7 +699,7 @@ dog = Actor(
     actor_type_desc=("인간 최고의 친구라는 이명은 던전 안에서도 예외가 아니다. "
         "이들은 한 번 충성을 바친 주인에게는 무슨 일이 있어도 복종하며, 자신의 목숨을 바치는 데에도 망설임이 없다. "),
     actor_quote=("가족이 날 버려도 너만은 함께 해주는구나, 토비. "),
-    rarity=10,
+    rarity=35,
     weight=38.5,
     spawnable=True,
     edible=edible.RawMeatEdible(nutrition=160, cook_bonus=50),
@@ -750,7 +755,7 @@ large_dog = Actor(
     actor_type_desc=("인간 최고의 친구라는 이명은 던전 안에서도 예외가 아니다. "
         "...적으로 마주치지만 않는다면. "),
     actor_quote=("사냥꾼의 가장 강력한 무기는 단검도, 활도 아니야. 그건 바로 녀석의 사냥개지. "),
-    rarity=7,
+    rarity=25,
     weight=55.3,
     spawnable=True,
     edible=edible.RawMeatEdible(nutrition=200, cook_bonus=30),
@@ -806,7 +811,7 @@ cerberus = Actor(
     entity_desc=("머리가 세 개 달린 커다란 개의 형상을 하고 있는 케르베로스는 예로부터 많은 사람들에게 공포의 대상으로 여겨졌다. "
         "이들은 일반적인 개들보다 뛰어난 신체 능력을 가지고 있으며, 세 개의 머리에서 약한 화염을 내뿜을 수 있다. "
         "세 개의 머리는 각각 별도의 자아를 지니고 있으나, 몸의 지배권 또한 세 개로 나누어져 있는지는 밝혀지지 않았다. "),
-    rarity=3,
+    rarity=8,
     weight=165,
     spawnable=True,
     edible=edible.CerberusEdible(nutrition=350, cook_bonus=85),
@@ -868,7 +873,7 @@ floating_eye = Actor(
         "이들은 눈을 마주치는 것으로 생명체를 마비시킬 수 있는 강력한 힘을 가졌지만, "
         "다행히 이들은 호전적이지 않으며, 또 물리적으로는 아무런 위협이 되지 못한다. "),
     actor_quote=("녀석의 눈을 바라봤을 때, 마치 몸의 지배권을 빼앗기는 느낌이었어. 내가 녀석이 되고 녀석이 내가 되는 듯한 느낌이었지. "),
-    rarity=3,
+    rarity=15,
     weight=255.8,
     spawnable=True,
     edible=edible.FloatingEyeEdible(nutrition=120),#cannot be cooked
@@ -927,7 +932,7 @@ fly = Actor(
     entity_desc=("\'던전의 청소부\' 라는 이명으로도 불리는 이 파리들은, 지상의 파리보다 몇 십 배는 더 큰 덩치에 걸맞는 왕성한 식욕을 보여준다. "
         "이들은 던전 속 썩어가는 거대한 시체들을 모조리 먹어치우며, 그 시체에 알을 낳고 번식한다. "),
     actor_quote=("파리들이 다 죽으면 던전이 시체더미가 된다고는 하지만, 그 징그럽게 생긴 날개를 보고서도 놈을 죽이지 않을 놈이 몇이나 있을까? "),
-    rarity=6,
+    rarity=40,
     weight=0.07,
     spawnable=True,
     edible=edible.InsectEdible(nutrition=12, cook_bonus=2),
@@ -987,7 +992,7 @@ giant_wasp = Actor(
         "거대 말벌들은 곡예에 가까운 비행 능력을 보여주며, 쏜살같은 속도로 목표물에게 날아들어 독침을 찔러넣는다. "
         "독침을 찔러 넣을 때는 눈, 생식기 등 급소를 노리는 것으로 알려져 있으며, 때문에 이들을 상대할 때는 갑옷을 입었다고 하더라도 큰 주의가 필요하다. "),
     actor_quote=("독이 묻은 단검을 떠올려 봐. 꽤 살벌하지? 그런데 그 단검이 날아다니면서 너를 쫓아와 네 고간을 찌른다고 생각해봐. 대체 이보다 끔찍한 게 어디 있겠어? "),
-    rarity=5,
+    rarity=25,
     weight=1.5,
     spawnable=True,
     edible=edible.GiantWaspEdible(nutrition=30),
@@ -1052,7 +1057,7 @@ black_jelly = Actor(
                 "이들 중 검정색을 띄고 있는 개체들은 독성 점액질로 이루어져 있는데, 이들은 신체 내에서 독성 가스를 압축한 뒤 터뜨려 자신의 점액질 일부를 적에게 발사하는 형식으로 적을 공격한다고 알려져 있다. "
                 "독성 점액질은 본체에서 분리되고 얼마 지나지 않아 썩어 사라지며, 본체 또한 많은 부분이 절단되면 순식간에 썩어 사라지는 특징을 보인다. "),
     actor_quote=("이 놈들만큼 비료로 쓰기 좋은 게 또 없어. 당나귀 똥처럼 냄새도 안나지, 썩기는 또 순식간에 잘 썩지. 거기에 이놈들 살덩이는 잘라도 잘라도 계속 다시 자라나서 비료값 걱정도 할 필요 없다니깐? "),
-    rarity=4,
+    rarity=33,
     weight=187,
     spawnable=True,
     edible=edible.BlackJellyEdible(nutrition=50),
@@ -1115,7 +1120,7 @@ nymph = Actor(
         "님프의 아름다움에 홀린 남성들은 가진 것을 모두 내어주고, 종국에는 파멸에 이른다. "
         "아름다운 외모에 속아 방심한다면 당신은 이들에게 목숨까지 내어주게 될 지도 모른다. "),
     actor_quote=("전 가끔 녀석들이 흉측했으면 좋았겠다는 생각을 합니다. 목을 벨 때 일말의 동정심도 들지 않게 말이죠. "),
-    rarity=2,
+    rarity=20,
     weight=53,
     spawnable=True,
     edible=edible.RawMeatEdible(nutrition=200),
@@ -1184,7 +1189,7 @@ sphere_of_acid = Actor(
         "이들은 생명체 주변으로 다가가 자신을 폭발하는데, 당연하게도 스스로도 폭발로 인해 소멸한다. "
         "학자들 사이에선 스스로를 폭발시키는 이러한 행위가 공격이나 자기 보호의 수단이 아니라, 일종의 본능과도 같은 행위라는 의견이 지배적이다. "),
     actor_quote=("폭발의 열기로 머리카락이 타버렸어. 그래도 목숨은 건졌구나 싶었는데 눈, 코, 귀가 차례대로 녹아내리기 시작하더군. 걔는 자길 죽여달라고 애원했지. 내가 해줄 수 있는 거라고는... "),
-    rarity=4,
+    rarity=25,
     weight=0.8,
     spawnable=True,
     edible=None,
@@ -1244,7 +1249,7 @@ jumping_spider = Actor(
         "예로부터 몇몇 모험가들은 옷에 붙어있는 자그마한 벌레들을 잡기 위해 옷 속에 깡충거미를 집어넣기도 했다고 전해지며, "
         "그 중 일부는 이들을 물약 병 같은 곳에 담아 애지중지 기르기도 했다고 전해진다. "),
     actor_quote=("딜런이 죽던 날은 내 생애 최악의 날이었어. 그 날 무심코 자켓 위에 앉지만 않았어도... "),
-    rarity=3,
+    rarity=49,
     weight=0.01,
     spawnable=True,
     edible=edible.InsectEdible(nutrition=5),
@@ -1302,7 +1307,7 @@ gaion = Actor(
         "가이온의 하반신은 단단한 껍질로 둘러쌓여 있으며, 꼬리에 달린 독침에는 맞은 생명체를 마비시키는 강력한 신경독이 들어있다. "
         "많은 학자들은 가이온이 만약 인간처럼 사회를 이루는 생명체였다면 인류에게 지금 이상으로 큰 위협이 됐으리라고 추측한다."),
     actor_quote=("어디서 피 냄새가 나서 주변을 살펴보니 가이온 한 놈이 다른 가이온을 뜯어먹고 있더군. 젠장할, 잊고 싶어도 평생 잊지 못할거야."),
-    rarity=3,
+    rarity=33,
     weight=135.2,
     spawnable=True,
     edible=edible.InsectEdible(nutrition=180, cook_bonus=50),
@@ -1372,7 +1377,7 @@ earthworm = Actor(
         "이들을 지상에서 사육해 농사에 사용하려는 수많은 시도가 있었으나, 아직까지 성공한 사례는 없다. "
         "때문에 이들을 던전 밖에서 사육하는 법을 고안해낸다면 황제로부터 훈장을 수여받으리라는 말도 떠돌곤 한다. "),
     actor_quote=("내가 형씨였으면 모험이니 뭐니 할 거 없이 그 아래에서 농사나 지을 거야. 형씨도 지금보다 백 배는 많이 벌 수 있을텐데. "),
-    rarity=9,
+    rarity=30,
     weight=0.1,
     spawnable=True,
     edible=edible.InsectEdible(nutrition=10, cook_bonus=2),
@@ -1425,7 +1430,7 @@ maggot = Actor(
     entity_desc=("모험가들이 가장 무서워하는 생물이 무엇일까? 고대의 정령들? 드래곤? 답은 바로 구더기이다. "
         "구더기들은 앞에 놓인 것이 무엇이든 간에 쉬지 않고 먹어치우며, 모험가들의 비상식량도 예외는 아니다. "),
     actor_quote=("구더기가 가득한 고기가 싫다면 고기 대신 치즈를 들고 다니면 돼. 구더기가 파먹은 치즈는 나름대로 별미거든. "),
-    rarity=1,
+    rarity=0,
     weight=0.01,
     spawnable=False, # NOTE: does not spawn naturally.
     edible=edible.InsectEdible(nutrition=1, maggot_chance=0), # Cannot spawn maggots to prevent continuos spawning
@@ -1487,7 +1492,7 @@ fire_elemental = Actor(
     entity_desc=("불의 정령은 신체의 대부분이 강렬한 화염으로 이루어져 있다. "
         "그러나 이들의 골격만큼은 불꽃이 아닌 알 수 없는 금속으로 이루어져 있으며, 이 금속은 정령이 소멸할 때 함께 기화되어 사라진다. "),
     actor_quote=("난 이거 하나만큼은 자신있게 말할 수 있었지. '불은 끄려면 물을 뿌려라'라고. 녀석을 만나기 전까지는 말이야. "),
-    rarity=1,
+    rarity=8,
     weight=203,
     spawnable=True,
     edible=None,
@@ -1555,7 +1560,7 @@ ice_elemental = Actor(
     entity_desc=("얼음 정령은 푸른 얼음으로 이루어진 전신에서 생명체의 뼛 속까지 얼어붙일 수 있는 냉기를 내뿜는다. "
             "지금까지 이 얼음을 녹이려는 시도는 전부 실패했지만, 정령이 소멸할 때 얼음도 함꼐 기화되어 사라진다. "),
     actor_quote=("두꺼운 옷으로 꽁꽁 싸맨다고? 그런 건 자네의 얼어붙은 시체를 땅에 묻기 어렵게 만들 뿐이라네. "),
-    rarity=1,
+    rarity=8,
     weight=461,
     spawnable=True,
     edible=None,
@@ -1623,7 +1628,7 @@ earth_elemental = Actor(
     entity_desc=("땅의 정령의 신체는 아직까지 밝혀지지 않은 종류의 암석으로 구성되어 있으며, 이 암석들은 보이지 않는 힘에 의해 서로 떨어지지 않고 하나의 형태를 유지하고 있다. "
                 "이 암석은 열, 부식 등에 대해 놀라우리만큼 강한 저항성을 지니고 있으나, 정령이 소멸할 때 암석도 함꼐 기화되어 사라진다. "),
     actor_quote=("혹시나 해서 말하는데, 바위 골렘 같은 조잡한 돌덩어리라고 생각했다가는 넌 눈 깜빡할 사이에 곤죽이 될 거야. "),
-    rarity=1,
+    rarity=8,
     weight=550,
     spawnable=True,
     edible=None,
@@ -1692,7 +1697,7 @@ acid_elemental = Actor(
     entity_desc=("융해의 정령의 신체는 알 수 없는 생명체의 뼈로 이루어져 있으며, 그 중 머리 부분은 인간의 두개골과 유사한 형상을 하고 있다. "
                 "이들의 신체 전체는 점액성을 띄는 강산성 물질로 덮어져 있으며, 이 강산성 점액질은 현재까지 알려진 거의 대부분의 유기물을 녹일 수 있는 것으로 알려져 있다. "),
     actor_quote=("놈과 싸운 어떤 한 기사의 이야기를 들은 적이 있어. 갑옷의 구멍 사이로 붉은 살덩이들이 흘려 내렸다더군. "),
-    rarity=1,
+    rarity=8,
     weight=430,
     spawnable=True,
     edible=None,
@@ -1759,7 +1764,7 @@ poison_elemental = Actor(
     entity_desc=("맹독의 정령은 마치 거대한 독사와도 같은 형상을 하고 있다. "
                 "이들의 신체는 치명적인 독성을 띄는 보랏빛 액체로 이루어져 있으며, 이 액체와 단순히 접촉하는 것만으로도 심각한 피해를 줄 수 있다고 알려져 있다. "),
     actor_quote=("맹독의 정령을 찾는 건 어렵지 않아. 던전 속에 널부러진 시체들을 쭉 따라가다 보면 만날 수 있을 거야. "),
-    rarity=1,
+    rarity=8,
     weight=417,
     spawnable=True,
     edible=None,
@@ -1826,7 +1831,7 @@ lightning_elemental = Actor(
     entity_desc=("번개의 정령의 신체는 먹구름과 같이 보이는 알 수 없는 검은 기체로 이루어져 있으며, 전신에서 번개와도 같은 푸른 색 스파크를 내뿜는다. "
                 "그러나 이들의 골격만큼은 기체가 아닌 알 수 없는 금속으로 이루어져 있으며, 이 금속은 정령이 소멸할 때 함께 기화되어 사라진다. "),
     actor_quote=("세상에 전기가 덜 흐르는 물질은 있어도, 전기가 흐르지 않는 물질은 없다는 거 알아? "),
-    rarity=1,
+    rarity=8,
     weight=153,
     spawnable=True,
     edible=None,
@@ -1895,7 +1900,7 @@ unicorn = Actor(
             "그럼에도 이런 소문이 퍼진 것은, 비록 소수이지만 인간에게 적대적인 유니콘들이 존재하고, 그 소수의 유니콘들이 입힌 인명피해가 막심하기 때문이라고 추측된다. "
             "때문에 유니콘을 마주한다면 설사 적대적이지 않아 보이더라도 극심한 주의를 가하는 게 권장된다."),
     actor_quote=("그 미친 말대가리들은 보이는 대로 잡아 죽여야 돼. 뭐? 평화의 상징? 그 자식이 뿔로 네 뱃가죽을 헤집어놓으면 그런 소리 못할 걸?"),
-    rarity=1,
+    rarity=3,
     weight=980.5,
     spawnable=True,
     edible=edible.RawMeatEdible(nutrition=330, cook_bonus=100),
@@ -1983,7 +1988,7 @@ chatterbox = Actor(
         "이들은 '입'을 통해 인간이나 다른 생명체들의 소리를 흉내내어 먹잇감을 유인하며, 성별, 인종, 나이에 관계없이 나양한 인간의 목소리를 내는 것으로 알려졌다. "
         "다만 이들이 자신들이 내뱉는 말들의 뜻을 이해하고 있는 것인지는 밝혀지지 않았다. "),
     actor_quote=("부탁이야... 말리지 말아줘... 이렇게 해서라도 죽어버린 그녀의 목소리를 듣고 싶어... "),
-    rarity=99,
+    rarity=27,
     weight=81,
     spawnable=True,
     edible=edible.RawMeatEdible(nutrition=280),
@@ -2027,7 +2032,7 @@ ActorDB.monster_difficulty[chatterbox.status.difficulty].append(chatterbox)
 
 ####################################################
 ################ M - Mythical Beasts  ##############
-####################################################]
+####################################################
 
 ### Baby Phoenix
 baby_phoenix = Actor(
@@ -2039,7 +2044,7 @@ baby_phoenix = Actor(
             "이들은 살과 근육이 아닌, 붉은 화염을 연상케 하는 무언가로 구성되어 있으며, 이 '화염'이 무엇인지에 대한 의견은 학자들마다 분분하다. "
             "학자들 사이에서 가장 지지받는 이론은 바로 이 '화염'이 마력 에너지의 일종이며, "
             "불사조는 사실 우리들과 같은 유기적인 생명체가 아니라 막대한 양의 마력 에너지가 자아를 갖게 되면서 생겨난 존재라는 이론이다. "),
-    rarity=1,
+    rarity=3,
     weight=10.3,
     spawnable=True,
     edible=None,
@@ -2111,7 +2116,7 @@ phoenix = Actor(
             "이들은 살과 근육이 아닌, 붉은 화염을 연상케 하는 무언가로 구성되어 있으며, 이 '화염'이 무엇인지에 대한 의견은 학자들마다 분분하다. "
             "학자들 사이에서 가장 지지받는 이론은 바로 이 '화염'이 마력 에너지의 일종이며, "
             "불사조는 사실 우리들과 같은 유기적인 생명체가 아니라 막대한 양의 마력 에너지가 자아를 갖게 되면서 생겨난 존재라는 이론이다. "),
-    rarity=1,
+    rarity=4,
     weight=157,
     spawnable=True,
     edible=None,
@@ -2174,12 +2179,77 @@ ActorDB.monster_difficulty[phoenix.status.difficulty].append(phoenix)
 
 
 ####################################################
-################ O - Orcs & Ogres ##################
+###################### O - Orcs ####################
+####################################################
+
+### Orc patrol
+orc_patrol = Actor(
+    char="O",
+    fg=(135, 184, 0),
+    name="오크 정찰병",
+    entity_id="orc_patrol",
+    actor_type_desc=(""),
+    entity_desc=(""),
+    actor_quote=(""),
+    rarity=46,
+    weight=118,
+    spawnable=True,
+    edible=edible.RawMeatEdible(nutrition=403),
+    ai_cls=BaseAI(
+        alignment=(("hostile",), (1,)), #FIXME
+        do_melee_atk=True,
+        do_ranged_atk=False,
+        use_ability=False,
+        hostile_type=('@','l'), #FIXME
+    ),
+    status=Status(
+        hp=103,
+        mp=15,
+        strength=17,
+        dexterity=14,
+        agility=15,
+        intelligence=13,
+        constitution=14,
+        charm=14,
+        difficulty=9,# Unarmed 7
+        base_melee=13,
+        additional_melee=8,
+        protection=15,
+        hearing=15,
+        eyesight=15,
+        ),
+    actor_state=ActorState(
+        size=4,
+        can_talk=True,
+        has_left_arm=True,
+        has_right_arm=True,
+        has_leg=True,
+        has_eye=True,
+        has_torso=True,
+        has_blood=True,
+        has_soul=True,
+        can_swim=True,
+        has_head=1,
+    ),
+    inventory=Inventory(capacity=20),
+    ability_inventory=AbilityInventory(capacity=2),
+    equipments=Equipments(),
+    initial_equipments=(
+        {"item":item_factories.iron_dagger, "chance":1, "count":(1,1), "BUC": None, "upgrade":None},
+        {"item":item_factories.iron_chain_mail, "chance":1, "count":(1,1), "BUC": None, "upgrade":None},
+    ),
+)
+ActorDB.monster_difficulty[orc_patrol.status.difficulty].append(orc_patrol)
+
+
+
+####################################################
+######## T - GIANTS & TITANS & TROLLS  #############
 ####################################################
 
 ### Ogre
 ogre = Actor(
-    char="O",
+    char="T",
     fg=(160, 176, 111),
     name="오우거",
     entity_id="Ogre",
@@ -2188,7 +2258,7 @@ ogre = Actor(
         "일부 학자들은 오우거들은 사실 선한 심성을 가진 생명체라고 주장하지만, 학계에서는 이 이론은 아직 받아들여지고 있지 않다. "),
     actor_quote=("오우거들이 사실은 착한 놈들이라느니 뭐니 하는 안경잽이 나부랭이들이 있는 모양인데, 내 앞에 보이면 눈알을 뽑아버릴 거야. "
                  "우리 부대원들이 오우거들에게 찢겨 나가고 있을 때 그 자식들은 뭘 하고 있었지? 방에서 고대 시집이나 분석하고 있었으려나? "),
-    rarity=2,
+    rarity=28,
     weight=1855,
     spawnable=True,
     edible=edible.RawMeatEdible(nutrition=350),
@@ -2236,10 +2306,6 @@ ogre = Actor(
 ActorDB.monster_difficulty[ogre.status.difficulty].append(ogre)
 
 
-####################################################
-################ T - GIANTS & TITANS  ##############
-####################################################
-
 ### Giant
 giant = Actor(
     char="T",
@@ -2251,7 +2317,7 @@ giant = Actor(
         "또한 이들은 말을 할 수 있는 수준의 지성을 가지고 있으며, 도구를 만들어 사용하는 것이 관찰되기도 했다. "
         "그러나 한 번 폭주하기 시작하면 이들은 오우거, 트롤과는 비교도 되지 않을 정도의 끔찍한 결과를 초래하기 때문에 각별한 주의가 필요하다. "),
     actor_quote=("저놈들을 잘 길들여 병사로 만들면 우리 제국은 최강이 될 게야. 젊을 적의 영광을 다시 보는 날이 오면 좋겠구만. "),
-    rarity=3,
+    rarity=25,
     weight=4802,
     spawnable=True,
     edible=edible.RawMeatEdible(nutrition=420),
