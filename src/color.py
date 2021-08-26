@@ -9,6 +9,7 @@ blood = (191, 0, 0)
 gray = (0x80, 0x80, 0x80)
 dark_gray = (0x30, 0x30, 0x30)
 lime = (0xbf, 0xff, 0x00)
+light_green = (206, 255, 199)
 cyan = (0x0, 0xff, 0xff)
 brass = (181, 166, 66)
 brown = (101, 67, 33)
@@ -38,6 +39,7 @@ procgen_bg = None
 procgen_fg = white
 
 b_rocky_dungeon = (94, 73, 30)
+b_forest = (0, 99, 23)
 b_desert_dungeon = (156, 148, 109)
 b_ancient_ruin = (57, 87, 83)
 

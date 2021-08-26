@@ -17,24 +17,36 @@ rocky_dungeon = Biome(
 biome_dict[rocky_dungeon.biome_id] = rocky_dungeon
 biome_rarity.append(rocky_dungeon.rarity)
 
-desert_dungeon = Biome(
-    name="사막",
-    biome_id="desert_dungeon",
-    biome_desc="desert_dungeon (TEST)",
-    rarity=1,
-    biome_color=color.b_desert_dungeon,
-    map_width=67,
-    map_height=41,
-    tileset=tileset({
-        "t_wall":tiles.wall_desert,
-        "t_floor":tiles.floor_desert,
-        "t_dense_grass":tiles.dense_grass_desert,
-        "t_sparse_grass":tiles.sparse_grass_desert,
-    }),
-    terrain = {"trap_field":5,},#TODO
+forest = Biome(
+    name="숲",
+    biome_id="forest",
+    biome_desc="Desc of forest biome (TEST)",
+    rarity=99,
+    biome_color=color.b_rocky_dungeon,
+    map_width=80,
+    map_height=60,
 )
-biome_dict[desert_dungeon.biome_id] = desert_dungeon
-biome_rarity.append(desert_dungeon.rarity)
+biome_dict[forest.biome_id] = forest
+biome_rarity.append(forest.rarity)
+
+# desert_dungeon = Biome(
+#     name="사막",
+#     biome_id="desert_dungeon",
+#     biome_desc="desert_dungeon (TEST)",
+#     rarity=1,
+#     biome_color=color.b_desert_dungeon,
+#     map_width=67,
+#     map_height=41,
+#     tileset=tileset({
+#         "t_wall":tiles.wall_desert,
+#         "t_floor":tiles.floor_desert,
+#         "t_dense_grass":tiles.dense_grass_desert,
+#         "t_sparse_grass":tiles.sparse_grass_desert,
+#     }),
+#     terrain = {"trap_field":5,},#TODO
+# )
+# biome_dict[desert_dungeon.biome_id] = desert_dungeon
+# biome_rarity.append(desert_dungeon.rarity)
 
 ancient_ruins = Biome(
     name="고대 유적",

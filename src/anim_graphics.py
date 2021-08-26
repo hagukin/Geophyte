@@ -59,3 +59,25 @@ def acid_explosion():
     }
 
     return expl
+
+
+### Spectral Beam
+def spectral_beam():
+
+    bgs = (
+        (0xFF, 0x66, 0x63),
+        (0xFE, 0xB1, 0x44),
+        (0xFD, 0xFD, 0x97),
+        (0x9E, 0xE0, 0x9E),
+        (0x9E, 0xC1, 0xCF),
+        (0xCC, 0x99, 0xC9)
+    )
+    bg = random.choice(bgs)
+
+    beam = {
+        "char":"*",
+        "fg":(255,255,255),
+        "bg":bg,
+    }
+
+    return beam

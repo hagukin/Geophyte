@@ -1,16 +1,17 @@
 from __future__ import annotations
 from os import dup
-from typing import Optional, TYPE_CHECKING
+from animation import Animation
+from typing import Optional, TYPE_CHECKING, Tuple
 from components.base_component import BaseComponent
-from input_handlers import RayDirInputHandler
+from input_handlers import RayDirInputHandler, RayRangedInputHandler
 from korean import grammar as g
+from entity import Actor, Entity
 
 import random
 import actions
 import color
 
 if TYPE_CHECKING:
-    from entity import Actor
     from ability import Ability
 
 
@@ -207,3 +208,134 @@ class LightningStrikeActivatable(SpellActivateable):
             target.actor_state.actor_electrocuted(source_actor=caster)
 
         self.spend_mana(caster=caster, amount=30)
+
+
+class RaySpellActivatable(SpellActivateable):
+    """
+    Steal a random item from the target actor.
+
+    NOTE: Based off of RayReadable.
+    """
+    def __init__(self, mana_cost: int, difficulty: int, anim_graphic, damage_range: Tuple[int, int] = (0, 0), penetration: bool = False, max_range: int = 1000):
+        super().__init__(mana_cost, difficulty)
+        self._anim_graphic = anim_graphic
+        self.damage_range = damage_range
+        self.penetration = penetration
+        self.max_range = max_range
+
+    @property
+    def anim_graphic(self):
+        if callable(self._anim_graphic): # Dynamic graphic
+            return self._anim_graphic()
+        else:
+            return self._anim_graphic
+
+    @property
+    def damage(self):
+        return random.randint(*self.damage_range)
+
+    def get_action(self, caster: Actor, x: int=None, y: int=None, target: Actor=None):
+        if caster == self.engine.player:
+            self.engine.message_log.add_message("방향을 선택하세요.", color.help_msg)
+            self.engine.event_handler = RayRangedInputHandler(
+                actor=caster,
+                max_range=999,
+                callback=lambda dxdy: actions.AbilityAction(entity=caster, ability=self.parent, x=caster.x + dxdy[0], y=caster.y + dxdy[1], target=self.gamemap.get_actor_at_location(x=caster.x + dxdy[0], y=caster.y + dxdy[1])),
+            )
+            return None
+        else:
+            return super().get_action(caster, x, y, target)
+
+    def effects_on_path(self, x: int, y: int):
+        """effects applied to the tiles on the path."""
+        pass
+
+    def effects_on_collided_entity(self, caster: Actor, entity: Entity):
+        """
+        effects applied to the entity that the ray collided with.
+        If the entity was an actor, effects_on_collided_actor() is called.
+        """
+        if isinstance(entity, Actor):
+            self.effects_on_collided_actor(caster=caster, target=entity)
+        else:
+            pass
+
+    def effects_on_collided_actor(self, caster: Actor, target: Actor):
+        """effects applied to the actor that the ray collided with."""
+        pass
+
+    def cast(self, action: actions.AbilityAction) -> None:
+        caster = action.entity
+        target = None # Added during calc
+
+        dx = action.x - caster.x
+        dy = action.y - caster.y
+        dest_x, dest_y = caster.x + dx, caster.y + dy
+        path = []
+        targets = []
+
+        while True:
+            # ray is out of the map border
+            if not self.engine.game_map.in_bounds(dest_x, dest_y):
+                break
+            # ray is blocked by a tile
+            if not self.engine.game_map.tiles["walkable"][dest_x, dest_y]:
+                break
+
+            # check collision with entities
+            collided = self.engine.game_map.get_blocking_entity_at_location(dest_x, dest_y)
+            if collided:
+                # collided with the reader
+                if collided == caster:
+                    self.effects_on_collided_actor(caster=caster, target=caster)
+                    return 0
+
+                # if not add all entities collided to a list
+                targets.append(collided)
+
+                # if penetration=False, stop calculating collision after the first contact
+                if self.penetration == False:
+                    break
+
+            # Save previous paths and set next destination
+            path.append((dest_x, dest_y))
+            dest_x += dx
+            dest_y += dy
+
+        # Animation
+        frames = []
+        while len(path) > 0:
+            loc = path.pop(0)
+
+            # Using relative coordinates for rendering animations
+            relative_x, relative_y = self.engine.camera.abs_to_rel(abs_x=loc[0], abs_y=loc[1])
+            frames.append([(relative_x, relative_y, self.anim_graphic, None)])
+
+            # effects on the paths
+            self.effects_on_path(x=loc[0], y=loc[1])
+
+        # instantiate animation and render it
+        ray_animation = Animation(engine=self.engine, frames=frames,stack_frames=True)  # sec_per_frames = default
+        ray_animation.render()
+
+        # effects on the entities
+        for target in targets:
+            if len(targets) >= 1:
+                self.effects_on_collided_entity(caster, target)
+
+
+class SpectralBeamActivatable(RaySpellActivatable):
+    """
+    Fire a magical ray that drains enemy's mp and absorb it as hp.
+    """
+    def effects_on_collided_actor(self, caster: Actor, target: Actor):
+        """effects applied to the actor that the ray collided with."""
+        real_damage = target.status.calculate_dmg_reduction(damage=self.damage, damage_type="magic")
+        real_damage = round(real_damage)
+        # Log
+        if target == self.engine.player:
+            self.engine.message_log.add_message(f"형형색색의 광선이 당신을 강타해 {real_damage} 데미지를 입혔다.", fg=color.player_bad)
+        else:
+            self.engine.message_log.add_message(f"형형색색의 광선이 {g(target.name, '을')} 강타해 {real_damage} 데미지를 입혔다.",
+                                                target=target, fg=color.enemy_unique)
+        target.status.take_damage(amount=real_damage, attacked_from=caster)

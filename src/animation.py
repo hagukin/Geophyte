@@ -21,7 +21,7 @@ class Animation:
         > Since the length(second) for per frame is not given, each frame will be shown for 0.2 second. (This is the default value)
     """
 
-    def __init__(self, engine, frames: List, stack_frames: bool=False, sec_per_frame: float=0.05, refresh_last_frame: bool=True):
+    def __init__(self, engine, frames: List, stack_frames: bool=False, sec_per_frame: float=None, refresh_last_frame: bool=False):
         """
         Args:
             stack_frames:
@@ -31,13 +31,18 @@ class Animation:
                 However, this can be set for each frame indivisually, by passing values to the graphical objects.
             refresh_last_frame:
                 Boolean. If False, the animation object will not refresh the screen after rendering the final frame of the animation.
-                If you want to transition from animation to game map smoothly without any "blinking", you should set this True.
+                If you want to transition from animation to game map smoothly without any "blinking", you should set this False.
                 e.g. Throwing animations have this value set to False
         """
         self.total_frames = len(frames)
         self.frames = frames
         self.stack_frames = stack_frames
         self.sec_per_frame = sec_per_frame
+        if sec_per_frame is None:
+            if self.total_frames == 0:
+                self.sec_per_frame = 0
+            else:
+                self.sec_per_frame = min(0.05, 0.25 / self.total_frames) # Default length: Each animation will end within one second.
         self.refresh_last_frame = refresh_last_frame
         self.current_frame_num = 0
         self.current_graphic_num = 0
@@ -110,5 +115,6 @@ class Animation:
                         pass
                     else:
                         self.engine.refresh_screen()
-            else: self.current_graphic_num += 1
+            else:
+                self.current_graphic_num += 1
 

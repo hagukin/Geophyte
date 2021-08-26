@@ -396,8 +396,12 @@ class ScrollOfMagicMappingReadable(Readable):
 class ScrollOfMeteorStormReadable(Readable): #TODO: Make parent class like other readables
     def __init__(self, damage_range: Tuple[int, int], radius: int):
         super().__init__()
-        self.damage = random.randint(*damage_range)
+        self.damage_range = damage_range
         self.radius = radius
+
+    @property
+    def damage(self):
+        return random.randint(*self.damage_range)
 
     def get_action(self, consumer: Actor, cancelled: bool = False) -> Optional[actions.Action]:
         if cancelled:
@@ -505,11 +509,27 @@ class AutoTargetingHarmfulReadable(Readable):
 
 class RayReadable(Readable):
     def __init__(self, anim_graphic, damage_range: Tuple[int,int]=(0,0), penetration: bool=False, max_range: int=1000):
+        """
+        Args:
+            anim_graphic:
+                Can be either callable or dictionary obj.
+        """
         super().__init__()
-        self.anim_graphic = anim_graphic
-        self.damage = random.randint(*damage_range)
+        self._anim_graphic = anim_graphic
+        self.damage_range = damage_range
         self.penetration = penetration
         self.max_range = max_range
+
+    @property
+    def anim_graphic(self):
+        if callable(self._anim_graphic): # Dynamic graphic
+            return self._anim_graphic()
+        else:
+            return self._anim_graphic
+
+    @property
+    def damage(self):
+        return random.randint(*self.damage_range)
 
     def effects_on_path(self, x: int, y: int):
         """effects applied to the tiles on the path."""
@@ -597,7 +617,7 @@ class RayReadable(Readable):
             self.effects_on_path(x=loc[0], y=loc[1])
 
         # instantiate animation and render it
-        ray_animation = Animation(engine=self.engine, frames=frames, stack_frames=True) # sec_per_frames = default(0.1s)
+        ray_animation = Animation(engine=self.engine, frames=frames, stack_frames=True) # sec_per_frames = default
         ray_animation.render()
 
         # effects on the entities
@@ -626,8 +646,7 @@ class ScrollOfMagicMissileReadable(RayReadable):
 
 class ScrollOfScorchingRayReadable(RayReadable):
     def effects_on_collided_actor(self, consumer: Actor, target: Actor):
-        real_damage = target.status.calculate_dmg_reduction(damage=self.damage,
-                                                            damage_type="fire")  # No direct state effect applied since fire entity is about to spawn
+        real_damage = target.status.calculate_dmg_reduction(damage=self.damage, damage_type="fire")  # No direct state effect applied since fire entity is about to spawn
         if self.parent.item_state.BUC == 1:
             real_damage *= 1.2
         elif self.parent.item_state.BUC == -1:
@@ -673,7 +692,11 @@ class ScrollOfFreezingRayReadable(RayReadable):
 class ScrollOfThunderStormReadable(AutoTargetingHarmfulReadable):
     def __init__(self, maximum_range: int, damage_range: Tuple[int,int]):
         super().__init__(maximum_range)
-        self.damage = random.randint(*damage_range)
+        self.damage_range = damage_range
+
+    @property
+    def damage(self):
+        return random.randint(*self.damage_range)
 
     def effects_on_target_actor(self, consumer:Actor, target: Actor):
         # Log

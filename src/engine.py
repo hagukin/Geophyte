@@ -665,7 +665,10 @@ class Engine:
                 if actor.ai.check_if_enemy(self.player):
                     console.print(x=x+2, y=num, string=actor.name, fg=color.light_red)
                 else:
-                    console.print(x=x + 2, y=num, string=actor.name, fg=color.light_gray)
+                    if actor.ai.owner == self.player:
+                        console.print(x=x + 2, y=num, string=actor.name, fg=color.light_green)
+                    else:
+                        console.print(x=x + 2, y=num, string=actor.name, fg=color.light_gray)
             else:
                 console.print(x=x + 2, y=num, string=actor.name, fg=color.light_gray)
 

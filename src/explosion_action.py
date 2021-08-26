@@ -110,7 +110,7 @@ class ExplodeAction(RadiusAction):
         if expl_anim_frame_len:
             self.expl_anim_frame_len = expl_anim_frame_len
         else:
-            self.expl_anim_frame_len = 0.3 / radius
+            self.expl_anim_frame_len = 0.25 / radius
         self.cause_fire = cause_fire
 
     def get_tiles(self, radius: int, penetrate_wall: bool, only_in_sight: bool) -> None:

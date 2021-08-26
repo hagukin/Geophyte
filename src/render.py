@@ -62,10 +62,10 @@ def get_names_at_location(x: int, y: int, game_map: GameMap, display_id: bool=Fa
                 if entity.ai:
                     if entity.ai.owner == game_map.engine.player:
                         name += "(아군)"
-                    else:
-                        if entity.ai:
-                            if not entity.ai.check_if_enemy(game_map.engine.player):
-                                name += "(우호적)"
+                    # else:
+                    #     if entity.ai:
+                    #         if not entity.ai.check_if_enemy(game_map.engine.player):
+                    #             name += "(우호적)"
 
             if entity.is_on_air:
                 name += "(공중에 떠 있음)"

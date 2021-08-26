@@ -20,7 +20,7 @@ class Throwable(BaseComponent):
                  penetration: bool=False,
                  break_chance: float=0,
                  air_friction: float=1,
-                 sec_per_frame:float=0.025,
+                 sec_per_frame:Optional[float]=None, # Use default value (calculated in Animation.__init__)
                  trigger_if_thrown_at: bool = False,
                  identify_when_shattered: int = 0,
                  identify_when_collided_with_actor: int = 0,
@@ -253,7 +253,7 @@ class NormalThrowable(Throwable):
             relative_x, relative_y = self.engine.camera.abs_to_rel(abs_x=loc[0], abs_y=loc[1])
             frames.append([(relative_x, relative_y, throw_graphic, None)])
 
-        throw_animation = Animation(engine=self.engine, frames=frames, stack_frames=False, sec_per_frame=self.sec_per_frame, refresh_last_frame=False) # TODO : air resistance의 값에 따라 프레임당 소요시간 변경??
+        throw_animation = Animation(engine=self.engine, frames=frames, stack_frames=False, sec_per_frame=self.sec_per_frame, refresh_last_frame=False)
         throw_animation.render()
         if loc:
             return loc # Last location of the thrown item's path
@@ -357,7 +357,7 @@ class PotionQuaffAndThrowSameEffectThrowable(NormalThrowable):
                  penetration: bool=False,
                  break_chance: float=1,
                  air_friction: int=1,
-                 sec_per_frame:float=0.025,
+                 sec_per_frame:Optional[float]=None,
                  trigger_if_thrown_at: bool = True,
                  identify_when_shattered: int = 0,
                  identify_when_collided_with_actor: int = 0,

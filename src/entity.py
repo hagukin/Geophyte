@@ -293,7 +293,7 @@ class Entity:
 
         semiactor_collided = self.gamemap.get_semiactor_at_location(self.x, self.y)
         if semiactor_collided:
-            if semiactor_collided.walkable:
+            if semiactor_collided.walkable and not self.is_on_air:
                 semiactor_collided.walkable.perform(target=self)
 
     def gain_action_point(self):
@@ -419,6 +419,7 @@ class Actor(Entity):
         ability_inventory: AbilityInventory,
         equipments: Equipments,
         initial_items: Tuple[Dict] = None,
+        initial_drop_on_death: Tuple[Dict] = None,
         initial_abilities: Tuple[Tuple] = None,
         initial_equipments: Tuple[Dict] = None,
         tile_effect_on_path: str = None,
@@ -434,7 +435,7 @@ class Actor(Entity):
                 boolean, whether this actor blocks sight
             edible:
                 information about this actor's corpse nutrition. if this actor has no corpse, leave it as None.
-            initial_items:
+            initial_items, drop_on_death:
                 List of items that this actor spawns with.
                 The list could contains multiple tuples, and tuple contains the following
                 {
@@ -522,6 +523,11 @@ class Actor(Entity):
         else:
             self.initial_items = list(initial_items)
 
+        if initial_drop_on_death == None or initial_drop_on_death == ():
+            self.initial_drop_on_death = []
+        else:
+            self.initial_drop_on_death = list(initial_drop_on_death)
+
         if initial_abilities == None or initial_abilities == ():
             self.initial_abilities = []
         else:
@@ -564,6 +570,8 @@ class Actor(Entity):
         from actions import DropItem
         drop_list = []
         for item in self.inventory.items:
+            drop_list.append(item)
+        for item in self.inventory.drop_on_death:
             drop_list.append(item)
         for drop_item in drop_list:
             DropItem(entity=self, item=drop_item).perform()
@@ -670,10 +678,10 @@ class Actor(Entity):
             # Prevent any error (Mainly prevent flying actor not being on air when first initialized.)
             if self.actor_state.is_flying or self.actor_state.is_levitating != [0, 0]:
                 self.float(True)
-
-            self.environmental_pit()
-            self.environmental_water()
-            self.do_special_environmental_effect() # Do action on tile
+            else:
+                self.environmental_pit()
+                self.environmental_water()
+                self.do_special_environmental_effect() # Do action on tile
             
     def gain_action_point(self):
         """
@@ -697,6 +705,21 @@ class Actor(Entity):
         self.inventory.add_item(temp)
         return temp
 
+    def initialize_actor_drop_on_death(self, args) -> Item:
+        """Initialize items that the actor owns.
+        a single args represents a single item."""
+        temp = args["item"].copy(gamemap=self.gamemap, exact_copy=False) # First initialization done here
+
+        # Override initialization if one of these values are not None (using custom)
+        temp.initialize_BUC(use_custom=args["BUC"]) # Override initialized values
+        temp.initialize_upgrade(use_custom=args["upgrade"])
+
+        temp.stack_count = random.randint(args["count"][0], args["count"][1])
+        temp.parent = self.inventory
+
+        self.inventory.drop_on_death.append(temp)
+        return temp
+
     def initialize_self(self) -> None:
         """
         Sets initial items, abilities, and equipments of this actor.
@@ -708,6 +731,9 @@ class Actor(Entity):
         for args in self.initial_items:
             if random.random() <= args["chance"]:
                 self.initialize_actor_possesion(args)
+        for args in self.initial_drop_on_death:
+            if random.random() <= args["chance"]:
+                self.initialize_actor_drop_on_death(args)
         for args in self.initial_equipments:
             if random.random() <= args["chance"]:
                 item = self.initialize_actor_possesion(args)

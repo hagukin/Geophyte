@@ -270,9 +270,6 @@ class InsectEdible(Edible):
 ####################################################
 
 class FireAntEdible(InsectEdible):
-    def __init__(self, nutrition: int=10, spoilage: int=0, is_cooked: bool=False, can_cook: bool=False, spoil_speed: int=2, cook_bonus:int=5, edible_type:str = "insect"):
-        super().__init__(nutrition,spoilage,is_cooked,can_cook,spoil_speed,cook_bonus,edible_type)
-    
     def effect_uncooked(self, action: actions.EatItem):
         consumer = action.entity
         # Log
@@ -282,9 +279,6 @@ class FireAntEdible(InsectEdible):
 
 
 class VoltAntEdible(InsectEdible):
-    def __init__(self, nutrition: int=15, spoilage: int=0, is_cooked: bool=False, can_cook: bool=False, spoil_speed: int=2, cook_bonus:int=5, edible_type:str = "insect"):
-        super().__init__(nutrition,spoilage,is_cooked,can_cook,spoil_speed,cook_bonus,edible_type)
-
     def effect_uncooked(self, action: actions.EatItem):
         consumer = action.entity
         # Log
@@ -294,13 +288,27 @@ class VoltAntEdible(InsectEdible):
 
 
 ####################################################
+###################### d - dogs  ###################
+####################################################
+
+class CerberusEdible(RawMeatEdible):
+    def effect_always(self, action: actions.EatItem):
+        consumer = action.entity
+        # Log
+        if consumer.status.origin_status["fire_resistance"] < 0.2 and random.random() <= 0.5: # 50% chance resistance gain
+            if consumer == self.engine.player:
+                self.engine.message_log.add_message(f"전신에서 열기가 느껴진다.", color.player_neutral)
+                self.engine.message_log.add_message(f"열기에 조금 더 잘 버틸 수 있을 것 같은 기분이 든다.", color.player_buff)
+            consumer.status.fire_resistance += round(random.random() * 0.2, 2)
+        return super().effect_always(action)
+
+
+
+####################################################
 ################  e - eyes & brains  ###############
 ####################################################
 
-class FloatingEyeEdible(Edible):
-    def __init__(self, nutrition: int=50, spoilage: int=0, is_cooked: bool=False, can_cook: bool=False, spoil_speed: int=2, cook_bonus:int=5, edible_type:str = "meat"):
-        super().__init__(nutrition,spoilage,is_cooked,can_cook,spoil_speed,cook_bonus,edible_type)
-
+class FloatingEyeEdible(RawMeatEdible):
     def effect_always(self, action: actions.EatItem):
         consumer = action.entity
 
@@ -316,10 +324,7 @@ class FloatingEyeEdible(Edible):
 ############### i = flying insects  ################
 ####################################################
 
-class GiantWaspEdible(InsectEdible):
-    def __init__(self, nutrition: int=50, spoilage: int=0, is_cooked: bool=False, can_cook: bool=True, spoil_speed: int=2, cook_bonus:int=5, edible_type:str="insect"):
-        super().__init__(nutrition,spoilage,is_cooked,can_cook,spoil_speed,cook_bonus,edible_type)
-    
+class GiantWaspEdible(InsectEdible):    
     def effect_uncooked(self, action: actions.EatItem):
         consumer = action.entity
 

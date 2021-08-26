@@ -391,10 +391,10 @@ class ActorState(BaseComponent):
             constitution = self.parent.status.changed_status["constitution"]
             max_hp = self.parent.status.changed_status["max_hp"]
 
-            heal_percent = constitution * 0.002 # amount of healing indicated as a percentage of maximum health
+            heal_percent = constitution * 0.001 # amount of healing indicated as a percentage of maximum health
             heal_amount = int(max(1, max_hp * heal_percent)) # absolute amount of healing
             self.parent.status.heal(amount=heal_amount)
-            self.heal_interval = round(250 / constitution)
+            self.heal_interval = round(100 / constitution)
 
             if self.parent.status.experience:
                 self.parent.status.experience.gain_constitution_exp(5, exp_limit=3000)
@@ -485,11 +485,6 @@ class ActorState(BaseComponent):
         """
         # Reduce turn
         if self.is_sleeping[0] >= self.is_sleeping[1] and self.is_sleeping[1] > 0: # Stop sleeping
-            # Log
-            if self.parent == self.engine.player:
-                self.engine.message_log.add_message(f"당신은 잠에서 깨어났다.", fg=color.white)
-            else:
-                self.engine.message_log.add_message(f"{g(self.parent.name, '이')} 잠에서 깨어났다.", fg=color.white, target=self.parent)
             # Remove sleeping
             self.parent.status.remove_bonus(bonus_id="sleep_bonus")
             self.apply_sleeping([0,0], forced=True)

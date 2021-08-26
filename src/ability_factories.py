@@ -2,6 +2,8 @@ from ability import Ability
 from components import activatable
 from order import AbilityOrder
 
+import anim_graphics
+
 ####################
 ###### SPELLS ######
 ####################
@@ -18,6 +20,15 @@ lightning_bolt = Ability(
         damage=30,
         maximum_range=99,
     )
+)
+
+### Spectral beam
+spectral_beam = Ability(
+    name="분광 광선",
+    ability_id="sp_spectral_beam",
+    ability_desc="형형색색의 빛으로 이루어진 강력한 마법 광선을 발사합니다.",
+    ability_type=AbilityOrder.REGULAR_SKILL,
+    activatable=activatable.SpectralBeamActivatable(mana_cost=30, difficulty=0, penetration=False, damage_range=(25,60), anim_graphic=anim_graphics.spectral_beam)
 )
 
 ####################

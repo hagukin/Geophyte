@@ -124,7 +124,7 @@ player = Actor(
     equipments=Equipments(),
     initial_items=None,
     # (
-    #     {"item": item_factories.potion_of_sleep, "chance":1, "count":(50,50), "BUC": {1:1, 0:0, -1:0}, "upgrade": None}, # NOTE: actor possesion BUC, upgrade has higher priority than item type inital_BUC, initial_upgrade
+    #     {"item": item_factories.potion_of_levitation, "chance":1, "count":(50,50), "BUC": {1:1, 0:0, -1:0}, "upgrade": None}, # NOTE: actor possesion BUC, upgrade has higher priority than item type inital_BUC, initial_upgrade
     #     {"item": item_factories.potion_of_flame, "chance": 1, "count": (1, 5), "BUC": None, "upgrade": None},
     #     {"item": item_factories.potion_of_liquified_ants, "chance": 1, "count": (1, 50), "BUC": None, "upgrade": None},
     # ),
@@ -132,10 +132,9 @@ player = Actor(
     # (
     #     # {"item":item_factories.leather_armor, "chance":1, "count":(1,1), "BUC":{-1:1, 0:1, 1:1}, "upgrade": {1:1,2:1,3:1,4:1}},
     # )
-    initial_abilities=None,
-    # (
-    #     # (ability_factories.lightning_bolt, 1),
-    # )
+    initial_abilities=(
+        (ability_factories.spectral_beam, 1),
+    )
 )
 
 
@@ -640,7 +639,7 @@ puppy = Actor(
     entity_desc=("강아지들은 호기심이 넘치는 존재들이다. "
         "이들은 성체에 비해 한참 뒤떨어지는 신체능력을 가졌지만, 넘치는 에너지 만큼은 성체를 압도한다. "),
     actor_quote=("포션술사는 절대 강아지를 길러선 안돼. 집이 언제 불바다가 될 지 모르거든. "),
-    rarity=999,
+    rarity=4,
     weight=5.7,
     spawnable=True,
     edible=edible.RawMeatEdible(nutrition=110, cook_bonus=12),
@@ -811,7 +810,7 @@ cerberus = Actor(
     rarity=3,
     weight=165,
     spawnable=True,
-    edible=edible.RawMeatEdible(nutrition=350, cook_bonus=85),
+    edible=edible.CerberusEdible(nutrition=350, cook_bonus=85),
     ai_cls=BaseAI(
         alignment=(("hostile", ), (1,)),
         do_melee_atk=True,
@@ -1296,6 +1295,72 @@ jumping_spider = Actor(
     equipments=Equipments(),
 )
 ActorDB.monster_difficulty[jumping_spider.status.difficulty].append(jumping_spider)
+
+
+### gaion
+gaion = Actor(
+    char="s",
+    fg=(160, 77, 255),
+    name="가이온",
+    entity_id="gaion",
+    entity_desc=("가이온은 상반신은 인간, 하반신은 전갈의 모습을 한 반인반수이다. 이들은 굉장히 호전적이고, 대체로 인간과 비슷한 수준의 지능을 가지고 있다고 알려져 있다. "
+        "그러나 인간과 달리 대다수의 가이온들은 무리를 이루지 않고 홀로 살아가며, 갓 태어난 새끼들 조차 독립적으로 생활하는 모습을 보인다. "
+        "이들이 위험한 던전 속에서 무리를 이루지 않아도 살아갈 수 있는 이유는 바로 이들의 강인한 신체능력 덕분인데, "
+        "가이온의 하반신은 단단한 껍질로 둘러쌓여 있으며, 꼬리에 달린 독침에는 맞은 생명체를 마비시키는 강력한 신경독이 들어있다. "
+        "많은 학자들은 가이온이 만약 인간처럼 사회를 이루는 생명체였다면 인류에게 지금 이상으로 큰 위협이 됐으리라고 추측한다."),
+    actor_quote=("어디서 피 냄새가 나서 주변을 살펴보니 가이온 한 놈이 다른 가이온을 뜯어먹고 있더군. 젠장할, 잊고 싶어도 평생 잊지 못할거야."),
+    rarity=3,
+    weight=135.2,
+    spawnable=True,
+    edible=edible.InsectEdible(nutrition=180, cook_bonus=50),
+    ai_cls=BaseAI(
+        alignment=(("hostile",), (1,)),
+        do_melee_atk=True,
+        do_ranged_atk=False,
+        use_ability=False,
+        hostile_type=('@','b','c','d','n','l','O'),
+        attracted_eat_type=("insect","meat",),
+    ),
+    status=Status(
+        hp=150,
+        mp=50,
+        strength=19,
+        dexterity=24,
+        agility=14,
+        intelligence=15,
+        constitution=16,
+        charm=13,
+        difficulty=10,
+        base_melee=28,
+        additional_melee=20,
+        protection=25,
+        hearing=15,
+        eyesight=15,
+        poison_resistance=0.3,
+        sleep_resistance=0.3,
+        melee_effects_var=((0,2),(3, 1, 0, 7),),
+        melee_effects=(("paralyze_target", 0.05),("poison_target",0.1)),
+        ),
+    actor_state=ActorState(
+        size=4,
+        has_left_arm=True,
+        has_right_arm=True,
+        has_leg=True,
+        has_eye=True,
+        has_torso=True,
+        has_blood=True,
+        has_soul=True,
+        has_head=1,
+        can_think=True,
+        can_talk=True,
+        can_move_on_surface=True,
+        need_breathe=True,
+    ),
+    inventory=Inventory(capacity=4),
+    ability_inventory=AbilityInventory(capacity=1),
+    equipments=Equipments(),
+)
+ActorDB.monster_difficulty[gaion.status.difficulty].append(gaion)
 
 
 ####################################################
@@ -1823,6 +1888,92 @@ ActorDB.monster_difficulty[lightning_elemental.status.difficulty].append(lightni
 
 
 ####################################################
+################### H - HORSES #####################
+####################################################
+
+unicorn = Actor(
+    char="H",
+    fg=(255, 255, 255),
+    name="유니콘",
+    entity_id="unicorn",
+    actor_type_desc=("유니콘은 하얀색 말과 유사한 외형을 하고 있으며, 머리에 달린 기다란 뿔과 등에 달린 한 쌍의 날개가 이들을 말들과 구분할 수 있게 해준다. "
+            "유니콘에 대해 잘못 알려진 사실 중 한 가지가 '유니콘은 겉으로는 고결해 보이지만 실제로는 무자비하고 난폭하다'는 소문인데, 이는 사실이 아니다."
+            "대다수의 유니콘은 상당히 유순하며, 먼저 누군가를 공격하는 경우는 비교적 드물다. "
+            "그럼에도 이런 소문이 퍼진 것은, 비록 소수이지만 인간에게 적대적인 유니콘들이 존재하고, 그 소수의 유니콘들이 입힌 인명피해가 막심하기 때문이라고 추측된다. "
+            "때문에 유니콘을 마주한다면 설사 적대적이지 않아 보이더라도 극심한 주의를 가하는 게 권장된다."),
+    actor_quote=("그 미친 말대가리들은 보이는 대로 잡아 죽여야 돼. 뭐? 평화의 상징? 그 자식이 뿔로 네 뱃가죽을 헤집어놓으면 그런 소리 못할 걸?"),
+    rarity=1,
+    weight=980.5,
+    spawnable=True,
+    edible=edible.RawMeatEdible(nutrition=330, cook_bonus=100),
+    ai_cls=BaseAI(
+        alignment=(("neutral","hostile"), (10,1)), # FIXME: neutral only when human is female
+        do_melee_atk=True,
+        do_ranged_atk=False,
+        use_ability=True,
+        hostile_type=('@','F','C',),
+        attracted_own_type=(InventoryOrder.GEM,),
+    ),
+    status=Status(
+        hp=156,
+        mp=120,
+        strength=21,
+        dexterity=13,
+        agility=20,
+        intelligence=17,
+        constitution=19,
+        charm=25,
+        difficulty=11,
+        base_melee=33,
+        additional_melee=25,
+        protection=24,
+        hearing=15,
+        eyesight=20,
+        fire_resistance=0.1,
+        acid_resistance=0.1,
+        poison_resistance=0.1,
+        psychic_resistance=0.1,
+        shock_resistance=0.1,
+        magic_resistance=0.2,
+        ),
+    actor_state=ActorState(
+        size=4,
+        regain_mana=True,
+        has_left_arm=False,
+        has_right_arm=False,
+        has_wing=True,
+        has_leg=True,
+        has_eye=True,
+        has_torso=True,
+        has_blood=True,
+        has_soul=True,
+        can_fly=True,
+        is_flying=False, # but can fly
+        can_talk=False,
+    ),
+    inventory=Inventory(capacity=20),
+    ability_inventory=AbilityInventory(capacity=7),
+    initial_items=(
+        {"item":item_factories.worthless_piece_of_white_glass, "chance":0.01, "count":(1, 1), "BUC":None, "upgrade":None},
+        {"item": item_factories.worthless_piece_of_blue_glass, "chance": 0.01, "count": (1, 1), "BUC": None,"upgrade": None},
+        {"item": item_factories.worthless_piece_of_green_glass, "chance": 0.01, "count": (1, 1), "BUC": None,"upgrade": None},
+        {"item": item_factories.worthless_piece_of_red_glass, "chance": 0.01, "count": (1, 1), "BUC": None,"upgrade": None},
+        {"item": item_factories.diamond, "chance": 0.005, "count": (1, 1), "BUC": None,"upgrade": None},
+        {"item": item_factories.ruby, "chance": 0.005, "count": (1, 1), "BUC": None,"upgrade": None},
+        {"item": item_factories.sapphire, "chance": 0.005, "count": (1, 1), "BUC": None,"upgrade": None},
+        {"item": item_factories.emerald, "chance": 0.005, "count": (1, 1), "BUC": None,"upgrade": None},
+    ),
+    initial_drop_on_death=None, #TODO FIXME add unicorn horn
+    # (
+    #     {"item":item_factories.shine, "chance":1, "count":(2000,3500), "BUC":None, "upgrade":None},
+    # ),
+    equipments=Equipments(),
+    initial_abilities=((ability_factories.spectral_beam, 1),)
+)
+ActorDB.monster_difficulty[unicorn.status.difficulty].append(unicorn)
+
+
+####################################################
 ################### I - IMPOSTERS  #################
 ####################################################
 
@@ -1904,7 +2055,7 @@ baby_phoenix = Actor(
         do_melee_atk=True,
         do_ranged_atk=False,
         use_ability=False,
-        hostile_type=('@','F'),
+        hostile_type=('@','F','C',),
     ),
     status=Status(
         hp=96,
@@ -1929,7 +2080,7 @@ baby_phoenix = Actor(
         shock_resistance=0.5,
         magic_resistance=0.2,
         melee_effects_var=((7, 2, 0, 4),),
-        melee_effects=(("burn_target", 0.8),),
+        melee_effects=(("burn_target", 0.3),),
         ),
     actor_state=ActorState(
         size=4,
@@ -1976,7 +2127,7 @@ phoenix = Actor(
         do_melee_atk=True,
         do_ranged_atk=False,
         use_ability=False,
-        hostile_type=('@','F',),
+        hostile_type=('@','F','C',),
     ),
     status=Status(
         hp=176,
@@ -2001,7 +2152,7 @@ phoenix = Actor(
         shock_resistance=1,
         magic_resistance=0.2,
         melee_effects_var=((10, 5, 0, 6),),
-        melee_effects=(("burn_target", 0.9),),
+        melee_effects=(("burn_target", 0.5),),
         ),
     actor_state=ActorState(
         size=5,

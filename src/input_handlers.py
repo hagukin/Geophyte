@@ -789,7 +789,7 @@ class StorageSelectSingleEventHandler(StorageSelectEventHandler):
             return None
         elif event.sym == tcod.event.K_ESCAPE: # Escape inventory window
             return super().ev_keydown(event)
-        elif event.sym == tcod.event.K_KP_ENTER or event.sym == tcod.event.K_RETURN: # Confirm choices
+        elif event.sym in CONFIRM_KEYS: # Confirm choices
             return self.choice_confirmed()
 
         # Check modifier
@@ -1080,7 +1080,7 @@ class InventorySplitHandler(AskUserEventHandler):
             elif key == tcod.event.K_ESCAPE:
                 self.engine.event_handler = MainGameEventHandler()
                 return None
-            elif key == tcod.event.K_RETURN:
+            elif key in CONFIRM_KEYS:
                 return SplitItem(self.engine.player, self.item, self.split_amount)
             else:
                 self.engine.message_log.add_message("잘못된 입력입니다.", color.invalid)
@@ -1154,7 +1154,7 @@ class SleepTurnSelectHandler(AskUserEventHandler):
             elif key == tcod.event.K_ESCAPE:
                 self.engine.event_handler = MainGameEventHandler()
                 return None
-            elif key == tcod.event.K_RETURN: # Sleep
+            elif key in CONFIRM_KEYS: # Sleep
                 self.engine.event_handler = MainGameEventHandler()
                 self.engine.player.actor_state.apply_sleeping([0,self.sleep_turn], forced=True) # forced is True since its voluntary
                 return None
@@ -1257,7 +1257,7 @@ class StorageSelectMultipleEventHandler(StorageSelectEventHandler):
             return None
         elif event.sym == tcod.event.K_ESCAPE: # Escape inventory window
             return super().ev_keydown(event)
-        elif event.sym == tcod.event.K_KP_ENTER or event.sym == tcod.event.K_RETURN: # Confirm choices
+        elif event.sym in CONFIRM_KEYS: # Confirm choices
             return self.choice_confirmed()
 
         # Check modifier

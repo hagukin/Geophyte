@@ -395,7 +395,10 @@ class BaseAI(BaseComponent):
                 ability_info = Skill_AI.spell_lightning_bolt(actor=self.parent, target=target)
                 if ability_info[0]:
                     return ability_info[1], target, s
-
+            elif s.ability_id == "sp_spectral_beam":
+                ability_info = Skill_AI.spell_spectral_beam(actor=self.parent, target=target)
+                if ability_info[0]:
+                    return ability_info[1], target, s
         return None
 
     def get_ranged_direction(self, attacker: Actor, target: Actor, valid_range: int=4):
