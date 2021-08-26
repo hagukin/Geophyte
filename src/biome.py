@@ -1,8 +1,9 @@
-from typing import Tuple
+import copy
+from typing import Tuple, List, Optional, TYPE_CHECKING
 import tiles
 import color
 
-def tileset(
+def get_tileset(
     adjustments: dict=None,
 ):
     """
@@ -53,8 +54,11 @@ class Biome:
         respawn_ratio: float = 1,
         respawn_time: float = 20,
         generate_descending_stair: bool = True,
-        tileset: dict = tileset(),
+        tileset=None,
         terrain: dict = None,
+        additional_terrain: dict = None,
+        remove_all_terrain_of_type: Optional[Tuple[str]] = None,
+
         # TODO Add biome-differentiated monster generating system feature
     ):
         """
@@ -84,7 +88,18 @@ class Biome:
                 Possible terrains for this gamemap/biome.
                 key - terrain id (string)
                 value - weight (integer)
+            additional_terrain:
+                If you want to modify specific terrain's rarity, or add specific terrain to the biome, use this value.
+                You can modify self.terrain directly is there's a lot of changes to be made from default terrain list.
+            remove_all_terrain_of_type:
+                iterate through tileset, and remove all tileset that satisfies the given condition.
+                e.g.
+                remove_all_terrain_of_type = ("has_door", "gen_traps")
+                -> Will set rarity of terrains that has door OR generate traps to 0
         """
+        if tileset is None:
+            tileset = get_tileset()
+        self.tileset = tileset
         self.name = name
         self.biome_id = biome_id
         self.biome_desc = biome_desc
@@ -96,5 +111,29 @@ class Biome:
         self.respawn_ratio = respawn_ratio
         self.respawn_time = respawn_time
         self.generate_descending_stair = generate_descending_stair
-        self.tileset = tileset
-        self.terrain = terrain
+        if terrain is None:
+            import terrain_factories
+            terrain = terrain_factories.terrain_dict
+        self.terrain = copy.deepcopy(terrain)
+
+        if remove_all_terrain_of_type:
+            for string in remove_all_terrain_of_type:
+                if string == "spawn_door":
+                    for k in self.terrain.keys():
+                        if k.spawn_door:
+                            self.terrain[k] = 0
+                #TODO Add other conditions
+
+        if additional_terrain: # Handled after removal
+            for k, v in additional_terrain.items():
+                key = self.find_terrain_of_id(k.terrain_id)
+                if self.terrain[key]:
+                    print(f"DEBUG::Replacing {key.terrain_id} of rarity {self.terrain[key]} to rarity {v}. - biome: {self.biome_id}")
+                self.terrain[key] = v # Could overwrite existing value
+
+    def find_terrain_of_id(self, terrain_id: str):
+        """Search self.terrain and return the Terrain obj with given id."""
+        for terr in self.terrain:
+            if terr.terrain_id == terrain_id:
+                return terr
+        raise Exception(f"ERROR::Could not find terrain {terrain_id} from biome.terrain")

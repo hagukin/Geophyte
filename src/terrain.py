@@ -31,6 +31,7 @@ class Terrain:
         has_wall: bool = True, #TODO: need to add feature
         protected: bool = False,
         has_door: bool = True,
+        spawn_door: bool = True, # Different from has door
         can_have_stair: bool = True,
         door_num_range = (1,2,3,4),
         door_num_weight = (3,7,2,1),
@@ -40,6 +41,7 @@ class Terrain:
         gen_water = None,
         gen_pits = None,
         gen_traps = None,
+        gen_plants = None,
         gen_chests = None,
         custom_gen = None,
     ):
@@ -53,6 +55,11 @@ class Terrain:
                 possible number of doors per room. This value should sync up with door_num_weight.
             door_num_weight:
                 chance of having certain number of doors
+            has_door:
+                Whether door convex exists.
+            spawn_door:
+                Whether to spawn door semiactor or not.
+                If False, but has door, the terrain will spawn nothing onto the door location.
             protected:
                 whether the room that own's this terrain component has a wall that can be destroyed during procgen from other terrains' generation process
                 e.g. if set to true, ocean generation will not overlap with with this room's outer&inner area.
@@ -93,6 +100,25 @@ class Terrain:
                     Number of traps that are guarenteed to be generated.
                     If the room has not enough valid tiles to randomize traps, it will randomize the maximum amount.
                     NOTE: This value is effected by max_traps_per_room
+            gen_plants:
+                NOTE: Based off of gen_traps
+                {
+                    "checklist":dict{semiactor : weight},
+                    "max_plants_per_room":int,
+                    "spawn_chance":float,
+                    "forced_plants_gen_number":int = 0
+                }
+                checklist:
+                    a dictionary data that stores different types of plants that can be generated in this terrain.
+                    Key = Semiactor's id, Value = chance of getting spawned(weight)
+                max_plants_per_room:
+                    maximum amount of plants that can be generated in this terrain
+                spawn_chance:
+                    chance of generating a plant for a single tile.
+                forced_plants_gen_number:
+                    Number of plants that are guarenteed to be generated.
+                    If the room has not enough valid tiles to randomize plants, it will randomize the maximum amount.
+                    NOTE: This value is effected by max_plants_per_room
             gen_chests:
                 {
                     "checklist":dict{chest_id : spawn_chance}, 
@@ -142,6 +168,7 @@ class Terrain:
         self.has_wall = has_wall
         self.protected = protected
         self.has_door = has_door
+        self.spawn_door = spawn_door
         self.can_have_stair = can_have_stair
         self.door_num_range = door_num_range
         self.door_num_weight = door_num_weight
@@ -152,5 +179,6 @@ class Terrain:
         self.gen_water = gen_water
         self.gen_pits = gen_pits
         self.gen_traps = gen_traps
+        self.gen_plants = gen_plants
         self.gen_chests = gen_chests
         self.custom_gen = custom_gen

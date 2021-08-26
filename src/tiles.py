@@ -258,6 +258,28 @@ def floor():
         tile_name="석재 바닥",
         tile_id="floor",
     )
+def floor_forest():
+    return new_tile(
+        walkable=True,
+        safe_to_walk=True,
+        flammable=False,
+        freezable=0,
+        unfreezable=0,
+        phaseable=True,
+        transparent=True,
+        dark=(
+            ord("·"),
+            (60, 60, 60),
+            (15, 15, 15)
+        ),
+        light=(
+            ord("·"),
+            (70, 65, 89),
+            (72, 115, 63),
+        ),
+        tile_name="흙",
+        tile_id="floor",
+    )
 def floor_desert():
     return new_tile(
         walkable=True,
@@ -326,6 +348,32 @@ def wall():
         darkest_bg_color=(90, 60, 30),
         brightest_bg_color=(210, 110, 40),
         tile_name="벽",
+        tile_id="wall",
+    )
+def wall_forest():
+    return new_tile_randomized(
+        walkable=False,
+        safe_to_walk=True,
+        flammable=0.01, # Flammable
+        freezable=0,
+        unfreezable=0,
+        phaseable=True,
+        transparent=False,
+        dark=(
+            ord("♤"),
+            (20, 20, 20),
+            (20, 20, 50)
+        ),
+        light=(
+            ord("♤"),
+            (78, 135, 80),
+            (17, 77, 19)
+        ),
+        darkest_fg_color=(43, 122, 46),
+        brightest_fg_color=(84, 196, 89),
+        darkest_bg_color=(1, 51, 2),
+        brightest_bg_color=(2, 115, 4),
+        tile_name="빽빽한 수목",
         tile_id="wall",
     )
 def wall_desert():
@@ -402,6 +450,30 @@ def dense_grass():
         tile_name="잔디",
         tile_id="dense_grass",
     )
+def dense_grass_forest():
+    return new_tile_randomized(
+        walkable=True,
+        safe_to_walk=True,
+        flammable=1,
+        freezable=0.2,
+        unfreezable=0,
+        phaseable=True,
+        transparent=True,
+        dark=(
+            ord("\""),
+            (30, 35, 30),
+            (15, 15, 15)
+        ),
+        light=(
+            ord("\""),
+            (70, 65, 89),
+            (72, 115, 63),
+        ),
+        darkest_fg_color=(150, 190, 50),
+        brightest_fg_color=(15, 255, 0),
+        tile_name="잔디",
+        tile_id="dense_grass",
+    )
 def dense_grass_desert():
     return new_tile_randomized(
         walkable=True,
@@ -447,6 +519,28 @@ def sparse_grass():
             ord("\'"),
             (85, 200, 55),
             (47, 47, 47)
+        ),
+        tile_name="잔디",
+        tile_id="sparse_grass",
+    )
+def sparse_grass_forest():
+    return new_tile(
+        walkable=True,
+        safe_to_walk=True,
+        flammable=0.9,
+        freezable=0.2,
+        unfreezable=0,
+        phaseable=True,
+        transparent=True,
+        dark=(
+            ord("\'"),
+            (30, 35, 30),
+            (15, 15, 15)
+        ), # TODO : If floor tile's bg change, doors' bg should change dynamically as well
+        light=(
+            ord("\""),
+            (70, 65, 89),
+            (72, 115, 63),
         ),
         tile_name="잔디",
         tile_id="sparse_grass",

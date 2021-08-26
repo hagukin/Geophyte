@@ -28,6 +28,7 @@ class TilemapOrder(Enum):
     ASCEND_STAIR = auto()
     DESCEND_STAIR = auto()
     TRAP = auto()
+    PLANT = auto()
     CHEST = auto()
 
 

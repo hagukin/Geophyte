@@ -108,7 +108,7 @@ player = Actor(
         base_melee=10,
         additional_melee=10,
         protection=10,
-        eyesight=15,
+        eyesight=20,
         hearing=15,
         ),
     actor_state=ActorState(
@@ -122,12 +122,11 @@ player = Actor(
     inventory=Inventory(capacity=52, is_fireproof=False, is_acidproof=False, is_waterproof=False),
     ability_inventory=AbilityInventory(capacity=10),
     equipments=Equipments(),
-    initial_items=None,
-    # (
-    #     {"item": item_factories.potion_of_levitation, "chance":1, "count":(50,50), "BUC": {1:1, 0:0, -1:0}, "upgrade": None}, # NOTE: actor possesion BUC, upgrade has higher priority than item type inital_BUC, initial_upgrade
-    #     {"item": item_factories.potion_of_flame, "chance": 1, "count": (1, 5), "BUC": None, "upgrade": None},
-    #     {"item": item_factories.potion_of_liquified_ants, "chance": 1, "count": (1, 50), "BUC": None, "upgrade": None},
-    # ),
+    initial_items=(
+        {"item": item_factories.scroll_of_magic_mapping, "chance":1, "count":(50,50), "BUC": {1:1, 0:0, -1:0}, "upgrade": None}, # NOTE: actor possesion BUC, upgrade has higher priority than item type inital_BUC, initial_upgrade
+        {"item": item_factories.potion_of_flame, "chance": 1, "count": (1, 5), "BUC": None, "upgrade": None},
+        {"item": item_factories.potion_of_liquified_ants, "chance": 1, "count": (1, 50), "BUC": None, "upgrade": None},
+    ),
     initial_equipments=None,
     # (
     #     # {"item":item_factories.leather_armor, "chance":1, "count":(1,1), "BUC":{-1:1, 0:1, 1:1}, "upgrade": {1:1,2:1,3:1,4:1}},
@@ -1189,13 +1188,7 @@ sphere_of_acid = Actor(
     weight=0.8,
     spawnable=True,
     edible=None,
-    ai_cls=BaseAI(
-        alignment=(("hostile",), (1,)),
-        do_melee_atk=True,
-        do_ranged_atk=False,
-        use_ability=False,
-        hostile_type=('@',),
-    ),
+    ai_cls=ai_factories.Sphere_Of_Acid_Ai(),
     status=Status(
         hp=10,
         mp=0,

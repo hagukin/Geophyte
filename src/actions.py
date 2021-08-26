@@ -241,7 +241,7 @@ class ItemAction(Action):
                 if self.item.parent.parent == self.entity:
                     warning = False
         if warning:
-            print(f"WARNING::Item Action must only be called from item's owner. entity-{self.entity}, item-{self.item}")
+            print(f"WARNING::Item Action must only be called from item's owner. entity-{self.entity.entity_id}, item-{self.item.entity_id}")
 
     @property
     def target_actor(self) -> Optional[Actor]:

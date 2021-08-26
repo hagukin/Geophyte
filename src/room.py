@@ -66,6 +66,11 @@ class Room:
 
     def init_doors_rel(self) -> None:
         # set door position (Not actually generating)
+        if not self.terrain.has_door:
+            print(f"DEBUG::{self.terrain.terrain_id} has no door, ignoring door initialization. - Room.init_doors_rel()")
+            print("You might want to use terrain.spawn_door = False instead.")
+            return None
+
         # choose the direction of the door
         tempdir = ["u", "d", "l", "r"]
         random.shuffle(tempdir)

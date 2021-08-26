@@ -139,7 +139,31 @@ explosion_trap = SemiActor(
 
 ##########################################################################
 ##########################################################################
-################ INTERACTABLE SEMIACTORS WITH NO AI ######################
+################################ PLANTS ##################################
+##########################################################################
+##########################################################################
+
+oak_tree = SemiActor(
+    char="♠",
+    fg=(79, 181, 38),
+    bg=None,
+    name="참나무",
+    entity_id="oak_tree",
+    entity_desc="description of oak tree",
+    do_action=False,
+    walkable=None,
+    safe_to_move=True,
+    semiactor_info=semiactor_info.Default(flammable=0.8, corrodable=0.01),
+    blocks_movement=False,
+    blocks_sight=True,
+    rule_cls=None,
+    trigger_bump=False,
+)
+
+
+##########################################################################
+##########################################################################
+########################## DOORS #########################################
 ##########################################################################
 ##########################################################################
 
@@ -153,7 +177,7 @@ closed_door = SemiActor(
     do_action=False,
     walkable=None,
     safe_to_move=True,
-    semiactor_info=semiactor_info.Door(flammable=True, corrodable=True),
+    semiactor_info=semiactor_info.Door(flammable=0.7, corrodable=0.1),
     blocks_movement=True,
     blocks_sight=True,
     rule_cls=None,
@@ -170,7 +194,7 @@ opened_door = SemiActor(
     do_action=False,
     walkable=None,
     safe_to_move=True,
-    semiactor_info=semiactor_info.Door(flammable=True, corrodable=True),
+    semiactor_info=semiactor_info.Door(flammable=0.5, corrodable=0.1),
     blocks_movement=False,
     blocks_sight=False,
     rule_cls=None,
@@ -187,7 +211,7 @@ locked_door = SemiActor(
     do_action=False,
     walkable=None,
     safe_to_move=True,
-    semiactor_info=semiactor_info.Door(flammable=True, corrodable=True),
+    semiactor_info=semiactor_info.Door(flammable=0.5, corrodable=0.1),
     blocks_movement=True,
     blocks_sight=True,
     rule_cls=None,

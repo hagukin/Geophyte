@@ -540,3 +540,64 @@ def generate_on_empty_convex(gamemap: GameMap, x:int, y:int) -> None:
         from procgen import spawn_monsters_by_difficulty, choose_monster_difficulty
         spawn_monsters_by_difficulty(x=x, y=y, difficulty=choose_monster_difficulty(gamemap.depth, gamemap.engine.toughness), dungeon=gamemap)
 
+
+def grow_plant(gamemap, x, y, plant_semiactor: SemiActor, lifetime=-1) -> None:
+    """Spawn a SemiActor instance of a given name at given location."""
+
+    tilemap = gamemap.tilemap
+
+    # Check and change tilemap info
+    # NOTE: You have to manually write what types of terrains that the plants can overwrite
+    # Currently the plant only spawns on ROON_INNER.
+    if tilemap[x][y] == TilemapOrder.ROOM_INNER.value\
+            or tilemap[x][y] == TilemapOrder.GRASS.value\
+            or tilemap[x][y] == TilemapOrder.GRASS_CORE.value:
+        tilemap[x][y] = TilemapOrder.PLANT.value
+    else:
+        return None
+
+    # Spawn
+    plant_semiactor.spawn(gamemap=gamemap, x=x, y=y, lifetime=lifetime)
+
+
+def generate_plant(gamemap: GameMap, room: Room) -> None:
+    plant_count = 0
+    checklist = room.terrain.gen_plants["checklist"]
+    max_plants_per_room = room.terrain.gen_plants["max_plants_per_room"]
+    spawn_chance = room.terrain.gen_plants["spawn_chance"]
+    forced_plants_gen_number = room.terrain.gen_plants["forced_plants_gen_number"]
+    gen_tiles = room.inner_tiles
+
+    # 1. Generate force-generated plants first
+    if forced_plants_gen_number:  # if not 0
+        plant_coordinates = random.choices(gen_tiles, k=min(len(room.inner_tiles),
+                                                           forced_plants_gen_number))  # Prevents the plant num going higher than the available inner tiles num
+
+        for loc in set(plant_coordinates):
+            # Choose plant type
+            plant_chosen = random.choices(list(checklist.keys()), weights=list(checklist.values()), k=1)[0]
+
+            # Spawn plant
+            if plant_count <= max_plants_per_room:
+                grow_plant(gamemap=gamemap, x=loc[0], y=loc[1], plant_semiactor=plant_chosen)
+                plant_count += 1
+            else:
+                break
+
+    # 2. Spawn inside the given room
+    # Shuffle the inner tiles to prevent plants getting crammed in specific location
+    room_tile = room.inner_tiles
+    random.shuffle(room_tile)
+
+    for loc in room_tile:
+        if plant_count >= max_plants_per_room:
+            break
+
+        # Chance of spawning a plant
+        if random.random() > spawn_chance:
+            continue
+
+        # Spawn plant
+        plant_chosen = random.choices(list(checklist.keys()), weights=list(checklist.values()), k=1)[0]
+        grow_plant(gamemap=gamemap, x=loc[0], y=loc[1], plant_semiactor=plant_chosen)
+        plant_count += 1

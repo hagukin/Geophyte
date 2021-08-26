@@ -40,6 +40,7 @@ procgen_fg = white
 
 b_rocky_dungeon = (94, 73, 30)
 b_forest = (0, 99, 23)
+b_orc_town = (0xBE, 0x5C, 0x43)
 b_desert_dungeon = (156, 148, 109)
 b_ancient_ruin = (57, 87, 83)
 

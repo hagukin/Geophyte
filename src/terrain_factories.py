@@ -6,7 +6,6 @@ import semiactor_factories
 from order import InventoryOrder
 
 terrain_dict = {}
-terrain_rarity = []
 
 # Dungeon chamber (Standard)
 dungeon_chamber = Terrain(
@@ -18,8 +17,50 @@ dungeon_chamber = Terrain(
     spawn_monster=True,
     gen_grass=None,
 )
-terrain_dict[dungeon_chamber.terrain_id] = dungeon_chamber
-terrain_rarity.append(dungeon_chamber.rarity)
+terrain_dict[dungeon_chamber] = dungeon_chamber.rarity
+
+
+# Forest chamber
+forest_chamber = Terrain(
+    name="숲",
+    terrain_id="forest_chamber",
+    terrain_desc="Desc of forest_chamber terrain (TEST)",
+    rarity=5,
+    spawn_item=True,
+    spawn_monster=True,
+    gen_grass={"core_num_range":(1,6), "scale_range":(1,4), "density":0.3},
+    gen_plants={
+        "checklist":{
+            semiactor_factories.oak_tree:5,
+        },
+        "max_plants_per_room":99,
+        "spawn_chance":0.2,
+        "forced_plants_gen_number":0
+    },
+)
+terrain_dict[forest_chamber] = forest_chamber.rarity
+
+
+# Forest chamber spawn no door
+forest_chamber_spawn_no_door = Terrain(
+    name="숲",
+    terrain_id="forest_chamber_spawn_no_door",
+    terrain_desc="Desc of forest_chamber_spawn_no_door terrain (TEST)",
+    rarity=0, # Manual
+    spawn_item=True,
+    spawn_monster=True,
+    gen_grass={"core_num_range":(1,6), "scale_range":(1,4), "density":0.3},
+    gen_plants={
+        "checklist":{
+            semiactor_factories.oak_tree:5,
+        },
+        "max_plants_per_room":99,
+        "spawn_chance":0.2,
+        "forced_plants_gen_number":0
+    },
+    spawn_door=False,
+)
+terrain_dict[forest_chamber_spawn_no_door] = forest_chamber_spawn_no_door.rarity
 
 
 # Landmine chamber
@@ -41,8 +82,7 @@ landmine_chamber = Terrain(
     },
     gen_chests={"checklist":{"large_wooden_chest" : 10}, "chest_num_range":(1,1), "initial_items":None},
 )
-terrain_dict[landmine_chamber.terrain_id] = landmine_chamber
-terrain_rarity.append(landmine_chamber.rarity)
+terrain_dict[landmine_chamber] = landmine_chamber.rarity
 
 
 # Grass Field
@@ -55,8 +95,39 @@ grass_field = Terrain(
     spawn_monster=True,
     gen_grass={"core_num_range":(1,8), "scale_range":(1,4), "density":0.6},
 )
-terrain_dict[grass_field.terrain_id] = grass_field
-terrain_rarity.append(grass_field.rarity)
+terrain_dict[grass_field] = grass_field.rarity
+
+
+# Grass Field Spawn No Door
+grass_field_spawn_no_door = Terrain(
+    name="평야",
+    terrain_id="grass_field_spawn_no_door",
+    terrain_desc="Desc of grass_field_spawn_no_door terrain (TEST)",
+    rarity=0, # Must add terrain manually to generate
+    spawn_item=True,
+    spawn_monster=True,
+    has_door=True, # HAS DOOR CONVEXES
+    spawn_door=False,
+    gen_grass={"core_num_range":(1,8), "scale_range":(1,4), "density":0.6},
+)
+terrain_dict[grass_field_spawn_no_door] = grass_field_spawn_no_door.rarity
+
+
+# Large Grass Field Spawn No Door
+large_grass_field_spawn_no_door = Terrain(
+    name="평야",
+    terrain_id="large_grass_field_spawn_no_door",
+    terrain_desc="Desc of large_grass_field_spawn_no_door terrain (TEST)",
+    rarity=0, # Must add terrain manually to generate
+    spawn_item=True,
+    spawn_monster=True,
+    has_door=True, # HAS DOOR CONVEXES
+    spawn_door=False,
+    min_width=9,
+    max_width=14,
+    gen_grass={"core_num_range":(1,8), "scale_range":(1,9), "density":0.6},
+)
+terrain_dict[large_grass_field_spawn_no_door] = large_grass_field_spawn_no_door.rarity
 
 
 # Trap Field
@@ -83,8 +154,7 @@ trap_field = Terrain(
         "forced_traps_gen_number":4
     },
 )
-terrain_dict[trap_field.terrain_id] = trap_field
-terrain_rarity.append(trap_field.rarity)
+terrain_dict[trap_field] = trap_field.rarity
 
 
 # Chest Room
@@ -97,8 +167,7 @@ chest_room = Terrain(
     spawn_monster=True,
     gen_chests={"checklist":{"large_wooden_chest" : 10}, "chest_num_range":(1,3), "initial_items":None},
 )
-terrain_dict[chest_room.terrain_id] = chest_room
-terrain_rarity.append(chest_room.rarity)
+terrain_dict[chest_room] = chest_room.rarity
 
 # Large pit
 large_pit = Terrain(
@@ -117,8 +186,7 @@ large_pit = Terrain(
     },
     gen_pits={"core_num_range":(1,8), "scale_range":(1,4), "density":0.9, "no_border":True},
 )
-terrain_dict[large_pit.terrain_id] = large_pit
-terrain_rarity.append(large_pit.rarity)
+terrain_dict[large_pit] = large_pit.rarity
 
 
 # Giant Hole
@@ -131,8 +199,7 @@ giant_hole = Terrain(
     spawn_monster=False,
     gen_holes={"core_num_range":(1,8), "scale_range":(1,4), "density":0.6, "no_border":True},
 )
-terrain_dict[giant_hole.terrain_id] = giant_hole
-terrain_rarity.append(giant_hole.rarity)
+terrain_dict[giant_hole] = giant_hole.rarity
 
 
 # Ocean
@@ -143,10 +210,10 @@ ocean = Terrain(
     rarity=2,
     spawn_item=True,
     spawn_monster=True,
+    spawn_door=False,
     gen_water={"core_num_range":(3,6), "scale_range":(4,8), "density":0.9, "no_border":True},
 )
-terrain_dict[ocean.terrain_id] = ocean
-terrain_rarity.append(ocean.rarity)
+terrain_dict[ocean] = ocean.rarity
 
 
 # Swamp
@@ -157,11 +224,11 @@ swamp = Terrain(
     rarity=15,
     spawn_item=True,
     spawn_monster=True,
+    spawn_door=False,
     gen_grass={"core_num_range":(4,8), "scale_range":(2,4), "density":0.7},
     gen_water={"core_num_range":(10,20), "scale_range":(2,4), "density":0.6, "no_border":True},
 )
-terrain_dict[swamp.terrain_id] = swamp
-terrain_rarity.append(swamp.rarity)
+terrain_dict[swamp] = swamp.rarity
 
 
 # General shop
@@ -181,8 +248,7 @@ general_shop = ShopTerrain(
     sell_items_type_limit=None,
     shape=None
 )
-terrain_dict[general_shop.terrain_id] = general_shop
-terrain_rarity.append(general_shop.rarity)
+terrain_dict[general_shop] = general_shop.rarity
 
 
 # Potion shop
@@ -202,8 +268,7 @@ potion_shop = ShopTerrain(
     sell_items_type_limit=(InventoryOrder.POTION, ),
     shape=None,
 )
-terrain_dict[potion_shop.terrain_id] = potion_shop
-terrain_rarity.append(potion_shop.rarity)
+terrain_dict[potion_shop] = potion_shop.rarity
 
 
 # Weapon shop
@@ -223,8 +288,7 @@ weapon_shop = ShopTerrain(
     sell_items_type_limit=(InventoryOrder.MELEE_WEAPON, InventoryOrder.THROWING_WEAPON,),
     shape=None,
 )
-terrain_dict[weapon_shop.terrain_id] = weapon_shop
-terrain_rarity.append(weapon_shop.rarity)
+terrain_dict[weapon_shop] = weapon_shop.rarity
 
 
 # Scroll shop
@@ -244,8 +308,7 @@ scroll_shop = ShopTerrain(
     sell_items_type_limit=(InventoryOrder.SCROLL,),
     shape=None,
 )
-terrain_dict[scroll_shop.terrain_id] = scroll_shop
-terrain_rarity.append(scroll_shop.rarity)
+terrain_dict[scroll_shop] = scroll_shop.rarity
 
 
 # Chamber Of Kugah
@@ -264,8 +327,7 @@ chamber_of_kugah = ChamberOfKugahTerrain(
         "circular":4,
     },
 )
-terrain_dict[chamber_of_kugah.terrain_id] = chamber_of_kugah
-terrain_rarity.append(chamber_of_kugah.rarity)
+terrain_dict[chamber_of_kugah] = chamber_of_kugah.rarity
 
 
 # Chamber Of Kugah
@@ -283,5 +345,4 @@ guarded_treasure = GuardedTreasureTerrain(
                 "chest_num_range":(1,1),
                 "initial_items": None},
 )
-terrain_dict[guarded_treasure.terrain_id] = guarded_treasure
-terrain_rarity.append(guarded_treasure.rarity)
+terrain_dict[guarded_treasure] = guarded_treasure.rarity

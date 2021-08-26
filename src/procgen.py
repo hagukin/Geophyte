@@ -32,38 +32,38 @@ def choose_biome(
     biome_dicts: dict=None #if value is given, use it as population and weights
 ) -> Biome:
     if biome_dicts == None:
-        biome_id = random.choices(
+        biome = random.choices(
             population=list(biome_factories.biome_dict.keys()),
             weights=biome_factories.biome_rarity,
             k=1
             )[0]
     else:
-        biome_id = random.choices(
+        biome = random.choices(
             population=list(biome_dicts.keys()),
             weights=list(biome_dicts.values()),
             k=1
             )[0]
 
-    return biome_factories.biome_dict[biome_id]
+    return copy.deepcopy(biome)
 
 
 def choose_terrain(
     terrain_dicts: dict=None #if value is given, use it as population and weights
 ) -> Terrain:
     if terrain_dicts == None:
-        terrain_id = random.choices(
+        terrain = random.choices(
             population=list(terrain_factories.terrain_dict.keys()),
-            weights=terrain_factories.terrain_rarity,
+            weights=list(terrain_factories.terrain_dict.values()),
             k=1
             )[0]
     else:
-        terrain_id = random.choices(
+        terrain = random.choices(
             population=list(terrain_dicts.keys()),
             weights=list(terrain_dicts.values()),
             k=1
             )[0]
 
-    return copy.deepcopy(terrain_factories.terrain_dict[terrain_id])
+    return copy.deepcopy(terrain)
 
 
 def choose_monster_difficulty(depth: int, toughness: int=0) -> int:
@@ -273,7 +273,7 @@ def remove_awkward_entities(
     trash = []
     for e in gamemap.entities:
         if isinstance(e, SemiActor): # Delete semiactors that are generated on water (both opened/closed)
-            if e.entity_id[-4:] == "door" or e.entity_id[-4:] == "trap" or e.entity_id[-5:] == "chest":
+            if e.entity_id[-4:] == "door" or e.entity_id[-4:] == "trap" or e.entity_id[-5:] == "chest" or e.entity_id[-4:] == "tree":
                 if gamemap.tiles[e.x, e.y]["tile_id"] == "deep_water"\
                     or gamemap.tiles[e.x, e.y]["tile_id"] == "shallow_water"\
                     or gamemap.tiles[e.x, e.y]["tile_id"] == "hole"\
@@ -385,7 +385,7 @@ def spawn_doors(
             dungeon.protectmap[door_pos] = True
         dungeon.tiles[door_pos] = dungeon.tileset["t_floor"]()
 
-        if dungeon.get_semiactor_at_location(x=door_pos[0], y=door_pos[1], semiactor_id="door") == None:
+        if room.terrain.spawn_door and dungeon.get_semiactor_at_location(x=door_pos[0], y=door_pos[1], semiactor_id="door") == None:
             if random.random() <= room.terrain.locked_door_chance:
                 semiactor_factories.locked_door.spawn(gamemap=dungeon, x=door_pos[0], y=door_pos[1], lifetime=-1)
             else:
@@ -481,6 +481,10 @@ def generate_terrain(
         # Generate trap
         if room.terrain.gen_traps:
             terrain_generation.generate_trap(gamemap=dungeon, room=room)
+
+        # Generate plant
+        if room.terrain.gen_plants:
+            terrain_generation.generate_plant(gamemap=dungeon, room=room)
 
         # Generate chests/storages
         if room.terrain.gen_chests:
