@@ -597,6 +597,9 @@ class Status(BaseComponent):
                 dmg_reduced = self.changed_status["magic_resistance"]
                 dmg = (dmg - dmg_absorbed) * (1 - dmg_reduced)
 
+        if damage_type == None:
+            print("DEBUG::None type damage applied. - status.calculate_dmg_reduction")
+
         if round_dmg:
             dmg = max(0, round(dmg))
         else:

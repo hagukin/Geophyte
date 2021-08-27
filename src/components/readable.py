@@ -486,13 +486,16 @@ class AutoTargetingHarmfulReadable(Readable):
                         if actor != consumer and consumer.ai.vision[actor.x, actor.y]:
                             targets.append(actor)
 
+            if not targets: # List empty
+                targets.append(consumer)
+
             for target in set(targets):
                 self.effects_on_target_actor(consumer=consumer, target=target)
         elif self.parent.item_state.BUC == -1:
             self.effects_on_target_actor(consumer=consumer, target=consumer)
         else:
             for actor in self.engine.game_map.actors:
-                if actor is not consumer and self.parent.gamemap.visible[actor.x, actor.y]:
+                if actor is not consumer and consumer.gamemap.visible[actor.x, actor.y]:
                     distance = consumer.distance(actor.x, actor.y)
                     if distance <= closest_distance:
                         target = actor

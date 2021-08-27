@@ -2056,6 +2056,14 @@ class MainGameEventHandler(EventHandler):
                 if self.engine.easteregg == 50:
                     self.engine.message_log.add_message(f"당신은 슬픈 기분이 든다.", color.white)
 
+                ########## TODO FIXME DEBUG
+                self.engine.change_entity_depth(
+                    self.engine.player,
+                    self.engine.depth + 1,
+                    self.engine.world.get_map(self.engine.depth + 1).ascend_loc[0],
+                    self.engine.world.get_map(self.engine.depth + 1).ascend_loc[1]
+                )
+
 
         # No valid key was pressed
         return action

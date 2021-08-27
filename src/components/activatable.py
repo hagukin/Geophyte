@@ -95,7 +95,8 @@ class StealActivatable(Activatable):
                 # If the selected item is equipped, remove it from it's owner.
                 if item.equipable:
                     if item.equipable.parent == item:
-                        item.parent.parent.equipments.remove_equipment(region=item.item_state.equipped_region, forced=True)
+                        if item.item_state.equipped_region != None:
+                            item.parent.parent.equipments.remove_equipment(region=item.item_state.equipped_region, forced=True)
 
                 # Make duplicate
                 dup_item = item.copy(gamemap=item.gamemap, exact_copy=True)

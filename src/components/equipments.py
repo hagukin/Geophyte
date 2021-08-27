@@ -306,7 +306,7 @@ class Equipments(BaseComponent):
                 NOTE: Even if forced is False, the function will always try to remove equipment.
                 forced only indicates wheter the action is called by the equipment owner or not.
         """
-        if self.equipments[region] == None:
+        if not self.equipments[region]:
             print(f"WARNING::Tried to remove equipment from {region}, but its empty")
             return None
         self.remove_equipable_bonuses(self.equipments[region])

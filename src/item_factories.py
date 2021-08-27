@@ -2147,8 +2147,8 @@ item_rarity.append(worthless_piece_of_blue_glass.rarity)
 
 ### toxic Goo
 toxic_goo = Item(
-    char="•",# Unicode bullet
-    fg = (44, 23, 61),
+    char="*",
+    fg = (61, 0, 82),
     name="독성 점액",
     entity_id="toxic_goo",
     entity_desc="검은 덩어리의 몸에서 떨어져 나온 검정색 점액질 물체이다.",

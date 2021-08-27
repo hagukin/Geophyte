@@ -108,6 +108,15 @@ class PickupAction(Action):
     def __init__(self, entity: Actor):
         super().__init__(entity)
 
+    def pickup(self, inventory, item) -> None:
+        # Failed to add an item
+        if not inventory.add_item(item):
+            return None
+
+        # Remove the item from current gamemap
+        self.engine.game_map.remove_entity(entity=item)
+        item.parent = self.entity.inventory
+
     def perform(self) -> None:
         """Pickup an item and add it to the actor's inventory, if there is a room for it."""
 
@@ -121,25 +130,21 @@ class PickupAction(Action):
 
         for item in self.engine.game_map.items:
             if actor_location_x == item.x and actor_location_y == item.y:
-                # Failed to add an item
-                if not inventory.add_item(item):
-                    return None
-
-                # Remove the item from current gamemap
-                self.engine.game_map.remove_entity(entity=item)
-                item.parent = self.entity.inventory
-
                 if self.entity == self.engine.player:
                     if item.stack_count > 1:
                         self.engine.message_log.add_message(f"당신은 {g(item.name, '을')} 주웠다. (x{item.stack_count}).", fg=color.obtain_item)
                     else:
                         self.engine.message_log.add_message(f"당신은 {g(item.name, '을')} 주웠다.", fg=color.obtain_item)
+
+                    self.pickup(inventory, item)
                     return #prevents picking up everything at once. # TODO : Add feature to pickup everything at once
                 else:
                     if item.stack_count > 1:
                         self.engine.message_log.add_message(f"{g(self.entity.name, '이')} {g(item.name, '을')} 주웠다. (x{item.stack_count}).", target=self.entity, fg=color.enemy_unique)
                     else:
                         self.engine.message_log.add_message(f"{g(self.entity.name, '이')} {g(item.name, '을')} 주웠다.", target=self.entity, fg=color.enemy_unique)
+
+                    self.pickup(inventory, item)
                     return #prevents picking up everything at once. # TODO : Add feature to pickup everything at once
 
         if self.entity == self.engine.player:
@@ -175,7 +180,7 @@ class DescendAction(Action):
         elif self.engine.game_map.tiles[self.entity.x, self.entity.y]["tile_id"] == "ascending_stair":
             raise exceptions.Impossible("이 계단은 위로만 향한다.")
         else:
-            raise exceptions.Impossible("올라갈 수 없다.")
+            raise exceptions.Impossible("내려갈 수 없다.")
 
 
 class AscendAction(Action):
@@ -208,7 +213,7 @@ class AscendAction(Action):
         elif self.engine.game_map.tiles[self.entity.x, self.entity.y]["tile_id"] == "descending_stair":
             raise exceptions.Impossible("이 계단은 아래로만 향한다.")
         else:
-            raise exceptions.Impossible("내려갈 수 없다.")
+            raise exceptions.Impossible("올라갈 수 없다.")
 
 
 class ItemAction(Action):
@@ -772,7 +777,7 @@ class MeleeAction(ActionWithDirection):
         target = self.target_actor
         if not target:
             if self.entity == self.engine.player:
-                self.engine.message_log.add_message("공격 대상이 없다.", color.impossible)
+                self.engine.message_log.add_message("당신은 허공을 공격했다.", color.impossible)
                 return None
             else:
                 print("WARNING::Enemy has no target but attacked. - meleeaction")

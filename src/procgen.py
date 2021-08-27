@@ -78,8 +78,8 @@ def choose_monster_difficulty(depth: int, toughness: int=0) -> int:
     TODO: Make this function affected by the player's status?
     NOTE: This whole function may need some minor adjustments
     """
-    avg_diff = depth + toughness
-    max_diff = avg_diff + 2
+    avg_diff = depth + toughness + 1
+    max_diff = avg_diff + 3
 
     # Choose the monster difficulty (Using normal distribution; but there are limits to maximum and minimum values)
     difficulty_chosen = min(max_diff, max(1, round(np.random.normal(avg_diff, 1.5, 1)[0])))

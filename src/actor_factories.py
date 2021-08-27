@@ -120,7 +120,7 @@ player = Actor(
         # has_right_arm=True,  #DEBUG
     ),
     inventory=Inventory(capacity=52, is_fireproof=False, is_acidproof=False, is_waterproof=False),
-    ability_inventory=AbilityInventory(capacity=10),
+    ability_inventory=AbilityInventory(capacity=26),
     equipments=Equipments(),
     initial_items=None,
     # (
