@@ -379,7 +379,7 @@ low_dmg_flame_trap_walkable = FlameTrapWalkable(
     check_item=True,
     check_actor=True,
     continuous_effect=False,
-    burn_value=(5, 3, 0, 6),
+    burn_value=(5, 2, 0, 6),
 )
 
 low_dmg_icicle_trap_walkable = IcicleTrapWalkable(
@@ -390,7 +390,7 @@ low_dmg_icicle_trap_walkable = IcicleTrapWalkable(
     continuous_effect=False,
     base_damage=2,
     add_damage=2,
-    freeze_value=(2, 1, 0.1, 0, 3),
+    freeze_value=(3, 1, 0.1, 0, 3),
     bleed_value=(1, 0, 3),
 )
 
@@ -400,7 +400,7 @@ low_dmg_acid_spray_trap_walkable = AcidSprayTrapWalkable(
     check_item=True,
     check_actor=True,
     continuous_effect=False,
-    melt_value=(7,3,0,3)
+    melt_value=(7,1,0,3)
 )
 
 low_dmg_poison_spike_trap_walkable = PoisonSpikeTrapWalkable(

@@ -661,7 +661,7 @@ class MeleeAction(ActionWithDirection):
         damage *= size_bonus
 
         # Apply strength bonus
-        strength_bonus =  1 + strength / 45
+        strength_bonus =  min(2, 1 + strength / 45)
         damage *= strength_bonus
 
         # Physical damage fall-off

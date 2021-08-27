@@ -566,31 +566,40 @@ class Status(BaseComponent):
 
         # Damage reduction
         if damage_type and not ignore_reduction:
+            protection = self.changed_status["protection"]
             if damage_type == "physical":
                 # if dmg type is physical, use protection to calculate reduction
-                protection = self.changed_status["protection"]
                 penetration = 1 + math.log10(penetration_constant/10 + 1)
                 dmg_absorbed = random.randint(int(protection * 0.3 /penetration), int(protection * 0.9 /penetration))
-                dmg_reduced = 1 + protection * math.log2(protection / 700 + 1)
+                dmg_reduced = 1 + protection * math.log2(protection / 2000 + 1)
                 dmg = (dmg - dmg_absorbed) / dmg_reduced
             elif damage_type == "explosion":
                 # NOTE: explosion damages are exactly like physical damage, except that is ignores any penetration constants given.
-                protection = self.changed_status["protection"]
                 dmg_absorbed = random.randint(0, int(protection))
-                dmg_reduced = 1 + math.log2(protection/5 + 1)
+                dmg_reduced = 1 + math.log2(protection/2000 + 1)
                 dmg = (dmg - dmg_absorbed) / dmg_reduced
             elif damage_type == "fire":
                 dmg *= (1 - self.changed_status["fire_resistance"])
+                dmg_reduced = 1 + protection * math.log2(protection / 2000 + 1)
+                dmg = dmg / dmg_reduced
             elif damage_type == "poison":
                 dmg *= (1 - self.changed_status["poison_resistance"])
+                dmg_reduced = 1 + protection * math.log2(protection / 2000 + 1)
+                dmg = dmg / dmg_reduced
             elif damage_type == "cold":
                 dmg *= (1 - self.changed_status["cold_resistance"])
+                dmg_reduced = 1 + protection * math.log2(protection / 2000 + 1)
+                dmg = dmg / dmg_reduced
             elif damage_type == "acid":
                 dmg *= (1 - self.changed_status["acid_resistance"])
+                dmg_reduced = 1 + protection * math.log2(protection / 2000 + 1)
+                dmg = dmg / dmg_reduced
             elif damage_type == "psychic":
                 dmg *= (1 - self.changed_status["psychic_resistance"])
             elif damage_type == "shock":
                 dmg *= (1 - self.changed_status["shock_resistance"])
+                dmg_reduced = 1 + protection * math.log2(protection / 2000 + 1)
+                dmg = dmg / dmg_reduced
             elif damage_type == "magic":
                 protection = self.origin_status["protection"] # when calculating magic dmg, use origin_status["protection"]. -> armor will have no effects.
                 dmg_absorbed = random.randint(0, int(protection/4)) # absorb protection/4

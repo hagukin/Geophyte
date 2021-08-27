@@ -826,6 +826,7 @@ rags = Item(
         possible_regions=("leg", "torso",),
         str_requirement=4,
         protection=1,
+        charm=-1,
         protection_mag=1,
     )
 )
@@ -857,8 +858,8 @@ leather_armor = Item(
         equip_size=(3, 5),
         possible_regions=("torso",),
         str_requirement=10,
-        protection=5,
-        protection_mag=1.4,
+        protection=6,
+        protection_mag=1.6,
     )
 )
 temp_items_lists.append(leather_armor)
@@ -889,7 +890,7 @@ iron_chain_mail = Item(
         equip_size=(3, 5),
         possible_regions=("torso",),
         str_requirement=12,
-        protection=9,
+        protection=8,
         protection_mag=1.8,
     )
 )
@@ -921,8 +922,8 @@ iron_scale_armor = Item(
         equip_size=(3, 5),
         possible_regions=("torso",),
         str_requirement=14,
-        protection=12,
-        protection_mag=2.1,
+        protection=9,
+        protection_mag=1.5,
     )
 )
 temp_items_lists.append(iron_scale_armor)
@@ -953,8 +954,8 @@ iron_plate_armor = Item(
         equip_size=(3, 5),
         possible_regions=("torso",),
         str_requirement=15,
-        protection=15,
-        protection_mag=2.5,
+        protection=10,
+        protection_mag=1.8,
     )
 )
 temp_items_lists.append(iron_plate_armor)
@@ -1058,8 +1059,8 @@ iron_headpiece = Item(
         equip_size=(3, 5),
         possible_regions=("head",),
         str_requirement=10,
-        protection=4,
-        protection_mag=1.4,
+        protection=5,
+        protection_mag=1.6,
     )
 )
 temp_items_lists.append(iron_headpiece)
@@ -1122,8 +1123,8 @@ iron_armet = Item(
         equip_size=(3, 4),
         possible_regions=("head",),
         str_requirement=13,
-        protection=9,
-        protection_mag=2.2,
+        protection=8,
+        protection_mag=1.8,
     )
 )
 temp_items_lists.append(iron_armet)
@@ -1190,8 +1191,8 @@ leather_pants = Item(
         equip_size=(3, 4),
         possible_regions=("leg",),
         str_requirement=7,
-        protection=5,
-        protection_mag=1.2,
+        protection=4,
+        protection_mag=1.4,
     )
 )
 temp_items_lists.append(leather_pants)
@@ -1222,7 +1223,7 @@ leather_armored_pants = Item(
         equip_size=(3, 4),
         possible_regions=("leg",),
         str_requirement=10,
-        protection=8,
+        protection=6,
         protection_mag=1.4,
     )
 )
@@ -1254,7 +1255,7 @@ iron_armored_pants = Item(
         equip_size=(3, 4),
         possible_regions=("leg",),
         str_requirement=12,
-        protection=10,
+        protection=8,
         protection_mag=1.66,
     )
 )
@@ -1288,8 +1289,8 @@ leather_boots = Item(
         equip_size=(3, 4),
         possible_regions=("feet",),
         str_requirement=7,
-        protection=4,
-        protection_mag=1.23,
+        protection=3,
+        protection_mag=1.4,
     )
 )
 temp_items_lists.append(leather_boots)
