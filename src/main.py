@@ -68,7 +68,6 @@ def main() -> None:
                 ### WRITE DEBUG FUNCTIONS HERE ###
 
 
-
             except Exception:
                 # Print error to stderr then print the error to the message log
                 traceback.print_exc()

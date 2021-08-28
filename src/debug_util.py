@@ -49,3 +49,15 @@
 #             print(f"{engine.depth} depth has multiple player.")
 #         else:
 #             has_player = True
+
+
+# Check for any entity that has no gamemap or wrong gamemap
+# for g in engine.world.mem_world.values():
+#     if g is None:
+#         continue
+#     for e in g.entities:
+#         if e.gamemap is None:
+#             raise Exception(f"{e.entity_id} has no gamemap.")
+#         else:
+#             if e.gamemap != g:
+#                 raise Exception(f"{e.entity_id} has wrong gamemap.")

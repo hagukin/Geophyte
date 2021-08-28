@@ -106,6 +106,15 @@ class Inventory(BaseComponent):
         
         return False
 
+    def total_stack_count_of_id(self, item_id: str) -> int:
+        """Return total stack count of item that has given id.
+        NOTE: This function DOES NOT check if the items are identical."""
+        cnt = 0
+        for item in self.items:
+            if item.entity_id == item_id:
+                cnt += item.stack_count
+        return cnt
+
     def check_if_in_inv_object(self, obj: Item) -> bool:
         """
         Check if the inventory has exact same item as given.
@@ -279,10 +288,8 @@ class Inventory(BaseComponent):
 
     def check_has_enough_money(self, amount: int) -> bool:
         """check if there is enough money(shine) in this inventory component as given amount."""
-        cash = self.check_if_in_inv("shine")
-        if cash:
-            if cash.stack_count >= amount:
-                return True
+        if self.total_stack_count_of_id("shine") >= amount:
+            return True
         return False
 
     def get_total_price_to_pay(self) -> int:

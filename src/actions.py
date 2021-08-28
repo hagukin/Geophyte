@@ -1239,8 +1239,19 @@ class CashExchangeAction(Action):
         """NOTE: The action will not care how much money each actor currently have.
         You should check whether the transaction is valid BEFORE you perform the action."""
         from item_factories import shines
-        self.taker.inventory.add_item(shines(self.cash_amount))
-        self.giver.inventory.decrease_item_stack(self.giver.inventory.check_if_in_inv("shine"), self.cash_amount) # Equipped/Cursed/Droppable check in inputhandler
+        self.taker.inventory.add_item(shines(self.cash_amount).copy(gamemap=None))
+
+        while self.cash_amount > 0:
+            shine = self.giver.inventory.check_if_in_inv("shine")
+            if not shine:
+                raise Exception("FATAL ERROR::Not enough shines. This should've been prevented before calling the action.perform(). - CashExchangeAction")
+            if shine.stack_count >= self.cash_amount:
+                self.giver.inventory.decrease_item_stack(shine, self.cash_amount) # Equipped/Cursed/Droppable check in inputhandler
+                self.cash_amount -= self.cash_amount
+                return None
+            else:
+                self.cash_amount -= shine.stack_count
+                self.giver.inventory.decrease_item_stack(shine, shine.stack_count)  # Equipped/Cursed/Droppable check in inputhandler
 
 
 class PlaceSwapAction(Action):
