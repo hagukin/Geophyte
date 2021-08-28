@@ -122,19 +122,17 @@ player = Actor(
     inventory=Inventory(capacity=52, is_fireproof=False, is_acidproof=False, is_waterproof=False),
     ability_inventory=AbilityInventory(capacity=26),
     equipments=Equipments(),
-    initial_items=None,
-    # (
-    #     {"item": item_factories.scroll_of_magic_mapping, "chance":1, "count":(50,50), "BUC": {1:1, 0:0, -1:0}, "upgrade": None}, # NOTE: actor possesion BUC, upgrade has higher priority than item type inital_BUC, initial_upgrade
-    #     {"item": item_factories.scroll_of_enchantment, "chance": 1, "count": (20, 20), "BUC": None, "upgrade": None},
-    #     {"item": item_factories.scroll_of_identify, "chance": 1, "count": (1, 50), "BUC": None, "upgrade": None},
-    # ),
-    initial_equipments=None,
-    # (
-    #     {"item":item_factories.iron_armored_pants, "chance":1, "count":(1,1), "BUC":{-1:1, 0:1, 1:1}, "upgrade": {1:1,2:0,3:0,4:0}},
-    #     {"item":item_factories.iron_armet, "chance":1, "count":(1,1), "BUC":{-1:1, 0:1, 1:1}, "upgrade": {1:1,2:0,3:0,4:0}},
-    #     {"item":item_factories.iron_plate_armor, "chance":1, "count":(1,1), "BUC":{-1:1, 0:1, 1:1}, "upgrade": {1:1,2:0,3:0,4:0}},
-    #     {"item":item_factories.iron_boots, "chance":1, "count":(1,1), "BUC":{-1:1, 0:1, 1:1}, "upgrade": {1:1,2:0,3:0,4:0}},
-    # ),
+    initial_items=(
+        {"item": item_factories.scroll_of_tame, "chance":1, "count":(50,50), "BUC": {1:0, 0:0, -1:1}, "upgrade": None}, # NOTE: actor possesion BUC, upgrade has higher priority than item type inital_BUC, initial_upgrade
+        {"item": item_factories.shine, "chance": 1, "count": (20, 20), "BUC": None, "upgrade": None},
+        {"item": item_factories.scroll_of_identify, "chance": 1, "count": (1, 50), "BUC": None, "upgrade": None},
+    ),
+    initial_equipments=(
+        {"item":item_factories.shortsword, "chance":1, "count":(1,1), "BUC":{-1:1, 0:1, 1:1}, "upgrade": {1:1,2:0,3:0,4:0}},
+        {"item":item_factories.amulet_of_brilliance, "chance":1, "count":(1,1), "BUC":{-1:10, 0:1, 1:0}, "upgrade": {1:1,2:0,3:0,-4:10}},
+        {"item":item_factories.iron_plate_armor, "chance":1, "count":(1,1), "BUC":{-1:1, 0:1, 1:1}, "upgrade": {1:1,2:0,3:0,4:0}},
+        {"item":item_factories.iron_boots, "chance":1, "count":(1,1), "BUC":{-1:1, 0:1, 1:1}, "upgrade": {1:1,2:0,3:0,4:0}},
+    ),
     initial_abilities=None,
     # (
     #     (ability_factories.spectral_beam, 1),
@@ -1320,7 +1318,7 @@ gaion = Actor(
         attracted_eat_type=("insect","meat",),
     ),
     status=Status(
-        hp=150,
+        hp=130,
         mp=50,
         strength=19,
         dexterity=24,
@@ -1497,7 +1495,7 @@ fire_elemental = Actor(
     spawnable=True,
     edible=None,
     ai_cls=BaseAI(
-        alignment=(("hostile","neutral"), (5,1,)),
+        alignment=(("hostile","neutral"), (1,1,)),
         do_melee_atk=True,
         do_ranged_atk=False,
         use_ability=False,
@@ -1565,7 +1563,7 @@ ice_elemental = Actor(
     spawnable=True,
     edible=None,
     ai_cls=BaseAI(
-        alignment=(("hostile", "neutral"), (5, 1,)),
+        alignment=(("hostile", "neutral"), (1, 1,)),
         do_melee_atk=True,
         do_ranged_atk=False,
         use_ability=False,
@@ -1633,7 +1631,7 @@ earth_elemental = Actor(
     spawnable=True,
     edible=None,
     ai_cls=BaseAI(
-        alignment=(("hostile", "neutral"), (5, 1,)),
+        alignment=(("hostile", "neutral"), (1, 1,)),
         do_melee_atk=True,
         do_ranged_atk=False,
         use_ability=False,
@@ -1702,7 +1700,7 @@ acid_elemental = Actor(
     spawnable=True,
     edible=None,
     ai_cls=BaseAI(
-        alignment=(("hostile", "neutral"), (5, 1,)),
+        alignment=(("hostile", "neutral"), (1, 1,)),
         do_melee_atk=True,
         do_ranged_atk=False,
         use_ability=False,
@@ -1769,7 +1767,7 @@ poison_elemental = Actor(
     spawnable=True,
     edible=None,
     ai_cls=BaseAI(
-        alignment=(("hostile", "neutral"), (5, 1,)),
+        alignment=(("hostile", "neutral"), (1, 1,)),
         do_melee_atk=True,
         do_ranged_atk=False,
         use_ability=False,
@@ -1836,7 +1834,7 @@ lightning_elemental = Actor(
     spawnable=True,
     edible=None,
     ai_cls=BaseAI(
-        alignment=(("hostile", "neutral"), (5, 1,)),
+        alignment=(("hostile", "neutral"), (1, 1,)),
         do_melee_atk=True,
         do_ranged_atk=False,
         use_ability=False,
@@ -1905,7 +1903,7 @@ unicorn = Actor(
     spawnable=True,
     edible=edible.RawMeatEdible(nutrition=330, cook_bonus=100),
     ai_cls=BaseAI(
-        alignment=(("neutral","hostile"), (10,1)), # FIXME: neutral only when human is female
+        alignment=(("neutral","hostile"), (100,1)), # FIXME: neutral only when human is female
         do_melee_atk=True,
         do_ranged_atk=False,
         use_ability=True,
@@ -1913,7 +1911,7 @@ unicorn = Actor(
         attracted_own_type=(InventoryOrder.GEM,),
     ),
     status=Status(
-        hp=156,
+        hp=145,
         mp=120,
         strength=21,
         dexterity=13,
@@ -2049,20 +2047,20 @@ baby_phoenix = Actor(
     spawnable=True,
     edible=None,
     ai_cls=BaseAI(
-        alignment=(("hostile", "neutral"), (1, 5,)),
+        alignment=(("hostile", "neutral"), (1, 50,)),
         do_melee_atk=True,
         do_ranged_atk=False,
         use_ability=False,
         hostile_type=('@','F','C',),
     ),
     status=Status(
-        hp=96,
+        hp=85,
         mp=320,
         strength=19,
         dexterity=16,
         agility=18,
         intelligence=16,
-        constitution=60,
+        constitution=40,
         charm=19,
         difficulty=7,
         base_melee=10,
@@ -2121,20 +2119,20 @@ phoenix = Actor(
     spawnable=True,
     edible=None,
     ai_cls=BaseAI(
-        alignment=(("hostile", "neutral"), (1, 5,)),
+        alignment=(("hostile", "neutral"), (1, 50,)),
         do_melee_atk=True,
         do_ranged_atk=False,
         use_ability=False,
         hostile_type=('@','F','C',),
     ),
     status=Status(
-        hp=176,
+        hp=135,
         mp=632,
         strength=22,
         dexterity=20,
         agility=18,
         intelligence=18,
-        constitution=75,
+        constitution=40,
         charm=23,
         difficulty=12,
         base_melee=33,
@@ -2257,7 +2255,7 @@ ogre = Actor(
         "이들은 지적으로 뛰어나지 못하며, 항상 피를 갈구하는 위험한 생명체이다. "
         "일부 학자들은 오우거들은 사실 선한 심성을 가진 생명체라고 주장하지만, 학계에서는 이 이론은 아직 받아들여지고 있지 않다. "),
     actor_quote=("오우거들이 사실은 착한 놈들이라느니 뭐니 하는 안경잽이 나부랭이들이 있는 모양인데, 내 앞에 보이면 눈알을 뽑아버릴 거야. "
-                 "우리 부대원들이 오우거들에게 찢겨 나가고 있을 때 그 자식들은 뭘 하고 있었지? 방에서 고대 시집이나 분석하고 있었으려나? "),
+                 "우리 부대원들이 오우거들에게 찢겨 나가고 있을 때 그 자식들은 뭘 하고 있었지? 방에서 고대 시집이나 분석하고 있었으려나?"),
     rarity=28,
     weight=1855,
     spawnable=True,
@@ -2312,10 +2310,9 @@ giant = Actor(
     fg=(150, 30, 190),
     name="자이언트",
     entity_id="giant",
-    entity_desc=("자이언트는 오우거, 트롤 등의 야수들보다도 더 큰 몸집을 가졌지만, 이들에 비하면 비교적 이성적인 존재이다. "
-        "거대한 크기 탓에 이들은 흔히 공포의 대상으로 여겨지지만, 대체적으로 이들은 인간을 먼저 공격하지는 않는다. "
-        "또한 이들은 말을 할 수 있는 수준의 지성을 가지고 있으며, 도구를 만들어 사용하는 것이 관찰되기도 했다. "
-        "그러나 한 번 폭주하기 시작하면 이들은 오우거, 트롤과는 비교도 되지 않을 정도의 끔찍한 결과를 초래하기 때문에 각별한 주의가 필요하다. "),
+    entity_desc=("자이언트는 오우거, 트롤 등의 야수들보다도 더 큰 거대한 몸집을 가졌지만, 이들에 비하면 비교적 지능적인 존재이다. "
+        "이들은 말을 할 수 있는 수준의 지성을 가지고 있으며, 간혹 도구를 만들어 사용하는 것이 관찰되기도 했다. "
+        "그러나 한 번 폭주하기 시작하면 이들은 완전히 이성을 잃고 행동하기 때문에 각별한 주의가 필요하다. "),
     actor_quote=("저놈들을 잘 길들여 병사로 만들면 우리 제국은 최강이 될 게야. 젊을 적의 영광을 다시 보는 날이 오면 좋겠구만. "),
     rarity=25,
     weight=4802,
@@ -2329,7 +2326,7 @@ giant = Actor(
         hostile_type=('@',),
     ),
     status=Status(
-        hp=192,
+        hp=190,
         mp=20,
         strength=27,
         dexterity=14,
@@ -2338,8 +2335,8 @@ giant = Actor(
         constitution=13,
         charm=18,
         difficulty=19,
-        base_melee=39,
-        additional_melee=1,
+        base_melee=25,
+        additional_melee=9,
         protection=18,
         hearing=10,
         eyesight=14,

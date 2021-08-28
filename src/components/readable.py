@@ -179,7 +179,7 @@ class ScrollOfTameReadable(SelectTileReadable):
                 tame_bonus = 5
             elif self.parent.item_state.BUC == -1:
                 tame_bonus = -3
-                target.take_damage(amount=0, attacked_from=consumer) # trigger
+                target.status.take_damage(amount=0, attacked_from=consumer) # trigger
             else:
                 tame_bonus = 0
 

@@ -491,7 +491,7 @@ class ActorState(BaseComponent):
             return None
         else:
             if self.is_sleeping[1] >= 0: # Last infinitly if negative
-                self.parent.status.add_bonus(bonus=Bonus(bonus_id="sleep_bonus",bonus_constitution=7), ignore_warning=True)
+                self.parent.status.add_bonus(bonus=Bonus(bonus_id="sleep_bonus",bonus_constitution=30), ignore_warning=True)
                 self.is_sleeping[0] += 1
 
     def actor_freeze(self):
@@ -1229,14 +1229,14 @@ class ActorState(BaseComponent):
                     if self.parent == self.engine.player:
                         self.engine.message_log.add_message(f"당신은 잠에서 깨어났다!", fg=color.player_neutral_important)
                     else:
-                        self.engine.message_log.add_message(f"{g(self.parent.name, '은')} 잠에서 깨어났다!", fg=color.enemy_unique)
+                        self.engine.message_log.add_message(f"{g(self.parent.name, '은')} 잠에서 깨어났다!", fg=color.enemy_unique, target=self.parent)
                 self.is_sleeping = value
         else:
             if value != [0,0]:
                 if self.parent == self.engine.player:
                     self.engine.message_log.add_message(f"당신은 잠에 저항했다!", fg=color.player_success)
                 else:
-                    self.engine.message_log.add_message(f"{g(self.parent.name, '은')} 잠에 저항했다!", fg=color.enemy_unique)
+                    self.engine.message_log.add_message(f"{g(self.parent.name, '은')} 잠에 저항했다!", fg=color.enemy_unique, target=self.parent)
 
     def apply_anger(self, value: List[int,int]) -> None:
         if self.is_angry[1] < 0:

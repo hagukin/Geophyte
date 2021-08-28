@@ -275,7 +275,7 @@ class ThrowItem(ItemAction):
 
         if self.entity.status.experience:
             self.entity.status.experience.gain_dexterity_exp(15)
-            self.entity.status.experience.gain_strength_exp(10, 13)
+            self.entity.status.experience.gain_strength_exp(10, 14)
 
         throw_item = None
         if self.item.stack_count > 1:
@@ -806,8 +806,8 @@ class MeleeAction(ActionWithDirection):
             return None
         else:
             if self.entity.status.experience: # gain exp when attack was successful
-                self.entity.status.experience.gain_dexterity_exp(5)
-                self.entity.status.experience.gain_strength_exp(5, str_limit=12, exp_limit=1000)
+                self.entity.status.experience.gain_dexterity_exp(5, dex_limit=16)
+                self.entity.status.experience.gain_strength_exp(5, str_limit=17, exp_limit=1000)
 
         # Calculate critical chance, multiplier
         critical_hit = False
@@ -815,7 +815,7 @@ class MeleeAction(ActionWithDirection):
         if crit_multiplier > 1:
             critical_hit = True
             if self.entity.status.experience:
-                self.entity.status.experience.gain_dexterity_exp(10)
+                self.entity.status.experience.gain_dexterity_exp(10, dex_limit=20)
 
         damage = self.damage_calculation(crit_multiplier=crit_multiplier)
 
@@ -903,7 +903,7 @@ class MovementAction(ActionWithDirection):
         if self.entity.status.experience:
             self.entity.status.experience.gain_agility_exp(0.2, 18) # 1 exp per 5 tiles
             if self.entity.actor_state.encumbrance > 0:
-                self.entity.status.experience.gain_strength_exp(0.1*self.entity.actor_state.encumbrance, str_limit=18)
+                self.entity.status.experience.gain_strength_exp(0.2*self.entity.actor_state.encumbrance, str_limit=18)
 
 
 class DoorUnlockAction(ActionWithDirection):
@@ -1045,7 +1045,7 @@ class DoorBreakAction(ActionWithDirection):
                 self.engine.message_log.add_message(f"{g(self.entity.name, '은')} 문을 파괴했다!", color.enemy_unique, target=self.entity)
             door.remove_self()
             if self.entity.status.experience:
-                self.entity.status.experience.gain_strength_exp(30, 15, 5000)
+                self.entity.status.experience.gain_strength_exp(30, 17, 1000)
             # TODO: drop the wooden door pieces?
         else: # Bust open the door but not break it
             if self.entity == self.engine.player:
@@ -1059,7 +1059,7 @@ class DoorBreakAction(ActionWithDirection):
             door.remove_self()
 
             if self.entity.status.experience:
-                self.entity.status.experience.gain_strength_exp(30, 15, 5000)
+                self.entity.status.experience.gain_strength_exp(30, 17, 500)
         
         from input_handlers import MainGameEventHandler
         self.engine.event_handler = MainGameEventHandler()

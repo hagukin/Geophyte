@@ -79,7 +79,7 @@ def choose_monster_difficulty(depth: int, toughness: int=0) -> int:
     NOTE: This whole function may need some minor adjustments
     """
     avg_diff = depth + toughness + 1
-    max_diff = avg_diff + 3
+    max_diff = avg_diff + 2 # Technically the max difficulty of a spawned monster is avg_diff + 3, since radius is (-1,1)
 
     # Choose the monster difficulty (Using normal distribution; but there are limits to maximum and minimum values)
     difficulty_chosen = min(max_diff, max(1, round(np.random.normal(avg_diff, 1.5, 1)[0])))
@@ -87,18 +87,32 @@ def choose_monster_difficulty(depth: int, toughness: int=0) -> int:
     return difficulty_chosen
 
 
-def choose_monster_by_difficulty(difficulty: int) -> Optional[Actor]:
-    rarity_list = actor_factories.ActorDB.monster_rarity_for_each_difficulty[difficulty]
+def choose_monster_by_difficulty(difficulty: int, radius: (0,0)) -> Optional[Actor]:
+    """
+    Args:
+        radius:
+            if (0,0), function will return monster that exactly matches the given difficulty.
+            if (-1,3) and difficulty is 4, function will generate a list of monsters that has difficulty between 3,7 and will choose one randomly.
+    """
+    select_radius = (max(difficulty + radius[0], 1) , max(radius[0], radius[1]) + difficulty)
+
+    population_list = []
+    for i in select_radius:
+        population_list.extend(actor_factories.ActorDB.monster_difficulty[difficulty])
+
+    rarity_list = []
+    for i in select_radius:
+        rarity_list.extend(actor_factories.ActorDB.monster_rarity_for_each_difficulty[difficulty])
 
     try:
         monster_to_spawn = random.choices(
-            population=actor_factories.ActorDB.monster_difficulty[difficulty],
+            population=population_list,
             weights=rarity_list,
             k=1
         )[0]
         return monster_to_spawn
     except IndexError as e:
-        print(f"ERROR::Cannot spawn monster of difficulty {difficulty}.")
+        print(f"ERROR::Cannot spawn monster of difficulty {difficulty}, radius {radius}.")
         return None # FIXME
 
 
@@ -115,7 +129,7 @@ def spawn_monsters_by_difficulty(
             Boolean, Is this function called by the gamemap generation function?
             (=is this the first time that the monster is being generated to this dungeon?)
     """
-    monster_to_spawn = choose_monster_by_difficulty(difficulty)
+    monster_to_spawn = choose_monster_by_difficulty(difficulty, radius=(-1,1))
     if monster_to_spawn is None:
         return None
 

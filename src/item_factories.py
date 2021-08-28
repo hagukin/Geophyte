@@ -199,7 +199,7 @@ potion_of_flame = Item(
         identify_when_collided_with_actor=1, # handle in quaffable
     ),
     readable=None,
-    quaffable=quaffable.PotionOfFlameQuaffable(base_dmg=5, add_dmg=2, turn=10, fire_lifetime=10),
+    quaffable=quaffable.PotionOfFlameQuaffable(base_dmg=10, add_dmg=2, turn=6, fire_lifetime=10),
 )
 temp_items_lists.append(potion_of_flame)
 item_rarity.append(potion_of_flame.rarity)
@@ -236,7 +236,7 @@ potion_of_acid = Item(
         identify_when_collided_with_actor=0, # Handle in quaffable
     ),
     readable=None,
-    quaffable=quaffable.PotionOfAcidQuaffable(turn=15),
+    quaffable=quaffable.PotionOfAcidQuaffable(turn=8),
 )
 temp_items_lists.append(potion_of_acid)
 item_rarity.append(potion_of_acid.rarity)
@@ -1351,7 +1351,7 @@ wooden_dagger = Item(
     spawnable=True,
     droppable=True,
     stackable=False,
-    throwable=throwable.NormalThrowable(base_throw=3, additional_throw=2, penetration=True, air_friction=1),
+    throwable=throwable.NormalThrowable(base_throw=8, additional_throw=10, penetration=True, air_friction=1),
     equipable=equipable.Equipable(
         equipable_type=EquipableOrder.BLADE,
         upgrade=0,
@@ -1386,7 +1386,7 @@ iron_dagger = Item(
     spawnable=True,
     droppable=True,
     stackable=False,
-    throwable=throwable.NormalThrowable(base_throw=6, additional_throw=3, penetration=True, air_friction=1),
+    throwable=throwable.NormalThrowable(base_throw=15, additional_throw=15, penetration=True, air_friction=1),
     equipable=equipable.Equipable(
         equipable_type=EquipableOrder.BLADE,
         upgrade=0,
@@ -1421,7 +1421,7 @@ scalpel = Item(
     spawnable=True,
     droppable=True,
     stackable=False,
-    throwable=throwable.NormalThrowable(base_throw=6, additional_throw=1, penetration=True, air_friction=1),
+    throwable=throwable.NormalThrowable(base_throw=6, additional_throw=20, penetration=True, air_friction=1),
     equipable=equipable.Equipable(
         equipable_type=EquipableOrder.BLADE,
         upgrade=0,
@@ -1458,7 +1458,7 @@ shortsword = Item(
     spawnable=True,
     droppable=True,
     stackable=False,
-    throwable=throwable.NormalThrowable(base_throw=1, additional_throw=2, penetration=False, air_friction=15),
+    throwable=throwable.NormalThrowable(base_throw=5, additional_throw=10, penetration=False, air_friction=15),
     equipable=equipable.Equipable(
         equipable_type=EquipableOrder.BLADE,
         upgrade=0,
@@ -1493,7 +1493,7 @@ longsword = Item(
     spawnable=True,
     droppable=True,
     stackable=False,
-    throwable=throwable.NormalThrowable(base_throw=1, additional_throw=2, penetration=False, air_friction=20),
+    throwable=throwable.NormalThrowable(base_throw=3, additional_throw=2, penetration=False, air_friction=20),
     equipable=equipable.Equipable(
         equipable_type=EquipableOrder.BLADE,
         upgrade=0,
@@ -1601,7 +1601,7 @@ tomahawk = Item(
     spawnable=True,
     droppable=True,
     stackable=False,
-    throwable=throwable.NormalThrowable(base_throw=6, additional_throw=8, penetration=False, air_friction=0.2),
+    throwable=throwable.NormalThrowable(base_throw=20, additional_throw=20, penetration=False, air_friction=0.2),
     equipable=equipable.Equipable(
         equipable_type=EquipableOrder.BLADE,
         upgrade=0,
@@ -2198,7 +2198,7 @@ shine = Item(
     weight=0.001,
     price=1,
     item_type=InventoryOrder.CASH,
-    item_state=ItemState(is_identified=1),
+    item_state=ItemState(is_identified=2),
     tradable=False,
     cursable=False,
     blessable=False,
@@ -2224,7 +2224,7 @@ shines = lambda amount: Item(
     weight=0.001,
     price=1,
     item_type=InventoryOrder.CASH,
-    item_state=ItemState(is_identified=1),
+    item_state=ItemState(is_identified=2),
     tradable=False,
     spawnable=False,
     cursable=False,

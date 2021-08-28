@@ -199,7 +199,7 @@ class PotionOfAcidQuaffable(Quaffable):
         self.turn = turn
 
     def apply_effect(self, apply_to: Actor) -> None:
-        initial_dmg = max(1, min(8, random.randint(1, 1+int(apply_to.status.changed_status["max_hp"] / 40))))
+        initial_dmg = max(8, min(13, int(apply_to.status.changed_status["max_hp"] / 10)))
         if self.parent.item_state.BUC == 1:
             initial_dmg = round(initial_dmg * 1.3)
         elif self.parent.item_state.BUC == -1:
@@ -207,7 +207,7 @@ class PotionOfAcidQuaffable(Quaffable):
 
         apply_to.actor_state.apply_melting([
             initial_dmg,
-            int(initial_dmg / self.turn),
+            1,
             0,
             self.turn])
 
@@ -256,8 +256,8 @@ class PotionOfPoisonQuaffable(Quaffable):
         self.turn = turn
 
     def apply_effect(self, apply_to: Actor) -> None:
-        init_dmg = max(5, min(20, int(apply_to.status.changed_status["max_hp"] / 100)))
-        dmg_increase = int(init_dmg/self.turn)
+        init_dmg = max(10, min(20, int(apply_to.status.changed_status["max_hp"] / 5)))
+        dmg_increase = int(init_dmg/self.turn/4)
         if self.parent.item_state.BUC == 1:
             dmg_increase = round(dmg_increase * 1.3)
         apply_to.actor_state.apply_poisoning([

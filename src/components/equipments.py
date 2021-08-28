@@ -227,10 +227,7 @@ class Equipments(BaseComponent):
     def update_dual_wielding(self) -> None:
         """Update the boolean self.is_dual_wielding."""
         if self.equipments["main hand"] != None and self.equipments["off hand"] != None:
-            debuff_dex = max(1, round((self.equipments["main hand"].weight + self.equipments["off hand"].weight) * 0.1 * max(1, 45/self.parent.status.changed_status["dexterity"]*2+self.parent.status.changed_status["strength"])))
-            if self.parent == self.engine.player:
-                self.engine.message_log.add_message(text=f"당신은 {g(self.equipments['main hand'].name, '와')} {g(self.equipments['off hand'].name, '을')} 쌍수로 장비했다.", fg=color.player_buff)
-
+            debuff_dex = max(1, round((self.equipments["main hand"].weight + self.equipments["off hand"].weight) * 0.1 * max(1, 45/(1+self.parent.status.changed_status["dexterity"]*2+self.parent.status.changed_status["strength"]))))
             from order import EquipableOrder
             b1 = self.equipments["main hand"].equipable.equipable_type.value == EquipableOrder.SHIELD.value
             b2 = self.equipments["off hand"].equipable.equipable_type.value == EquipableOrder.SHIELD.value
@@ -278,7 +275,13 @@ class Equipments(BaseComponent):
 
         if not forced:
             if self.parent == self.engine.player:
-                self.engine.message_log.add_message(f"당신은 {g(item.name, '을')} {equip_region_name_to_str(curr_equipped_region)} 부위에 장착했다.", fg=color.player_buff)
+                self.engine.message_log.add_message(
+                    f"당신은 {g(item.name, '을')} {equip_region_name_to_str(curr_equipped_region)} 부위에 장착했다.",
+                    fg=color.player_buff)
+                if (curr_equipped_region == "main hand" or curr_equipped_region == "off hand") and self.equipments["main hand"] != None and self.equipments["off hand"] != None:
+                    self.engine.message_log.add_message(
+                        text=f"당신은 {g(self.equipments['main hand'].name, '와')} {g(self.equipments['off hand'].name, '을')} 쌍수로 장비했다.",
+                        fg=color.player_buff)
             else:
                 self.engine.message_log.add_message(f"{g(self.parent.name, '이')} {g(item.name, '을')} {equip_region_name_to_str(curr_equipped_region)} 부위에 장착했다.", fg=color.enemy_unique, target=self.parent)
         self.update_dual_wielding() # update
