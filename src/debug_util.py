@@ -37,3 +37,15 @@
 # for i in range(10, 80):
 #     print(i)
 #     physical_dmg_calc(100, i, 15)
+
+
+# Check for duplicate player (serialization error)
+# has_player = False
+# for e in engine.game_map.entities:
+#     if e.gamemap is not None and e.gamemap != engine.game_map:
+#         print(f"{e.entity_id} has wrong gamemap.")
+#     if e.entity_id == "player":
+#         if has_player:
+#             print(f"{engine.depth} depth has multiple player.")
+#         else:
+#             has_player = True

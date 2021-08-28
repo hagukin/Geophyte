@@ -78,8 +78,13 @@ def choose_monster_difficulty(depth: int, toughness: int=0) -> int:
     TODO: Make this function affected by the player's status?
     NOTE: This whole function may need some minor adjustments
     """
-    avg_diff = depth + toughness + 1
-    max_diff = avg_diff + 2 # Technically the max difficulty of a spawned monster is avg_diff + 3, since radius is (-1,1)
+    if depth < 0:
+        depth_ = -depth
+    else:
+        depth_ = depth
+
+    avg_diff = depth_ + toughness + 1
+    max_diff = avg_diff + 2 # Technically the max difficulty of a spawned monster is avg_diff + 3, since choose_monster_by_difficulty().radius is (-1,1)
 
     # Choose the monster difficulty (Using normal distribution; but there are limits to maximum and minimum values)
     difficulty_chosen = min(max_diff, max(1, round(np.random.normal(avg_diff, 1.5, 1)[0])))
@@ -130,7 +135,7 @@ def spawn_monsters_by_difficulty(
             (=is this the first time that the monster is being generated to this dungeon?)
     """
     monster_to_spawn = choose_monster_by_difficulty(difficulty, radius=(-1,1))
-    if monster_to_spawn is None:
+    if monster_to_spawn is None or not monster_to_spawn.spawnable:
         return None
 
     # Spawn new monster

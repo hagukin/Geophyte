@@ -199,7 +199,7 @@ class PotionOfAcidQuaffable(Quaffable):
         self.turn = turn
 
     def apply_effect(self, apply_to: Actor) -> None:
-        initial_dmg = max(8, min(13, int(apply_to.status.changed_status["max_hp"] / 10)))
+        initial_dmg = max(13, min(20, int(apply_to.status.changed_status["max_hp"] / 10)))
         if self.parent.item_state.BUC == 1:
             initial_dmg = round(initial_dmg * 1.3)
         elif self.parent.item_state.BUC == -1:

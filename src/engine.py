@@ -111,11 +111,17 @@ class Engine:
 
         return None
 
-    def change_entity_depth(self, entity: Entity, depth: int, xpos: int, ypos: int) -> None:
+    def change_entity_depth(self, entity: Entity, depth: int, xpos: int, ypos: int, debug: bool=False) -> None:
         """This function does not prevent entity from falling onto a wall.
         This means entity can get stuck after falling(going down a level), 
         so you should calculate the appropriate xpos, ypos in advance and pass it to this function.
         """
+        if debug:
+            with open("memory_debug.txt", "a") as f:
+                f.write(f"current depth: {self.depth} current gamemap: {len(self.game_map.entities)} current player pos: {self.player.x, self.player.y} \n")
+                f.write(f"new depth: {depth} new gamemap: {len(self.world.get_map(depth).entities)} new player pos: {xpos, ypos} \n")
+                f.write("_______________________________________________________ \n")
+
         if not self.world.check_if_map_on_mem(depth):
             # neither player nor other entities cannot move outside of memory capacity.
             # TODO: Might have to fix this part to make feature like multiple depth teleportation
@@ -144,7 +150,9 @@ class Engine:
                 print("FATAL ERROR::NON-PLAYER ENTITY TRIED TO MOVE TO A NONGENERATED DEPTH. FUNCTION CANCELLED.")
                 return None # do nothing
 
-        # place physically (also removing entity from its old gamemap, and adding it to new one which is done internally)
+        # place physically and remove entity from its old gamemap.
+        # NOTE: It is CRUCIAL to remove entity BEFORE serializing the gamemap, otherwise it will have duplicate entity.
+        entity.gamemap.remove_entity(entity)
         entity.place(xpos, ypos, self.world.get_map(depth=depth))
 
         # Update fov since player is now placed on new gamemap.

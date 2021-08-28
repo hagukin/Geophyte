@@ -61,17 +61,22 @@ class World():
 
     def save_map_to_memory(self, gamemap, depth: int) -> None:
         """Save map to the memory. Map is yet to be saved as a solid data(serialized form)."""
+        print(f"MEMORY::Saved depth {depth} on memory.")
+
         self.mem_world[depth] = gamemap
         self.saved_maps.add(depth)
         return None
 
     def save_map_to_serialized_data(self, gamemap, depth:int) -> None:
+        print(f"MEMORY::Seriallized and saved depth {depth}.")
         with shelve.open(os.getcwd()+f"\\storage\\data\\game") as gamedata:
             # prevent pickle lib error(cannot serialize c objects)
             gamedata["cache_depth_"+str(depth)] = gamemap
             gamedata.close()
 
     def load_map_from_memory(self, depth: int):
+        print(f"MEMORY::Load depth {depth} from memory.")
+
         return self.mem_world[depth]
 
     def load_map_from_seriallized_data(self, depth: int):
@@ -79,6 +84,8 @@ class World():
         # Check if file exists
         if not os.path.isfile(os.getcwd()+f"\\storage\\data\\game.dat"):
             raise FileNotFoundError
+
+        print(f"MEMORY::Load depth {depth} from serialized data.")
 
         with shelve.open(os.getcwd()+f"\\storage\\data\\game") as gamedata:
             gamemap = gamedata["cache_depth_"+str(depth)]

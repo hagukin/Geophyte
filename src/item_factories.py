@@ -307,7 +307,7 @@ potion_of_poison = Item(
         trigger_if_thrown_at=True,
         identify_when_shattered=0,
         identify_when_collided_with_entity=0,
-        identify_when_collided_with_actor=0,
+        identify_when_collided_with_actor=0, # Handle in quaffable
     ),
     readable=None,
     quaffable=quaffable.PotionOfPoisonQuaffable(turn=16),
@@ -660,7 +660,7 @@ scroll_of_identify = Item(
     throwable=throwable.NormalThrowable(air_friction=20),
     readable=readable.ScrollOfIdentifyReadable(),
     quaffable=None,
-    initial_BUC={1:1,0:10,-1:1} # rarely blessed
+    initial_BUC={1:1,0:15,-1:1} # rarely blessed
 )
 temp_items_lists.append(scroll_of_identify)
 item_rarity.append(scroll_of_identify.rarity)

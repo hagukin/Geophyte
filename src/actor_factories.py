@@ -124,8 +124,11 @@ player = Actor(
     equipments=Equipments(),
     initial_items=(
         {"item": item_factories.scroll_of_tame, "chance":1, "count":(50,50), "BUC": {1:0, 0:0, -1:1}, "upgrade": None}, # NOTE: actor possesion BUC, upgrade has higher priority than item type inital_BUC, initial_upgrade
-        {"item": item_factories.shine, "chance": 1, "count": (20, 20), "BUC": None, "upgrade": None},
+        {"item": item_factories.scroll_of_magic_mapping, "chance": 1, "count": (20, 20), "BUC": None, "upgrade": None},
         {"item": item_factories.scroll_of_identify, "chance": 1, "count": (1, 50), "BUC": None, "upgrade": None},
+{"item": item_factories.potion_of_flame, "chance": 1, "count": (1, 50), "BUC": None, "upgrade": None},
+{"item": item_factories.potion_of_acid, "chance": 1, "count": (1, 50), "BUC": None, "upgrade": None},
+{"item": item_factories.potion_of_poison, "chance": 1, "count": (1, 50), "BUC": None, "upgrade": None},
     ),
     initial_equipments=(
         {"item":item_factories.shortsword, "chance":1, "count":(1,1), "BUC":{-1:1, 0:1, 1:1}, "upgrade": {1:1,2:0,3:0,4:0}},
@@ -2311,15 +2314,15 @@ giant = Actor(
     name="자이언트",
     entity_id="giant",
     entity_desc=("자이언트는 오우거, 트롤 등의 야수들보다도 더 큰 거대한 몸집을 가졌지만, 이들에 비하면 비교적 지능적인 존재이다. "
-        "이들은 말을 할 수 있는 수준의 지성을 가지고 있으며, 간혹 도구를 만들어 사용하는 것이 관찰되기도 했다. "
-        "그러나 한 번 폭주하기 시작하면 이들은 완전히 이성을 잃고 행동하기 때문에 각별한 주의가 필요하다. "),
+        "이들은 말을 할 수 있는 수준의 지성을 가지고 있으며, 간혹 무기를 만들어 사용하는 것이 관찰되기도 했다. "
+        "자이언트는 믿을 수 없이 강한 힘을 가지고 있지만 거대한 몸집 때문에 비교적 둔한 움직임을 보여준다."),
     actor_quote=("저놈들을 잘 길들여 병사로 만들면 우리 제국은 최강이 될 게야. 젊을 적의 영광을 다시 보는 날이 오면 좋겠구만. "),
     rarity=25,
     weight=4802,
     spawnable=True,
     edible=edible.RawMeatEdible(nutrition=420),
     ai_cls=BaseAI(
-        alignment=(("hostile","neutral"), (1,10)),
+        alignment=(("hostile","neutral"), (3,1)),
         do_melee_atk=True,
         do_ranged_atk=False,
         use_ability=False,
@@ -2334,7 +2337,7 @@ giant = Actor(
         intelligence=15,
         constitution=13,
         charm=18,
-        difficulty=19,
+        difficulty=12,
         base_melee=25,
         additional_melee=9,
         protection=18,
