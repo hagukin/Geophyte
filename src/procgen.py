@@ -33,7 +33,7 @@ def choose_biome(
 ) -> Biome:
     if biome_dicts == None:
         biome = random.choices(
-            population=list(biome_factories.biome_dict.keys()),
+            population=list(biome_factories.biome_dict.values()),
             weights=biome_factories.biome_rarity,
             k=1
             )[0]

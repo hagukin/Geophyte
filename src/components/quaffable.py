@@ -152,7 +152,6 @@ class PotionOfSleepQuaffable(Quaffable):
         turn = self.turn
         if self.parent.item_state.BUC == 1:
             turn *= 2
-        apply_to.actor_state.apply_sleeping([0,turn], forced=False)
 
         # Log
         if temp == [0, 0]:
@@ -166,6 +165,8 @@ class PotionOfSleepQuaffable(Quaffable):
         else:
             if apply_to == self.engine.player:
                 self.engine.message_log.add_message(f"당신은 보다 깊은 잠에 빠져든다.", color.player_bad, )
+
+        apply_to.actor_state.apply_sleeping([0,turn], forced=False)
 
 
 class PotionOfMonsterDetectionQuaffable(Quaffable):

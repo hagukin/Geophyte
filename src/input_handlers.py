@@ -1094,7 +1094,7 @@ class SleepTurnSelectHandler(AskUserEventHandler):
     def __init__(self):
         super().__init__()
         self.TITLE = f"몇 턴 간 주무시겠습니까?"
-        self.sleep_turn = 1
+        self.sleep_turn = 10
 
     def on_render(self, console: tcod.Console) -> None:
         super().on_render(console)
@@ -1136,10 +1136,10 @@ class SleepTurnSelectHandler(AskUserEventHandler):
                 else:
                     self.engine.message_log.add_message(f"최대 99턴까지 선택할 수 있습니다.", color.invalid, show_once=True)
             elif key == tcod.event.K_MINUS or key == tcod.event.K_KP_MINUS:
-                if self.sleep_turn > 10:
+                if self.sleep_turn >= 20:
                     self.sleep_turn -= 10
                 else:
-                    self.engine.message_log.add_message("1턴 이상을 선택하셔야 합니다.", color.invalid, show_once=True)
+                    self.engine.message_log.add_message("10턴 이상을 선택하셔야 합니다.", color.invalid, show_once=True)
         else:
             if key == tcod.event.K_PLUS or key == tcod.event.K_KP_PLUS or key == tcod.event.K_EQUALS:
                 if self.sleep_turn < 99:
@@ -1147,10 +1147,10 @@ class SleepTurnSelectHandler(AskUserEventHandler):
                 else:
                     self.engine.message_log.add_message(f"최대 99턴까지 선택할 수 있습니다.", color.invalid, show_once=True)
             elif key == tcod.event.K_MINUS or key == tcod.event.K_KP_MINUS:
-                if self.sleep_turn > 1:
+                if self.sleep_turn > 10:
                     self.sleep_turn -= 1
                 else:
-                    self.engine.message_log.add_message("1턴 이상을 선택하셔야 합니다.", color.invalid, show_once=True)
+                    self.engine.message_log.add_message("10턴 이상을 선택하셔야 합니다.", color.invalid, show_once=True)
             elif key == tcod.event.K_ESCAPE:
                 self.engine.event_handler = MainGameEventHandler()
                 return None

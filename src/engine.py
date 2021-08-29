@@ -111,6 +111,15 @@ class Engine:
 
         return None
 
+    def check_entity_in_sight_of_actor(self, actor: Actor, entity: Entity) -> bool:
+        if actor == self.player:
+            return (self.game_map.visible[entity.x, entity.y])
+        else:
+            if actor.ai:
+                return (actor.ai.vision[entity.x, entity.y])
+        print("ERROR::Actor has no ai - engine.check_entity_in_sight_of_actor")
+        return False
+
     def change_entity_depth(self, entity: Entity, depth: int, xpos: int, ypos: int, debug: bool=False) -> None:
         """This function does not prevent entity from falling onto a wall.
         This means entity can get stuck after falling(going down a level), 

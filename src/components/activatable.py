@@ -3,7 +3,7 @@ from os import dup
 from animation import Animation
 from typing import Optional, TYPE_CHECKING, Tuple
 from components.base_component import BaseComponent
-from input_handlers import RayDirInputHandler, RayRangedInputHandler
+from input_handlers import RayDirInputHandler, RayRangedInputHandler, SingleRangedAttackHandler
 from korean import grammar as g
 from entity import Actor, Entity
 
@@ -373,8 +373,14 @@ class EffectToAllEntityInGamemapSpellActivatable(SpellActivateable):
     Will effect every actors on caster's gamemap.
     """
     def get_action(self, caster: Actor, x: int=None, y: int=None, target: Actor=None):
-        #TODO
-        raise NotImplementedError()
+        if caster == self.engine.player:
+            self.engine.message_log.add_message("타겟을 선택하세요.", color.help_msg)
+            self.engine.event_handler = SingleRangedAttackHandler(
+                callback=lambda xy: actions.AbilityAction(entity=caster, ability=self.parent, x=xy[0], y=xy[1], target=self.gamemap.get_actor_at_location(x=xy[0], y=xy[1])),
+            )
+            return None
+        else:
+            return super().get_action(caster, x, y, target)
 
     def check_if_target(self, entity: Entity, action: actions.AbilityAction) -> bool:
         # Override to specify conditions.

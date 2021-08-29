@@ -97,7 +97,7 @@ player = Actor(
     ai_cls=None,
     status=Status(
         hp=300, #300
-        mp=50, #50
+        mp=100, #50
         strength=15,
         dexterity=15,
         agility=15,
@@ -116,7 +116,7 @@ player = Actor(
         heal_wounds=True,
         size=4,
         can_talk=True,
-        # has_telepathy=True, #DEBUG
+        has_telepathy=True, #DEBUG
         # has_right_arm=True,  #DEBUG
     ),
     inventory=Inventory(capacity=52, is_fireproof=False, is_acidproof=False, is_waterproof=False),
@@ -124,11 +124,11 @@ player = Actor(
     equipments=Equipments(),
     initial_items=None,
     # (
-    #     {"item": item_factories.scroll_of_tame, "chance":1, "count":(50,50), "BUC": {1:0, 0:0, -1:1}, "upgrade": None}, # NOTE: actor possesion BUC, upgrade has higher priority than item type inital_BUC, initial_upgrade
-    #     {"item": item_factories.scroll_of_magic_mapping, "chance": 1, "count": (20, 20), "BUC": None, "upgrade": None},
-    #     {"item": item_factories.scroll_of_teleportation, "chance": 1, "count": (1, 50), "BUC": {1:1, 0:0, -1:0}, "upgrade": None},
-    #     {"item": item_factories.potion_of_monster_detection, "chance": 1, "count": (100, 101), "BUC": None, "upgrade": None},
-    #     {"item": item_factories.shine, "chance": 1, "count": (100, 101), "BUC": None, "upgrade": None},
+    #     {"item": item_factories.potion_of_acid, "chance":1, "count":(50,50), "BUC": {1:0, 0:1, -1:0}, "upgrade": None}, # NOTE: actor possesion BUC, upgrade has higher priority than item type inital_BUC, initial_upgrade
+    #     {"item": item_factories.potion_of_acid, "chance": 1, "count": (20, 20), "BUC": {1:1, 0:0, -1:0}, "upgrade": None},
+    #     {"item": item_factories.potion_of_acid, "chance": 1, "count": (1, 50), "BUC": {1:0, 0:0, -1:1}, "upgrade": None},
+    #     {"item": item_factories.scroll_of_magic_mapping, "chance": 1, "count": (100, 101), "BUC": {1:0, 0:0, -1:1}, "upgrade": None},
+    #     {"item": item_factories.scroll_of_remove_curse, "chance": 1, "count": (100, 101), "BUC": {1:0, 0:0, -1:1}, "upgrade": None},
     #     {"item": item_factories.shine, "chance": 1, "count": (50, 80), "BUC": None, "upgrade": None},
     # ),
     initial_equipments=None,
@@ -219,7 +219,7 @@ ActorDB.monster_difficulty[shopkeeper.status.difficulty].append(shopkeeper)
 ### ant
 ant = Actor(
     char="a",
-    fg=(26, 33, 0),
+    fg=(51, 13, 0),
     name="개미",
     entity_id="ant",
     entity_desc=("던전에서 뿜어나오는 어두운 기운은 동물은 물론 곤충들까지 거대하고 흉측한 괴수로 변이시켰다. "

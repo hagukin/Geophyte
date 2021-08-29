@@ -507,7 +507,7 @@ scroll_of_lightning = Item(
     droppable=True,
     stackable=True,
     throwable=throwable.NormalThrowable(air_friction=20),
-    readable=readable.ScrollOfThunderStormReadable(damage_range=(38,45), maximum_range=20),
+    readable=readable.ScrollOfLightningReadable(damage_range=(38, 45), maximum_range=20),
     quaffable=None,
 )
 temp_items_lists.append(scroll_of_lightning)

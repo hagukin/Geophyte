@@ -366,11 +366,11 @@ class ScrollOfMagicMappingReadable(Readable):
     def get_action(self, consumer):
         if consumer == self.engine.player:
             if self.parent.item_state.BUC == 1:
-                self.engine.message_log.add_message(f"당신의 머리 속에 이 층의 모든 비밀들이 전해졌다.", color.player_neutral_important,)
+                self.engine.message_log.add_message(f"당신의 머리 속에 이 층의 모든 비밀들이 전해졌다.", color.player_sense,)
             elif self.parent.item_state.BUC == -1:
-                self.engine.message_log.add_message(f"기괴한 기하학적 문양들이 당신의 머릿속을 가득 채운다!", color.player_bad, )
+                self.engine.message_log.add_message(f"주문서에서 사악한 기운이 뿜어져 나와 당신의 머릿속을 기괴한 문양들로 가득 채운다!", color.player_sense, )
             else:
-                self.engine.message_log.add_message( f"당신의 머리 속이 기하학적 정보들로 가득 차기 시작했다.", color.player_neutral_important,)
+                self.engine.message_log.add_message( f"당신의 머리 속이 기하학적 정보들로 가득 차기 시작했다.", color.player_sense,)
 
             for y in range(len(self.engine.game_map.visible[0])):
                 for x in range(len(self.engine.game_map.visible)):
@@ -379,6 +379,9 @@ class ScrollOfMagicMappingReadable(Readable):
                 for x in range(len(self.engine.game_map.explored)):
                     self.engine.game_map.explored[x, y] = True
 
+            self.engine.camera.visuals.clear()
+            self.engine.camera.prev_visuals.clear()
+            self.engine.refresh_screen()
             from input_handlers import MagicMappingLookHandler
             self.engine.event_handler = MagicMappingLookHandler(
                 callback=lambda trash_value: actions.ReadItem(consumer, self.parent),
@@ -388,8 +391,12 @@ class ScrollOfMagicMappingReadable(Readable):
 
         if self.parent.item_state.BUC == -1:
             if consumer == self.engine.player:
-                self.engine.message_log.add_message(f"머리가 지끈거린다!", color.player_bad, )
-            consumer.actor_state.apply_confusion([0, 15])
+                self.engine.message_log.add_message(f"무언가를 머릿속에서 잊어버린 듯한 기분이 든다.", color.player_bad, )
+                for y in range(len(self.engine.game_map.explored[0])):
+                    for x in range(len(self.engine.game_map.explored)):
+                        self.engine.game_map.explored[x, y] = False
+            else:
+                print("WARNING::AI read cursed magic mapping. ignoring amnesia effect.")
         return None
 
 
@@ -475,16 +482,10 @@ class AutoTargetingHarmfulReadable(Readable):
 
         if self.parent.item_state.BUC == 1:
             targets = []
-
-            if consumer == self.engine.player:
-                for actor in self.engine.game_map.actors:
-                    if actor != self.engine.player and self.parent.gamemap.visible[actor.x, actor.y]:
+            for actor in self.engine.game_map.actors:
+                if actor is not consumer:
+                    if self.engine.check_entity_in_sight_of_actor(actor, consumer):
                         targets.append(actor)
-            else:
-                if consumer.ai:
-                    for actor in self.engine.game_map.actors:
-                        if actor != consumer and consumer.ai.vision[actor.x, actor.y]:
-                            targets.append(actor)
 
             if not targets: # List empty
                 targets.append(consumer)
@@ -495,11 +496,12 @@ class AutoTargetingHarmfulReadable(Readable):
             self.effects_on_target_actor(consumer=consumer, target=consumer)
         else:
             for actor in self.engine.game_map.actors:
-                if actor is not consumer and consumer.gamemap.visible[actor.x, actor.y]:
-                    distance = consumer.distance(actor.x, actor.y)
-                    if distance <= closest_distance:
-                        target = actor
-                        closest_distance = distance
+                if actor is not consumer:
+                    if self.engine.check_entity_in_sight_of_actor(actor, consumer):
+                        distance = consumer.distance(actor.x, actor.y)
+                        if distance <= closest_distance:
+                            target = actor
+                            closest_distance = distance
             if target:
                 # apply effect
                 self.effects_on_target_actor(consumer=consumer, target=target)
@@ -692,7 +694,7 @@ class ScrollOfFreezingRayReadable(RayReadable):
         self.engine.game_map.tiles[x, y] = TileUtil.freeze(self.engine.game_map.tiles[x, y])
 
 
-class ScrollOfThunderStormReadable(AutoTargetingHarmfulReadable):
+class ScrollOfLightningReadable(AutoTargetingHarmfulReadable):
     def __init__(self, maximum_range: int, damage_range: Tuple[int,int]):
         super().__init__(maximum_range)
         self.damage_range = damage_range
