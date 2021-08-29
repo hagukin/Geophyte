@@ -1945,6 +1945,13 @@ class GameHelpEventHandler(AskUserEventHandler):
             "전격 피해는 인접한 액터들을 따라 퍼져 나갈 수 있습니다.",
             "당신이 하는 대부분의 행동들은 당신의 능력치에 많은 영향을 받습니다.",
             "공중에 떠 있는 상태에서는 일부 함정이나 지형의 영향을 받지 않습니다.",
+            "지나치게 어려운 마법서를 읽게 된다면 혼란 상태에 빠질 수도 있습니다. 지식을 길러 도전하세요!",
+            "몬스터들은 지능에 따라 다르게 행동합니다. 상대를 잘 파악하세요.",
+            "TAB키를 눌러 몬스터 도감을 볼 수 있습니다.",
+            "포션은 마실 수도, 던질 수도 있습니다.",
+            "물 속에 잠기게 되면 보유한 아이템이 부식될 수 있습니다. 물에 들어가는 것을 피하거나, 인벤토리를 방수 처리하세요!",
+            "몬스터들간의 전투를 유리한 방향으로 활용하세요!",
+            "아이템 뭉치를 (s)키를 사용해 나눌 수 있습니다. 아이템의 분배가 필요할 때 사용하세요.",
         ]
         self.curr_tip_index = random.randint(0,len(self.tips)-1)
 
@@ -2055,22 +2062,22 @@ class MainGameEventHandler(EventHandler):
                 self.engine.easteregg += 1
                 if self.engine.easteregg == 50:
                     self.engine.message_log.add_message(f"당신은 슬픈 기분이 든다.", color.white)
-
-                ######### TODO FIXME DEBUG
-                self.engine.change_entity_depth(
-                    self.engine.player,
-                    self.engine.depth + 1,
-                    self.engine.world.get_map(self.engine.depth + 1).ascend_loc[0],
-                    self.engine.world.get_map(self.engine.depth + 1).ascend_loc[1]
-                )
-            elif key == tcod.event.K_F10:
-                ######### TODO FIXME DEBUG
-                self.engine.change_entity_depth(
-                    self.engine.player,
-                    self.engine.depth - 1,
-                    self.engine.world.get_map(self.engine.depth - 1).descend_loc[0],
-                    self.engine.world.get_map(self.engine.depth - 1).descend_loc[1]
-                )
+            #
+            #     ######### TODO FIXME DEBUG
+            #     self.engine.change_entity_depth(
+            #         self.engine.player,
+            #         self.engine.depth + 1,
+            #         self.engine.world.get_map(self.engine.depth + 1).ascend_loc[0],
+            #         self.engine.world.get_map(self.engine.depth + 1).ascend_loc[1]
+            #     )
+            # elif key == tcod.event.K_F10:
+            #     ######### TODO FIXME DEBUG
+            #     self.engine.change_entity_depth(
+            #         self.engine.player,
+            #         self.engine.depth - 1,
+            #         self.engine.world.get_map(self.engine.depth - 1).descend_loc[0],
+            #         self.engine.world.get_map(self.engine.depth - 1).descend_loc[1]
+            #     )
 
         # No valid key was pressed
         return action

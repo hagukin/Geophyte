@@ -161,7 +161,7 @@ class SpellActivateable(Activatable):
         NOTE: cast() method will not check if the caster has sufficient mana.
         Checking a mana is done by activate() method.
         """
-        raise NotImplementedError
+        raise NotImplementedError()
 
     def activate(self, action: actions.AbilityAction):
         """
@@ -172,6 +172,7 @@ class SpellActivateable(Activatable):
         """
         if action.entity.status.changed_status["mp"] >= self.mana_cost:
             self.cast(action=action)
+            self.spend_mana(caster=action.entity, amount=self.mana_cost)
         else:
             if action.entity == self.engine.player:
                 self.engine.message_log.add_message(f"당신은 마나 부족으로 인해 마법 사용에 실패했다.", fg=color.player_not_good)
@@ -208,21 +209,20 @@ class LightningStrikeActivatable(SpellActivateable):
             target.actor_state.apply_electrocution([self.damage, 0.5])
             target.actor_state.actor_electrocuted(source_actor=caster)
 
-        self.spend_mana(caster=caster, amount=30)
-
 
 class RaySpellActivatable(SpellActivateable):
     """
-    Steal a random item from the target actor.
+    Handles all sort of ray typed spells. (including projectile types)
 
     NOTE: Based off of RayReadable.
     """
-    def __init__(self, mana_cost: int, difficulty: int, anim_graphic, damage_range: Tuple[int, int] = (0, 0), penetration: bool = False, max_range: int = 1000):
+    def __init__(self, mana_cost: int, difficulty: int, anim_graphic, damage_range: Tuple[int, int] = (0, 0), penetration: bool = False, max_range: int = 1000, stack_anim_frame: bool = True):
         super().__init__(mana_cost, difficulty)
         self._anim_graphic = anim_graphic
         self.damage_range = damage_range
         self.penetration = penetration
         self.max_range = max_range
+        self.stack_anim_frame = stack_anim_frame
 
     @property
     def anim_graphic(self):
@@ -289,7 +289,7 @@ class RaySpellActivatable(SpellActivateable):
                 # collided with the reader
                 if collided == caster:
                     self.effects_on_collided_actor(caster=caster, target=caster)
-                    return 0
+                    return None
 
                 # if not add all entities collided to a list
                 targets.append(collided)
@@ -316,7 +316,7 @@ class RaySpellActivatable(SpellActivateable):
             self.effects_on_path(x=loc[0], y=loc[1])
 
         # instantiate animation and render it
-        ray_animation = Animation(engine=self.engine, frames=frames,stack_frames=True)  # sec_per_frames = default
+        ray_animation = Animation(engine=self.engine, frames=frames,stack_frames=self.stack_anim_frame)  # sec_per_frames = default
         ray_animation.render()
 
         # effects on the entities
@@ -340,3 +340,89 @@ class SpectralBeamActivatable(RaySpellActivatable):
             self.engine.message_log.add_message(f"형형색색의 광선이 {g(target.name, '을')} 강타해 {real_damage} 데미지를 입혔다.",
                                                 target=target, fg=color.enemy_unique)
         target.status.take_damage(amount=real_damage, attacked_from=caster)
+
+
+class SoulBoltActivatable(RaySpellActivatable):
+    """
+    Fires a magical bolt that deals damage if the target has soul.
+    """
+    def effects_on_collided_actor(self, caster: Actor, target: Actor):
+        """effects applied to the actor that the ray collided with."""
+        real_damage = target.status.calculate_dmg_reduction(damage=self.damage, damage_type="magic")
+        real_damage = round(real_damage)
+
+        if target.actor_state.has_soul:
+            # Log
+            if target == self.engine.player:
+                self.engine.message_log.add_message(f"청록색 마탄이 당신의 영혼에 충돌해 {real_damage} 데미지를 입혔다.", fg=color.player_bad)
+            else:
+                self.engine.message_log.add_message(f"청록색 마탄이 {target.name}의 영혼에 충돌해 {real_damage} 데미지를 입혔다.",
+                                                    target=target, fg=color.enemy_unique)
+            target.status.take_damage(amount=real_damage, attacked_from=caster)
+        else:
+            # Log
+            if target == self.engine.player:
+                self.engine.message_log.add_message(f"청록색 마탄은 당신에게 아무런 피해도 주지 못한 채 당신을 통과해 지나갔다. ", fg=color.player_neutral_important)
+            else:
+                self.engine.message_log.add_message(f"청록색 마탄은 아무런 피해도 주지 못한 채 {g(target.name, '을')} 통과해 지나갔다. ",fg=color.enemy_unique)
+            # No trigger
+
+
+class EffectToAllEntityInGamemapSpellActivatable(SpellActivateable):
+    """
+    Will effect every actors on caster's gamemap.
+    """
+    def get_action(self, caster: Actor, x: int=None, y: int=None, target: Actor=None):
+        #TODO
+        raise NotImplementedError()
+
+    def check_if_target(self, entity: Entity, action: actions.AbilityAction) -> bool:
+        # Override to specify conditions.
+        return False
+
+    def effect_to_target(self, entity: Entity, action: actions.AbilityAction) -> None:
+        raise NotImplementedError()
+
+    def cast(self, action: actions.AbilityAction) -> None:
+        """
+        NOTE: cast() method will not check if the caster has sufficient mana.
+        Checking a mana is done by activate() method.
+        """
+        for e in action.entity.gamemap.entities:
+            if self.check_if_target(e, action):
+                self.effect_to_target(e, action)
+
+
+class CallOfTheOrcLordActivatable(EffectToAllEntityInGamemapSpellActivatable):
+    """Will make all orcs (except for orc lords) in the gamemap hostile to given target actor."""
+    def check_if_target(self, entity: Entity, action: actions.AbilityAction) -> bool:
+        # Override to specify conditions.
+        if isinstance(entity, Actor):
+            if entity.char == 'O':
+                if entity.entity_id != "orc_lord":
+                    return True
+        return False
+
+    def effect_to_target(self, entity: Entity, action: actions.AbilityAction) -> None:
+        if action.target == None:
+            print("ERROR::Has no action.target - CallOfOrcLordActivatable")
+            return None
+
+        if isinstance(entity, Actor):
+            if entity.ai:
+                entity.ai.target = action.target
+                entity.ai.path = entity.ai.get_path_to(action.target.x, action.target.y)
+                if action.target == self.engine.player:
+                    self.engine.message_log.add_message(f"{g(entity.name, '이')} 당신을 향해 적대감을 드러낸다!", fg=color.player_bad, target=entity, stack=False)
+                else:
+                    self.engine.message_log.add_message(f"{g(entity.name, '이')} {g(action.target.name, '을')} 향해 적대감을 드러낸다!", fg=color.enemy_unique, target=entity, stack=False)
+
+    def cast(self, action: actions.AbilityAction) -> None:
+        if self.engine.game_map.visible[action.entity.x, action.entity.y]:
+            if action.entity == self.engine.player:
+                self.engine.message_log.add_message(f"당신은 던전 전체에 울리는 쩌렁쩌렁한 포효를 내질렀다!",fg=color.player_buff, target=action.entity, stack=False)
+            else:
+                self.engine.message_log.add_message(f"{g(action.entity.name, '이')} 던전 전체에 울리는 쩌렁쩌렁한 포효를 내지른다!", fg=color.enemy_unique,target=action.entity, stack=False)
+        else:
+            self.engine.message_log.add_message(f"던전 전체에 오크의 포효소리가 울린다!", fg=color.world)
+        return super().cast(action)

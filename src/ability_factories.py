@@ -28,8 +28,27 @@ spectral_beam = Ability(
     ability_id="sp_spectral_beam",
     ability_desc="형형색색의 빛으로 이루어진 강력한 마법 광선을 발사합니다.",
     ability_type=AbilityOrder.REGULAR_SKILL,
-    activatable=activatable.SpectralBeamActivatable(mana_cost=30, difficulty=0, penetration=False, damage_range=(25,60), anim_graphic=anim_graphics.spectral_beam)
+    activatable=activatable.SpectralBeamActivatable(mana_cost=50, difficulty=0, penetration=False, damage_range=(25,60), anim_graphic=anim_graphics.spectral_beam, stack_anim_frame=True)
 )
+
+### Soul bolt
+soul_bolt = Ability(
+    name="소울 볼트",
+    ability_id="sp_soul_bolt",
+    ability_desc="상대의 영혼을 공격할 수 있는 마법 탄환을 발사합니다.",
+    ability_type=AbilityOrder.REGULAR_SKILL,
+    activatable=activatable.SoulBoltActivatable(mana_cost=30, difficulty=0, penetration=True, damage_range=(10,20), anim_graphic=anim_graphics.soul_bolt, stack_anim_frame=False)
+)
+
+### Call of the Orc Lord
+call_of_the_orc_lord = Ability(
+    name="오크 족장의 부름",
+    ability_id="sp_call_of_the_orc_lord",
+    ability_desc="던전 전체에 울리는 강력한 포효를 내질러 오크 종족들에게 공격 명령을 내립니다.",
+    ability_type=AbilityOrder.REGULAR_SKILL,
+    activatable=activatable.CallOfTheOrcLordActivatable(mana_cost=100, difficulty=0)
+)
+
 
 ####################
 ###### SKILLS ######

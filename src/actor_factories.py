@@ -97,7 +97,7 @@ player = Actor(
     ai_cls=None,
     status=Status(
         hp=300, #300
-        mp=50,
+        mp=50, #50
         strength=15,
         dexterity=15,
         agility=15,
@@ -105,7 +105,7 @@ player = Actor(
         constitution=15,
         charm=15,
         difficulty=0,
-        base_melee=10,
+        base_melee=10, #10
         additional_melee=10,
         protection=10,
         eyesight=20,
@@ -122,23 +122,27 @@ player = Actor(
     inventory=Inventory(capacity=52, is_fireproof=False, is_acidproof=False, is_waterproof=False),
     ability_inventory=AbilityInventory(capacity=26),
     equipments=Equipments(),
-    initial_items=(
-        {"item": item_factories.scroll_of_tame, "chance":1, "count":(50,50), "BUC": {1:0, 0:0, -1:1}, "upgrade": None}, # NOTE: actor possesion BUC, upgrade has higher priority than item type inital_BUC, initial_upgrade
-        {"item": item_factories.scroll_of_magic_mapping, "chance": 1, "count": (20, 20), "BUC": None, "upgrade": None},
-        {"item": item_factories.scroll_of_teleportation, "chance": 1, "count": (1, 50), "BUC": {1:1, 0:0, -1:0}, "upgrade": None},
-{"item": item_factories.shine, "chance": 1, "count": (100, 101), "BUC": None, "upgrade": None},
-{"item": item_factories.shine, "chance": 1, "count": (100, 101), "BUC": None, "upgrade": None},
-{"item": item_factories.shine, "chance": 1, "count": (50, 80), "BUC": None, "upgrade": None},
-    ),
-    initial_equipments=(
-        {"item":item_factories.shortsword, "chance":1, "count":(1,1), "BUC":{-1:1, 0:1, 1:1}, "upgrade": {1:1,2:0,3:0,4:0}},
-        {"item":item_factories.amulet_of_brilliance, "chance":1, "count":(1,1), "BUC":{-1:10, 0:1, 1:0}, "upgrade": {1:1,2:0,3:0,-4:10}},
-        {"item":item_factories.iron_plate_armor, "chance":1, "count":(1,1), "BUC":{-1:1, 0:1, 1:1}, "upgrade": {1:1,2:0,3:0,4:0}},
-        {"item":item_factories.iron_boots, "chance":1, "count":(1,1), "BUC":{-1:1, 0:1, 1:1}, "upgrade": {1:1,2:0,3:0,4:0}},
-    ),
+    initial_items=None,
+    # (
+    #     {"item": item_factories.scroll_of_tame, "chance":1, "count":(50,50), "BUC": {1:0, 0:0, -1:1}, "upgrade": None}, # NOTE: actor possesion BUC, upgrade has higher priority than item type inital_BUC, initial_upgrade
+    #     {"item": item_factories.scroll_of_magic_mapping, "chance": 1, "count": (20, 20), "BUC": None, "upgrade": None},
+    #     {"item": item_factories.scroll_of_teleportation, "chance": 1, "count": (1, 50), "BUC": {1:1, 0:0, -1:0}, "upgrade": None},
+    #     {"item": item_factories.potion_of_monster_detection, "chance": 1, "count": (100, 101), "BUC": None, "upgrade": None},
+    #     {"item": item_factories.shine, "chance": 1, "count": (100, 101), "BUC": None, "upgrade": None},
+    #     {"item": item_factories.shine, "chance": 1, "count": (50, 80), "BUC": None, "upgrade": None},
+    # ),
+    initial_equipments=None,
+    # (
+    #     {"item":item_factories.shortsword, "chance":1, "count":(1,1), "BUC":{-1:1, 0:1, 1:1}, "upgrade": {1:1,2:0,3:0,4:0}},
+    #     {"item":item_factories.amulet_of_brilliance, "chance":1, "count":(1,1), "BUC":{-1:10, 0:1, 1:0}, "upgrade": {1:1,2:0,3:0,-4:10}},
+    #     {"item":item_factories.iron_plate_armor, "chance":1, "count":(1,1), "BUC":{-1:1, 0:1, 1:1}, "upgrade": {1:1,2:0,3:0,4:0}},
+    #     {"item":item_factories.iron_boots, "chance":1, "count":(1,1), "BUC":{-1:1, 0:1, 1:1}, "upgrade": {1:1,2:0,3:0,4:0}},
+    # ),
     initial_abilities=None,
     # (
     #     (ability_factories.spectral_beam, 1),
+    #     (ability_factories.soul_bolt, 1),
+    #     (ability_factories.call_of_the_orc_lord, 1),
     # )
 )
 
@@ -222,7 +226,7 @@ ant = Actor(
     "그렇지만 개중에는 어두운 기운의 영향을 덜 받은 개체들도 있기 마련이다. "
     "비교적 던전의 기운을 덜 받은 이 개미들은 기껏해야 사람 손가락 남짓한 크기로, 대체로 별 위협이 되지 않는다. "),
     actor_quote=("우리 엄마는 저보고 항상 개미같이 열심히 일하는 사람이 되라고 말했어요. "),
-    rarity=50,
+    rarity=30,
     weight = 0.07,
     spawnable=True,
     edible=edible.InsectEdible(nutrition=10),
@@ -340,7 +344,7 @@ volt_ant = Actor(
     entity_desc=("스파크 개미들은 몸에 두른 전류를 통해 적으로부터 자신을 보호한다. "
     "스파크 개미는 시큼텁텁한 맛이 나는 것으로 알려져 있으며, 일부 모험가들 사이에서는 별미로 꼽힌다. "),
     actor_quote=("이놈들을 잔뜩 잡아서 안주로 팔면 대박이 날 거야. "),
-    rarity=35,
+    rarity=30,
     weight=0.1,
     spawnable=True,
     edible=edible.VoltAntEdible(nutrition=40),
@@ -404,7 +408,7 @@ bat = Actor(
     "특유의 혐오감을 주는 외형 때문에 이들은 오랜 시간 인간들에게 박해받아왔지만, "
     "대부분의 박쥐는 무해하며, 오히려 인간에게 먼저 공격을 거는 경우는 드물다고 한다. "),
     actor_quote=("동굴에 사는 쬐끄만 박쥐들은 오래 보면 귀엽기라도 하단 말이야. 근데 던전에 사는 놈들은 몇 번을 봐도 적응이 안된단 말이지. "),
-    rarity=32,
+    rarity=30,
     weight=3,
     spawnable=True,
     edible=edible.RawMeatEdible(nutrition=70, cook_bonus=10),
@@ -525,7 +529,7 @@ cat = Actor(
     "이들은 잡식성이고 시력이 좋기 때문에 많은 모험가들에게 애완동물로 사랑받는다. "
     "고양이들이 사람의 꿈을 조종하는 영적인 능력을 지녔다고 주장하는 학자들도 있지만, 명확히 밝혀진 것은 없다. "),
     actor_quote=("그 녀석하고 눈이 마주친 날이면 난 항상 악몽을 꿔. 그런데도 왜일까, 녀석만 보면 자꾸 먹이를 주게 돼. "),
-    rarity=38,
+    rarity=40,
     weight=6.5,
     spawnable=True,
     edible=edible.RawMeatEdible(nutrition=120, cook_bonus=50),
@@ -581,7 +585,7 @@ large_cat = Actor(
     entity_desc=("던전의 기운을 받은 고양이들은 지상의 맹수에 가까운 크기로 자라기도 한다. " 
         "이들은 결코 맹수는 아니지만, 무방비한 모험가에게는 충분한 위협이 될 수 있다. "),
     actor_quote=("내 흉터가 고양이 때문에 생겼다는 건 죽어도 비밀이다, 알겠지? "),
-    rarity=25,
+    rarity=35,
     weight=18.5,
     spawnable=True,
     edible=edible.RawMeatEdible(nutrition=150, cook_bonus=60),
@@ -756,7 +760,7 @@ large_dog = Actor(
     actor_type_desc=("인간 최고의 친구라는 이명은 던전 안에서도 예외가 아니다. "
         "...적으로 마주치지만 않는다면. "),
     actor_quote=("사냥꾼의 가장 강력한 무기는 단검도, 활도 아니야. 그건 바로 녀석의 사냥개지. "),
-    rarity=25,
+    rarity=35,
     weight=55.3,
     spawnable=True,
     edible=edible.RawMeatEdible(nutrition=200, cook_bonus=30),
@@ -812,7 +816,7 @@ cerberus = Actor(
     entity_desc=("머리가 세 개 달린 커다란 개의 형상을 하고 있는 케르베로스는 예로부터 많은 사람들에게 공포의 대상으로 여겨졌다. "
         "이들은 일반적인 개들보다 뛰어난 신체 능력을 가지고 있으며, 세 개의 머리에서 약한 화염을 내뿜을 수 있다. "
         "세 개의 머리는 각각 별도의 자아를 지니고 있으나, 몸의 지배권 또한 세 개로 나누어져 있는지는 밝혀지지 않았다. "),
-    rarity=8,
+    rarity=18,
     weight=165,
     spawnable=True,
     edible=edible.CerberusEdible(nutrition=350, cook_bonus=85),
@@ -993,7 +997,7 @@ giant_wasp = Actor(
         "거대 말벌들은 곡예에 가까운 비행 능력을 보여주며, 쏜살같은 속도로 목표물에게 날아들어 독침을 찔러넣는다. "
         "독침을 찔러 넣을 때는 눈, 생식기 등 급소를 노리는 것으로 알려져 있으며, 때문에 이들을 상대할 때는 갑옷을 입었다고 하더라도 큰 주의가 필요하다. "),
     actor_quote=("독이 묻은 단검을 떠올려 봐. 꽤 살벌하지? 그런데 그 단검이 날아다니면서 너를 쫓아와 네 고간을 찌른다고 생각해봐. 대체 이보다 끔찍한 게 어디 있겠어? "),
-    rarity=25,
+    rarity=35,
     weight=1.5,
     spawnable=True,
     edible=edible.GiantWaspEdible(nutrition=30),
@@ -1250,7 +1254,7 @@ jumping_spider = Actor(
         "예로부터 몇몇 모험가들은 옷에 붙어있는 자그마한 벌레들을 잡기 위해 옷 속에 깡충거미를 집어넣기도 했다고 전해지며, "
         "그 중 일부는 이들을 물약 병 같은 곳에 담아 애지중지 기르기도 했다고 전해진다. "),
     actor_quote=("딜런이 죽던 날은 내 생애 최악의 날이었어. 그 날 무심코 자켓 위에 앉지만 않았어도... "),
-    rarity=49,
+    rarity=30,
     weight=0.01,
     spawnable=True,
     edible=edible.InsectEdible(nutrition=5),
@@ -2197,11 +2201,11 @@ orc_patrol = Actor(
     spawnable=True,
     edible=edible.RawMeatEdible(nutrition=403),
     ai_cls=BaseAI(
-        alignment=(("hostile",), (1,)), #FIXME
+        alignment=(("hostile",), (1,)),
         do_melee_atk=True,
         do_ranged_atk=False,
         use_ability=False,
-        hostile_type=('@','l'), #FIXME
+        hostile_type=('@','l', 'F', 'I'),
     ),
     status=Status(
         hp=103,
@@ -2212,6 +2216,72 @@ orc_patrol = Actor(
         intelligence=13,
         constitution=14,
         charm=14,
+        difficulty=8,
+        base_melee=13,
+        additional_melee=8,
+        protection=15,
+        hearing=15,
+        eyesight=15,
+        ),
+    actor_state=ActorState(
+        size=4,
+        can_talk=True,
+        has_left_arm=True,
+        has_right_arm=True,
+        has_leg=True,
+        has_eye=True,
+        has_torso=True,
+        has_blood=True,
+        has_soul=True,
+        can_swim=True,
+        has_head=1,
+    ),
+    inventory=Inventory(capacity=20),
+    ability_inventory=AbilityInventory(capacity=2),
+    equipments=Equipments(),
+    initial_items=(
+        {"item": item_factories.potion_of_monster_detection, "chance": 0.1, "count": (1, 1), "BUC": None, "upgrade": None},
+        {"item": item_factories.shine, "chance": 0.3, "count": (10, 80), "BUC": None, "upgrade": None},
+        {"item": item_factories.scroll_of_magic_mapping, "chance": 0.05, "count": (1, 1), "BUC": None, "upgrade": None},
+    ),
+    initial_equipments=(
+        {"item":item_factories.iron_dagger, "chance":1, "count":(1,1), "BUC": None, "upgrade":None},
+        {"item":item_factories.leather_armor, "chance":0.5, "count":(1,1), "BUC": None, "upgrade":None},
+        {"item":item_factories.leather_boots, "chance":0.3, "count":(1,1), "BUC": None, "upgrade":None},
+    ),
+)
+ActorDB.monster_difficulty[orc_patrol.status.difficulty].append(orc_patrol)
+
+
+### Orc warrior
+orc_warrior = Actor(
+    char="O",
+    fg=(0, 181, 15),
+    name="오크 전사",
+    entity_id="orc_warrior",
+    actor_type_desc=(""),
+    entity_desc=(""),
+    actor_quote=(""),
+    rarity=55,
+    weight=125,
+    spawnable=True,
+    edible=edible.RawMeatEdible(nutrition=410),
+    ai_cls=BaseAI(
+        alignment=(("hostile",), (1,)),
+        do_melee_atk=True,
+        do_ranged_atk=False,
+        use_ability=False,
+        hostile_type=('@','l', 'F', 'I'),
+    ),
+    status=Status(
+        hp=135,
+        mp=15,
+        strength=18,
+        dexterity=16,
+        agility=15,
+        intelligence=14,
+        constitution=17,
+        charm=15,
         difficulty=9,# Unarmed 7
         base_melee=13,
         additional_melee=8,
@@ -2235,12 +2305,219 @@ orc_patrol = Actor(
     inventory=Inventory(capacity=20),
     ability_inventory=AbilityInventory(capacity=2),
     equipments=Equipments(),
+    initial_items=(
+        {"item": item_factories.potion_of_healing, "chance": 0.05, "count": (1, 1), "BUC": None, "upgrade": None},
+        {"item": item_factories.shine, "chance": 0.2, "count": (10, 80), "BUC": None, "upgrade": None},
+    ),
     initial_equipments=(
-        {"item":item_factories.iron_dagger, "chance":1, "count":(1,1), "BUC": None, "upgrade":None},
-        {"item":item_factories.iron_chain_mail, "chance":1, "count":(1,1), "BUC": None, "upgrade":None},
+        {"item":item_factories.shortsword, "chance":1, "count":(1,1), "BUC": None, "upgrade":None},
+        {"item":item_factories.wooden_shield, "chance":0.1, "count":(1,1), "BUC": None, "upgrade":None},
+        {"item":item_factories.iron_chain_mail, "chance":0.7, "count":(1,1), "BUC": None, "upgrade":None},
+        {"item":item_factories.iron_headpiece, "chance":0.5, "count":(1,1), "BUC": None, "upgrade":None},
+        {"item":item_factories.leather_boots, "chance":0.3, "count":(1,1), "BUC": None, "upgrade":None},
     ),
 )
-ActorDB.monster_difficulty[orc_patrol.status.difficulty].append(orc_patrol)
+ActorDB.monster_difficulty[orc_warrior.status.difficulty].append(orc_warrior)
+
+
+### Orc blacksmith
+orc_blacksmith = Actor(
+    char="O",
+    fg=(75, 105, 78),
+    name="오크 대장장이",
+    entity_id="orc_blacksmith",
+    actor_type_desc=(""),
+    entity_desc=(""),
+    actor_quote=(""),
+    rarity=20,
+    weight=118,
+    spawnable=True,
+    edible=edible.RawMeatEdible(nutrition=409),
+    ai_cls=BaseAI(
+        alignment=(("hostile",), (1,)),
+        do_melee_atk=True,
+        do_ranged_atk=False,
+        use_ability=False,
+        hostile_type=('@','l', 'F', 'I'),
+    ),
+    status=Status(
+        hp=120,
+        mp=40,
+        strength=18,
+        dexterity=20,
+        agility=15,
+        intelligence=16,
+        constitution=10,
+        charm=15,
+        difficulty=9,# Unarmed 7
+        base_melee=15,
+        additional_melee=9,
+        protection=15,
+        hearing=15,
+        eyesight=15,
+        ),
+    actor_state=ActorState(
+        size=4,
+        can_talk=True,
+        has_left_arm=True,
+        has_right_arm=True,
+        has_leg=True,
+        has_eye=True,
+        has_torso=True,
+        has_blood=True,
+        has_soul=True,
+        can_swim=True,
+        has_head=1,
+    ),
+    inventory=Inventory(capacity=20),
+    ability_inventory=AbilityInventory(capacity=2),
+    equipments=Equipments(),
+    initial_items=(
+        {"item": item_factories.potion_of_flame, "chance": 0.08, "count": (1, 2), "BUC": None,"upgrade": None},
+        {"item": item_factories.scroll_of_enchantment, "chance": 0.05, "count": (1, 2), "BUC": None,"upgrade": None},
+        {"item": item_factories.shine, "chance": 0.2, "count": (80, 150), "BUC": None, "upgrade": None},
+    ),
+    initial_equipments=(
+        {"item":item_factories.forging_hammer, "chance":0.9, "count":(1,1), "BUC": None, "upgrade":None},
+        {"item":item_factories.leather_pants, "chance":0.9, "count":(1,1), "BUC": None, "upgrade":None},
+        {"item":item_factories.leather_boots, "chance":0.5, "count":(1,1), "BUC": None, "upgrade":None},
+    ),
+)
+ActorDB.monster_difficulty[orc_blacksmith.status.difficulty].append(orc_blacksmith)
+
+
+### Orc lord
+orc_lord = Actor(
+    char="O",
+    fg=(0, 138, 55),
+    name="오크 족장",
+    entity_id="orc_lord",
+    actor_type_desc=(""),
+    entity_desc=(""),
+    actor_quote=(""),
+    rarity=8,
+    weight=135,
+    spawnable=True,
+    edible=edible.RawMeatEdible(nutrition=420),
+    ai_cls=BaseAI(
+        alignment=(("hostile",), (1,)),
+        do_melee_atk=True,
+        do_ranged_atk=False,
+        use_ability=True,
+        hostile_type=('@','l', 'F', 'I'),
+    ),
+    status=Status(
+        hp=155,
+        mp=100,
+        strength=21,
+        dexterity=19,
+        agility=16,
+        intelligence=15,
+        constitution=18,
+        charm=20,
+        difficulty=10,
+        base_melee=18,
+        additional_melee=10,
+        protection=15,
+        hearing=15,
+        eyesight=15,
+        ),
+    actor_state=ActorState(
+        size=4,
+        can_talk=True,
+        has_left_arm=True,
+        has_right_arm=True,
+        has_leg=True,
+        has_eye=True,
+        has_torso=True,
+        has_blood=True,
+        has_soul=True,
+        can_swim=True,
+        has_head=1,
+        regain_mana=True,
+    ),
+    inventory=Inventory(capacity=20),
+    ability_inventory=AbilityInventory(capacity=2),
+    equipments=Equipments(),
+    initial_items=(
+        {"item": item_factories.potion_of_healing, "chance": 0.1, "count": (1, 1), "BUC": None,"upgrade": None},
+        {"item": item_factories.scroll_of_lightning, "chance": 0.05, "count": (1, 1), "BUC": None,"upgrade": None},
+        {"item": item_factories.shine, "chance": 0.1, "count": (100, 300), "BUC": None, "upgrade": None},
+    ),
+    initial_equipments=(
+        {"item":item_factories.battle_axe, "chance":1, "count":(1,1), "BUC": None, "upgrade":None},
+        {"item":item_factories.iron_armored_pants, "chance":1, "count":(1,1), "BUC": None, "upgrade":None},
+        {"item":item_factories.iron_boots, "chance":1, "count":(1,1), "BUC": None, "upgrade":None},
+    ),
+    initial_abilities=((ability_factories.call_of_the_orc_lord, 1),)
+)
+ActorDB.monster_difficulty[orc_lord.status.difficulty].append(orc_lord)
+
+
+### Orc shaman
+orc_shaman = Actor(
+    char="O",
+    fg=(209, 240, 153),
+    name="오크 주술사",
+    entity_id="orc_shaman",
+    actor_type_desc=(""),
+    entity_desc=(""),
+    actor_quote=(""),
+    rarity=25,
+    weight=118,
+    spawnable=True,
+    edible=edible.RawMeatEdible(nutrition=355),
+    ai_cls=BaseAI(
+        alignment=(("hostile",), (1,)),
+        do_melee_atk=True,
+        do_ranged_atk=False,
+        use_ability=True,
+        hostile_type=('@','l','F','I'),
+    ),
+    status=Status(
+        hp=115,
+        mp=105,
+        strength=14,
+        dexterity=16,
+        agility=13,
+        intelligence=17,
+        constitution=13,
+        charm=13,
+        difficulty=7,# Unarmed 7
+        base_melee=10,
+        additional_melee=6,
+        protection=11,
+        hearing=15,
+        eyesight=15,
+        ),
+    actor_state=ActorState(
+        size=4,
+        can_talk=True,
+        has_left_arm=True,
+        has_right_arm=True,
+        has_leg=True,
+        has_eye=True,
+        has_torso=True,
+        has_blood=True,
+        has_soul=True,
+        can_swim=True,
+        has_head=1,
+        regain_mana=True,
+    ),
+    inventory=Inventory(capacity=20),
+    ability_inventory=AbilityInventory(capacity=2),
+    equipments=Equipments(),
+    initial_items=(
+        {"item": item_factories.potion_of_mana, "chance": 0.1, "count": (1, 1), "BUC": None, "upgrade": None},
+        {"item": item_factories.shine, "chance": 0.1, "count": (30, 80), "BUC": None, "upgrade": None},
+    ),
+    initial_equipments=(
+        {"item": item_factories.wooden_dagger, "chance": 0.1, "count": (1, 1), "BUC": None, "upgrade": None},
+        {"item": item_factories.leather_pants, "chance": 0.3, "count": (1, 1), "BUC": None, "upgrade": None},
+    ),
+    initial_abilities=((ability_factories.soul_bolt, 1),)
+)
+ActorDB.monster_difficulty[orc_shaman.status.difficulty].append(orc_shaman)
 
 
 
@@ -2252,13 +2529,13 @@ ActorDB.monster_difficulty[orc_patrol.status.difficulty].append(orc_patrol)
 ogre = Actor(
     char="T",
     fg=(160, 176, 111),
-    name="오우거",
-    entity_id="Ogre",
-    entity_desc=("거대한 인간형 신체와 흉폭한 성격을 지닌 오우거들은 극단적으로 공격적인 성향을 보인다. "
+    name="트롤",
+    entity_id="Troll",
+    entity_desc=("거대한 인간형 신체와 흉폭한 성격을 지닌 트롤들은 극단적으로 공격적인 성향을 보인다. "
         "이들은 지적으로 뛰어나지 못하며, 항상 피를 갈구하는 위험한 생명체이다. "
-        "일부 학자들은 오우거들은 사실 선한 심성을 가진 생명체라고 주장하지만, 학계에서는 이 이론은 아직 받아들여지고 있지 않다. "),
-    actor_quote=("오우거들이 사실은 착한 놈들이라느니 뭐니 하는 안경잽이 나부랭이들이 있는 모양인데, 내 앞에 보이면 눈알을 뽑아버릴 거야. "
-                 "우리 부대원들이 오우거들에게 찢겨 나가고 있을 때 그 자식들은 뭘 하고 있었지? 방에서 고대 시집이나 분석하고 있었으려나?"),
+        "일부 학자들은 트롤은 사실 선한 심성을 가진 생명체라고 주장하지만, 학계에서는 이 이론은 아직 받아들여지고 있지 않다. "),
+    actor_quote=("트롤이 사실은 착한 놈들이라느니 뭐니 하는 안경잽이 나부랭이들이 있는 모양인데, 내 앞에 보이면 눈알을 뽑아버릴 거야. "
+                 "우리 부대원들이 트롤들에게 찢겨 나가고 있을 때 그 자식들은 뭘 하고 있었지? 방에서 고대 시집이나 분석하고 있었으려나?"),
     rarity=28,
     weight=1855,
     spawnable=True,

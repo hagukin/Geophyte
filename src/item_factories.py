@@ -54,6 +54,44 @@ temp_items_lists.append(potion_of_healing)
 item_rarity.append(potion_of_healing.rarity)
 
 
+### Potion of mana
+potion_of_mana = Item(
+    should_randomize=True,
+    char="!",
+    fg=(127, 0, 255),
+    name="마나 회복의 물약",
+    entity_id="potion_of_mana",
+    entity_desc=("마나 회복의 물약은 음용자의 마나를 회복시킨다. "
+                 "물약 속에는 다량의 마법 에너지들이 농축되어 있으며, 때문에 마나 회복의 물약을 만들기 위해서는 살아있는 생명체의 마나를 뽑아내는 과정이 필요하다. "
+                 "일부 포션술사들은 이같은 제조법을 '반인륜적이다'라고 비판하고 있으며, 때문에 기존의 제조법을 대체할 새로운 방법이 연구중에 있다."
+                 ),
+    item_type_desc=("예로부터 물약은 인간, 비인간을 막론하고 다양한 지적 생명체들에게 널리 연구되어왔다. "
+                    "때문에 지금은 그 종류도 굉장히 다양한데, 이 중 일부는 생명체에게 치명적인 효과를 부여하기도 한다. "
+                    "대부분의 물약들은 신체에 빠르게 흡수되며 극도로 높은 반응성을 띄기 때문에 주로 유리병에 담아 보관한다."
+                    ),
+    rarity=30,
+    weight=0.2,
+    price=100,
+    item_type=InventoryOrder.POTION,
+    item_state=ItemState(),
+    spawnable=True,
+    flammable=0,
+    corrodible=0,
+    droppable=True,
+    stackable=True,
+    throwable=throwable.NormalThrowable(
+        break_chance=1,
+        identify_when_shattered=0,
+        identify_when_collided_with_entity=0,
+        identify_when_collided_with_actor=0
+    ), # Handle in quaffable. Only identified when actor is healed.
+    readable=None,
+    quaffable=quaffable.PotionOfManaQuaffable(gain_range=(50,100)),
+)
+temp_items_lists.append(potion_of_mana)
+item_rarity.append(potion_of_mana.rarity)
+
+
 ### Potion of paralysis
 potion_of_paralysis = Item(
     should_randomize=True,
@@ -794,6 +832,36 @@ temp_items_lists.append(lightning_bolt_spellbook)
 item_rarity.append(lightning_bolt_spellbook.rarity)
 
 
+### Soul bolt spellbook
+soul_bolt_spellbook = Item(
+    should_randomize=True,
+    char="=",
+    fg=(255, 255, 200),
+    name="소울 볼트 마법서",
+    entity_id="soul_bolt_spellbook",
+    item_type_desc=("마법서는 단순한 책들과는 격을 달리 하는 물건이다. "
+                    "이들은 막대한 마법 에너지를 사용해 제작되며, 그 내용도 쉽게 이해하기 어려운 경우가 많다."),
+    rarity=2,
+    weight=0.85,
+    price=480,
+    item_type=InventoryOrder.SPELLBOOK,
+    item_state=ItemState(),
+    spawnable=True,
+    flammable=0.3,
+    corrodible=0.08,
+    droppable=True,
+    stackable=False,
+    throwable=throwable.NormalThrowable(air_friction=20),
+    readable=readable.BookReadable(
+        ability=ability_factories.soul_bolt,
+        int_req=14,
+        comprehension_chance_per_int_bonus=0.1,
+    ),
+    quaffable=None,
+)
+temp_items_lists.append(soul_bolt_spellbook)
+item_rarity.append(soul_bolt_spellbook.rarity)
+
 
 #########################################################################
 ################################ ARMORS #################################
@@ -857,7 +925,7 @@ leather_armor = Item(
         upgrade=0,
         equip_size=(3, 5),
         possible_regions=("torso",),
-        str_requirement=10,
+        str_requirement=11,
         protection=6,
         protection_mag=1.6,
     )
@@ -870,9 +938,9 @@ item_rarity.append(leather_armor.rarity)
 iron_chain_mail = Item(
     char="[",
     fg=(94, 255, 0),
-    name="강철 사슬 갑옷",
+    name="철제 사슬 갑옷",
     entity_id="iron_chain_mail",
-    entity_desc=("강철 사슬들을 엮어 만든 갑옷이다. "),
+    entity_desc=("철로 만든 사슬들을 엮어 만든 갑옷이다. "),
     rarity=5,
     weight=17.9,
     price=10,
@@ -889,7 +957,7 @@ iron_chain_mail = Item(
         upgrade=0,
         equip_size=(3, 5),
         possible_regions=("torso",),
-        str_requirement=12,
+        str_requirement=15,
         protection=8,
         protection_mag=1.8,
     )
@@ -902,9 +970,9 @@ item_rarity.append(iron_chain_mail.rarity)
 iron_scale_armor = Item(
     char="[",
     fg=(166, 255, 254),
-    name="강철 비늘 갑옷",
+    name="철제 비늘 갑옷",
     entity_id="iron_scale_armor",
-    entity_desc=("작은 강철 판들을 가죽에 덧대 만든 갑옷이다. "),
+    entity_desc=("작은 철판들을 가죽에 덧대 만든 갑옷이다. "),
     rarity=3,
     weight=16.9,
     price=15,
@@ -921,7 +989,7 @@ iron_scale_armor = Item(
         upgrade=0,
         equip_size=(3, 5),
         possible_regions=("torso",),
-        str_requirement=14,
+        str_requirement=15,
         protection=9,
         protection_mag=1.5,
     )
@@ -934,9 +1002,9 @@ item_rarity.append(iron_scale_armor.rarity)
 iron_plate_armor = Item(
     char="[",
     fg=(255, 100, 50),
-    name="강철 판금 갑옷",
+    name="철제 판금 갑옷",
     entity_id="iron_plate_armor",
-    entity_desc=("강철판들을 이어붙여 만든 갑옷이다. "),
+    entity_desc=("철판들을 이어붙여 만든 갑옷이다. "),
     rarity=1,
     weight=18.5,
     price=10,
@@ -953,7 +1021,7 @@ iron_plate_armor = Item(
         upgrade=0,
         equip_size=(3, 5),
         possible_regions=("torso",),
-        str_requirement=15,
+        str_requirement=17,
         protection=10,
         protection_mag=1.8,
     )
@@ -1039,9 +1107,9 @@ item_rarity.append(silk_dress.rarity)
 iron_headpiece = Item(
     char="[",
     fg=(201, 168, 0),
-    name="강철 전투모",
+    name="철제 전투모",
     entity_id="iron_headpiece",
-    entity_desc=("머리 윗 부분을 보호해주는 강철 전투모이다. 가죽 끈을 턱에 둘러 머리에 고정시킬 수 있다. "),
+    entity_desc=("머리 윗 부분을 보호해주는 철제 전투모이다. 가죽 끈을 턱에 둘러 머리에 고정시킬 수 있다. "),
     rarity=5,
     weight=3.2,
     price=8,
@@ -1071,9 +1139,9 @@ item_rarity.append(iron_headpiece.rarity)
 iron_helmet = Item(
     char="[",
     fg=(0, 201, 70),
-    name="강철 투구",
+    name="철제 투구",
     entity_id="iron_helmet",
-    entity_desc=("강철로 만들어진 투구이다. 얼굴 부분을 제외한 모든 부분이 강철 판으로 둘러쌓여 있다. "),
+    entity_desc=("철로 만들어진 투구이다. 얼굴 부분을 제외한 모든 부분이 철판으로 둘러쌓여 있다. "),
     rarity=5,
     weight=4.3,
     price=15,
@@ -1103,9 +1171,9 @@ item_rarity.append(iron_helmet.rarity)
 iron_armet = Item(
     char="[",
     fg=(10, 104, 255),
-    name="강철 아멧",
+    name="철제 아멧",
     entity_id="iron_armet",
-    entity_desc=("머리 전체를 보호하는 투구이다. 얼굴 부분에 강철로 만들어진 바이저가 부착되어 있다. "),
+    entity_desc=("머리 전체를 보호하는 투구이다. 얼굴 부분에 철로 만들어진 바이저가 부착되어 있다. "),
     rarity=5,
     weight=5,
     price=15,
@@ -1122,7 +1190,7 @@ iron_armet = Item(
         upgrade=0,
         equip_size=(3, 4),
         possible_regions=("head",),
-        str_requirement=13,
+        str_requirement=15,
         protection=8,
         protection_mag=1.8,
     )
@@ -1137,7 +1205,7 @@ horned_helmet = Item(
     fg=(166, 255, 254),
     name="뿔 달린 투구",
     entity_id="horned_helmet",
-    entity_desc=("머리를 보호하는 투구이다. 머리 양쪽에 강철로 만들어진 뿔 한 쌍이 달려 있다. "),
+    entity_desc=("머리를 보호하는 투구이다. 머리 양쪽에 철로 만들어진 뿔 한 쌍이 달려 있다. "),
     rarity=5,
     weight=3.8,
     price=15,
@@ -1205,7 +1273,7 @@ leather_armored_pants = Item(
     fg=(120, 214, 175),
     name="가죽 장갑 하의",
     entity_id="leather_armored_pants",
-    entity_desc=("가죽에 강철판을 덧대 만든 하의이다. "),
+    entity_desc=("가죽에 철판을 덧대 만든 하의이다. "),
     rarity=5,
     weight=3.8,
     price=15,
@@ -1235,9 +1303,9 @@ item_rarity.append(leather_armored_pants.rarity)
 iron_armored_pants = Item(
     char="[",
     fg=(159, 224, 90),
-    name="강철 장갑 하의",
+    name="철제 장갑 하의",
     entity_id="iron_armored_pants",
-    entity_desc=("강철판으로 만들어진 하의이다. "),
+    entity_desc=("철판으로 만들어진 하의이다. "),
     rarity=5,
     weight=8.5,
     price=15,
@@ -1254,7 +1322,7 @@ iron_armored_pants = Item(
         upgrade=0,
         equip_size=(3, 4),
         possible_regions=("leg",),
-        str_requirement=12,
+        str_requirement=15,
         protection=8,
         protection_mag=1.66,
     )
@@ -1301,9 +1369,9 @@ item_rarity.append(leather_boots.rarity)
 iron_boots = Item(
     char="[",
     fg=(17, 113, 168),
-    name="강철 부츠",
+    name="철제 부츠",
     entity_id="iron_boots",
-    entity_desc=("발목까지 올라오는 강철 부츠이다. "),
+    entity_desc=("발목까지 올라오는 철제 부츠이다. "),
     rarity=5,
     weight=8.3,
     price=15,
@@ -1499,7 +1567,7 @@ longsword = Item(
         upgrade=0,
         possible_regions=("main hand", "off hand"),
         equip_size=(3, 6),
-        str_requirement=16,
+        str_requirement=17,
         base_melee=12,
         additional_melee=10,
         base_melee_mag=1.9,
@@ -1619,7 +1687,77 @@ temp_items_lists.append(tomahawk)
 item_rarity.append(tomahawk.rarity)
 
 
+# Battle Axe
+battle_axe = Item(
+    char=")",
+    fg=(214, 51, 111),
+    name="전투 도끼",
+    entity_id="battle_axe",
+    entity_desc="오로지 전투만을 위해 만들어진 도끼이다. 도끼날이 양면에 달려 있다.",
+    rarity=2,
+    weight=3.1,
+    price=200,
+    item_type=InventoryOrder.MELEE_WEAPON,
+    item_state=ItemState(is_identified=1),
+    flammable=0,
+    corrodible=0.01,
+    spawnable=True,
+    droppable=True,
+    stackable=False,
+    throwable=throwable.NormalThrowable(base_throw=18, additional_throw=20, penetration=False, air_friction=3),
+    equipable=equipable.Equipable(
+        equipable_type=EquipableOrder.BLADE,
+        upgrade=0,
+        possible_regions=("main hand", "off hand"),
+        equip_size=(4, 6),
+        str_requirement=19,
+        base_melee=12,
+        additional_melee=17,
+        base_melee_mag=2,
+        additional_melee_mag=2.5,
+    ),
+    lockpickable=(0.8,0),
+)
+temp_items_lists.append(battle_axe)
+item_rarity.append(battle_axe.rarity)
+
+
 ###### CLUBS
+### Forging hammer
+forging_hammer = Item(
+    char=")",
+    fg=(92, 28, 28),
+    name="단조용 망치",
+    entity_id="forging_hammer",
+    entity_desc="대장간에서 쇠를 내리칠 때 쓰이는 단조용 망치이다. 망치 머리의 끝부분이 둥그런 형태를 하고 있다.",
+    rarity=1,
+    weight=0.58,
+    price=20,
+    item_type=InventoryOrder.MELEE_WEAPON,
+    item_state=ItemState(is_identified=1),
+    flammable=0,
+    corrodible=0.03,
+    spawnable=True,
+    droppable=True,
+    stackable=False,
+    throwable=throwable.NormalThrowable(base_throw=25, additional_throw=8, penetration=False, air_friction=5),
+    equipable=equipable.Equipable(
+        equipable_type=EquipableOrder.CLUB,
+        upgrade=0,
+        possible_regions=("main hand", "off hand"),
+        equip_size=(3, 4),
+        str_requirement=13,
+        base_melee=10,
+        additional_melee=9,
+        base_melee_mag=1.9,
+        additional_melee_mag=1.8,
+    ),
+    lockpickable=(0.8,0),
+)
+temp_items_lists.append(forging_hammer)
+item_rarity.append(forging_hammer.rarity)
+
+
 ### Giant Wood Club
 giant_wood_club = Item(
     char=")",
@@ -1777,9 +1915,9 @@ item_rarity.append(platinum_shield.rarity)
 iron_shield = Item(
     char=")",
     fg=(252, 186, 3),
-    name="강철 방패",
+    name="철제 방패",
     entity_id="iron_shield",
-    entity_desc="강철로 만들어진 믿음직한 방패이다. ",
+    entity_desc="철판으로 만들어진 믿음직한 방패이다. ",
     rarity=5,
     weight=3.5,
     price=5,

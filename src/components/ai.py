@@ -399,6 +399,14 @@ class BaseAI(BaseComponent):
                 ability_info = Skill_AI.spell_spectral_beam(actor=self.parent, target=target)
                 if ability_info[0]:
                     return ability_info[1], target, s
+            elif s.ability_id == "sp_soul_bolt":
+                ability_info = Skill_AI.spell_soul_bolt(actor=self.parent, target=target)
+                if ability_info[0]:
+                    return ability_info[1], target, s
+            elif s.ability_id == "sp_call_of_the_orc_lord":
+                ability_info = Skill_AI.spell_call_of_the_orc_lord(actor=self.parent, target=target)
+                if ability_info[0]:
+                    return ability_info[1], target, s
         return None
 
     def get_ranged_direction(self, attacker: Actor, target: Actor, valid_range: int=4):

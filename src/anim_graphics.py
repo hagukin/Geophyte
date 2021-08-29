@@ -81,3 +81,23 @@ def spectral_beam():
     }
 
     return beam
+
+
+
+### Soul bolt
+def soul_bolt():
+
+    bgs = (
+        (46, 255, 123),
+        (46, 255, 151),
+        (46, 255, 185),
+    )
+    bg = random.choice(bgs)
+
+    beam = {
+        "char":"*",
+        "fg":(255,255,255),
+        "bg":bg,
+    }
+
+    return beam

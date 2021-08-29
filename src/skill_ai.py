@@ -62,6 +62,9 @@ class Skill_AI():
     @staticmethod
     def spell_lightning_bolt(actor: Actor, target: Actor) -> Optional[Tuple[bool, Optional[Tuple[int,int]]]]:
         coordinate = None
+        if not actor.ai.vision[target.x, target.y]:
+            return False, coordinate
+
         # Check if this actor has the ability
         lightning_bolt = actor.ability_inventory.get_ability_by_id("sp_lightning_bolt")
         if Skill_AI.check_mana(actor=actor, spell=lightning_bolt):
@@ -82,3 +85,30 @@ class Skill_AI():
             if coordinate != None:
                 return True, coordinate
         return False, coordinate
+
+    @staticmethod
+    def spell_soul_bolt(actor: Actor, target: Actor) -> Optional[Tuple[bool, Optional[Tuple[int,int]]]]:
+        coordinate = None
+        # Check if this actor has the ability
+        soul_bolt = actor.ability_inventory.get_ability_by_id("sp_soul_bolt")
+        if Skill_AI.check_mana(actor=actor, spell=soul_bolt):
+            # Set the direction and check the range
+            dxdy = actor.ai.get_ranged_direction(attacker=actor, target=target, valid_range=999)
+            if dxdy:
+                coordinate = actor.x + dxdy[0], actor.y + dxdy[1]
+
+            if coordinate != None:
+                return True, coordinate
+        return False, coordinate
+
+    @staticmethod
+    def spell_call_of_the_orc_lord(actor: Actor, target: Actor) -> Optional[Tuple[bool, Optional[Tuple[int,int]]]]:
+        coordinate = None
+        if not actor.ai.vision[target.x, target.y]:
+            return False, coordinate
+        # Check if this actor has the ability
+        cotol = actor.ability_inventory.get_ability_by_id("sp_call_of_the_orc_lord")
+        if Skill_AI.check_mana(actor=actor, spell=cotol):
+            return True, coordinate
+        return False, coordinate
+

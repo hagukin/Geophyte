@@ -83,6 +83,39 @@ class PotionOfHealingQuaffable(Quaffable):
             apply_to.status.experience.gain_constitution_exp(60, 17)
 
 
+class PotionOfManaQuaffable(Quaffable):
+    def __init__(self, gain_range: Tuple[int,int]):
+        super().__init__()
+        self.amount = random.randint(*gain_range)
+
+    def apply_effect(self, apply_to: Actor) -> None:
+        amount = self.amount
+        if self.parent.item_state.BUC == 1:
+            amount *= 1.3
+        elif self.parent.item_state.BUC == -1:
+            amount *= 0.8
+        amount = round(amount)
+
+        amount_recovered = apply_to.status.gain_mana(amount)
+
+        if amount_recovered > 0:
+            if apply_to == self.engine.player:
+                self.engine.message_log.add_message(f"영적으로 치유되는 느낌이 든다!",color.player_buff,)
+                self.engine.message_log.add_message(f"당신은 {amount_recovered}만큼의 마나를 회복했다.", color.player_neutral_important, )
+        else:# Gain additional health when quaffed while full-health
+            amount = max(1, round(amount / 8))
+            apply_to.status.max_mp += amount
+            apply_to.status.gain_mana(amount=amount)
+
+            if apply_to == self.engine.player:
+                self.engine.message_log.add_message(f"머릿속의 두 점이 하나로 이어진 듯한 기분이 든다!",color.player_buff,)
+            if apply_to == self.engine.player:
+                self.engine.message_log.add_message(f"당신의 최대 마나가 {amount}만큼 증가했다.", color.player_neutral_important, )
+
+        if apply_to.status.experience:
+            apply_to.status.experience.gain_intelligence_exp(60, 17)
+
+
 class PotionOfParalysisQuaffable(Quaffable):
     def __init__(self, turn: int):
         super().__init__()
