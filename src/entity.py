@@ -557,6 +557,11 @@ class Actor(Entity):
         self.action_speed = self.status.agility
         return self.action_speed
 
+    def place(self, x: int, y: int, gamemap: Optional[GameMap] = None) -> None:
+        super().place(x, y, gamemap)
+        if self.ai:
+            self.ai.path.clear() #NOTE: If actor is moving towards a nearby tile, use move() instead.
+
     def discount_value(self) -> float:
         """A discout value for this actor.
         The higher the actor's charm is, the higher this value gets.

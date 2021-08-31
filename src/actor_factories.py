@@ -114,22 +114,24 @@ player = Actor(
     actor_state=ActorState(
         hunger=1100,
         heal_wounds=True,
+        regain_mana=True,
         size=4,
         can_talk=True,
-        has_telepathy=True, #DEBUG
+        # has_telepathy=True, #DEBUG
         # has_right_arm=True,  #DEBUG
     ),
     inventory=Inventory(capacity=52, is_fireproof=False, is_acidproof=False, is_waterproof=False),
     ability_inventory=AbilityInventory(capacity=26),
     equipments=Equipments(),
-    initial_items=(
-        {"item": item_factories.potion_of_monster_detection, "chance":1, "count":(50,50), "BUC": {1:0, 0:1, -1:0}, "upgrade": None}, # NOTE: actor possesion BUC, upgrade has higher priority than item type inital_BUC, initial_upgrade
-        {"item": item_factories.potion_of_acid, "chance": 1, "count": (20, 20), "BUC": {1:1, 0:0, -1:0}, "upgrade": None},
-        {"item": item_factories.potion_of_acid, "chance": 1, "count": (1, 50), "BUC": {1:0, 0:0, -1:1}, "upgrade": None},
-        {"item": item_factories.scroll_of_magic_mapping, "chance": 1, "count": (100, 101), "BUC": {1:0, 0:0, -1:1}, "upgrade": None},
-        {"item": item_factories.scroll_of_remove_curse, "chance": 1, "count": (100, 101), "BUC": {1:0, 0:0, -1:1}, "upgrade": None},
-        {"item": item_factories.shine, "chance": 1, "count": (50, 80), "BUC": None, "upgrade": None},
-    ),
+    initial_items=None,
+    # (
+    #     {"item": item_factories.potion_of_monster_detection, "chance":1, "count":(50,50), "BUC": {1:0, 0:1, -1:0}, "upgrade": None}, # NOTE: actor possesion BUC, upgrade has higher priority than item type inital_BUC, initial_upgrade
+    #     {"item": item_factories.potion_of_acid, "chance": 1, "count": (20, 20), "BUC": {1:1, 0:0, -1:0}, "upgrade": None},
+    #     {"item": item_factories.potion_of_acid, "chance": 1, "count": (1, 50), "BUC": {1:0, 0:0, -1:1}, "upgrade": None},
+    #     {"item": item_factories.scroll_of_magic_mapping, "chance": 1, "count": (100, 101), "BUC": {1:0, 0:0, -1:1}, "upgrade": None},
+    #     {"item": item_factories.scroll_of_remove_curse, "chance": 1, "count": (100, 101), "BUC": {1:0, 0:0, -1:1}, "upgrade": None},
+    #     {"item": item_factories.shine, "chance": 1, "count": (50, 80), "BUC": None, "upgrade": None},
+    # ),
     initial_equipments=None,
     # (
     #     {"item":item_factories.shortsword, "chance":1, "count":(1,1), "BUC":{-1:1, 0:1, 1:1}, "upgrade": {1:1,2:0,3:0,4:0}},
@@ -1124,7 +1126,7 @@ nymph = Actor(
         "님프의 아름다움에 홀린 남성들은 가진 것을 모두 내어주고, 종국에는 파멸에 이른다. "
         "아름다운 외모에 속아 방심한다면 당신은 이들에게 목숨까지 내어주게 될 지도 모른다. "),
     actor_quote=("전 가끔 녀석들이 흉측했으면 좋았겠다는 생각을 합니다. 목을 벨 때 일말의 동정심도 들지 않게 말이죠. "),
-    rarity=999, #20
+    rarity=20, #20
     weight=53,
     spawnable=True,
     edible=edible.RawMeatEdible(nutrition=200),
@@ -1145,7 +1147,7 @@ nymph = Actor(
         intelligence=16,
         constitution=18,
         charm=27,
-        difficulty=2, #7
+        difficulty=7,
         base_melee=8,
         additional_melee=10,
         protection=13,
