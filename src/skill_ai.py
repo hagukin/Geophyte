@@ -47,7 +47,7 @@ class Skill_AI():
     @staticmethod
     def skill_steal(actor: Actor, target: Actor) -> Optional[Tuple[bool, Optional[Tuple[int,int]]]]:
         coordinate = None
-        if not actor.inventory.check_if_full():
+        if not actor.inventory.check_if_full() and not target.inventory.check_if_empty():
             # Check if this actor has the ability
             steal = actor.ability_inventory.get_ability_by_id("sk_steal")
             # Set the direction and check the range

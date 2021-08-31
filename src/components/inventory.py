@@ -129,6 +129,9 @@ class Inventory(BaseComponent):
     def check_if_full(self) -> bool:
         return len(self.items) >= self.capacity
 
+    def check_if_empty(self) -> bool:
+        return not bool(len(self.items))
+
     def drop(self, item: Item, drop_count: Optional[int]=None, x: int=None, y: int=None, gamemap: GameMap=None) -> None:
         """
         Place the item at the location.

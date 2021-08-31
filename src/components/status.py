@@ -623,7 +623,7 @@ class Status(BaseComponent):
             if self.parent.ai and attacked_from != self.parent: #Cannot target self
                 self.parent.ai.attacked_from = attacked_from
 
-        self.parent.actor_state.apply_sleeping([0,0], forced=True) # Wake up
+        self.parent.actor_state.apply_wake_up() # Wake up
 
         self.hp -= amount
 

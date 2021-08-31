@@ -33,10 +33,11 @@ class Readable(BaseComponent):
         """
         raise NotImplementedError()
 
-    def consume(self) -> None:
+    def consume(self, consumer: Actor) -> None:
         """Remove the consumed item from its containing inventory."""
         # fully identify used instance, and semi-identify the same item types.
-        self.parent.item_state.identify_self(identify_level=2)
+        if consumer == self.engine.player:
+            self.parent.item_state.identify_self(identify_level=2)
         self.parent.parent.decrease_item_stack(self.parent, remove_count=1)
 
     def item_use_cancelled(self, actor: Actor) -> actions.Action:
@@ -44,8 +45,9 @@ class Readable(BaseComponent):
         Called when item usage is cancelled.
         Only the player should be able to call this function.
         """
-        self.consume()
-        self.engine.message_log.add_message(f"당신의 {g(self.parent.name, '이')} 먼지가 되어 사라졌다.", color.player_bad)
+        self.consume(actor)
+        if actor == self.engine.player:
+            self.engine.message_log.add_message(f"당신의 {g(self.parent.name, '이')} 먼지가 되어 사라졌다.", color.player_bad)
         return actions.WaitAction(actor)
 
 
@@ -91,7 +93,7 @@ class SelectTileReadable(Readable):
         else:
             self.effects_on_selected_tile_with_actor(consumer=consumer, target=target)
 
-        self.consume()
+        self.consume(consumer)
 
 
 class ScrollOfTeleportationReadable(SelectTileReadable):
@@ -104,21 +106,32 @@ class ScrollOfTeleportationReadable(SelectTileReadable):
         consumer = action.entity
         target = action.target_actor
 
-        if not self.can_select_not_visible_tile and not self.engine.game_map.visible[action.target_xy]:
-            raise Impossible("보이지 않는 지역을 선택할 수는 없습니다.")
-        if not self.can_select_not_explored_tile and not self.engine.game_map.explored[action.target_xy]:
-            raise Impossible("모험하지 않은 지역을 선택할 수는 없습니다.")
-
-        if self.parent.item_state.BUC == 1:
-            stability = 0
-        elif self.parent.item_state.BUC == 0:
-            stability = 1
-        else:
-            stability = 2
-
         from actions import TeleportAction
-        TeleportAction(entity=consumer, x=action.target_xy[0], y=action.target_xy[1], gamemap=self.engine.game_map,stability=stability).perform()
-        self.consume()
+
+        if consumer == self.engine.player:
+            if not self.can_select_not_visible_tile and not self.engine.game_map.visible[action.target_xy]:
+                raise Impossible("보이지 않는 지역을 선택할 수는 없습니다.")
+            if not self.can_select_not_explored_tile and not self.engine.game_map.explored[action.target_xy]:
+                raise Impossible("모험하지 않은 지역을 선택할 수는 없습니다.")
+
+            if self.parent.item_state.BUC == 1:
+                stability = 0
+            elif self.parent.item_state.BUC == 0:
+                stability = 1
+            else:
+                stability = 2
+
+            TeleportAction(entity=consumer, x=action.target_xy[0], y=action.target_xy[1], gamemap=self.engine.game_map,stability=stability).perform()
+            return self.consume(consumer)
+        else:
+            if self.parent.item_state.BUC == 1:
+                stability = 1
+            else:
+                stability = 2
+
+            # NOTE: Ai will always teleport to randomized location.
+            TeleportAction(entity=consumer, x=action.target_xy[0], y=action.target_xy[1], gamemap=consumer.gamemap,stability=stability).perform()
+            return self.consume(consumer)
 
 
 class ScrollOfConfusionReadable(SelectTileReadable):
@@ -226,7 +239,7 @@ class SelectItemFromInventoryReadable(Readable):
     def activate(self, action: actions.ReadItem) -> None:
         consumer = action.entity
         self.effects_on_selected_item(consumer, action.item_selected)
-        self.consume()
+        self.consume(consumer)
 
 
 class ScrollOfEnchantmentReadable(SelectItemFromInventoryReadable):
@@ -361,7 +374,7 @@ class ScrollOfMagicMappingReadable(Readable):
     """
     def activate(self, consumer) -> None:
         self.engine.update_fov()
-        self.consume()
+        self.consume(consumer)
 
     def get_action(self, consumer):
         if consumer == self.engine.player:
@@ -462,7 +475,7 @@ class ScrollOfMeteorStormReadable(Readable): #TODO: Make parent class like other
 
         if not targets_hit and self.engine.game_map.visible[target_xy[0], target_xy[1]]:# nothing was hit
             self.engine.message_log.add_message(f"운석이 바닥과 충돌했다.", fg=color.player_sense)
-        self.consume()
+        self.consume(consumer)
 
         
 class AutoTargetingHarmfulReadable(Readable):
@@ -508,7 +521,7 @@ class AutoTargetingHarmfulReadable(Readable):
                 # if there is no valid target, it will target the reader instead.
                 self.effects_on_target_actor(consumer=consumer, target=consumer)
 
-        self.consume()
+        self.consume(consumer)
 
 
 class RayReadable(Readable):
@@ -593,7 +606,7 @@ class RayReadable(Readable):
                 # collided with the reader
                 if collided == consumer:
                     self.effects_on_collided_actor(consumer=consumer, target=consumer)
-                    self.consume()
+                    self.consume(consumer)
                     return 0
 
                 # if not add all entities collided to a list
@@ -629,7 +642,7 @@ class RayReadable(Readable):
             if len(targets)>=1:
                 self.effects_on_collided_entity(consumer=consumer, entity=target)
 
-        self.consume()
+        self.consume(consumer)
 
 
 class ScrollOfMagicMissileReadable(RayReadable):
@@ -786,7 +799,7 @@ class BookReadable(Readable):
                 self.engine.message_log.add_message(self.read_msg, fg=color.player_neutral_important)
             if self.ability:
                 reader.ability_inventory.gain_ability(self.ability)
-            self.consume()  # Identify when successful
+            self.read()  # Identify when successful
             return None
         else:
             # failed or cursed.
@@ -795,7 +808,7 @@ class BookReadable(Readable):
             reader.actor_state.apply_confusion([0,5])
             return None
 
-    def consume(self) -> None:
+    def read(self) -> None:
         """Does not get removed from the inventory."""
         # fully identify used instance, and semi-identify the same item types.
         self.parent.item_state.identify_self(identify_level=1)

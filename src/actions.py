@@ -91,6 +91,8 @@ class TeleportAction(ActionWithCoordinate):
         else:
             if self.engine.game_map.visible[self.entity.x, self.entity.y]:
                 self.engine.message_log.add_message(f"{g(self.entity.name, '이')} 순간이동했다!")
+            if self.entity.ai:
+                self.entity.ai.path.clear()
 
         if self.stability == 0:
             return self.teleport_to_given()

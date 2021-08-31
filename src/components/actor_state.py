@@ -331,7 +331,10 @@ class ActorState(BaseComponent):
             return "choked by food"
 
     def actor_gets_hungry(self):
-        self.hunger -= 1
+        loss_per_turn = 1
+        if self.is_sleeping != [0, 0]:
+            loss_per_turn = 5 # x5
+        self.hunger -= loss_per_turn
         hunger_state = self.hunger_state
 
         if self.previous_hunger_state != hunger_state:
@@ -353,10 +356,12 @@ class ActorState(BaseComponent):
                     self.engine.message_log.add_message(f"당신은 배가 고프다.", fg=color.player_not_good)
                 self.parent.status.add_bonus(Bonus(bonus_id="hunger", bonus_constitution=-2, bonus_strength=-1))
             elif hunger_state == "starving":
+                self.parent.actor_state.apply_wake_up()
                 if self.parent == self.engine.player:
                     self.engine.message_log.add_message(f"당신은 굶주리고 있다!", fg=color.player_bad)
                 self.parent.status.add_bonus(Bonus(bonus_id="hunger", bonus_constitution=-4, bonus_strength=-2,bonus_intelligence=-1, bonus_dexterity=-1))
             elif hunger_state == "fainting":
+                self.parent.actor_state.apply_wake_up()
                 if self.parent == self.engine.player:
                     self.engine.message_log.add_message(f"당신은 배고픔에 허덕이고 있다!", fg=color.player_severe)
                 self.parent.status.add_bonus(Bonus(bonus_id="hunger", bonus_constitution=-8, bonus_strength=-3,bonus_intelligence=-1, bonus_dexterity=-1))
@@ -486,12 +491,15 @@ class ActorState(BaseComponent):
         # Reduce turn
         if self.is_sleeping[0] >= self.is_sleeping[1] and self.is_sleeping[1] > 0: # Stop sleeping
             # Remove sleeping
-            self.parent.status.remove_bonus(bonus_id="sleep_bonus")
-            self.apply_sleeping([0,0], forced=True)
+            self.apply_wake_up()
             return None
         else:
             if self.is_sleeping[1] >= 0: # Last infinitly if negative
-                self.parent.status.add_bonus(bonus=Bonus(bonus_id="sleep_bonus",bonus_constitution=30), ignore_warning=True)
+                self.parent.status.add_bonus(bonus=Bonus(
+                    bonus_id="sleep_bonus",
+                    bonus_constitution=min(50, max(10, round(self.parent.status.origin_status["constitution"] * 1.5)))), # Using origin status
+                    ignore_warning=True
+                )
                 self.is_sleeping[0] += 1
 
     def actor_freeze(self):
@@ -936,7 +944,7 @@ class ActorState(BaseComponent):
         self.apply_levitation([0, 0])
         self.apply_drowning([0, 0])
         # nonphysical states
-        self.apply_sleeping([0, 0], forced=True)
+        self.apply_wake_up()
         self.apply_anger([0, 0])
         self.apply_confusion([0, 0])
         self.apply_hallucination([0, 0])
@@ -1210,6 +1218,12 @@ class ActorState(BaseComponent):
             pass
         else:
             self.is_drowning = value
+
+    def apply_wake_up(self):
+        """If actor is sleeping, wake actor up."""
+        #NOTE: Log handled in apply_sleeping
+        self.parent.status.remove_bonus(bonus_id="sleep_bonus", ignore_warning=True)
+        self.apply_sleeping([0, 0], forced=True)
 
     def apply_sleeping(self, value: List[int,int], forced:bool=False) -> None:
         """

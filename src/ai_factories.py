@@ -90,6 +90,54 @@ class Black_Jelly_Ai(ai.BaseAI):
 #################### n - nymphs  ###################
 ####################################################
 
+class Nymph_Ai(ai.BaseAI):
+    def __init__(
+            self,
+            alignment=(("hostile",), (1,)),
+            do_melee_atk=True,
+            do_ranged_atk=False,
+            use_ability=True,
+            hostile_type=('@',),
+            attracted_own_type=(InventoryOrder.GEM, InventoryOrder.CASH, InventoryOrder.AMULET, )
+    ):
+        super().__init__(alignment, do_melee_atk, do_ranged_atk, use_ability, hostile_type=hostile_type, attracted_own_type=attracted_own_type)
+
+    def nymph_check_if_should_teleport(self) -> bool:
+        """
+        'should_teleport' != 'can_teleport'
+        Even if this fucntion returns True, it does not mean that nymph will always teleport.
+        """
+        if self.parent.inventory.check_if_full() and self.target:
+            return True
+        return False
+
+    def nymph_check_if_can_teleport(self) -> bool:
+        if self.parent.inventory.check_if_in_inv(item_id="scroll_of_teleportation"):
+            return True
+        else:
+            return False
+
+    def nymph_read_scroll_of_teleportation(self) -> None:
+        from actions import ReadItem
+        scroll = self.parent.inventory.check_if_in_inv(item_id="scroll_of_teleportation")
+        if scroll:
+            return ReadItem(self.parent, item=scroll, target_xy=(self.parent.x, self.parent.y)).perform() # NOTE: target_xy is not used. ai will teleport to randomized location regardless of BUC.
+        else:
+            print("ERROR::nymph_check_if_can_teleport is True, but nymph has no scroll of teleportation. This should've been prevented.")
+            return None
+
+    def perform_hostile(self) -> None:
+        # If inventory is full, and ai has target, ai will set target to None and try read teleportation scroll.
+        # (the better way to approach is to check whether nymph has successfully stolen an item, but it could make ai structure unstable
+        if self.nymph_check_if_should_teleport():
+            if self.nymph_check_if_can_teleport():
+                self.target = None
+                return self.nymph_read_scroll_of_teleportation()
+
+        return super().perform_hostile()
+
+
+
 ####################################################
 #################### o - spheres  ##################
 ####################################################

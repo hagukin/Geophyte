@@ -384,8 +384,6 @@ class BaseAI(BaseComponent):
             if s.ability_id == "sk_steal": # Check if has skill/spell
                 ability_info = Skill_AI.skill_steal(actor=self.parent, target=target)
                 if ability_info[0]: # Check if can use skill/spell right now
-                    # If ai use steal, ai will run away
-                    self.alignment = "neutral"# TODO: Implement running away system
                     return ability_info[1], target, s
 
             ##########
