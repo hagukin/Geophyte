@@ -2075,8 +2075,8 @@ class MainGameEventHandler(EventHandler):
                 self.engine.change_entity_depth(
                     self.engine.player,
                     self.engine.depth - 1,
-                    self.engine.world.get_map(self.engine.depth - 1).descend_loc[0],
-                    self.engine.world.get_map(self.engine.depth - 1).descend_loc[1]
+                    self.engine.world.get_map(self.engine.depth - 1).ascend_loc[0],
+                    self.engine.world.get_map(self.engine.depth - 1).ascend_loc[1] # NOTE: Chamber of Kugah has no descend loc
                 )
 
         # No valid key was pressed
