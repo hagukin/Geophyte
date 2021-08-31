@@ -96,7 +96,8 @@ class ShopTerrain(Terrain):
             self.sell_items = {} # Spawn all items
             from item_factories import item_rarity, temp_items_lists
             for i in range(len(temp_items_lists)):
-                if temp_items_lists[i].spawnable:
+                if temp_items_lists[i].spawnable and not temp_items_lists[i].is_artifact: # Does not spawn artifact.
+                    # NOTE: Since shop items are initialized early on, shop can techinically generate non-artifact item that is in item_manager._block_spawn_id_set
                     if self.sell_items_type_limit:
                         tmp = [x.value for x in sell_items_type_limit]
                         if temp_items_lists[i].item_type.value in tmp:

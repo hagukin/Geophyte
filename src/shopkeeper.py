@@ -252,7 +252,7 @@ class Shopkeeper_Ai(ai.BaseAI):
         buyings = []
         for item, buyer in self.picked_up.items():
             if buyer == customer:
-                bill += item.price_of_all_stack(customer, discount=1)
+                bill += item.price_of_all_stack(is_shopkeeper_is_selling=True, discount=1 - customer.discount_value())
                 buyings.append(item)
         # no goods to puy
         if not buyings:

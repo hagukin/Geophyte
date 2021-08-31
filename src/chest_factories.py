@@ -104,7 +104,7 @@ class ChestSemiactor(SemiActor):
             for item in random.choices(self.engine.item_manager.items_lists, [r+self.better_randomized_item for r in self.engine.item_manager.items_rarity],
                                        k=random.randint(self.randomized_items_num_range[0],
                                                         self.randomized_items_num_range[1])):
-                if item.spawnable:
+                if item.spawnable and not self.engine.item_manager.check_artifact_id_generated(item.entity_id):
                     self.initial_items.append((item, 1, (1, 1)))
 
         for item in self.initial_items:

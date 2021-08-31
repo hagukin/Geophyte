@@ -270,14 +270,14 @@ class DangerousTileWalkHandler(AskUserEventHandler):
 
 class GameClearInputHandler(AskUserEventHandler): #TODO Unfinished
     def on_render(self, console: tcod.Console) -> None:
-        while True:
-            super().on_render(console)
-            self.engine.draw_window(
-                self.engine.console,
-                text="쿠가의 아뮬렛을 탈환했다!",
-                title="승리했습니다!",
-                frame_fg=color.yellow,
-            )
+        super().on_render(console)
+        self.engine.draw_window(
+            self.engine.console,
+            text="쿠가의 아뮬렛을 탈환했다!",
+            title="승리했습니다!",
+            frame_fg=color.yellow,
+        )
+        self.engine.context.present(self.engine.console)
 
     def ev_keydown(self, event: tcod.event.KeyDown) -> None:
         if event.sym == tcod.event.K_ESCAPE:
@@ -2062,22 +2062,22 @@ class MainGameEventHandler(EventHandler):
                 self.engine.easteregg += 1
                 if self.engine.easteregg == 50:
                     self.engine.message_log.add_message(f"당신은 슬픈 기분이 든다.", color.white)
-            #
-            #     ######### TODO FIXME DEBUG
-            #     self.engine.change_entity_depth(
-            #         self.engine.player,
-            #         self.engine.depth + 1,
-            #         self.engine.world.get_map(self.engine.depth + 1).ascend_loc[0],
-            #         self.engine.world.get_map(self.engine.depth + 1).ascend_loc[1]
-            #     )
-            # elif key == tcod.event.K_F10:
-            #     ######### TODO FIXME DEBUG
-            #     self.engine.change_entity_depth(
-            #         self.engine.player,
-            #         self.engine.depth - 1,
-            #         self.engine.world.get_map(self.engine.depth - 1).ascend_loc[0],
-            #         self.engine.world.get_map(self.engine.depth - 1).ascend_loc[1] # NOTE: Chamber of Kugah has no descend loc
-            #     )
+
+                ######### TODO FIXME DEBUG
+                self.engine.change_entity_depth(
+                    self.engine.player,
+                    self.engine.depth + 1,
+                    self.engine.world.get_map(self.engine.depth + 1).ascend_loc[0],
+                    self.engine.world.get_map(self.engine.depth + 1).ascend_loc[1]
+                )
+            elif key == tcod.event.K_F10:
+                ######### TODO FIXME DEBUG
+                self.engine.change_entity_depth(
+                    self.engine.player,
+                    self.engine.depth - 1,
+                    self.engine.world.get_map(self.engine.depth - 1).ascend_loc[0],
+                    self.engine.world.get_map(self.engine.depth - 1).ascend_loc[1] # NOTE: Chamber of Kugah has no descend loc
+                )
 
         # No valid key was pressed
         return action

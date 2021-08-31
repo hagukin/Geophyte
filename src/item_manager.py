@@ -22,6 +22,9 @@ class ItemManager:
         # However, if the data's values are set to None, they are unused, and the item will use its default value instead.
         # e.g. if items_fake_info["potion_of_fire"]["name"] == None,
         # potion of fire will use its default name.
+
+        self.generated_artifacts = set() # List of artifacts that have been spawned, and should not be spawned naturally again.
+
         self.colors_for_potions = [
             ("적혈색",(178,34,34), None),
             ("빨간색",(255,0,0), None),
@@ -86,6 +89,18 @@ class ItemManager:
 
     def engine(self):
         return Game.engine
+
+    def check_artifact_id_generated(self, item_id: str) -> bool:
+        """Check whether the artifact has been spawned on the world at least once."""
+        if item_id in self.generated_artifacts:
+            return True
+        return False
+
+    def disable_artifact_from_spawning(self, item_id: str) -> None:
+        self.generated_artifacts.add(item_id)
+
+    def reenable_artifact_from_spawning(self, item_id: str) -> None:
+        self.generated_artifacts.remove(item_id)
 
     def identify_type(self, item_id:str, identify_level: int=1):
         """

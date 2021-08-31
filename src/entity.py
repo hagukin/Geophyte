@@ -560,7 +560,8 @@ class Actor(Entity):
     def place(self, x: int, y: int, gamemap: Optional[GameMap] = None) -> None:
         super().place(x, y, gamemap)
         if self.ai:
-            self.ai.path.clear() #NOTE: If actor is moving towards a nearby tile, use move() instead.
+            if self.ai.path:
+                self.ai.path.clear() #NOTE: If actor is moving towards a nearby tile, use move() instead.
 
     def discount_value(self) -> float:
         """A discout value for this actor.
@@ -708,6 +709,10 @@ class Actor(Entity):
         temp.parent = self.inventory
 
         self.inventory.add_item(temp)
+        if temp.is_artifact:
+            print(f"WARNING::{self.entity_id} initialized with an artifact {temp.entity_id} in its possesion.")
+            if temp.spawnable:
+                print(f"ERROR::{self.entity_id} initialized with an artifact {temp.entity_id} in its possesion WHICH IS A SPAWNABLE ITEM. You have potential risk of duplicated artifacts.")
         return temp
 
     def initialize_actor_drop_on_death(self, args) -> Item:
@@ -892,6 +897,7 @@ class Item(Entity):
         counter_at_front: bool = False,
         initial_BUC=None,
         initial_upgrades=None,
+        is_artifact: bool=False,
     ):
         """
         Args:
@@ -984,6 +990,8 @@ class Item(Entity):
             self.initial_upgrades = {-4:1, -3:2, -2:3, -1:6, 0:15, 1:7, 2:4, 3:2, 4:1}
         else:
             self.initial_upgrades = initial_upgrades
+
+        self.is_artifact = is_artifact
         
 
     @property
@@ -1111,6 +1119,10 @@ class Item(Entity):
         Item cannot be spawned with parent(Inventory)
         """
         clone = super().spawn(gamemap, x, y, exact_copy)
+        if self.is_artifact:
+            if self.engine.item_manager.check_artifact_id_generated(self.entity_id):
+                print(f"WARNING::Spawning item {self.entity_id} which cannot be naturally spawned. This might not be an error. - Item.spawn()")  # Does not stop the spawning
+            self.engine.item_manager.disable_artifact_from_spawning(self.entity_id)
         return clone
 
     def update_component_parent_to(self, item: Item) -> None:

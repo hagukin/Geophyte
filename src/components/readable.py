@@ -354,7 +354,7 @@ class ScrollOfRemoveCurseReadable(SelectItemFromInventoryReadable):
             # Log
             if consumer == self.engine.player:
                 if buc != -1 and success:  # If item was not cursed before
-                    self.engine.message_log.add_message(f"당신의 {g(selected_item.name, '로')}부터 사악한 기운이 뿜어져 나온다!",color.player_success, target=consumer)
+                    self.engine.message_log.add_message(f"당신의 {g(selected_item.name, '로')}부터 사악한 기운이 느껴진다!",color.player_bad, target=consumer)
                 elif buc != -1 and not success:
                     self.engine.message_log.add_message(
                         f"당신의 {g(selected_item.name, '은')} 사악한 기운에 저항했다!",color.player_failed, target=consumer)

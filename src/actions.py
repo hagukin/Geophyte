@@ -202,6 +202,7 @@ class AscendAction(Action):
             if n_depth == 0 and self.engine.player.inventory.check_if_in_inv("amulet_of_kugah"):
                 from input_handlers import GameClearInputHandler
                 self.engine.event_handler = GameClearInputHandler()
+                return None
 
             # Move entity to other level
             self.engine.change_entity_depth(

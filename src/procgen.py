@@ -154,10 +154,16 @@ def spawn_items(
     number_of_items = random.randint(min_items_per_room, max_items_per_room)
     tile_coordinates = room.inner_tiles
 
+    item_candidates = {}
+    from item_factories import item_rarity, temp_items_lists
+    for i in range(len(temp_items_lists)):
+        if temp_items_lists[i].spawnable and not dungeon.engine.item_manager.check_artifact_id_generated(temp_items_lists[i].entity_id):
+            item_candidates[temp_items_lists[i]] = item_rarity[i]
+
     # Choose items to spawn
     spawn_list = random.choices(
-        population=dungeon.engine.item_manager.items_lists,
-        weights=item_factories.item_rarity,
+        population=list(item_candidates.keys()),
+        weights=list(item_candidates.values()),
         k=number_of_items
         )
 
@@ -168,7 +174,10 @@ def spawn_items(
 
         place_tile = random.choice(tile_coordinates)
         
-        if not any(entity.x == place_tile[0] and entity.y == place_tile[1] for entity in dungeon.entities) and item_to_spawn.spawnable:
+        if not any(entity.x == place_tile[0] and entity.y == place_tile[1] for entity in dungeon.entities) \
+                and item_to_spawn.spawnable \
+                and not dungeon.engine.item_manager.check_artifact_id_generated(item_to_spawn.entity_id): # Do not remove this line because you think item lists has already been filtered. If you remove this line, artifacts be spawned multiple times during this function call.
+
             item_to_spawn.spawn(dungeon, place_tile[0], place_tile[1])
 
 
