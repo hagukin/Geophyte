@@ -81,6 +81,10 @@ class Camera:
             failed = True
         return not failed
 
+    def clear_visuals(self) -> None:
+        self.visuals.clear()
+        self.prev_visuals.clear()
+
     def reset_dxdy(self, adjust:bool=True) -> None:
         self.dx = 0
         self.dy = 0

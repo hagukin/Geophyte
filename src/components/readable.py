@@ -379,8 +379,7 @@ class ScrollOfMagicMappingReadable(Readable):
                 for x in range(len(self.engine.game_map.explored)):
                     self.engine.game_map.explored[x, y] = True
 
-            self.engine.camera.visuals.clear()
-            self.engine.camera.prev_visuals.clear()
+            self.engine.camera.clear_visuals()
             self.engine.refresh_screen()
             from input_handlers import MagicMappingLookHandler
             self.engine.event_handler = MagicMappingLookHandler(

@@ -6,7 +6,7 @@
 # print("++++++++++++데이터+++++++++++++")
 # for k in engine.world.saved_maps:
 #     try:
-#         tmp = engine.world.load_map_from_seriallized_data(k)
+#         tmp = engine.world.load_map_from_serialized_data(k)
 #         if tmp:
 #             print(k)
 #     except Exception as e:

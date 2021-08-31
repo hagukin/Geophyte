@@ -68,7 +68,7 @@ class World():
         return None
 
     def save_map_to_serialized_data(self, gamemap, depth:int) -> None:
-        print(f"MEMORY::Seriallized and saved depth {depth}.")
+        print(f"MEMORY::Serialized and saved depth {depth}.")
         with shelve.open(os.getcwd()+f"\\storage\\data\\game") as gamedata:
             # prevent pickle lib error(cannot serialize c objects)
             gamedata["cache_depth_"+str(depth)] = gamemap
@@ -79,7 +79,7 @@ class World():
 
         return self.mem_world[depth]
 
-    def load_map_from_seriallized_data(self, depth: int):
+    def load_map_from_serialized_data(self, depth: int):
         """Load a map from serialized data, not memory"""
         # Check if file exists
         if not os.path.isfile(os.getcwd()+f"\\storage\\data\\game.dat"):
@@ -90,6 +90,9 @@ class World():
         with shelve.open(os.getcwd()+f"\\storage\\data\\game") as gamedata:
             gamemap = gamedata["cache_depth_"+str(depth)]
             gamedata.close()
+
+        if gamemap is None:
+            raise Exception("FATAL ERROR::Gamemap is None - load_map_from_serialized data")
         return gamemap
 
     def optimize(self) -> None:
@@ -99,7 +102,7 @@ class World():
         for depth in self.saved_maps:
             if self.check_if_should_exist_in_memory(depth):
                 if not self.check_if_map_on_mem(depth):
-                    self.mem_world[depth] = self.load_map_from_seriallized_data(depth)
+                    self.mem_world[depth] = self.load_map_from_serialized_data(depth)
             else:
                 self.mem_world[depth] = None
 
@@ -125,15 +128,23 @@ class World():
             Retrieve map information from EITHER memory or data.
             Will ALWAYS prioritze memory data.
 
-        NOTE: load_map_from_seriallized_data() loads the map from the data file, while get_map() get the map no matter its on memory or not.
+        NOTE: load_map_from_serialized_data() loads the map from the data file, while get_map() get the map no matter its on memory or not.
         Outside of this class boundary, using get_map is preferred.
         """
+        gamemap = None
         if self.check_if_map_on_mem(depth): # Prioritize memory.
-            return self.load_map_from_memory(depth)
+            gamemap = self.load_map_from_memory(depth)
         elif depth in self.saved_maps:
-            return self.load_map_from_seriallized_data(depth)
-        else:
-            print("FATAL ERROR:: {depth} depth missing")
+            gamemap = self.load_map_from_serialized_data(depth)
+
+        if gamemap is None:
+            print("====================================")
+            print(f"FATAL ERROR:: {depth} depth missing")
             for k, v in self.mem_world.items():
                 print(f"in-memory: {k, v}")
+            print("====================================")
             return None
+
+        return gamemap
+
+

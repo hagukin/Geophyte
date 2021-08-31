@@ -119,7 +119,7 @@ ancient_ruins = Biome(
         "t_wall":tiles.wall_ancient_ruins,
         "t_floor":tiles.floor_ancient_ruins,
     }),
-    terrain = {"chamber_of_kugah":1},
+    terrain = {terrain_factories.chamber_of_kugah:1},
 )
 biome_dict[ancient_ruins.biome_id] = ancient_ruins
 biome_rarity.append(ancient_ruins.rarity)

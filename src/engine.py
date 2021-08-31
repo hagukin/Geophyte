@@ -111,6 +111,14 @@ class Engine:
 
         return None
 
+    def refresh_gamemap_entities(self) -> None:
+        """Refresh every entities' gamemap information to current gamemap.
+        Function's main purpose is to prevent entity having the wrong gamemap information."""
+        for e in self.game_map.entities:
+            if e.gamemap != self.game_map:
+                e.gamemap = self.game_map
+                print(f"ERROR::{e.entity_id} has the wrong gamemap.")
+
     def check_entity_in_sight_of_actor(self, actor: Actor, entity: Entity) -> bool:
         if actor == self.player:
             return (self.game_map.visible[entity.x, entity.y])
@@ -143,6 +151,8 @@ class Engine:
                 raise Exception(f"FATAL ERROR::SOMETHING WENT WRONG. PLAYER IS JUMPING TO DEPTH {self.depth} TO NONGENERATED DEPTH {depth}. CONSIDER INCREASING WORLD.MEM_CAPACITY. - world[depth] should've been already generated from previous map generations.")
             self.game_map = self.world.get_map(depth)
             self.depth = depth
+            self.refresh_gamemap_entities()
+            self.camera.clear_visuals()
 
             for tmp_depth in range(depth-self.world.mem_capacity, depth+self.world.mem_capacity+1): #USING (depth-self.world.mem_capacity, depth+self.world.mem_capacity+1) in order to make negative depth level generations.
                 if not self.world.check_if_map_has_been_generated(tmp_depth)\
@@ -153,7 +163,7 @@ class Engine:
                         new_map.adjustments_before_new_map() # Adjust things (AI's vision, etc. player's vision is initialized AFTER player has been placed.)
                         self.world.save_map_to_memory(new_map, tmp_depth)
                 if not self.world.check_if_map_on_mem(tmp_depth):
-                    self.world.save_map_to_memory(self.world.load_map_from_seriallized_data(tmp_depth), tmp_depth)
+                    self.world.save_map_to_memory(self.world.load_map_from_serialized_data(tmp_depth), tmp_depth)
         else:
             if not self.world.check_if_map_has_been_generated(depth): # When entity moves to an ungenerated map, it causes FATAL ERROR as seen below.
                 print("FATAL ERROR::NON-PLAYER ENTITY TRIED TO MOVE TO A NONGENERATED DEPTH. FUNCTION CANCELLED.")
