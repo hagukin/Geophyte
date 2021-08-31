@@ -124,8 +124,8 @@ player = Actor(
     ability_inventory=AbilityInventory(capacity=26),
     equipments=Equipments(),
     initial_items=(
-        {"item": item_factories.ruby, "chance":1, "count":(50,50), "BUC": {1:0, 0:1, -1:0}, "upgrade": None}, # NOTE: actor possesion BUC, upgrade has higher priority than item type inital_BUC, initial_upgrade
-        {"item": item_factories.worthless_piece_of_red_glass, "chance": 1, "count": (20, 20), "BUC": {1:1, 0:0, -1:0}, "upgrade": None},
+        {"item": item_factories.axe, "chance":1, "count":(10,10), "BUC": {1:0, 0:1, -1:0}, "upgrade": None}, # NOTE: actor possesion BUC, upgrade has higher priority than item type inital_BUC, initial_upgrade
+        {"item": item_factories.iron_dagger, "chance": 1, "count": (10, 10), "BUC": {1:1, 0:0, -1:0}, "upgrade": None},
         {"item": item_factories.potion_of_acid, "chance": 1, "count": (1, 50), "BUC": {1:0, 0:0, -1:1}, "upgrade": None},
         {"item": item_factories.scroll_of_magic_mapping, "chance": 1, "count": (100, 101), "BUC": {1:0, 0:0, -1:1}, "upgrade": None},
         {"item": item_factories.scroll_of_remove_curse, "chance": 1, "count": (100, 101), "BUC": {1:0, 0:0, -1:1}, "upgrade": None},

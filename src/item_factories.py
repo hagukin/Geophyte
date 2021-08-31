@@ -1419,7 +1419,7 @@ wooden_dagger = Item(
     spawnable=True,
     droppable=True,
     stackable=False,
-    throwable=throwable.NormalThrowable(base_throw=8, additional_throw=10, penetration=True, air_friction=1),
+    throwable=throwable.NormalThrowable(base_throw=3, additional_throw=2, penetration=True),
     equipable=equipable.Equipable(
         equipable_type=EquipableOrder.BLADE,
         upgrade=0,
@@ -1454,7 +1454,7 @@ iron_dagger = Item(
     spawnable=True,
     droppable=True,
     stackable=False,
-    throwable=throwable.NormalThrowable(base_throw=15, additional_throw=15, penetration=True, air_friction=1),
+    throwable=throwable.NormalThrowable(base_throw=7, additional_throw=5, penetration=True),
     equipable=equipable.Equipable(
         equipable_type=EquipableOrder.BLADE,
         upgrade=0,
@@ -1489,7 +1489,7 @@ scalpel = Item(
     spawnable=True,
     droppable=True,
     stackable=False,
-    throwable=throwable.NormalThrowable(base_throw=6, additional_throw=20, penetration=True, air_friction=1),
+    throwable=throwable.NormalThrowable(base_throw=6, additional_throw=1, penetration=True),
     equipable=equipable.Equipable(
         equipable_type=EquipableOrder.BLADE,
         upgrade=0,
@@ -1526,7 +1526,7 @@ shortsword = Item(
     spawnable=True,
     droppable=True,
     stackable=False,
-    throwable=throwable.NormalThrowable(base_throw=5, additional_throw=10, penetration=False, air_friction=15),
+    throwable=throwable.NormalThrowable(base_throw=10, additional_throw=8, penetration=False),
     equipable=equipable.Equipable(
         equipable_type=EquipableOrder.BLADE,
         upgrade=0,
@@ -1561,7 +1561,7 @@ longsword = Item(
     spawnable=True,
     droppable=True,
     stackable=False,
-    throwable=throwable.NormalThrowable(base_throw=3, additional_throw=2, penetration=False, air_friction=20),
+    throwable=throwable.NormalThrowable(base_throw=12, additional_throw=10, penetration=False),
     equipable=equipable.Equipable(
         equipable_type=EquipableOrder.BLADE,
         upgrade=0,
@@ -1599,7 +1599,7 @@ sunbringer = Item(
     spawnable=True,
     droppable=True,
     stackable=False,
-    throwable=throwable.NormalThrowable(base_throw=3, additional_throw=2, penetration=False, air_friction=20),
+    throwable=throwable.NormalThrowable(base_throw=18, additional_throw=10, penetration=False),
     equipable=equipable.Equipable(
         equipable_type=EquipableOrder.BLADE,
         upgrade=0,
@@ -1639,7 +1639,7 @@ swordstick = Item(
     spawnable=True,
     droppable=True,
     stackable=False,
-    throwable=throwable.NormalThrowable(base_throw=1, additional_throw=1, penetration=False, air_friction=3),
+    throwable=throwable.NormalThrowable(base_throw=11, additional_throw=2, penetration=False),
     equipable=equipable.Equipable(
         equipable_type=EquipableOrder.BLADE,
         upgrade=0,
@@ -1678,7 +1678,7 @@ axe = Item(
     spawnable=True,
     droppable=True,
     stackable=False,
-    throwable=throwable.NormalThrowable(base_throw=2, additional_throw=2, penetration=False, air_friction=1),
+    throwable=throwable.NormalThrowable(base_throw=8, additional_throw=17, penetration=False, air_friction=1),
     equipable=equipable.Equipable(
         equipable_type=EquipableOrder.BLADE,
         upgrade=0,
@@ -1712,7 +1712,7 @@ tomahawk = Item(
     spawnable=True,
     droppable=True,
     stackable=False,
-    throwable=throwable.NormalThrowable(base_throw=20, additional_throw=20, penetration=False, air_friction=0.2),
+    throwable=throwable.NormalThrowable(base_throw=6, additional_throw=12, penetration=False),
     equipable=equipable.Equipable(
         equipable_type=EquipableOrder.BLADE,
         upgrade=0,
@@ -1747,7 +1747,7 @@ battle_axe = Item(
     spawnable=True,
     droppable=True,
     stackable=False,
-    throwable=throwable.NormalThrowable(base_throw=18, additional_throw=20, penetration=False, air_friction=3),
+    throwable=throwable.NormalThrowable(base_throw=12, additional_throw=17, penetration=False),
     equipable=equipable.Equipable(
         equipable_type=EquipableOrder.BLADE,
         upgrade=0,
@@ -1783,7 +1783,7 @@ forging_hammer = Item(
     spawnable=True,
     droppable=True,
     stackable=False,
-    throwable=throwable.NormalThrowable(base_throw=25, additional_throw=8, penetration=False, air_friction=5),
+    throwable=throwable.NormalThrowable(base_throw=10, additional_throw=9, penetration=False),
     equipable=equipable.Equipable(
         equipable_type=EquipableOrder.CLUB,
         upgrade=0,
@@ -1818,7 +1818,7 @@ giant_wood_club = Item(
     spawnable=False,
     droppable=True,
     stackable=False,
-    throwable=throwable.NormalThrowable(base_throw=1, additional_throw=2, penetration=False, air_friction=20),
+    throwable=throwable.NormalThrowable(base_throw=1, additional_throw=2, penetration=False),
     equipable=equipable.Equipable(
         equipable_type=EquipableOrder.CLUB,
         upgrade=0,
@@ -1854,7 +1854,7 @@ wooden_shield = Item(
     spawnable=True,
     droppable=True,
     stackable=False,
-    throwable=throwable.NormalThrowable(base_throw=0, additional_throw=0, penetration=False, air_friction=55),
+    throwable=throwable.NormalThrowable(base_throw=1, additional_throw=5, penetration=False, air_friction=55),
     equipable=equipable.Equipable(
         equipable_type=EquipableOrder.SHIELD,
         upgrade=0,
@@ -1892,7 +1892,7 @@ silver_shield = Item(
     spawnable=True,
     droppable=True,
     stackable=False,
-    throwable=throwable.NormalThrowable(base_throw=0, additional_throw=0, penetration=False, air_friction=55),
+    throwable=throwable.NormalThrowable(base_throw=3, additional_throw=3, penetration=False, air_friction=55),
     equipable=equipable.Equipable(
         equipable_type=EquipableOrder.SHIELD,
         upgrade=0,
@@ -1929,7 +1929,7 @@ platinum_shield = Item(
     spawnable=True,
     droppable=True,
     stackable=False,
-    throwable=throwable.NormalThrowable(base_throw=0, additional_throw=0, penetration=False, air_friction=55),
+    throwable=throwable.NormalThrowable(base_throw=3, additional_throw=5, penetration=False, air_friction=55),
     equipable=equipable.Equipable(
         equipable_type=EquipableOrder.SHIELD,
         upgrade=0,
@@ -1971,7 +1971,7 @@ iron_shield = Item(
     spawnable=True,
     droppable=True,
     stackable=False,
-    throwable=throwable.NormalThrowable(base_throw=0, additional_throw=0, penetration=False, air_friction=55),
+    throwable=throwable.NormalThrowable(base_throw=2, additional_throw=2, penetration=False, air_friction=55),
     equipable=equipable.Equipable(
         equipable_type=EquipableOrder.SHIELD,
         upgrade=0,

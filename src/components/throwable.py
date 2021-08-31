@@ -97,9 +97,19 @@ class Throwable(BaseComponent):
 
         return crit_multiplier
 
-    def damage_calculation(self, target: Actor, crit_multiplier):
+    def damage_calculation(self, thrower: Actor, target: Actor, crit_multiplier):
         if self.parent:
             damage = self.base_throw + random.randint(0,self.additional_throw)
+
+            temp = thrower.status.changed_status
+            dexterity = temp["dexterity"]
+            strength = temp["strength"]
+
+            # Apply dexterity bonus
+            dexterity_bonus = min(2, 1 + dexterity / 45)
+            damage *= dexterity_bonus
+
+            damage *= min(max(1, self.throw_distance(thrower) * self.parent.weight / 0.04), 2)
 
             # Damage reduction
             damage = target.status.calculate_dmg_reduction(damage=damage, damage_type="physical", ignore_reduction=False)
@@ -198,20 +208,22 @@ class NormalThrowable(Throwable):
         else:
             # set dmg
             crit_multiplier = self.crit_calculation(thrower=thrower)
-            dmg = self.damage_calculation(target=collided, crit_multiplier=crit_multiplier)
+            dmg = self.damage_calculation(thrower=thrower, target=collided, crit_multiplier=crit_multiplier)
 
             # log
+            thrower_name = thrower.name
+            collided_name = collided.name
+
+            if thrower == self.engine.player:
+                thrower_name = "당신"
+            if collided == self.engine.player:
+                collided_name = "당신"
+
             if dmg > 0:
-                thrower_name = thrower.name
-                collided_name = collided.name
-
-                if thrower == self.engine.player:
-                    thrower_name = "당신"
-                if collided == self.engine.player:
-                    collided_name = "당신"
-
                 self.engine.message_log.add_message(f"{g(thrower_name, '이')} {g(self.parent.name, '을')} {collided_name}에게 던져 {dmg} 데미지를 입혔다.", target=thrower,)
                 collided.status.take_damage(amount=dmg, attacked_from=thrower)
+            else:
+                self.engine.message_log.add_message(f"{g(thrower_name, '이')} {g(self.parent.name, '을')} {collided_name}에게 던졌지만 아무런 데미지도 주지 못했다.", target=thrower, )
 
             # check destruction
             self.break_calculation()
