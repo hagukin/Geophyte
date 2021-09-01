@@ -123,18 +123,20 @@ player = Actor(
     inventory=Inventory(capacity=52, is_fireproof=False, is_acidproof=False, is_waterproof=False),
     ability_inventory=AbilityInventory(capacity=26),
     equipments=Equipments(),
-    initial_items=None,
+    # initial_items=
     # (
     #     {"item": item_factories.potion_of_poison, "chance": 1, "count": (1, 50), "BUC": {1:0, 0:0, -1:1}, "upgrade": None},
     #     {"item": item_factories.scroll_of_magic_mapping, "chance": 1, "count": (100, 101), "BUC": {1:0, 0:0, -1:1}, "upgrade": None},
     #     {"item": item_factories.scroll_of_remove_curse, "chance": 1, "count": (100, 101), "BUC": {1:0, 0:0, -1:1}, "upgrade": None},
     #     {"item": item_factories.shine, "chance": 1, "count": (50, 80), "BUC": None, "upgrade": None},
     # ),
-    initial_equipments=None,
-    # (
-    #     {"item":item_factories.shortsword, "chance":1, "count":(1,1), "BUC":{-1:1, 0:1, 1:1}, "upgrade": {1:1,2:0,3:0,4:0}},
+    # initial_equipments=(
+    #     {"item":item_factories.longsword, "chance":1, "count":(1,1), "BUC":{-1:1, 0:1, 1:1}, "upgrade": {1:1,2:0,3:0,4:0}},
+    #     {"item":item_factories.leather_armor, "chance":1, "count":(1,1), "BUC":{-1:1, 0:1, 1:1}, "upgrade": {1:1,2:0,3:0,4:0}},
+    #     {"item":item_factories.iron_armet, "chance":1, "count":(1,1), "BUC":{-1:1, 0:1, 1:1}, "upgrade": {1:1,2:0,3:0,4:0}},
+    #     {"item":item_factories.iron_boots, "chance":1, "count":(1,1), "BUC":{-1:1, 0:1, 1:1}, "upgrade": {1:1,2:0,3:0,4:0}},
     # ),
-    initial_abilities=None,
+    # initial_abilities=
     # (
     #     (ability_factories.spectral_beam, 1),
     #     (ability_factories.soul_bolt, 1),
@@ -2212,7 +2214,7 @@ orc_patrol = Actor(
         constitution=14,
         charm=14,
         difficulty=9,
-        base_melee=13,
+        base_melee=10,
         additional_melee=8,
         protection=15,
         hearing=15,
@@ -2240,9 +2242,9 @@ orc_patrol = Actor(
         {"item": item_factories.scroll_of_magic_mapping, "chance": 0.05, "count": (1, 1), "BUC": None, "upgrade": None},
     ),
     initial_equipments=(
-        {"item":item_factories.iron_dagger, "chance":1, "count":(1,1), "BUC": None, "upgrade":None},
-        {"item":item_factories.leather_armor, "chance":0.5, "count":(1,1), "BUC": None, "upgrade":None},
-        {"item":item_factories.leather_boots, "chance":0.3, "count":(1,1), "BUC": None, "upgrade":None},
+        {"item":item_factories.iron_dagger, "chance":1, "count":(1,1), "BUC": None, "upgrade":{-1:3,0:5,1:1}},
+        {"item":item_factories.leather_armor, "chance":0.3, "count":(1,1), "BUC": None, "upgrade":{-1:3,0:5,1:1}},
+        {"item":item_factories.leather_boots, "chance":0.3, "count":(1,1), "BUC": None, "upgrade":{-1:3,0:5,1:1}},
     ),
 )
 ActorDB.monster_difficulty[orc_patrol.status.difficulty].append(orc_patrol)
@@ -2273,12 +2275,12 @@ orc_warrior = Actor(
         mp=15,
         strength=18,
         dexterity=16,
-        agility=15,
+        agility=14,
         intelligence=14,
         constitution=17,
         charm=15,
         difficulty=11,# Unarmed 7
-        base_melee=13,
+        base_melee=10,
         additional_melee=8,
         protection=15,
         hearing=15,
@@ -2305,11 +2307,11 @@ orc_warrior = Actor(
         {"item": item_factories.shine, "chance": 0.2, "count": (10, 80), "BUC": None, "upgrade": None},
     ),
     initial_equipments=(
-        {"item":item_factories.shortsword, "chance":1, "count":(1,1), "BUC": None, "upgrade":None},
-        {"item":item_factories.wooden_shield, "chance":0.1, "count":(1,1), "BUC": None, "upgrade":None},
-        {"item":item_factories.iron_chain_mail, "chance":0.7, "count":(1,1), "BUC": None, "upgrade":None},
-        {"item":item_factories.iron_headpiece, "chance":0.5, "count":(1,1), "BUC": None, "upgrade":None},
-        {"item":item_factories.leather_boots, "chance":0.3, "count":(1,1), "BUC": None, "upgrade":None},
+        {"item":item_factories.shortsword, "chance":1, "count":(1,1), "BUC": None, "upgrade":{-1:3,0:5,1:1}},
+        {"item":item_factories.wooden_shield, "chance":0.3, "count":(1,1), "BUC": None, "upgrade":{-1:3,0:5,1:1}},
+        {"item":item_factories.iron_chain_mail, "chance":0.3, "count":(1,1), "BUC": None, "upgrade":{-1:3,0:5,1:1}},
+        {"item":item_factories.iron_headpiece, "chance":0.3, "count":(1,1), "BUC": None, "upgrade":{-1:3,0:5,1:1}},
+        {"item":item_factories.leather_boots, "chance":0.3, "count":(1,1), "BUC": None, "upgrade":{-1:3,0:5,1:1}},
     ),
 )
 ActorDB.monster_difficulty[orc_warrior.status.difficulty].append(orc_warrior)
@@ -2340,13 +2342,13 @@ orc_blacksmith = Actor(
         mp=40,
         strength=18,
         dexterity=20,
-        agility=15,
+        agility=13,
         intelligence=16,
         constitution=10,
         charm=15,
         difficulty=10,# Unarmed 7
-        base_melee=15,
-        additional_melee=9,
+        base_melee=11,
+        additional_melee=8,
         protection=15,
         hearing=15,
         eyesight=15,
@@ -2373,9 +2375,9 @@ orc_blacksmith = Actor(
         {"item": item_factories.shine, "chance": 0.2, "count": (80, 150), "BUC": None, "upgrade": None},
     ),
     initial_equipments=(
-        {"item":item_factories.forging_hammer, "chance":0.9, "count":(1,1), "BUC": None, "upgrade":None},
-        {"item":item_factories.leather_pants, "chance":0.9, "count":(1,1), "BUC": None, "upgrade":None},
-        {"item":item_factories.leather_boots, "chance":0.5, "count":(1,1), "BUC": None, "upgrade":None},
+        {"item":item_factories.forging_hammer, "chance":0.9, "count":(1,1), "BUC": None, "upgrade":{-1:3,0:5,1:1}},
+        {"item":item_factories.leather_pants, "chance":0.5, "count":(1,1), "BUC": None, "upgrade":{-1:3,0:5,1:1}},
+        {"item":item_factories.leather_boots, "chance":0.2, "count":(1,1), "BUC": None, "upgrade":{-1:3,0:5,1:1}},
     ),
 )
 ActorDB.monster_difficulty[orc_blacksmith.status.difficulty].append(orc_blacksmith)
@@ -2406,12 +2408,12 @@ orc_lord = Actor(
         mp=100,
         strength=21,
         dexterity=19,
-        agility=16,
+        agility=14,
         intelligence=15,
         constitution=18,
         charm=20,
         difficulty=12,
-        base_melee=18,
+        base_melee=15,
         additional_melee=10,
         protection=15,
         hearing=15,
@@ -2440,9 +2442,9 @@ orc_lord = Actor(
         {"item": item_factories.shine, "chance": 0.1, "count": (100, 300), "BUC": None, "upgrade": None},
     ),
     initial_equipments=(
-        {"item":item_factories.battle_axe, "chance":1, "count":(1,1), "BUC": None, "upgrade":None},
-        {"item":item_factories.iron_armored_pants, "chance":1, "count":(1,1), "BUC": None, "upgrade":None},
-        {"item":item_factories.iron_boots, "chance":1, "count":(1,1), "BUC": None, "upgrade":None},
+        {"item":item_factories.battle_axe, "chance":1, "count":(1,1), "BUC": None, "upgrade":{-1:3,0:5,1:1}},
+        {"item":item_factories.iron_armored_pants, "chance":0.5, "count":(1,1), "BUC": None, "upgrade":{-1:3,0:5,1:1}},
+        {"item":item_factories.iron_boots, "chance":0.3, "count":(1,1), "BUC": None, "upgrade":{-1:3,0:5,1:1}},
     ),
     initial_abilities=((ability_factories.call_of_the_orc_lord, 1),)
 )

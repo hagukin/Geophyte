@@ -3,6 +3,7 @@ from unique_terrains.shop import ShopTerrain
 from unique_terrains.chamber_of_kugah import ChamberOfKugahTerrain
 from unique_terrains.guarded_treasure import GuardedTreasureTerrain
 import semiactor_factories
+import item_factories
 from order import InventoryOrder
 
 terrain_dict = {}
@@ -233,7 +234,6 @@ terrain_dict[swamp] = swamp.rarity
 
 # General shop
 from custom_terrgen import ShopTerrGen
-import item_factories
 general_shop = ShopTerrain(
     name="잡동사니 상점",
     terrain_id="general_shop",
@@ -253,7 +253,6 @@ terrain_dict[general_shop] = general_shop.rarity
 
 # Potion shop
 from custom_terrgen import ShopTerrGen
-import item_factories
 potion_shop = ShopTerrain(
     name="포션 상점",
     terrain_id="potion_shop",
@@ -273,7 +272,6 @@ terrain_dict[potion_shop] = potion_shop.rarity
 
 # Weapon shop
 from custom_terrgen import ShopTerrGen
-import item_factories
 weapon_shop = ShopTerrain(
     name="무기 상점",
     terrain_id="weapon_shop",
@@ -293,7 +291,6 @@ terrain_dict[weapon_shop] = weapon_shop.rarity
 
 # Scroll shop
 from custom_terrgen import ShopTerrGen
-import item_factories
 scroll_shop = ShopTerrain(
     name="주문서 상점",
     terrain_id="scroll_shop",

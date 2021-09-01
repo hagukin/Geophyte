@@ -110,7 +110,7 @@ class GameMap:
     def check_tile_monster_spawnable(self, x:int, y:int, must_not_be_in_sight: bool=False):
         if must_not_be_in_sight and self.visible[x, y]:
             return False
-        if any(entity.x == x and entity.y == y for entity in self.entities) or not self.tiles["walkable"][x, y]:
+        if any(entity.x == x and entity.y == y and entity.blocks_movement for entity in self.entities) or not self.tiles["walkable"][x, y]:
             return False
         else:
             return True

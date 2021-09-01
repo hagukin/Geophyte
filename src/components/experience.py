@@ -31,7 +31,7 @@ class Experience(BaseComponent):
         super().__init__(None)
         self.parent: Status = self.parent # NOTE: This line is for typing
         self.hp_exp = hp_exp
-        self.mp_exp = mp_exp
+        self.mp_exp = mp_exp # NOTE: hp_exp and mp_exp works quite differently from other exps
         self._strength_exp = strength_exp
         self._dexterity_exp = dexterity_exp
         self._constitution_exp = constitution_exp
@@ -129,14 +129,18 @@ class Experience(BaseComponent):
         #TODO: Need to make adjustments for game balance
 
         while True:
-            if self.hp_exp >= self.parent.max_hp**2:
-                self.parent.max_hp += 10
+            if self.hp_exp >= self.parent.max_hp*3:
+                self.parent.max_hp = max(round(self.parent.max_hp * 1.1), 100)
+                self.parent.fully_heal()
                 self.lvl_up_msg("hp")
+                self.hp_exp = 0 # reset
                 continue
 
-            if self.mp_exp >= self.parent.max_mp**2:
-                self.parent.max_mp += 10
+            if self.mp_exp >= self.parent.max_mp*9:
+                self.parent.max_mp = max(round(self.parent.max_mp * 1.1), 100)
+                self.parent.fully_gain()
                 self.lvl_up_msg("mp")
+                self.mp_exp = 0 # reset
                 continue
 
             if self.strength_exp >= self.parent.strength**2 * 20:
@@ -195,8 +199,8 @@ class Experience(BaseComponent):
             return
 
         self.strength_exp_gained += amount
-        self.hp_exp += int(amount * 2)
-        self.mp_exp += int(amount * 0.5)
+        self.hp_exp += amount * 2
+        self.mp_exp += amount * 0.5
         self.level_up()
 
         # print(f"DEBUG::{self.parent.parent} gained strength")
@@ -213,8 +217,8 @@ class Experience(BaseComponent):
             return
 
         self.dexterity_exp_gained += amount
-        self.hp_exp += int(amount * 1)
-        self.mp_exp += int(amount * 1)
+        self.hp_exp += amount * 1
+        self.mp_exp += amount * 1
         self.level_up()
 
         # print(f"DEBUG::{self.parent.parent} gained dexterity")
@@ -231,8 +235,8 @@ class Experience(BaseComponent):
             return
 
         self.constitution_exp_gained += amount
-        self.hp_exp += int(amount * 1)
-        self.mp_exp += int(amount * 1.5)
+        self.hp_exp += amount * 1
+        self.mp_exp += amount * 1.5
         self.level_up()
 
         # print(f"DEBUG::{self.parent.parent} gained constitution")
@@ -249,8 +253,8 @@ class Experience(BaseComponent):
             return
 
         self.agility_exp_gained += amount
-        self.hp_exp += int(amount * 1)
-        self.mp_exp += int(amount * 1)
+        self.hp_exp += amount * 1
+        self.mp_exp += amount * 1
         self.level_up()
 
         # print(f"DEBUG::{self.parent.parent} gained agility")
@@ -267,8 +271,8 @@ class Experience(BaseComponent):
             return
     
         self.intelligence_exp_gained += amount
-        self.hp_exp += int(amount * 0.5)
-        self.mp_exp += int(amount * 2.5)
+        self.hp_exp += amount * 0.5
+        self.mp_exp += amount * 2.5
         self.level_up()
 
         # print(f"DEBUG::{self.parent.parent} gained intelligence")
@@ -285,8 +289,8 @@ class Experience(BaseComponent):
             return
 
         self.charm_exp_gained += amount
-        self.hp_exp += int(amount * 0.5)
-        self.mp_exp += int(amount * 0.5)
+        self.hp_exp += amount * 0.5
+        self.mp_exp += amount * 0.5
         self.level_up()
 
         # print(f"DEBUG::{self.parent.parent} gained charm")

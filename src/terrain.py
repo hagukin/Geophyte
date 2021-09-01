@@ -1,4 +1,6 @@
 import random
+from typing import Dict
+
 import game
 
 class Terrain:
@@ -21,13 +23,9 @@ class Terrain:
         max_height: int = 10,
         shape: dict = None,
         spawn_item: bool = True,
-        item_spawn_chance: float = 0.5,
-        min_items_per_room: int = 0,
-        max_items_per_room: int = 4,
+        items_cnt: Dict = None,
+        monsters_cnt: Dict = None,
         spawn_monster: bool = True,
-        monster_spawn_chance: float = 0.5,
-        min_monsters_per_room: int = 0,
-        max_monsters_per_room: int = 4,
         has_wall: bool = True, #TODO: need to add feature
         protected: bool = False,
         has_door: bool = True,
@@ -140,13 +138,14 @@ class Terrain:
 
         self.rarity = rarity
 
-        self.item_spawn_chance = item_spawn_chance
-        self.monster_spawn_chance = monster_spawn_chance
-
-        self.max_monsters_per_room = max_monsters_per_room
-        self.max_items_per_room = max_items_per_room
-        self.min_monsters_per_room = min_monsters_per_room
-        self.min_items_per_room = min_items_per_room
+        # Key: amount
+        # Value: weight
+        self.items_cnt = {0:5, 1:8, 2:3, 3:1}
+        self.monsters_cnt = {0:4, 1:9, 2:5, 3:2}
+        if items_cnt:
+            self.items_cnt = items_cnt
+        if monsters_cnt:
+            self.monsters_cnt = monsters_cnt
 
         self.min_width = min_width
         self.max_width = max_width

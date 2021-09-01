@@ -530,6 +530,11 @@ class Status(BaseComponent):
         if self._hp == 0 and not self.parent.actor_state.has_immortality:
             self.parent.die("low_hp")
 
+    def fully_heal(self) -> int:
+        tmp = self.max_hp - self.hp
+        self.hp = self.max_hp
+        return tmp
+
     def heal(self, amount) -> int:
         if self.hp == self.max_hp:
             return 0
@@ -641,8 +646,13 @@ class Status(BaseComponent):
     def mp(self, value) -> None:
         self._mp = max(0, min(value, self.max_mp))
 
+    def fully_gain(self) -> int:
+        tmp = self.max_mp - self.mp
+        self.mp = self.max_mp
+        return tmp
+
     def gain_mana(self, amount) -> int:
-        if self.mp == self.max_hp:
+        if self.mp == self.max_mp:
             return 0
 
         new_mp_value = self.mp + amount

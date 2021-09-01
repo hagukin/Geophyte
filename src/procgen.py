@@ -149,9 +149,12 @@ def spawn_monsters_by_difficulty(
 
 
 def spawn_items(
-    room: Room, dungeon: GameMap,  min_items_per_room: int, max_items_per_room: int,
+    room: Room, dungeon: GameMap
 ) -> None:
-    number_of_items = random.randint(min_items_per_room, max_items_per_room)
+    number_of_items = random.choices(
+        list(room.terrain.items_cnt.keys()),
+        list(room.terrain.items_cnt.values()),
+        k=1)[0]
     tile_coordinates = room.inner_tiles
 
     item_candidates = {}
@@ -169,9 +172,6 @@ def spawn_items(
 
     # Spawn items
     for item_to_spawn in spawn_list:
-        if random.random() >= room.terrain.monster_spawn_chance:
-            continue
-
         place_tile = random.choice(tile_coordinates)
         
         if not any(entity.x == place_tile[0] and entity.y == place_tile[1] for entity in dungeon.entities) \
@@ -671,11 +671,11 @@ def generate_entities(
         ### Spawning Monsters ###
         if room.terrain.spawn_monster:
             # Each loop can generates one monster
-            mon_num = random.randint(room.terrain.min_monsters_per_room, room.terrain.max_monsters_per_room)
+            mon_num = random.choices(
+                list(room.terrain.monsters_cnt.keys()),
+                list(room.terrain.monsters_cnt.values()),
+                k=1)[0]
             for _ in range(mon_num):
-                if random.random() >= room.terrain.monster_spawn_chance:
-                    continue
-
                 # Spawn location
                 tile_coordinates = room.inner_tiles
                 place_tile = random.choice(tile_coordinates)
@@ -701,8 +701,6 @@ def generate_entities(
             spawn_items(
                 room,
                 dungeon,
-                min_items_per_room=room.terrain.min_items_per_room,
-                max_items_per_room=room.terrain.max_items_per_room
             )
 
 
