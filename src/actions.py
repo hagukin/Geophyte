@@ -108,7 +108,7 @@ class PickupAction(Action):
     def __init__(self, entity: Actor):
         super().__init__(entity)
 
-    def pickup(self, inventory, item) -> None:
+    def transfer_item(self, inventory, item) -> None:
         # Failed to add an item
         if not inventory.add_item(item):
             return None
@@ -117,39 +117,70 @@ class PickupAction(Action):
         self.engine.game_map.remove_entity(entity=item)
         item.parent = self.entity.inventory
 
-    def perform(self) -> None:
-        """Pickup an item and add it to the actor's inventory, if there is a room for it."""
+    def pickup_single_item(self, item: Item) -> None:
+        inventory = self.entity.inventory
+        # Log
+        if self.entity == self.engine.player:
+            if item.stack_count > 1:
+                self.engine.message_log.add_message(f"당신은 {g(item.name, '을')} 주웠다. (x{item.stack_count}).",
+                                                    fg=color.obtain_item)
+            else:
+                self.engine.message_log.add_message(f"당신은 {g(item.name, '을')} 주웠다.", fg=color.obtain_item)
+        else:
+            if item.stack_count > 1:
+                self.engine.message_log.add_message(
+                    f"{g(self.entity.name, '이')} {g(item.name, '을')} 주웠다. (x{item.stack_count}).", target=self.entity,
+                    fg=color.enemy_unique)
+            else:
+                self.engine.message_log.add_message(f"{g(self.entity.name, '이')} {g(item.name, '을')} 주웠다.",
+                                                    target=self.entity, fg=color.enemy_unique)
 
+        self.transfer_item(inventory, item)
+        return
+
+    def pickup_given_items(self, items: List[Item]) -> None:
+        """Pick up and add all given lists of items to inventory."""
+        for item in items:
+            self.pickup_single_item(item)
+
+    def perform(self) -> None:
+        """
+        Pickup an item and add it to the actor's inventory, if there is a room for it.
+
+        NOTE: If you want AI to pickup SPECIFIC item, use pickup_single_item or pickup_given_items instead.
+        If you want ai to pickup whatever is on its location, you can use this function.
+        """
         # Checking for inability
         if self.entity.check_for_immobility():
             return None
 
-        actor_location_x = self.entity.x
-        actor_location_y = self.entity.y
-        inventory = self.entity.inventory
-
+        items_at_pos = []
         for item in self.engine.game_map.items:
-            if actor_location_x == item.x and actor_location_y == item.y:
-                if self.entity == self.engine.player:
-                    if item.stack_count > 1:
-                        self.engine.message_log.add_message(f"당신은 {g(item.name, '을')} 주웠다. (x{item.stack_count}).", fg=color.obtain_item)
-                    else:
-                        self.engine.message_log.add_message(f"당신은 {g(item.name, '을')} 주웠다.", fg=color.obtain_item)
-
-                    self.pickup(inventory, item)
-                    return #prevents picking up everything at once. # TODO : Add feature to pickup everything at once
-                else:
-                    if item.stack_count > 1:
-                        self.engine.message_log.add_message(f"{g(self.entity.name, '이')} {g(item.name, '을')} 주웠다. (x{item.stack_count}).", target=self.entity, fg=color.enemy_unique)
-                    else:
-                        self.engine.message_log.add_message(f"{g(self.entity.name, '이')} {g(item.name, '을')} 주웠다.", target=self.entity, fg=color.enemy_unique)
-
-                    self.pickup(inventory, item)
-                    return #prevents picking up everything at once. # TODO : Add feature to pickup everything at once
+            if self.entity.x == item.x and self.entity.y == item.y:
+                items_at_pos.append(item)
 
         if self.entity == self.engine.player:
-            self.engine.message_log.add_message("주울 만한 물건이 아무 것도 없습니다.",fg=color.impossible)
-        return None
+            # If only one item exists, pickup immediately.
+            item_len = len(items_at_pos)
+            if item_len == 1:
+                return self.pickup_single_item(items_at_pos[0])
+            elif item_len == 0:
+                self.engine.message_log.add_message("주울 만한 물건이 아무 것도 없습니다.", fg=color.impossible)
+                return None
+            else:
+                # else, call inputhandler.
+                # The inputhandler will call back PickupItem.perform().
+                from input_handlers import PickupMultipleHandler
+                tmp = Inventory(100000) # Create a temporary inventory object that contains all items on actor's location. (This is not be the most efficient way)
+                for item in items_at_pos:
+                    tmp.add_item(item)
+                self.engine.event_handler = PickupMultipleHandler(inventory_component=tmp)
+                return None
+        else:
+            # AI will only pickup every items on the location.
+            # NOTE: Consider using PickupItem.pickup_single_item() instead.
+            print(f"LOG::AI picked up items - item list: {items_at_pos}")
+            return self.pickup_given_items(items=items_at_pos)
 
 
 class DescendAction(Action):

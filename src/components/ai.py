@@ -761,7 +761,7 @@ class BaseAI(BaseComponent):
                         return None
                     elif self.do_what_to_attraction == "own":
                         # Pick it up
-                        PickupAction(self.parent).perform()
+                        PickupAction(self.parent).pickup_single_item(item=self.attraction)
                         self.attraction = None
                         self.do_what_to_attraction = None
                         self.path = None

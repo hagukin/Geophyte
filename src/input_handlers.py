@@ -1509,6 +1509,23 @@ class InventoryDropHandler(StorageSelectMultipleEventHandler):
         return TurnPassAction(self.engine.player)  # Return an action if the item is the last one to drop to cost a turn
 
 
+class PickupMultipleHandler(StorageSelectMultipleEventHandler):
+    """Handle dropping an inventory item."""
+    def __init__(self, inventory_component: Inventory):
+        super().__init__(inventory_component)
+        self.TITLE = "주울 아이템들을 선택하세요."
+        self.engine.message_log.add_message(
+            "아이템에 해당하는 알파뱃:아이템 선택/취소 | 엔터:확인 | ESC:나가기", color.help_msg
+        )
+
+    def choice_confirmed(self):
+        """
+        Drop all the selected items.
+        """
+        PickupAction(self.engine.player).pickup_given_items(items=list(self.selected_items))
+        return TurnPassAction(self.engine.player)  # Return an action if the item is the last one to drop to cost a turn
+
+
 class SelectIndexHandler(AskUserEventHandler):
     """Handles asking the user for an index on the map."""
     def __init__(self, item_cancel_callback: Callable = None):
