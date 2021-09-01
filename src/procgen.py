@@ -176,8 +176,10 @@ def spawn_items(
         
         if not any(entity.x == place_tile[0] and entity.y == place_tile[1] for entity in dungeon.entities) \
                 and item_to_spawn.spawnable \
-                and not dungeon.engine.item_manager.check_artifact_id_generated(item_to_spawn.entity_id): # Do not remove this line because you think item lists has already been filtered. If you remove this line, artifacts be spawned multiple times during this function call.
-
+                and not dungeon.engine.item_manager.check_artifact_id_generated(item_to_spawn.entity_id)\
+                and dungeon.tilemap[place_tile[0], place_tile[1]] != TilemapOrder.ASCEND_STAIR.value\
+                and dungeon.tilemap[place_tile[0], place_tile[1]] != TilemapOrder.DESCEND_STAIR.value:
+            # Do not remove artifact checking line. If you remove this line, artifacts be spawned multiple times during this function call.
             item_to_spawn.spawn(dungeon, place_tile[0], place_tile[1])
 
 
@@ -679,7 +681,9 @@ def generate_entities(
                 place_tile = random.choice(tile_coordinates)
 
                 # Prevent entities clipping
-                if any(entity.x == place_tile[0] and entity.y == place_tile[1] for entity in dungeon.entities):
+                if any(entity.x == place_tile[0] and entity.y == place_tile[1] for entity in dungeon.entities)\
+                        or dungeon.tilemap[place_tile[0], place_tile[1]] == TilemapOrder.ASCEND_STAIR.value\
+                        or dungeon.tilemap[place_tile[0], place_tile[1]] == TilemapOrder.DESCEND_STAIR.value:
                     continue
         
                 # Choose difficulty

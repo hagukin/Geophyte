@@ -21,7 +21,7 @@ class Animation:
         > Since the length(second) for per frame is not given, each frame will be shown for 0.2 second. (This is the default value)
     """
 
-    def __init__(self, engine, frames: List, stack_frames: bool=False, sec_per_frame: float=None, refresh_last_frame: bool=False):
+    def __init__(self, engine, frames: List, stack_frames: bool=False, sec_per_frame: float=None, refresh_last_frame: bool=False, render_if_in_sight: bool=True):
         """
         Args:
             stack_frames:
@@ -46,6 +46,7 @@ class Animation:
         self.refresh_last_frame = refresh_last_frame
         self.current_frame_num = 0
         self.current_graphic_num = 0
+        self.render_if_in_sight = render_if_in_sight
 
     @property
     def engine(self):
@@ -89,7 +90,12 @@ class Animation:
 
             graphic = self.current_graphic
             if 0 <= graphic[0] <= self.engine.camera.width and 0 <= graphic[1] <= self.engine.camera.height: # Clamp inside camera screen
-                self.engine.console.print(x=graphic[0], y=graphic[1], string=graphic[2]["char"], fg=graphic[2]["fg"], bg=graphic[2]["bg"])
+                should_render = True
+                if self.render_if_in_sight:
+                    if not self.engine.game_map.visible[graphic[0], graphic[1]]:
+                        should_render = False
+                if should_render:
+                    self.engine.console.print(x=graphic[0], y=graphic[1], string=graphic[2]["char"], fg=graphic[2]["fg"], bg=graphic[2]["bg"])
 
             if graphic[4]:
                 # Increase current frame number by 1, and set the current graphic number to 0.
