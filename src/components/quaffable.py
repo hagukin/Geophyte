@@ -290,8 +290,8 @@ class PotionOfPoisonQuaffable(Quaffable):
         self.turn = turn
 
     def apply_effect(self, apply_to: Actor) -> None:
-        init_dmg = max(10, min(20, int(apply_to.status.changed_status["max_hp"] / 5)))
-        dmg_increase = int(init_dmg/self.turn/4)
+        init_dmg = max(5, min(10, int(apply_to.status.origin_status["max_hp"] / 100)))
+        dmg_increase = max(int(init_dmg/self.turn), 1)
         if self.parent.item_state.BUC == 1:
             dmg_increase = round(dmg_increase * 1.3)
         apply_to.actor_state.apply_poisoning([

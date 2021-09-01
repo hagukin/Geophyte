@@ -73,12 +73,11 @@ class Black_Jelly_Ai(ai.BaseAI):
 
     def check_is_ranged_atk_possible(self, attacker, target):
         # Check for ammo
-        ammo = attacker.inventory.check_if_in_inv(item_id="toxic_goo")
-        if not ammo:
-            return False
+        from item_factories import toxic_goo
+        ammo = toxic_goo.copy(gamemap=attacker.gamemap)
 
         # Set direction and Check if the target is in attackable radius
-        direction = self.get_ranged_direction(attacker=attacker, target=target, valid_range=ammo.throwable.throw_distance(attacker))
+        direction = self.get_ranged_direction(attacker=attacker, target=target, valid_range=999) # Use ammo.throwable.throw_distance(attacker) when making other ais.
 
         if direction:
             return direction, ammo

@@ -1,6 +1,7 @@
 from biome import Biome, get_tileset
 import terrain_factories
 import tiles
+import copy
 import color
 
 biome_dict = {}
@@ -18,6 +19,10 @@ rocky_dungeon = Biome(
 biome_dict[rocky_dungeon.biome_id] = rocky_dungeon
 biome_rarity.append(rocky_dungeon.rarity)
 
+def rocky_dungeon_small(max_rooms: int):
+    tmp = copy.deepcopy(rocky_dungeon)
+    tmp.max_rooms = max_rooms
+    return tmp
 
 forest = Biome(
     name="숲",

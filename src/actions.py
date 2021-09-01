@@ -625,11 +625,18 @@ class MeleeAction(ActionWithDirection):
     def is_miss(self) -> bool:
         """Returns whether the attack was successful or not."""
         # Your chance of successfully attacking will increas when fighting a bigger opponents. Vice versa.
-        size_bonus = 1 + (self.target_actor.actor_state.size - self.entity.actor_state.size) * 0.05
-        miss_constant = 1.8 # NOTE miss_constant : When you are balancing the game, ONLY change this constant and not the function itself.
+        size_bonus = 1 + (self.target_actor.actor_state.size - self.entity.actor_state.size) * 0.03
+        miss_constant = 0.25 # NOTE miss_constant : When you are balancing the game, ONLY change this constant and not the function itself.
 
-        # Max Chance to miss: (1 / 1.1)
-        if random.random() * max((1.3**self.entity.status.changed_status["dexterity"] + 1) * size_bonus * miss_constant / self.target_actor.status.changed_status["agility"], 1.1) < 1:
+        miss_calc = min(max(
+                (1.3**self.entity.status.changed_status["dexterity"] + 1)
+                * size_bonus
+                * miss_constant
+                / max(self.target_actor.status.changed_status["agility"] - self.entity.status.changed_status["agility"], 1)
+                , 1.5), 20) #50 -> always has at least 5% chance of missing
+
+        # Max Chance to miss: (1 / 1.5)
+        if random.random() *  miss_calc < 1:
             return True
         else:
             return False
@@ -658,12 +665,8 @@ class MeleeAction(ActionWithDirection):
         strength = self.entity.status.changed_status["strength"]
 
         # Apply size bonus
-        size_bonus = 1 + (self.entity.actor_state.size - self.target_actor.actor_state.size) * 0.05
+        size_bonus = 1 + (self.entity.actor_state.size - self.target_actor.actor_state.size) * 0.03
         damage *= size_bonus
-
-        # Apply strength bonus
-        strength_bonus =  min(2, 1 + strength / 45)
-        damage *= strength_bonus
 
         # Physical damage fall-off
         damage = target.status.calculate_dmg_reduction(damage=damage, damage_type="physical", ignore_reduction=False, penetration_constant=strength, round_dmg=False)

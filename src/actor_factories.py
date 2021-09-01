@@ -96,8 +96,8 @@ player = Actor(
     render_order=RenderOrder.PLAYER,
     ai_cls=None,
     status=Status(
-        hp=10000, #300
-        mp=100, #50
+        hp=300, #300
+        mp=50, #50
         strength=15,
         dexterity=15,
         agility=15,
@@ -123,20 +123,16 @@ player = Actor(
     inventory=Inventory(capacity=52, is_fireproof=False, is_acidproof=False, is_waterproof=False),
     ability_inventory=AbilityInventory(capacity=26),
     equipments=Equipments(),
-    initial_items=(
-        {"item": item_factories.axe, "chance":1, "count":(10,10), "BUC": {1:0, 0:1, -1:0}, "upgrade": None}, # NOTE: actor possesion BUC, upgrade has higher priority than item type inital_BUC, initial_upgrade
-        {"item": item_factories.iron_dagger, "chance": 1, "count": (10, 10), "BUC": {1:1, 0:0, -1:0}, "upgrade": None},
-        {"item": item_factories.potion_of_acid, "chance": 1, "count": (1, 50), "BUC": {1:0, 0:0, -1:1}, "upgrade": None},
-        {"item": item_factories.scroll_of_magic_mapping, "chance": 1, "count": (100, 101), "BUC": {1:0, 0:0, -1:1}, "upgrade": None},
-        {"item": item_factories.scroll_of_remove_curse, "chance": 1, "count": (100, 101), "BUC": {1:0, 0:0, -1:1}, "upgrade": None},
-        {"item": item_factories.shine, "chance": 1, "count": (50, 80), "BUC": None, "upgrade": None},
-    ),
+    initial_items=None,
+    # (
+    #     {"item": item_factories.potion_of_poison, "chance": 1, "count": (1, 50), "BUC": {1:0, 0:0, -1:1}, "upgrade": None},
+    #     {"item": item_factories.scroll_of_magic_mapping, "chance": 1, "count": (100, 101), "BUC": {1:0, 0:0, -1:1}, "upgrade": None},
+    #     {"item": item_factories.scroll_of_remove_curse, "chance": 1, "count": (100, 101), "BUC": {1:0, 0:0, -1:1}, "upgrade": None},
+    #     {"item": item_factories.shine, "chance": 1, "count": (50, 80), "BUC": None, "upgrade": None},
+    # ),
     initial_equipments=None,
     # (
     #     {"item":item_factories.shortsword, "chance":1, "count":(1,1), "BUC":{-1:1, 0:1, 1:1}, "upgrade": {1:1,2:0,3:0,4:0}},
-    #     {"item":item_factories.amulet_of_brilliance, "chance":1, "count":(1,1), "BUC":{-1:10, 0:1, 1:0}, "upgrade": {1:1,2:0,3:0,-4:10}},
-    #     {"item":item_factories.iron_plate_armor, "chance":1, "count":(1,1), "BUC":{-1:1, 0:1, 1:1}, "upgrade": {1:1,2:0,3:0,4:0}},
-    #     {"item":item_factories.iron_boots, "chance":1, "count":(1,1), "BUC":{-1:1, 0:1, 1:1}, "upgrade": {1:1,2:0,3:0,4:0}},
     # ),
     initial_abilities=None,
     # (
@@ -226,7 +222,7 @@ ant = Actor(
     "그렇지만 개중에는 어두운 기운의 영향을 덜 받은 개체들도 있기 마련이다. "
     "비교적 던전의 기운을 덜 받은 이 개미들은 기껏해야 사람 손가락 남짓한 크기로, 대체로 별 위협이 되지 않는다. "),
     actor_quote=("우리 엄마는 저보고 항상 개미같이 열심히 일하는 사람이 되라고 말했어요. "),
-    rarity=30,
+    rarity=15,
     weight = 0.07,
     spawnable=True,
     edible=edible.InsectEdible(nutrition=10),
@@ -542,7 +538,7 @@ cat = Actor(
         attracted_eat_type=("insect", "meat"),
     ),
     status=Status(
-        hp=92,
+        hp=55,
         mp=15,
         strength=12,
         dexterity=12,
@@ -598,7 +594,7 @@ large_cat = Actor(
         attracted_eat_type=("meat",),
     ),
     status=Status(
-        hp=104,
+        hp=65,
         mp=25,
         strength=15,
         dexterity=19,
@@ -606,7 +602,7 @@ large_cat = Actor(
         intelligence=10,
         constitution=14,
         charm=13,
-        difficulty=7,
+        difficulty=8,
         base_melee=13,
         additional_melee=13,
         protection=13,
@@ -717,7 +713,7 @@ dog = Actor(
         attracted_eat_type=("meat",),
     ),
     status=Status(
-        hp=93,
+        hp=60,
         mp=10,
         strength=13,
         dexterity=11,
@@ -773,7 +769,7 @@ large_dog = Actor(
         attracted_eat_type=("meat",),
     ),
     status=Status(
-        hp=105,
+        hp=72,
         mp=10,
         strength=17,
         dexterity=17,
@@ -781,7 +777,7 @@ large_dog = Actor(
         intelligence=11,
         constitution=14,
         charm=15,
-        difficulty=7,
+        difficulty=8,
         base_melee=15,
         additional_melee=8,
         protection=14,
@@ -828,7 +824,7 @@ cerberus = Actor(
         use_ability=False,
     ),
     status=Status(
-        hp=112,
+        hp=75,
         mp=66,
         strength=18,
         dexterity=18,
@@ -836,7 +832,7 @@ cerberus = Actor(
         intelligence=15,
         constitution=18,
         charm=18,
-        difficulty=8,
+        difficulty=10,
         base_melee=23,
         additional_melee=10,
         protection=18,
@@ -950,7 +946,7 @@ fly = Actor(
         attracted_eat_type=("meat", "insect", "fruit", "vegetable", "food"),
     ),
     status=Status(
-        hp=28,
+        hp=8,
         mp=0,
         strength=3,
         dexterity=8,
@@ -1011,7 +1007,7 @@ giant_wasp = Actor(
         attracted_eat_type=("insect",),
     ),
     status=Status(
-        hp=80,
+        hp=45,
         mp=0,
         strength=11,
         dexterity=10,
@@ -1019,14 +1015,14 @@ giant_wasp = Actor(
         intelligence=6,
         constitution=9,
         charm=6,
-        difficulty=6,
+        difficulty=7,
         base_melee=6,
         additional_melee=7,
         protection=11,
         hearing=7,
         eyesight=20,
         poison_resistance=0.4,
-        melee_effects_var=((2, 1, 0, 8),),
+        melee_effects_var=((1, 1, 0, 4),),
         melee_effects=(("poison_target", 0.8),),
         ),
     actor_state=ActorState(
@@ -1076,15 +1072,15 @@ black_jelly = Actor(
         intelligence=4,
         constitution=18,
         charm=5,
-        difficulty=5,
+        difficulty=6,
         base_melee=7,
         additional_melee=3,
-        protection=11,
+        protection=10,
         eyesight=15,
         poison_resistance=1,
         psychic_resistance=1,
         sleep_resistance=1,
-        melee_effects_var=((2, 3, 0, 3),),
+        melee_effects_var=((2, 1, 0, 3),),
         melee_effects=(("poison_target", 0.15),),
         ),
     actor_state=ActorState(
@@ -1103,9 +1099,8 @@ black_jelly = Actor(
     inventory=Inventory(capacity=1),
     ability_inventory=AbilityInventory(capacity=1),
     equipments=Equipments(),
-    initial_items=(
-        {"item":item_factories.toxic_goo, "chance":1, "count":(-1,-1), "BUC": {-1:0,0:1,1:0}, "upgrade":None},
-        ),
+    initial_items=None, # no longer has toxic goo.
+    initial_drop_on_death=({"item":item_factories.toxic_goo, "chance":0.9, "count":(1,5), "BUC": {-1:0,0:1,1:0}, "upgrade":None},),
 )
 ActorDB.monster_difficulty[black_jelly.status.difficulty].append(black_jelly)
 
@@ -1146,7 +1141,7 @@ nymph = Actor(
         intelligence=16,
         constitution=18,
         charm=27,
-        difficulty=7,
+        difficulty=10,
         base_melee=8,
         additional_melee=10,
         protection=13,
@@ -1208,7 +1203,7 @@ sphere_of_acid = Actor(
         intelligence=3,
         constitution=2,
         charm=6,
-        difficulty=6,
+        difficulty=7,
         base_melee=0,
         additional_melee=0,
         protection=1,
@@ -1325,7 +1320,7 @@ gaion = Actor(
         attracted_eat_type=("insect","meat",),
     ),
     status=Status(
-        hp=130,
+        hp=81,
         mp=50,
         strength=19,
         dexterity=24,
@@ -1333,7 +1328,7 @@ gaion = Actor(
         intelligence=15,
         constitution=16,
         charm=13,
-        difficulty=10,
+        difficulty=12,
         base_melee=28,
         additional_melee=20,
         protection=25,
@@ -1509,7 +1504,7 @@ fire_elemental = Actor(
         hostile_type=('@',),
     ),
     status=Status(
-        hp=140,
+        hp=120,
         mp=205,
         strength=23,
         dexterity=20,
@@ -1517,7 +1512,7 @@ fire_elemental = Actor(
         intelligence=21,
         constitution=19,
         charm=20,
-        difficulty=13,
+        difficulty=17,
         base_melee=35,
         additional_melee=10,
         protection=21,
@@ -1577,7 +1572,7 @@ ice_elemental = Actor(
         hostile_type=('@',),
     ),
     status=Status(
-        hp=160,
+        hp=140,
         mp=205,
         strength=23,
         dexterity=20,
@@ -1585,7 +1580,7 @@ ice_elemental = Actor(
         intelligence=22,
         constitution=16,
         charm=20,
-        difficulty=13,
+        difficulty=17,
         base_melee=30,
         additional_melee=22,
         protection=22,
@@ -1645,7 +1640,7 @@ earth_elemental = Actor(
         hostile_type=('@',),
     ),
     status=Status(
-        hp=150,
+        hp=130,
         mp=205,
         strength=24,
         dexterity=20,
@@ -1653,7 +1648,7 @@ earth_elemental = Actor(
         intelligence=22,
         constitution=17,
         charm=20,
-        difficulty=13,
+        difficulty=17,
         base_melee=37,
         additional_melee=12,
         protection=24,
@@ -1714,7 +1709,7 @@ acid_elemental = Actor(
         hostile_type=('@',),
     ),
     status=Status(# TODO
-        hp=155,
+        hp=135,
         mp=205,
         strength=22,
         dexterity=20,
@@ -1722,7 +1717,7 @@ acid_elemental = Actor(
         intelligence=20,
         constitution=19,
         charm=20,
-        difficulty=13,
+        difficulty=17,
         base_melee=37,
         additional_melee=12,
         protection=20,
@@ -1781,7 +1776,7 @@ poison_elemental = Actor(
         hostile_type=('@',),
     ),
     status=Status(
-        hp=153,
+        hp=123,
         mp=205,
         strength=22,
         dexterity=20,
@@ -1789,7 +1784,7 @@ poison_elemental = Actor(
         intelligence=21,
         constitution=20,
         charm=20,
-        difficulty=13,
+        difficulty=17,
         base_melee=37,
         additional_melee=15,
         protection=20,
@@ -1848,7 +1843,7 @@ lightning_elemental = Actor(
         hostile_type=('@',),
     ),
     status=Status(# TODO
-        hp=152,
+        hp=132,
         mp=205,
         strength=23,
         dexterity=21,
@@ -1856,7 +1851,7 @@ lightning_elemental = Actor(
         intelligence=22,
         constitution=18,
         charm=20,
-        difficulty=13,
+        difficulty=17,
         base_melee=32,
         additional_melee=16,
         protection=21,
@@ -1918,7 +1913,7 @@ unicorn = Actor(
         attracted_own_type=(InventoryOrder.GEM,),
     ),
     status=Status(
-        hp=145,
+        hp=95,
         mp=120,
         strength=21,
         dexterity=13,
@@ -1926,7 +1921,7 @@ unicorn = Actor(
         intelligence=17,
         constitution=19,
         charm=25,
-        difficulty=11,
+        difficulty=13,
         base_melee=33,
         additional_melee=25,
         protection=24,
@@ -1999,7 +1994,7 @@ chatterbox = Actor(
     edible=edible.RawMeatEdible(nutrition=280),
     ai_cls=ai_factories.Chatterbox_Ai(),
     status=Status(
-        hp=92,
+        hp=73,
         mp=13,
         strength=19,
         dexterity=18,
@@ -2009,7 +2004,7 @@ chatterbox = Actor(
         charm=12,
         difficulty=7,
         base_melee=5,
-        additional_melee=20,
+        additional_melee=15,
         protection=16,
         hearing=40,
         eyesight=2,
@@ -2069,7 +2064,7 @@ baby_phoenix = Actor(
         intelligence=16,
         constitution=40,
         charm=19,
-        difficulty=7,
+        difficulty=9,
         base_melee=10,
         additional_melee=15,
         protection=15,
@@ -2141,7 +2136,7 @@ phoenix = Actor(
         intelligence=18,
         constitution=40,
         charm=23,
-        difficulty=12,
+        difficulty=19,
         base_melee=33,
         additional_melee=20,
         protection=20,
@@ -2208,7 +2203,7 @@ orc_patrol = Actor(
         hostile_type=('@','l', 'F', 'I'),
     ),
     status=Status(
-        hp=103,
+        hp=75,
         mp=15,
         strength=17,
         dexterity=14,
@@ -2216,7 +2211,7 @@ orc_patrol = Actor(
         intelligence=13,
         constitution=14,
         charm=14,
-        difficulty=8,
+        difficulty=9,
         base_melee=13,
         additional_melee=8,
         protection=15,
@@ -2274,7 +2269,7 @@ orc_warrior = Actor(
         hostile_type=('@','l', 'F', 'I'),
     ),
     status=Status(
-        hp=135,
+        hp=85,
         mp=15,
         strength=18,
         dexterity=16,
@@ -2282,7 +2277,7 @@ orc_warrior = Actor(
         intelligence=14,
         constitution=17,
         charm=15,
-        difficulty=9,# Unarmed 7
+        difficulty=11,# Unarmed 7
         base_melee=13,
         additional_melee=8,
         protection=15,
@@ -2341,7 +2336,7 @@ orc_blacksmith = Actor(
         hostile_type=('@','l', 'F', 'I'),
     ),
     status=Status(
-        hp=120,
+        hp=83,
         mp=40,
         strength=18,
         dexterity=20,
@@ -2349,7 +2344,7 @@ orc_blacksmith = Actor(
         intelligence=16,
         constitution=10,
         charm=15,
-        difficulty=9,# Unarmed 7
+        difficulty=10,# Unarmed 7
         base_melee=15,
         additional_melee=9,
         protection=15,
@@ -2407,7 +2402,7 @@ orc_lord = Actor(
         hostile_type=('@','l', 'F', 'I'),
     ),
     status=Status(
-        hp=155,
+        hp=95,
         mp=100,
         strength=21,
         dexterity=19,
@@ -2415,7 +2410,7 @@ orc_lord = Actor(
         intelligence=15,
         constitution=18,
         charm=20,
-        difficulty=10,
+        difficulty=12,
         base_melee=18,
         additional_melee=10,
         protection=15,
@@ -2475,7 +2470,7 @@ orc_shaman = Actor(
         hostile_type=('@','l','F','I'),
     ),
     status=Status(
-        hp=115,
+        hp=73,
         mp=105,
         strength=14,
         dexterity=16,
@@ -2483,7 +2478,7 @@ orc_shaman = Actor(
         intelligence=17,
         constitution=13,
         charm=13,
-        difficulty=7,# Unarmed 7
+        difficulty=9,
         base_melee=10,
         additional_melee=6,
         protection=11,
@@ -2525,8 +2520,8 @@ ActorDB.monster_difficulty[orc_shaman.status.difficulty].append(orc_shaman)
 ######## T - GIANTS & TITANS & TROLLS  #############
 ####################################################
 
-### Ogre
-ogre = Actor(
+### Troll
+troll = Actor(
     char="T",
     fg=(160, 176, 111),
     name="트롤",
@@ -2556,7 +2551,7 @@ ogre = Actor(
         intelligence=3,
         constitution=10,
         charm=8,
-        difficulty=9,
+        difficulty=13,
         base_melee=25,
         additional_melee=20,
         protection=18,
@@ -2581,7 +2576,7 @@ ogre = Actor(
         {"item":item_factories.rags, "chance":1, "count":(1,1), "BUC": None, "upgrade":None},
     ),
 )
-ActorDB.monster_difficulty[ogre.status.difficulty].append(ogre)
+ActorDB.monster_difficulty[troll.status.difficulty].append(troll)
 
 
 ### Giant
@@ -2606,7 +2601,7 @@ giant = Actor(
         hostile_type=('@',),
     ),
     status=Status(
-        hp=190,
+        hp=160,
         mp=20,
         strength=27,
         dexterity=14,
@@ -2614,7 +2609,7 @@ giant = Actor(
         intelligence=15,
         constitution=13,
         charm=18,
-        difficulty=12,
+        difficulty=16,
         base_melee=25,
         additional_melee=9,
         protection=18,

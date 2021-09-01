@@ -348,7 +348,7 @@ potion_of_poison = Item(
         identify_when_collided_with_actor=0, # Handle in quaffable
     ),
     readable=None,
-    quaffable=quaffable.PotionOfPoisonQuaffable(turn=16),
+    quaffable=quaffable.PotionOfPoisonQuaffable(turn=8),
 )
 temp_items_lists.append(potion_of_poison)
 item_rarity.append(potion_of_poison.rarity)
@@ -2347,8 +2347,9 @@ toxic_goo = Item(
     flammable=0,
     corrodible=0,
     droppable=True,
-    change_stack_count_when_dropped=(1,1),
-    stackable=False,
+    # change_stack_count_when_dropped=(1,1),
+    # stackable=False, # Old codes -> no longer needed
+    stackable=True,
     throwable=throwable.ToxicGooThrowable(
         base_throw=1,
         additional_throw=1,
