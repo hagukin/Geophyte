@@ -1,7 +1,8 @@
 import copy
-from typing import Tuple, List, Optional, TYPE_CHECKING
+from typing import Tuple, List, Optional, TYPE_CHECKING, Dict
 import tiles
 import color
+import actor_factories
 
 def get_tileset(
     adjustments: dict=None,
@@ -51,6 +52,7 @@ class Biome:
         max_rooms: int = 100,
         map_width: int = 67, # min 67
         map_height: int = 41, # min 41
+        monster_difficulty: Dict=None,
         respawn_ratio: float = 0.5,
         respawn_time: float = 50,
         generate_descending_stair: bool = True,
@@ -96,6 +98,18 @@ class Biome:
                 e.g.
                 remove_all_terrain_of_type = ("has_door", "gen_traps")
                 -> Will set rarity of terrains that has door OR generate traps to 0
+            monster_difficulty:
+                Dictionary. Key - difficulty, value - weight
+                If not None, every monster generated in this biome will be clamped into given difficulty range.
+                e.g. {5: 3, 6: 1}
+
+                NOTE: If terrain in the biome has specifed monster generation dictionary(monster_to_spawn),
+                    it will ignore this limit range.
+                NOTE: This value DO AFFECT respawning monsters.
+                NOTE: If you set this value to something weird, for example{999: 1}, the game has potential danger of stucking in infinite loop which is extremely bad.
+                We do check if every key is valid beforehand, still it is highly recommended to follow the following rules:
+                    1) dictionary should have more than 1 item.
+                    2) you should check each keys in the dictionary is valid.
         """
         if tileset is None:
             tileset = get_tileset()
@@ -130,6 +144,27 @@ class Biome:
                 if self.terrain[key]:
                     print(f"DEBUG::Replacing {key.terrain_id} of rarity {self.terrain[key]} to rarity {v}. - biome: {self.biome_id}")
                 self.terrain[key] = v # Could overwrite existing value
+
+        self.monster_difficulty = monster_difficulty
+        if self.monster_difficulty:
+            self.adjust_biome_monster_difficulty()
+
+    def adjust_biome_monster_difficulty(self) -> None:
+        """Search for any potential error which could be caused from wrong monster difficulty key value.
+        e.g. if mosnter difficulty is {1 : 5, 9999: 3}, 9999 is removed since there are no mosnters that has difficulty 9999.
+        likewise, is monster difficulty is {28: 1}, and 28 is a valid difficulty but there is no monster that has difficulty 28, it is removed as well."""
+        remove_key = []
+        for key in self.monster_difficulty.keys():
+            if key not in actor_factories.ActorDB.monster_difficulty.keys():
+                print(f"ERROR::Biome {self.biome_id} has monster_difficulty specified and key {key} is invalid. Key is removed.")
+                remove_key.append(key)
+                continue
+            elif not actor_factories.ActorDB.monster_difficulty[key]:
+                print(f"ERROR::Biome {self.biome_id} has monster_difficulty specified and key {key} is valid, but there are no monsters that belong to {key} key difficulty. Key is removed.")
+                remove_key.append(key)
+                continue
+        for remove in remove_key:
+            self.monster_difficulty.pop(remove)
 
     def find_terrain_of_id(self, terrain_id: str):
         """Search self.terrain and return the Terrain obj with given id."""

@@ -66,7 +66,7 @@ def choose_terrain(
     return copy.deepcopy(terrain)
 
 
-def choose_monster_difficulty(depth: int, toughness: int=0) -> int:
+def choose_monster_difficulty(gamemap: GameMap, toughness: int=0) -> int:
     """
     Input: the depth of the floor to randomize new monsters
     Output: an integer value that indicates the difficulty of the monster to randomize
@@ -75,19 +75,25 @@ def choose_monster_difficulty(depth: int, toughness: int=0) -> int:
         toughness:
             Higher toughness value will result in a higher difficulty output.
 
+    NOTE: If the gamemap's biome has specified monster difficulty, toughness is totally ignored.
+
     TODO: Make this function affected by the player's status?
-    NOTE: This whole function may need some minor adjustments
     """
-    if depth < 0:
-        depth_ = -depth
+    if gamemap.depth < 0:
+        depth_ = -gamemap.depth
     else:
-        depth_ = depth
+        depth_ = gamemap.depth
 
-    avg_diff = depth_ + toughness + 1
-    max_diff = avg_diff + 2 # Technically the max difficulty of a spawned monster is avg_diff + 3, since choose_monster_by_difficulty().radius is (-1,1)
+    if gamemap.biome.monster_difficulty:
+        difficulty_chosen = random.choices(list(gamemap.biome.monster_difficulty.keys()),
+                                           list(gamemap.biome.monster_difficulty.values()),
+                                                k=1)[0] # Toughness is ignored.
+    else:
+        avg_diff = depth_ + toughness + 1
+        max_diff = avg_diff + 2 # Technically the max difficulty of a spawned monster is avg_diff + 3, since choose_monster_by_difficulty().radius is (-1,1)
 
-    # Choose the monster difficulty (Using normal distribution; but there are limits to maximum and minimum values)
-    difficulty_chosen = min(max_diff, max(1, round(np.random.normal(avg_diff, 1.5, 1)[0])))
+        # Choose the monster difficulty (Using normal distribution; but there are limits to maximum and minimum values)
+        difficulty_chosen = min(max_diff, max(1, round(np.random.normal(avg_diff, 1.5, 1)[0])))
 
     return difficulty_chosen
 
@@ -153,7 +159,7 @@ def spawn_monster_of_appropriate_difficulty(x: int, y: int, dungeon: GameMap, sp
         y=y,
         monster=choose_monster_by_difficulty(
             difficulty=choose_monster_difficulty(
-                dungeon.depth,
+                dungeon,
                 dungeon.engine.toughness
             ),
             radius=(-1, 1)
@@ -186,10 +192,10 @@ def spawn_monsters(
         monsters_to_spawn = []
         for _ in range(mon_num):
             # Choose difficulty
-            difficulty_chosen = choose_monster_difficulty(depth=depth, toughness=dungeon.engine.toughness)
+            difficulty_chosen = choose_monster_difficulty(gamemap=dungeon, toughness=dungeon.engine.toughness)
 
             while not actor_factories.ActorDB.monster_difficulty[difficulty_chosen]:
-                difficulty_chosen = choose_monster_difficulty(depth=depth, toughness=dungeon.engine.toughness)
+                difficulty_chosen = choose_monster_difficulty(gamemap=dungeon, toughness=dungeon.engine.toughness)
 
             monsters_to_spawn.append(choose_monster_by_difficulty(difficulty_chosen, radius=(-1, 1)))
 

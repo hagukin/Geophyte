@@ -137,6 +137,9 @@ class Terrain:
                 if set to None, terrain will use default values (from actor_factories) instead.
                 weight is set to None if you are using the original rarity value.
                 e.g. {actor_factories.orc_warrior : 3, actor_factories.orc_shaman : 1}
+
+                NOTE: the specification only affects the procgen process.
+                meaning that when monsters are getting respawned, this value cannot interfere with the type of monsters that are being respawned.
             item_to_spawn:
                 same as monster_to_spawn parameter
         """
