@@ -1510,7 +1510,7 @@ class InventoryDropHandler(StorageSelectMultipleEventHandler):
 
 
 class PickupMultipleHandler(StorageSelectMultipleEventHandler):
-    """Handle dropping an inventory item."""
+    """Handle picking up an multiple items."""
     def __init__(self, inventory_component: Inventory):
         super().__init__(inventory_component)
         self.TITLE = "주울 아이템들을 선택하세요."
@@ -1520,7 +1520,7 @@ class PickupMultipleHandler(StorageSelectMultipleEventHandler):
 
     def choice_confirmed(self):
         """
-        Drop all the selected items.
+        Pick up all the selected items.
         """
         PickupAction(self.engine.player).pickup_given_items(items=list(self.selected_items))
         return TurnPassAction(self.engine.player)  # Return an action if the item is the last one to drop to cost a turn
@@ -1891,7 +1891,7 @@ class DisplayControlEventHandler(AskUserEventHandler):
         console.print(x=x_start, y=y_start + ypad, string="<턴 넘기기>", fg=color.white)
         console.print(x=x_start, y=y_start + ypad+1, string="키패드 5 / .(마침표)키", fg=color.cyan)
         ypad += 3
-        console.print(x=x_start, y=y_start + ypad, string="<아이템 픽업>", fg=color.white)
+        console.print(x=x_start, y=y_start + ypad, string="<아이템 줍기>", fg=color.white)
         console.print(x=x_start, y=y_start + ypad+1, string="(g)키", fg=color.cyan)
         ypad += 3
         console.print(x=x_start, y=y_start + ypad, string="<계단 올라가기, 내려가기>", fg=color.white)

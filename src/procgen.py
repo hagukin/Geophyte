@@ -132,6 +132,7 @@ def spawn_given_monster(
 ) -> None:
     """
     Spawns a given monster to given location from given gamemap.
+    This is the only function you should use during procgen process to directly spawn an actor entity.
     Args:
         spawn_awake:
             Boolean, Will the monster become active right after they are spawned?
@@ -144,6 +145,9 @@ def spawn_given_monster(
 
     # Spawn new monster
     new_monster = monster.spawn(dungeon, x, y)
+
+    # DEBUG
+    # print(new_monster.entity_id)
 
     if spawn_awake:
         if new_monster.ai:

@@ -96,10 +96,14 @@ class Edible(BaseComponent):
             from util import spawn_entity_8way
             from actor_factories import maggot
 
-            if self.parent.parent == None: # Is not owned by any InventoryComponent
-                x, y = self.parent.x, self.parent.y
-            else:
-                x, y = self.owner.x, self.owner.y
+            try:
+                if self.parent.parent == None: # Is not owned by any InventoryComponent
+                    x, y = self.parent.x, self.parent.y
+                else:
+                    x, y = self.owner.x, self.owner.y
+            except AttributeError:
+                print(f"ERROR::AttributeError thrown from util.spawn_maggots - item:{self.parent}, owner:{self.owner}")
+                return None
             spawn_entity_8way(entity=maggot, gamemap=self.engine.game_map, center_x=x, center_y=y, spawn_cnt=maggot_num)
 
             # Log

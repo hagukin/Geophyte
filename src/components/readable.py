@@ -372,9 +372,9 @@ class ScrollOfMagicMappingReadable(Readable):
     this readable will first apply the effect and after wait for an input. 
     When input is reveived, this will return 0 to callback and finish the whole process. (0 is just a trash value it doesn't matter what you pass)
     """
-    def activate(self, consumer) -> None:
+    def activate(self, action: actions.ReadItem) -> None:
         self.engine.update_fov()
-        self.consume(consumer)
+        self.consume(consumer=action.entity)
 
     def get_action(self, consumer):
         if consumer == self.engine.player:

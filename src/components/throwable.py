@@ -302,6 +302,7 @@ class NormalThrowable(Throwable):
         dest_x, dest_y = thrower.x + self.dx, thrower.y + self.dy
         dist = 0
         path = []
+        throw_over = False
 
         ### A. Main loop ###
         while not self.shattered:
@@ -328,7 +329,11 @@ class NormalThrowable(Throwable):
                 if self.penetration == False:
                     self.collision_x = dest_x
                     self.collision_y = dest_y
+                    throw_over = True
                     break
+            if throw_over:
+                break
+
             # 4. Check range
             path.append((dest_x, dest_y))
             dest_x += self.dx

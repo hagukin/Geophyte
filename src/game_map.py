@@ -374,11 +374,19 @@ class GameMap:
                         try_count += 1
                         continue
                     else:
-                        # TODO: change tpyes of monster spawned depending on the biome type
                         # the monster difficulty rise as time goes on to prevent farming. This can be done by adjusting the toughness parameter.
+                        # We are not using procgen.spawn_monster_of_appropriate_difficulty because we want to specify the difficulty.
                         import procgen
                         difficulty_chosen = procgen.choose_monster_difficulty(gamemap=self, toughness=self.engine.toughness + min(4, round(self.difficulty_rise)))
-                        procgen.spawn_monster_of_appropriate_difficulty(x=random_x, y=random_y, dungeon=self, spawn_awake=True, is_first_generation=False)
+                        procgen.spawn_given_monster(
+                            x=random_x,
+                            y=random_y,
+                            monster=procgen.choose_monster_by_difficulty(
+                                difficulty=difficulty_chosen,
+                                radius=(-1, 1)
+                            ),
+                            dungeon=self
+                        )
                         break
         # Add turn
         self.respawn_turn_left += 1

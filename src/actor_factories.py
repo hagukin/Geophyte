@@ -2320,7 +2320,7 @@ ActorDB.monster_difficulty[orc_warrior.status.difficulty].append(orc_warrior)
 ### Orc blacksmith
 orc_blacksmith = Actor(
     char="O",
-    fg=(75, 105, 78),
+    fg=(255, 132, 66),
     name="오크 대장장이",
     entity_id="orc_blacksmith",
     actor_type_desc=(""),
@@ -2386,7 +2386,7 @@ ActorDB.monster_difficulty[orc_blacksmith.status.difficulty].append(orc_blacksmi
 ### Orc lord
 orc_lord = Actor(
     char="O",
-    fg=(0, 138, 55),
+    fg=(222, 196, 0),
     name="오크 족장",
     entity_id="orc_lord",
     actor_type_desc=(""),
