@@ -537,8 +537,8 @@ def generate_on_empty_convex(gamemap: GameMap, x:int, y:int) -> None:
         grow_chest(gamemap=gamemap, x=x, y=y, chest_id=choose_random_chest_id(k=1)[0], initial_items=None)
         # gamemap.tiles[x, y] = gamemap.tileset["t_DEBUG"]()
     else:
-        from procgen import spawn_monsters_by_difficulty, choose_monster_difficulty
-        spawn_monsters_by_difficulty(x=x, y=y, difficulty=choose_monster_difficulty(gamemap.depth, gamemap.engine.toughness), dungeon=gamemap)
+        from procgen import spawn_monster_of_appropriate_difficulty
+        spawn_monster_of_appropriate_difficulty(x=x, y=y, dungeon=gamemap)
 
 
 def grow_plant(gamemap, x, y, plant_semiactor: SemiActor, lifetime=-1) -> None:

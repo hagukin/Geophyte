@@ -378,7 +378,7 @@ class GameMap:
                         # the monster difficulty rise as time goes on to prevent farming. This can be done by adjusting the toughness parameter.
                         import procgen
                         difficulty_chosen = procgen.choose_monster_difficulty(depth=self.depth, toughness=self.engine.toughness + min(4, round(self.difficulty_rise)))
-                        procgen.spawn_monsters_by_difficulty(x=random_x, y=random_y, difficulty=difficulty_chosen, dungeon=self, spawn_awake=True, is_first_generation=False)
+                        procgen.spawn_monster_of_appropriate_difficulty(x=random_x, y=random_y, dungeon=self, spawn_awake=True, is_first_generation=False)
                         break
         # Add turn
         self.respawn_turn_left += 1

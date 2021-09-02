@@ -159,7 +159,7 @@ class Engine:
                     and self.world.check_if_should_exist_in_memory(depth):
                         # MOST OF THE TIME THERE IS GOING TO BE ONLY 1 NEW GAMEMAP THATS BEING GENERATED.
                         print(f"DEBUG::GENERATING DEPTH {tmp_depth}")
-                        new_map = self.generate_new_dungeon(depth=tmp_depth, console=self.console, context=self.context,display_process=False)
+                        new_map = self.generate_new_dungeon(depth=tmp_depth, console=self.console, context=self.context,display_process=True)
                         new_map.adjustments_before_new_map() # Adjust things (AI's vision, etc. player's vision is initialized AFTER player has been placed.)
                         self.world.save_map_to_memory(new_map, tmp_depth)
                 if not self.world.check_if_map_on_mem(tmp_depth):

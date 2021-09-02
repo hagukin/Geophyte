@@ -4,6 +4,7 @@ from unique_terrains.chamber_of_kugah import ChamberOfKugahTerrain
 from unique_terrains.guarded_treasure import GuardedTreasureTerrain
 import semiactor_factories
 import item_factories
+import actor_factories
 from order import InventoryOrder
 
 terrain_dict = {}

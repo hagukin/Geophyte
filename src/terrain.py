@@ -24,8 +24,10 @@ class Terrain:
         shape: dict = None,
         spawn_item: bool = True,
         items_cnt: Dict = None,
+        item_to_spawn: Dict = None,
         monsters_cnt: Dict = None,
         spawn_monster: bool = True,
+        monster_to_spawn: Dict = None,
         has_wall: bool = True, #TODO: need to add feature
         protected: bool = False,
         has_door: bool = True,
@@ -130,6 +132,13 @@ class Terrain:
                 Function. The function will randomize an unique terrains that is specified to this room.
                 FUnction is called during procgen.generate_terrain().
                 Can be set to None.
+            monster_to_spawn:
+                Dictionary. Key - monster, value - weight
+                if set to None, terrain will use default values (from actor_factories) instead.
+                weight is set to None if you are using the original rarity value.
+                e.g. {actor_factories.orc_warrior : 3, actor_factories.orc_shaman : 1}
+            item_to_spawn:
+                same as monster_to_spawn parameter
         """
 
         self.name = name
@@ -162,7 +171,9 @@ class Terrain:
             self.shape = shape
 
         self.spawn_item = spawn_item
+        self.item_to_spawn = item_to_spawn
         self.spawn_monster = spawn_monster
+        self.monster_to_spawn = monster_to_spawn
 
         self.has_wall = has_wall
         self.protected = protected

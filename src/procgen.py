@@ -121,12 +121,11 @@ def choose_monster_by_difficulty(difficulty: int, radius: (0,0)) -> Optional[Act
         return None # FIXME
 
 
-def spawn_monsters_by_difficulty(
-    x: int, y: int, difficulty: int, dungeon: GameMap, spawn_awake=False, is_first_generation=False,
+def spawn_given_monster(
+    x: int, y: int, monster: Actor, dungeon: GameMap, spawn_awake=False, is_first_generation=False,
 ) -> None:
     """
-    Spawn a random monster of a given difficulty.
-
+    Spawns a given monster to given location from given gamemap.
     Args:
         spawn_awake:
             Boolean, Will the monster become active right after they are spawned?
@@ -134,12 +133,11 @@ def spawn_monsters_by_difficulty(
             Boolean, Is this function called by the gamemap generation function?
             (=is this the first time that the monster is being generated to this dungeon?)
     """
-    monster_to_spawn = choose_monster_by_difficulty(difficulty, radius=(-1,1))
-    if monster_to_spawn is None or not monster_to_spawn.spawnable:
+    if monster is None or not monster.spawnable:
         return None
 
     # Spawn new monster
-    new_monster = monster_to_spawn.spawn(dungeon, x, y)
+    new_monster = monster.spawn(dungeon, x, y)
 
     if spawn_awake:
         if new_monster.ai:
@@ -148,20 +146,90 @@ def spawn_monsters_by_difficulty(
         dungeon.starting_monster_num += 1
 
 
+def spawn_monster_of_appropriate_difficulty(x: int, y: int, dungeon: GameMap, spawn_awake=False, is_first_generation=False) -> None:
+    """Wrapper funciton."""
+    spawn_given_monster(
+        x=x,
+        y=y,
+        monster=choose_monster_by_difficulty(
+            difficulty=choose_monster_difficulty(
+                dungeon.depth,
+                dungeon.engine.toughness
+            ),
+            radius=(-1, 1)
+        ),
+        dungeon=dungeon,
+        spawn_awake=spawn_awake,
+        is_first_generation=is_first_generation
+    )
+
+
+def spawn_monsters(
+    room: Room, dungeon: GameMap, depth: int
+) -> None:
+    """
+    Spawn monsters to given room.
+    Sole purpose of this function is to use it in procgen.
+    """
+    mon_num = random.choices(
+        list(room.terrain.monsters_cnt.keys()),
+        list(room.terrain.monsters_cnt.values()),
+        k=1)[0]
+
+    if room.terrain.monster_to_spawn:
+        monsters_to_spawn = random.choices(
+            population=list(room.terrain.monster_to_spawn.keys()),
+            weights=list(room.terrain.monster_to_spawn.values()),
+            k=mon_num
+        )
+    else:
+        monsters_to_spawn = []
+        for _ in range(mon_num):
+            # Choose difficulty
+            difficulty_chosen = choose_monster_difficulty(depth=depth, toughness=dungeon.engine.toughness)
+
+            while not actor_factories.ActorDB.monster_difficulty[difficulty_chosen]:
+                difficulty_chosen = choose_monster_difficulty(depth=depth, toughness=dungeon.engine.toughness)
+
+            monsters_to_spawn.append(choose_monster_by_difficulty(difficulty_chosen, radius=(-1, 1)))
+
+    for monster_to_spawn in monsters_to_spawn:
+        # Spawn location
+        tile_coordinates = room.inner_tiles
+        place_tile = random.choice(tile_coordinates)
+
+        # Prevent entities clipping
+        if any(entity.x == place_tile[0] and entity.y == place_tile[1] for entity in dungeon.entities) \
+                or dungeon.tilemap[place_tile[0], place_tile[1]] == TilemapOrder.ASCEND_STAIR.value \
+                or dungeon.tilemap[place_tile[0], place_tile[1]] == TilemapOrder.DESCEND_STAIR.value:
+            continue
+        else:
+            # Spawn
+            spawn_given_monster(x=place_tile[0], y=place_tile[1], monster=monster_to_spawn, dungeon=dungeon,
+                                         spawn_awake=False, is_first_generation=True)
+
+
 def spawn_items(
     room: Room, dungeon: GameMap
 ) -> None:
+    """
+    Spawn items to given room.
+    Sole purpose of this function is to use it in procgen.
+    """
     number_of_items = random.choices(
         list(room.terrain.items_cnt.keys()),
         list(room.terrain.items_cnt.values()),
         k=1)[0]
     tile_coordinates = room.inner_tiles
 
-    item_candidates = {}
-    from item_factories import item_rarity, temp_items_lists
-    for i in range(len(temp_items_lists)):
-        if temp_items_lists[i].spawnable and not dungeon.engine.item_manager.check_artifact_id_generated(temp_items_lists[i].entity_id):
-            item_candidates[temp_items_lists[i]] = item_rarity[i]
+    if room.terrain.item_to_spawn:
+        item_candidates = room.terrain.item_to_spawn
+    else:
+        item_candidates = {}
+        from item_factories import item_rarity, temp_items_lists
+        for i in range(len(temp_items_lists)):
+            if temp_items_lists[i].spawnable and not dungeon.engine.item_manager.check_artifact_id_generated(temp_items_lists[i].entity_id):
+                item_candidates[temp_items_lists[i]] = item_rarity[i]
 
     # Choose items to spawn
     spawn_list = random.choices(
@@ -670,31 +738,11 @@ def generate_entities(
     for room in rooms:
         ### Spawning Monsters ###
         if room.terrain.spawn_monster:
-            # Each loop can generates one monster
-            mon_num = random.choices(
-                list(room.terrain.monsters_cnt.keys()),
-                list(room.terrain.monsters_cnt.values()),
-                k=1)[0]
-            for _ in range(mon_num):
-                # Spawn location
-                tile_coordinates = room.inner_tiles
-                place_tile = random.choice(tile_coordinates)
-
-                # Prevent entities clipping
-                if any(entity.x == place_tile[0] and entity.y == place_tile[1] for entity in dungeon.entities)\
-                        or dungeon.tilemap[place_tile[0], place_tile[1]] == TilemapOrder.ASCEND_STAIR.value\
-                        or dungeon.tilemap[place_tile[0], place_tile[1]] == TilemapOrder.DESCEND_STAIR.value:
-                    continue
-        
-                # Choose difficulty
-                difficulty_chosen = choose_monster_difficulty(depth=depth, toughness=dungeon.engine.toughness)
-
-                while not actor_factories.ActorDB.monster_difficulty[difficulty_chosen]:
-                    difficulty_chosen = choose_monster_difficulty(depth=depth, toughness=dungeon.engine.toughness)
-
-                # Spawn
-                spawn_monsters_by_difficulty(x=place_tile[0], y=place_tile[1], difficulty=difficulty_chosen, dungeon=dungeon, spawn_awake=False, is_first_generation=True)
-
+            spawn_monsters(
+                room,
+                dungeon,
+                depth
+            )
 
         ### Spawning Items ###
         if room.terrain.spawn_item:
@@ -886,7 +934,6 @@ def generate_dungeon(
     if debugmode:
         print(f"Adjusting Tunnels - {time.time() - t}s")
         t = time.time()
-
 
 
     if txt_log:
