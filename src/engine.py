@@ -16,9 +16,8 @@ import exceptions
 import copy
 import traceback
 import color
-import queue
 
-from threading import Thread
+from sound import SoundManager
 from collections import deque
 from actions import BumpAction, DescendAction, AscendAction, PickupAction
 from procgen import generate_dungeon
@@ -39,6 +38,7 @@ from entity import Actor, Entity, Item, SemiActor
 if TYPE_CHECKING:
     from game_map import GameMap
     from input_handlers import EventHandler
+    from world import World
 
 
 class Engine:
@@ -69,18 +69,19 @@ class Engine:
         self.items_in_sight: Set[Item] = set()
         self.prev_actors_in_sight: Set[Actor] = set()
         self.prev_items_in_sight: Set[Item] = set()
-        self.game_turn = 0
-        self.config = None # Set from initialization
-        self.console = None
-        self.context = None
-        self._mouse_pos = (0,0)
-        self.camera: Camera = None
-        self.world = None
-        self.game_map: GameMap = None
+        self.game_turn: int = 0
+        self._mouse_pos: Tuple[int,int] = (0,0)
         self.depth: int = 0 # NOTE: engine.depth != gamemap.depth. Latter is a constant.
-        self.item_manager: ItemManager = None
-        self.toughness = 0
-        self.easteregg = 0
+        self.toughness: int = 0
+        self.easteregg: int = 0
+        self.sound_manager: SoundManager = None # Initialized in main
+        self.config: Dict = None # Set from initialization
+        self.console: tcod.Console = None # Set from main
+        self.context: tcod.context.Context = None # Set from main
+        self.camera: Camera = None # Set from initialization
+        self.world: World = None # Set from initialization
+        self.game_map: GameMap = None # Set from initialization
+        self.item_manager: ItemManager = None # Set from initialization -> engine.initialize_item_manager()
 
     def set_mouse_pos(self, x, y):
         self._mouse_pos = x, y

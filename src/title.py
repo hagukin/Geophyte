@@ -9,6 +9,8 @@ import time
 import random
 from option import Option
 from credits import Credit
+from src.sound import SoundManager
+
 
 class TitleInputHandler(tcod.event.EventDispatch[None]):
     """
@@ -125,7 +127,12 @@ class Title():
         context.present(console, keep_aspect=True)
 
     @staticmethod
-    def title_event_handler(console, context, cfg):
+    def title_sound(sound_manager: SoundManager) -> None:
+        sound_manager.change_bgm("resources\\sound\\bgm_constellation_x3nus.wav")
+        sound_manager.change_bgs("resources\\sound\\bgs_cave.wav")
+
+    @staticmethod
+    def title_event_handler(console, context, cfg, sound_manager: SoundManager):
         """
         Core function that handles most of the things related to the title screen.
         Title screen loop is handled here.
@@ -138,6 +145,7 @@ class Title():
         # Render title for the first time
         animation_frame = 1
         Title.render_title(console, context, logo_x, logo_y, animation_frame)
+        Title.title_sound(sound_manager)
 
         # Title screen loop
         while True:

@@ -2097,6 +2097,12 @@ class MainGameEventHandler(EventHandler):
                 )
             elif key == tcod.event.K_F9:
                 self.engine.player.status.experience.gain_agility_exp(amount=100)
+            elif key == tcod.event.K_F8:
+                self.engine.sound_manager.change_bgm("resources\\sound\\bgmtest.wav")
+                self.engine.sound_manager.add_sound_queue("resources\\sound\\confirm.wav")
+            elif key == tcod.event.K_F7:
+                self.engine.sound_manager.change_bgm("resources\\sound\\confirm.wav")
+                self.engine.sound_manager.add_sound_queue("resources\\sound\\confirm.wav")
 
         # No valid key was pressed
         return action

@@ -1,13 +1,25 @@
-#!/usr/bin/env python3
+#!usr/bin/env python
+#coding=utf-8
+
 import traceback
 import tcod
 import color
+import threading
 from game import Game
-from tcod.context import RENDERER_SDL2
 from configuration import get_game_config
 from title import Title
+from sound import SoundManager
+
+global sound_queue # Contains sound that are going to be played once
+global bgm
+global bgs
 
 def main() -> None:
+    sound_manager = SoundManager()
+    sound_thread = threading.Thread(target=sound_manager.update, args=()) # SoundManager.update will sleep for every 1/60 second.
+    sound_thread.daemon = True # is Daemon thread. will stop when main thread dies.
+    sound_thread.start()
+
     # Get Configuration
     cfg = get_game_config()
 
@@ -32,10 +44,11 @@ def main() -> None:
         root_console = tcod.Console(cfg["screen_width"], cfg["screen_height"], order="F")
 
         # Title Screen Loop
-        Game.engine = Title.title_event_handler(console=root_console, context=context, cfg=cfg)
+        Game.engine = Title.title_event_handler(console=root_console, context=context, cfg=cfg, sound_manager=sound_manager)
         engine = Game.engine
         engine.console = root_console
         engine.context = context
+        engine.sound_manager = sound_manager
 
         # Main Game Loop
         while True:

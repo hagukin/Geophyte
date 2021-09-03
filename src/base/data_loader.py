@@ -12,8 +12,10 @@ def save_game(player, engine):
         # prevent pickle lib error(cannot serialize c objects)
         temp_console = engine.console
         temp_context = engine.context
+        temp_sound_manger = engine.sound_manager
         engine.console = None
         engine.context = None
+        engine.sound_manager = None
 
         # Player
         gamedata["player_index"] = engine.game_map.entities.index(player) # Save the index number of a player instead of the entire object to reduce savefile size.
@@ -22,6 +24,7 @@ def save_game(player, engine):
         gamedata["engine"] = engine
         engine.console = temp_console
         engine.context = temp_context
+        engine.sound_manager = temp_sound_manger
 
         gamedata.close()
 
