@@ -47,6 +47,8 @@ class Biome:
         name: str = "<Unnamed>",
         biome_id: str = "<Undefined id>",
         biome_desc: str = "",
+        biome_bgm_id: str = "",
+        biome_bgs_id: str = "",
         rarity: int = 1,
         biome_color: Tuple = color.black,
         max_rooms: int = 100,
@@ -117,6 +119,8 @@ class Biome:
         self.name = name
         self.biome_id = biome_id
         self.biome_desc = biome_desc
+        self.biome_bgm_id = biome_bgm_id
+        self.biome_bgs_id = biome_bgs_id
         self.rarity = rarity
         self.biome_color = biome_color
         self.max_rooms = max_rooms

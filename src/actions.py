@@ -88,6 +88,7 @@ class TeleportAction(ActionWithCoordinate):
     def perform(self) -> None:
         if self.entity == self.engine.player:
             self.engine.message_log.add_message("당신은 순간이동했다!", fg=color.player_neutral_important)
+            self.engine.sound_manager.add_sound_queue("fx_teleport")
         else:
             if self.engine.game_map.visible[self.entity.x, self.entity.y]:
                 self.engine.message_log.add_message(f"{g(self.entity.name, '이')} 순간이동했다!") # NOTE: ai's path cleared in .place()
@@ -126,6 +127,8 @@ class PickupAction(Action):
                                                     fg=color.obtain_item)
             else:
                 self.engine.message_log.add_message(f"당신은 {g(item.name, '을')} 주웠다.", fg=color.obtain_item)
+
+            self.engine.sound_manager.add_sound_queue("fx_pickup")
         else:
             if item.stack_count > 1:
                 self.engine.message_log.add_message(
@@ -201,6 +204,8 @@ class DescendAction(Action):
             return None
 
         if self.engine.game_map.tiles[self.entity.x, self.entity.y]["tile_id"] == "descending_stair":
+            if self.entity == self.engine.player:
+                self.engine.sound_manager.add_sound_queue("fx_descend")
             # Move entity to other level
             self.engine.change_entity_depth(
                 self.entity, 
@@ -229,6 +234,8 @@ class AscendAction(Action):
             return None
 
         if self.engine.game_map.tiles[self.entity.x, self.entity.y]["tile_id"] == "ascending_stair":
+            # No sound
+
             # Temporary game ending
             if n_depth == 0 and self.engine.player.inventory.check_if_in_inv("amulet_of_kugah"):
                 from input_handlers import GameClearInputHandler
@@ -321,6 +328,7 @@ class ThrowItem(ItemAction):
 
         # Actual throw logic handled here
         if self.entity == self.engine.player:
+            # No sound
             self.engine.message_log.add_message(f"당신은 {g(throw_item.name, '을')} 던졌다.", fg=color.player_neutral_important)
         else:
             self.engine.message_log.add_message(f"{g(self.entity.name, '이')} {g(throw_item.name, '을')} 던졌다.", fg=color.enemy_unique, target=self.entity)
@@ -343,6 +351,7 @@ class DropItem(ItemAction):
             return None
 
         if self.entity == self.engine.player:
+            self.engine.sound_manager.add_sound_queue("fx_drop")
             if self.item.stack_count > 1:
                 self.engine.message_log.add_message(f"당신은 {g(self.item.name, '을')} 땅에 떨어뜨렸다. (x{self.item.stack_count}).",fg=color.player_neutral_important)
             else:
@@ -373,6 +382,9 @@ class SplitItem(Action):
             spliten_item.stackable = False
             self.entity.inventory.add_item(item=spliten_item)
             spliten_item.stackable = True
+
+            if self.entity == self.engine.player:
+                self.engine.sound_manager.add_sound_queue("fx_split")
         else:# Something went wrong during spliting.
             print("WARNING::Failed to split")
             return None
@@ -392,6 +404,7 @@ class ReadItem(ItemAction):
             return None
         
         if self.entity == self.engine.player:
+            # No sound
             self.engine.message_log.add_message(f"당신은 {g(self.item.name, '을')} 읽었다.", color.player_neutral_important)
         else:
             self.engine.message_log.add_message(f"{g(self.entity.name, '은')} {g(self.item.name, '을')} 읽었다.", color.enemy_unique)
@@ -411,6 +424,9 @@ class QuaffItem(ItemAction):
         if self.entity.status.experience:
             self.entity.status.experience.gain_constitution_exp(5, 15, chance=0.5)
 
+        if self.entity == self.engine.player:
+            self.engine.sound_manager.add_sound_queue("fx_quaff")
+
         self.item.quaffable.activate(self)
 
 
@@ -423,6 +439,9 @@ class EatItem(ItemAction):
         if self.entity.status.experience:
             self.entity.status.experience.gain_constitution_exp(5, 20, chance=0.8) #no limit
 
+        if self.entity == self.engine.player:
+            self.engine.sound_manager.add_sound_queue("fx_eat")
+
         self.item.edible.activate(self)
 
 
@@ -431,6 +450,9 @@ class EquipItem(ItemAction):
         # Checking for inability
         if self.entity.check_for_immobility():
             return None
+
+        if self.entity == self.engine.player:
+            self.engine.sound_manager.add_sound_queue("fx_equip")
 
         self.entity.equipments.equip_equipment(self.item)
 
@@ -453,6 +475,9 @@ class UnequipItem(ItemAction):
                 self.item.item_state.identify_self(2)
             return None
 
+        if self.entity == self.engine.player:
+            self.engine.sound_manager.add_sound_queue("fx_unequip")
+
         self.entity.equipments.remove_equipment(self.item.item_state.equipped_region)
 
 
@@ -472,7 +497,7 @@ class AbilityAction(Action):
             return None
 
         # gaining exp is handled in .activate()
-
+        # Sound handled in activate()
         self.ability.activatable.activate(self)
 
 
@@ -813,6 +838,7 @@ class MeleeAction(ActionWithDirection):
         if not target:
             if self.entity == self.engine.player:
                 self.engine.message_log.add_message("당신은 허공을 공격했다.", color.impossible)
+                self.engine.sound_manager.add_sound_queue("fx_miss")
                 return None
             else:
                 print("WARNING::Enemy has no target but attacked. - meleeaction")
@@ -838,6 +864,9 @@ class MeleeAction(ActionWithDirection):
             target.status.take_damage(amount=0, attacked_from=self.entity) #Trigger
             if target.status.experience: # gain exp when attack was successful
                 target.status.experience.gain_agility_exp(10, 17, exp_limit=1000)
+
+            if self.entity == self.engine.player:
+                self.engine.sound_manager.add_sound_queue("fx_player_miss")
             return None
         else:
             if self.entity.status.experience: # gain exp when attack was successful
@@ -869,20 +898,36 @@ class MeleeAction(ActionWithDirection):
         else:
             attack_color = color.enemy_neutral
 
+        hitsound = None
         # If there is damage
         if damage > 0:
             if self.engine.game_map.visible[self.entity.x, self.entity.y] or self.engine.game_map.visible[target.x, target.y]:
                 self.engine.message_log.add_message(f"{attack_desc}해 {damage} 데미지를 입혔다.", attack_color)
             target.status.take_damage(amount=damage, attacked_from=self.entity)
+
+            if self.entity == self.engine.player:
+                if critical_hit:
+                    hitsound = "fx_player_crit"
+                else:
+                    hitsound = "fx_player_hit"
         else:
             if self.engine.game_map.visible[self.entity.x, self.entity.y] or self.engine.game_map.visible[target.x, target.y]:
                 self.engine.message_log.add_message(f"{attack_desc}했지만 아무런 데미지도 주지 못했다.", miss_fg)
             target.status.take_damage(amount=0, attacked_from=self.entity)  # Trigger
+
+            if self.entity == self.engine.player:
+                hitsound = "fx_player_atk_blocked"
         
         # If the target is alive after calculating the pure melee damage hit, apply melee status effects.
         # Status effects are still applied if the damage is zero
         if not target.actor_state.is_dead:
             self.add_melee_effect_to_target(target=target, effect_set=self.effect_set, caused_by=self.entity)
+        else:
+            if self.entity == self.engine.player:
+                hitsound = "fx_player_kill"
+
+        if self.entity == self.engine.player:
+            self.engine.sound_manager.add_sound_queue(hitsound)
 
 
 class MovementAction(ActionWithDirection):
@@ -1012,7 +1057,8 @@ class DoorUnlockAction(ActionWithDirection):
             if random.random() <= chance_of_unlocking:
                 # Unlock succeded
                 if self.entity == self.engine.player:
-                    self.engine.message_log.add_message(f"{g(self.entity.name, '이')} {g(item.name, '을')} 사용해 문의 잠금을 해제했다!", color.player_success)
+                    self.engine.message_log.add_message(f"당신은 {g(item.name, '을')} 사용해 문의 잠금을 해제했다!", color.player_success)
+                    self.engine.sound_manager.add_sound_queue("fx_unlock")
                 else:
                     self.engine.message_log.add_message(f"{g(self.entity.name, '이')} {g(item.name, '을')} 사용해 문의 잠금을 해제했다!", color.enemy_unique, target=self.entity)
 
@@ -1140,6 +1186,9 @@ class DoorOpenAction(ActionWithDirection):
         tmp = semiactor_factories.opened_door.spawn(self.engine.game_map, door.x, door.y, -1)
         door.semiactor_info.move_self_to(tmp)
         door.remove_self()
+
+        if self.entity == self.engine.player:
+            self.engine.sound_manager.add_sound_queue("fx_open_door")
 
         if self.entity.status.experience:
             self.entity.status.experience.gain_dexterity_exp(5, 15, 300)

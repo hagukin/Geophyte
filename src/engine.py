@@ -177,6 +177,9 @@ class Engine:
 
         # Update fov since player is now placed on new gamemap.
         if entity == self.player:
+            if self.sound_manager:
+                self.sound_manager.play_bgm_for_biome(self.game_map.biome)
+                self.sound_manager.play_bgs_for_biome(self.game_map.biome)
             self.update_fov()
 
         """

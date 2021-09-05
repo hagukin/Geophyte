@@ -87,9 +87,12 @@ class Experience(BaseComponent):
         """
         flag = False
         msg_color = color.white
+        name = self.parent.parent.name
         if self.parent.parent == self.parent.engine.player:
             flag = True
             msg_color = color.player_buff
+            name = "당신"
+            self.engine.sound_manager.add_sound_queue("fx_exp_gain")
         elif self.parent.parent.ai:
             if self.parent.parent.ai.owner == self.parent.engine.player:
                 flag = True
@@ -99,29 +102,29 @@ class Experience(BaseComponent):
             return None
 
         if level_type == "hp":
-            self.parent.engine.message_log.add_message(f"{g(self.parent.parent.name, '이')} 더 강인해졌다!", msg_color)
-            self.parent.engine.message_log.add_message(f"{self.parent.parent.name}의 최대 체력이 상승했습니다.", msg_color)
+            self.parent.engine.message_log.add_message(f"{g(name, '이')} 더 강인해졌다!", msg_color)
+            self.parent.engine.message_log.add_message(f"{name}의 최대 체력이 상승했습니다.", msg_color)
         elif level_type == "mp":
-            self.parent.engine.message_log.add_message(f"{g(self.parent.parent.name, '이')} 더 많은 에너지를 내재할 수 있게 되었다!", msg_color)
-            self.parent.engine.message_log.add_message(f"{self.parent.parent.name}의 최대 마나가 상승했습니다.", msg_color)
+            self.parent.engine.message_log.add_message(f"{g(name, '이')} 더 많은 에너지를 내재할 수 있게 되었다!", msg_color)
+            self.parent.engine.message_log.add_message(f"{name}의 최대 마나가 상승했습니다.", msg_color)
         elif level_type == "strength":
-            self.parent.engine.message_log.add_message(f"{g(self.parent.parent.name, '이')} 더 강해졌다!", msg_color)
-            self.parent.engine.message_log.add_message(f"{self.parent.parent.name}의 힘 수치가 상승했습니다.", msg_color)
+            self.parent.engine.message_log.add_message(f"{g(name, '이')} 더 강해졌다!", msg_color)
+            self.parent.engine.message_log.add_message(f"{name}의 힘 수치가 상승했습니다.", msg_color)
         elif level_type == "dexterity":
-            self.parent.engine.message_log.add_message(f"{g(self.parent.parent.name, '이')} 더 능숙하게 물건을 다룰 수 있게 되었다!", msg_color)
-            self.parent.engine.message_log.add_message(f"{self.parent.parent.name}의 손재주 수치가 상승했습니다.", msg_color)
+            self.parent.engine.message_log.add_message(f"{g(name, '이')} 더 능숙하게 물건을 다룰 수 있게 되었다!", msg_color)
+            self.parent.engine.message_log.add_message(f"{name}의 손재주 수치가 상승했습니다.", msg_color)
         elif level_type == "constitution":
-            self.parent.engine.message_log.add_message(f"{g(self.parent.parent.name, '이')} 더 활력이 넘치게 되었다!", msg_color)
-            self.parent.engine.message_log.add_message(f"{self.parent.parent.name}의 활력 수치가 상승했습니다.", msg_color)
+            self.parent.engine.message_log.add_message(f"{g(name, '이')} 더 활력이 넘치게 되었다!", msg_color)
+            self.parent.engine.message_log.add_message(f"{name}의 활력 수치가 상승했습니다.", msg_color)
         elif level_type == "agility":
-            self.parent.engine.message_log.add_message(f"{g(self.parent.parent.name, '이')} 더 민첩해졌다!", msg_color)
-            self.parent.engine.message_log.add_message(f"{self.parent.parent.name}의 민첩 수치가 상승했습니다.", msg_color)
+            self.parent.engine.message_log.add_message(f"{g(name, '이')} 더 민첩해졌다!", msg_color)
+            self.parent.engine.message_log.add_message(f"{name}의 민첩 수치가 상승했습니다.", msg_color)
         elif level_type == "intelligence":
-            self.parent.engine.message_log.add_message(f"{g(self.parent.parent.name, '이')} 더 깊게 생각할 수 있게 되었다!", msg_color)
-            self.parent.engine.message_log.add_message(f"{self.parent.parent.name}의 지능 수치가 상승했습니다.", msg_color)
+            self.parent.engine.message_log.add_message(f"{g(name, '이')} 더 깊게 생각할 수 있게 되었다!", msg_color)
+            self.parent.engine.message_log.add_message(f"{name}의 지능 수치가 상승했습니다.", msg_color)
         elif level_type == "charm":
-            self.parent.engine.message_log.add_message(f"{g(self.parent.parent.name, '이')} 더 매력적인 모습이 되었다!", msg_color)
-            self.parent.engine.message_log.add_message(f"{self.parent.parent.name}의 매력 수치가 상승했습니다.", msg_color)
+            self.parent.engine.message_log.add_message(f"{g(name, '이')} 더 매력적인 모습이 되었다!", msg_color)
+            self.parent.engine.message_log.add_message(f"{name}의 매력 수치가 상승했습니다.", msg_color)
 
     def level_up(self) -> None:
         """Check if certain status has enough exp to "level up", and if it has, increase the status points."""

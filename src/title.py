@@ -128,8 +128,7 @@ class Title():
 
     @staticmethod
     def title_sound(sound_manager: SoundManager) -> None:
-        sound_manager.change_bgm("resources\\sound\\bgm_constellation_x3nus.wav")
-        sound_manager.change_bgs("resources\\sound\\bgs_cave.wav")
+        sound_manager.change_bgm("bgm_title_screen")
 
     @staticmethod
     def title_event_handler(console, context, cfg, sound_manager: SoundManager):
@@ -168,6 +167,8 @@ class Title():
 
             # Get input from title screen
             if title_action == "new_game":
+                sound_manager.remove_bgm()
+                sound_manager.remove_bgs()
                 delete_saved_game()
                 engine = init_game_variables(cfg, console, context)
                 engine.message_log.add_message(f"{engine.player.name}님, 지오파이트의 세계에 오신 것을 환영합니다!", color.welcome_text)

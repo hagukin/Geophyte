@@ -9,6 +9,7 @@ biome_rarity = []
 
 rocky_dungeon = Biome(
     name="돌무더기",
+    biome_bgm_id="bgm_mystical_beginning",
     biome_id="rocky_dungeon",
     biome_desc="Desc of rocky dungeon biome (TEST)",
     rarity=1,

@@ -4,9 +4,12 @@ import pyaudio
 import threading
 import inspect
 import ctypes
+import struct
+import numpy
 
 from collections import deque
 from typing import Any, Optional
+from biome import Biome
 
 
 def _async_raise(tid, exctype):
@@ -102,6 +105,72 @@ class SoundManager():
         self.p = pyaudio.PyAudio()
         self.chunk = 1024 # bytes to read per write loop
 
+        self.__current_bgm = None # Read-only
+        self.__current_bgs = None
+
+        self.sound_db = { # TODO: Add volume - make sound_db value contains directory AND volume.
+            "fx_player_hit":"fx\\hit.wav",
+            "fx_player_crit":"fx\\kill.wav",
+            "fx_player_miss":"fx\\miss.wav",
+            "fx_player_attack_blocked":"fx\\blocked.wav",
+            "fx_player_kill":"fx\\crit_hit.wav",
+            "fx_teleport":"fx\\teleport.wav",
+            "fx_pickup":"fx\\pickup.wav",
+            "fx_descend":"fx\\descend.wav",
+            "fx_throw":"fx\\throw.wav",
+            "fx_drop":"fx\\drop.wav",
+            "fx_split":"fx\\equip.wav",
+            "fx_equip": "fx\\equip.wav",
+            "fx_unequip": "fx\\equip.wav",
+            "fx_quaff":"fx\\quaff.wav",
+            "fx_eat":"fx\\eat.wav",
+            "fx_unlock":"fx\\unlock.wav",
+            "fx_open_door":"fx\\open_door.wav",
+            "fx_explosion":"fx\\explosion.wav",
+            "fx_exp_gain":"fx\\exp_gain.wav",
+
+            "bgm_title_screen":"bgm\\Constellation.wav",
+            "bgm_mystical_beginning":"bgm\\Magical_Travel.wav",
+
+            "bgs_cave":"bgs\\cave.wav",
+        }
+
+    @property
+    def current_bgm(self) -> str:
+        """returns current bgm directory"""
+        return self.__current_bgm
+
+    @property
+    def current_bgs(self) -> str:
+        """returns current bgs directory"""
+        return self.__current_bgs
+
+    def play_bgm_for_biome(self, biome: Biome) -> None:
+        """Is called when engine.game_map changes."""
+        if biome.biome_bgm_id == "" or biome.biome_bgm_id == None:
+            print(f"SOUND::Biome {biome.biome_id} has no bgm.")
+            return
+
+        if self.current_bgm != biome.biome_bgm_id:
+            self.change_bgm(biome.biome_bgm_id)
+        else:
+            print(f"SOUND::BGM is already set to {biome.biome_bgm_id}")
+
+    def play_bgs_for_biome(self, biome: Biome) -> None:
+        """Is called when engine.game_map changes."""
+        if biome.biome_bgs_id == "" or biome.biome_bgs_id == None:
+            print(f"SOUND::Biome {biome.biome_id} has no bgs.")
+            return
+
+        if self.current_bgs != biome.biome_bgs_id:
+            self.change_bgs(biome.biome_bgs_id)
+        else:
+            print(f"SOUND::BGS is already set to {biome.biome_bgs_id}")
+
+    def get_path_from_id(self, sound_id: str) -> str:
+        """Returns directory"""
+        return "resources\\sound\\"+self.sound_db[sound_id]
+
     def __del__(self) -> None:
         try:
             self.p.terminate()
@@ -139,6 +208,7 @@ class SoundManager():
         th = SoundThread(target=self.play_sound, args=(snd,True))
         th.daemon = True
         self.threads["bgm"] = th
+        self.__current_bgm = snd
         th.start()
 
     def __play_bgs(self) -> None:
@@ -149,36 +219,52 @@ class SoundManager():
         th = SoundThread(target=self.play_sound, args=(snd,True))
         th.daemon = True
         self.threads["bgs"] = th
+        self.__current_bgs = snd
         th.start()
 
-    def add_sound_queue(self, directory: str=None, file: Any=None) -> None:
-        sound_queue.append(directory)
+    def add_sound_queue(self, sound_id: Optional[str]) -> None:
+        if sound_id:
+            sound_queue.append(sound_id)
+        else:
+            print("SOUND::ERROR::passed None to add_sound_queue()")
 
-    def change_bgm(self, directory: str=None) -> None:
+    def remove_bgm(self) -> None:
+        if "bgm" in self.threads.keys():
+            self.threads["bgm"].terminate()
+        self.__current_bgm = None
+
+    def remove_bgs(self) -> None:
+        if "bgs" in self.threads.keys():
+            self.threads["bgs"].terminate()
+        self.__current_bgm = None
+
+    def change_bgm(self, sound_id: str=None) -> None:
         if bgm:
             print("Warning::BGM deque should be empty.")
             bgm.clear()
         if "bgm" in self.threads.keys():
             if self.threads["bgm"]:
-                self.threads["bgm"].terminate() # Stopping the previous thread
-        bgm.add(directory) # will be played in next .run()
+                if self.threads["bgm"].is_alive():
+                    self.threads["bgm"].terminate() # Stopping the previous thread
+        bgm.add(sound_id) # will be played in next .run()
 
-    def change_bgs(self, directory: str=None) -> None:
+    def change_bgs(self, sound_id: str=None) -> None:
         if bgs:
             print("Warning::BGS deque should be empty.")
             bgs.clear()
         if "bgs" in self.threads.keys():
             if self.threads["bgs"]:
-                self.threads["bgs"].terminate() # Stopping the previous thread
-        bgs.add(directory)  # will be played in next .run()
+                if self.threads["bgs"].is_alive():
+                    self.threads["bgs"].terminate() # Stopping the previous thread
+        bgs.add(sound_id)  # will be played in next .run()
 
-    def play_sound(self, directory: str=None, loop: bool=False) -> None:
+    def play_sound(self, sound_id: str=None, loop: bool=False) -> None:
         """
         Play sound of given directory.
         """
         playing = True
         while playing:
-            f = wave.open(directory, "rb")
+            f = wave.open(self.get_path_from_id(sound_id), "rb")
             stream = self.p.open(format=self.p.get_format_from_width(f.getsampwidth()),
                         channels=f.getnchannels(),
                         rate=f.getframerate(),

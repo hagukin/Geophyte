@@ -45,10 +45,14 @@ def main() -> None:
 
         # Title Screen Loop
         Game.engine = Title.title_event_handler(console=root_console, context=context, cfg=cfg, sound_manager=sound_manager)
+
+        # Initialization
         engine = Game.engine
         engine.console = root_console
         engine.context = context
         engine.sound_manager = sound_manager
+        sound_manager.play_bgm_for_biome(engine.game_map.biome)
+        sound_manager.play_bgs_for_biome(engine.game_map.biome)
 
         # Main Game Loop
         while True:

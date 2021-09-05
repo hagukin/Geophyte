@@ -45,7 +45,7 @@ class Credit():
         draw_horizontal_line(console, y=y-1, thickness=3, title="Developed By", fg=color.black, bg=color.credit_dev)
         center_print(console, string="Haguk Kim / Gamesmith", y=y+5, fg=color.credit_dev)
 
-        draw_horizontal_line(console, y=y+9, thickness=3, title="Soundtrack / FX Creators", fg=color.black, bg=color.credit_sound)
+        draw_horizontal_line(console, y=y+9, thickness=3, title="Soundtrack By", fg=color.black, bg=color.credit_sound)
         center_print(console, string="Maxim Tsukanov / X3nus", y=y + 15, fg=color.credit_sound)
 
         draw_horizontal_line(console, y=y+19, thickness=3, title="Special thanks to", fg=color.black, bg=color.credit_special)
@@ -53,13 +53,18 @@ class Credit():
         center_print(console, string="Joao F. Henriques / Jotaf", y=y+26, fg=color.credit_special)
         center_print(console, string="Tyler Standridge / TStand90", y=y+27, fg=color.credit_special)
         center_print(console, string="hukseol", y=y+28, fg=color.credit_special)
-        center_print(console, string="chb09876", y=y+29, fg=color.credit_special)
+        center_print(console, string="Habin Cho / chb09876", y=y+29, fg=color.credit_special)
 
         draw_horizontal_line(console, y=y+33, thickness=3, title="License", bg=color.credit_license)
         center_print(console, string="MIT-style license:", y=y+37, fg=color.white)
         center_print(console, string="White Rabbit font by Matthew Welch", y=y+38, fg=color.credit_license)
         center_print(console, string="OFL license:", y=y+40, fg=color.white)
         center_print(console, string="Nanumfont", y=y+41, fg=color.credit_license)
+
+        draw_horizontal_line(console, y=y + 45, thickness=1, title="FX By", bg=color.credit_fx)
+        center_print(console, string="mensageirocs | dersuperanton", y=y + 47, fg=color.credit_fx)
+
+
 
     @staticmethod
     def get_credit_action(sec_per_frame):
