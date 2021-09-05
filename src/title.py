@@ -9,7 +9,7 @@ import time
 import random
 from option import Option
 from credits import Credit
-from src.sound import SoundManager
+from sound import SoundManager
 
 
 class TitleInputHandler(tcod.event.EventDispatch[None]):

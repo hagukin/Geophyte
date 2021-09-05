@@ -168,7 +168,12 @@ class ExplodeAction(RadiusAction):
         ray_animation = Animation(engine=self.engine, frames=frames, stack_frames=True, sec_per_frame=self.expl_anim_frame_len)
         ray_animation.render()
 
+    def sound(self) -> None:
+        if self.engine.game_map.visible[self.entity.x, self.entity.y]:
+            self.engine.sound_manager.add_sound_queue("fx_explosion")
+
     def perform(self):
+        self.sound()
         self.animation()
         super().perform()
 
