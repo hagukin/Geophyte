@@ -79,6 +79,11 @@ class ShopTerrain(Terrain):
                 }
             items_on_stock:
                 List of item objects that currently belongs to the shop.
+                
+        NOTE: Shop should always sell items that has stack count as 1.
+        This is to prevent unwanted behaviour when player broke(or used/consumed) an item in the shop, and tries to pay the bill.
+        (Shopkeeper asks the fee for its price * stack_count, but if items gets removed via consume, its stack_count is 0 so shopkeeper will ask for 0 shine, which could break the shop system.
+        See item.price_of_all_stack() for details.)
         """
         if shape == None:
             self.shape = {

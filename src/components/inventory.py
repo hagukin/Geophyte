@@ -263,7 +263,7 @@ class Inventory(BaseComponent):
                 print("WARNING::Remove stack count by negative integer. - inventory.decrease_item_stack")
             item.stack_count -= remove_count
             if item.stack_count == 0:
-                self.delete_item_from_inv(item)
+                item.remove_self() # Removing from inventory is handled here
             elif item.stack_count < 0:# If remove_count is set to negative, do nothing. This feature exist in case of using an item infinitly. (e.g. black jelly throwing a toxic goo)
                 return None
         self.update_burden()

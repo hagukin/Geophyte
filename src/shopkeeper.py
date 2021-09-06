@@ -12,7 +12,7 @@ from korean import grammar as g
 
 
 class Shopkeeper_Ai(ai.BaseAI):
-    def __init__(self, alignment:Dict=(("neutral",),(1,)), do_melee_atk:bool=True, do_ranged_atk: bool=False,  use_ability: bool=False):
+    def __init__(self, alignment:Tuple=(("neutral",),(1,)), do_melee_atk:bool=True, do_ranged_atk: bool=False,  use_ability: bool=False):
         """
         Vars:
             customers:
@@ -103,7 +103,12 @@ class Shopkeeper_Ai(ai.BaseAI):
             if shop_item.parent:
                 self.picked_up[shop_item] = shop_item.parent.parent
             else:
+                tmp = None
+                if shop_item in self.picked_up.keys():
+                    tmp = self.picked_up[shop_item]
                 self.picked_up[shop_item] = None
+                if tmp and shop_item.check_is_deleted_from_game():
+                    self.picked_up[shop_item] = tmp # maintain the pickup actor info
 
     def update_thieves(self) -> None:
         for picked_actor in self.picked_up.values():
@@ -235,7 +240,9 @@ class Shopkeeper_Ai(ai.BaseAI):
 
     def sell_item(self, customer: Actor, item: Item) -> None:
         """Sell item to the customer."""
-        selling_price = item.price_of_all_stack(is_shopkeeper_is_selling=True, discount=1 - customer.discount_value())
+        if item.stack_count > 1:
+            print(f"ERROR::Shop should never sell item that has stack_count other than 1. item: {item.entity_id}")
+        selling_price = item.price_of_single_item(is_shopkeeper_is_selling=True, discount=1 - customer.discount_value())
         if customer.inventory.check_has_enough_money(selling_price):
             self.take_cash(customer, selling_price)
             self.remove_item_from_shop(item)

@@ -42,6 +42,7 @@ class Entity:
     """
     def __init__(
         self,
+        is_deleted_from_game: bool = False,
         gamemap: GameMap = None,
         indestructible: bool = False,
         x: int = 0,
@@ -95,6 +96,7 @@ class Entity:
             purchase (NOTE: "purchase" should not be added to the list.)
             swap
         """
+        self.is_deleted_from_game = is_deleted_from_game
         self.indestructible = indestructible
         self.x = x
         self.y = y
@@ -307,11 +309,21 @@ class Entity:
         # TODO: maybe add a feature that consumes different amount of action points depending on the action?
         self.action_point = max(0, self.action_point - value)
 
+    def check_is_deleted_from_game(self) -> bool:
+        return self.is_deleted_from_game
+
+    def delete_from_game(self) -> None:
+        self.is_deleted_from_game = True
+
     def remove_self(self) -> None:
         if self.indestructible:
             print(f"DEBUG::{self.name} IS INDESTRUCTIBLE. ENTITY.REMOVE_SELF() IS NULLIFIED.")
             return None
-        elif self.gamemap:
+
+        if self.check_is_deleted_from_game():
+            print(f"ERROR::{self.name} IS ALREADY REMOVED FROM GAME.")
+        self.delete_from_game()
+        if self.gamemap:
             # If the gamemap value is not yet set for the entity, an error might pop up here.
             # If so, it can be safely ignored.
             # example of these errors: a flame that is generated on non-flammable tile may cause an error
