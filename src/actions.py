@@ -1341,10 +1341,13 @@ class CashExchangeAction(Action):
             if shine.stack_count >= self.cash_amount:
                 self.giver.inventory.decrease_item_stack(shine, self.cash_amount) # Equipped/Cursed/Droppable check in inputhandler
                 self.cash_amount -= self.cash_amount
-                return None
+                break
             else:
                 self.cash_amount -= shine.stack_count
                 self.giver.inventory.decrease_item_stack(shine, shine.stack_count)  # Equipped/Cursed/Droppable check in inputhandler
+
+        if self.giver == self.engine.player or self.taker == self.engine.player:
+            self.engine.sound_manager.add_sound_queue("fx_cash")
 
 
 class PlaceSwapAction(Action):
