@@ -175,7 +175,7 @@ class GameMap:
         for item in self.items:
             if item.x == x and item.y == y:
                 tmp.append(item)
-        if len(tmp):
+        if tmp:
             return tmp
         return None
 

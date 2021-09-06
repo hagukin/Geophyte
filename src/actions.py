@@ -6,7 +6,7 @@ import exceptions
 import random
 
 from game import Game
-from components.inventory import Inventory
+from components.inventory import PickupTempInv
 from korean import grammar as g
 
 if TYPE_CHECKING:
@@ -112,6 +112,7 @@ class PickupAction(Action):
     def transfer_item(self, inventory, item) -> None:
         # Failed to add an item
         if not inventory.add_item(item):
+            print("WARNING::Failed to add item to inventory - PickupAction.transfer_item()")
             return None
 
         # Remove the item from current gamemap
@@ -157,27 +158,26 @@ class PickupAction(Action):
         if self.entity.check_for_immobility():
             return None
 
-        items_at_pos = []
-        for item in self.engine.game_map.items:
-            if self.entity.x == item.x and self.entity.y == item.y:
-                items_at_pos.append(item)
+        items_at_pos = self.engine.game_map.get_all_items_at_location(self.entity.x, self.entity.y)
 
         if self.entity == self.engine.player:
             # If only one item exists, pickup immediately.
+            if not items_at_pos:
+                self.engine.message_log.add_message("주울 만한 물건이 아무 것도 없습니다.", fg=color.impossible)
+                return None
+
             item_len = len(items_at_pos)
             if item_len == 1:
                 return self.pickup_single_item(items_at_pos[0])
-            elif item_len == 0:
-                self.engine.message_log.add_message("주울 만한 물건이 아무 것도 없습니다.", fg=color.impossible)
-                return None
             else:
                 # else, call inputhandler.
                 # The inputhandler will call back PickupItem.perform().
                 from input_handlers import PickupMultipleHandler
-                tmp = Inventory(100000) # Create a temporary inventory object that contains all items on actor's location. (This is not be the most efficient way)
+                tmp = PickupTempInv(10000) # Create a temporary inventory object that contains all items on actor's location. (This is not be the most efficient way)
                 for item in items_at_pos:
                     tmp.add_item(item)
                 self.engine.event_handler = PickupMultipleHandler(inventory_component=tmp)
+                self.free_action = True
                 return None
         else:
             # AI will only pickup every items on the location.

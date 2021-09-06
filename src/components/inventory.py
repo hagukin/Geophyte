@@ -310,3 +310,29 @@ class Inventory(BaseComponent):
             if item.item_state.is_being_sold_from:
                 price += item.price_of(self.parent)
         return price
+
+
+class PickupTempInv(Inventory):
+    def add_item(self, item: Item) -> bool:
+        """
+        Add item to inventory. Also stack items if possible.
+        Using this function is recommended instead of using .append()
+        Return:
+            Whether the adding was successful or not
+        """
+        if self.check_if_full():
+            return False
+
+        if item.stackable:
+            for inv_item in self.items:
+                if item.item_state.check_if_state_identical(inv_item):
+                    inv_item.stack_count += item.stack_count # Stack item
+                    return True
+
+        # Allocate alphabets
+        for key, value in self.item_hotkeys.items():
+            if value == None:
+                self.item_hotkeys[key] = item
+                break
+
+        return True
