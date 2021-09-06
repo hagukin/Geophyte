@@ -43,6 +43,9 @@ class GameMap:
         self.difficulty_rise = 0 # Float. used for calculating respawn monster toughness
         self.difficulty_rise_rate = difficulty_rise_rate # amount of difficulty rising per respawn tick
 
+        self.descending_actors = [] # List of actors that are descending from upper level
+        self.ascending_actors = []
+
         self.visible = np.full(
             (biome.map_width, biome.map_height), fill_value=False, order="F"
         )  # Tiles the player can currently see
@@ -97,6 +100,20 @@ class GameMap:
             for entity in self.entities
             if isinstance(entity, SemiActor) and entity.is_active
         )
+
+    def actors_change_depth_gradually(self) -> None:
+        """
+        Is called each game loop (engine.handle_world()).
+        Actors that were adjacent to player when player changed depth
+        can descend/ascend after player from next/prev level.
+        This process is done one actor at a time, and the process is paused if there is something blocking the stair.
+        """
+        if self.descending_actors:
+            if self.get_blocking_entity_at_location(self.ascend_loc[0], self.ascend_loc[1]) == None:
+                self.engine.change_entity_depth(entity=self.descending_actors.pop(), depth=self.depth, xpos=self.ascend_loc[0], ypos=self.ascend_loc[1])
+        if self.ascending_actors:
+            if self.get_blocking_entity_at_location(self.descend_loc[0], self.descend_loc[1]) == None:
+                self.engine.change_entity_depth(entity=self.ascending_actors.pop(), depth=self.depth, xpos=self.descend_loc[0], ypos=self.descend_loc[1])
 
     def remove_entity(self, entity: Entity) -> None:
         """Removes all connection with the given entity.

@@ -213,6 +213,7 @@ class Engine:
             self.handle_semiactor_states()
             self.handle_gamemap_states()
             self.update_fov()
+            self.game_map.actors_change_depth_gradually()
             self.game_map.update_enemy_fov()
 
     def time_pass(self) -> None:

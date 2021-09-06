@@ -204,15 +204,29 @@ class DescendAction(Action):
             return None
 
         if self.engine.game_map.tiles[self.entity.x, self.entity.y]["tile_id"] == "descending_stair":
+            descend_x, descend_y = self.entity.x, self.entity.y
+            actors = []
             if self.entity == self.engine.player:
                 self.engine.sound_manager.add_sound_queue("fx_descend")
-            # Move entity to other level
+                for (dx, dy) in ((0, 1), (1, 0), (-1, 0), (0, -1), (1, 1), (-1, -1), (1, -1), (-1, 1)): # Technically you can make all actors able to follow each other to another depth
+                    tmp = self.engine.game_map.get_actor_at_location(descend_x + dx, descend_y + dy)
+                    if tmp:
+                        actors.append(tmp)
+                actors = sorted(actors, key=lambda x: x.status.changed_status["agility"],reverse=True)  # Higher agility first
+
+            # Move entity to other level, change engine.gamemap if entity is player
             self.engine.change_entity_depth(
                 self.entity, 
                 n_depth, 
                 self.engine.world.get_map(n_depth).ascend_loc[0], 
                 self.engine.world.get_map(n_depth).ascend_loc[1]
                 )
+            for actor in actors:
+                if not actor.actor_state.can_chase_through_stair:
+                    continue
+                if actor.ai:
+                    if actor.ai.owner == self.engine.player or actor.ai.target == self.engine.player:
+                        self.engine.game_map.descending_actors.append(actor)
         elif self.engine.game_map.tiles[self.entity.x, self.entity.y]["tile_id"] == "ascending_stair":
             raise exceptions.Impossible("이 계단은 위로만 향한다.")
         else:
@@ -234,7 +248,15 @@ class AscendAction(Action):
             return None
 
         if self.engine.game_map.tiles[self.entity.x, self.entity.y]["tile_id"] == "ascending_stair":
-            # No sound
+            ascend_x, ascend_y = self.entity.x, self.entity.y
+            actors = []
+            if self.entity == self.engine.player:
+                # No fx
+                for (dx, dy) in ((0, 1), (1, 0), (-1, 0), (0, -1), (1, 1), (-1, -1), (1, -1), (-1, 1)):  # Technically you can make all actors able to follow each other to another depth
+                    tmp = self.engine.game_map.get_actor_at_location(ascend_x + dx, ascend_y + dy)
+                    if tmp:
+                        actors.append(tmp)
+                actors = sorted(actors, key=lambda x: x.status.changed_status["agility"],reverse=True)  # Higher agility first
 
             # Temporary game ending
             if n_depth == 0 and self.engine.player.inventory.check_if_in_inv("amulet_of_kugah"):
@@ -249,6 +271,12 @@ class AscendAction(Action):
                 self.engine.world.get_map(n_depth).descend_loc[0], 
                 self.engine.world.get_map(n_depth).descend_loc[1]
                 )
+            for actor in actors:
+                if not actor.actor_state.can_chase_through_stair:
+                    continue
+                if actor.ai:
+                    if actor.ai.owner == self.engine.player or actor.ai.target == self.engine.player:
+                        self.engine.game_map.ascending_actors.append(actor)
         elif self.engine.game_map.tiles[self.entity.x, self.entity.y]["tile_id"] == "descending_stair":
             raise exceptions.Impossible("이 계단은 아래로만 향한다.")
         else:

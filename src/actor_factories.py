@@ -125,7 +125,7 @@ player = Actor(
     equipments=Equipments(),
     # initial_items=
     # (
-    #     {"item": item_factories.potion_of_poison, "chance": 1, "count": (1, 50), "BUC": {1:0, 0:0, -1:1}, "upgrade": None},
+    #     {"item": item_factories.potion_of_liquified_ants, "chance": 1, "count": (1, 50), "BUC": {1:0, 0:0, -1:1}, "upgrade": None},
     #     {"item": item_factories.scroll_of_teleportation, "chance": 1, "count": (100, 101), "BUC": {1:0, 0:0, -1:1}, "upgrade": None},
     #     {"item": item_factories.scroll_of_remove_curse, "chance": 1, "count": (100, 101), "BUC": {1:0, 0:0, -1:1}, "upgrade": None},
     #     {"item": item_factories.shine, "chance": 1, "count": (50, 80), "BUC": None, "upgrade": None},

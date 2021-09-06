@@ -590,6 +590,8 @@ class BaseAI(BaseComponent):
                 temp_vision[entity.x, entity.y] = False
 
         # Visible radius is proportionate to eyesight.
+        if self.vision.shape != temp_vision.shape:
+            self.init_vision() # Re-initialize vision if gamemap size has been changed.
         self.vision[:] = tcod.map.compute_fov(
             temp_vision,
             (self.parent.x, self.parent.y),

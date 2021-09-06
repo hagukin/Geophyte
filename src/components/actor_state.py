@@ -292,6 +292,10 @@ class ActorState(BaseComponent):
         self.can_talk = can_talk
 
     @property
+    def can_chase_through_stair(self) -> bool:
+        return True # Currently all actors can chase other actor through stairs
+
+    @property
     def hunger_state(self) -> str:
         """
         hunger_measure = size * 25
