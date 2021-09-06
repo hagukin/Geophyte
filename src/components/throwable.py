@@ -6,6 +6,7 @@ from components.base_component import BaseComponent
 from korean import grammar as g
 from tiles import TileUtil
 from entity import Actor, SemiActor, Entity
+from order import InventoryOrder
 
 import actions
 import color
@@ -127,7 +128,6 @@ class Throwable(BaseComponent):
             return None
         if random.random() <= self.break_chance:
             self.shattered = True
-            from order import InventoryOrder
             if self.parent.item_type.value == InventoryOrder.POTION.value:
                 self.engine.message_log.add_message(f"{g(self.parent.name, '이')} 깨졌다.", fg=color.gray)
             else:
@@ -252,7 +252,7 @@ class NormalThrowable(Throwable):
                 return True
 
 
-    def render_animation(self, path) -> Optional[List]:
+    def render_animation(self, path, thrower: Actor) -> Optional[List]:
         frames = []
         loc = None
         while len(path) > 0:
@@ -267,6 +267,10 @@ class NormalThrowable(Throwable):
 
         throw_animation = Animation(engine=self.engine, frames=frames, stack_frames=False, sec_per_frame=self.sec_per_frame, refresh_last_frame=False)
         throw_animation.render()
+        if self.shattered:
+            if self.parent.item_type.value == InventoryOrder.POTION.value:
+                if thrower == self.engine.player:
+                    self.engine.sound_manager.add_sound_queue("fx_shatter")
         if loc:
             return loc # Last location of the thrown item's path
         return None
@@ -343,7 +347,7 @@ class NormalThrowable(Throwable):
                 break
 
         ### B. Render animation ###
-        loc = self.render_animation(path)
+        loc = self.render_animation(path, thrower=thrower)
 
         ### C. Drop Item ###
         self.drop_thrown_item(thrower, loc)

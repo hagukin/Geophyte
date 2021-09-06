@@ -506,6 +506,7 @@ class Status(BaseComponent):
             from base.data_loader import delete_saved_game
             delete_saved_game()
             from input_handlers import GameOverEventHandler
+            self.engine.sound_manager.add_sound_queue("fx_player_death")
             self.engine.event_handler = GameOverEventHandler()
         elif self.engine.game_map.visible[self.parent.x, self.parent.y]:  # if dead entity is in player's visible range
             death_message += f"{g(self.parent.name, '이')} 죽었다!"

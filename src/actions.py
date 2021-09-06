@@ -1011,6 +1011,7 @@ class DoorUnlockAction(ActionWithDirection):
                 # Unlock succeded
                 if self.entity == self.engine.player:
                     self.engine.message_log.add_message(f"당신은 문의 잠금을 해제하는데 성공했다!", color.player_success)
+                    self.engine.sound_manager.play_sound("fx_unlock")
                 else:
                     self.engine.message_log.add_message(f"{g(self.entity.name, '이')} 문의 잠금을 해제했다!", color.enemy_unique, target=self.entity)
 
@@ -1117,11 +1118,13 @@ class DoorBreakAction(ActionWithDirection):
         if break_fail > strength:
             if self.entity == self.engine.player:
                 self.engine.message_log.add_message(f"당신은 문을 강제로 열려고 시도했지만 실패했다.",color.player_failed)
+                self.engine.sound_manager.add_sound_queue("fx_try_break_door")
             else:
                 self.engine.message_log.add_message(f"{g(self.entity.name, '은')} 문을 강제로 열려고 시도했지만 실패했다.", color.enemy_neutral, target=self.entity)
         elif break_fail * 2 <= strength: # if the strength value is higher than the break_fail * 2, break open the door (Minimum str req. for breaking the door: 20)
             if self.entity == self.engine.player:
                 self.engine.message_log.add_message(f"당신은 문을 파괴했다!", color.player_success)
+                self.engine.sound_manager.add_sound_queue("fx_break_door")
             else:
                 self.engine.message_log.add_message(f"{g(self.entity.name, '은')} 문을 파괴했다!", color.enemy_unique, target=self.entity)
             door.remove_self()
@@ -1131,6 +1134,7 @@ class DoorBreakAction(ActionWithDirection):
         else: # Bust open the door but not break it
             if self.entity == self.engine.player:
                 self.engine.message_log.add_message(f"당신은 문을 강제로 열었다!", color.player_success)
+                self.engine.sound_manager.add_sound_queue("fx_force_open_door")
             else:
                 self.engine.message_log.add_message(f"{g(self.entity.name, '은')} 문을 강제로 열었다!", color.enemy_unique,target=self.entity)
 
@@ -1176,6 +1180,7 @@ class DoorOpenAction(ActionWithDirection):
         if open_fail > dexterity: # check if the actor failed to open the door
             if self.entity == self.engine.player:
                 self.engine.message_log.add_message(f"당신은 문을 여는 것에 실패했다!", color.player_failed)
+                self.engine.sound_manager.add_sound_queue("fx_door_open_fail")
             else:
                 self.engine.message_log.add_message(f"{g(self.entity.name, '은')} 문을 여는 것에 실패했다!", color.enemy_neutral, target=self.entity)
             from input_handlers import MainGameEventHandler
@@ -1245,6 +1250,7 @@ class DoorOpenAction(ActionWithDirection):
         elif semiactor_on_dir.entity_id == "locked_door":
             if self.entity == self.engine.player:
                 self.engine.message_log.add_message(f"문이 굳게 잠겨 열리지 않는다.", color.player_failed)
+                self.engine.sound_manager.add_sound_queue("fx_door_open_fail")
         else:
             if self.entity == self.engine.player:
                 self.engine.message_log.add_message(f"이 곳에는 문이 없다.", color.impossible)
@@ -1295,6 +1301,9 @@ class DoorCloseAction(ActionWithDirection):
 
             if self.entity.status.experience:
                 self.entity.status.experience.gain_dexterity_exp(5, 15, 300)
+
+            if self.entity == self.engine.player:
+                self.engine.sound_manager.add_sound_queue("fx_close_door")
 
             return None
         elif semiactor_on_dir.entity_id == "closed_door" or semiactor_on_dir.entity_id == "locked_door":

@@ -634,16 +634,31 @@ class Actor(Entity):
         self.actor_state.was_submerged = self.actor_state.is_submerged
 
         if self.gamemap.tiles[self.x, self.y]["tile_id"] == "deep_water":
+            # FX
+            if self == self.engine.player and self.engine.sound_manager:
+                if not self.actor_state.is_underwater or not self.actor_state.is_submerged:
+                    self.engine.sound_manager.add_sound_queue("fx_water_splash")
+
             self.actor_state.is_submerged = True
             if self.actor_state.size < 6:
                 self.actor_state.is_underwater = True
         elif self.gamemap.tiles[self.x, self.y]["tile_id"] == "shallow_water":
+            # FX
+            if self == self.engine.player and self.engine.sound_manager:
+                if not self.actor_state.is_submerged:
+                    self.engine.sound_manager.add_sound_queue("fx_water_splash_short")
+
             self.actor_state.is_submerged = True
             if self.actor_state.size <= 1:
                 self.actor_state.is_underwater = True
             else:
                 self.actor_state.is_underwater = False
         else:
+            # FX
+            if self == self.engine.player and self.engine.sound_manager:
+                if self.actor_state.is_submerged:
+                    self.engine.sound_manager.add_sound_queue("fx_water_splash_short")
+
             self.actor_state.is_submerged = False
             self.actor_state.is_underwater = False
 
@@ -667,6 +682,7 @@ class Actor(Entity):
             fall_damage = max(0, random.randint(int(fall_damage/2), fall_damage))
             if self == self.engine.player:
                 self.engine.message_log.add_message(f"당신은 추락으로부터 {fall_damage} 데미지를 받았다!", fg=color.player_severe)
+                self.engine.sound_manager.add_sound_queue("fx_fall_impact")
             self.status.take_damage(amount=fall_damage, attacked_from=None)
             if not self.actor_state.is_dead:
                 bleed_damage = max(0, int(fall_damage / 10))
