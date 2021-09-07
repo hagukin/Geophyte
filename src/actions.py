@@ -222,11 +222,11 @@ class DescendAction(Action):
                 self.engine.world.get_map(n_depth).ascend_loc[1]
                 )
             for actor in actors:
-                if not actor.actor_state.can_chase_through_stair:
+                if not actor.actor_state.can_chase_through_stair or actor.is_dead:
                     continue
                 if actor.ai:
                     if actor.ai.owner == self.engine.player or actor.ai.target == self.engine.player:
-                        self.engine.game_map.descending_actors.append(actor)
+                        self.engine.game_map.descending_actors.add(actor)
         elif self.engine.game_map.tiles[self.entity.x, self.entity.y]["tile_id"] == "ascending_stair":
             raise exceptions.Impossible("이 계단은 위로만 향한다.")
         else:
@@ -276,7 +276,7 @@ class AscendAction(Action):
                     continue
                 if actor.ai:
                     if actor.ai.owner == self.engine.player or actor.ai.target == self.engine.player:
-                        self.engine.game_map.ascending_actors.append(actor)
+                        self.engine.game_map.ascending_actors.add(actor)
         elif self.engine.game_map.tiles[self.entity.x, self.entity.y]["tile_id"] == "descending_stair":
             raise exceptions.Impossible("이 계단은 아래로만 향한다.")
         else:
@@ -985,7 +985,7 @@ class MovementAction(ActionWithDirection):
                 if self.entity.actor_state.size >= 6:
                     crawl_out_chance = 1
                 else:
-                    crawl_out_chance = 0.005 * self.entity.status.changed_status["dexterity"] * (self.entity.actor_state.size ** 2) # crawl-out chance calculation
+                    crawl_out_chance = max(0.1,0.005 * self.entity.status.changed_status["dexterity"] * (self.entity.actor_state.size ** 2)) # crawl-out chance calculation
 
             if random.random() > crawl_out_chance:
                 if self.entity == self.engine.player:

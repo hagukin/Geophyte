@@ -43,8 +43,8 @@ class GameMap:
         self.difficulty_rise = 0 # Float. used for calculating respawn monster toughness
         self.difficulty_rise_rate = difficulty_rise_rate # amount of difficulty rising per respawn tick
 
-        self.descending_actors = [] # List of actors that are descending from upper level
-        self.ascending_actors = []
+        self.descending_actors = set() # List of actors that are descending from upper level
+        self.ascending_actors = set()
 
         self.visible = np.full(
             (biome.map_width, biome.map_height), fill_value=False, order="F"

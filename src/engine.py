@@ -147,6 +147,14 @@ class Engine:
             return None # do nothing
 
         if entity == self.player: # Map can be only generated when player moves.
+            # Delete all de/ascending actors set to prevent dead actor descending.
+            # e.g. ant and player is both at depth 1
+            # player went down to depth 2, and ant tries to follow player 1 (gamemap depth 2 now has ant as descending actors)
+            # player immediately ascends back, ant is still at depth 1(since it never actually descended. its only in the descend list). player kills ant.
+            # player descneds back to depth 2. since there is ant saved in descending actors of gamemap depth 2, ant(which is dead) will descend.
+            self.game_map.descending_actors.clear()
+            self.game_map.ascending_actors.clear()
+
             # world[depth] should've been already generated from previous map generations.
             if not self.world.check_if_map_has_been_generated(depth):
                 raise Exception(f"FATAL ERROR::SOMETHING WENT WRONG. PLAYER IS JUMPING TO DEPTH {self.depth} TO NONGENERATED DEPTH {depth}. CONSIDER INCREASING WORLD.MEM_CAPACITY. - world[depth] should've been already generated from previous map generations.")
@@ -172,7 +180,8 @@ class Engine:
 
         # place physically and remove entity from its old gamemap.
         # NOTE: It is CRUCIAL to remove entity BEFORE serializing the gamemap, otherwise it will have duplicate entity.
-        entity.gamemap.remove_entity(entity)
+        if entity.gamemap:
+            entity.gamemap.remove_entity(entity)
         entity.place(xpos, ypos, self.world.get_map(depth=depth))
 
         # Update fov since player is now placed on new gamemap.
