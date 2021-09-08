@@ -123,13 +123,13 @@ player = Actor(
     inventory=Inventory(capacity=52, is_fireproof=False, is_acidproof=False, is_waterproof=False),
     ability_inventory=AbilityInventory(capacity=26),
     equipments=Equipments(),
-    initial_items=
-    (
-        {"item": item_factories.potion_of_liquified_ants, "chance": 1, "count": (1, 50), "BUC": {1:0, 0:0, -1:1}, "upgrade": None},
-        {"item": item_factories.scroll_of_teleportation, "chance": 1, "count": (100, 101), "BUC": {1:0, 0:0, -1:1}, "upgrade": None},
-        {"item": item_factories.scroll_of_remove_curse, "chance": 1, "count": (100, 101), "BUC": {1:0, 0:0, -1:1}, "upgrade": None},
-        {"item": item_factories.shine, "chance": 1, "count": (50, 80), "BUC": None, "upgrade": None},
-    ),
+    # initial_items=
+    # (
+    #     {"item": item_factories.potion_of_levitation, "chance": 1, "count": (1, 50), "BUC": {1:0, 0:0, -1:1}, "upgrade": None},
+    #     {"item": item_factories.scroll_of_teleportation, "chance": 1, "count": (100, 101), "BUC": {1:0, 0:0, -1:1}, "upgrade": None},
+    #     {"item": item_factories.scroll_of_remove_curse, "chance": 1, "count": (100, 101), "BUC": {1:0, 0:0, -1:1}, "upgrade": None},
+    #     {"item": item_factories.shine, "chance": 1, "count": (50, 80), "BUC": None, "upgrade": None},
+    # ),
     # initial_equipments=(
     #     {"item":item_factories.longsword, "chance":1, "count":(1,1), "BUC":{-1:1, 0:1, 1:1}, "upgrade": {1:1,2:0,3:0,4:0}},
     #     {"item":item_factories.leather_armor, "chance":1, "count":(1,1), "BUC":{-1:1, 0:1, 1:1}, "upgrade": {1:1,2:0,3:0,4:0}},
@@ -2515,6 +2515,73 @@ orc_shaman = Actor(
     initial_abilities=((ability_factories.soul_bolt, 1),)
 )
 ActorDB.monster_difficulty[orc_shaman.status.difficulty].append(orc_shaman)
+
+
+
+####################################################
+############## R - Reptiles  #######################
+####################################################
+
+### Primeval tortoise
+primeval_tortoise = Actor(
+    char="R",
+    fg=(0, 13, 255),
+    name="태고의 거북",
+    entity_id="primeval_tortoise",
+    actor_type_desc=(""),
+    entity_desc=(""),
+    actor_quote=(""),
+    rarity=12,
+    weight=5500,
+    spawnable=True,
+    edible=edible.RawMeatEdible(nutrition=650),
+    ai_cls=BaseAI(
+        alignment=(("hostile",), (1,)),
+        do_melee_atk=True,
+        do_ranged_atk=False,
+        use_ability=True,
+        hostile_type=('@', 'c', 'd'),
+        attracted_eat_type=("meat",),
+    ),
+    status=Status(
+        hp=160,
+        mp=50,
+        strength=29,
+        dexterity=16,
+        agility=5,
+        intelligence=20,
+        constitution=14,
+        charm=15,
+        difficulty=12,
+        base_melee=16,
+        additional_melee=36,
+        protection=35,
+        hearing=10,
+        eyesight=10,
+        fire_resistance=0.5,
+        acid_resistance=0.3,
+        sleep_resistance=0.3,
+        ),
+    actor_state=ActorState(
+        size=5,
+        can_talk=False,
+        has_left_arm=False,
+        has_right_arm=False,
+        has_leg=True,
+        has_eye=True,
+        has_torso=True,
+        has_blood=True,
+        has_soul=True,
+        can_swim=False,
+        has_head=1,
+        regain_mana=True,
+    ),
+    inventory=Inventory(capacity=20),
+    ability_inventory=AbilityInventory(capacity=2),
+    equipments=Equipments(),
+    initial_drop_on_death=({"item":item_factories.primeval_tortoise_shell, "chance":0.1, "count":(1,1), "BUC": {-1:0,0:1,1:0}, "upgrade":{0:1}},),
+)
+ActorDB.monster_difficulty[primeval_tortoise.status.difficulty].append(primeval_tortoise)
 
 
 

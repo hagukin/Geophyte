@@ -2079,6 +2079,8 @@ class MainGameEventHandler(EventHandler):
                 self.engine.easteregg += 1
                 if self.engine.easteregg == 50:
                     self.engine.message_log.add_message(f"당신은 슬픈 기분이 든다.", color.white)
+
+                # self.engine.player.actor_state.is_flying = not self.engine.player.actor_state.is_flying
             #
             #     ######### TODO FIXME DEBUG
             #     self.engine.change_entity_depth(

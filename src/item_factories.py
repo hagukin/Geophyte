@@ -1101,6 +1101,38 @@ temp_items_lists.append(silk_dress)
 item_rarity.append(silk_dress.rarity)
 
 
+### Primeval Tortoise shell
+primeval_tortoise_shell = Item(
+    char="[",
+    fg=(37, 171, 0),
+    name="태고의 거북 등껍질",
+    entity_id="primeval_tortoise_shell",
+    entity_desc="태고의 거북의 등껍질 조각이다. 방어구로 착용할 수 있을 것 같아 보인다.",
+    rarity=0,
+    weight=10.3,
+    price=50,
+    item_type=InventoryOrder.ARMOR,
+    item_state=ItemState(is_identified=1),
+    spawnable=False,
+    flammable=0,
+    corrodible=0,
+    droppable=True,
+    stackable=False,
+    throwable=throwable.NormalThrowable(air_friction=25),
+    equipable=equipable.Equipable(
+        equipable_type=EquipableOrder.LIGHT_ARMOR,
+        upgrade=0,
+        equip_size=(4, 4),
+        possible_regions=("torso",),
+        str_requirement=14,
+        protection=8,
+        fire_resistance=0.4,
+    )
+)
+temp_items_lists.append(primeval_tortoise_shell)
+item_rarity.append(primeval_tortoise_shell.rarity)
+
+
 
 ################################## HEAD ######################################
 ### Iron Headpiece

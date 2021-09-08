@@ -612,13 +612,13 @@ class Actor(Entity):
         self.status.death(cause)
 
     def float(self, start_floating: bool) -> None:
-        super().float(start_floating)
+        # Actor can go down only when actor is not flying and not levitating.
         if start_floating:
-            self.is_on_air = True
+            super().float(start_floating)
+        elif not start_floating and not self.actor_state.is_flying and self.actor_state.is_levitating == [0, 0]:
+            super().float(start_floating)
         else:
-            # Actor can go down only when actor is not flying and not levitating.
-            if self.actor_state.is_flying == False and self.actor_state.is_levitating != [0, 0]:
-                self.is_on_air = False
+            print(f"LOG::cannot stop floating since actor is either flying or levitating. {self.entity_id} - Actor.float()")
 
     def remove_self(self):
         super().remove_self()
@@ -758,6 +758,10 @@ class Actor(Entity):
         self.inventory.drop_on_death.append(temp)
         return temp
 
+    def initialize_actor_state(self) -> None:
+        # use setter function to make actor float
+        self.actor_state.is_flying = self.actor_state.is_flying
+
     def initialize_self(self) -> None:
         """
         Sets initial items, abilities, and equipments of this actor.
@@ -765,6 +769,8 @@ class Actor(Entity):
         """
         if self.ai:
             self.ai.initialize()
+
+        self.initialize_actor_state()
 
         for args in self.initial_items:
             if random.random() <= args["chance"]:

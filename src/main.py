@@ -83,13 +83,9 @@ def main() -> None:
                         context.present(root_console, keep_aspect=True)
 
                 ### WRITE DEBUG FUNCTIONS HERE ###
-                print(engine.game_map.depth)
-                for a in engine.game_map.descending_actors:
-                    print(id(a))
-                print("++++++++++++++++++++")
-                for a in engine.game_map.ascending_actors:
-                    print(id(a))
-                print("++++++++++++++++++++")
+                for actor in engine.game_map.actors:
+                    if actor.actor_state.is_flying and not actor.is_on_air:
+                        print(actor.name)
 
             except Exception:
                 # Print error to stderr then print the error to the message log

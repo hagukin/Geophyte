@@ -61,8 +61,8 @@ class Credit():
         center_print(console, string="OFL license:", y=y+40, fg=color.white)
         center_print(console, string="Nanumfont", y=y+41, fg=color.credit_license)
 
-        draw_horizontal_line(console, y=y + 45, thickness=1, title="FX By", bg=color.credit_fx)
-        center_print(console, string="mensageirocs | dersuperanton | InspectorJ", y=y + 47, fg=color.credit_fx)
+        draw_horizontal_line(console, y=y + 45, thickness=3, title="FX By", bg=color.credit_fx)
+        center_print(console, string="mensageirocs | dersuperanton | InspectorJ", y=y + 49, fg=color.credit_fx)
 
 
 

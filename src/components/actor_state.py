@@ -258,9 +258,8 @@ class ActorState(BaseComponent):
         self.is_hallucinating = is_hallucinating
         self.is_detecting_obj = is_detecting_obj
 
-        self.is_flying = is_flying
-        if is_flying:
-            self.actor_fly()
+        self._is_flying = is_flying
+
         self.is_in_deep_pit = is_in_deep_pit
         self.is_in_shallow_pit = is_in_shallow_pit
         self.is_submerged = is_submerged
@@ -379,16 +378,16 @@ class ActorState(BaseComponent):
             return None
         self.hunger += nutrition
 
-    def actor_fly(self) -> None:
-        self.is_flying = True
-        if self.parent != None: # Actor State might not have parent when first initialized.
-            # If it doesn't have a parent, entity.do_environment_effects() will make the actor float instead.
-            self.parent.float(start_floating=True)
+    @property
+    def is_flying(self):
+        return self._is_flying
 
-    def actor_stop_fly(self) -> None:
-        self.is_flying = False
-        if self.parent != None:
-            # If it doesn't have a parent, entity.do_environment_effects() will make the actor float instead.
+    @is_flying.setter
+    def is_flying(self, value: bool):
+        self._is_flying = value
+        if value:
+            self.parent.float(start_floating=True)
+        else:
             self.parent.float(start_floating=False)
 
     def actor_heal_wounds(self):
@@ -955,7 +954,7 @@ class ActorState(BaseComponent):
         self.apply_object_detection([0, 0, []])
         if include_spatial_states:
             # spatial states
-            self.actor_stop_fly() # NOTE: entity.is_on_air will remain its value since its technically not actor state.
+            self.is_flying = False
             self.is_in_deep_pit = False
             self.is_in_shallow_pit = False
             self.is_submerged = False
