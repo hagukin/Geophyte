@@ -740,7 +740,7 @@ from ability import Ability
 class BookReadable(Readable):
     def __init__(
             self,
-            ability: Ability,
+            ability: Optional[Ability]=None,
             read_msg: Optional[str]=None,
             int_req: int=10, # NOTE: in ReadItem, Intelligence 10 or higher is required to read something.
             comprehension_chance_per_int_bonus: float=0.2,
@@ -795,11 +795,7 @@ class BookReadable(Readable):
         reader = action.entity
 
         if self.try_comprehend(reader=reader):
-            if reader == self.engine.player and self.read_msg:
-                self.engine.message_log.add_message(self.read_msg, fg=color.player_neutral_important)
-            if self.ability:
-                reader.ability_inventory.gain_ability(self.ability)
-            self.read()  # Identify when successful
+            self.read(action)  # Identify when successful
             return None
         else:
             # failed or cursed.
@@ -808,14 +804,43 @@ class BookReadable(Readable):
             reader.actor_state.apply_confusion([0,5])
             return None
 
-    def read(self) -> None:
+    def effects_when_read(self, action: actions.ReadItem) -> None:
+        """Overwrite this function to give additional effects."""
+        pass
+
+    def read(self, action: actions.ReadItem) -> None:
         """Does not get removed from the inventory."""
         # fully identify used instance, and semi-identify the same item types.
+        reader = action.entity
+        if reader == self.engine.player and self.read_msg:
+            self.engine.message_log.add_message(self.read_msg, fg=color.player_neutral_important)
+        if self.ability:
+            reader.ability_inventory.gain_ability(self.ability)
         self.parent.item_state.identify_self(identify_level=1)
+        self.effects_when_read(action)
 
     def item_use_cancelled(self, actor: Actor) -> actions.Action:
         """
         Does nothing.
         """
         return actions.WaitAction(actor)
+
+
+class SatanicBibleBookReadable(BookReadable):
+    def effects_when_read(self, action: actions.ReadItem) -> None:
+        reader = action.entity
+        if reader.actor_state.has_soul:
+            reader.actor_state.has_soul = False
+            reader.status.gain_strength(1)
+            reader.status.gain_dexterity(1)
+            reader.status.gain_constitution(1)
+            reader.status.gain_agility(1)
+            reader.status.gain_intelligence(1)
+            reader.status.gain_charm(1)
+            if reader == self.engine.player:
+                self.engine.message_log.add_message("당신은 무언가 아주 중요한 것을 댓가로 더 강해진 듯한 기분이 들었다.", fg=color.player_neutral_important)
+        else:
+            if reader == self.engine.player:
+                self.engine.message_log.add_message("당신을 책을 읽었지만 아무 일도 일어나지 않았다.", fg=color.player_neutral_important)
+
 

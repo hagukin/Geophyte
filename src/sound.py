@@ -140,6 +140,7 @@ class SoundManager():
             "fx_fall_impact":"fx\\low_impact.wav",
             "fx_burden":"fx\\burden.wav",
             "fx_cash":"fx\\coin.wav",
+            "fx_book":"fx\\book.wav",
 
             "bgm_title_screen":"bgm\\Constellation.wav",
             "bgm_mystical_beginning":"bgm\\Magical_Travel.wav",

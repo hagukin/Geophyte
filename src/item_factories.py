@@ -42,6 +42,8 @@ potion_of_healing = Item(
     droppable=True,
     stackable=True,
     throwable=throwable.PotionQuaffAndThrowSameEffectThrowable(
+        base_throw=0,
+        additional_throw=0,
         break_chance=1,
         identify_when_shattered=0,
         identify_when_collided_with_entity=0,
@@ -80,6 +82,8 @@ potion_of_mana = Item(
     droppable=True,
     stackable=True,
     throwable=throwable.NormalThrowable(
+        base_throw=0,
+        additional_throw=0,
         break_chance=1,
         identify_when_shattered=0,
         identify_when_collided_with_entity=0,
@@ -117,6 +121,8 @@ potion_of_paralysis = Item(
     droppable=True,
     stackable=True,
     throwable=throwable.PotionQuaffAndThrowSameEffectThrowable(
+        base_throw=0,
+        additional_throw=0,
         break_chance=1,
         trigger_if_thrown_at=True,
         identify_when_shattered=0,
@@ -155,6 +161,8 @@ potion_of_sleep = Item(
     droppable=True,
     stackable=True,
     throwable=throwable.PotionQuaffAndThrowSameEffectThrowable(
+        base_throw=0,
+        additional_throw=0,
         break_chance=1,
         trigger_if_thrown_at=True,
         identify_when_shattered=0,
@@ -193,6 +201,8 @@ potion_of_monster_detection = Item(
     droppable=True,
     stackable=True,
     throwable=throwable.NormalThrowable(
+        base_throw=0,
+        additional_throw=0,
         break_chance=1,
         identify_when_shattered=0,
         identify_when_collided_with_entity=0,
@@ -230,6 +240,8 @@ potion_of_flame = Item(
     droppable=True,
     stackable=True,
     throwable=throwable.PotionOfFlameThrowable(
+        base_throw=0,
+        additional_throw=0,
         break_chance=1,
         trigger_if_thrown_at=True,
         identify_when_shattered=1,
@@ -267,6 +279,8 @@ potion_of_acid = Item(
     droppable=True,
     stackable=True,
     throwable=throwable.PotionQuaffAndThrowSameEffectThrowable(
+        base_throw=0,
+        additional_throw=0,
         break_chance=1,
         trigger_if_thrown_at=True,
         identify_when_shattered=0,
@@ -304,6 +318,8 @@ potion_of_frost = Item(
     droppable=True,
     stackable=True,
     throwable=throwable.PotionOfFrostThrowable(
+        base_throw=0,
+        additional_throw=0,
         break_chance=1,
         trigger_if_thrown_at=True,
         identify_when_shattered=0,
@@ -341,6 +357,8 @@ potion_of_poison = Item(
     droppable=True,
     stackable=True,
     throwable=throwable.PotionQuaffAndThrowSameEffectThrowable(
+        base_throw=0,
+        additional_throw=0,
         break_chance=1,
         trigger_if_thrown_at=True,
         identify_when_shattered=0,
@@ -377,6 +395,8 @@ potion_of_levitation = Item(
     droppable=True,
     stackable=True,
     throwable=throwable.PotionQuaffAndThrowSameEffectThrowable(
+        base_throw=0,
+        additional_throw=0,
         break_chance=1,
         trigger_if_thrown_at=True,
         identify_when_shattered=0,
@@ -415,6 +435,8 @@ potion_of_liquified_ants = Item(
     droppable=True,
     stackable=True,
     throwable=throwable.PotionOfLiquifiedAntsThrowable(
+        base_throw=0,
+        additional_throw=0,
         break_chance=1,
         trigger_if_thrown_at=True,
         identify_when_shattered=1,
@@ -795,6 +817,40 @@ steal_skillbook = Item(
 )
 temp_items_lists.append(steal_skillbook)
 item_rarity.append(steal_skillbook.rarity)
+
+
+### satanic bible
+# Technically not a skillbook
+satanic_bible = Item(
+    should_randomize=False,
+    char="=",
+    fg=(161, 0, 0),
+    name="악마의 성서",
+    entity_id="satanic_bible",
+    entity_desc="알 수 없는 언어가 뺴곡히 적혀있다. 중간중간 의미를 알 수 없는 삽화들이 그려져 있다. 책 표지는 파충류의 비늘과도 유사한 무언가로 만들어져 있다.",
+    rarity=0,
+    weight=0.66,
+    price=13,
+    item_type=InventoryOrder.SKILLBOOK,
+    item_state=ItemState(is_identified=1),
+    spawnable=False,
+    flammable=0,
+    corrodible=0,
+    droppable=True,
+    stackable=False,
+    throwable=throwable.NormalThrowable(air_friction=20),
+    readable=readable.SatanicBibleBookReadable(
+        ability=None,
+        int_req=17,
+        comprehension_chance_per_int_bonus=0.5,
+    ),
+    quaffable=None,
+    initial_BUC={1:0,0:0,-1:1},
+    uncursable=False,
+    blessable=False,
+)
+temp_items_lists.append(satanic_bible)
+item_rarity.append(satanic_bible.rarity)
 
 
 #########################################################################

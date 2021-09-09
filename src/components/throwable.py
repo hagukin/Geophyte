@@ -373,8 +373,8 @@ class PotionQuaffAndThrowSameEffectThrowable(NormalThrowable):
     """Potion that applies the same effect when quaffed and when thrown(collided) should use this general throwable component.
     If there is any difference between the two, you should override NormalThrowable class and make a new one."""
     def __init__(self,
-                 base_throw: int=4,
-                 additional_throw: int=1,
+                 base_throw: int=0,
+                 additional_throw: int=0,
                  penetration: bool=False,
                  break_chance: float=1,
                  air_friction: int=1,

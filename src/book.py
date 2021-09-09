@@ -28,11 +28,13 @@ class MonsterBookIndexHandler(AskUserEventHandler):
 
     def next_page(self):
         self.page = self.page + 1
+        self.engine.sound_manager.add_sound_queue("fx_book")
         if self.page >= len(monchar):
             self.page = 0
 
     def prev_page(self):
         self.page = self.page - 1
+        self.engine.sound_manager.add_sound_queue("fx_book")
         if self.page < 0:
             self.page = len(monchar) - 1
 

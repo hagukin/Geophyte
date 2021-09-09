@@ -6,7 +6,7 @@ def get_dungeon_biome(depth: int) -> Optional[Dict]:
         return {
             biome_factories.forest:1
         }
-    elif depth < 8:
+    elif depth < 10:
         return {
             biome_factories.rocky_dungeon_small(round((depth+1) // 2 * 5)):1 # deeper you go larger it gets
         }

@@ -49,7 +49,7 @@ class ActorState(BaseComponent):
 
         ### Sexuality
         # If it has a sexuality, save it as a string form. (ex. "male")
-        # If it has no sexuality, save it as a "None". NOTE: This is a string value. N,o,t,e "None"
+        # If it has no sexuality, save it as a "None". NOTE: This is a string value. N,o,n,e "None"
         # If it has other sexuality besides male and female, save it as "GENDER_TYPE" (ex. "Helicopter")
         sexuality: str = random.choice(("male", "female")),
 

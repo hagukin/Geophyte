@@ -125,10 +125,10 @@ player = Actor(
     equipments=Equipments(),
     # initial_items=
     # (
-    #     {"item": item_factories.potion_of_levitation, "chance": 1, "count": (1, 50), "BUC": {1:0, 0:0, -1:1}, "upgrade": None},
-    #     {"item": item_factories.scroll_of_teleportation, "chance": 1, "count": (100, 101), "BUC": {1:0, 0:0, -1:1}, "upgrade": None},
+    #     {"item": item_factories.satanic_bible, "chance": 1, "count": (1, 1), "BUC": {-1:0, 0:0, 1:1}, "upgrade": None},
+    #     {"item": item_factories.scroll_of_tame, "chance": 1, "count": (100, 101), "BUC": {1:0, 0:0, -1:1}, "upgrade": None},
     #     {"item": item_factories.scroll_of_remove_curse, "chance": 1, "count": (100, 101), "BUC": {1:0, 0:0, -1:1}, "upgrade": None},
-    #     {"item": item_factories.shine, "chance": 1, "count": (50, 80), "BUC": None, "upgrade": None},
+    #     {"item": item_factories.scroll_of_identify, "chance": 1, "count": (50, 80), "BUC": None, "upgrade": None},
     # ),
     # initial_equipments=(
     #     {"item":item_factories.longsword, "chance":1, "count":(1,1), "BUC":{-1:1, 0:1, 1:1}, "upgrade": {1:1,2:0,3:0,4:0}},
@@ -1886,6 +1886,78 @@ lightning_elemental = Actor(
 )
 ActorDB.monster_difficulty[lightning_elemental.status.difficulty].append(lightning_elemental)
 
+####################################################
+################ F - Fiends  #######################
+####################################################
+
+red_prophet = Actor(
+    char="F",
+    fg=(122, 8, 0),
+    name="붉은 선지자",
+    entity_id="red_prophet",
+    actor_type_desc=("통상 '악마'라고 불리우는 이 저주받은 존재들은 생명 그 자체를 혐오하는 사악한 존재들이다."
+                     "이들은 굉장히 위험하며, 발견하는 즉시 도망치거나, 전투 준비를 갖춰야 한다."),
+    entity_desc=("붉은 선지자라는 이름의 이 악마는 인간과 유사한 외형을 하고 있으나, 눈, 코, 귀가 없고, 비정상적으로 많은 치아를 가지고 있다. "
+                 "이들의 피부는 진한 붉은 색을 띄며, 마치 양서류의 살가죽과 유사한 매끄러운 표면을 하고 있다. "
+                 "선지자라는 이름에 걸맞게 이들의 가장 큰 목표는 자신들의 사상을 다른 생명체들에게 전도하는 것인데, "
+                 "그 방식은 항상 전도 대상을 살해하는 것으로 이어진다. 이들은 다른 생명체들의 목숨을 끊어놓는 것만이 자신들의 사상을 이해시킬 수 있는 유일한 방법이라고 생각하며, "
+                 "이러한 행위에 저항하더라도 크게 개의치 않고 생명체들을 살해한다. "
+                 "붉은 선지자들은 고위 악마들에 비하면 비교적 덜 위협적이지만, 여전히 극단적으로 적대적인 존재이기에 많은 주의가 필요하다."),
+    rarity=35,
+    weight=92.2,
+    spawnable=True,
+    edible=None,
+    ai_cls=BaseAI(
+        alignment=(("allied",), (1,)),
+        do_melee_atk=True,
+        do_ranged_atk=False,
+        use_ability=False,
+        allied_type=('F',),
+    ),
+    status=Status(
+        hp=133,
+        mp=103,
+        strength=24,
+        dexterity=20,
+        agility=20,
+        intelligence=28,
+        constitution=20,
+        charm=23,
+        difficulty=14,
+        base_melee=25,
+        additional_melee=33,
+        protection=23,
+        hearing=20,
+        eyesight=25,
+        psychic_resistance=1,
+        sleep_resistance=1,
+        melee_effects_var=((3, 0, 6),),
+        melee_effects=(("bleed_target", 0.5),),
+        ),
+    actor_state=ActorState(
+        size=4,
+        regain_mana=True,
+        has_left_arm=True,
+        has_right_arm=True,
+        has_wing=False,
+        has_leg=True,
+        has_eye=True,
+        has_torso=True,
+        has_blood=True,
+        has_soul=False,
+        can_talk=True,
+        has_head=1,
+        sexuality="None",
+    ),
+    inventory=Inventory(capacity=20),
+    ability_inventory=AbilityInventory(capacity=7),
+    initial_items=(
+        {"item":item_factories.satanic_bible, "chance":0.1, "count":(1, 1), "BUC": None, "upgrade":None},
+    ),
+    equipments=Equipments(),
+)
+ActorDB.monster_difficulty[red_prophet.status.difficulty].append(red_prophet)
+
 
 ####################################################
 ################### H - HORSES #####################
@@ -1896,7 +1968,7 @@ unicorn = Actor(
     fg=(255, 255, 255),
     name="유니콘",
     entity_id="unicorn",
-    actor_type_desc=("유니콘은 하얀색 말과 유사한 외형을 하고 있으며, 머리에 달린 기다란 뿔과 등에 달린 한 쌍의 날개가 이들을 말들과 구분할 수 있게 해준다. "
+    entity_desc=("유니콘은 하얀색 말과 유사한 외형을 하고 있으며, 머리에 달린 기다란 뿔과 등에 달린 한 쌍의 날개가 이들을 말들과 구분할 수 있게 해준다. "
             "유니콘에 대해 잘못 알려진 사실 중 한 가지가 '유니콘은 겉으로는 고결해 보이지만 실제로는 무자비하고 난폭하다'는 소문인데, 이는 사실이 아니다."
             "대다수의 유니콘은 상당히 유순하며, 먼저 누군가를 공격하는 경우는 비교적 드물다. "
             "그럼에도 이런 소문이 퍼진 것은, 비록 소수이지만 인간에게 적대적인 유니콘들이 존재하고, 그 소수의 유니콘들이 입힌 인명피해가 막심하기 때문이라고 추측된다. "
