@@ -87,7 +87,7 @@ player = Actor(
     fg=(0, 255, 0),
     name="모험가",
     entity_id="player",
-    entity_desc=("당신은 쿠가의 아뮬렛을 가져오라는 임무를 받고 끝이 보이지 않는 던전으로 발을 들였다. "),
+    actor_type_desc=("당신은 쿠가의 아뮬렛을 가져오라는 임무를 받고 끝이 보이지 않는 던전으로 발을 들였다. "),
     rarity=0,
     weight=70,
     spawnable=False,
@@ -1429,7 +1429,7 @@ maggot = Actor(
     fg=(222, 222, 222),
     name="구더기",
     entity_id="maggot",
-    entity_desc=("모험가들이 가장 무서워하는 생물이 무엇일까? 고대의 정령들? 드래곤? 답은 바로 구더기이다. "
+    entity_desc=("모험가들이 가장 무서워하는 생물이 무엇일까? 악마? 드래곤? 답은 바로 구더기이다. "
         "구더기들은 앞에 놓인 것이 무엇이든 간에 쉬지 않고 먹어치우며, 모험가들의 비상식량도 예외는 아니다. "),
     actor_quote=("구더기가 가득한 고기가 싫다면 고기 대신 치즈를 들고 다니면 돼. 구더기가 파먹은 치즈는 나름대로 별미거든. "),
     rarity=0,
@@ -1886,6 +1886,7 @@ lightning_elemental = Actor(
 )
 ActorDB.monster_difficulty[lightning_elemental.status.difficulty].append(lightning_elemental)
 
+
 ####################################################
 ################ F - Fiends  #######################
 ####################################################
@@ -1895,14 +1896,14 @@ red_prophet = Actor(
     fg=(122, 8, 0),
     name="붉은 선지자",
     entity_id="red_prophet",
-    actor_type_desc=("통상 '악마'라고 불리우는 이 저주받은 존재들은 생명 그 자체를 혐오하는 사악한 존재들이다."
-                     "이들은 굉장히 위험하며, 발견하는 즉시 도망치거나, 전투 준비를 갖춰야 한다."),
+    actor_type_desc=("통상 '악마'라고 불리우는 이 저주받은 존재들은 생명 그 자체를 혐오하는 사악한 존재들이다. "
+                     "이들은 굉장히 위험하기 때문에 발견하는 즉시 도망치거나 전투 준비를 갖춰야 한다."),
     entity_desc=("붉은 선지자라는 이름의 이 악마는 인간과 유사한 외형을 하고 있으나, 눈, 코, 귀가 없고, 비정상적으로 많은 치아를 가지고 있다. "
                  "이들의 피부는 진한 붉은 색을 띄며, 마치 양서류의 살가죽과 유사한 매끄러운 표면을 하고 있다. "
-                 "선지자라는 이름에 걸맞게 이들의 가장 큰 목표는 자신들의 사상을 다른 생명체들에게 전도하는 것인데, "
-                 "그 방식은 항상 전도 대상을 살해하는 것으로 이어진다. 이들은 다른 생명체들의 목숨을 끊어놓는 것만이 자신들의 사상을 이해시킬 수 있는 유일한 방법이라고 생각하며, "
+                 "선지자라는 이름에 걸맞게 이들의 가장 큰 목표는 자신들, 혹은 악마라는 종족 자체의 사상을 다른 생명체들에게 전도하는 것인데, "
+                 "그 방식은 항상 전도 대상을 살해하는 것으로 이어진다. 이들은 다른 생명체들의 목숨을 끊어놓는 것만이 자신들의 사상을 전파할 수 있는 유일한 방법이라고 생각하며, "
                  "이러한 행위에 저항하더라도 크게 개의치 않고 생명체들을 살해한다. "
-                 "붉은 선지자들은 고위 악마들에 비하면 비교적 덜 위협적이지만, 여전히 극단적으로 적대적인 존재이기에 많은 주의가 필요하다."),
+                 "다행히 붉은 선지자들은 고위 악마들에 비하면 비교적 덜 위협적이지만, 그렇다고 해도 이들은 여전히 극단적으로 적대적인 존재이기에 많은 주의가 필요하다."),
     rarity=35,
     weight=92.2,
     spawnable=True,
@@ -1917,16 +1918,16 @@ red_prophet = Actor(
     status=Status(
         hp=133,
         mp=103,
-        strength=24,
+        strength=20,
         dexterity=20,
         agility=20,
         intelligence=28,
         constitution=20,
-        charm=23,
+        charm=30,
         difficulty=14,
-        base_melee=25,
-        additional_melee=33,
-        protection=23,
+        base_melee=18,
+        additional_melee=25,
+        protection=15,
         hearing=20,
         eyesight=25,
         psychic_resistance=1,
@@ -1952,7 +1953,7 @@ red_prophet = Actor(
     inventory=Inventory(capacity=20),
     ability_inventory=AbilityInventory(capacity=7),
     initial_items=(
-        {"item":item_factories.satanic_bible, "chance":0.1, "count":(1, 1), "BUC": None, "upgrade":None},
+        {"item":item_factories.satanic_bible, "chance":0.2, "count":(1, 1), "BUC": None, "upgrade":None},
     ),
     equipments=Equipments(),
 )
@@ -2742,7 +2743,7 @@ giant = Actor(
         hostile_type=('@',),
     ),
     status=Status(
-        hp=160,
+        hp=210,
         mp=20,
         strength=27,
         dexterity=14,
