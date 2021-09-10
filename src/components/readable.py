@@ -841,6 +841,6 @@ class SatanicBibleBookReadable(BookReadable):
                 self.engine.message_log.add_message("당신은 무언가 아주 중요한 것을 댓가로 더 강해진 듯한 기분이 들었다.", fg=color.player_neutral_important)
         else:
             if reader == self.engine.player:
-                self.engine.message_log.add_message("당신을 책을 읽었지만 아무 일도 일어나지 않았다.", fg=color.player_neutral_important)
+                self.engine.message_log.add_message("당신은 책을 읽었지만 아무 일도 일어나지 않았다.", fg=color.player_neutral_important)
 
 

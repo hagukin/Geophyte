@@ -40,7 +40,6 @@ class Edible(BaseComponent):
             edible_type:
                 Used for determining whether the ai likes certain food or not
                 Reference:
-                    food (e.g. Every ai who are willing to eat something will gladly eat "food" typed item.)
                     meat
                     insect
                     fruit
@@ -125,7 +124,7 @@ class Edible(BaseComponent):
         self.time_after_spawned += self.spoil_speed
 
         # each 150 time passed, food's spoilage gets worse
-        if self.time_after_spawned >= 150:
+        if self.time_after_spawned >= 200:
             self.spoilage = min(self.spoilage + 1, 4)
             self.time_after_spawned = 0
             if self.spoilage == 3: # spawn maggots when rotten
@@ -142,7 +141,7 @@ class Edible(BaseComponent):
         return actions.EatItem(consumer, self.parent)
 
     def cook(self):
-        if self.can_cook:
+        if self.can_cook and not self.is_cooked:
             self.is_cooked = True
             self._nutrition += self.cook_bonus
         else:
@@ -253,9 +252,9 @@ class RawMeatEdible(Edible):
     Provides no special effects.
     The meat is uncooked, and can be cooked by fire.
     The consumer gains nutritions.
-    Meat rots faster. (spoil_speed set to 3)
+    Meat rots faster.
     """
-    def __init__(self, nutrition: int, spoilage: int=0, is_cooked: bool=False, can_cook: bool=True, spoil_speed: int=3, cook_bonus:int = None, edible_type:str = "meat",
+    def __init__(self, nutrition: int, spoilage: int=0, is_cooked: bool=False, can_cook: bool=True, spoil_speed: int=12, cook_bonus:int = None, edible_type:str = "meat",
                  maggot_chance: float=0.2, maggot_range: Tuple[int,int]=(1,1)):
         super().__init__(nutrition,spoilage,is_cooked,can_cook,spoil_speed,cook_bonus,edible_type,maggot_chance,maggot_range)
         self.maggot_range = (1, max(8, min(int(self.nutrition / 100), 1))) # Number of maggots spawned increase by nutrition value
@@ -264,9 +263,66 @@ class InsectEdible(Edible):
     """
     Provides no special effects.
     """
-    def __init__(self, nutrition: int, spoilage: int=0, is_cooked: bool=False, can_cook: bool=True, spoil_speed: int=2, cook_bonus:int = None, edible_type:str = "insect",
+    def __init__(self, nutrition: int, spoilage: int=0, is_cooked: bool=False, can_cook: bool=True, spoil_speed: int=8, cook_bonus:int = None, edible_type:str = "insect",
                  maggot_chance: float=0, maggot_range: Tuple[int,int]=(0,0)):
         super().__init__(nutrition,spoilage,is_cooked,can_cook,spoil_speed,cook_bonus,edible_type,maggot_chance,maggot_range)
+
+
+class HerbEdible(Edible):
+    """
+    Provides no special effects.
+    """
+    def __init__(self, nutrition: int, spoilage: int=0, is_cooked: bool=False, can_cook: bool=False, spoil_speed: int=4, cook_bonus:int = None, edible_type:str = "vegetable",
+                 maggot_chance: float=0, maggot_range: Tuple[int,int]=(0,0)):
+        super().__init__(nutrition,spoilage,is_cooked,can_cook,spoil_speed,cook_bonus,edible_type,maggot_chance,maggot_range)
+
+
+class RationEdible(Edible):
+    """
+    Provides no special effects.
+    """
+    def __init__(self, nutrition: int, spoilage: int=0, is_cooked: bool=False, can_cook: bool=True, spoil_speed: int=2, cook_bonus:int = None, edible_type:str = "meat",
+                 maggot_chance: float=0, maggot_range: Tuple[int,int]=(0,0)):
+        super().__init__(nutrition,spoilage,is_cooked,can_cook,spoil_speed,cook_bonus,edible_type,maggot_chance,maggot_range)
+
+
+
+##########################################################
+######################### HERBS ##########################
+##########################################################
+
+class LintolEdible(HerbEdible):
+    def effect_uncooked(self, action: actions.EatItem):
+        consumer = action.entity
+        # Log
+        if consumer == self.engine.player:
+            self.engine.message_log.add_message(f"입 안에서 상쾌함이 감돈다.", color.player_neutral)
+        if consumer.actor_state.is_burning != [0,0,0,0]:
+            consumer.actor_state.apply_burning([0,0,0,0])
+        return super().effect_always(action)
+
+
+class FillapotyEdible(HerbEdible):
+    def effect_uncooked(self, action: actions.EatItem):
+        consumer = action.entity
+        # Log
+        if consumer == self.engine.player:
+            self.engine.message_log.add_message(f"부드럽게 달콤한 향이 입안 가득 퍼진다.", color.player_neutral)
+        if consumer.actor_state.is_poisoned != [0,0,0,0]:
+            consumer.actor_state.apply_poisoning([0,0,0,0])
+        return super().effect_always(action)
+
+
+class KettonissEdible(HerbEdible):
+    def effect_uncooked(self, action: actions.EatItem):
+        consumer = action.entity
+        # Log
+        if consumer == self.engine.player:
+            self.engine.message_log.add_message(f"톡 쏘면서 매콤한 맛이 느껴진다.", color.player_neutral)
+        if consumer.actor_state.is_freezing != [0,0,0,0,0] or consumer.actor_state.is_frozen != [0,0,0]:
+            consumer.actor_state.apply_freezing([0,0,0,0,0])
+            consumer.actor_state.apply_frozen([0,0,0])
+        return super().effect_always(action)
 
 
 ####################################################
@@ -279,8 +335,7 @@ class FireAntEdible(InsectEdible):
         # Log
         if consumer == self.engine.player:
             self.engine.message_log.add_message(f"당신의 입 안에서 약간의 열기가 느껴진다.", color.player_neutral)
-        return super().effect_cooked(action)
-
+        return super().effect_always(action)
 
 class VoltAntEdible(InsectEdible):
     def effect_uncooked(self, action: actions.EatItem):
@@ -288,7 +343,7 @@ class VoltAntEdible(InsectEdible):
         # Log
         if consumer == self.engine.player:
             self.engine.message_log.add_message(f"당신의 혓바닥이 따끔거린다.", color.player_neutral)
-        return super().effect_cooked(action)
+        return super().effect_always(action)
 
 
 ####################################################

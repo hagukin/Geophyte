@@ -7,8 +7,8 @@ class Visual():
         x: int, 
         y: int, 
         char: str, 
-        fg: Optional[Tuple(int,int,int)] = None, 
-        bg: Optional[Tuple(int,int,int)] = None, 
+        fg: Optional[Tuple[int,int,int]] = None,
+        bg: Optional[Tuple[int,int,int]] = None,
         lifetime: int=1
         ):
         """

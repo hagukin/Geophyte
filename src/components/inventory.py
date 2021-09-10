@@ -62,8 +62,9 @@ class Inventory(BaseComponent):
             if self.parent.actor_state.previous_encumbrance != self.parent.actor_state.encumbrance:
                 if self.parent == self.engine.player and not self.parent.is_dead:
                     self.engine.message_log.add_message("당신은 약간의 불편함을 느낀다.", fg=color.white)
-                    if self.parent.actor_state.previous_encumbrance < self.parent.actor_state.encumbrance:
-                        self.engine.sound_manager.add_sound_queue("fx_burden")
+                    if self.engine.sound_manager:
+                        if self.parent.actor_state.previous_encumbrance < self.parent.actor_state.encumbrance:
+                            self.engine.sound_manager.add_sound_queue("fx_burden")
                 else:
                     print(f"WARNING::{self.parent.name} is burdened - encumbrance:{self.parent.actor_state.encumbrance}")
                 self.parent.status.add_bonus(Bonus("burden_bonus", bonus_agility=-1, bonus_dexterity=-1))
@@ -73,8 +74,9 @@ class Inventory(BaseComponent):
             if self.parent.actor_state.previous_encumbrance != self.parent.actor_state.encumbrance:
                 if self.parent == self.engine.player and not self.parent.is_dead:
                     self.engine.message_log.add_message("당신은 다소 불편함을 느낀다.", fg=color.player_not_good)
-                    if self.parent.actor_state.previous_encumbrance < self.parent.actor_state.encumbrance:
-                        self.engine.sound_manager.add_sound_queue("fx_burden")
+                    if self.engine.sound_manager:
+                        if self.parent.actor_state.previous_encumbrance < self.parent.actor_state.encumbrance:
+                            self.engine.sound_manager.add_sound_queue("fx_burden")
                 else:
                     print(f"WARNING::{self.parent.name} is burdened - encumbrance:{self.parent.actor_state.encumbrance}")
                 self.parent.status.add_bonus(Bonus("burden_bonus", bonus_agility=-5, bonus_dexterity=-5))
@@ -84,8 +86,9 @@ class Inventory(BaseComponent):
             if self.parent.actor_state.previous_encumbrance != self.parent.actor_state.encumbrance:
                 if self.parent == self.engine.player and not self.parent.is_dead:
                     self.engine.message_log.add_message("당신은 불편함을 느낀다.", fg=color.player_bad)
-                    if self.parent.actor_state.previous_encumbrance < self.parent.actor_state.encumbrance:
-                        self.engine.sound_manager.add_sound_queue("fx_burden")
+                    if self.engine.sound_manager:
+                        if self.parent.actor_state.previous_encumbrance < self.parent.actor_state.encumbrance:
+                            self.engine.sound_manager.add_sound_queue("fx_burden")
                 else:
                     print(f"WARNING::{self.parent.name} is burdened - encumbrance:{self.parent.actor_state.encumbrance}")
                 self.parent.status.add_bonus(Bonus("burden_bonus", bonus_agility=-10, bonus_dexterity=-10))
@@ -95,8 +98,9 @@ class Inventory(BaseComponent):
             if self.parent.actor_state.previous_encumbrance != self.parent.actor_state.encumbrance:
                 if self.parent == self.engine.player and not self.parent.is_dead:
                     self.engine.message_log.add_message("당신은 심한 불편함을 느낀다.", fg=color.player_severe)
-                    if self.parent.actor_state.previous_encumbrance < self.parent.actor_state.encumbrance:
-                        self.engine.sound_manager.add_sound_queue("fx_burden")
+                    if self.engine.sound_manager:
+                        if self.parent.actor_state.previous_encumbrance < self.parent.actor_state.encumbrance:
+                            self.engine.sound_manager.add_sound_queue("fx_burden")
                 else:
                     print(f"WARNING::{self.parent.name} is burdened - encumbrance:{self.parent.actor_state.encumbrance}")
                 self.parent.status.add_bonus(Bonus("burden_bonus",

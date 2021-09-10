@@ -1111,11 +1111,11 @@ merchant_robe = Item(
         possible_regions=("torso",),
         str_requirement=6,
         protection=4,
-        fire_resistance=0.3,
-        cold_resistance=0.3,
-        shock_resistance=0.3,
-        acid_resistance=0.3,
-        poison_resistance=0.3,
+        fire_resistance=0.1,
+        cold_resistance=0.1,
+        shock_resistance=0.1,
+        acid_resistance=0.1,
+        poison_resistance=0.1,
         protection_mag=2,
     )
 )
@@ -1485,6 +1485,210 @@ temp_items_lists.append(iron_boots)
 item_rarity.append(iron_boots.rarity)
 
 
+############################################ CLOAKS ###############################################
+
+### Red cloak
+red_cloak = Item(
+    char="[",
+    fg=(138, 0, 0),
+    name="적색 망토",
+    entity_id="blue_cloak",
+    entity_desc="적색 천으로 만들어진 망토이다. 천 표면이 알 수 없는 무언가로 코팅되어 있다.",
+    rarity=3,
+    weight=2.4,
+    price=230,
+    item_type=InventoryOrder.ARMOR,
+    item_state=ItemState(is_identified=1),
+    spawnable=True,
+    flammable=0,
+    corrodible=0.04,
+    droppable=True,
+    stackable=False,
+    throwable=throwable.NormalThrowable(air_friction=100),
+    equipable=equipable.Equipable(
+        equipable_type=EquipableOrder.LIGHT_ARMOR,
+        upgrade=0,
+        equip_size=(3, 4),
+        possible_regions=("cloak",),
+        protection=2,
+        fire_resistance=0.2,
+        protection_mag=1,
+        fire_resistance_mag=0.05,
+    )
+)
+temp_items_lists.append(red_cloak)
+item_rarity.append(red_cloak.rarity)
+
+
+### Blue cloak
+blue_cloak = Item(
+    char="[",
+    fg=(0, 98, 255),
+    name="청색 망토",
+    entity_id="blue_cloak",
+    entity_desc="청색 천으로 만들어진 망토이다. 천 표면이 알 수 없는 무언가로 코팅되어 있다.",
+    rarity=3,
+    weight=2.4,
+    price=230,
+    item_type=InventoryOrder.ARMOR,
+    item_state=ItemState(is_identified=1),
+    spawnable=True,
+    flammable=0.02,
+    corrodible=0.02,
+    droppable=True,
+    stackable=False,
+    throwable=throwable.NormalThrowable(air_friction=100),
+    equipable=equipable.Equipable(
+        equipable_type=EquipableOrder.LIGHT_ARMOR,
+        upgrade=0,
+        equip_size=(3, 4),
+        possible_regions=("cloak",),
+        protection=2,
+        cold_resistance=0.2,
+        protection_mag=1,
+        cold_resistance_mag=0.05,
+    )
+)
+temp_items_lists.append(blue_cloak)
+item_rarity.append(blue_cloak.rarity)
+
+
+### Green cloak
+green_cloak = Item(
+    char="[",
+    fg=(0, 98, 255),
+    name="녹색 망토",
+    entity_id="green_cloak",
+    entity_desc="녹색 천으로 만들어진 망토이다. 천 표면이 알 수 없는 무언가로 코팅되어 있다.",
+    rarity=3,
+    weight=2.4,
+    price=230,
+    item_type=InventoryOrder.ARMOR,
+    item_state=ItemState(is_identified=1),
+    spawnable=True,
+    flammable=0.05,
+    corrodible=0,
+    droppable=True,
+    stackable=False,
+    throwable=throwable.NormalThrowable(air_friction=100),
+    equipable=equipable.Equipable(
+        equipable_type=EquipableOrder.LIGHT_ARMOR,
+        upgrade=0,
+        equip_size=(3, 4),
+        possible_regions=("cloak",),
+        protection=2,
+        acid_resistance=0.2,
+        protection_mag=1,
+        acid_resistance_mag=0.05,
+    )
+)
+temp_items_lists.append(green_cloak)
+item_rarity.append(green_cloak.rarity)
+
+
+### Elven cloak
+elven_cloak = Item(
+    char="[",
+    fg=(126, 255, 20),
+    name="엘프제 망토",
+    entity_id="elven_cloak",
+    entity_desc="엘프들이 흔히 입는 가벼운 망토이다. 엘프를 상징하는 문양이 정교한 자수로 새겨져 있다.",
+    rarity=3,
+    weight=0.7,
+    price=70,
+    item_type=InventoryOrder.ARMOR,
+    item_state=ItemState(is_identified=1),
+    spawnable=False,
+    flammable=0,
+    corrodible=0,
+    droppable=True,
+    stackable=False,
+    throwable=throwable.NormalThrowable(air_friction=100),
+    equipable=equipable.Equipable(
+        equipable_type=EquipableOrder.LIGHT_ARMOR,
+        upgrade=0,
+        equip_size=(3, 4),
+        possible_regions=("cloak",),
+        protection=2,
+        protection_mag=1,
+    )
+)
+temp_items_lists.append(elven_cloak)
+item_rarity.append(elven_cloak.rarity)
+
+
+### Hooded cloak
+hooded_cloak = Item(
+    char="[",
+    fg=(237, 255, 253),
+    name="후드가 달린 망토",
+    entity_id="hooded_cloak",
+    entity_desc="머리에 쓸 수 있는 후드가 달린 망토이다.",
+    rarity=7,
+    weight=3.8,
+    price=20,
+    item_type=InventoryOrder.ARMOR,
+    item_state=ItemState(is_identified=1),
+    spawnable=False,
+    flammable=0,
+    corrodible=0,
+    droppable=True,
+    stackable=False,
+    throwable=throwable.NormalThrowable(air_friction=100),
+    equipable=equipable.Equipable(
+        equipable_type=EquipableOrder.LIGHT_ARMOR,
+        upgrade=0,
+        equip_size=(3, 4),
+        possible_regions=("cloak",),
+        protection=2,
+        protection_mag=1,
+    )
+)
+temp_items_lists.append(hooded_cloak)
+item_rarity.append(hooded_cloak.rarity)
+
+
+### Cloak of Protection
+cloak_of_protection = Item(
+    char="[",
+    fg=(0, 255, 166),
+    name="보호의 망토",
+    entity_id="cloak_of_protection",
+    entity_desc=("아주 오래 전, 고룡의 비늘에서부터 섬유를 추출하는 방법을 찾아낸 의류 장인이 있었다. "
+                 "이 섬유는 비늘 형태일 때보다 훨씬 튼튼했다고 전해지며, 현존하는 어떠한 섬유도 이에 버금가는 내구성을 가지고 있지 않은 것으로 알려져 있다. "
+                 "그는 이러한 기술이 사람들에게 보급된다면 인간이 드래곤들을 무분별하게 사냥하기 시작할 것을 우려해, 그 기술을 아무에게도 전수하지 않은 채 세상을 떠났다. "
+                 "그가 이 섬유를 사용해 처음이자 마지막으로 만들었던 것이 바로 '보호의 망토'인데, 그동안 수많은 가품이 등장했지만 그 진짜 행방은 아직까지도 묘연하다. "),
+    rarity=1,
+    weight=2.2,
+    price=7830,
+    item_type=InventoryOrder.ARMOR,
+    item_state=ItemState(is_identified=1),
+    flammable=0,
+    corrodible=0,
+    spawnable=True,
+    droppable=True,
+    stackable=False,
+    throwable=throwable.NormalThrowable(air_friction=100),
+    equipable=equipable.Equipable(
+        equipable_type=EquipableOrder.LIGHT_ARMOR,
+        upgrade=0,
+        possible_regions=("cloak",),
+        equip_size=(3, 5),
+        fire_resistance=1,
+        poison_resistance=1,
+        acid_resistance=1,
+        shock_resistance=1,
+        cold_resistance=1,
+        protection=8,
+        protection_mag=1.1,
+    ),
+    is_artifact=True,
+    cursable=False,
+)
+temp_items_lists.append(cloak_of_protection)
+item_rarity.append(cloak_of_protection.rarity)
+
+
 #########################################################################
 ######################### MELEE WEAPONS #################################
 #########################################################################
@@ -1558,6 +1762,41 @@ iron_dagger = Item(
 )
 temp_items_lists.append(iron_dagger)
 item_rarity.append(iron_dagger.rarity)
+
+
+### Brass Dagger
+brass_dagger = Item(
+    char=")",
+    fg=(204, 184, 35),
+    name="황동 단검",
+    entity_id="brass_dagger",
+    entity_desc="다양한 용도로 사용이 가능한 황동 단검이다. ",
+    rarity=10,
+    weight=0.6,
+    price=12,
+    item_type=InventoryOrder.MELEE_WEAPON,
+    item_state=ItemState(is_identified=1),
+    flammable=0,
+    corrodible=0.03,
+    spawnable=True,
+    droppable=True,
+    stackable=False,
+    throwable=throwable.NormalThrowable(base_throw=5, additional_throw=9, penetration=True),
+    equipable=equipable.Equipable(
+        equipable_type=EquipableOrder.BLADE,
+        upgrade=0,
+        possible_regions=("main hand", "off hand"),
+        equip_size=(3, 5),
+        str_requirement=10,
+        base_melee=8,
+        additional_melee=3,
+        base_melee_mag=1.1,
+        additional_melee_mag=1.6,
+    ),
+    lockpickable=(0.9,0.1),
+)
+temp_items_lists.append(brass_dagger)
+item_rarity.append(brass_dagger.rarity)
 
 
 ### Scalpel
@@ -1704,6 +1943,7 @@ sunbringer = Item(
     ),
     lockpickable=(0.8,0),
     is_artifact=True,
+    cursable=False,
 )
 temp_items_lists.append(sunbringer)
 item_rarity.append(sunbringer.rarity)
@@ -2181,6 +2421,110 @@ corpse = Item(
 )
 temp_items_lists.append(corpse)
 item_rarity.append(corpse.rarity) # All items should be appended regardless of its rarity
+
+
+### Ration
+ration = Item(
+    char="%",
+    fg = (255, 0, 247),
+    name="비상식량",
+    entity_id="ration",
+    entity_desc=("여러 종류의 가공육들과 비스켓, 약간의 물이 들어있는 비상식량이다. "
+                 "쉽게 상하지 않아 던전을 탐험하는 모험가들이 자주 휴대하고 다닌다. "),
+    rarity=40,
+    weight=2.3,
+    price=150,
+    item_type=InventoryOrder.FOOD,
+    item_state=ItemState(is_identified=1),
+    tradable=True,
+    spawnable=True,
+    flammable=0.1,
+    corrodible=0,
+    droppable=True,
+    stackable=False,
+    throwable=throwable.NormalThrowable(),
+    edible=edible.RationEdible(nutrition=500)
+)
+temp_items_lists.append(ration)
+item_rarity.append(ration.rarity)
+
+
+### Lintol
+lintol = Item(
+    char="%",
+    fg = (255, 99, 224),
+    name="린톨",
+    entity_id="lintol",
+    entity_desc=("뾰족하고 얇은 잎사귀를 가진 허브의 한 종류이다. 린톨은 예로부터 해열제로 널리 사용되어왔다. "),
+    rarity=5,
+    weight=0.005,
+    price=30,
+    item_type=InventoryOrder.FOOD,
+    item_state=ItemState(is_identified=1),
+    tradable=True,
+    spawnable=True,
+    flammable=0.5,
+    corrodible=0,
+    droppable=True,
+    stackable=False,
+    cursable=False,
+    throwable=throwable.NormalThrowable(air_friction=100),
+    edible=edible.LintolEdible(nutrition=5)
+)
+temp_items_lists.append(lintol)
+item_rarity.append(lintol.rarity)
+
+
+### Fillapoty
+fillapoty = Item(
+    char="%",
+    fg = (255, 99, 224),
+    name="필라포티",
+    entity_id="fillapoty",
+    entity_desc=("넓은 잎사귀를 가진 허브의 한 종류이다. 필라포티의 잎을 가르면 나오는 즙은 해독 작용을 하는 것으로 알려져 있다. "),
+    rarity=5,
+    weight=0.005,
+    price=30,
+    item_type=InventoryOrder.FOOD,
+    item_state=ItemState(is_identified=1),
+    tradable=True,
+    spawnable=True,
+    flammable=0.5,
+    corrodible=0,
+    droppable=True,
+    stackable=False,
+    cursable=False,
+    throwable=throwable.NormalThrowable(air_friction=100),
+    edible=edible.FillapotyEdible(nutrition=5)
+)
+temp_items_lists.append(fillapoty)
+item_rarity.append(fillapoty.rarity)
+
+
+### Kettoniss
+kettoniss = Item(
+    char="%",
+    fg = (255, 123, 0),
+    name="케토니스",
+    entity_id="kettoniss",
+    entity_desc=("둥근 잎사귀를 가진 허브의 한 종류이다. 케토니스를 달인 차는 추위에 효과적이라고 알려져 있다. "),
+    rarity=5,
+    weight=0.005,
+    price=30,
+    item_type=InventoryOrder.FOOD,
+    item_state=ItemState(is_identified=1),
+    tradable=True,
+    spawnable=True,
+    flammable=0.5,
+    corrodible=0,
+    droppable=True,
+    stackable=False,
+    cursable=False,
+    throwable=throwable.NormalThrowable(),
+    edible=edible.KettonissEdible(nutrition=5)
+)
+temp_items_lists.append(kettoniss)
+item_rarity.append(kettoniss.rarity)
 
 
 #########################################################################

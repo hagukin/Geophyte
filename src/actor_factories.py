@@ -125,13 +125,10 @@ player = Actor(
     equipments=Equipments(),
     # initial_items=
     # (
-    #     {"item": item_factories.satanic_bible, "chance": 1, "count": (1, 1), "BUC": {-1:0, 0:0, 1:1}, "upgrade": None},
-    #     {"item": item_factories.scroll_of_tame, "chance": 1, "count": (100, 101), "BUC": {1:0, 0:0, -1:1}, "upgrade": None},
-    #     {"item": item_factories.scroll_of_remove_curse, "chance": 1, "count": (100, 101), "BUC": {1:0, 0:0, -1:1}, "upgrade": None},
-    #     {"item": item_factories.scroll_of_identify, "chance": 1, "count": (50, 80), "BUC": None, "upgrade": None},
+    #     {"item": item_factories.ration, "chance": 1, "count": (1, 1), "BUC": {-1:0, 0:0, 1:1}, "upgrade": None},
     # ),
     # initial_equipments=(
-    #     {"item":item_factories.longsword, "chance":1, "count":(1,1), "BUC":{-1:1, 0:1, 1:1}, "upgrade": {1:1,2:0,3:0,4:0}},
+    #     {"item":item_factories.cloak_of_protection, "chance":1, "count":(1,1), "BUC":{-1:1, 0:1, 1:1}, "upgrade": {1:1,2:0,3:0,4:0}},
     #     {"item":item_factories.leather_armor, "chance":1, "count":(1,1), "BUC":{-1:1, 0:1, 1:1}, "upgrade": {1:1,2:0,3:0,4:0}},
     #     {"item":item_factories.iron_armet, "chance":1, "count":(1,1), "BUC":{-1:1, 0:1, 1:1}, "upgrade": {1:1,2:0,3:0,4:0}},
     #     {"item":item_factories.iron_boots, "chance":1, "count":(1,1), "BUC":{-1:1, 0:1, 1:1}, "upgrade": {1:1,2:0,3:0,4:0}},
@@ -1105,6 +1102,75 @@ black_jelly = Actor(
     initial_drop_on_death=({"item":item_factories.toxic_goo, "chance":0.9, "count":(1,5), "BUC": {-1:0,0:1,1:0}, "upgrade":None},),
 )
 ActorDB.monster_difficulty[black_jelly.status.difficulty].append(black_jelly)
+
+
+
+####################################################
+################# l - Elves  #######################
+####################################################
+
+### Elf herbalist
+elf_herbalist = Actor(
+    char="l",
+    fg=(255, 128, 247),
+    name="엘프 약초술사",
+    entity_id="elf_herbalist",
+    actor_type_desc=(""),
+    entity_desc=(""),
+    actor_quote=(""),
+    rarity=25,
+    weight=57,
+    spawnable=True,
+    edible=edible.RawMeatEdible(nutrition=105),
+    ai_cls=ai_factories.Elf_Herbalist_Ai(),
+    status=Status(
+        hp=70,
+        mp=65,
+        strength=13,
+        dexterity=19,
+        agility=16,
+        intelligence=17,
+        constitution=18,
+        charm=22,
+        difficulty=9,
+        base_melee=6,
+        additional_melee=14,
+        protection=10,
+        hearing=20,
+        eyesight=20,
+    ),
+    actor_state=ActorState(
+        size=4,
+        can_talk=True,
+        has_left_arm=True,
+        has_right_arm=True,
+        has_leg=True,
+        has_eye=True,
+        has_torso=True,
+        has_blood=True,
+        has_soul=True,
+        can_swim=True,
+        has_head=1,
+        regain_mana=True,
+    ),
+    inventory=Inventory(capacity=20),
+    ability_inventory=AbilityInventory(capacity=2),
+    equipments=Equipments(),
+    initial_items=(
+        {"item": item_factories.potion_of_poison, "chance": 0.5, "count": (1, 1), "BUC": None, "upgrade": None},
+        {"item": item_factories.potion_of_acid, "chance": 0.5, "count": (1, 1), "BUC": None, "upgrade": None},
+        {"item": item_factories.potion_of_paralysis, "chance": 0.1, "count": (1, 1), "BUC": None, "upgrade": None},
+        {"item": item_factories.fillapoty, "chance": 0.3, "count": (1, 1), "BUC": None, "upgrade": None},
+        {"item": item_factories.kettoniss, "chance": 0.3, "count": (1, 1), "BUC": None, "upgrade": None},
+        {"item": item_factories.lintol, "chance": 0.3, "count": (1, 1), "BUC": None, "upgrade": None},
+    ),
+    initial_equipments=(
+        {"item": item_factories.elven_cloak, "chance": 0.8, "count": (1, 1), "BUC": None, "upgrade": None},
+        {"item": item_factories.brass_dagger, "chance": 0.8, "count": (1, 1), "BUC": None, "upgrade": None},
+    ),
+)
+ActorDB.monster_difficulty[elf_herbalist.status.difficulty].append(elf_herbalist)
+
 
 
 ####################################################
