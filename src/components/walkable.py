@@ -107,10 +107,14 @@ class SpikeTrapWalkable(TrapWalkable):
         # No damage when something is equipped on feet
         feet_item = target.equipments.equipments["feet"]
         if feet_item:
-            if self.gamemap.visible[target.x, target.y]:
-                self.engine.message_log.add_message(f"{g(target.name, '은')} {g(self.parent.name, '을')} 밟았지만, {g(feet_item.name, '이')} {g(target.name, '을')} 보호했다!", target=target)
+            if feet_item.equipable:
+                if feet_item.equipable.eq_protection > 0:  # Solid boots
+                    if target == self.engine.player:
+                        self.engine.message_log.add_message(
+                            f"당신은 {g(self.parent.name, '을')} 밟았지만, {g(feet_item.name, '이')} {g(target.name, '을')} 보호했다!",
+                            fg=color.player_neutral)
 
-            return None
+                    return None
 
         # else
         dmg = self.base_damage + random.randint(0, self.add_damage)
@@ -148,7 +152,15 @@ class FlameTrapWalkable(TrapWalkable):
         # No damage when something is equipped on feet
         feet_item = target.equipments.equipments["feet"]
         if feet_item:
-            feet_item.collided_with_fire()
+            if feet_item.equipable:
+                feet_item.collided_with_fire()
+                if feet_item.equipable.eq_protection > 0:  # Solid boots
+                    if target == self.engine.player:
+                        self.engine.message_log.add_message(
+                            f"당신은 {g(self.parent.name, '을')} 밟았지만, {g(feet_item.name, '이')} {g(target.name, '을')} 보호했다!",
+                            fg=color.player_neutral)
+
+                    return None
 
         # else
         if target == self.engine.player:
@@ -185,6 +197,18 @@ class IcicleTrapWalkable(TrapWalkable):
 
             return None
 
+        # No damage when something is equipped on feet
+        feet_item = target.equipments.equipments["feet"]
+        if feet_item:
+            if feet_item.equipable:
+                if feet_item.equipable.eq_protection > 0:  # Solid boots
+                    if target == self.engine.player:
+                        self.engine.message_log.add_message(
+                            f"당신은 {g(self.parent.name, '을')} 밟았지만, {g(feet_item.name, '이')} {g(target.name, '을')} 보호했다!",
+                            fg=color.player_neutral)
+
+                    return None
+
         # else
         dmg = self.base_damage + random.randint(0, self.add_damage)
         if target == self.engine.player:
@@ -211,6 +235,19 @@ class AcidSprayTrapWalkable(TrapWalkable):
                 self.engine.message_log.add_message(f"{g(target.name, '이')} {self.parent.name} 위를 넘어갔다.", target=target, fg=color.player_sense)
 
             return None
+
+        # No damage when something is equipped on feet
+        feet_item = target.equipments.equipments["feet"]
+        if feet_item:
+            if feet_item.equipable:
+                feet_item.collided_with_acid()
+                if feet_item.equipable.eq_protection > 0:  # Solid boots
+                    if target == self.engine.player:
+                        self.engine.message_log.add_message(
+                            f"당신은 {g(self.parent.name, '을')} 밟았지만, {g(feet_item.name, '이')} {g(target.name, '을')} 보호했다!",
+                            fg=color.player_neutral)
+
+                    return None
 
         # else
         if target == self.engine.player:

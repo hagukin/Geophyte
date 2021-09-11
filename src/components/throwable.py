@@ -223,7 +223,7 @@ class NormalThrowable(Throwable):
                 self.engine.message_log.add_message(f"{g(thrower_name, '이')} {g(self.parent.name, '을')} {collided_name}에게 던져 {dmg} 데미지를 입혔다.", target=thrower,)
                 collided.status.take_damage(amount=dmg, attacked_from=thrower)
             else:
-                self.engine.message_log.add_message(f"{g(thrower_name, '이')} {g(self.parent.name, '을')} {collided_name}에게 던졌지만 아무런 데미지도 주지 못했다.", target=thrower, )
+                self.engine.message_log.add_message(f"{g(thrower_name, '이')} {g(self.parent.name, '을')} {collided_name}에게 던져 0 데미지를 입혔다.", target=thrower, )
 
             # check destruction
             self.break_calculation()

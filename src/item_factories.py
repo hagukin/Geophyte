@@ -1655,12 +1655,12 @@ cloak_of_protection = Item(
     name="보호의 망토",
     entity_id="cloak_of_protection",
     entity_desc=("아주 오래 전, 고룡의 비늘에서부터 섬유를 추출하는 방법을 찾아낸 의류 장인이 있었다. "
-                 "이 섬유는 비늘 형태일 때보다 훨씬 튼튼했다고 전해지며, 현존하는 어떠한 섬유도 이에 버금가는 내구성을 가지고 있지 않은 것으로 알려져 있다. "
+                 "이 섬유는 비늘 형태일 때보다도 훨씬 더 튼튼했다고 전해지며, 현존하는 어떠한 섬유도 이에 버금가는 내구성을 가지고 있지 않은 것으로 알려져 있다. "
                  "그는 이러한 기술이 사람들에게 보급된다면 인간이 드래곤들을 무분별하게 사냥하기 시작할 것을 우려해, 그 기술을 아무에게도 전수하지 않은 채 세상을 떠났다. "
-                 "그가 이 섬유를 사용해 처음이자 마지막으로 만들었던 것이 바로 '보호의 망토'인데, 그동안 수많은 가품이 등장했지만 그 진짜 행방은 아직까지도 묘연하다. "),
+                 "그가 이 섬유를 사용해 처음이자 마지막으로 만들었던 것이 바로 '보호의 망토'인데, 그동안 '보호의 망토'임을 자칭하는 수많은 가품들이 등장했지만 아직까지 진품의 행방은 밝혀지지 않았다. "),
     rarity=1,
     weight=2.2,
-    price=7830,
+    price=9830,
     item_type=InventoryOrder.ARMOR,
     item_state=ItemState(is_identified=1),
     flammable=0,
@@ -2347,7 +2347,7 @@ amulet_of_kugah = Item(
     corrodible=0,
     droppable=True,
     stackable=False,
-    throwable=throwable.NormalThrowable(base_throw=1, additional_throw=2, penetration=False, air_friction=15),
+    throwable=throwable.NormalThrowable(penetration=False, air_friction=15),
     equipable=equipable.Equipable(
         equipable_type=EquipableOrder.AMULET,
         upgrade=0,
