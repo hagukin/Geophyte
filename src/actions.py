@@ -424,7 +424,8 @@ class ReadItem(ItemAction):
         if self.entity.check_for_immobility():
             return None
 
-        if self.entity.actor_state.is_confused != [0,0] or self.entity.status.changed_status["intelligence"] < 10:
+        read_fail_chance = 12 - self.entity.status.changed_status["intelligence"] * 0.2
+        if self.entity.actor_state.is_confused != [0,0] or random.random() <= read_fail_chance:
             if self.entity == self.engine.player:
                 self.engine.message_log.add_message(f"당신은 문자를 읽는 데 어려움을 겪었다.", color.player_failed)
             else:

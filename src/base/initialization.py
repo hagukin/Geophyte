@@ -12,16 +12,12 @@ from tcod import Console
 from tcod.context import Context
 from configuration import get_game_config
 
-def init_game_variables(cfg, console: Console, context: Context):
+def init_game_variables(player, cfg, console: Console, context: Context):
     """
     Initialize game variables.(using the config data)
     """
     # Seed
     seed = random.random() #TODO: Let player enter whatever seed they want
-
-    # Set Player TODO: Character Building
-    player = copy.deepcopy(actor_factories.player) # Cannot use entity.copy() yet
-    # NOTE: player.initialize_actor() is called from procgen.generate_entities()
 
     # Generate Engine
     engine = Engine(player=player)

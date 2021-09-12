@@ -7,6 +7,7 @@ import color
 import tcod
 import time
 import random
+import chargen
 from option import Option
 from credits import Credit
 from sound import SoundManager
@@ -128,7 +129,7 @@ class Title():
 
     @staticmethod
     def title_sound(sound_manager: SoundManager) -> None:
-        sound_manager.change_bgm("bgm_title_screen")
+        sound_manager.change_bgm("bgm_title_screen", force_change=False, show_warning=False)
 
     @staticmethod
     def title_event_handler(console, context, cfg, sound_manager: SoundManager):
@@ -140,38 +141,35 @@ class Title():
         logo_y = 8
         sec_per_frame = 0.1
         max_frame = 15
-
-        # Render title for the first time
         animation_frame = 1
-        Title.render_title(console, context, logo_x, logo_y, animation_frame)
-        Title.title_sound(sound_manager)
 
         # Title screen loop
         while True:
+            Title.title_sound(sound_manager)
+            console.clear()
             # Get Input from title + timeoout when this animation frame is overs next animation
             title_action = Title.get_title_action(sec_per_frame=sec_per_frame)
-
-            # Render Title GUI
-            Title.render_title_gui(console=console)
+            Title.render_title(console, context, logo_x, logo_y, animation_frame)
 
             # Add frame
             if animation_frame >= max_frame:
                 animation_frame = 1
             else:
                 animation_frame += 1
-
-            Title.render_title_animation(console=console, frame=animation_frame)
-
-            # Present to console
             context.present(console, keep_aspect=True)
 
             # Get input from title screen
             if title_action == "new_game":
+                delete_saved_game()
+                chara_gen = chargen.CharGen()
+                chara_gen.clear_all_changes()
+                player = chara_gen.chargen_event_handler(console=console, context=context, cfg=cfg,sound_manager=sound_manager)
+                if not player:
+                    continue # Exit chargen, go back to title
+                engine = init_game_variables(player, cfg, console, context)
+                engine.message_log.add_message(f"{engine.player.name}님, 지오파이트의 세계에 오신 것을 환영합니다!", color.welcome_text)
                 sound_manager.remove_bgm()
                 sound_manager.remove_bgs()
-                delete_saved_game()
-                engine = init_game_variables(cfg, console, context)
-                engine.message_log.add_message(f"{engine.player.name}님, 지오파이트의 세계에 오신 것을 환영합니다!", color.welcome_text)
                 return engine
             elif title_action == "load_game":
                 try:

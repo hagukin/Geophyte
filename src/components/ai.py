@@ -153,7 +153,7 @@ class BaseAI(BaseComponent):
                 self.activate()
                 return None
         else:
-            if get_distance(self.engine.player.x, self.engine.player.y, self.parent.x, self.parent.y) < self.engine.config["monster_activation_distance"]:
+            if get_distance(self.engine.player.x, self.engine.player.y, self.parent.x, self.parent.y) < self.engine.monster_activation_distance:
                 self.activate()
 
             if not self.in_player_sight:

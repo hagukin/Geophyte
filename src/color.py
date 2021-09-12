@@ -143,7 +143,7 @@ gui_potion_name = (0x00, 0xff, 0xf7)
 gui_scroll_name = (0xff, 0xd5, 0x00)
 gui_armor_name = (0xff, 0x66, 0xb2)
 
-gui_inventory_fg = (0xf6, 0xff, 0x00)
+gui_inventory_fg = yellow
 gui_inventory_bg = dark_gray
 gui_selected_item = (0x04, 0xff, 0x00)
 
@@ -151,6 +151,10 @@ gui_action_fg = orange #item actions
 
 gui_status_text = (0xf5, 0x98, 0x42)
 #bg = inventory_bg
+
+gui_chargen_status_frame_fg = yellow
+gui_chargen_status_frame_bg = dark_gray
+gui_chargen_status_name_fg = cyan
 
 gui_mouse_tile = white
 gui_mouse_entity = yellow

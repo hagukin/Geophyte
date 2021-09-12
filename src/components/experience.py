@@ -49,12 +49,12 @@ class Experience(BaseComponent):
         """Called from actor.__init__()
         Initialize status exp to current stat to make experience curve is smooth."""
         stat = self.parent.origin_status
-        self._strength_exp += max(1,(stat["strength"]-1)) ** 2 * 20
-        self._dexterity_exp += max(1,(stat["dexterity"]-1)) ** 2 * 20
-        self._constitution_exp += max(1,(stat["constitution"]-1)) ** 2 * 20
-        self._agility_exp += max(1,(stat["agility"]-1)) ** 2 * 20
-        self._intelligence_exp += max(1,(stat["intelligence"]-1)) ** 2 * 20
-        self._charm_exp += max(1,(stat["charm"]-1)) ** 2 * 20
+        self._strength_exp = max(1,(stat["strength"]-1)) ** 2 * 20
+        self._dexterity_exp = max(1,(stat["dexterity"]-1)) ** 2 * 20
+        self._constitution_exp = max(1,(stat["constitution"]-1)) ** 2 * 20
+        self._agility_exp = max(1,(stat["agility"]-1)) ** 2 * 20
+        self._intelligence_exp = max(1,(stat["intelligence"]-1)) ** 2 * 20
+        self._charm_exp = max(1,(stat["charm"]-1)) ** 2 * 20
 
     @property
     def strength_exp(self):

@@ -85,19 +85,19 @@ def get_distance(x1, y1, x2, y2) -> float:
     return math.sqrt(pow(x1 - x2, 2) + pow(y1 - y2, 2))
 
 
-def grayscale(rgb: Tuple(int,int,int)) -> int:
+def grayscale(rgb: Tuple[int,int,int]) -> float:
     return (rgb[0] + rgb[1] + rgb[2]) / 3
 
 
-def blueshift(rgb: Tuple(int,int,int)) -> Tuple(int,int,int): #WARN: FUNCTION NOT TESTED
-    gs = grayscale(rgb) 
+def blueshift(rgb: Tuple[int,int,int]) -> Tuple[int,int,int]: #WARN: FUNCTION NOT TESTED
+    gs = grayscale(rgb)
     red = 0 #temporary
-    green = rgb[0] * 0.8 #Around 0~210. the lower the number, the closer the color gets to cyan
+    green = round(rgb[0] * 0.8) #Around 0~210. the lower the number, the closer the color gets to cyan
     green -= int(green / (gs * 765))
     blue = 255
     blue -= int(blue / (gs * 765))
 
-    return (red, green, blue)
+    return (max(0,min(255,red)), max(0,min(255,green)), max(0,min(255,blue)))
 
 
 def draw_thick_frame(

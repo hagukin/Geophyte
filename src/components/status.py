@@ -683,12 +683,11 @@ class Status(BaseComponent):
             self.parent.die("lack_of_strength")
 
     def gain_strength(self, amount):
+        """
+        NOTE: While you can use this function to lose strength as well.
+        lose_strength() is deprecated.
+        """
         self._strength += amount
-        self.parent.inventory.update_burden()
-        return amount
-    
-    def lose_strength(self, amount):
-        self._strength -= amount
         self.parent.inventory.update_burden()
         return amount
 
@@ -705,10 +704,6 @@ class Status(BaseComponent):
     def gain_dexterity(self, amount):
         self._dexterity += amount
         return amount
-    
-    def lose_dexterity(self, amount):
-        self._dexterity -= amount
-        return amount
 
 
     ### Agility
@@ -722,10 +717,6 @@ class Status(BaseComponent):
 
     def gain_agility(self, amount):
         self._agility += amount
-        return amount
-    
-    def lose_agility(self, amount):
-        self._agility -= amount
         return amount
 
 
@@ -741,10 +732,6 @@ class Status(BaseComponent):
     def gain_intelligence(self, amount):
         self._intelligence += amount
         return amount
-    
-    def lose_intelligence(self, amount):
-        self._intelligence -= amount
-        return amount
 
     
     ### Constitution
@@ -759,10 +746,6 @@ class Status(BaseComponent):
     def gain_constitution(self, amount):
         self._constitution += amount
         return amount
-    
-    def lose_constitution(self, amount):
-        self._constitution -= amount
-        return amount
 
 
     ### Charm
@@ -776,10 +759,6 @@ class Status(BaseComponent):
 
     def gain_charm(self, amount):
         self._charm += amount
-        return amount
-    
-    def lose_charm(self, amount):
-        self._charm -= amount
         return amount
 
 

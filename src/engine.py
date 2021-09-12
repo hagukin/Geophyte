@@ -74,6 +74,7 @@ class Engine:
         self.depth: int = 0 # NOTE: engine.depth != gamemap.depth. Latter is a constant.
         self.toughness: int = 0
         self.easteregg: int = 0
+        self._monster_activation_distance = 10 # distance
         self.sound_manager: SoundManager = None # Initialized in main
         self.config: Dict = None # Set from initialization
         self.console: tcod.Console = None # Set from main
@@ -92,6 +93,10 @@ class Engine:
             return self._mouse_pos
         else:
             return 0,0
+
+    @property
+    def monster_activation_distance(self) -> int:
+        return self._monster_activation_distance
 
     def clamp_mouse_on_map_rel(self, rel_x: int, rel_y: int) -> Tuple[int, int]:
         """Clamp the given x, y coordinates within the game map boundaries."""

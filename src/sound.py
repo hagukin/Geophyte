@@ -163,22 +163,14 @@ class SoundManager():
         if biome.biome_bgm_id == "" or biome.biome_bgm_id == None:
             print(f"SOUND::Biome {biome.biome_id} has no bgm.")
             return
-
-        if self.current_bgm != biome.biome_bgm_id:
-            self.change_bgm(biome.biome_bgm_id)
-        else:
-            print(f"SOUND::BGM is already set to {biome.biome_bgm_id}")
+        self.change_bgm(biome.biome_bgm_id, force_change=False)
 
     def play_bgs_for_biome(self, biome: Biome) -> None:
         """Is called when engine.game_map changes."""
         if biome.biome_bgs_id == "" or biome.biome_bgs_id == None:
             print(f"SOUND::Biome {biome.biome_id} has no bgs.")
             return
-
-        if self.current_bgs != biome.biome_bgs_id:
-            self.change_bgs(biome.biome_bgs_id)
-        else:
-            print(f"SOUND::BGS is already set to {biome.biome_bgs_id}")
+        self.change_bgs(biome.biome_bgs_id, force_change=False)
 
     def get_path_from_id(self, sound_id: str) -> str:
         """Returns directory"""
@@ -251,9 +243,18 @@ class SoundManager():
             self.threads["bgs"].terminate()
         self.__current_bgm = None
 
-    def change_bgm(self, sound_id: str=None) -> None:
+    def change_bgm(self, sound_id: str=None, force_change: bool=False, show_warning: bool=True) -> None:
+        """
+        Args:
+            force_change:
+                if True, the function will stop the current bgm and play the given sound even if they are the same.
+        """
+        if self.current_bgm == sound_id and not force_change:
+            if show_warning:
+                print(f"SOUND::WARNING::BGM Already set to {sound_id}")
+            return None
         if bgm:
-            print("Warning::BGM deque should be empty.")
+            print("WARNING::BGM deque should be empty.")
             bgm.clear()
         if "bgm" in self.threads.keys():
             if self.threads["bgm"]:
@@ -261,7 +262,16 @@ class SoundManager():
                     self.threads["bgm"].terminate() # Stopping the previous thread
         bgm.add(sound_id) # will be played in next .run()
 
-    def change_bgs(self, sound_id: str=None) -> None:
+    def change_bgs(self, sound_id: str=None, force_change: bool=False, show_warning: bool=True) -> None:
+        """
+        Args:
+            force_change:
+                if True, the function will stop the current bgm and play the given sound even if they are the same.
+        """
+        if self.current_bgs == sound_id and not force_change:
+            if show_warning:
+                print(f"SOUND::WARNING::BGS Already set to {sound_id}")
+            return None
         if bgs:
             print("Warning::BGS deque should be empty.")
             bgs.clear()
