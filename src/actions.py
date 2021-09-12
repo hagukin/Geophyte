@@ -259,10 +259,15 @@ class AscendAction(Action):
                 actors = sorted(actors, key=lambda x: x.status.changed_status["agility"],reverse=True)  # Higher agility first
 
             # Temporary game ending
-            if n_depth == 0 and self.engine.player.inventory.check_if_in_inv("amulet_of_kugah"):
-                from input_handlers import GameClearInputHandler
-                self.engine.event_handler = GameClearInputHandler()
-                return None
+            if n_depth == 0:
+                if self.engine.player.inventory.check_if_in_inv("amulet_of_kugah"):
+                    from input_handlers import GameClearInputHandler
+                    self.engine.event_handler = GameClearInputHandler()
+                    return None
+                else:
+                    from input_handlers import AscendToSurfaceHandler
+                    self.engine.event_handler = AscendToSurfaceHandler()
+                    return None
 
             # Move entity to other level
             self.engine.change_entity_depth(

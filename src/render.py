@@ -98,7 +98,10 @@ def render_gameinfo(
     console: Console, x: int, y: int, depth: int, game_turn: int,
 ) -> None:
     """print dungeon depth, game turn, etc."""
-    console.print(x=x, y=y, string=f"층: {depth}", fg=color.cyan)
+    depth_ = depth
+    if depth <= 0:
+        depth_ = f"{depth*-1 + 1} (지상)"
+    console.print(x=x, y=y, string=f"층: {depth_}", fg=color.cyan)
     console.print(x=x+11, y=y, string=f"턴수: {game_turn}", fg=color.white)
 
 

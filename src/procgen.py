@@ -834,7 +834,7 @@ def generate_dungeon(
     t = time.time()
     if display_process:
         randomized_screen_paint(console, context, color.black, diversity=0)
-        console.print(screen_center_x - 5, screen_center_y, "던전을 내려가는 중", fg=color.procgen_fg, bg=color.procgen_bg)
+        console.print(screen_center_x - 5, screen_center_y, "던전 생성 중", fg=color.procgen_fg, bg=color.procgen_bg)
         console.print(screen_center_x - 6, screen_center_y + 2, "토양 생성 중...", fg=color.procgen_fg)
         context.present(console=console, keep_aspect=True)
     print("Generating Earth...")
@@ -850,7 +850,7 @@ def generate_dungeon(
 
     if display_process:
         randomized_screen_paint(console, context, color.black, diversity=10)
-        console.print(screen_center_x - 5, screen_center_y, "던전을 내려가는 중", fg=color.procgen_fg, bg=color.procgen_bg)
+        console.print(screen_center_x - 5, screen_center_y, "던전 생성 중", fg=color.procgen_fg, bg=color.procgen_bg)
         console.print(screen_center_x - 6, screen_center_y + 2, "던전 공간 생성 중...", fg=color.procgen_fg)
         context.present(console=console, keep_aspect=True)
     print("Generating Dungeon Rooms...")
@@ -866,7 +866,7 @@ def generate_dungeon(
 
     if display_process:
         randomized_screen_paint(console, context, color.black, diversity=15)
-        console.print(screen_center_x - 5, screen_center_y, "던전을 내려가는 중", fg=color.procgen_fg, bg=color.procgen_bg)
+        console.print(screen_center_x - 5, screen_center_y, "던전 생성 중", fg=color.procgen_fg, bg=color.procgen_bg)
         console.print(screen_center_x - 6, screen_center_y + 2, "터널 생성 중...", fg=color.procgen_fg)
         context.present(console=console, keep_aspect=True)
     print("Generating Tunnels...")
@@ -880,7 +880,7 @@ def generate_dungeon(
 
     if display_process:
         randomized_screen_paint(console, context, color.black, diversity=25)
-        console.print(screen_center_x - 5, screen_center_y, "던전을 내려가는 중", fg=color.procgen_fg, bg=color.procgen_bg)
+        console.print(screen_center_x - 5, screen_center_y, "던전 생성 중", fg=color.procgen_fg, bg=color.procgen_bg)
         console.print(screen_center_x - 6, screen_center_y + 2, "지형 생성 중...", fg=color.procgen_fg)
         context.present(console=console, keep_aspect=True)
     print("Generating Terrains...")
@@ -896,7 +896,7 @@ def generate_dungeon(
 
     if display_process:
         randomized_screen_paint(console, context, color.black, diversity=30)
-        console.print(screen_center_x - 5, screen_center_y, "던전을 내려가는 중", fg=color.procgen_fg, bg=color.procgen_bg)
+        console.print(screen_center_x - 5, screen_center_y, "던전 생성 중", fg=color.procgen_fg, bg=color.procgen_bg)
         console.print(screen_center_x - 6, screen_center_y + 2, "계단 생성 중...", fg=color.procgen_fg)
         context.present(console=console, keep_aspect=True)
     print("Generating Staircases...")
@@ -918,7 +918,7 @@ def generate_dungeon(
 
     if display_process:
         randomized_screen_paint(console, context, color.black, diversity=35)
-        console.print(screen_center_x - 5, screen_center_y, "던전을 내려가는 중", fg=color.procgen_fg, bg=color.procgen_bg)
+        console.print(screen_center_x - 5, screen_center_y, "던전 생성 중", fg=color.procgen_fg, bg=color.procgen_bg)
         console.print(screen_center_x - 6, screen_center_y + 2, "엔티티 생성 중...", fg=color.procgen_fg)
         context.present(console=console, keep_aspect=True)
     print("Spawning Entities...")
@@ -933,7 +933,7 @@ def generate_dungeon(
 
     if display_process:
         randomized_screen_paint(console, context, color.black, diversity=20)
-        console.print(screen_center_x - 5, screen_center_y, "던전을 내려가는 중", fg=color.procgen_fg, bg=color.procgen_bg)
+        console.print(screen_center_x - 5, screen_center_y, "던전 생성 중", fg=color.procgen_fg, bg=color.procgen_bg)
         console.print(screen_center_x - 6, screen_center_y + 2, "던전 다듬는 중...", fg=color.procgen_fg)
         context.present(console=console, keep_aspect=True)
     print("Adjusting Dungeon...")

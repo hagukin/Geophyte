@@ -2024,7 +2024,6 @@ class MainGameEventHandler(EventHandler):
                 action = DescendAction(player)
             elif key == tcod.event.K_COMMA:
                 action = AscendAction(player)
-
             elif key == tcod.event.K_q:
                 self.engine.event_handler = QuitInputHandler()
             elif key == tcod.event.K_s:
@@ -2139,6 +2138,23 @@ class GameOverQuitHandler(AskUserEventHandler):
             return None
         elif event.sym == tcod.event.K_n or event.sym == tcod.event.K_ESCAPE:
             self.engine.event_handler = GameOverEventHandler()
+        return None
+
+
+class AscendToSurfaceHandler(AskUserEventHandler):
+    def on_render(self, console: tcod.Console) -> None:
+        self.engine.draw_window(console, text="정말 지상으로 나가시겠습니까? (Y/N)", title="던전 밖으로 나가기", frame_fg=color.lime, frame_bg=color.gui_inventory_bg)
+
+    def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[Action]:
+        player = self.engine.player
+        engine = self.engine
+
+        if event.sym == tcod.event.K_y or event.sym == tcod.event.K_KP_ENTER:
+            AscendAction(player).perform()
+            self.engine.event_handler = MainGameEventHandler()
+            return None
+        elif event.sym == tcod.event.K_n or event.sym == tcod.event.K_ESCAPE:
+            self.engine.event_handler = MainGameEventHandler()
         return None
 
 
