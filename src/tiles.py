@@ -302,6 +302,28 @@ def floor_desert():
         tile_name="모래 바닥",
         tile_id="floor",
     )
+def floor_crystal():
+    return new_tile(
+        walkable=True,
+        safe_to_walk=True,
+        flammable=False,
+        freezable=0,
+        unfreezable=0,
+        phaseable=True,
+        transparent=True,
+        dark=(
+            ord("·"),
+            (60, 60, 60),
+            (15, 15, 15)
+        ),
+        light=(
+            ord("·"),
+            (123, 173, 173),
+            (45, 58, 64),
+        ),
+        tile_name="석영 바닥",
+        tile_id="floor",
+    )
 def floor_ancient_ruins():
     return new_tile(
         walkable=True,
@@ -400,6 +422,34 @@ def wall_desert():
         tile_name="사암 벽",
         tile_id="wall",
     )
+
+def wall_crystal():
+    return new_tile_randomized(
+        walkable=False,
+        safe_to_walk=True,
+        flammable=0,
+        freezable=0,
+        unfreezable=0,
+        phaseable=True,
+        transparent=False,
+        dark=(
+            ord("#"),
+            (20, 20, 20),
+            (20, 20, 50)
+        ),
+        light=(
+            ord("#"),
+            (40, 40, 40),
+            (130, 90, 60)
+        ),
+        darkest_fg_color=(38, 180, 212),
+        brightest_fg_color=(150, 236, 255),
+        darkest_bg_color=(0, 43, 150),
+        brightest_bg_color=(194, 140, 255),
+        tile_name="석영 벽",
+        tile_id="wall",
+    )
+
 def wall_ancient_ruins():
     return new_tile_randomized(
         walkable=False,
@@ -730,12 +780,12 @@ def deep_water():
         phaseable=True,
         transparent=True,
         dark=(
-            ord("≈"),
+            ord(" "),
             (0, 0, 0),
             (5, 5, 10)
         ),
         light=(
-            ord("≈"),
+            ord(" "),
             (32, 24, 145),
             (16, 48, 156)
         ),
@@ -744,7 +794,30 @@ def deep_water():
         tile_name="깊은 물",
         tile_id="deep_water",
     )
-
+def deep_water_crystal():
+    return new_tile_randomized(
+        walkable=True,
+        safe_to_walk=False,
+        flammable=0,
+        freezable=1,
+        unfreezable=0,
+        phaseable=True,
+        transparent=True,
+        dark=(
+            ord(" "),
+            (0, 0, 0),
+            (5, 5, 10)
+        ),
+        light=(
+            ord(" "),
+            (109, 75, 164),
+            (16, 48, 156)
+        ),
+        darkest_bg_color=(93, 49, 112),
+        brightest_bg_color=(139, 76, 166),
+        tile_name="깊은 물",
+        tile_id="deep_water",
+    )
 
 ### Shallow Water
 def shallow_water():
@@ -771,6 +844,31 @@ def shallow_water():
         tile_name="얕은 물",
         tile_id="shallow_water",
     )
+def shallow_water_crystal():
+    return new_tile_randomized(
+        walkable=True,
+        safe_to_walk=True,
+        flammable=0,
+        freezable=1,
+        unfreezable=0,
+        phaseable=True,
+        transparent=True,
+        dark=(
+            ord("·"),
+            (0, 0, 0),
+            (10, 10, 20)
+        ),
+        light=(
+            ord("·"),
+            (128, 144, 255),
+            (16, 48, 156)
+        ),
+        darkest_bg_color=(163, 126, 194),
+        brightest_bg_color=(219, 170, 240),
+        tile_name="얕은 물",
+        tile_id="shallow_water",
+    )
+
 
 
 ### Ice

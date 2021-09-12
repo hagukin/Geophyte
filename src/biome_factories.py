@@ -12,7 +12,7 @@ rocky_dungeon = Biome(
     biome_bgm_id="bgm_mystical_beginning",
     biome_id="rocky_dungeon",
     biome_desc="Desc of rocky dungeon biome (TEST)",
-    rarity=1,
+    rarity=100,
     biome_color=color.b_rocky_dungeon,
     map_width=67,
     map_height=41,
@@ -24,6 +24,26 @@ def rocky_dungeon_small(max_rooms: int):
     tmp = copy.deepcopy(rocky_dungeon)
     tmp.max_rooms = max_rooms
     return tmp
+
+crystal_cavern = Biome(
+    name="석영 동굴",
+    biome_bgm_id="bgm_mystical_beginning",
+    biome_id="crystal_cavern",
+    biome_desc="Desc of crystal cavern biome (TEST)",
+    rarity=30,
+    biome_color=color.b_crystal_cavern,
+    map_width=67,
+    map_height=41,
+    tileset=get_tileset({
+        "t_wall":tiles.wall_crystal,
+        "t_floor":tiles.floor_crystal,
+        "t_shallow_water":tiles.shallow_water_crystal,
+        "t_deep_water":tiles.deep_water_crystal,
+    }),
+    remove_all_terrain_of_type=("gen_grass", "gen_plants"),
+)
+biome_dict[crystal_cavern.biome_id] = crystal_cavern
+biome_rarity.append(crystal_cavern.rarity)
 
 forest = Biome(
     name="숲",

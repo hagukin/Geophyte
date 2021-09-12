@@ -1,5 +1,5 @@
 import random
-from typing import Dict
+from typing import Dict, Optional
 
 import game
 
@@ -27,6 +27,8 @@ class Terrain:
         item_to_spawn: Dict = None,
         monsters_cnt: Dict = None,
         spawn_monster: bool = True,
+        spawn_monster_of_difficulty: Optional[int] = None, # Can overwrite biome.monster_difficulty
+        adjust_monster_difficulty: int = 0, # Adjust toughness. Can have negative value
         monster_to_spawn: Dict = None,
         has_wall: bool = True, #TODO: need to add feature
         protected: bool = False,
@@ -177,6 +179,8 @@ class Terrain:
         self.item_to_spawn = item_to_spawn
         self.spawn_monster = spawn_monster
         self.monster_to_spawn = monster_to_spawn
+        self.spawn_monster_of_difficulty = spawn_monster_of_difficulty
+        self.adjust_monster_difficulty = adjust_monster_difficulty
 
         self.has_wall = has_wall
         self.protected = protected

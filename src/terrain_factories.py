@@ -14,7 +14,7 @@ dungeon_chamber = Terrain(
     name="던전 챔버",
     terrain_id="dungeon_chamber",
     terrain_desc="Desc of dungeon chamber terrain (TEST)",
-    rarity=40,
+    rarity=100,
     spawn_item=True,
     spawn_monster=True,
     gen_grass=None,
@@ -22,12 +22,30 @@ dungeon_chamber = Terrain(
 terrain_dict[dungeon_chamber] = dungeon_chamber.rarity
 
 
+# Monater lair
+monster_lair = Terrain(
+    name="괴물 소굴",
+    terrain_id="monster_lair",
+    terrain_desc="Desc of monster lair terrain (TEST)",
+    rarity=8,
+    spawn_item=True,
+    spawn_monster=True,
+    monsters_cnt={64:1},# Fill with monsters
+    adjust_monster_difficulty=-3, # easier enemies
+    door_num_range=(1,),
+    door_num_weight=(1,),
+    max_width=8,
+    max_height=8,
+)
+terrain_dict[monster_lair] = monster_lair.rarity
+
+
 # Forest chamber
 forest_chamber = Terrain(
     name="숲",
     terrain_id="forest_chamber",
     terrain_desc="Desc of forest_chamber terrain (TEST)",
-    rarity=5,
+    rarity=70,
     spawn_item=True,
     spawn_monster=True,
     gen_grass={"core_num_range":(1,6), "scale_range":(1,4), "density":0.3},
@@ -70,7 +88,7 @@ landmine_chamber = Terrain(
     name="지뢰밭",
     terrain_id="landmine_chamber",
     terrain_desc="Desc of dungeon chamber terrain (TEST)",
-    rarity=10,
+    rarity=30,
     spawn_item=True,
     spawn_monster=False,
     gen_grass=None,
@@ -92,7 +110,7 @@ grass_field = Terrain(
     name="평야",
     terrain_id="grass_field",
     terrain_desc="Desc of grass_field terrain (TEST)",
-    rarity=60,
+    rarity=120,
     spawn_item=True,
     spawn_monster=True,
     gen_grass={"core_num_range":(1,8), "scale_range":(1,4), "density":0.6},
@@ -140,6 +158,32 @@ trap_field = Terrain(
     rarity=50,
     spawn_item=True,
     spawn_monster=True,
+    gen_traps={
+        "checklist":{
+            semiactor_factories.spike_trap:5,
+            semiactor_factories.explosion_trap:5,
+            semiactor_factories.flame_trap:5,
+            semiactor_factories.acid_spray_trap:5,
+            semiactor_factories.icicle_trap:5,
+            semiactor_factories.poison_spike_trap:5,
+            semiactor_factories.sonic_boom_trap:5,
+        },
+        "max_traps_per_room":5,
+        "spawn_chance":0.05,
+        "forced_traps_gen_number":4
+    },
+)
+terrain_dict[trap_field] = trap_field.rarity
+
+
+# Trap Field with grass
+trap_field_with_grass = Terrain(
+    name="함정 필드",
+    terrain_id="trap_field_with_grass",
+    terrain_desc="Desc of trap_field terrain (TEST)",
+    rarity=25,
+    spawn_item=True,
+    spawn_monster=True,
     gen_grass={"core_num_range":(1,6), "scale_range":(1,4), "density":0.3},
     gen_traps={
         "checklist":{
@@ -176,7 +220,7 @@ large_pit = Terrain(
     name="큰 구덩이",
     terrain_id="large_pit",
     terrain_desc="Desc of large_pit terrain (TEST)",
-    rarity=1,
+    rarity=3,
     min_width=12,
     min_height=12,
     max_width=16,
@@ -196,7 +240,7 @@ giant_hole = Terrain(
     name="큰 구멍",
     terrain_id="giant_hole",
     terrain_desc="Desc of giant_hole terrain (TEST)",
-    rarity=3,
+    rarity=5,
     spawn_item=False,
     spawn_monster=False,
     gen_holes={"core_num_range":(1,8), "scale_range":(1,4), "density":0.6, "no_border":True},
@@ -207,7 +251,7 @@ terrain_dict[giant_hole] = giant_hole.rarity
 # Ocean
 ocean = Terrain(
     name="바다",
-    terrain_id="Ocean",
+    terrain_id="ocean",
     terrain_desc="Desc of ocean terrain (TEST)",
     rarity=2,
     spawn_item=True,
@@ -218,12 +262,26 @@ ocean = Terrain(
 terrain_dict[ocean] = ocean.rarity
 
 
+# Lake
+lake = Terrain(
+    name="호수",
+    terrain_id="lake",
+    terrain_desc="Desc of ocean terrain (TEST)",
+    rarity=5,
+    spawn_item=True,
+    spawn_monster=True,
+    spawn_door=False,
+    gen_water={"core_num_range":(1,4), "scale_range":(4,5), "density":0.9, "no_border":True},
+)
+terrain_dict[lake] = lake.rarity
+
+
 # Swamp
 swamp = Terrain(
     name="늪지대",
     terrain_id="swamp",
     terrain_desc="Desc of swamp terrain (TEST)",
-    rarity=15,
+    rarity=30,
     spawn_item=True,
     spawn_monster=True,
     spawn_door=False,
@@ -239,7 +297,7 @@ general_shop = ShopTerrain(
     name="잡동사니 상점",
     terrain_id="general_shop",
     terrain_desc="general shop desc",
-    rarity=1,
+    rarity=2,
     min_width=6,
     max_width=8,
     min_height=6,
@@ -258,7 +316,7 @@ potion_shop = ShopTerrain(
     name="포션 상점",
     terrain_id="potion_shop",
     terrain_desc="potion shop desc",
-    rarity=1,
+    rarity=2,
     min_width=6,
     max_width=8,
     min_height=6,
@@ -277,7 +335,7 @@ weapon_shop = ShopTerrain(
     name="무기 상점",
     terrain_id="weapon_shop",
     terrain_desc="weapon shop desc",
-    rarity=1,
+    rarity=2,
     min_width=6,
     max_width=8,
     min_height=6,
@@ -296,7 +354,7 @@ scroll_shop = ShopTerrain(
     name="주문서 상점",
     terrain_id="scroll_shop",
     terrain_desc="scroll shop desc",
-    rarity=1,
+    rarity=2,
     min_width=6,
     max_width=8,
     min_height=6,
@@ -334,7 +392,7 @@ guarded_treasure = GuardedTreasureTerrain(
     name="보호받는 보물",
     terrain_id="guarded_treasure",
     terrain_desc="guarded treasure desc",
-    rarity=1,
+    rarity=2,
     spawn_item=False,
     spawn_monster=False,
     custom_gen=GuardedTreasureTerrGen.generate_guarded_treasure,

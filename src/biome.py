@@ -61,7 +61,7 @@ class Biome:
         tileset=None,
         terrain: dict = None,
         additional_terrain: dict = None,
-        remove_all_terrain_of_type: Optional[Tuple[str]] = None,
+        remove_all_terrain_of_type: Optional[Tuple[str, ...]] = None,
 
         # TODO Add biome-differentiated monster generating system feature
     ):
@@ -139,6 +139,14 @@ class Biome:
                 if string == "spawn_door":
                     for k in self.terrain.keys():
                         if k.spawn_door:
+                            self.terrain[k] = 0
+                elif string == "gen_grass":
+                    for k in self.terrain.keys():
+                        if k.gen_grass:
+                            self.terrain[k] = 0
+                elif string == "gen_plants":
+                    for k in self.terrain.keys():
+                        if k.gen_grass:
                             self.terrain[k] = 0
                 #TODO Add other conditions
 

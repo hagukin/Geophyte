@@ -196,10 +196,13 @@ def spawn_monsters(
         monsters_to_spawn = []
         for _ in range(mon_num):
             # Choose difficulty
-            difficulty_chosen = choose_monster_difficulty(gamemap=dungeon, toughness=dungeon.engine.toughness)
+            difficulty_chosen = choose_monster_difficulty(gamemap=dungeon, toughness=max(dungeon.engine.toughness + room.terrain.adjust_monster_difficulty, 0))
+            if room.terrain.spawn_monster_of_difficulty:
+                difficulty_chosen = room.terrain.spawn_monster_of_difficulty
 
             while not actor_factories.ActorDB.monster_difficulty[difficulty_chosen]:
-                difficulty_chosen = choose_monster_difficulty(gamemap=dungeon, toughness=dungeon.engine.toughness)
+                print(f"WARNING::Difficulty {difficulty_chosen} missing. Choosing a new difficulty...")
+                difficulty_chosen = choose_monster_difficulty(gamemap=dungeon, toughness=max(dungeon.engine.toughness + room.terrain.adjust_monster_difficulty, 0))
 
             monsters_to_spawn.append(choose_monster_by_difficulty(difficulty_chosen, radius=(-1, 1)))
 
