@@ -1,3 +1,5 @@
+import random
+
 from render import render_img, draw_thick_frame
 
 import actor_factories
@@ -5,7 +7,7 @@ import color
 import tcod
 import time
 import copy
-from typing import Optional, Callable
+from typing import Optional, Callable, Dict, Tuple, Any
 from sound import SoundManager
 
 class CharGenInputHandler(tcod.event.EventDispatch[None]):
@@ -14,7 +16,6 @@ class CharGenInputHandler(tcod.event.EventDispatch[None]):
     """
     def __init__(self):
         self.help_msg = "엔터:확인 | ESC:이전으로"
-        self.should_render_pts = False # if True, render current usable points
 
     def render_gui(self, console) -> None:
         """
@@ -25,8 +26,6 @@ class CharGenInputHandler(tcod.event.EventDispatch[None]):
         console.print(0, height-1, string=self.help_msg, fg=color.white)
         page_str = f"{CharGen.curr_order+1}/{len(CharGen.chargen_order)}"
         console.print(width - len(page_str), height-1, string=page_str, fg=color.yellow)
-        if self.should_render_pts:
-            console.print(0, height - 3, string=f"{CharGen.points} 포인트 사용 가능", fg=color.green)
 
 
 class NameGenInputHandler(CharGenInputHandler):
@@ -60,26 +59,26 @@ class NameGenInputHandler(CharGenInputHandler):
 
 class StatusGenInputHandler(CharGenInputHandler):
     DEFAULT_STAT = 15
-    MAX_SUB_POINT = 5
-    MAX_ADD_POINT = 3
+    MAX_SUB_POINT = 4
+    MAX_ADD_POINT = 4
 
-    def __init__(self):
+    def __init__(self, points: int):
         super().__init__()
-        self.help_msg += " | 알파뱃:스테이터스 선택 | +,-키:포인트 사용/차감 | (r)-스테이터스 초기화"
+        self.help_msg += " | 알파뱃:스테이터스 선택 | +,-키:포인트 사용/차감 | (r)-스테이터스 초기화 | (v)-랜덤"
         self.selected = None
-        self.should_render_pts = True
+        self.points = points
 
     def add_one_point(self, stat: str) -> None:
         if not stat:
             return None
-        if CharGen.points < 1:
+        if self.points < 1:
             CharGen.show_warning("포인트가 부족합니다.")
             return None
         if CharGen.status_points_used[stat] >= StatusGenInputHandler.MAX_ADD_POINT:
             CharGen.show_warning("더 이상 포인트를 사용할 수 없습니다.")
             return None
         CharGen.status_points_used[stat] += 1
-        CharGen.points -= 1
+        self.points -= 1
 
     def subtract_one_point(self, stat: str) -> None:
         if not stat:
@@ -88,7 +87,27 @@ class StatusGenInputHandler(CharGenInputHandler):
             CharGen.show_warning("더 이상 포인트를 차감할 수 없습니다.")
             return None
         CharGen.status_points_used[stat] -= 1
-        CharGen.points += 1
+        self.points += 1
+
+    def reset(self) -> None:
+        for v in CharGen.status_points_used.values():
+            self.points += v
+        for k in CharGen.status_points_used.keys():
+            CharGen.status_points_used[k] = 0
+
+    def randomize(self) -> None:
+        self.reset()
+        stats = ["strength", "dexterity", "constitution", "agility", "charm", "intelligence"]
+        for s in stats:
+            CharGen.status_points_used[s] -= StatusGenInputHandler.MAX_SUB_POINT
+            self.points += StatusGenInputHandler.MAX_SUB_POINT
+        while self.points > 0:
+            stat = random.choice(stats)
+            if CharGen.status_points_used[stat] >= StatusGenInputHandler.MAX_ADD_POINT:
+                stats.remove(stat)
+                continue
+            self.points -= 1
+            CharGen.status_points_used[stat] += 1
 
     def ev_keydown(self, event) -> str:
         key = event.sym
@@ -116,10 +135,10 @@ class StatusGenInputHandler(CharGenInputHandler):
         elif key == tcod.event.K_h:
             self.selected = "charm"
         elif key == tcod.event.K_r:
-            for v in CharGen.status_points_used.values():
-                CharGen.points += v
-            for k in CharGen.status_points_used.keys():
-                CharGen.status_points_used[k] = 0
+            self.reset()
+        elif key == tcod.event.K_v:
+            self.randomize()
+
         return ""
 
     def render_status(self, console, xpos: int, ypos: int):
@@ -137,7 +156,7 @@ class StatusGenInputHandler(CharGenInputHandler):
             str_fg = color.gui_selected_item
         console.print(string="(s) 힘", x=x, y=y(), fg=str_fg)
         ypad += 2
-        console.print(string=f"{CharGen.player.status.origin_status['strength'] + CharGen.status_points_used['strength']} ({CharGen.status_points_used['strength']:+d}pt)", x=x, y=y(), fg=color.white)
+        console.print(string=f"{StatusGenInputHandler.DEFAULT_STAT + CharGen.status_points_used['strength']} ({CharGen.status_points_used['strength']:+d}pt)", x=x, y=y(), fg=color.white)
         ypad += 5
 
         dex_fg = color.gui_chargen_status_name_fg
@@ -146,7 +165,7 @@ class StatusGenInputHandler(CharGenInputHandler):
         console.print(string="(d) 재주", x=x, y=y(), fg=dex_fg)
         ypad += 2
         console.print(
-            string=f"{CharGen.player.status.origin_status['dexterity'] + CharGen.status_points_used['dexterity']} ({CharGen.status_points_used['dexterity']:+d}pt)",
+            string=f"{StatusGenInputHandler.DEFAULT_STAT + CharGen.status_points_used['dexterity']} ({CharGen.status_points_used['dexterity']:+d}pt)",
             x=x, y=y(), fg=color.white)
         ypad += 5
 
@@ -156,7 +175,7 @@ class StatusGenInputHandler(CharGenInputHandler):
         console.print(string="(c) 활력", x=x, y=y(), fg=con_fg)
         ypad += 2
         console.print(
-            string=f"{CharGen.player.status.origin_status['constitution'] + CharGen.status_points_used['constitution']} ({CharGen.status_points_used['constitution']:+d}pt)",
+            string=f"{StatusGenInputHandler.DEFAULT_STAT + CharGen.status_points_used['constitution']} ({CharGen.status_points_used['constitution']:+d}pt)",
             x=x, y=y(), fg=color.white)
         ypad += 5
 
@@ -166,7 +185,7 @@ class StatusGenInputHandler(CharGenInputHandler):
         console.print(string="(a) 민첩", x=x, y=y(), fg=agi_fg)
         ypad += 2
         console.print(
-            string=f"{CharGen.player.status.origin_status['agility'] + CharGen.status_points_used['agility']} ({CharGen.status_points_used['agility']:+d}pt)",
+            string=f"{StatusGenInputHandler.DEFAULT_STAT + CharGen.status_points_used['agility']} ({CharGen.status_points_used['agility']:+d}pt)",
             x=x, y=y(), fg=color.white)
         ypad += 5
 
@@ -176,7 +195,7 @@ class StatusGenInputHandler(CharGenInputHandler):
         console.print(string="(i) 지능", x=x, y=y(), fg=int_fg)
         ypad += 2
         console.print(
-            string=f"{CharGen.player.status.origin_status['intelligence'] + CharGen.status_points_used['intelligence']} ({CharGen.status_points_used['intelligence']:+d}pt)",
+            string=f"{StatusGenInputHandler.DEFAULT_STAT + CharGen.status_points_used['intelligence']} ({CharGen.status_points_used['intelligence']:+d}pt)",
             x=x, y=y(), fg=color.white)
         ypad += 5
 
@@ -186,7 +205,7 @@ class StatusGenInputHandler(CharGenInputHandler):
         console.print(string="(h) 매력", x=x, y=y(), fg=char_fg)
         ypad += 2
         console.print(
-            string=f"{CharGen.player.status.origin_status['charm'] + CharGen.status_points_used['charm']} ({CharGen.status_points_used['charm']:+d}pt)",
+            string=f"{StatusGenInputHandler.DEFAULT_STAT + CharGen.status_points_used['charm']} ({CharGen.status_points_used['charm']:+d}pt)",
             x=x, y=y(), fg=color.white)
         ypad += 5
 
@@ -215,8 +234,10 @@ class StatusGenInputHandler(CharGenInputHandler):
         """
         Renders GUI for the title screen.
         """
+        super().render_gui(console=console)
         width = tcod.console_get_width(console)
         height = tcod.console_get_height(console)
+        console.print(0, height - 3, string=f"{self.points} 포인트 사용 가능", fg=color.green)
         x = 2
         y = 2
         f_width = 31
@@ -228,36 +249,37 @@ class StatusGenInputHandler(CharGenInputHandler):
 
 
 class CharGen():
-    player = None
-    player_name = ""
-    curr_order = 0
-    chargen_order = None
-    warning_msg = ""
-    is_first_input = False # prevent titlehandler input stacking
-    points = 0 # usable points
-    status_points_used = {
-        "strength": 0,
-        "dexterity": 0,
-        "constitution": 0,
-        "agility": 0,
-        "intelligence": 0,
-        "charm": 0,
-    }
+    player: Any # Actor
+    player_name: str
+    curr_order: int
+    chargen_order: Optional[Tuple]
+    warning_msg: str
+    is_first_input: bool # prevent titlehandler input stacking
+    status_points_used: Dict
+    state_selected: Dict
 
     def __init__(self):
-        CharGen.chargen_order = (NameGenInputHandler(),StatusGenInputHandler())
-        CharGen.player = copy.deepcopy(actor_factories.player)  # Cannot use entity.copy() yet
-        # NOTE: player.initialize_actor() is called from procgen.generate_entities()
+        self.clear_all_changes()
 
     @staticmethod
     def show_warning(string: str) -> None:
         CharGen.warning_msg = string
 
     def clear_all_changes(self) -> None:
-        CharGen.player = copy.deepcopy(actor_factories.player)
+        CharGen.player = copy.deepcopy(actor_factories.player) # Cannot use entity.copy() yet
+        # NOTE: player.initialize_actor() is called from procgen.generate_entities()
+        CharGen.chargen_order = (NameGenInputHandler(), StatusGenInputHandler(points=0)) # During creation of each inputhandler instances, all changes that were stored in the stack is removed.
         CharGen.player_name = ""
         CharGen.curr_order = 0
         CharGen.warning_msg = ""
+        CharGen.status_points_used = {
+            "strength": 0,
+            "dexterity": 0,
+            "constitution": 0,
+            "agility": 0,
+            "intelligence": 0,
+            "charm": 0,
+        }
         CharGen.is_first_input = False
 
     def render_warning_msg(self, console) -> None:
@@ -350,12 +372,12 @@ class CharGen():
     def generate_player(self) -> None:
         CharGen.player.change_name(self.player_name.strip())
 
-        CharGen.player.status.gain_strength(CharGen.status_points_used["strength"])
-        CharGen.player.status.gain_dexterity(CharGen.status_points_used["dexterity"])
-        CharGen.player.status.gain_constitution(CharGen.status_points_used["constitution"])
-        CharGen.player.status.gain_agility(CharGen.status_points_used["agility"])
-        CharGen.player.status.gain_intelligence(CharGen.status_points_used["intelligence"])
-        CharGen.player.status.gain_charm(CharGen.status_points_used["charm"])
+        CharGen.player.status.strength = StatusGenInputHandler.DEFAULT_STAT + CharGen.status_points_used["strength"]
+        CharGen.player.status.dexterity = StatusGenInputHandler.DEFAULT_STAT + CharGen.status_points_used["dexterity"]
+        CharGen.player.status.constitution = StatusGenInputHandler.DEFAULT_STAT + CharGen.status_points_used["constitution"]
+        CharGen.player.status.agility = StatusGenInputHandler.DEFAULT_STAT + CharGen.status_points_used["agility"]
+        CharGen.player.status.intelligence = StatusGenInputHandler.DEFAULT_STAT + CharGen.status_points_used["intelligence"]
+        CharGen.player.status.charm = StatusGenInputHandler.DEFAULT_STAT + CharGen.status_points_used["charm"]
         CharGen.player.status.experience.init_experience() # update initial exp
-
+        CharGen.chargen_order = None # free memory
         return CharGen.player

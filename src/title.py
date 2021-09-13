@@ -162,7 +162,6 @@ class Title():
             if title_action == "new_game":
                 delete_saved_game()
                 chara_gen = chargen.CharGen()
-                chara_gen.clear_all_changes()
                 player = chara_gen.chargen_event_handler(console=console, context=context, cfg=cfg,sound_manager=sound_manager)
                 if not player:
                     continue # Exit chargen, go back to title
