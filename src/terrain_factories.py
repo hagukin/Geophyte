@@ -27,15 +27,23 @@ monster_lair = Terrain(
     name="괴물 소굴",
     terrain_id="monster_lair",
     terrain_desc="Desc of monster lair terrain (TEST)",
-    rarity=8,
+    rarity=5,
     spawn_item=True,
     spawn_monster=True,
+    make_monster_sleep=False,
     monsters_cnt={64:1},# Fill with monsters
     adjust_monster_difficulty=-3, # easier enemies
     door_num_range=(1,),
     door_num_weight=(1,),
     max_width=8,
     max_height=8,
+    protected=True,
+    can_have_stair=False,
+    locked_door_chance=1,
+    shape={
+        "rectangular":1,
+        "circular": 1,
+    },
 )
 terrain_dict[monster_lair] = monster_lair.rarity
 

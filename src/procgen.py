@@ -128,14 +128,16 @@ def choose_monster_by_difficulty(difficulty: int, radius: (0,0)) -> Optional[Act
 
 
 def spawn_given_monster(
-    x: int, y: int, monster: Actor, dungeon: GameMap, spawn_awake=False, is_first_generation=False,
+    x: int, y: int, monster: Actor, dungeon: GameMap, spawn_active=False, spawn_sleep=False, is_first_generation=False,
 ) -> None:
     """
     Spawns a given monster to given location from given gamemap.
     This is the only function you should use during procgen process to directly spawn an actor entity.
     Args:
-        spawn_awake:
+        spawn_active:
             Boolean, Will the monster become active right after they are spawned?
+        spawn_sleep:
+            Boolean. If True, monster will sleep indefinitely.
         is_first_generation:
             Boolean, Is this function called by the gamemap generation function?
             (=is this the first time that the monster is being generated to this dungeon?)
@@ -149,14 +151,16 @@ def spawn_given_monster(
     # DEBUG
     # print(new_monster.entity_id)
 
-    if spawn_awake:
+    if spawn_active:
         if new_monster.ai:
             new_monster.ai.activate()
+    if spawn_sleep:
+        new_monster.actor_state.apply_sleeping(value=[0,-1], forced=True) # Infinite sleeping
     if is_first_generation:
         dungeon.starting_monster_num += 1
 
 
-def spawn_monster_of_appropriate_difficulty(x: int, y: int, dungeon: GameMap, spawn_awake=False, is_first_generation=False) -> None:
+def spawn_monster_of_appropriate_difficulty(x: int, y: int, dungeon: GameMap, spawn_active=False, spawn_sleep=False, is_first_generation=False) -> None:
     """Wrapper funciton."""
     spawn_given_monster(
         x=x,
@@ -169,7 +173,8 @@ def spawn_monster_of_appropriate_difficulty(x: int, y: int, dungeon: GameMap, sp
             radius=(-1, 1)
         ),
         dungeon=dungeon,
-        spawn_awake=spawn_awake,
+        spawn_active=spawn_active,
+        spawn_sleep=spawn_sleep,
         is_first_generation=is_first_generation
     )
 
@@ -219,7 +224,7 @@ def spawn_monsters(
         else:
             # Spawn
             spawn_given_monster(x=place_tile[0], y=place_tile[1], monster=monster_to_spawn, dungeon=dungeon,
-                                         spawn_awake=False, is_first_generation=True)
+                                         spawn_active=False, spawn_sleep=room.terrain.make_monster_sleep, is_first_generation=True)
 
 
 def spawn_items(

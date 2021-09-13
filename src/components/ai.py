@@ -252,7 +252,7 @@ class BaseAI(BaseComponent):
         for e in self.parent.gamemap.entities:
             # Check that an enitiy blocks movement and the cost isn't zero (blocking.)
             if e.blocks_movement and cost[e.x, e.y]:
-                cost[e.x, e.y] += 10
+                cost[e.x, e.y] += 30
             if intelligence > 3 and isinstance(e, SemiActor):
                 if (e.x != dest_x or e.y != dest_y) and not e.safe_to_move:
                     cost[e.x, e.y] += intelligence * 5 # AIs with higher intelligence is more likely to dodge dangerous semiactors.
@@ -267,7 +267,7 @@ class BaseAI(BaseComponent):
                         continue
                     if self.gamemap.check_tile_safe(self.parent, cor[0], cor[1], ignore_semiactor=True): # Semiactor is handled below.
                         break
-                    cost[cor] += intelligence * 3  # AI with higher intelligence is more likely to dodge dangerous tiles.
+                    cost[cor] += intelligence * 4  # AI with higher intelligence is more likely to dodge dangerous tiles.
 
         # Create a graph from the cost array and pass that graph to a new pathfinder
         graph = tcod.path.SimpleGraph(cost=cost, cardinal=2, diagonal=3)

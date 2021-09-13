@@ -402,6 +402,8 @@ class GameMap:
                                 difficulty=difficulty_chosen,
                                 radius=(-1, 1)
                             ),
+                            spawn_active=False,
+                            spawn_sleep=False,
                             dungeon=self
                         )
                         break

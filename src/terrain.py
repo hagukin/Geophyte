@@ -30,6 +30,7 @@ class Terrain:
         spawn_monster_of_difficulty: Optional[int] = None, # Can overwrite biome.monster_difficulty
         adjust_monster_difficulty: int = 0, # Adjust toughness. Can have negative value
         monster_to_spawn: Dict = None,
+        make_monster_sleep: bool=False,
         has_wall: bool = True, #TODO: need to add feature
         protected: bool = False,
         has_door: bool = True,
@@ -37,7 +38,7 @@ class Terrain:
         can_have_stair: bool = True,
         door_num_range = (1,2,3,4),
         door_num_weight = (3,7,2,1),
-        locked_door_chance: float=0.05,
+        locked_door_chance: float=0,
         gen_grass = None,
         gen_holes = None,
         gen_water = None,
@@ -160,6 +161,7 @@ class Terrain:
             self.items_cnt = items_cnt
         if monsters_cnt:
             self.monsters_cnt = monsters_cnt
+        self.make_monster_sleep = make_monster_sleep
 
         self.min_width = min_width
         self.max_width = max_width

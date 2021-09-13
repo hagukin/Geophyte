@@ -1040,8 +1040,11 @@ class DoorUnlockAction(ActionWithDirection):
             print("WARNING::AI tried to unlock void.")
             return None
         else:
-            chance_of_unlocking = max(0, self.entity.status.changed_status["dexterity"] - 10/50)
-            if random.random() <= chance_of_unlocking:
+            # Ai's chance of unlocking is dependent to its intelligence as well
+            dexterity = self.entity.status.changed_status["dexterity"]
+            intelligence = self.entity.status.changed_status["intelligence"]
+            chance_of_unlocking = max(0, dexterity + intelligence - 25/50)
+            if random.random() <= chance_of_unlocking and intelligence > 10 and dexterity > 7:
                 # Unlock succeded
                 if self.entity == self.engine.player:
                     self.engine.message_log.add_message(f"당신은 문의 잠금을 해제하는데 성공했다!", color.player_success)
