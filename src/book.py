@@ -1,10 +1,11 @@
 from __future__ import annotations
 from input_handlers import AskUserEventHandler
 from entity import Actor, Item, SemiActor
-from base.data_loader import load_book
+from base.data_loader import load_book, save_actor_book
 from typing import Optional
 from actions import Action
 from util import multiline
+from korean import grammar as g
 import actor_factories
 import tcod
 import color
@@ -129,6 +130,10 @@ class MonsterInfoHandler(AskUserEventHandler):
         super().__init__()
         self.monster = monster
         self.page = page # If this input handler is called from MonsterBookIndexHandler, pass in the page number so it could callback the indexhandler when cancelled.
+        if not self.engine._is_gameover:
+            if save_actor_book(actor=self.monster): # Try save actor info to the book
+                # succeded
+                self.engine.message_log.add_message(text=f"{g(self.monster.name, '이')} 몬스터 도감에 추가되었습니다.", fg=color.add_to_book)
 
     def on_render(self, console: tcod.Console) -> None:
         console.draw_frame(0, 0, console.width, console.height, bg=color.book_bg)

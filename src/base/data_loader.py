@@ -2,6 +2,7 @@ import os
 import sys
 import shelve
 import copy
+from typing import Optional
 
 
 def save_game(player, engine):
@@ -45,16 +46,44 @@ def quit_game():
     sys.exit()
 
 
-def save_actor_book(get_all_monsters: bool=False):
+def create_new_book() -> None:
+    """Create new book. Will overwrite existing one."""
     with shelve.open(os.getcwd() + "\\storage\\book\\book", "n") as f:
-        if get_all_monsters:
+        # reset and init dictionary
+        from book import monchar
+        temp = {}
+        for c in monchar:
+            temp[str(c)] = {
+                "a": None, "b": None, "c": None, "d": None, "e": None, "f": None, "g": None, "h": None, "i": None,
+                "j": None, "k": None, "l": None, "m": None, "n": None, "o": None, "p": None, "q": None, "r": None,
+                "s": None, "t": None, "u": None, "v": None, "w": None, "x": None, "y": None, "z": None,
+                "A": None, "B": None, "C": None, "D": None, "E": None, "F": None, "G": None, "H": None, "I": None,
+                "J": None, "K": None, "L": None, "M": None, "N": None, "O": None, "P": None, "Q": None, "R": None,
+                "S": None, "T": None, "U": None, "V": None, "W": None, "X": None, "Y": None, "Z": None
+            }
+        f["actors"] = temp
+
+
+def save_actor_book(actor: Optional=None, get_all_monsters: bool=False) -> bool:
+    """
+    Return:
+        whether the saving was successful or not.
+        if False, it means either a) actor already exists in the book
+        or b) actor cannot be saved in the book
+    """
+    if get_all_monsters:
+        with shelve.open(os.getcwd() + "\\storage\\book\\book", "n") as f:
             # reset and init dictionary
             from book import monchar
             temp = {}
             for c in monchar:
                 temp[str(c)] = {
-                    "a":None,"b":None,"c":None,"d":None,"e":None,"f":None,"g":None,"h":None,"i":None,"j":None,"k":None,"l":None,"m":None,"n":None,"o":None,"p":None,"q":None,"r":None,"s":None,"t":None,"u":None,"v":None,"w":None,"x":None,"y":None,"z":None,
-                    "A":None,"B":None,"C":None,"D":None,"E":None,"F":None,"G":None,"H":None,"I":None,"J":None,"K":None,"L":None,"M":None,"N":None,"O":None,"P":None,"Q":None,"R":None,"S":None,"T":None,"U":None,"V":None,"W":None,"X":None,"Y":None,"Z":None
+                    "a": None, "b": None, "c": None, "d": None, "e": None, "f": None, "g": None, "h": None, "i": None,
+                    "j": None, "k": None, "l": None, "m": None, "n": None, "o": None, "p": None, "q": None, "r": None,
+                    "s": None, "t": None, "u": None, "v": None, "w": None, "x": None, "y": None, "z": None,
+                    "A": None, "B": None, "C": None, "D": None, "E": None, "F": None, "G": None, "H": None, "I": None,
+                    "J": None, "K": None, "L": None, "M": None, "N": None, "O": None, "P": None, "Q": None, "R": None,
+                    "S": None, "T": None, "U": None, "V": None, "W": None, "X": None, "Y": None, "Z": None
                 }
 
             # Insert data
@@ -66,14 +95,28 @@ def save_actor_book(get_all_monsters: bool=False):
                             if val == None:
                                 temp[m.char][key] = m.entity_id
                                 break
-
             f["actors"] = temp
+        return True
+    elif actor:
+        if actor.entity_id == "player":
+            return False  # actor is player
+        with shelve.open(os.getcwd() + "\\storage\\book\\book") as f:
+            import book
+            for key, val in book.actor_db[actor.char].items():
+                if val == actor.entity_id:
+                    return False # Already exists
+                if val == None:
+                    book.actor_db[actor.char][key] = actor.entity_id
+                    f["actors"] = book.actor_db
+                    return True
+                # NOTE: If it exceeds 52 alphabet (which is very unlikely to happen) it will ignore.
 
 
-def load_book():
+def load_book(create_new:bool=False):
     # Check if file exists (os.getcwd() = current folder directory)
-    if not os.path.isfile(os.getcwd() + "\\storage\\book\\book.dat"):
-        raise FileNotFoundError
+    if create_new or not os.path.isfile(os.getcwd() + "\\storage\\book\\book.dat"):
+        print("WARNING::Found no book data. initializing new one.")
+        create_new_book()
 
     import book
     with shelve.open(os.getcwd() + "\\storage\\book\\book", "r") as b:

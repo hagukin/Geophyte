@@ -66,9 +66,12 @@ def init_game_variables(player, cfg, console: Console, context: Context):
     engine.change_entity_depth(entity=engine.player, depth=engine.depth, xpos=engine.game_map.ascend_loc[0], ypos=engine.game_map.ascend_loc[1])
     engine.world.save_world()
 
-    # Give player a complete encyclopedia TODO: delete?
-    from base.data_loader import save_actor_book
-    save_actor_book(get_all_monsters=True)
+    # Initialize book data if there is None
+    from base.data_loader import load_book
+    load_book()
+    # Give player a complete encyclopedia
+    # from base.data_loader import save_actor_book
+    # save_actor_book(get_all_monsters=True)
 
     return engine
 
