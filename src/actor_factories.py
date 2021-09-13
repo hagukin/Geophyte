@@ -168,7 +168,7 @@ shopkeeper = Actor(
         constitution=29,
         charm=25,
         difficulty=20,
-        base_melee=33, #TODO: Give Equipments
+        base_melee=33,
         additional_melee=20,
         protection=35,
         eyesight=80,
@@ -1776,7 +1776,7 @@ acid_elemental = Actor(
         use_ability=False,
         hostile_type=('@',),
     ),
-    status=Status(# TODO
+    status=Status(
         hp=135,
         mp=205,
         strength=22,
@@ -1910,7 +1910,7 @@ lightning_elemental = Actor(
         use_ability=False,
         hostile_type=('@',),
     ),
-    status=Status(# TODO
+    status=Status(
         hp=132,
         mp=205,
         strength=23,
@@ -2102,7 +2102,7 @@ unicorn = Actor(
         {"item": item_factories.sapphire, "chance": 0.005, "count": (1, 1), "BUC": None,"upgrade": None},
         {"item": item_factories.emerald, "chance": 0.005, "count": (1, 1), "BUC": None,"upgrade": None},
     ),
-    initial_drop_on_death=None, #TODO FIXME add unicorn horn
+    initial_drop_on_death=None, #TODO add unicorn horn
     # (
     #     {"item":item_factories.shine, "chance":1, "count":(2000,3500), "BUC":None, "upgrade":None},
     # ),

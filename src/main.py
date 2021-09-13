@@ -37,7 +37,7 @@ def main() -> None:
             tile_width=cfg["tile_width"], 
             tile_height=cfg["tile_height"]
         ),
-        title="Geophyte Alpha v1.1",
+        title="Geophyte "+Game.version,
         sdl_window_flags=set_screen,
         vsync=False,
     ) as context:

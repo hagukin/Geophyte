@@ -2101,26 +2101,26 @@ class MainGameEventHandler(EventHandler):
                 self.engine.easteregg += 1
                 if self.engine.easteregg == 50:
                     self.engine.message_log.add_message(f"당신은 슬픈 기분이 든다.", color.white)
-
-                # self.engine.player.actor_state.is_flying = not self.engine.player.actor_state.is_flying
-
-                ######### TODO FIXME DEBUG
-                self.engine.change_entity_depth(
-                    self.engine.player,
-                    self.engine.depth + 1,
-                    self.engine.world.get_map(self.engine.depth + 1).ascend_loc[0],
-                    self.engine.world.get_map(self.engine.depth + 1).ascend_loc[1]
-                )
-            elif key == tcod.event.K_F10:
-                ######### TODO FIXME DEBUG
-                self.engine.change_entity_depth(
-                    self.engine.player,
-                    self.engine.depth - 1,
-                    self.engine.world.get_map(self.engine.depth - 1).ascend_loc[0],
-                    self.engine.world.get_map(self.engine.depth - 1).ascend_loc[1] # NOTE: Chamber of Kugah has no descend loc
-                )
-            elif key == tcod.event.K_F9:
-                self.engine.player.status.experience.gain_agility_exp(amount=100)
+            #
+            #     # self.engine.player.actor_state.is_flying = not self.engine.player.actor_state.is_flying
+            #
+            #     ######### TODO FIXME DEBUG
+            #     self.engine.change_entity_depth(
+            #         self.engine.player,
+            #         self.engine.depth + 1,
+            #         self.engine.world.get_map(self.engine.depth + 1).ascend_loc[0],
+            #         self.engine.world.get_map(self.engine.depth + 1).ascend_loc[1]
+            #     )
+            # elif key == tcod.event.K_F10:
+            #     ######### TODO FIXME DEBUG
+            #     self.engine.change_entity_depth(
+            #         self.engine.player,
+            #         self.engine.depth - 1,
+            #         self.engine.world.get_map(self.engine.depth - 1).ascend_loc[0],
+            #         self.engine.world.get_map(self.engine.depth - 1).ascend_loc[1] # NOTE: Chamber of Kugah has no descend loc
+            #     )
+            # elif key == tcod.event.K_F9:
+            #     self.engine.player.status.experience.gain_agility_exp(amount=100)
 
         # No valid key was pressed
         return action

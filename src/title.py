@@ -2,6 +2,7 @@ from base.initialization import init_game_variables
 from base.data_loader import load_game
 from render import render_img
 from base.data_loader import quit_game, delete_saved_game
+from game import Game
 
 import color
 import tcod
@@ -83,8 +84,10 @@ class Title():
         console.print(x+2, y+1, string="N - New Game\n\nL - Load Game\n\nO - Options\n\nC - Credits\n\nQ - Quit Game\n", fg=color.white)
 
         # Copyright Note, version mark
-        console.print(width - 32, height - 4, string="Copyright (C) 2020 by Haguk Kim", fg=color.white)
-        console.print(width - 20, height - 2, string="Geophyte Alpha v1.1", fg=color.white)
+        txt1 = "Copyright (C) 2020-2021 by Haguk Kim"
+        txt2 = "Geophyte "+Game.version
+        console.print(width - len(txt1) - 1, height - 4, string=txt1, fg=color.white)
+        console.print(width - len(txt2) - 1, height - 2, string=txt2, fg=color.white)
 
     @staticmethod
     def get_title_action(sec_per_frame):

@@ -183,7 +183,7 @@ class Option():
             cfg = json.load(f)
 
         console.print(Option.opt_x + 2, Option.opt_y + 2, string=f"<<---- 현재 언어 설정 ---->>\
-                \n\nalpha v1.1에서는 한국어만을 지원합니다. 곧 영어가 추가될 예정입니다!", fg=color.option_fg)
+                \n\nSorry, the current version of Geophyte only supports Korean. English translation is going to be available soon.", fg=color.option_fg)
         Option.render_gui_keys(console, context, 'language', initial_y=5)  # TODO Hard-coded
         context.present(console, keep_aspect=True)
 
