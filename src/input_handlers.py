@@ -269,21 +269,33 @@ class DangerousTileWalkHandler(AskUserEventHandler):
 
 
 class GameClearInputHandler(AskUserEventHandler): #TODO Unfinished
+    """Renders Game Over Screen and wait for player to quit.
+        TODO: Render player History"""
     def on_render(self, console: tcod.Console) -> None:
         super().on_render(console)
-        self.engine.draw_window(
-            self.engine.console,
-            text="쿠가의 아뮬렛을 탈환했다!",
-            title="승리했습니다!",
-            frame_fg=color.yellow,
-        )
-        self.engine.context.present(self.engine.console)
+        self.engine.draw_window(console, text="(v):로그 살펴보기 | (/):맵 둘러보기 | F12:스크린샷 | ESC:게임 종료 | (g):아직 할 일이 남아있다", title="승리했습니다!", text_fg=color.black,
+                                frame_fg=color.black, frame_bg=color.gold)
 
     def ev_keydown(self, event: tcod.event.KeyDown) -> None:
-        if event.sym == tcod.event.K_ESCAPE:
-            raise SystemExit()
-        return None
+        key = event.sym
+        if key == tcod.event.K_ESCAPE:
+            self.engine.event_handler = GameQuitHandler(prev_event_handler=self)
+        elif key == tcod.event.K_v:
+            self.engine.event_handler = HistoryViewer()
+        elif key == tcod.event.K_SLASH or key == tcod.event.K_KP_DIVIDE:
+            self.engine.event_handler = LookHandler()
+        elif key == tcod.event.K_F12:
+            time_str = time.strftime('%Y-%m-%d-%H-%M-%S', time.localtime(time.time()))
+            pic_name = time_str
+            # pic_name = self.engine.player.name + "-" + time_str # bugs occur when using certain unicode chars.
+            self.engine.context.save_screenshot(f"./screenshots/{pic_name}.png")
+            self.engine.message_log.add_message(f"스크린샷 저장됨. {pic_name}.png", color.cyan)
+        elif key == tcod.event.K_g:
+            self.engine.revert_victory()
+            self.engine.event_handler = MainGameEventHandler()
 
+    def ev_mousebuttondown(self, event: tcod.event.KeyDown) -> None:
+        return None
 
 class AbilityEventHandler(AskUserEventHandler):
     """
@@ -2018,6 +2030,9 @@ class MainGameEventHandler(EventHandler):
         if self.engine.is_gameover:
             self.engine.event_handler = GameOverEventHandler()
             return False
+        elif self.engine.has_won:
+            self.engine.event_handler = GameClearInputHandler()
+            return False
         else:
             return super().handle_events(event)
 
@@ -2132,9 +2147,13 @@ class MainGameEventHandler(EventHandler):
         return None
 
 
-class GameOverQuitHandler(AskUserEventHandler):
+class GameQuitHandler(EventHandler):
+    def __init__(self, prev_event_handler):
+        super().__init__(item_cancel_callback=None)
+        self.prev_event_handler = prev_event_handler
+
     def on_render(self, console: tcod.Console) -> None:
-        self.engine.draw_window(console, text="게임을 종료하시겠습니까? (Y/N)", title="Quit", frame_fg=color.lime, frame_bg=color.gui_inventory_bg)
+        self.engine.draw_window(console, text="정말 게임을 종료하시겠습니까? (Y/N)", title="Quit", frame_fg=color.red, frame_bg=color.gui_inventory_bg)
 
     def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[Action]:
         player = self.engine.player
@@ -2144,7 +2163,7 @@ class GameOverQuitHandler(AskUserEventHandler):
             quit_game()
             return None
         elif event.sym == tcod.event.K_n or event.sym == tcod.event.K_ESCAPE:
-            self.engine.event_handler = GameOverEventHandler()
+            self.engine.event_handler = self.prev_event_handler
         return None
 
 
@@ -2157,8 +2176,8 @@ class AscendToSurfaceHandler(AskUserEventHandler):
         engine = self.engine
 
         if event.sym == tcod.event.K_y or event.sym == tcod.event.K_KP_ENTER:
-            AscendAction(player).perform()
-            self.engine.event_handler = MainGameEventHandler()
+            # TODO: Add upper dungeon contents
+            self.engine.event_handler = GameQuitHandler(prev_event_handler=self)
             return None
         elif event.sym == tcod.event.K_n or event.sym == tcod.event.K_ESCAPE:
             self.engine.event_handler = MainGameEventHandler()
@@ -2175,7 +2194,7 @@ class GameOverEventHandler(EventHandler):
     def ev_keydown(self, event: tcod.event.KeyDown) -> None:
         key = event.sym
         if key == tcod.event.K_ESCAPE:
-            self.engine.event_handler = GameOverQuitHandler()
+            self.engine.event_handler = GameQuitHandler(prev_event_handler=self)
         elif key == tcod.event.K_v:
             self.engine.event_handler = HistoryViewer()
         elif key == tcod.event.K_SLASH or key == tcod.event.K_KP_DIVIDE:

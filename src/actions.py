@@ -261,6 +261,8 @@ class AscendAction(Action):
             # Temporary game ending
             if n_depth == 0:
                 if self.engine.player.inventory.check_if_in_inv("amulet_of_kugah"):
+                    self.engine.win_game()
+                    self.engine.sound_manager.add_sound_queue("fx_victory")
                     from input_handlers import GameClearInputHandler
                     self.engine.event_handler = GameClearInputHandler()
                     return None

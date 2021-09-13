@@ -125,7 +125,7 @@ player = Actor(
     equipments=Equipments(),
     # initial_items=
     # (
-    #     {"item": item_factories.scroll_of_magic_mapping, "chance": 1, "count": (100, 101), "BUC": {-1:0, 0:0, 1:1}, "upgrade": None},
+    #     {"item": item_factories.amulet_of_kugah, "chance": 1, "count": (100, 101), "BUC": {-1:0, 0:0, 1:1}, "upgrade": None},
     # ),
     # initial_equipments=(
     #     {"item":item_factories.cloak_of_protection, "chance":1, "count":(1,1), "BUC":{-1:1, 0:1, 1:1}, "upgrade": {1:1,2:0,3:0,4:0}},

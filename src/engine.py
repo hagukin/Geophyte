@@ -61,6 +61,7 @@ class Engine:
                 Represents the entire game world.
         """
         self._is_gameover: bool = False
+        self._has_won: bool = False
         self.event_handler: EventHandler = MainGameEventHandler()
         self.message_log = MessageLog(engine=self)
         self.player = player
@@ -91,6 +92,20 @@ class Engine:
 
     def game_over(self) -> None:
         self._is_gameover = True
+
+    @property
+    def has_won(self) -> bool:
+        return self._has_won
+
+    def win_game(self) -> None:
+        self._has_won = True
+
+    def revert_victory(self) -> None:
+        """Player can postpone victory."""
+        if self._has_won:
+            self._has_won = False
+            return
+        raise Exception("FATAL ERROR::engine.revert_victory is called but the player haven't won yet.")
 
     def set_mouse_pos(self, x, y):
         self._mouse_pos = x, y

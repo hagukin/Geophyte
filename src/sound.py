@@ -141,6 +141,7 @@ class SoundManager():
             "fx_burden":"fx\\burden.wav",
             "fx_cash":"fx\\coin.wav",
             "fx_book":"fx\\book.wav",
+            "fx_victory":"fx\\victory.wav",
 
             "bgm_title_screen":"bgm\\Constellation.wav",
             "bgm_mystical_beginning":"bgm\\Magical_Travel.wav",
