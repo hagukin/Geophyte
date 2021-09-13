@@ -370,7 +370,10 @@ class CharGen():
                 return None # Exit and go back to the main menu
 
     def generate_player(self) -> None:
-        CharGen.player.change_name(self.player_name.strip())
+        name = self.player_name.strip()
+        if not name or name == "":
+            name = "모험가"
+        CharGen.player.change_name(name)
 
         CharGen.player.status.strength = StatusGenInputHandler.DEFAULT_STAT + CharGen.status_points_used["strength"]
         CharGen.player.status.dexterity = StatusGenInputHandler.DEFAULT_STAT + CharGen.status_points_used["dexterity"]

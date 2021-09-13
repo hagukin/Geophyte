@@ -2014,6 +2014,13 @@ class GameHelpEventHandler(AskUserEventHandler):
 
 
 class MainGameEventHandler(EventHandler):
+    def handle_events(self, event: tcod.event.Event) -> Optional[bool]:
+        if self.engine.is_gameover:
+            self.engine.event_handler = GameOverEventHandler()
+            return False
+        else:
+            return super().handle_events(event)
+
     def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[Action]:
         action: Optional[Action] = None
         key = event.sym
@@ -2163,11 +2170,24 @@ class GameOverEventHandler(EventHandler):
     TODO: Render player History"""
     def on_render(self, console: tcod.Console) -> None:
         super().on_render(console)
-        self.engine.draw_window(console, text="ESC 키를 눌러 게임을 종료할 수 있습니다.", title="당신은 죽었습니다.", frame_fg=color.lime, frame_bg=color.gui_inventory_bg)
+        self.engine.draw_window(console, text="(v):로그 살펴보기 | (/):맵 둘러보기 | F12:스크린샷 | ESC:게임 종료", title="당신은 죽었습니다.", frame_fg=color.lime, frame_bg=color.gui_inventory_bg)
 
     def ev_keydown(self, event: tcod.event.KeyDown) -> None:
-        if event.sym == tcod.event.K_ESCAPE:
+        key = event.sym
+        if key == tcod.event.K_ESCAPE:
             self.engine.event_handler = GameOverQuitHandler()
+        elif key == tcod.event.K_v:
+            self.engine.event_handler = HistoryViewer()
+        elif key == tcod.event.K_SLASH or key == tcod.event.K_KP_DIVIDE:
+            self.engine.event_handler = LookHandler()
+        elif key == tcod.event.K_F12:
+            time_str = time.strftime('%Y-%m-%d-%H-%M-%S', time.localtime(time.time()))
+            pic_name = time_str
+            # pic_name = self.engine.player.name + "-" + time_str # bugs occur when using certain unicode chars.
+            self.engine.context.save_screenshot(f"./screenshots/{pic_name}.png")
+            self.engine.message_log.add_message(f"스크린샷 저장됨. {pic_name}.png", color.cyan)
+
+    def ev_mousebuttondown(self, event: tcod.event.KeyDown) -> None:
         return None
 
 
@@ -2175,7 +2195,7 @@ CURSOR_Y_KEYS = {
     tcod.event.K_UP: -1,
     tcod.event.K_KP_8: -1,
     tcod.event.K_DOWN: 1,
-    tcod.event.K_KP_2: -1,
+    tcod.event.K_KP_2: 1,
     tcod.event.K_PAGEUP: -10,
     tcod.event.K_KP_4: -10,
     tcod.event.K_PAGEDOWN: 10,

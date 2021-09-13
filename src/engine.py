@@ -60,6 +60,7 @@ class Engine:
             world:
                 Represents the entire game world.
         """
+        self._is_gameover: bool = False
         self.event_handler: EventHandler = MainGameEventHandler()
         self.message_log = MessageLog(engine=self)
         self.player = player
@@ -83,6 +84,13 @@ class Engine:
         self.world: World = None # Set from initialization
         self.game_map: GameMap = None # Set from initialization
         self.item_manager: ItemManager = None # Set from initialization -> engine.initialize_item_manager()
+
+    @property
+    def is_gameover(self) -> bool:
+        return self._is_gameover
+
+    def game_over(self) -> None:
+        self._is_gameover = True
 
     def set_mouse_pos(self, x, y):
         self._mouse_pos = x, y

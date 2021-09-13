@@ -130,6 +130,11 @@ class Experience(BaseComponent):
         """Check if certain status has enough exp to "level up", and if it has, increase the status points."""
 
         #TODO: Need to make adjustments for game balance
+        if self.parent.parent.is_dead:
+            # NOTE: Exp is still gained even if the parent is dead. You just dont get to level up.
+            # This is because technically if you died from moving onto a trap, you still gained the exp from moving one place to another.
+            print(f"WARNING::{self.parent.parent} is dead. Ignoring experience levelup.")
+            return None
 
         while True:
             if self.hp_exp >= self.parent.max_hp*3:

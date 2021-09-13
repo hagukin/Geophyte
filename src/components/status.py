@@ -505,6 +505,7 @@ class Status(BaseComponent):
             death_message_color = color.player_die
             from base.data_loader import delete_saved_game
             delete_saved_game()
+            self.engine.game_over()
             from input_handlers import GameOverEventHandler
             self.engine.sound_manager.add_sound_queue("fx_player_death")
             self.engine.event_handler = GameOverEventHandler()
