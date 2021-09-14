@@ -1,9 +1,12 @@
 #!usr/bin/env python
 #coding=utf-8
 
+import os
+import sys
 import traceback
 import tcod
 import color
+import json
 import threading
 from game import Game
 from configuration import get_game_config
@@ -13,6 +16,24 @@ from sound import SoundManager
 global sound_queue # Contains sound that are going to be played once
 global bgm
 global bgs
+
+f = open("./config/config.json", "r")
+debug = json.load(f)["debugmode"]
+f.close()
+
+class SystemLog(object):
+    def __init__(self):
+        self.terminal = sys.stdout
+        if os.path.exists("log\\syslog.dat"):
+            os.remove("log\\syslog.dat")
+        if os.path.exists("log\\error_log.txt"):
+            os.remove("log\\error_log.txt")
+        self.log = open("log\\syslog.dat", "a")
+    def write(self, message):
+        if debug:
+            self.terminal.write(message)
+        self.log.write(message)
+sys.stdout = SystemLog()
 
 def main() -> None:
     sound_manager = SoundManager()
@@ -85,8 +106,20 @@ def main() -> None:
 
             except Exception:
                 # Print error to stderr then print the error to the message log
-                traceback.print_exc()
-                engine.message_log.add_message(traceback.format_exc(), color.error)
+                traceback.print_exc() # stdout is SystemLog
+                if debug:
+                    engine.message_log.add_message(traceback.format_exc(), color.error)
+                with open("log\\error_log.txt", 'a+') as f:
+                    import datetime
+                    date = str(datetime.datetime.now())
+                    log = "======================"+date+"======================\n"
+                    log += traceback.format_exc()
+                    f.write(log)
+                if engine.config["report_issue_automatically"]:
+                    try:
+                        raise NotImplementedError()
+                    except Exception as e:
+                        print(f"ERROR::Issue report failed. - {e}")
 
 
 if __name__ == "__main__":

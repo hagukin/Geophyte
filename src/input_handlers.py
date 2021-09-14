@@ -2120,7 +2120,7 @@ class MainGameEventHandler(EventHandler):
             #         self.engine.world.get_map(self.engine.depth - 1).ascend_loc[1] # NOTE: Chamber of Kugah has no descend loc
             #     )
             # elif key == tcod.event.K_F9:
-            #     self.engine.player.status.experience.gain_agility_exp(amount=100)
+            #     raise NotImplementedError()
 
         # No valid key was pressed
         return action

@@ -1,4 +1,5 @@
 {
+    "debugmode": true,
     "screen_width": 96,
     "screen_height": 54,
     "tile_width": 15,
@@ -17,5 +18,6 @@
     "tileset_path": "resources\\tileset.ttf",
     "world_depth": 25,
     "lang": "ko",
-    "autosave": true
+    "autosave": true,
+    "report_issue_automatically": false
 }
