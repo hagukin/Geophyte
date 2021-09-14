@@ -33,6 +33,8 @@ class SystemLog(object):
         if debug:
             self.terminal.write(message)
         self.log.write(message)
+    def flush(self):
+        pass
 sys.stdout = SystemLog()
 
 def main() -> None:
