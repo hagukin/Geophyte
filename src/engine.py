@@ -62,6 +62,8 @@ class Engine:
         """
         self._is_gameover: bool = False
         self._has_won: bool = False
+        self._initialized_pixel: bool = False
+        self._pixel: Tuple[int,int] = (0,0)
         self.event_handler: EventHandler = MainGameEventHandler()
         self.message_log = MessageLog(engine=self)
         self.player = player
@@ -72,7 +74,6 @@ class Engine:
         self.prev_actors_in_sight: Set[Actor] = set()
         self.prev_items_in_sight: Set[Item] = set()
         self.game_turn: int = 0
-        self._mouse_pos: Tuple[int,int] = (0,0)
         self.depth: int = 0 # NOTE: engine.depth != gamemap.depth. Latter is a constant.
         self.toughness: int = 0
         self.easteregg: int = 0
@@ -107,15 +108,25 @@ class Engine:
             return
         raise Exception("FATAL ERROR::engine.revert_victory is called but the player haven't won yet.")
 
-    def set_mouse_pos(self, x, y):
-        self._mouse_pos = x, y
+    def initialize_pixel(self) -> None:
+        if not self._initialized_pixel:
+            self._initialized_pixel = True
+            self._pixel = (self.config["tile_width"],self.config["tile_height"])
+
+    @property
+    def pixel(self) -> Tuple[int,int]:
+        """returns pixels per tile"""
+        return self._pixel
 
     @property
     def mouse_location(self) -> Tuple[int,int]:
-        if self._mouse_pos:
-            return self._mouse_pos
-        else:
-            return 0,0
+        tmp = tcod.event.get_mouse_state().pixel
+        try:
+            return (int(tmp[0]/self._pixel[0]), int(tmp[1]/self._pixel[1]))
+        except ZeroDivisionError as e:
+            self.initialize_pixel()
+            print("FATAL ERROR::Pixels per tile size is 0.")
+            raise e
 
     @property
     def monster_activation_distance(self) -> int:

@@ -145,7 +145,7 @@ class EventHandler(tcod.event.EventDispatch[Action]):
 
     def ev_mousemotion(self, event: tcod.event.MouseMotion) -> None:
         # Refresh
-        self.cursor_loc = self.engine.mouse_location
+        self.cursor_loc = event.tile.x, event.tile.y
 
     def on_exit(self) -> Optional[Action]:
         """
@@ -1556,7 +1556,7 @@ class SelectIndexHandler(AskUserEventHandler):
 
     def ev_mousemotion(self, event: tcod.event.MouseMotion) -> None:
         # Refresh
-        self.cursor_loc = self.engine.clamp_mouse_on_map_rel(*self.engine.mouse_location)
+        self.cursor_loc = self.engine.clamp_mouse_on_map_rel(event.tile.x, event.tile.y)
 
     def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[Action]:
         """Check for key movement or confirmation keys.
