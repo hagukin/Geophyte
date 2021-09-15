@@ -51,8 +51,8 @@ gui_frame_fg = white
 gui_frame_bg = (0x19, 0x25, 0x2F)
 camera_frame_fg = white
 camera_frame_bg = gui_frame_bg
-option_bg = (0xD0, 0xCF, 0xD7)
-option_fg = black
+option_bg = black
+option_fg = green
 
 
 ##################

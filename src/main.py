@@ -50,15 +50,15 @@ def main() -> None:
     if cfg["fullscreen"]:
         set_screen = tcod.context.SDL_WINDOW_FULLSCREEN_DESKTOP
     else:
-        set_screen = None
+        set_screen = tcod.context.SDL_WINDOW_ALLOW_HIGHDPI
 
     with tcod.context.new(
         columns=cfg["screen_width"],
         rows=cfg["screen_height"],
         tileset=tcod.tileset.load_truetype_font(
-            path=cfg["tileset_path"], 
-            tile_width=cfg["tile_width"], 
-            tile_height=cfg["tile_height"]
+        path=cfg["tileset_path"],
+        tile_width=cfg["tile_width"],
+        tile_height=cfg["tile_height"]
         ),
         title="Geophyte "+Game.version,
         sdl_window_flags=set_screen,
