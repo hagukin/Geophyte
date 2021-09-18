@@ -1172,12 +1172,12 @@ elf_herbalist = Actor(
 ActorDB.monster_difficulty[elf_herbalist.status.difficulty].append(elf_herbalist)
 
 
-### Elf assassin
-elf_assassin = Actor(
+### Elf fighter
+elf_fighter = Actor(
     char="l",
     fg=(255, 48, 48),
-    name="엘프 암살자",
-    entity_id="elf_assassin",
+    name="엘프 전사",
+    entity_id="elf_fighter",
     actor_type_desc=(""),
     entity_desc=(""),
     actor_quote=(""),
@@ -1185,7 +1185,7 @@ elf_assassin = Actor(
     weight=71,
     spawnable=True,
     edible=edible.RawMeatEdible(nutrition=135),
-    ai_cls=ai_factories.Elf_Assassin_Ai(),
+    ai_cls=ai_factories.Elf_Fighter_Ai(),
     status=Status(
         hp=80,
         mp=40,
@@ -1231,10 +1231,11 @@ elf_assassin = Actor(
     ),
     initial_equipments=(
         {"item": item_factories.elven_cloak, "chance": 0.8, "count": (1, 1), "BUC": None, "upgrade": None},
+        {"item": item_factories.leather_boots, "chance": 0.3, "count": (1, 1), "BUC": None, "upgrade": None},
         {"item": item_factories.elven_sword, "chance": 1, "count": (1, 1), "BUC": None, "upgrade": None},
     ),
 )
-ActorDB.monster_difficulty[elf_assassin.status.difficulty].append(elf_assassin)
+ActorDB.monster_difficulty[elf_fighter.status.difficulty].append(elf_fighter)
 
 
 
@@ -1609,6 +1610,73 @@ ActorDB.monster_difficulty[maggot.status.difficulty].append(maggot)
 
 
 ####################################################
+#################### D - DRAGONS  ##################
+####################################################
+
+### Baby Red Dragon
+baby_red_dragon = Actor(
+    char="D",
+    fg=(255, 122, 122),
+    name="새끼 레드 드래곤",
+    entity_id="baby_red_dragon",
+    entity_desc=(""),
+    actor_quote=(""),
+    rarity=4,
+    weight=2123,
+    spawnable=True,
+    edible=edible.RedDragonEdible(nutrition=323, cook_bonus=50),
+    ai_cls=BaseAI(
+        alignment=(("hostile",), (1,)),
+        do_melee_atk=True,
+        do_ranged_atk=False,
+        use_ability=False,
+        hostile_type=('@','O','T','F'),
+    ),
+    status=Status(
+        hp=125,
+        mp=88,
+        strength=23,
+        dexterity=20,
+        agility=18,
+        intelligence=13,
+        constitution=15,
+        charm=20,
+        difficulty=14,
+        base_melee=40,
+        additional_melee=10,
+        protection=25,
+        hearing=15,
+        eyesight=15,
+        fire_resistance=1,
+        melee_effects_var=((2, 2, 0, 5),),
+        melee_effects=(("burn_target", 0.1),),
+        ),
+    actor_state=ActorState(
+        size=4,
+        has_left_arm=True,
+        has_right_arm=True,
+        has_leg=True,
+        has_eye=True,
+        has_torso=True,
+        has_blood=True,
+        has_soul=True,
+        has_head=1,
+        can_think=True,
+        can_talk=True,
+        can_move_on_surface=True,
+        can_swim=True,
+        can_fly=True,
+        is_flying=False, # Can fly
+        need_breathe=True,
+    ),
+    inventory=Inventory(capacity=4),
+    ability_inventory=AbilityInventory(capacity=20),
+    equipments=Equipments(),
+)
+ActorDB.monster_difficulty[baby_red_dragon.status.difficulty].append(baby_red_dragon)
+
+
+####################################################
 ################## E - ELEMENTALS  #################
 ####################################################
 
@@ -1637,7 +1705,7 @@ fire_elemental = Actor(
         hostile_type=('@',),
     ),
     status=Status(
-        hp=120,
+        hp=130,
         mp=205,
         strength=23,
         dexterity=20,
@@ -1705,7 +1773,7 @@ ice_elemental = Actor(
         hostile_type=('@',),
     ),
     status=Status(
-        hp=140,
+        hp=130,
         mp=205,
         strength=23,
         dexterity=20,

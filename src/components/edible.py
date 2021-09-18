@@ -413,3 +413,24 @@ class BlackJellyEdible(Edible):
                 self.engine.message_log.add_message(f"혀에서 엄청난 고통이 느껴진다!", color.player_bad)
             consumer.actor_state.apply_poisoning([8, 2, 0, 3])
         return super().effect_always(action)
+
+
+####################################################
+#################### D - DRAGONS  ##################
+####################################################
+
+class RedDragonEdible(Edible):
+    """Used for both dragons and baby dragons"""
+    def __init__(self, nutrition: int, cook_bonus:int, spoilage: int=0, is_cooked: bool=False, can_cook: bool=False, spoil_speed: int=20, edible_type="misc"):
+        super().__init__(nutrition,spoilage,is_cooked,can_cook,spoil_speed,cook_bonus,edible_type)
+
+    def effect_always(self, action: actions.EatItem):
+        consumer = action.entity
+        # Log
+        if random.random() <= 0.5:  # 50% chance resistance gain
+            if consumer == self.engine.player:
+                self.engine.message_log.add_message(f"전신에서 열기가 느껴진다.", color.player_neutral)
+                self.engine.message_log.add_message(f"열기에 조금 더 잘 버틸 수 있을 것 같은 기분이 든다.", color.player_buff)
+            consumer.status.fire_resistance += round(random.random() * 0.2, 2)
+        return super().effect_always(action)
+
