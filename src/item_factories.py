@@ -1799,6 +1799,41 @@ temp_items_lists.append(brass_dagger)
 item_rarity.append(brass_dagger.rarity)
 
 
+### Elven Dagger
+elven_dagger = Item(
+    char=")",
+    fg=(84, 255, 41),
+    name="엘프제 단검",
+    entity_id="elven_dagger",
+    entity_desc="엘프들에 의해 단조된 단검이다. 검날에 엘프 고유의 문양이 새겨져 있다. ",
+    rarity=6,
+    weight=0.38,
+    price=15,
+    item_type=InventoryOrder.MELEE_WEAPON,
+    item_state=ItemState(is_identified=1),
+    flammable=0,
+    corrodible=0.02,
+    spawnable=True,
+    droppable=True,
+    stackable=False,
+    throwable=throwable.NormalThrowable(base_throw=6, additional_throw=9, penetration=True),
+    equipable=equipable.Equipable(
+        equipable_type=EquipableOrder.BLADE,
+        upgrade=0,
+        possible_regions=("main hand", "off hand"),
+        equip_size=(3, 5),
+        str_requirement=10,
+        base_melee=8,
+        additional_melee=3,
+        base_melee_mag=1.1,
+        additional_melee_mag=1.6,
+    ),
+    lockpickable=(0.9,0.1),
+)
+temp_items_lists.append(elven_dagger)
+item_rarity.append(elven_dagger.rarity)
+
+
 ### Scalpel
 scalpel = Item(
     char=")",
@@ -1869,6 +1904,41 @@ shortsword = Item(
 )
 temp_items_lists.append(shortsword)
 item_rarity.append(shortsword.rarity)
+
+
+### Elven sword
+elven_sword = Item(
+    char=")",
+    fg=(0, 255, 166),
+    name="엘프제 검",
+    entity_id="elven_sword",
+    entity_desc="긴 손잡이와 휘어있는 검날이 달려있는 엘프제 무기이다.",
+    rarity=4,
+    weight=1.35,
+    price=32,
+    item_type=InventoryOrder.MELEE_WEAPON,
+    item_state=ItemState(is_identified=1),
+    flammable=0,
+    corrodible=0.02,
+    spawnable=True,
+    droppable=True,
+    stackable=False,
+    throwable=throwable.NormalThrowable(base_throw=10, additional_throw=8, penetration=False),
+    equipable=equipable.Equipable(
+        equipable_type=EquipableOrder.BLADE,
+        upgrade=0,
+        possible_regions=("main hand", "off hand"),
+        equip_size=(3, 6),
+        str_requirement=12,
+        base_melee=8,
+        additional_melee=14,
+        base_melee_mag=1.4,
+        additional_melee_mag=2
+    ),
+    lockpickable=(1,0.1),
+)
+temp_items_lists.append(elven_sword)
+item_rarity.append(elven_sword.rarity)
 
 
 ### Longsword

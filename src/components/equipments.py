@@ -227,12 +227,12 @@ class Equipments(BaseComponent):
     def update_dual_wielding(self) -> None:
         """Update the boolean self.is_dual_wielding."""
         if self.equipments["main hand"] != None and self.equipments["off hand"] != None:
-            debuff_dex = max(1, round((self.equipments["main hand"].weight + self.equipments["off hand"].weight) * 0.1 * max(1, 45/(1+self.parent.status.changed_status["dexterity"]*2+self.parent.status.changed_status["strength"]))))
+            debuff_dex = max(2, round((self.equipments["main hand"].weight + self.equipments["off hand"].weight) * 1.3 * max(1, 45/(1+self.parent.status.changed_status["dexterity"]*2+self.parent.status.changed_status["strength"]))))
             from order import EquipableOrder
             b1 = self.equipments["main hand"].equipable.equipable_type.value == EquipableOrder.SHIELD.value
             b2 = self.equipments["off hand"].equipable.equipable_type.value == EquipableOrder.SHIELD.value
             if (b1 or b2) and (not b1 or not b2):
-                debuff_dex = max(1, round(debuff_dex * 0.4))  # Little advantage for single-shield dual wielding
+                debuff_dex = max(1, round(debuff_dex * 0.7))  # Little advantage for single-shield dual wielding
 
             self.parent.status.add_bonus(Bonus(bonus_id="dual_wield", bonus_dexterity=-debuff_dex))
         else:

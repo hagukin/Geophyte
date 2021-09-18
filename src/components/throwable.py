@@ -107,10 +107,10 @@ class Throwable(BaseComponent):
             strength = temp["strength"]
 
             # Apply dexterity bonus
-            dexterity_bonus = min(2, 1 + dexterity / 45)
+            dexterity_bonus = min(2, 1 + dexterity / 100)
             damage *= dexterity_bonus
 
-            damage *= min(max(1, self.throw_distance(thrower) * self.parent.weight / 0.04), 2)
+            damage *= min(max(1, round(self.throw_distance(thrower) * 0.1)), 2)
 
             # Damage reduction
             damage = target.status.calculate_dmg_reduction(damage=damage, damage_type="physical", ignore_reduction=False)

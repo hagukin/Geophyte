@@ -112,6 +112,24 @@ class Elf_Herbalist_Ai(ai.BaseAI):
             return False
 
 
+class Elf_Assassin_Ai(ai.BaseAI):
+    def __init__(self, alignment:Tuple=(("hostile",),(5,)), do_melee_atk:bool=True, do_ranged_atk: bool=True,  use_ability: bool=False, hostile_type=('@', 'O', 'F', 'I'), attracted_own_id=("elven_dagger",)):
+        super().__init__(alignment, do_melee_atk, do_ranged_atk, use_ability, hostile_type=hostile_type, attracted_own_id=attracted_own_id)
+
+    def check_is_ranged_atk_possible(self, attacker, target):
+        # Check for ammo
+        ammo = attacker.inventory.check_if_in_inv(item_id="elven_dagger")
+        if not ammo:
+            return False
+
+        # Set direction and Check if the target is in attackable radius
+        direction = self.get_ranged_direction(attacker=attacker, target=target, valid_range=999) # Use ammo.throwable.throw_distance(attacker) when making other ais.
+
+        if direction:
+            return direction, ammo
+        else:
+            return False
+
 
 ####################################################
 #################### n - nymphs  ###################
