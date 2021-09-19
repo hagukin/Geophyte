@@ -2451,7 +2451,7 @@ amulet_of_brilliance = Item(
     corrodible=0,
     droppable=True,
     stackable=False,
-    throwable=throwable.NormalThrowable(base_throw=1, additional_throw=2, penetration=False, air_friction=15),
+    throwable=throwable.NormalThrowable(penetration=False, air_friction=15),
     equipable=equipable.Equipable(
         equipable_type=EquipableOrder.AMULET,
         upgrade=0,
@@ -2462,6 +2462,44 @@ amulet_of_brilliance = Item(
 )
 temp_items_lists.append(amulet_of_brilliance)
 item_rarity.append(amulet_of_brilliance.rarity)
+
+
+### Amulet of Telepathy
+amulet_of_telepathy = Item(
+    should_randomize=True,
+    char="⊕",
+    fg = (255, 72, 0),
+    name="텔레파시의 아뮬렛",
+    entity_id="amulet_of_telepathy",
+    entity_desc="착용자에게 텔레파시의 능력을 부여한다고 알려진 아뮬렛이다. ",
+    rarity=3,
+    weight=0.2,
+    price=320,
+    item_type=InventoryOrder.AMULET,
+    item_state=ItemState(is_identified=0),
+    tradable=True,
+    spawnable=True,
+    flammable=0,
+    corrodible=0,
+    droppable=True,
+    stackable=False,
+    throwable=throwable.NormalThrowable(penetration=False, air_friction=15),
+    equipable=equipable.Equipable(
+        equipable_type=EquipableOrder.AMULET,
+        upgrade=0,
+        possible_regions=("amulet",),
+        alter_actor_state={"has_telepathy":True},
+    ),
+    edible=None
+)
+temp_items_lists.append(amulet_of_telepathy)
+item_rarity.append(amulet_of_telepathy.rarity)
+
+
+#########################################################################
+############################### RINGS ###################################
+#########################################################################
+
 
 
 #########################################################################

@@ -290,6 +290,12 @@ class ActorState(BaseComponent):
         self.can_think = can_think
         self.can_talk = can_talk
 
+        self._origin_state = copy.deepcopy(self)
+
+    @property
+    def origin_state(self) -> ActorState:
+        return self._origin_state
+
     @property
     def can_chase_through_stair(self) -> bool:
         return True # Currently all actors can chase other actor through stairs

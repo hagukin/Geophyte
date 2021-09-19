@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import enum
-from typing import Optional, TYPE_CHECKING, Tuple, List
+from typing import Optional, TYPE_CHECKING, Tuple, List, Any, Dict
 from order import EquipableOrder
 from components.base_component import BaseComponent
 from exceptions import Impossible
@@ -92,6 +92,8 @@ class Equipable(BaseComponent):
         magic_resistance_mag: float = 0,
 
         # TODO: Melee Effects magnifier
+
+        alter_actor_state: Dict[str, Any] = None,
     ):
         """
         Args:
@@ -197,6 +199,11 @@ class Equipable(BaseComponent):
 
         if upgrade > 0:
             self.update_stat()
+
+        self.alter_actor_state = {}
+        if alter_actor_state:
+            self.alter_actor_state = alter_actor_state
+        # e.g. {"has_telepathy":True, "can_swim":True}
 
     @property
     def origin_status(self):

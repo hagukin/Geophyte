@@ -50,7 +50,7 @@ def calc_circle(engine, center_x: int, center_y: int, radius: int, fat_circles: 
     return res
 
 
-def calc_explosion(engine, center_x: int, center_y: int, radius: int, fat_circles: bool = False, penetrate_wall: bool = True, only_in_sight: bool = False) -> List[Tuple(int,int)]:
+def calc_explosion(engine, center_x: int, center_y: int, radius: int, fat_circles: bool = False, penetrate_wall: bool = True, only_in_sight: bool = False) -> List[Tuple[int,int]]:
     """
     returns list of coordinates that the circle includes.
     coordinates are given as an absolute value.

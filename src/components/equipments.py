@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import List, TYPE_CHECKING, Optional, Tuple
+from typing import List, TYPE_CHECKING, Optional, Tuple, Any
 from components.base_component import BaseComponent
 from components.equipable import Equipable
 from korean import grammar as g
@@ -72,6 +72,31 @@ class Equipments(BaseComponent):
     def remove_equipable_bonuses(self, item: Item) -> None:
         """Change parent entity's status.bonuses. (Remove)"""
         self.parent.status.remove_bonus(item.item_state.equipped_region)
+
+    def remove_state_change(self, state_val_name: str) -> None:
+        """Set back to origin"""
+        setattr(self.parent.actor_state, state_val_name, getattr(self.parent.actor_state.origin_state, state_val_name))
+
+    def add_state_change(self, state_val_name: str, value: Any) -> None:
+        """Set to given value"""
+        setattr(self.parent.actor_state, state_val_name, value)
+
+    def remove_equipable_state_change(self, item: Item) -> None:
+        for state_val_name, value in item.equipable.alter_actor_state.items():
+            self.remove_state_change(state_val_name)
+
+    def add_equipable_state_change(self, item: Item) -> None:
+        for state_val_name, value in item.equipable.alter_actor_state.items():
+            self.add_state_change(state_val_name, value)
+
+    def update_equipments_state_change(self):
+        """
+        Whenever the equipment is removed, you should call this function.
+        """
+        for k, v in self.equipments.items():
+            if v:
+                self.remove_equipable_state_change(v)
+                self.add_equipable_state_change(v)
 
     def update_equipment_bonus(self, item):
         """Function called when equipment's stat has been changed.
@@ -272,6 +297,7 @@ class Equipments(BaseComponent):
         item.equipable.update_stat()
         item.item_state.equipped_region = curr_equipped_region
         self.add_equipable_bonuses(item)
+        self.add_equipable_state_change(item)
 
         if not forced:
             if self.parent == self.engine.player:
@@ -313,6 +339,7 @@ class Equipments(BaseComponent):
             print(f"WARNING::Tried to remove equipment from {region}, but its empty")
             return None
         self.remove_equipable_bonuses(self.equipments[region])
+        self.remove_equipable_state_change(self.equipments[region])
         self.equipments[region].item_state.equipped_region = None
 
         if not forced: # If the equipments is burned, rotted, etc(forced), do not display the log message.
@@ -322,6 +349,7 @@ class Equipments(BaseComponent):
                 self.engine.message_log.add_message(f"{g(self.parent.name, '이')} {g(self.equipments[region].name, '을')} 장착 해제했다.", fg=color.enemy_unique, target=self.parent)
 
         self.equipments[region] = None
+        self.update_equipments_state_change() # NOTE: Must call this function AFTER you remove the item from the slot.
         self.update_dual_wielding()  # update
 
     def remove_all_equipments(self, forced: bool=False):
