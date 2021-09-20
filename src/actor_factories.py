@@ -126,7 +126,7 @@ player = Actor(
 #     initial_items=
 #     (
 # {"item": item_factories.scroll_of_identify, "chance": 1, "count": (10, 15), "BUC": {1:1,0:0,-1:0}, "upgrade": None},
-# {"item": item_factories.scroll_of_remove_curse, "chance": 1, "count": (10, 15), "BUC": {1:1,0:0,-1:0}, "upgrade": None},
+# {"item": item_factories.potion_of_monster_detection, "chance": 1, "count": (10, 15), "BUC": {1:1,0:0,-1:0}, "upgrade": None},
 # {"item": item_factories.ring_of_sky, "chance": 1, "count": (1, 1), "BUC": None, "upgrade": None},
 # {"item": item_factories.potion_of_levitation, "chance": 1, "count": (10, 10), "BUC": None, "upgrade": None},
 #     ),

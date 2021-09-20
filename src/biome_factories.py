@@ -110,24 +110,23 @@ biome_rarity.append(forest.rarity)
 # biome_rarity.append(forest.rarity)
 
 
-# desert_dungeon = Biome(
-#     name="사막",
-#     biome_id="desert_dungeon",
-#     biome_desc="desert_dungeon (TEST)",
-#     rarity=1,
-#     biome_color=color.b_desert_dungeon,
-#     map_width=67,
-#     map_height=41,
-#     tileset=get_tileset({
-#         "t_wall":tiles.wall_desert,
-#         "t_floor":tiles.floor_desert,
-#         "t_dense_grass":tiles.dense_grass_desert,
-#         "t_sparse_grass":tiles.sparse_grass_desert,
-#     }),
-#     terrain = {"trap_field":5,},#TODO
-# )
-# biome_dict[desert_dungeon.biome_id] = desert_dungeon
-# biome_rarity.append(desert_dungeon.rarity)
+desert_dungeon = Biome(
+    name="사막",
+    biome_id="desert_dungeon",
+    biome_desc="desert_dungeon (TEST)",
+    rarity=1,
+    biome_color=color.b_desert_dungeon,
+    map_width=67,
+    map_height=41,
+    tileset=get_tileset({
+        "t_wall":tiles.wall_desert,
+        "t_floor":tiles.floor_desert,
+        "t_dense_grass":tiles.dense_grass_desert,
+        "t_sparse_grass":tiles.sparse_grass_desert,
+    }),
+)
+biome_dict[desert_dungeon.biome_id] = desert_dungeon
+biome_rarity.append(desert_dungeon.rarity)
 
 
 ancient_ruins = Biome(

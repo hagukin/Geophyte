@@ -11,15 +11,16 @@ from korean import grammar as g
 
 
 class Walkable(BaseComponent):
-    def __init__(self):
+    def __init__(self, is_dangerous: bool):
         super().__init__(None) #parent: Entity
+        self.is_dangerous = is_dangerous
 
     def perform(self, target) -> None:
         raise NotImplementedError
 
 
 class TrapWalkable(Walkable):
-    def __init__(self, trigger_once: bool, untrap_chance: float, check_item: bool, check_actor: bool, continuous_effect: bool = False):
+    def __init__(self, trigger_once: bool, untrap_chance: float, check_item: bool, check_actor: bool, continuous_effect: bool = False, is_dangerous: bool=True):
         """
         Args:
             triggered:
@@ -38,7 +39,7 @@ class TrapWalkable(Walkable):
             continuous_effect:
                 Boolean. If True, the trap will continuously apply the effect to the target even if the target stays still on the trap.
         """
-        super().__init__()
+        super().__init__(is_dangerous=is_dangerous)
         self.triggered = False
         self.trigger_once = trigger_once
         self.untrap_chance = untrap_chance

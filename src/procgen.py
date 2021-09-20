@@ -3,6 +3,7 @@ from tcod.console import Console
 from tcod.context import Context, new
 
 from entity import SemiActor, Actor
+from components.walkable import TrapWalkable
 from terrain import Terrain
 from biome import Biome
 from biome_by_depth import get_dungeon_biome
@@ -89,7 +90,7 @@ def choose_monster_difficulty(gamemap: GameMap, toughness: int=0) -> int:
                                            list(gamemap.biome.monster_difficulty.values()),
                                                 k=1)[0] # Toughness is ignored.
     else:
-        avg_diff = depth_ + toughness + 1
+        avg_diff = round(depth_ * 0.7) + toughness + 1
         max_diff = avg_diff + 2 # Technically the max difficulty of a spawned monster is avg_diff + 3, since choose_monster_by_difficulty().radius is (-1,1)
 
         # Choose the monster difficulty (Using normal distribution; but there are limits to maximum and minimum values)
@@ -718,8 +719,17 @@ def generate_stair(
             dangerous_coordinates = zip(*np.where(dungeon.tiles["safe_to_walk"][:,:] == False))
             for cor in dangerous_coordinates:
                 cost[cor] = 0
-            
+
+            dangerous_entities = []
             for x, y in path_between(cost, ascend_tile, descend_tile):
+                # Remove dangerous entities to walk on
+                entity_at_loc = dungeon.get_any_entity_at_location(x, y)
+                if entity_at_loc:
+                    if entity_at_loc.walkable:
+                        if entity_at_loc.walkable.is_dangerous:
+                            print(f"WARNING::Removed entity with dangerous walkable {entity_at_loc.entity_id} on stair pathway at location {x, y}.")
+                            entity_at_loc.remove_self()
+
                 if x != descend_tile[0] or y != descend_tile[1]:
                     continue
                 else:
