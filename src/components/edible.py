@@ -272,7 +272,7 @@ class HerbEdible(Edible):
     """
     Provides no special effects.
     """
-    def __init__(self, nutrition: int, spoilage: int=0, is_cooked: bool=False, can_cook: bool=False, spoil_speed: int=4, cook_bonus:int = None, edible_type:str = "vegetable",
+    def __init__(self, nutrition: int, spoilage: int=0, is_cooked: bool=False, can_cook: bool=False, spoil_speed: int=1, cook_bonus:int = None, edible_type:str = "vegetable",
                  maggot_chance: float=0, maggot_range: Tuple[int,int]=(0,0)):
         super().__init__(nutrition,spoilage,is_cooked,can_cook,spoil_speed,cook_bonus,edible_type,maggot_chance,maggot_range)
 

@@ -55,6 +55,7 @@ class ItemManager:
         self.colors_for_scrolls = copy.copy(self.colors_for_potions)
         self.colors_for_amulets = copy.copy(self.colors_for_potions)
         self.colors_for_spellbooks = copy.copy(self.colors_for_potions)
+        self.colors_for_rings = copy.copy(self.colors_for_potions)
 
         self.shapes_for_amulets = [
             "오각형",
@@ -73,12 +74,29 @@ class ItemManager:
             "반구형",
             ]
 
+        self.shapes_for_rings = [
+            "황동",
+            "강철",
+            "백금",
+            "가시달린",
+            "타원형",
+            "뱀 문양",
+            "사자 문양",
+            "구부러진",
+            "황금",
+            "은제",
+            "구리",
+            "무쇠",
+        ]
+
         # shuffle
         random.shuffle(self.colors_for_potions)
         random.shuffle(self.colors_for_scrolls)
         random.shuffle(self.colors_for_amulets)
         random.shuffle(self.shapes_for_amulets)
         random.shuffle(self.colors_for_spellbooks)
+        random.shuffle(self.shapes_for_rings)
+        random.shuffle(self.colors_for_rings)
 
     @property
     def items_rarity(self) -> List:
@@ -159,6 +177,13 @@ class ItemManager:
             self.items_fake_info[item.entity_id]["entity_desc"] = f"{color_name} 마법서이다. 복잡한 고대 문자들이 적혀 있다."
             self.items_fake_info[item.entity_id]["fg"] = fg
             self.items_fake_info[item.entity_id]["bg"] = bg
+        elif item.item_type.value == InventoryOrder.RING.value:
+            color_name, fg, bg = self.gen_randomized_color(item_type=InventoryOrder.RING)
+            shape = self.gen_randomized_shape(item_type=InventoryOrder.RING)
+            self.items_fake_info[item.entity_id]["name"] = f"{shape} 반지"
+            self.items_fake_info[item.entity_id]["entity_desc"] = f"{shape} 반지이다. 종류를 정확히 식별할 수 없다."
+            self.items_fake_info[item.entity_id]["fg"] = fg
+            self.items_fake_info[item.entity_id]["bg"] = bg
         else:
             print(f"ERROR::Cannot randomize {item.name} of {item.item_type} type.")
             return None
@@ -188,7 +213,11 @@ class ItemManager:
             return self.colors_for_amulets.pop()
         elif item_type.value == InventoryOrder.SPELLBOOK.value:
             return self.colors_for_spellbooks.pop()
+        elif item_type.value == InventoryOrder.RING.value:
+            return self.colors_for_rings.pop()
 
     def gen_randomized_shape(self, item_type):
         if item_type.value == InventoryOrder.AMULET.value:
             return self.shapes_for_amulets.pop()
+        elif item_type.value == InventoryOrder.RING.value:
+            return self.shapes_for_rings.pop()

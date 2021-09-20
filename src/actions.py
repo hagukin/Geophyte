@@ -486,9 +486,7 @@ class EquipItem(ItemAction):
         if self.entity.check_for_immobility():
             return None
 
-        if self.entity == self.engine.player:
-            self.engine.sound_manager.add_sound_queue("fx_equip")
-
+        # NOTE: FX handled in equipments.func()
         self.entity.equipments.equip_equipment(self.item)
 
 
@@ -510,9 +508,7 @@ class UnequipItem(ItemAction):
                 self.item.item_state.identify_self(2)
             return None
 
-        if self.entity == self.engine.player:
-            self.engine.sound_manager.add_sound_queue("fx_unequip")
-
+        # NOTE: FX handled in equipments.func()
         self.entity.equipments.remove_equipment(self.item.item_state.equipped_region)
 
 
@@ -544,6 +540,40 @@ class WaitAction(Action):
     def perform(self) -> None:
         pass
 
+
+class FlyAction(Action):
+    """
+    Toggle on/pff current flying state.
+    """
+    def fly(self):
+        self.entity.actor_state.is_flying = True
+        if self.entity == self.engine.player:
+            self.engine.message_log.add_message("당신은 공중을 날고 있다!", fg=color.player_success)
+        else:
+            self.engine.message_log.add_message(f"{g(self.entity.name,'가')} 공중을 날고 있다.", fg=color.enemy_unique)
+
+    def stop_fly(self):
+        self.entity.actor_state.is_flying = False
+        if self.entity == self.engine.player:
+            self.engine.message_log.add_message("당신은 공중을 나는 것을 멈췄다.", fg=color.player_neutral)
+        else:
+            self.engine.message_log.add_message(f"{g(self.entity.name,'가')} 공중을 나는 것을 멈췄다.", fg=color.enemy_neutral)
+
+    def perform(self) -> None:
+        if self.entity.actor_state.can_fly:
+            if not self.entity.actor_state.is_flying:
+                self.fly()
+            else:
+                self.stop_fly()
+        else:
+            if self.entity.actor_state.is_flying:
+                # Can stop flying whether you have ability to fly or not
+                self.stop_fly()
+            else:
+                # Cant fly
+                if self.entity == self.engine.player:
+                    self.engine.message_log.add_message("당신은 공중으로 날아오르려 시도했지만 실패했다.", fg=color.player_failed)
+                return None
 
 class TurnPassAction(Action):
     """

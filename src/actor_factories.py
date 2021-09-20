@@ -123,10 +123,13 @@ player = Actor(
     inventory=Inventory(capacity=52, is_fireproof=False, is_acidproof=False, is_waterproof=False),
     ability_inventory=AbilityInventory(capacity=26),
     equipments=Equipments(),
-    # initial_items=
-    # (
-    #     {"item": item_factories.elven_dagger, "chance": 1, "count": (100, 101), "BUC": {-1:0, 0:0, 1:1}, "upgrade": None},
-    # ),
+#     initial_items=
+#     (
+# {"item": item_factories.scroll_of_identify, "chance": 1, "count": (10, 15), "BUC": {1:1,0:0,-1:0}, "upgrade": None},
+# {"item": item_factories.scroll_of_remove_curse, "chance": 1, "count": (10, 15), "BUC": {1:1,0:0,-1:0}, "upgrade": None},
+# {"item": item_factories.ring_of_sky, "chance": 1, "count": (1, 1), "BUC": None, "upgrade": None},
+# {"item": item_factories.potion_of_levitation, "chance": 1, "count": (10, 10), "BUC": None, "upgrade": None},
+#     ),
     # initial_equipments=(
     #     {"item":item_factories.cloak_of_protection, "chance":1, "count":(1,1), "BUC":{-1:1, 0:1, 1:1}, "upgrade": {1:1,2:0,3:0,4:0}},
     #     {"item":item_factories.leather_armor, "chance":1, "count":(1,1), "BUC":{-1:1, 0:1, 1:1}, "upgrade": {1:1,2:0,3:0,4:0}},

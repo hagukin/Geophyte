@@ -22,6 +22,7 @@ from actions import (
     UnequipItem,
     DescendAction,
     AscendAction,
+    FlyAction,
     PlaceSwapAction,
     DoorUnlockAction,
     ChestTakeAction,
@@ -1168,7 +1169,7 @@ class SleepTurnSelectHandler(AskUserEventHandler):
                 return None
             elif key in CONFIRM_KEYS: # Sleep
                 self.engine.event_handler = MainGameEventHandler()
-                self.engine.player.actor_state.apply_sleeping([0,self.sleep_turn], forced=True) # forced is True since its voluntary
+                self.engine.player.actor_state.apply_sleeping([0,self.sleep_turn], sleep_on_will=True) # Is not forced.
                 return None
             else:
                 self.engine.message_log.add_message("잘못된 입력입니다.", color.invalid)
@@ -1899,52 +1900,55 @@ class DisplayControlEventHandler(AskUserEventHandler):
         ypad += 3
         console.print(x=x_start, y=y_start + ypad, string="<이동>", fg=color.white)
         console.print(x=x_start, y=y_start + ypad+1, string="키패드 2468 1379 / 키보드 hjkl yubn / 마우스 좌클릭", fg=color.cyan)
-        ypad += 3
+        ypad += 2
         console.print(x=x_start, y=y_start + ypad, string="<턴 넘기기>", fg=color.white)
         console.print(x=x_start, y=y_start + ypad+1, string="키패드 5 / .(마침표)키", fg=color.cyan)
-        ypad += 3
+        ypad += 2
         console.print(x=x_start, y=y_start + ypad, string="<아이템 줍기>", fg=color.white)
         console.print(x=x_start, y=y_start + ypad+1, string="(g)키", fg=color.cyan)
-        ypad += 3
+        ypad += 2
         console.print(x=x_start, y=y_start + ypad, string="<계단 올라가기, 내려가기>", fg=color.white)
         console.print(x=x_start, y=y_start + ypad+1, string="(<, >)키", fg=color.cyan)
-        ypad += 3
+        ypad += 2
         console.print(x=x_start, y=y_start + ypad, string="<주위 살펴보기>", fg=color.white)
         console.print(x=x_start, y=y_start + ypad + 1, string="(/)키", fg=color.cyan)
-        ypad += 3
+        ypad += 2
         console.print(x=x_start, y=y_start + ypad, string="<문 닫기,열기>", fg=color.white)
         console.print(x=x_start, y=y_start + ypad + 1, string="(c), (o)키", fg=color.cyan)
-        ypad += 3
+        ypad += 2
         console.print(x=x_start, y=y_start + ypad, string="<인벤토리>", fg=color.white)
         console.print(x=x_start, y=y_start + ypad + 1, string="(i)키", fg=color.cyan)
-        ypad += 3
+        ypad += 2
         console.print(x=x_start, y=y_start + ypad, string="<인벤토리에서 여러 아이템 선택해 드랍하기>", fg=color.white)
         console.print(x=x_start, y=y_start + ypad + 1, string="(d)키", fg=color.cyan)
-        ypad += 3
+        ypad += 2
         console.print(x=x_start, y=y_start + ypad, string="<능력>", fg=color.white)
         console.print(x=x_start, y=y_start + ypad + 1, string="(a)키", fg=color.cyan)
-        ypad += 3
+        ypad += 2
         console.print(x=x_start, y=y_start + ypad, string="<잠자기>", fg=color.white)
         console.print(x=x_start, y=y_start + ypad + 1, string="(z)키", fg=color.cyan)
-        ypad += 3
+        ypad += 2
+        console.print(x=x_start, y=y_start + ypad, string="<공중을 날기>", fg=color.white)
+        console.print(x=x_start, y=y_start + ypad + 1, string="(f)키", fg=color.cyan)
+        ypad += 4
         console.print(x=x_start, y=y_start + ypad, string="<게임 로그 확인>", fg=color.white)
         console.print(x=x_start, y=y_start + ypad + 1, string="(v)키. 이동키,마우스 휠로 스크롤 가능", fg=color.cyan)
-        ypad += 3
+        ypad += 2
         console.print(x=x_start, y=y_start + ypad, string="<도감 확인>", fg=color.white)
         console.print(x=x_start, y=y_start + ypad + 1, string="TAB", fg=color.cyan)
-        ypad += 3
+        ypad += 2
         console.print(x=x_start, y=y_start + ypad, string="<게임 저장>", fg=color.white)
         console.print(x=x_start, y=y_start + ypad + 1, string="(S)키  (쉬프트 + (s)키)", fg=color.cyan)
-        ypad += 3
+        ypad += 2
         console.print(x=x_start, y=y_start + ypad, string="<게임 종료>", fg=color.white)
         console.print(x=x_start, y=y_start + ypad + 1, string="(Q)키  (쉬프트 + (q)키)", fg=color.cyan)
-        ypad += 3
+        ypad += 2
         console.print(x=x_start, y=y_start + ypad, string="<스크린샷 저장>", fg=color.white)
         console.print(x=x_start, y=y_start + ypad + 1, string="F12", fg=color.cyan)
-        ypad += 3
+        ypad += 2
         console.print(x=x_start, y=y_start + ypad, string="<게임 일시정지>", fg=color.white)
         console.print(x=x_start, y=y_start + ypad + 1, string="ESC", fg=color.cyan)
-        ypad += 3
+        ypad += 2
 
 
 class GameHelpEventHandler(AskUserEventHandler):
@@ -2057,7 +2061,8 @@ class MainGameEventHandler(EventHandler):
                 action = BumpAction(player, dx, dy)
             elif key in WAIT_KEYS:
                 action = WaitAction(player)
-
+            elif key == tcod.event.K_f:
+                action = FlyAction(player)
             elif key == tcod.event.K_v:
                 self.engine.event_handler = HistoryViewer()
             elif key == tcod.event.K_g:
@@ -2102,7 +2107,6 @@ class MainGameEventHandler(EventHandler):
                 if self.engine.easteregg == 50:
                     self.engine.message_log.add_message(f"당신은 슬픈 기분이 든다.", color.white)
             #
-            #     # self.engine.player.actor_state.is_flying = not self.engine.player.actor_state.is_flying
             #
             #     ######### TODO FIXME DEBUG
             #     self.engine.change_entity_depth(

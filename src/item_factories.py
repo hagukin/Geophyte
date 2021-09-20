@@ -2456,12 +2456,48 @@ amulet_of_brilliance = Item(
         equipable_type=EquipableOrder.AMULET,
         upgrade=0,
         possible_regions=("amulet",),
-        intelligence=4,
+        intelligence=2,
+        intelligence_mag=1,
     ),
     edible=None
 )
 temp_items_lists.append(amulet_of_brilliance)
 item_rarity.append(amulet_of_brilliance.rarity)
+
+
+### Amulet of Sensitivity
+amulet_of_sensitivity = Item(
+    should_randomize=True,
+    char="⊕",
+    fg = (255, 72, 0),
+    name="감각 향상의 아뮬렛",
+    entity_id="amulet_of_sensitivity",
+    entity_desc="착용자의 감각기관을 예민하게 만드는 것으로 알려진 아뮬렛이다. ",
+    rarity=3,
+    weight=0.2,
+    price=320,
+    item_type=InventoryOrder.AMULET,
+    item_state=ItemState(is_identified=0),
+    tradable=True,
+    spawnable=True,
+    flammable=0,
+    corrodible=0,
+    droppable=True,
+    stackable=False,
+    throwable=throwable.NormalThrowable(penetration=False, air_friction=15),
+    equipable=equipable.Equipable(
+        equipable_type=EquipableOrder.AMULET,
+        upgrade=0,
+        possible_regions=("amulet",),
+        eyesight=40,
+        hearing=40,
+        eyesight_mag=10,
+        hearing_mag=10,
+    ),
+    edible=None
+)
+temp_items_lists.append(amulet_of_sensitivity)
+item_rarity.append(amulet_of_sensitivity.rarity)
 
 
 ### Amulet of Telepathy
@@ -2496,10 +2532,451 @@ temp_items_lists.append(amulet_of_telepathy)
 item_rarity.append(amulet_of_telepathy.rarity)
 
 
+### Amulet of Underwater Breathing
+amulet_of_underwater_breathing = Item(
+    should_randomize=True,
+    char="⊕",
+    fg = (255, 72, 0),
+    name="수중 호흡의 아뮬렛",
+    entity_id="amulet_of_underwater_breathing",
+    entity_desc="착용자에게 물 속에서 호흡할 수 있는 능력을 부여한다고 알려진 아뮬렛이다. ",
+    rarity=3,
+    weight=0.2,
+    price=320,
+    item_type=InventoryOrder.AMULET,
+    item_state=ItemState(is_identified=0),
+    tradable=True,
+    spawnable=True,
+    flammable=0,
+    corrodible=0,
+    droppable=True,
+    stackable=False,
+    throwable=throwable.NormalThrowable(penetration=False, air_friction=15),
+    equipable=equipable.Equipable(
+        equipable_type=EquipableOrder.AMULET,
+        upgrade=0,
+        possible_regions=("amulet",),
+        alter_actor_state={"can_breathe_underwater":True},
+    ),
+    edible=None
+)
+temp_items_lists.append(amulet_of_underwater_breathing)
+item_rarity.append(amulet_of_underwater_breathing.rarity)
+
+
+### Amulet of monastic silence
+amulet_of_monastic_silence = Item(
+    should_randomize=True,
+    char="⊕",
+    fg = (255, 72, 0),
+    name="묵언 수행의 아뮬렛",
+    entity_id="amulet_of_monastic_silence",
+    entity_desc="착용자는 말을 하는 능력을 잃게 되지만, 보다 더 빠르게 행동할 수 있게 된다. ",
+    rarity=3,
+    weight=0.2,
+    price=320,
+    item_type=InventoryOrder.AMULET,
+    item_state=ItemState(is_identified=0),
+    tradable=True,
+    spawnable=True,
+    flammable=0,
+    corrodible=0,
+    droppable=True,
+    stackable=False,
+    throwable=throwable.NormalThrowable(penetration=False, air_friction=15),
+    equipable=equipable.Equipable(
+        equipable_type=EquipableOrder.AMULET,
+        upgrade=0,
+        possible_regions=("amulet",),
+        alter_actor_state={"can_talk":False},
+        agility=1,
+    ),
+    edible=None
+)
+temp_items_lists.append(amulet_of_monastic_silence)
+item_rarity.append(amulet_of_monastic_silence.rarity)
+
+
+### Amulet of Charisma
+amulet_of_charisma = Item(
+    should_randomize=True,
+    char="⊕",
+    fg = (255, 72, 0),
+    name="카리스마의 아뮬렛",
+    entity_id="amulet_of_charisma",
+    entity_desc="착용자를 한 층 더 카리스마 넘치게 만들어주는 것으로 알려진 아뮬렛이다. ",
+    rarity=3,
+    weight=0.2,
+    price=320,
+    item_type=InventoryOrder.AMULET,
+    item_state=ItemState(is_identified=0),
+    tradable=True,
+    spawnable=True,
+    flammable=0,
+    corrodible=0,
+    droppable=True,
+    stackable=False,
+    throwable=throwable.NormalThrowable(penetration=False, air_friction=15),
+    equipable=equipable.Equipable(
+        equipable_type=EquipableOrder.AMULET,
+        upgrade=0,
+        possible_regions=("amulet",),
+        charm=2,
+        charm_mag=1,
+    ),
+    edible=None
+)
+temp_items_lists.append(amulet_of_charisma)
+item_rarity.append(amulet_of_charisma.rarity)
+
+
+### Amulet of immunity loss
+amulet_of_immunity_loss = Item(
+    should_randomize=True,
+    char="⊕",
+    fg = (255, 72, 0),
+    name="면역력 저하의 아뮬렛",
+    entity_id="amulet_of_immunity_loss",
+    entity_desc="착용자의 신체적 면역력을 낮추는 효과를 지닌 아뮬렛이다. ",
+    rarity=3,
+    weight=0.2,
+    price=320,
+    item_type=InventoryOrder.AMULET,
+    item_state=ItemState(is_identified=0),
+    tradable=True,
+    spawnable=True,
+    flammable=0,
+    corrodible=0,
+    droppable=True,
+    stackable=False,
+    throwable=throwable.NormalThrowable(penetration=False, air_friction=15),
+    equipable=equipable.Equipable(
+        equipable_type=EquipableOrder.AMULET,
+        upgrade=0,
+        possible_regions=("amulet",),
+        alter_actor_state={"heal_wounds":False},
+        poison_resistance=0,
+        constitution=-2,
+        constitution_mag=-1,
+    ),
+    edible=None,
+    initial_BUC={1:0,0:1,-1:10},
+)
+temp_items_lists.append(amulet_of_immunity_loss)
+item_rarity.append(amulet_of_immunity_loss.rarity)
+
+
+### Amulet of magic aversion
+amulet_of_magic_aversion = Item(
+    should_randomize=True,
+    char="⊕",
+    fg = (255, 72, 0),
+    name="반마법의 아뮬렛",
+    entity_id="amulet_of_magic_aversion",
+    entity_desc="착용자와 마법과의 상호작용을 방해하는 아뮬렛이다. ",
+    rarity=2,
+    weight=0.2,
+    price=320,
+    item_type=InventoryOrder.AMULET,
+    item_state=ItemState(is_identified=0),
+    tradable=True,
+    spawnable=True,
+    flammable=0,
+    corrodible=0,
+    droppable=True,
+    stackable=False,
+    throwable=throwable.NormalThrowable(penetration=False, air_friction=15),
+    equipable=equipable.Equipable(
+        equipable_type=EquipableOrder.AMULET,
+        upgrade=0,
+        possible_regions=("amulet",),
+        alter_actor_state={"regain_mana":False},
+        intelligence=-5,
+        intelligence_mag=-1,
+        magic_resistance=0.5,
+        magic_resistance_mag=0.1,
+    ),
+    edible=None,
+    initial_BUC={1:0,0:1,-1:10},
+)
+temp_items_lists.append(amulet_of_magic_aversion)
+item_rarity.append(amulet_of_magic_aversion.rarity)
+
+
 #########################################################################
 ############################### RINGS ###################################
 #########################################################################
 
+
+### Ring of water
+ring_of_water = Item(
+    should_randomize=True,
+    char="`",
+    fg = (255, 72, 0),
+    name="물의 반지",
+    entity_id="ring_of_water",
+    entity_desc=("착용자에게 물의 기운을 부여하는 반지이다. "
+                 "착용자는 물 속에서 빠르게 이동을 할 수 있게 되고, 화염과 산에 저항을 가지게 되지만, 냉기에 다소 취약해진다."),
+    rarity=3,
+    weight=0.2,
+    price=400,
+    item_type=InventoryOrder.RING,
+    item_state=ItemState(is_identified=0),
+    tradable=True,
+    spawnable=True,
+    flammable=0,
+    corrodible=0,
+    droppable=True,
+    stackable=False,
+    throwable=throwable.NormalThrowable(penetration=False, air_friction=15),
+    equipable=equipable.Equipable(
+        equipable_type=EquipableOrder.RING,
+        upgrade=0,
+        possible_regions=("left ring","right ring",),
+        alter_actor_state={"can_swim":True},
+        fire_resistance=0.5,
+        acid_resistance=0.5,
+        cold_resistance=-0.5, # negative
+    ),
+    edible=None
+)
+temp_items_lists.append(ring_of_water)
+item_rarity.append(ring_of_water.rarity)
+
+
+### Ring of earth
+ring_of_earth = Item(
+    should_randomize=True,
+    char="`",
+    fg = (255, 72, 0),
+    name="땅의 반지",
+    entity_id="ring_of_earth",
+    entity_desc=("착용자에게 땅의 기운을 부여하는 반지이다. "
+                 "착용자는 전격과 독, 그리고 냉기에 저항을 가지게 된다."),
+    rarity=3,
+    weight=0.2,
+    price=400,
+    item_type=InventoryOrder.RING,
+    item_state=ItemState(is_identified=0),
+    tradable=True,
+    spawnable=True,
+    flammable=0,
+    corrodible=0,
+    droppable=True,
+    stackable=False,
+    throwable=throwable.NormalThrowable(penetration=False, air_friction=15),
+    equipable=equipable.Equipable(
+        equipable_type=EquipableOrder.RING,
+        upgrade=0,
+        possible_regions=("left ring","right ring",),
+        alter_actor_state={"can_move_on_surface":True},
+        shock_resistance=0.5,
+        poison_resistance=0.5,
+        cold_resistance=0.5,
+    ),
+    edible=None
+)
+temp_items_lists.append(ring_of_earth)
+item_rarity.append(ring_of_earth.rarity)
+
+
+### Ring of sky
+ring_of_sky = Item(
+    should_randomize=True,
+    char="`",
+    fg = (255, 72, 0),
+    name="하늘의 반지",
+    entity_id="ring_of_sky",
+    entity_desc=("착용자에게 하늘의 기운을 부여하는 반지이다. "
+                 "착용자는 하늘을 날 수 있게 된다. "),
+    rarity=3,
+    weight=0.2,
+    price=400,
+    item_type=InventoryOrder.RING,
+    item_state=ItemState(is_identified=0),
+    tradable=True,
+    spawnable=True,
+    flammable=0,
+    corrodible=0,
+    droppable=True,
+    stackable=False,
+    throwable=throwable.NormalThrowable(penetration=False, air_friction=15),
+    equipable=equipable.Equipable(
+        equipable_type=EquipableOrder.RING,
+        upgrade=0,
+        possible_regions=("left ring","right ring",),
+        alter_actor_state={"can_fly":True},
+    ),
+    edible=None
+)
+temp_items_lists.append(ring_of_sky)
+item_rarity.append(ring_of_sky.rarity)
+
+
+### Ring of Dexterity
+ring_of_dexterity = Item(
+    should_randomize=True,
+    char="`",
+    fg = (255, 72, 0),
+    name="재주의 반지",
+    entity_id="ring_of_dexterity",
+    entity_desc=("착용자에게 재주를 부여한다고 알려진 반지이다. "),
+    rarity=3,
+    weight=0.2,
+    price=400,
+    item_type=InventoryOrder.RING,
+    item_state=ItemState(is_identified=0),
+    tradable=True,
+    spawnable=True,
+    flammable=0,
+    corrodible=0,
+    droppable=True,
+    stackable=False,
+    throwable=throwable.NormalThrowable(penetration=False, air_friction=15),
+    equipable=equipable.Equipable(
+        equipable_type=EquipableOrder.RING,
+        upgrade=0,
+        possible_regions=("left ring","right ring",),
+        dexterity=2,
+        dexterity_mag=1,
+    ),
+    edible=None
+)
+temp_items_lists.append(ring_of_dexterity)
+item_rarity.append(ring_of_dexterity.rarity)
+
+
+### Ring of Constitution
+ring_of_constitution = Item(
+    should_randomize=True,
+    char="`",
+    fg = (255, 72, 0),
+    name="활력의 반지",
+    entity_id="ring_of_constitution",
+    entity_desc=("착용자에게 활력을 부여한다고 알려진 반지이다. "),
+    rarity=3,
+    weight=0.2,
+    price=400,
+    item_type=InventoryOrder.RING,
+    item_state=ItemState(is_identified=0),
+    tradable=True,
+    spawnable=True,
+    flammable=0,
+    corrodible=0,
+    droppable=True,
+    stackable=False,
+    throwable=throwable.NormalThrowable(penetration=False, air_friction=15),
+    equipable=equipable.Equipable(
+        equipable_type=EquipableOrder.RING,
+        upgrade=0,
+        possible_regions=("left ring","right ring",),
+        constitution=2,
+        constitution_mag=1,
+    ),
+    edible=None
+)
+temp_items_lists.append(ring_of_constitution)
+item_rarity.append(ring_of_constitution.rarity)
+
+
+### Ring of Insomnia
+ring_of_insomnia = Item(
+    should_randomize=True,
+    char="`",
+    fg = (255, 72, 0),
+    name="불면증의 반지",
+    entity_id="ring_of_insomnia",
+    entity_desc=("착용자가 잠을 잘 수 없게 만든다고 알려진 반지이다. "),
+    rarity=3,
+    weight=0.2,
+    price=400,
+    item_type=InventoryOrder.RING,
+    item_state=ItemState(is_identified=0),
+    tradable=True,
+    spawnable=True,
+    flammable=0,
+    corrodible=0,
+    droppable=True,
+    stackable=False,
+    throwable=throwable.NormalThrowable(penetration=False, air_friction=15),
+    equipable=equipable.Equipable(
+        equipable_type=EquipableOrder.RING,
+        upgrade=0,
+        possible_regions=("left ring","right ring",),
+        alter_actor_state={"can_sleep":False}, # Cant sleep with its own will
+        sleep_resistance=1,
+    ),
+    edible=None,
+    initial_BUC={1:1,0:1,-1:8},
+)
+temp_items_lists.append(ring_of_insomnia)
+item_rarity.append(ring_of_insomnia.rarity)
+
+
+### Ring of Martial artist
+ring_of_martial_artist = Item(
+    should_randomize=True,
+    char="`",
+    fg = (255, 72, 0),
+    name="무술가의 반지",
+    entity_id="ring_of_martial_artist",
+    entity_desc=("착용자가 다양한 무술 기술들을 사용할 수 있게 만들어준다고 알려진 반지이다. "),
+    rarity=2,
+    weight=0.2,
+    price=400,
+    item_type=InventoryOrder.RING,
+    item_state=ItemState(is_identified=0),
+    tradable=True,
+    spawnable=True,
+    flammable=0,
+    corrodible=0,
+    droppable=True,
+    stackable=False,
+    throwable=throwable.NormalThrowable(penetration=False, air_friction=15),
+    equipable=equipable.Equipable(
+        equipable_type=EquipableOrder.RING,
+        upgrade=0,
+        possible_regions=("left ring","right ring",),
+        base_melee=5,
+        additional_melee=5,
+    ),
+    edible=None
+)
+temp_items_lists.append(ring_of_martial_artist)
+item_rarity.append(ring_of_martial_artist.rarity)
+
+
+### Ring of Blindness
+ring_of_blindness = Item(
+    should_randomize=True,
+    char="`",
+    fg = (255, 72, 0),
+    name="실명의 반지",
+    entity_id="ring_of_blindness",
+    entity_desc=("착용자의 시력을 악화시킨다고 알려진 반지이다. "),
+    rarity=2,
+    weight=0.2,
+    price=400,
+    item_type=InventoryOrder.RING,
+    item_state=ItemState(is_identified=0),
+    tradable=True,
+    spawnable=True,
+    flammable=0,
+    corrodible=0,
+    droppable=True,
+    stackable=False,
+    throwable=throwable.NormalThrowable(penetration=False, air_friction=15),
+    equipable=equipable.Equipable(
+        equipable_type=EquipableOrder.RING,
+        upgrade=0,
+        possible_regions=("left ring","right ring",),
+        eyesight=-50,
+    ),
+    initial_BUC={1:0,0:1,-1:10},
+    edible=None
+)
+temp_items_lists.append(ring_of_blindness)
+item_rarity.append(ring_of_blindness.rarity)
 
 
 #########################################################################

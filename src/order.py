@@ -58,6 +58,7 @@ class EquipableOrder(Enum):
     LIGHT_ARMOR = auto()
     HEAVY_ARMOR = auto() # including robes, capes
     AMULET = auto()
+    RING = auto()
     MISC = auto()
 
 

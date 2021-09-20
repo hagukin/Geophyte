@@ -299,6 +299,10 @@ class Equipments(BaseComponent):
         self.add_equipable_bonuses(item)
         self.add_equipable_state_change(item)
 
+        # FX
+        if self.parent == self.engine.player:
+            self.engine.sound_manager.add_sound_queue("fx_equip")
+
         if not forced:
             if self.parent == self.engine.player:
                 self.engine.message_log.add_message(
@@ -341,6 +345,10 @@ class Equipments(BaseComponent):
         self.remove_equipable_bonuses(self.equipments[region])
         self.remove_equipable_state_change(self.equipments[region])
         self.equipments[region].item_state.equipped_region = None
+
+        # FX
+        if self.parent == self.engine.player:
+            self.engine.sound_manager.add_sound_queue("fx_unequip")
 
         if not forced: # If the equipments is burned, rotted, etc(forced), do not display the log message.
             if self.parent == self.engine.player:

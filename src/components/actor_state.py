@@ -161,6 +161,7 @@ class ActorState(BaseComponent):
         has_telepathy: bool = False,
         can_revive_self: bool = False, # can revive after actor dies
         revive_as: Actor = None, # If set to None, and can_revive_self is True, revive as this actor.
+        can_sleep: bool = True,
 
         ### Mental capabilities
         can_think: bool = True, # Has ability to make the most basic level of logical decision (e.g. feels pain -> moves away)
@@ -281,6 +282,7 @@ class ActorState(BaseComponent):
         self.can_breathe_underwater = can_breathe_underwater
         self.can_fly = can_fly
         self.can_move_on_surface = can_move_on_surface
+        self.can_sleep = can_sleep # Whether the actor is willing to sleep or not, if can_sleep is false actor cannot sleep (unless the game forces to do so)
 
         self.has_immortality = has_immortality
         self.has_telepathy = has_telepathy
@@ -1234,28 +1236,44 @@ class ActorState(BaseComponent):
         self.parent.status.remove_bonus(bonus_id="sleep_bonus", ignore_warning=True)
         self.apply_sleeping([0, 0], forced=True)
 
-    def apply_sleeping(self, value: List[int,int], forced:bool=False) -> None:
+    def sleep_success(self, value: List[int,int]) -> None:
+        if self.is_sleeping[1] < 0 and value != [0,
+                                                 0]:  # Ignore less fatal sleeping. Althoguh you can wake up infinitely sleeping actor
+            return None
+        if self.is_sleeping != [0, 0] and value != [0, 0]:
+            # keep current turn unchanged
+            self.is_sleeping[1] = max(self.is_sleeping[1], value[1])
+        else:
+            # Wakeup log
+            if self.is_sleeping != [0, 0] and value == [0, 0]:
+                if self.parent == self.engine.player:
+                    self.engine.message_log.add_message(f"당신은 잠에서 깨어났다!", fg=color.player_neutral_important)
+                else:
+                    self.engine.message_log.add_message(f"{g(self.parent.name, '은')} 잠에서 깨어났다!", fg=color.enemy_unique,
+                                                        target=self.parent)
+            self.is_sleeping = value
+
+    def apply_sleeping(self, value: List[int,int], forced:bool=False, sleep_on_will: bool=False) -> None:
         """
         Args:
+            forced:
+                if True, game will force the actor to sleep regardless of any other conditions.
             Sleep on will:
                 indicates whether the actor is sleeping on its own will.
                 if True, ignore sleep resistance.
         """
-        # NOTE: Sleeping is the only state effect that checks for resistance BEFORE actually handle the state effects.
-        if forced or (value != [0,0] and self.parent.status.changed_status["sleep_resistance"] < random.random()):
-            if self.is_sleeping[1] < 0 and value != [0,0]:  # Ignore less fatal sleeping. Althoguh you can wake up infinitely sleeping actor
+        if forced:
+            return self.sleep_success(value)
+        elif sleep_on_will:
+            if not self.can_sleep and value != [0,0]:
+                if self.parent == self.engine.player:
+                    self.engine.message_log.add_message(f"당신은 잠을 자려 시도했지만 잠이 오지 않는다!", fg=color.player_success)
                 return None
-            if self.is_sleeping != [0,0] and value != [0,0]:
-                # keep current turn unchanged
-                self.is_sleeping[1] = max(self.is_sleeping[1], value[1])
             else:
-                # Wakeup log
-                if self.is_sleeping != [0,0] and value == [0,0]:
-                    if self.parent == self.engine.player:
-                        self.engine.message_log.add_message(f"당신은 잠에서 깨어났다!", fg=color.player_neutral_important)
-                    else:
-                        self.engine.message_log.add_message(f"{g(self.parent.name, '은')} 잠에서 깨어났다!", fg=color.enemy_unique, target=self.parent)
-                self.is_sleeping = value
+                return self.sleep_success(value)
+        elif (value != [0,0] and self.parent.status.changed_status["sleep_resistance"] < random.random()) and self.can_sleep:
+            # NOTE: Sleeping is the only state effect that checks for resistance BEFORE actually handling the state effects.
+            self.sleep_success(value)
         else:
             if value != [0,0]:
                 if self.parent == self.engine.player:
