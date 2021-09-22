@@ -1453,6 +1453,42 @@ temp_items_lists.append(leather_boots)
 item_rarity.append(leather_boots.rarity)
 
 
+### Boots of haste
+boots_of_haste = Item(
+    char="[",
+    fg=(0, 255, 76),
+    name="신속의 부츠",
+    entity_id="boots_of_haste",
+    entity_desc=(""),
+    rarity=1,
+    weight=1.54,
+    price=6830,
+    item_type=InventoryOrder.ARMOR,
+    item_state=ItemState(is_identified=1),
+    spawnable=True,
+    flammable=0,
+    corrodible=0,
+    droppable=True,
+    stackable=False,
+    throwable=throwable.NormalThrowable(),
+    equipable=equipable.Equipable(
+        equipable_type=EquipableOrder.LIGHT_ARMOR,
+        upgrade=0,
+        equip_size=(3, 4),
+        possible_regions=("feet",),
+        str_requirement=7,
+        protection=3,
+        protection_mag=1.4,
+        agility=4,
+        agility_mag=1,
+    ),
+    cursable=False,
+    is_artifact=True,
+)
+temp_items_lists.append(boots_of_haste)
+item_rarity.append(boots_of_haste.rarity)
+
+
 ### Iron boots
 iron_boots = Item(
     char="[",
@@ -1483,6 +1519,108 @@ iron_boots = Item(
 )
 temp_items_lists.append(iron_boots)
 item_rarity.append(iron_boots.rarity)
+
+
+############################################ GAUNTLETS/GLOVES ###############################################
+### Iron Gauntlet
+iron_gauntlet = Item(
+    char="[",
+    fg=(255, 221, 143),
+    name="철제 건틀릿",
+    entity_id="iron_gauntlet",
+    entity_desc=("손과 팔 부분을 보호하는 건틀릿이다. "),
+    rarity=6,
+    weight=1.8,
+    price=15,
+    item_type=InventoryOrder.ARMOR,
+    item_state=ItemState(is_identified=1),
+    spawnable=True,
+    flammable=0,
+    corrodible=0.02,
+    droppable=True,
+    stackable=False,
+    throwable=throwable.NormalThrowable(),
+    equipable=equipable.Equipable(
+        equipable_type=EquipableOrder.HEAVY_ARMOR,
+        upgrade=0,
+        equip_size=(3, 4),
+        possible_regions=("fist",),
+        str_requirement=11,
+        protection=7,
+        protection_mag=1.5,
+    )
+)
+temp_items_lists.append(iron_gauntlet)
+item_rarity.append(iron_gauntlet.rarity)
+
+
+### Leather Glove
+leather_glove = Item(
+    char="[",
+    fg=(168, 111, 50),
+    name="가죽 장갑",
+    entity_id="leather_glove",
+    entity_desc=("가죽으로 된 장갑이다. 사냥꾼들이 즐겨 착용한다. "),
+    rarity=8,
+    weight=0.38,
+    price=9,
+    item_type=InventoryOrder.ARMOR,
+    item_state=ItemState(is_identified=1),
+    spawnable=True,
+    flammable=0,
+    corrodible=0.05,
+    droppable=True,
+    stackable=False,
+    throwable=throwable.NormalThrowable(),
+    equipable=equipable.Equipable(
+        equipable_type=EquipableOrder.LIGHT_ARMOR,
+        upgrade=0,
+        equip_size=(3, 5),
+        possible_regions=("fist",),
+        str_requirement=7,
+        protection=3,
+        protection_mag=1,
+    )
+)
+temp_items_lists.append(leather_glove)
+item_rarity.append(leather_glove.rarity)
+
+
+### Gauntlet of strength
+gauntlet_of_strength = Item(
+    char="[",
+    fg=(255, 0, 81),
+    name="힘의 건틀릿",
+    entity_id="gauntlet_of_strength",
+    entity_desc=(""),
+    rarity=1,
+    weight=1.8,
+    price=7700,
+    item_type=InventoryOrder.ARMOR,
+    item_state=ItemState(is_identified=1),
+    spawnable=True,
+    flammable=0,
+    corrodible=0,
+    droppable=True,
+    stackable=False,
+    throwable=throwable.NormalThrowable(),
+    equipable=equipable.Equipable(
+        equipable_type=EquipableOrder.HEAVY_ARMOR,
+        upgrade=0,
+        equip_size=(3, 4),
+        possible_regions=("fist",),
+        str_requirement=11,
+        protection=7,
+        protection_mag=1.5,
+        strength=4,
+        strength_mag=1,
+    ),
+    cursable=False,
+    is_artifact=True
+)
+temp_items_lists.append(gauntlet_of_strength)
+item_rarity.append(gauntlet_of_strength.rarity)
+
 
 
 ############################################ CLOAKS ###############################################
@@ -2439,10 +2577,10 @@ amulet_of_brilliance = Item(
     fg = (255, 72, 0),
     name="지적 각성의 아뮬렛",
     entity_id="amulet_of_brilliance",
-    entity_desc="착용자에게 지적인 영감을 부여한다고 알려진 아뮬렛이다. ",
-    rarity=3,
+    entity_desc=(""),
+    rarity=1,
     weight=0.2,
-    price=320,
+    price=6503,
     item_type=InventoryOrder.AMULET,
     item_state=ItemState(is_identified=0),
     tradable=True,
@@ -2456,10 +2594,12 @@ amulet_of_brilliance = Item(
         equipable_type=EquipableOrder.AMULET,
         upgrade=0,
         possible_regions=("amulet",),
-        intelligence=2,
+        intelligence=4,
         intelligence_mag=1,
     ),
-    edible=None
+    edible=None,
+    cursable=False,
+    is_artifact=True,
 )
 temp_items_lists.append(amulet_of_brilliance)
 item_rarity.append(amulet_of_brilliance.rarity)
