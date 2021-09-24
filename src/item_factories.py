@@ -2337,8 +2337,6 @@ swordstick = Item(
         str_requirement=12,
         base_melee=11,
         additional_melee=2,
-        charm=3,
-        intelligence=1,
         base_melee_mag=1.5,
         additional_melee_mag=2,
     ),

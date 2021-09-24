@@ -833,10 +833,16 @@ class BookReadable(Readable):
             self.read(action)  # Identify when successful
             return None
         else:
-            # failed or cursed.
-            if reader == self.engine.player:
-                self.engine.message_log.add_message(f"당신은 {self.parent.name}의 내용을 이해하는 것에 실패했다.", fg=color.player_failed)
-            reader.actor_state.apply_confusion([0,5])
+            if reader.status.changed_status["intelligence"] >= self.int_req:
+                # failed by chance
+                if reader == self.engine.player:
+                    self.engine.message_log.add_message(f"당신은 {self.parent.name}의 내용을 이해하는 것에 실패했다.", fg=color.player_failed)
+                return None
+            else:
+                # failed or cursed.
+                if reader == self.engine.player:
+                    self.engine.message_log.add_message(f"{g(self.parent.name, '은')} 당신이 읽기엔 너무 어려웠다!", fg=color.player_failed)
+                reader.actor_state.apply_confusion([0, 5])
             return None
 
     def effects_when_read(self, action: actions.ReadItem) -> None:

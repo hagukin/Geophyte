@@ -155,7 +155,7 @@ class Terrain:
 
         # Key: amount
         # Value: weight
-        self.items_cnt = {0:8, 1:10, 2:2, 3:1}
+        self.items_cnt = {0:15, 1:8, 2:4, 3:1}
         self.monsters_cnt = {0:4, 1:9, 2:5, 3:2}
         if items_cnt:
             self.items_cnt = items_cnt
