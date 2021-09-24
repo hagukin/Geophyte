@@ -80,7 +80,7 @@ class TeleportAction(ActionWithCoordinate):
         self.entity.place(x, y, gamemap=self.action_gamemap)
 
     def teleport_to_given(self) -> None:
-        if self.action_gamemap.get_blocking_entity_at_location(self.x,self.y): # Blocked.
+        if self.action_gamemap.get_blocking_entity_at_location(self.x,self.y) or not self.action_gamemap.tiles[self.x, self.y]["walkable"]: # Blocked.
             return self.teleport_to_random()
         self.entity.gamemap.remove_entity(self.entity)
         self.entity.place(self.x, self.y, gamemap=self.action_gamemap)

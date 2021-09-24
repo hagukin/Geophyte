@@ -49,6 +49,32 @@ call_of_the_orc_lord = Ability(
     activatable=activatable.CallOfTheOrcLordActivatable(mana_cost=100, difficulty=0)
 )
 
+### cure wound
+cure_wound = Ability(
+    name="상처 치유",
+    ability_id="sp_cure_wound",
+    ability_desc="선택한 대상의 상처를 치유할 수 있습니다.",
+    ability_type=AbilityOrder.REGULAR_SPELL,
+    activatable=activatable.CureWoundActivatable(mana_cost=50, difficulty=0, heal_range=(50,80))
+)
+
+### mesmerize
+mesmerize = Ability(
+    name="매혹",
+    ability_id="sp_mesmerize",
+    ability_desc="선택한 대상을 매혹시켜 아군으로 만들 수 있습니다.",
+    ability_type=AbilityOrder.REGULAR_SPELL,
+    activatable=activatable.MesmerizeSpellActivatable(mana_cost=50, difficulty=0)
+)
+
+### teleport
+teleport = Ability(
+    name="순간이동",
+    ability_id="sp_teleport",
+    ability_desc="선택한 위치로 순간이동합니다.",
+    ability_type=AbilityOrder.REGULAR_SPELL,
+    activatable=activatable.TeleportSpellActivatable(mana_cost=80, difficulty=0)
+)
 
 ####################
 ###### SKILLS ######

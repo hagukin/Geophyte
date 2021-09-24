@@ -56,7 +56,7 @@ class StealActivatable(Activatable):
     """
     def get_action(self, caster: Actor, x: int=None, y: int=None, target: Actor=None):
         if caster == self.engine.player:
-            self.engine.message_log.add_message("타겟의 위치를 선택하세요.", color.help_msg)
+            self.engine.message_log.add_message("대상을 선택하세요.", color.help_msg)
             self.engine.event_handler = RayDirInputHandler(
                 actor=caster,
                 max_range=1,
@@ -178,7 +178,135 @@ class SpellActivateable(Activatable):
                 self.engine.message_log.add_message(f"당신은 마나 부족으로 인해 마법 사용에 실패했다.", fg=color.player_not_good)
             else:
                 self.engine.message_log.add_message(f"{g(action.entity.name, '은')} 마나 부족으로 인해 마법 사용에 실패했다.", target=action.entity, fg=color.enemy_neutral)
-        
+
+class SelectTargetSpellActivatable(SpellActivateable):
+    def __init__(self, mana_cost: int, difficulty: int):
+        super().__init__(mana_cost, difficulty)
+        self.mana_cost = mana_cost
+        self.difficulty = difficulty
+
+    def get_action(self, caster: Actor, x: int = None, y: int = None, target: Actor = None):
+        if caster == self.engine.player:
+            self.engine.message_log.add_message("대상을 선택하세요.", color.help_msg)
+            self.engine.event_handler = SingleRangedAttackHandler(
+                callback=lambda xy: actions.AbilityAction(entity=caster, ability=self.parent, x=xy[0], y=xy[1],
+                                                          target=self.gamemap.get_actor_at_location(x=xy[0], y=xy[1])),
+            )
+            return None
+        else:
+            return super().get_action(caster, x, y, target)
+
+
+class CureWoundActivatable(SelectTargetSpellActivatable):
+    """
+    Steal a random item from the target actor.
+    """
+    def __init__(self, mana_cost: int, difficulty: int, heal_range: Tuple[int,int]):
+        super().__init__(mana_cost, difficulty)
+        self.mana_cost = mana_cost
+        self.difficulty = difficulty
+        self.heal_range = heal_range # Heal range when multiplier is 1
+
+    def cast(self, action: actions.AbilityAction):
+        caster = action.entity
+        target = action.target
+
+        # If there is no target
+        if not target:
+            if caster == self.engine.player:
+                self.engine.message_log.add_message(f"당신은 허공을 향해 마법을 사용했다.", target=caster, fg=color.player_failed)
+            else:
+                self.engine.message_log.add_message(f"{g(caster.name, '은')} 허공을 향해 마법을 사용했다.",target=caster, fg=color.enemy_unique)
+            return None
+
+        # amound
+        amount = random.randint(*self.heal_range)
+        amount *= round(min(2, max(0, caster.status.changed_status["intelligence"] / 20)))
+        amount_recovered = target.status.heal(amount)
+
+        if amount_recovered > 0:
+            if target == self.engine.player:
+                self.engine.message_log.add_message(f"당신의 상처가 낫기 시작한다!", color.player_buff, )
+                self.engine.message_log.add_message(f"당신은 {amount_recovered}만큼의 체력을 회복했다.",
+                                                    color.player_neutral_important, )
+            else:
+                if self.engine.game_map.visible[target.x, target.y]:
+                    self.engine.message_log.add_message(f"{target.name}의 상처가 낫기 시작한다!", color.player_sense,
+                                                        target=target)
+        else:
+            if target == self.engine.player:
+                self.engine.message_log.add_message(f"당신은 조금 더 건강해진 느낌이 든다.", color.player_buff, )
+            else:
+                if self.engine.game_map.visible[target.x, target.y]:
+                    self.engine.message_log.add_message(f"{target.name}의 상처가 낫기 시작한다!", color.player_sense,
+                                                        target=target)
+            if target.status.experience:
+                target.status.experience.gain_constitution_exp(10, 17)
+
+
+class MesmerizeSpellActivatable(SelectTargetSpellActivatable):
+    def cast(self, action: actions.AbilityAction):
+        caster = action.entity
+        target = action.target
+
+        # If there is no target
+        if not target:
+            if caster == self.engine.player:
+                self.engine.message_log.add_message(f"당신은 허공을 향해 마법을 사용했다.", target=caster, fg=color.player_failed)
+            else:
+                self.engine.message_log.add_message(f"{g(caster.name, '은')} 허공을 향해 마법을 사용했다.",target=caster, fg=color.enemy_unique)
+            return None
+
+        if not target.ai or target == caster:
+            # Log
+            if caster == self.engine.player:
+                self.engine.message_log.add_message(f"당신의 자신감이 차오른다.", color.player_buff)
+            # else:
+            #     self.engine.message_log.add_message(f"{g(caster.name, '은')} 자신감이 넘쳐 보인다.", color.player_sense, target=caster)
+            # NOTE: Ignore ai log
+
+            if caster.status.experience:
+                caster.status.experience.gain_charm_exp(200)
+        else:
+            tame_bonus = min(2, max(caster.status.changed_status["intelligence"] - 16, -2))
+            if target.ai.try_tame(caster, tame_bonus=tame_bonus):
+                # Log
+                if caster == self.engine.player:
+                    self.engine.message_log.add_message(f"{g(target.name, '을')} 길들였다!", color.player_success, target=target)
+                    if target.actor_state.can_talk:
+                        self.engine.message_log.add_message(f"{g(target.name, '이')} 당신에게 충성을 표했다.", color.player_success, target=target)
+                    else:
+                        self.engine.message_log.add_message(f"{g(target.name, '이')} 당신에 대한 신뢰를 보였다.", color.player_success, target=target)
+                else:
+                    self.engine.message_log.add_message(f"{g(target.name, '은')} 이제 {g(caster.name, '을')} 주인으로 섬긴다!", color.enemy_unique, target=target)
+
+                if caster.status.experience:
+                    caster.status.experience.gain_charm_exp(100, exp_limit=1000)
+            else:
+                if caster == self.engine.player:
+                    self.engine.message_log.add_message(f"{g(target.name, '은')} 당신의 정신적 지배에 저항했다!", color.player_failed, target=target)
+                else:
+                    self.engine.message_log.add_message(f"{g(target.name, '은')} {caster.name}의 명령을 거부했다!", color.enemy_unique, target=target)
+
+
+class TeleportSpellActivatable(SelectTargetSpellActivatable):
+    def cast(self, action: actions.AbilityAction):
+        caster = action.entity
+        target = action.target
+
+        if caster == self.engine.player:
+            stability = 0
+            if not self.engine.game_map.visible[action.x,action.y] and not self.engine.game_map.explored[action.x,action.y]: # NOTE: Can select explored but not visible tiles
+                stability = 1
+
+            actions.TeleportAction(entity=caster, x=action.x, y=action.y, gamemap=self.engine.game_map,
+                           stability=stability).perform()
+        else:
+            stability = 1
+            # NOTE: Ai will always teleport to randomized location.
+            actions.TeleportAction(entity=caster, x=action.x, y=action.y, gamemap=caster.gamemap,
+                           stability=stability).perform()
+
 
 class LightningStrikeActivatable(SpellActivateable):
     def __init__(self, mana_cost: int, difficulty: int, damage: int, maximum_range: int):
@@ -368,7 +496,7 @@ class SoulBoltActivatable(RaySpellActivatable):
             # No trigger
 
 
-class EffectToAllEntityInGamemapSpellActivatable(SpellActivateable):
+class EffectToAllEntityInGamemapSpellActivatable(SelectTargetSpellActivatable):
     """
     Will effect every actors on caster's gamemap.
     """

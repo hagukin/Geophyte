@@ -425,13 +425,12 @@ class ActorState(BaseComponent):
         Thus, a man with higher charisma is more likely to heal its inner energy than who is not.
         """
         if self.regain_interval <= 0:
-            charm = self.parent.status.changed_status["charm"]
             intelligence = self.parent.status.changed_status["intelligence"]
             max_mp = self.parent.status.changed_status["max_mp"]
-            regain_percent = (1 + math.log2(charm + 1)) * 0.004 # amount of regaining indicated as a percentage of maximum mana
+            regain_percent = (1 + math.log2(intelligence + 1)) * 0.025 # amount of regaining indicated as a percentage of maximum mana
             regain_amount = int(max(1, max_mp * regain_percent)) # absolute amount of healing
             self.parent.status.gain_mana(amount=regain_amount)
-            self.regain_interval = round(500 / intelligence)
+            self.regain_interval = round(100 / intelligence)
 
             if self.parent.status.experience:
                 self.parent.status.experience.gain_intelligence_exp(5, exp_limit=3000)

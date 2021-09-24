@@ -171,7 +171,8 @@ class BaseAI(BaseComponent):
         Returns:
             boolean. returns True if tamer successfully tamed this ai. return False if failed.
         """
-        if self.parent.tameable > 0 and self.parent.tameable <= max(0, tamer.status.changed_status["charm"] - random.randint(0,10)) + tame_bonus:
+        if self.parent.tameable > 0 \
+                and self.parent.tameable <= max(0, random.randint(max(0,round(tamer.status.changed_status["charm"]/4)),tamer.status.changed_status["charm"])) + tame_bonus:
             self.set_owner(tamer)
             return True
         else:

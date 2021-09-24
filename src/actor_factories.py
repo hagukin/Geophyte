@@ -97,7 +97,7 @@ player = Actor(
     ai_cls=None,
     status=Status(
         hp=300, #300
-        mp=50, #50
+        mp=5000, #50
         strength=15, # can be changed during CharGen
         dexterity=15,
         agility=15,
@@ -126,21 +126,21 @@ player = Actor(
 #     initial_items=
 #     (
 # {"item": item_factories.scroll_of_identify, "chance": 1, "count": (10, 15), "BUC": {1:1,0:0,-1:0}, "upgrade": None},
-# {"item": item_factories.potion_of_monster_detection, "chance": 1, "count": (10, 15), "BUC": {1:1,0:0,-1:0}, "upgrade": None},
-# {"item": item_factories.ring_of_sky, "chance": 1, "count": (1, 1), "BUC": None, "upgrade": None},
+# {"item": item_factories.scroll_of_destroy_equipment, "chance": 1, "count": (10, 15), "BUC": {1:1,0:0,-1:0}, "upgrade": None},
+# {"item": item_factories.scroll_of_hatred, "chance": 1, "count": (10, 12), "BUC": {1:0,0:0,-1:1}, "upgrade": None},
 # {"item": item_factories.potion_of_levitation, "chance": 1, "count": (10, 10), "BUC": None, "upgrade": None},
 #     ),
-    # initial_equipments=(
-    #     {"item":item_factories.cloak_of_protection, "chance":1, "count":(1,1), "BUC":{-1:1, 0:1, 1:1}, "upgrade": {1:1,2:0,3:0,4:0}},
-    #     {"item":item_factories.leather_armor, "chance":1, "count":(1,1), "BUC":{-1:1, 0:1, 1:1}, "upgrade": {1:1,2:0,3:0,4:0}},
-    #     {"item":item_factories.longsword, "chance":1, "count":(1,1), "BUC":{-1:1, 0:1, 1:1}, "upgrade": {1:1,2:0,3:0,4:0}},
-    #     {"item":item_factories.silver_shield, "chance":1, "count":(1,1), "BUC":{-1:1, 0:1, 1:1}, "upgrade": {1:1,2:0,3:0,4:0}},
-    # ),
+#     initial_equipments=(
+#         {"item":item_factories.cloak_of_protection, "chance":1, "count":(1,1), "BUC":None, "upgrade": None},
+#         {"item":item_factories.leather_armor, "chance":1, "count":(1,1), "BUC":{-1:1, 0:1, 1:1}, "upgrade": {1:1,2:0,3:0,4:0}},
+#         {"item":item_factories.longsword, "chance":1, "count":(1,1), "BUC":{-1:1, 0:1, 1:1}, "upgrade": {1:1,2:0,3:0,4:0}},
+#         {"item":item_factories.silver_shield, "chance":1, "count":(1,1), "BUC":{-1:1, 0:1, 1:1}, "upgrade": {1:1,2:0,3:0,4:0}},
+#     ),
     # initial_abilities=
     # (
-    #     (ability_factories.spectral_beam, 1),
-    #     (ability_factories.soul_bolt, 1),
-    #     (ability_factories.call_of_the_orc_lord, 1),
+    #     (ability_factories.cure_wound, 1),
+    #     (ability_factories.mesmerize, 1),
+    #     (ability_factories.teleport, 1),
     # )
 )
 

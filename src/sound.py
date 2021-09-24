@@ -142,6 +142,7 @@ class SoundManager():
             "fx_cash":"fx\\coin.wav",
             "fx_book":"fx\\book.wav",
             "fx_victory":"fx\\victory.wav",
+            "fx_destroy_item":"fx\\destroy_item.wav",
 
             "bgm_title_screen":"bgm\\Constellation.wav",
             "bgm_mystical_beginning":"bgm\\Magical_Travel.wav",

@@ -301,7 +301,8 @@ class Equipments(BaseComponent):
 
         # FX
         if self.parent == self.engine.player:
-            self.engine.sound_manager.add_sound_queue("fx_equip")
+            if self.engine.sound_manager:
+                self.engine.sound_manager.add_sound_queue("fx_equip")
 
         if not forced:
             if self.parent == self.engine.player:
@@ -329,7 +330,7 @@ class Equipments(BaseComponent):
         print(f"WARNING::can_unequip_by_equipper(item={item.entity_id}) called even the item is not equipable.")
         return False
 
-    def remove_equipment(self, region: str, forced: bool=False):# forced는 parent의 의지에 의해 이루어진 게 아닐 경우 True.
+    def remove_equipment(self, region: str, forced: bool=False, play_fx: bool=True):# forced는 parent의 의지에 의해 이루어진 게 아닐 경우 True.
         """
         Remove item from certain region.
 
@@ -347,8 +348,9 @@ class Equipments(BaseComponent):
         self.equipments[region].item_state.equipped_region = None
 
         # FX
-        if self.parent == self.engine.player:
-            self.engine.sound_manager.add_sound_queue("fx_unequip")
+        if play_fx:
+            if self.parent == self.engine.player:
+                self.engine.sound_manager.add_sound_queue("fx_unequip")
 
         if not forced: # If the equipments is burned, rotted, etc(forced), do not display the log message.
             if self.parent == self.engine.player:
@@ -360,7 +362,7 @@ class Equipments(BaseComponent):
         self.update_equipments_state_change() # NOTE: Must call this function AFTER you remove the item from the slot.
         self.update_dual_wielding()  # update
 
-    def remove_all_equipments(self, forced: bool=False):
+    def remove_all_equipments(self, forced: bool=False, play_fx: bool=True):
         for k, v in self.equipments.items():
             if v != None:
-                self.remove_equipment(region=k, forced=forced)
+                self.remove_equipment(region=k, forced=forced, play_fx=play_fx)

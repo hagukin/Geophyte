@@ -605,7 +605,7 @@ class Actor(Entity):
 
     def die(self, cause:str="low_hp", drop_item: bool=True, drop_edible: bool=True):
         if drop_item:
-            self.equipments.remove_all_equipments(forced=True)
+            self.equipments.remove_all_equipments(forced=True, play_fx=False)
             self.drop_all_items()
         if drop_edible:
             self.drop_corpse()
@@ -1108,7 +1108,7 @@ class Item(Entity):
         if self.parent:
             if self.equipable: # If the item can be equipped, try to remove it from its wearer. (if there is any)
                 if self.item_state.equipped_region:
-                    self.parent.parent.equipments.remove_equipment(region=self.item_state.equipped_region, forced=True)
+                    self.parent.parent.equipments.remove_equipment(region=self.item_state.equipped_region, forced=True, play_fx=False)
             self.parent.delete_item_from_inv(self)
 
     def initialize_BUC(self, use_custom: Optional[dict] = None) -> None:

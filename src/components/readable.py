@@ -734,6 +734,41 @@ class ScrollOfLightningReadable(AutoTargetingHarmfulReadable):
         target.actor_state.actor_electrocuted(source_actor=consumer)
 
 
+class ScrollOfDestroyEquipment(Readable):
+    def activate(self, action: actions.ReadItem) -> None:
+        if action.entity == self.engine.player:
+            self.engine.message_log.add_message(f"당신의 {g(self.parent.name, '으로')}부터 파괴적인 마법 에너지가 뿜어져 나왔다!",fg=color.player_neutral_important)
+        equipments = [eq for eq in action.entity.equipments.equipments.values() if eq is not None]
+        if equipments:
+            destroy_item = random.choice(equipments)
+            if destroy_item.item_state.BUC != 1 and not destroy_item.indestructible:
+                destroy_item.remove_self()
+                self.engine.sound_manager.add_sound_queue("fx_destroy_item")
+                if action.entity == self.engine.player:
+                    self.engine.message_log.add_message(f"당신의 {g(destroy_item.name, '이')} 먼지가 되어 사라졌다!", fg=color.player_severe)
+                else:
+                    self.engine.message_log.add_message(f"{action.entity.name}의 {g(destroy_item.name, '이')} 먼지가 되어 사라졌다!", fg=color.player_severe)
+            else:
+                if action.entity == self.engine.player:
+                    self.engine.message_log.add_message(f"당신의 {g(destroy_item.name, '이')} 마법적 붕괴에 저항했다!",fg=color.player_severe)
+        self.consume(action.entity)
+
+
+class ScrollOfHatred(Readable):
+    def activate(self, action: actions.ReadItem) -> None:
+        consumer = action.entity
+        if consumer == self.engine.player:
+            if self.parent.item_state.BUC == 1:
+                self.engine.message_log.add_message(f"던전 전체에서 당신을 향한 끔찍한 증오심이 느껴진다!",fg=color.player_severe)
+            else:
+                self.engine.message_log.add_message(f"던전 전체에서 당신을 향한 증오심이 느껴진다!", fg=color.player_severe)
+        for actor in consumer.gamemap.actors:
+            if actor.ai:
+                if actor.ai.check_if_enemy(consumer) or self.parent.item_state.BUC == 1: # If blessed, trigger all actor
+                    actor.status.take_damage(0, attacked_from=consumer)
+                    actor.ai.path = actor.ai.get_path_to(consumer.x, consumer.y)
+        self.consume(consumer)
+
 
 from ability import Ability
 

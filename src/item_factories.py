@@ -707,7 +707,7 @@ scroll_of_identify = Item(
     entity_id="scroll_of_identify",
     entity_desc=("감정의 주문서를 읽은 사용자는 원하는 물품의 성질에 대해 더 자세하게 이해할 수 있게 된다. "),
     item_type_desc=("주문서들은 마법을 사용할 줄 모르거나 내재하고 있는 마력이 부족하더라도 마법을 사용할 수 있게 해주는 유용한 도구이다. "),
-    rarity=85,
+    rarity=95,
     weight=0.1,
     price=50,
     item_type=InventoryOrder.SCROLL,
@@ -780,6 +780,60 @@ scroll_of_teleportation = Item(
 )
 temp_items_lists.append(scroll_of_teleportation)
 item_rarity.append(scroll_of_teleportation.rarity)
+
+
+### Scroll of Destroy Equipment
+scroll_of_destroy_equipment = Item(
+    should_randomize=True,
+    char="~",
+    fg=(255, 255, 200),
+    name="장착품 파괴의 주문서",
+    entity_id="scroll_of_destroy_equipment",
+    entity_desc=("장착품 파괴의 주문서는 사용자가 장비한 임의의 장착품 하나에 강력한 마법 에너지를 투사해 마법적으로 붕괴시킨다."),
+    item_type_desc=("주문서들은 마법을 사용할 줄 모르거나 내재하고 있는 마력이 부족하더라도 마법을 사용할 수 있게 해주는 유용한 도구이다. "),
+    rarity=35,
+    weight=0.1,
+    price=175,
+    item_type=InventoryOrder.SCROLL,
+    item_state=ItemState(),
+    spawnable=True,
+    flammable=0.3,
+    corrodible=0.1,
+    droppable=True,
+    stackable=True,
+    throwable=throwable.NormalThrowable(air_friction=20),
+    readable=readable.ScrollOfDestroyEquipment(),
+    quaffable=None,
+)
+temp_items_lists.append(scroll_of_destroy_equipment)
+item_rarity.append(scroll_of_destroy_equipment.rarity)
+
+
+### Scroll of Hatred
+scroll_of_hatred = Item(
+    should_randomize=True,
+    char="~",
+    fg=(255, 255, 200),
+    name="증오의 주문서",
+    entity_id="scroll_of_hatred",
+    entity_desc=("증오의 주문서는 주변의 생명체들에게 사용자를 향한 강한 증오감을 심어준다."),
+    item_type_desc=("주문서들은 마법을 사용할 줄 모르거나 내재하고 있는 마력이 부족하더라도 마법을 사용할 수 있게 해주는 유용한 도구이다. "),
+    rarity=35,
+    weight=0.1,
+    price=150,
+    item_type=InventoryOrder.SCROLL,
+    item_state=ItemState(),
+    spawnable=True,
+    flammable=0.3,
+    corrodible=0.1,
+    droppable=True,
+    stackable=True,
+    throwable=throwable.NormalThrowable(air_friction=20),
+    readable=readable.ScrollOfHatred(),
+    quaffable=None,
+)
+temp_items_lists.append(scroll_of_hatred)
+item_rarity.append(scroll_of_hatred.rarity)
 
 
 #########################################################################
@@ -917,6 +971,99 @@ soul_bolt_spellbook = Item(
 )
 temp_items_lists.append(soul_bolt_spellbook)
 item_rarity.append(soul_bolt_spellbook.rarity)
+
+
+### Cure wound spellbook
+cure_wound_spellbook = Item(
+    should_randomize=True,
+    char="=",
+    fg=(255, 255, 200),
+    name="상처 치유 마법서",
+    entity_id="cure_wound_spellbook",
+    item_type_desc=("마법서는 단순한 책들과는 격을 달리 하는 물건이다. "
+                    "이들은 막대한 마법 에너지를 사용해 제작되며, 그 내용도 쉽게 이해하기 어려운 경우가 많다."),
+    rarity=3,
+    weight=0.85,
+    price=480,
+    item_type=InventoryOrder.SPELLBOOK,
+    item_state=ItemState(),
+    spawnable=True,
+    flammable=0.3,
+    corrodible=0.08,
+    droppable=True,
+    stackable=False,
+    throwable=throwable.NormalThrowable(air_friction=20),
+    readable=readable.BookReadable(
+        ability=ability_factories.cure_wound,
+        int_req=13,
+        comprehension_chance_per_int_bonus=0.2,
+    ),
+    quaffable=None,
+)
+temp_items_lists.append(cure_wound_spellbook)
+item_rarity.append(cure_wound_spellbook.rarity)
+
+
+### Mesmerize spellbook
+mesmerize_spellbook = Item(
+    should_randomize=True,
+    char="=",
+    fg=(255, 255, 200),
+    name="매혹 마법서",
+    entity_id="mesmerize_spellbook",
+    item_type_desc=("마법서는 단순한 책들과는 격을 달리 하는 물건이다. "
+                    "이들은 막대한 마법 에너지를 사용해 제작되며, 그 내용도 쉽게 이해하기 어려운 경우가 많다."),
+    rarity=3,
+    weight=0.85,
+    price=480,
+    item_type=InventoryOrder.SPELLBOOK,
+    item_state=ItemState(),
+    spawnable=True,
+    flammable=0.3,
+    corrodible=0.08,
+    droppable=True,
+    stackable=False,
+    throwable=throwable.NormalThrowable(air_friction=20),
+    readable=readable.BookReadable(
+        ability=ability_factories.mesmerize,
+        int_req=16,
+        comprehension_chance_per_int_bonus=0.3,
+    ),
+    quaffable=None,
+)
+temp_items_lists.append(mesmerize_spellbook)
+item_rarity.append(mesmerize_spellbook.rarity)
+
+
+### Teleport spellbook
+teleport_spellbook = Item(
+    should_randomize=True,
+    char="=",
+    fg=(255, 255, 200),
+    name="순간이동 마법서",
+    entity_id="teleport_spellbook",
+    item_type_desc=("마법서는 단순한 책들과는 격을 달리 하는 물건이다. "
+                    "이들은 막대한 마법 에너지를 사용해 제작되며, 그 내용도 쉽게 이해하기 어려운 경우가 많다."),
+    rarity=3,
+    weight=0.85,
+    price=480,
+    item_type=InventoryOrder.SPELLBOOK,
+    item_state=ItemState(),
+    spawnable=True,
+    flammable=0.3,
+    corrodible=0.08,
+    droppable=True,
+    stackable=False,
+    throwable=throwable.NormalThrowable(air_friction=20),
+    readable=readable.BookReadable(
+        ability=ability_factories.teleport,
+        int_req=15,
+        comprehension_chance_per_int_bonus=0.1,
+    ),
+    quaffable=None,
+)
+temp_items_lists.append(teleport_spellbook)
+item_rarity.append(teleport_spellbook.rarity)
 
 
 #########################################################################
@@ -1484,6 +1631,7 @@ boots_of_haste = Item(
     ),
     cursable=False,
     is_artifact=True,
+    initial_upgrades={0:0},
 )
 temp_items_lists.append(boots_of_haste)
 item_rarity.append(boots_of_haste.rarity)
@@ -1616,7 +1764,8 @@ gauntlet_of_strength = Item(
         strength_mag=1,
     ),
     cursable=False,
-    is_artifact=True
+    is_artifact=True,
+    initial_upgrades={0:0},
 )
 temp_items_lists.append(gauntlet_of_strength)
 item_rarity.append(gauntlet_of_strength.rarity)
@@ -1822,6 +1971,8 @@ cloak_of_protection = Item(
     ),
     is_artifact=True,
     cursable=False,
+    initial_BUC={1:1,0:0,-1:0},
+    initial_upgrades={0:0},
 )
 temp_items_lists.append(cloak_of_protection)
 item_rarity.append(cloak_of_protection.rarity)
@@ -2151,6 +2302,8 @@ sunbringer = Item(
     ),
     lockpickable=(0.8,0),
     is_artifact=True,
+    initial_BUC={1:1,0:0,-1:0},
+    initial_upgrades={0:0},
     cursable=False,
 )
 temp_items_lists.append(sunbringer)
@@ -2600,6 +2753,7 @@ amulet_of_brilliance = Item(
     edible=None,
     cursable=False,
     is_artifact=True,
+    initial_upgrades={0:0},
 )
 temp_items_lists.append(amulet_of_brilliance)
 item_rarity.append(amulet_of_brilliance.rarity)
