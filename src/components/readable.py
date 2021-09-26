@@ -561,9 +561,12 @@ class RayReadable(Readable):
         pass
 
     def effects_on_consumer_tile(self, action: actions.ReadItem, x: int, y: int):
-        """effects applied to the tile of the consumer.
-        This function is called only if the ray's dx, dy is (0,0) meaning that the consumer shot the ray to itself. (towards descending direction)"""
-        pass
+        """
+        effects applied to the tile of the consumer.
+        This function is called only if the ray's dx, dy is (0,0) meaning that the consumer shot the ray to itself. (towards descending direction)
+        As default, this function does exactly the same as effects_on_path()
+        """
+        return self.effects_on_path(action, x, y)
 
     def effects_on_collided_entity(self, consumer: Actor, entity):
         """
