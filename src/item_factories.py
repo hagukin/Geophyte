@@ -490,7 +490,8 @@ scroll_of_meteor_storm = Item(
     name="운석 폭풍의 주문서",
     entity_id="scroll_of_meteor_storm",
     entity_desc=("운석 폭풍의 주문서를 읽은 사용자는 한 차례 자신이 원하는 공간에 거대한 운석을 소환할 수 있게 된다. "),
-    item_type_desc=("주문서들은 마법을 사용할 줄 모르거나 내재하고 있는 마력이 부족하더라도 마법을 사용할 수 있게 해주는 유용한 도구이다. "),
+    item_type_desc=("주문서들은 마법을 사용할 줄 모르거나 내재하고 있는 마력이 부족하더라도 마법을 사용할 수 있게 해주는 유용한 도구이다. "
+                    "같은 종류의 주문서를 사용하더라도 주문서가 저주받았다면 전혀 다른 결과를 가져올 수도 있다. "),
     rarity=30,
     weight=0.1,
     price=300,
@@ -517,7 +518,8 @@ scroll_of_lightning = Item(
     name="번개의 주문서",
     entity_id="scroll_of_lightning",
     entity_desc=("번개의 주문서를 읽으면 읽은 사용자의 주변에 강력한 방전 현상이 발생해 주위 생명체에 강력한 번개를 내리친다. "),
-    item_type_desc=("주문서들은 마법을 사용할 줄 모르거나 내재하고 있는 마력이 부족하더라도 마법을 사용할 수 있게 해주는 유용한 도구이다. "),
+    item_type_desc=("주문서들은 마법을 사용할 줄 모르거나 내재하고 있는 마력이 부족하더라도 마법을 사용할 수 있게 해주는 유용한 도구이다. "
+                    "같은 종류의 주문서를 사용하더라도 주문서가 저주받았다면 전혀 다른 결과를 가져올 수도 있다. "),
     rarity=40,
     weight=0.1,
     price=200,
@@ -544,7 +546,8 @@ scroll_of_magic_missile = Item(
     name="마법 광선의 주문서",
     entity_id="scroll_of_magic_missile",
     entity_desc=("마법 광선의 주문서를 읽은 사용자는 강력한 마법 에너지가 내재된 광선을 발사할 수 있게 된다. "),
-    item_type_desc=("주문서들은 마법을 사용할 줄 모르거나 내재하고 있는 마력이 부족하더라도 마법을 사용할 수 있게 해주는 유용한 도구이다. "),
+    item_type_desc=("주문서들은 마법을 사용할 줄 모르거나 내재하고 있는 마력이 부족하더라도 마법을 사용할 수 있게 해주는 유용한 도구이다. "
+                    "같은 종류의 주문서를 사용하더라도 주문서가 저주받았다면 전혀 다른 결과를 가져올 수도 있다. "),
     rarity=55,
     weight=0.1,
     price=250,
@@ -572,7 +575,8 @@ scroll_of_digging = Item(
     entity_id="scroll_of_digging",
     entity_desc=("굴착의 주문서를 읽은 사용자는 대부분의 지형을 파괴시킬 수 있는 광선을 발사할 수 있게 된다. "
                  "이 광선은 대부분의 생명체에게는 아무런 피해를 주지 않는 것으로 알려져 있다. "),
-    item_type_desc=("주문서들은 마법을 사용할 줄 모르거나 내재하고 있는 마력이 부족하더라도 마법을 사용할 수 있게 해주는 유용한 도구이다. "),
+    item_type_desc=("주문서들은 마법을 사용할 줄 모르거나 내재하고 있는 마력이 부족하더라도 마법을 사용할 수 있게 해주는 유용한 도구이다. "
+                    "같은 종류의 주문서를 사용하더라도 주문서가 저주받았다면 전혀 다른 결과를 가져올 수도 있다. "),
     rarity=30,
     weight=0.1,
     price=250,
@@ -599,7 +603,8 @@ scroll_of_magic_mapping = Item(
     name="마법 지도의 주문서",
     entity_id="scroll_of_magic_mapping",
     entity_desc=("마법 지도의 주문서를 읽은 사용자는 주위의 공간적 정보들을 일시적으로 인식할 수 있게 된다. "),
-    item_type_desc=("주문서들은 마법을 사용할 줄 모르거나 내재하고 있는 마력이 부족하더라도 마법을 사용할 수 있게 해주는 유용한 도구이다. "),
+    item_type_desc=("주문서들은 마법을 사용할 줄 모르거나 내재하고 있는 마력이 부족하더라도 마법을 사용할 수 있게 해주는 유용한 도구이다. "
+                    "같은 종류의 주문서를 사용하더라도 주문서가 저주받았다면 전혀 다른 결과를 가져올 수도 있다. "),
     rarity=65,
     weight=0.1,
     price=250,
@@ -626,7 +631,8 @@ scroll_of_scorching_ray = Item(
     name="맹렬한 화염 광선의 주문서",
     entity_id="scroll_of_scorching_ray",
     entity_desc=("맹렬한 화염 광선의 주문서를 읽은 사용자는 주위 것들을 태워버리는 강렬한 화염으로 이루어진 광선을 발사할 수 있게 된다. "),
-    item_type_desc=("주문서들은 마법을 사용할 줄 모르거나 내재하고 있는 마력이 부족하더라도 마법을 사용할 수 있게 해주는 유용한 도구이다. "),
+    item_type_desc=("주문서들은 마법을 사용할 줄 모르거나 내재하고 있는 마력이 부족하더라도 마법을 사용할 수 있게 해주는 유용한 도구이다. "
+                    "같은 종류의 주문서를 사용하더라도 주문서가 저주받았다면 전혀 다른 결과를 가져올 수도 있다. "),
     rarity=35,
     weight=0.1,
     price=300,
@@ -653,7 +659,8 @@ scroll_of_freezing_ray = Item(
     name="얼어붙는 빙결 광선의 주문서",
     entity_id="scroll_of_freezing_ray",
     entity_desc=("얼어붙는 빙결 광선의 주문서를 읽은 사용자는 주위 것들을 얼려버리는 차가운 냉기로 이루어진 광선을 발사할 수 있게 된다. "),
-    item_type_desc=("주문서들은 마법을 사용할 줄 모르거나 내재하고 있는 마력이 부족하더라도 마법을 사용할 수 있게 해주는 유용한 도구이다. "),
+    item_type_desc=("주문서들은 마법을 사용할 줄 모르거나 내재하고 있는 마력이 부족하더라도 마법을 사용할 수 있게 해주는 유용한 도구이다. "
+                    "같은 종류의 주문서를 사용하더라도 주문서가 저주받았다면 전혀 다른 결과를 가져올 수도 있다. "),
     rarity=35,
     weight=0.1,
     price=300,
@@ -680,7 +687,8 @@ scroll_of_tame = Item(
     name="복종의 주문서",
     entity_id="scroll_of_tame",
     entity_desc=("복종의 주문서를 읽은 사용자는 다른 생명체를 복종시킬 수 있는 강력한 고위 주문을 한 차례 사용할 수 있게 된다. "),
-    item_type_desc=("주문서들은 마법을 사용할 줄 모르거나 내재하고 있는 마력이 부족하더라도 마법을 사용할 수 있게 해주는 유용한 도구이다. "),
+    item_type_desc=("주문서들은 마법을 사용할 줄 모르거나 내재하고 있는 마력이 부족하더라도 마법을 사용할 수 있게 해주는 유용한 도구이다. "
+                    "같은 종류의 주문서를 사용하더라도 주문서가 저주받았다면 전혀 다른 결과를 가져올 수도 있다. "),
     rarity=25,
     weight=0.1,
     price=400,
@@ -707,7 +715,8 @@ scroll_of_enchantment = Item(
     name="마법 강화의 주문서",
     entity_id="scroll_of_enchantment",
     entity_desc=("마법 강화의 주문서를 읽은 사용자는 보유 중인 도구에 마법 에너지를 부여해 도구의 성능을 강화할 수 있게 된다. "),
-    item_type_desc=("주문서들은 마법을 사용할 줄 모르거나 내재하고 있는 마력이 부족하더라도 마법을 사용할 수 있게 해주는 유용한 도구이다. "),
+    item_type_desc=("주문서들은 마법을 사용할 줄 모르거나 내재하고 있는 마력이 부족하더라도 마법을 사용할 수 있게 해주는 유용한 도구이다. "
+                    "같은 종류의 주문서를 사용하더라도 주문서가 저주받았다면 전혀 다른 결과를 가져올 수도 있다. "),
     rarity=75,
     weight=0.1,
     price=400,
@@ -734,7 +743,8 @@ scroll_of_identify = Item(
     name="감정의 주문서",
     entity_id="scroll_of_identify",
     entity_desc=("감정의 주문서를 읽은 사용자는 원하는 물품의 성질에 대해 더 자세하게 이해할 수 있게 된다. "),
-    item_type_desc=("주문서들은 마법을 사용할 줄 모르거나 내재하고 있는 마력이 부족하더라도 마법을 사용할 수 있게 해주는 유용한 도구이다. "),
+    item_type_desc=("주문서들은 마법을 사용할 줄 모르거나 내재하고 있는 마력이 부족하더라도 마법을 사용할 수 있게 해주는 유용한 도구이다. "
+                    "같은 종류의 주문서를 사용하더라도 주문서가 저주받았다면 전혀 다른 결과를 가져올 수도 있다. "),
     rarity=95,
     weight=0.1,
     price=50,
@@ -762,7 +772,8 @@ scroll_of_remove_curse = Item(
     name="저주 해제의 주문서",
     entity_id="scroll_of_remove_curse",
     entity_desc=("저주 해제의 주문서를 읽은 사용자는 물건에 걸린 저주를 제거할 수 있는 강력한 고위 마법을 한 차례 사용할 수 있게 된다. "),
-    item_type_desc=("주문서들은 마법을 사용할 줄 모르거나 내재하고 있는 마력이 부족하더라도 마법을 사용할 수 있게 해주는 유용한 도구이다. "),
+    item_type_desc=("주문서들은 마법을 사용할 줄 모르거나 내재하고 있는 마력이 부족하더라도 마법을 사용할 수 있게 해주는 유용한 도구이다. "
+                    "같은 종류의 주문서를 사용하더라도 주문서가 저주받았다면 전혀 다른 결과를 가져올 수도 있다. "),
     rarity=60,
     weight=0.1,
     price=150,
@@ -791,7 +802,8 @@ scroll_of_teleportation = Item(
     entity_desc=("순간 이동의 주문서를 읽은 사용자는 물리적으로 떨어진 공간으로 순간 이동을 할 수 있는 고위 마법을 한 차례 사용할 수 있게 된다. "
                  "불안정한 이동을 하는 경우가 잦다고 한다. "
                  ),
-    item_type_desc=("주문서들은 마법을 사용할 줄 모르거나 내재하고 있는 마력이 부족하더라도 마법을 사용할 수 있게 해주는 유용한 도구이다. "),
+    item_type_desc=("주문서들은 마법을 사용할 줄 모르거나 내재하고 있는 마력이 부족하더라도 마법을 사용할 수 있게 해주는 유용한 도구이다. "
+                    "같은 종류의 주문서를 사용하더라도 주문서가 저주받았다면 전혀 다른 결과를 가져올 수도 있다. "),
     rarity=65,
     weight=0.1,
     price=175,
@@ -818,8 +830,9 @@ scroll_of_destroy_equipment = Item(
     name="장착품 파괴의 주문서",
     entity_id="scroll_of_destroy_equipment",
     entity_desc=("장착품 파괴의 주문서는 사용자가 장비한 임의의 장착품 하나에 강력한 마법 에너지를 투사해 마법적으로 붕괴시킨다."),
-    item_type_desc=("주문서들은 마법을 사용할 줄 모르거나 내재하고 있는 마력이 부족하더라도 마법을 사용할 수 있게 해주는 유용한 도구이다. "),
-    rarity=35,
+    item_type_desc=("주문서들은 마법을 사용할 줄 모르거나 내재하고 있는 마력이 부족하더라도 마법을 사용할 수 있게 해주는 유용한 도구이다. "
+                    "같은 종류의 주문서를 사용하더라도 주문서가 저주받았다면 전혀 다른 결과를 가져올 수도 있다. "),
+    rarity=50,
     weight=0.1,
     price=175,
     item_type=InventoryOrder.SCROLL,
@@ -830,7 +843,7 @@ scroll_of_destroy_equipment = Item(
     droppable=True,
     stackable=True,
     throwable=throwable.NormalThrowable(air_friction=20),
-    readable=readable.ScrollOfDestroyEquipment(),
+    readable=readable.ScrollOfDestroyEquipmentReadable(),
     quaffable=None,
 )
 temp_items_lists.append(scroll_of_destroy_equipment)
@@ -845,8 +858,9 @@ scroll_of_hatred = Item(
     name="증오의 주문서",
     entity_id="scroll_of_hatred",
     entity_desc=("증오의 주문서는 주변의 생명체들에게 사용자를 향한 강한 증오감을 심어준다."),
-    item_type_desc=("주문서들은 마법을 사용할 줄 모르거나 내재하고 있는 마력이 부족하더라도 마법을 사용할 수 있게 해주는 유용한 도구이다. "),
-    rarity=35,
+    item_type_desc=("주문서들은 마법을 사용할 줄 모르거나 내재하고 있는 마력이 부족하더라도 마법을 사용할 수 있게 해주는 유용한 도구이다. "
+                    "같은 종류의 주문서를 사용하더라도 주문서가 저주받았다면 전혀 다른 결과를 가져올 수도 있다. "),
+    rarity=45,
     weight=0.1,
     price=150,
     item_type=InventoryOrder.SCROLL,
@@ -857,11 +871,39 @@ scroll_of_hatred = Item(
     droppable=True,
     stackable=True,
     throwable=throwable.NormalThrowable(air_friction=20),
-    readable=readable.ScrollOfHatred(),
+    readable=readable.ScrollOfHatredReadable(),
     quaffable=None,
 )
 temp_items_lists.append(scroll_of_hatred)
 item_rarity.append(scroll_of_hatred.rarity)
+
+
+### Scroll of Conflict
+scroll_of_conflict = Item(
+    should_randomize=True,
+    char="~",
+    fg=(255, 255, 200),
+    name="불화의 주문서",
+    entity_id="scroll_of_conflict",
+    entity_desc=("불화의 주문서는 자신을 포함한 주변 생명체들에게 걷잡을 수 없는 분노를 느끼게 만들어 서로 간의 불화를 발생시킨다. "),
+    item_type_desc=("주문서들은 마법을 사용할 줄 모르거나 내재하고 있는 마력이 부족하더라도 마법을 사용할 수 있게 해주는 유용한 도구이다. "
+                    "같은 종류의 주문서를 사용하더라도 주문서가 저주받았다면 전혀 다른 결과를 가져올 수도 있다. "),
+    rarity=55,
+    weight=0.1,
+    price=150,
+    item_type=InventoryOrder.SCROLL,
+    item_state=ItemState(),
+    spawnable=True,
+    flammable=0.3,
+    corrodible=0.1,
+    droppable=True,
+    stackable=True,
+    throwable=throwable.NormalThrowable(air_friction=20),
+    readable=readable.ScrollOfConflictReadable(),
+    quaffable=None,
+)
+temp_items_lists.append(scroll_of_conflict)
+item_rarity.append(scroll_of_conflict.rarity)
 
 
 #########################################################################

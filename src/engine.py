@@ -336,6 +336,9 @@ class Engine:
             # Confusion
             if actor.actor_state.is_confused != [0,0]:
                 actor.actor_state.actor_confused()
+            # Anger
+            if actor.actor_state.is_angry != [0,0]:
+                actor.actor_state.actor_angered()
             # Completly frozen
             if actor.actor_state.is_frozen != [0,0,0]:
                 actor.actor_state.actor_frozen()

@@ -123,13 +123,13 @@ player = Actor(
     inventory=Inventory(capacity=52, is_fireproof=False, is_acidproof=False, is_waterproof=False),
     ability_inventory=AbilityInventory(capacity=26),
     equipments=Equipments(),
-#     initial_items=
-#     (
-# {"item": item_factories.scroll_of_magic_mapping, "chance": 1, "count": (10, 15), "BUC": {1:1,0:0,-1:0}, "upgrade": None},
-# {"item": item_factories.potion_of_monster_detection, "chance": 1, "count": (10, 15), "BUC": {1:1,0:0,-1:0}, "upgrade": None},
-# {"item": item_factories.scroll_of_digging, "chance": 1, "count": (10, 12), "BUC": {1:0,0:0,-1:1}, "upgrade": None},
-# {"item": item_factories.potion_of_levitation, "chance": 1, "count": (10, 10), "BUC": None, "upgrade": None},
-#     ),
+    initial_items=
+    (
+{"item": item_factories.scroll_of_magic_mapping, "chance": 1, "count": (10, 15), "BUC": {1:1,0:0,-1:0}, "upgrade": None},
+{"item": item_factories.scroll_of_conflict, "chance": 1, "count": (10, 15), "BUC": {1:1,0:0,-1:0}, "upgrade": None},
+{"item": item_factories.scroll_of_digging, "chance": 1, "count": (10, 12), "BUC": {1:0,0:0,-1:1}, "upgrade": None},
+{"item": item_factories.potion_of_levitation, "chance": 1, "count": (10, 10), "BUC": None, "upgrade": None},
+    ),
 #     initial_equipments=(
 #         {"item":item_factories.cloak_of_protection, "chance":1, "count":(1,1), "BUC":None, "upgrade": None},
 #         {"item":item_factories.leather_armor, "chance":1, "count":(1,1), "BUC":{-1:1, 0:1, 1:1}, "upgrade": {1:1,2:0,3:0,4:0}},
@@ -194,7 +194,8 @@ shopkeeper = Actor(
         can_breathe_underwater=True,
         has_telepathy=True, # Shopkeeper has telepathy
         can_think=True,
-        can_talk=True
+        can_talk=True,
+        has_inner_peace=True,
     ),
     inventory=Inventory(capacity=52, is_fireproof=True),
     ability_inventory=AbilityInventory(capacity=10),
@@ -914,6 +915,7 @@ floating_eye = Actor(
         can_fly=True,
         is_flying=True,
         has_telepathy=True,
+        has_inner_peace=True,
     ),
     inventory=Inventory(capacity=1),
     ability_inventory=AbilityInventory(capacity=1),

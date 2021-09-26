@@ -1471,6 +1471,15 @@ class BumpAction(ActionWithDirection):
                 else:
                     return action.perform()
             else:
+                # Force entity to attack when angered
+                if self.bump_entity.check_if_bump_action_possible(actor=self.entity, keyword="attack")\
+                        and self.entity.actor_state.is_angry != [0,0]: # Actor will attack without being able to decide what to do when angered.
+                    action = self.bump_entity.get_bumpaction(actor=self.entity, keyword="attack")
+                    if action is None:
+                        return None
+                    else:
+                        return action.perform()
+
                 if self.entity == self.engine.player:
                     self.engine.event_handler = NonHostileBumpHandler(self.bump_entity)
                     self.free_action = True # Force this action to not cost a time so that yime passes after player decides whether to attack or not.

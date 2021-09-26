@@ -303,6 +303,13 @@ def render_character_state(
         else:
             num1 += 1
             console.print(x=lane1_x, y=y+num1, string="출혈", fg=color.blood)
+    if character.actor_state.is_angry != [0,0]:
+        if num1 > window_height:
+            num2 += 1
+            console.print(x=lane2_x, y=y+num2, string="분노", fg=color.red)
+        else:
+            num1 += 1
+            console.print(x=lane1_x, y=y+num1, string="분노", fg=color.red)
     if character.actor_state.is_melting != [0,0,0,0]:
         if num1 > window_height:
             num2 += 1

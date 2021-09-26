@@ -495,6 +495,11 @@ class BaseAI(BaseComponent):
         elif actor == self.target:
             return True
 
+        # Target everyone if angered
+        if self.parent.actor_state.is_angry != [0,0]:
+            # NOTE: Peaceful ai will never attack anyone
+            return True
+
         # If the actor has an owner
         if self.owner:
             # Actor will not target its owner but everyone else
@@ -568,6 +573,9 @@ class BaseAI(BaseComponent):
         return False
 
     def get_target(self) -> None:
+        if self.parent.actor_state.is_angry != [0,0]: # Target anyone if angered
+            return self.get_target_hostile()
+
         if self.owner:
             return self.get_target_pet()
 

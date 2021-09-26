@@ -166,6 +166,7 @@ class ActorState(BaseComponent):
         ### Mental capabilities
         can_think: bool = True, # Has ability to make the most basic level of logical decision (e.g. feels pain -> moves away)
         can_talk: bool = False, # Is capable of speaking a language
+        has_inner_peace: bool = False, # actor can resist anger
     ):
         """
         Vars:
@@ -291,6 +292,7 @@ class ActorState(BaseComponent):
 
         self.can_think = can_think
         self.can_talk = can_talk
+        self.has_inner_peace = has_inner_peace
 
         self._origin_state = copy.deepcopy(self)
 
@@ -707,6 +709,20 @@ class ActorState(BaseComponent):
             self.apply_confusion([0,0])
         elif self.is_confused[0] >= 0: # lasts forever if negative
             self.is_confused[0] += 1
+          
+            
+    def actor_angered(self):
+        """
+        NOTE: This method only handles counting the turns left for the effect to go off.
+        """
+        # Check turns
+        if self.is_angry[0] >= self.is_angry[1] and self.is_angry[1] > 0: # stop being angered
+            if self.parent == self.engine.player:
+                self.engine.message_log.add_message(f"당신은 더 이상 분노하고 있지 않다.", fg=color.player_neutral)
+            self.apply_anger([0,0])
+        elif self.is_angry[0] >= 0: # lasts forever if negative
+            self.is_angry[0] += 1
+    
     
     def actor_melting(self):
         """
@@ -1281,6 +1297,10 @@ class ActorState(BaseComponent):
                     self.engine.message_log.add_message(f"{g(self.parent.name, '은')} 잠에 저항했다!", fg=color.enemy_unique, target=self.parent)
 
     def apply_anger(self, value: List[int,int]) -> None:
+        if self.has_inner_peace:
+            if self.is_angry != [0,0]:
+                self.is_angry = [0,0]
+            return None
         if self.is_angry[1] < 0:
             return None
         if self.is_angry != [0,0] and value != [0,0]:

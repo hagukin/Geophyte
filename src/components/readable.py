@@ -608,6 +608,10 @@ class RayReadable(Readable):
         path = []
         targets = []
         wall_penetration_cnt = self.wall_penetration_cnt # NOTE: You must NOT directly modify the self.wall_penetration_cnt since all readable shares one memory
+        if self.parent.item_state.BUC == 1:
+            wall_penetration_cnt = round(wall_penetration_cnt * 2)
+        elif self.parent.item_state.BUC == -1:
+            wall_penetration_cnt = round(wall_penetration_cnt / 2)
 
         while True:
             # ray is out of the map border
@@ -777,7 +781,7 @@ class ScrollOfLightningReadable(AutoTargetingHarmfulReadable):
         target.actor_state.actor_electrocuted(source_actor=consumer)
 
 
-class ScrollOfDestroyEquipment(Readable):
+class ScrollOfDestroyEquipmentReadable(Readable):
     def activate(self, action: actions.ReadItem) -> None:
         if action.entity == self.engine.player:
             self.engine.message_log.add_message(f"당신의 {g(self.parent.name, '으로')}부터 파괴적인 마법 에너지가 뿜어져 나왔다!",fg=color.player_neutral_important)
@@ -797,7 +801,7 @@ class ScrollOfDestroyEquipment(Readable):
         self.consume(action.entity)
 
 
-class ScrollOfHatred(Readable):
+class ScrollOfHatredReadable(Readable):
     def activate(self, action: actions.ReadItem) -> None:
         consumer = action.entity
         if consumer == self.engine.player:
@@ -810,6 +814,29 @@ class ScrollOfHatred(Readable):
                 if actor.ai.check_if_enemy(consumer) or self.parent.item_state.BUC == 1: # If blessed, trigger all actor
                     actor.status.take_damage(0, attacked_from=consumer)
                     actor.ai.path = actor.ai.get_path_to(consumer.x, consumer.y)
+        self.consume(consumer)
+
+
+class ScrollOfConflictReadable(Readable):
+    def __init__(self, last_turn: int = 20):
+        super().__init__()
+        self.last_turn = last_turn
+
+    def activate(self, action: actions.ReadItem) -> None:
+        consumer = action.entity
+        if consumer == self.engine.player:
+            self.engine.message_log.add_message(f"던전 곳곳에서 분노에 가득 찬 울부짖음이 들려온다!",fg=color.player_severe)
+
+        if self.parent.item_state.BUC == -1: # If cursed, anger only the consumer
+            consumer.actor_state.apply_anger([0,self.last_turn])
+        else:
+            for actor in consumer.gamemap.actors:
+                if actor == consumer and self.parent.item_state.BUC == 1: # If blessed, trigger all but consumer
+                    continue
+                else:
+                    if actor.ai:
+                        actor.ai.target = None # Reset target
+                    actor.actor_state.apply_anger([0,self.last_turn])
         self.consume(consumer)
 
 
