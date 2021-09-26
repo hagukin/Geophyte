@@ -39,7 +39,9 @@ monster_lair = Terrain(
     max_height=8,
     protected=True,
     can_have_stair=False,
-    locked_door_chance=1,
+    door_types={
+      semiactor_factories.locked_door:1
+    },
     shape={
         "rectangular":1,
         "circular": 1,
@@ -216,12 +218,22 @@ chest_room = Terrain(
     name="창고",
     terrain_id="chest_room",
     terrain_desc="chest room desc",
-    rarity=2,
+    rarity=3,
     spawn_item=False,
-    spawn_monster=True,
+    spawn_monster=False,
     gen_chests={"checklist":{"large_wooden_chest" : 10}, "chest_num_range":(1,3), "initial_items":None},
+    has_door=True,
+    spawn_door=True,
+    door_num_range = (1,),
+    door_num_weight = (1,),
+    protected=True,
+    can_have_stair=False,
+    door_types={
+      semiactor_factories.chained_locked_door:1
+    },
 )
 terrain_dict[chest_room] = chest_room.rarity
+
 
 # Large pit
 large_pit = Terrain(
@@ -248,7 +260,7 @@ giant_hole = Terrain(
     name="큰 구멍",
     terrain_id="giant_hole",
     terrain_desc="Desc of giant_hole terrain (TEST)",
-    rarity=5,
+    rarity=7,
     spawn_item=False,
     spawn_monster=False,
     gen_holes={"core_num_range":(1,8), "scale_range":(1,4), "density":0.6, "no_border":True},
@@ -343,7 +355,7 @@ weapon_shop = ShopTerrain(
     name="무기 상점",
     terrain_id="weapon_shop",
     terrain_desc="weapon shop desc",
-    rarity=2,
+    rarity=1,
     min_width=6,
     max_width=8,
     min_height=6,
@@ -354,6 +366,25 @@ weapon_shop = ShopTerrain(
     shape=None,
 )
 terrain_dict[weapon_shop] = weapon_shop.rarity
+
+
+# Armor shop
+from custom_terrgen import ShopTerrGen
+armor_shop = ShopTerrain(
+    name="갑옷 상점",
+    terrain_id="armor_shop",
+    terrain_desc="armor shop desc",
+    rarity=1,
+    min_width=6,
+    max_width=8,
+    min_height=6,
+    max_height=8,
+    custom_gen=ShopTerrGen.generate_shop,
+    sell_items=None,
+    sell_items_type_limit=(InventoryOrder.ARMOR, ),
+    shape=None,
+)
+terrain_dict[armor_shop] = armor_shop.rarity
 
 
 # Scroll shop

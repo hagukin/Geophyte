@@ -503,10 +503,7 @@ def spawn_doors(
         dungeon.tiles[door_pos] = dungeon.tileset["t_floor"]()
 
         if room.terrain.spawn_door and dungeon.get_semiactor_at_location(x=door_pos[0], y=door_pos[1], semiactor_id="door") == None:
-            if random.random() <= room.terrain.locked_door_chance:
-                semiactor_factories.locked_door.spawn(gamemap=dungeon, x=door_pos[0], y=door_pos[1], lifetime=-1)
-            else:
-                semiactor_factories.closed_door.spawn(gamemap=dungeon, x=door_pos[0], y=door_pos[1], lifetime=-1)
+            random.choices(list(room.terrain.door_types.keys()), list(room.terrain.door_types.values()), k=1)[0].spawn(gamemap=dungeon, x=door_pos[0], y=door_pos[1], lifetime=-1)
         else:
             print(f"WARNING::Door already exists on {door_pos}. Cancelled Spawning.")
 

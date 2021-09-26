@@ -563,6 +563,34 @@ temp_items_lists.append(scroll_of_magic_missile)
 item_rarity.append(scroll_of_magic_missile.rarity)
 
 
+### Scroll of digging
+scroll_of_digging = Item(
+    should_randomize=True,
+    char="~",
+    fg=(100, 50, 255),
+    name="굴착의 주문서",
+    entity_id="scroll_of_digging",
+    entity_desc=("굴착의 주문서를 읽은 사용자는 대부분의 지형을 파괴시킬 수 있는 광선을 발사할 수 있게 된다. "
+                 "이 광선은 대부분의 생명체에게는 아무런 피해를 주지 않는 것으로 알려져 있다. "),
+    item_type_desc=("주문서들은 마법을 사용할 줄 모르거나 내재하고 있는 마력이 부족하더라도 마법을 사용할 수 있게 해주는 유용한 도구이다. "),
+    rarity=30,
+    weight=0.1,
+    price=250,
+    item_type=InventoryOrder.SCROLL,
+    item_state=ItemState(),
+    spawnable=True,
+    flammable=0.3,
+    corrodible=0.1,
+    droppable=True,
+    stackable=True,
+    throwable=throwable.NormalThrowable(air_friction=20),
+    readable=readable.ScrollOfDiggingReadable(anim_graphic=anim_graphics.digging_ray, penetration=True, wall_penetration_cnt=3),
+    quaffable=None,
+)
+temp_items_lists.append(scroll_of_digging)
+item_rarity.append(scroll_of_digging.rarity)
+
+
 ### Scroll of magic mapping
 scroll_of_magic_mapping = Item(
     should_randomize=True,

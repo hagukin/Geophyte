@@ -240,7 +240,7 @@ class NormalThrowable(Throwable):
 
         if not self.shattered:
             # Open closed door if there is one
-            if collided.entity_id == "closed_door":
+            if collided.entity_id[-11:] == "closed_door":
                 if not self.shattered:
                     temp_x, temp_y = collided.x, collided.y
                     collided.remove_self()

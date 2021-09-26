@@ -7,7 +7,7 @@ import tiles
 from animation import Animation
 from components.base_component import BaseComponent
 from exceptions import Impossible
-from order import InventoryOrder
+from order import InventoryOrder, TilemapOrder
 from korean import grammar as g
 from tiles import TileUtil
 from entity import Actor
@@ -525,16 +525,20 @@ class AutoTargetingHarmfulReadable(Readable):
 
 
 class RayReadable(Readable):
-    def __init__(self, anim_graphic, damage_range: Tuple[int,int]=(0,0), penetration: bool=False, max_range: int=1000):
+    def __init__(self, anim_graphic, damage_range: Tuple[int,int]=(0,0), penetration: bool=False, wall_penetration_cnt: int=0, max_range: int=1000):
         """
         Args:
             anim_graphic:
                 Can be either callable or dictionary obj.
+            wall_penetration_cnt:
+                maximum number of walls that the ray can go through.
+                Does not have to be a continuous array of walls.
         """
         super().__init__()
         self._anim_graphic = anim_graphic
         self.damage_range = damage_range
         self.penetration = penetration
+        self.wall_penetration_cnt = wall_penetration_cnt
         self.max_range = max_range
 
     @property
@@ -548,8 +552,17 @@ class RayReadable(Readable):
     def damage(self):
         return random.randint(*self.damage_range)
 
-    def effects_on_path(self, x: int, y: int):
+    def effects_on_path(self, action: actions.ReadItem, x: int, y: int):
         """effects applied to the tiles on the path."""
+        pass
+
+    def effects_on_collided_wall(self, action: actions.ReadItem, x: int, y: int):
+        """effects applied to the tiles on the path."""
+        pass
+
+    def effects_on_consumer_tile(self, action: actions.ReadItem, x: int, y: int):
+        """effects applied to the tile of the consumer.
+        This function is called only if the ray's dx, dy is (0,0) meaning that the consumer shot the ray to itself. (towards descending direction)"""
         pass
 
     def effects_on_collided_entity(self, consumer: Actor, entity):
@@ -570,7 +583,7 @@ class RayReadable(Readable):
         if cancelled:
             return self.item_use_cancelled(actor=consumer)
 
-        self.engine.message_log.add_message(f"{g(self.parent.name, '을')} 사용할 방향을 선택하세요.", color.help_msg)
+        self.engine.message_log.add_message(f"{g(self.parent.name, '을')} 사용할 방향을 선택하세요. 바닥 방향으로 사용하려면 자신이 위치하고 있는 타일을 선택하세요.", color.help_msg)
         self.engine.message_log.add_message(f"방향키/마우스 이동:위치 선택 | 엔터/마우스 클릭:결정", color.help_msg)
 
         from input_handlers import RayRangedInputHandler
@@ -591,6 +604,7 @@ class RayReadable(Readable):
         dest_x, dest_y = consumer.x + dx, consumer.y + dy
         path = []
         targets = []
+        wall_penetration_cnt = self.wall_penetration_cnt # NOTE: You must NOT directly modify the self.wall_penetration_cnt since all readable shares one memory
 
         while True:
             # ray is out of the map border
@@ -598,16 +612,25 @@ class RayReadable(Readable):
                 break
             # ray is blocked by a tile
             if not self.engine.game_map.tiles["walkable"][dest_x, dest_y]:
-                break
+                self.effects_on_collided_wall(action=action, x=dest_x, y=dest_y) # Function is called regardless of whether the beam can penetrate through walls or not
+                if wall_penetration_cnt > 0:
+                    wall_penetration_cnt -= 1
+                    continue
+                else:
+                    break
 
             # check collision with entities
             collided = self.engine.game_map.get_blocking_entity_at_location(dest_x, dest_y)
             if collided:
                 # collided with the reader
                 if collided == consumer:
+                    if dx == 0 and dy == 0:
+                        self.effects_on_consumer_tile(action=action, x=consumer.x, y=consumer.y)
                     self.effects_on_collided_actor(consumer=consumer, target=consumer)
                     self.consume(consumer)
-                    return 0
+                    if not consumer.is_dead:
+                        consumer.do_environmental_effects() # Apply environmental effects
+                    return None
 
                 # if not add all entities collided to a list
                 targets.append(collided)
@@ -631,7 +654,7 @@ class RayReadable(Readable):
             frames.append([(relative_x, relative_y, self.anim_graphic, None)])
 
             # effects on the paths
-            self.effects_on_path(x=loc[0], y=loc[1])
+            self.effects_on_path(action=action, x=loc[0], y=loc[1])
 
         # instantiate animation and render it
         ray_animation = Animation(engine=self.engine, frames=frames, stack_frames=True) # sec_per_frames = default
@@ -661,6 +684,23 @@ class ScrollOfMagicMissileReadable(RayReadable):
         target.status.take_damage(amount=real_damage, attacked_from=consumer)
 
 
+class ScrollOfDiggingReadable(RayReadable):
+    def effects_on_consumer_tile(self, action: actions.ReadItem, x: int, y: int):
+        consumer = action.entity
+        if consumer.gamemap.tiles[x, y]["walkable"] and consumer.gamemap.tiles[x,y]["diggable"] and consumer.gamemap.tilemap[x,y] != TilemapOrder.MAP_BORDER.value:
+            self.engine.message_log.add_message(f"굴착의 광선이 {g(consumer.gamemap.tiles[x, y]['tile_name'], '을')} 뚫고 지나갔다.",fg=color.player_neutral_important)
+            consumer.gamemap.tiles[x, y] = consumer.gamemap.tileset["t_hole"]()
+        return
+
+    def effects_on_collided_wall(self, action: actions.ReadItem, x: int, y: int):
+        consumer = action.entity
+        dx = action.target_xy[0]
+        dy = action.target_xy[1]
+        if not consumer.gamemap.tiles[x,y]["walkable"] and consumer.gamemap.tiles[x,y]["diggable"] and consumer.gamemap.tilemap[x,y] != TilemapOrder.MAP_BORDER.value:
+            self.engine.message_log.add_message(f"굴착의 광선이 {g(consumer.gamemap.tiles[x, y]['tile_name'], '을')} 뚫고 지나갔다.", fg=color.player_neutral_important)
+            consumer.gamemap.tiles[x, y] = consumer.gamemap.tileset["t_floor"]()
+
+
 class ScrollOfScorchingRayReadable(RayReadable):
     def effects_on_collided_actor(self, consumer: Actor, target: Actor):
         real_damage = target.status.calculate_dmg_reduction(damage=self.damage, damage_type="fire")  # No direct state effect applied since fire entity is about to spawn
@@ -678,7 +718,7 @@ class ScrollOfScorchingRayReadable(RayReadable):
         target.actor_state.apply_burning([max(1,int(real_damage / 8)), 2, 0, 6])
         target.status.take_damage(amount=real_damage, attacked_from=consumer)
     
-    def effects_on_path(self, x: int, y: int):
+    def effects_on_path(self, action: actions.ReadItem, x: int, y: int):
         # Create fire
         import semiactor_factories
         semiactor_factories.fire.spawn(self.engine.game_map, x, y, 6)
@@ -701,7 +741,7 @@ class ScrollOfFreezingRayReadable(RayReadable):
         target.actor_state.apply_freezing([max(1,int(real_damage/8)), 5, 0.2, 0, 4])
         target.status.take_damage(amount=real_damage, attacked_from=consumer)
 
-    def effects_on_path(self, x: int, y: int):
+    def effects_on_path(self, action: actions.ReadItem, x: int, y: int):
         # Freeze water
         self.engine.game_map.tiles[x, y] = TileUtil.freeze(self.engine.game_map.tiles[x, y])
 

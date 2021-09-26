@@ -21,6 +21,13 @@ freezing_ray = {
     "bg":(196, 249, 255),
 }
 
+### Digging Ray
+digging_ray = {
+    "char":"*",
+    "fg":(255, 255, 48),
+    "bg":(117, 255, 175),
+}
+
 ### Explosion
 def explosion():
 

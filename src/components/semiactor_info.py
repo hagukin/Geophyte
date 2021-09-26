@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Tuple
 from components.base_component import BaseComponent
 from korean import grammar as g
 
@@ -126,8 +126,10 @@ class Door(SemiactorInfo):
         is_burning: bool = False,
         burntness: int = 0,
         corrosion: int = 0,
+        break_str_req: Tuple[int,int] = (17,20)
     ):
         super().__init__(flammable, corrodable, was_burning, is_burning, burntness, corrosion)
+        self.break_str_req = break_str_req
 
 
     def burn(self):

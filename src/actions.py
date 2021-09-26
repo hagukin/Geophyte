@@ -7,6 +7,7 @@ import random
 
 from game import Game
 from components.inventory import PickupTempInv
+from components.semiactor_info import Door
 from korean import grammar as g
 
 if TYPE_CHECKING:
@@ -1181,7 +1182,11 @@ class DoorBreakAction(ActionWithDirection):
         dest_x, dest_y = self.dest_xy
         door = self.engine.game_map.get_semiactor_at_location(dest_x, dest_y, "door")
         strength = self.entity.status.changed_status["strength"]
-        break_fail = random.randint(10, 20)
+        if isinstance(door.semiactor_info, Door):
+            break_fail = random.randint(*door.semiactor_info.break_str_req)
+        else:
+            print("ERROR::Door semiactor {door.entity_id} has wrong semiactor_info type.")
+            break_fail = random.randint(10,20) # Default value
 
         if break_fail > strength:
             if self.entity == self.engine.player:
@@ -1189,7 +1194,7 @@ class DoorBreakAction(ActionWithDirection):
                 self.engine.sound_manager.add_sound_queue("fx_try_break_door")
             else:
                 self.engine.message_log.add_message(f"{g(self.entity.name, '은')} 문을 강제로 열려고 시도했지만 실패했다.", color.enemy_neutral, target=self.entity)
-        elif break_fail * 2 <= strength: # if the strength value is higher than the break_fail * 2, break open the door (Minimum str req. for breaking the door: 20)
+        elif break_fail * 1.5 <= strength: # if the strength value is higher than the break_fail * 1.5, break open the door (Minimum str req. for breaking the door: 20)
             if self.entity == self.engine.player:
                 self.engine.message_log.add_message(f"당신은 문을 파괴했다!", color.player_success)
                 self.engine.sound_manager.add_sound_queue("fx_break_door")
@@ -1231,9 +1236,9 @@ class DoorBreakAction(ActionWithDirection):
 
         if not semiactor_on_dir:
             self.engine.message_log.add_message("이 곳에는 문이 없다.", fg=color.impossible)
-        elif semiactor_on_dir.entity_id == "opened_door":
+        elif semiactor_on_dir.entity_id[-11:] == "opened_door":
             self.engine.message_log.add_message("이 문은 이미 열려 있다.", fg=color.impossible)
-        elif semiactor_on_dir.entity_id == "locked_door":
+        elif semiactor_on_dir.entity_id[-11:] == "locked_door":
             self.break_door()
             return None
         else:
@@ -1302,7 +1307,7 @@ class DoorOpenAction(ActionWithDirection):
         if not semiactor_on_dir:
             self.engine.message_log.add_message("이 곳에는 문이 없다.", fg=color.impossible)
             return None
-        elif semiactor_on_dir.entity_id == "closed_door":
+        elif semiactor_on_dir.entity_id[-11:] == "closed_door":
             can_open_door = self.check_can_open_door(dexterity, intelligence)
             
             # Check if the actor can open the door
@@ -1312,10 +1317,10 @@ class DoorOpenAction(ActionWithDirection):
             else: # If it can, try breaking the door
                 DoorBreakAction(self.entity, self.dx, self.dy).perform()
             return None
-        elif semiactor_on_dir.entity_id == "opened_door":
+        elif semiactor_on_dir.entity_id[-11:] == "opened_door":
             if self.entity == self.engine.player:
                 self.engine.message_log.add_message("이 문은 이미 열려 있다.", color.impossible)
-        elif semiactor_on_dir.entity_id == "locked_door":
+        elif semiactor_on_dir.entity_id[-11:] == "locked_door":
             if self.entity == self.engine.player:
                 self.engine.message_log.add_message(f"문이 굳게 잠겨 열리지 않는다.", color.player_failed)
                 self.engine.sound_manager.add_sound_queue("fx_door_open_fail")
@@ -1374,7 +1379,7 @@ class DoorCloseAction(ActionWithDirection):
                 self.engine.sound_manager.add_sound_queue("fx_close_door")
 
             return None
-        elif semiactor_on_dir.entity_id == "closed_door" or semiactor_on_dir.entity_id == "locked_door":
+        elif semiactor_on_dir.entity_id[-11:] == "closed_door" or semiactor_on_dir.entity_id[-11:] == "locked_door":
             raise exceptions.Impossible("이 문은 이미 닫혀 있다.")
         else:
             raise exceptions.Impossible("이 곳에는 문이 없다.")

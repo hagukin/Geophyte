@@ -28,6 +28,7 @@ tile_dt = np.dtype(
         ("unfreezable", np.float16), # chance of this tile melting(un-freezing)
         ("phaseable", np.bool), # whether the tile is phasable or not
         ("transparent", np.bool),  # True if this tile doesn't block FOV.
+        ("diggable", np.bool), # if True, can dig the tile
         ("dark", graphic_dt),  # Graphics for when this tile is not in FOV.
         ("light", graphic_dt),  # Graphics for when the tile is in FOV.
         ("tile_name", np.unicode_, 16), # Tile name (under 16 letters)
@@ -89,13 +90,14 @@ def new_tile(
     unfreezable: float,
     phaseable: bool,
     transparent: int,
+    diggable: bool,
     dark: Tuple[int, Tuple[int, int, int], Tuple[int, int, int]],
     light: Tuple[int, Tuple[int, int, int], Tuple[int, int, int]],
     tile_name: str,
     tile_id: str,
     ) -> np.ndarray:
     """Helper function for defining individual tile types """
-    return np.array((walkable, safe_to_walk, flammable, freezable, unfreezable, phaseable, transparent, dark, light, tile_name, tile_id), dtype=tile_dt)
+    return np.array((walkable, safe_to_walk, flammable, freezable, unfreezable, phaseable, transparent, diggable, dark, light, tile_name, tile_id), dtype=tile_dt)
 
 
 def new_tile_randomized(
@@ -107,6 +109,7 @@ def new_tile_randomized(
     unfreezable: float,
     phaseable: bool,
     transparent: bool,
+    diggable: bool,
     dark: Tuple[int, Tuple[int, int, int], Tuple[int, int, int]],
     light: Tuple[int, Tuple[int, int, int], Tuple[int, int, int]],
     darkest_fg_color: Tuple[int, int, int]=None, # None 일 경우 randomize color 하지 않음.
@@ -166,7 +169,7 @@ def new_tile_randomized(
     
     randomized_light = (light[0], fg, bg)
 
-    return np.array((walkable, safe_to_walk, flammable, freezable, unfreezable, phaseable, transparent, dark, randomized_light, tile_name, tile_id), dtype=tile_dt)
+    return np.array((walkable, safe_to_walk, flammable, freezable, unfreezable, phaseable, transparent, diggable, dark, randomized_light, tile_name, tile_id), dtype=tile_dt)
 
 # SHROUD represents unexplored, unseen tiles
 SHROUD = np.array((ord(" "), (255, 255, 255), (0, 0, 0)), dtype=graphic_dt)
@@ -191,6 +194,7 @@ def DEBUG():
     unfreezable=0,
     phaseable=True,
     transparent=True,
+    diggable=True,
     dark=(
         ord("?"),
         (255, 0, 0),
@@ -216,6 +220,7 @@ def vintronium():
         unfreezable=0,
         phaseable=False,
         transparent=False,
+        diggable=False,
         dark=(
             ord("#"),
             (0, 0, 0),
@@ -245,6 +250,7 @@ def floor():
         unfreezable=0,
         phaseable=True,
         transparent=True,
+        diggable=True,
         dark=(
             ord("·"),
             (60, 60, 60),
@@ -267,6 +273,7 @@ def floor_forest():
         unfreezable=0,
         phaseable=True,
         transparent=True,
+        diggable=True,
         dark=(
             ord("·"),
             (60, 60, 60),
@@ -289,6 +296,7 @@ def floor_desert():
         unfreezable=0,
         phaseable=True,
         transparent=True,
+        diggable=True,
         dark=(
             ord("·"),
             (60, 60, 60),
@@ -311,6 +319,7 @@ def floor_crystal():
         unfreezable=0,
         phaseable=True,
         transparent=True,
+        diggable=False,
         dark=(
             ord("·"),
             (60, 60, 60),
@@ -333,6 +342,7 @@ def floor_ancient_ruins():
         unfreezable=0,
         phaseable=True,
         transparent=True,
+        diggable=False,
         dark=(
             ord("·"),
             (60, 60, 60),
@@ -357,6 +367,7 @@ def wall():
         unfreezable=0,
         phaseable=True,
         transparent=False,
+        diggable=True,
         dark=(
             ord("#"),
             (20, 20, 20),
@@ -381,6 +392,7 @@ def wall_forest():
         unfreezable=0,
         phaseable=True,
         transparent=False,
+        diggable=True,
         dark=(
             ord("♤"),
             (20, 20, 20),
@@ -407,6 +419,7 @@ def wall_desert():
         unfreezable=0,
         phaseable=True,
         transparent=False,
+        diggable=True,
         dark=(
             ord("#"),
             (20, 20, 20),
@@ -432,6 +445,7 @@ def wall_crystal():
         unfreezable=0,
         phaseable=True,
         transparent=False,
+        diggable=False,
         dark=(
             ord("#"),
             (20, 20, 20),
@@ -459,6 +473,7 @@ def wall_ancient_ruins():
         unfreezable=0,
         phaseable=True,
         transparent=False,
+        diggable=False,
         dark=(
             ord("#"),
             (20, 20, 20),
@@ -485,6 +500,7 @@ def dense_grass():
         unfreezable=0,
         phaseable=True,
         transparent=True,
+        diggable=True,
         dark=(
             ord("\""),
             (30, 35, 30),
@@ -509,6 +525,7 @@ def dense_grass_forest():
         unfreezable=0,
         phaseable=True,
         transparent=True,
+        diggable=True,
         dark=(
             ord("\""),
             (30, 35, 30),
@@ -533,6 +550,7 @@ def dense_grass_desert():
         unfreezable=0,
         phaseable=True,
         transparent=True,
+        diggable=True,
         dark=(
             ord("\""),
             (30, 35, 30),
@@ -560,6 +578,7 @@ def sparse_grass():
         unfreezable=0,
         phaseable=True,
         transparent=True,
+        diggable=True,
         dark=(
             ord("\'"),
             (30, 35, 30),
@@ -582,6 +601,7 @@ def sparse_grass_forest():
         unfreezable=0,
         phaseable=True,
         transparent=True,
+        diggable=True,
         dark=(
             ord("\'"),
             (30, 35, 30),
@@ -604,6 +624,7 @@ def sparse_grass_desert():
         unfreezable=0,
         phaseable=True,
         transparent=True,
+        diggable=True,
         dark=(
             ord("\'"),
             (30, 35, 30),
@@ -629,6 +650,7 @@ def burnt_floor():
         unfreezable=0,
         phaseable=True,
         transparent=True,
+        diggable=True,
         dark=(
             ord("·"),
             (20, 20, 20),
@@ -654,6 +676,7 @@ def ascending_stair():
         unfreezable=0,
         phaseable=True,
         transparent=True,
+        diggable=False,
         dark=(
             ord("<"),
             (255, 255, 0),
@@ -679,6 +702,7 @@ def descending_stair():
         unfreezable=0,
         phaseable=True,
         transparent=True,
+        diggable=False,
         dark=(
             ord(">"),
             (255, 255, 0),
@@ -704,6 +728,7 @@ def hole():
         unfreezable=0,
         phaseable=True,
         transparent=True,
+        diggable=False,
         dark=(
             ord(" "),
             (0, 0, 0),
@@ -729,6 +754,7 @@ def deep_pit():
         unfreezable=0,
         phaseable=True,
         transparent=True,
+        diggable=True,
         dark=(
             ord("·"),
             (0, 0, 0),
@@ -754,6 +780,7 @@ def shallow_pit():
         unfreezable=0,
         phaseable=True,
         transparent=True,
+        diggable=True,
         dark=(
             ord("·"),
             (0, 0, 0),
@@ -779,6 +806,7 @@ def deep_water():
         unfreezable=0,
         phaseable=True,
         transparent=True,
+        diggable=False,
         dark=(
             ord(" "),
             (0, 0, 0),
@@ -803,6 +831,7 @@ def deep_water_crystal():
         unfreezable=0,
         phaseable=True,
         transparent=True,
+        diggable=False,
         dark=(
             ord(" "),
             (0, 0, 0),
@@ -829,6 +858,7 @@ def shallow_water():
         unfreezable=0,
         phaseable=True,
         transparent=True,
+        diggable=False,
         dark=(
             ord("·"),
             (0, 0, 0),
@@ -853,6 +883,7 @@ def shallow_water_crystal():
         unfreezable=0,
         phaseable=True,
         transparent=True,
+        diggable=False,
         dark=(
             ord("·"),
             (0, 0, 0),
@@ -881,6 +912,7 @@ def ice():
         unfreezable=1,
         phaseable=True,
         transparent=True,
+        diggable=False,# Prevent weird exploits
         dark=(
             ord("·"),
             (0, 0, 0),

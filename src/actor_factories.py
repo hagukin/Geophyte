@@ -125,9 +125,9 @@ player = Actor(
     equipments=Equipments(),
 #     initial_items=
 #     (
-# {"item": item_factories.scroll_of_identify, "chance": 1, "count": (10, 15), "BUC": {1:1,0:0,-1:0}, "upgrade": None},
-# {"item": item_factories.scroll_of_destroy_equipment, "chance": 1, "count": (10, 15), "BUC": {1:1,0:0,-1:0}, "upgrade": None},
-# {"item": item_factories.scroll_of_hatred, "chance": 1, "count": (10, 12), "BUC": {1:0,0:0,-1:1}, "upgrade": None},
+# {"item": item_factories.scroll_of_magic_mapping, "chance": 1, "count": (10, 15), "BUC": {1:1,0:0,-1:0}, "upgrade": None},
+# {"item": item_factories.potion_of_monster_detection, "chance": 1, "count": (10, 15), "BUC": {1:1,0:0,-1:0}, "upgrade": None},
+# {"item": item_factories.scroll_of_digging, "chance": 1, "count": (10, 12), "BUC": {1:0,0:0,-1:1}, "upgrade": None},
 # {"item": item_factories.potion_of_levitation, "chance": 1, "count": (10, 10), "BUC": None, "upgrade": None},
 #     ),
 #     initial_equipments=(
