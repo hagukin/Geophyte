@@ -272,7 +272,7 @@ class HerbEdible(Edible):
     """
     Provides no special effects.
     """
-    def __init__(self, nutrition: int, spoilage: int=0, is_cooked: bool=False, can_cook: bool=False, spoil_speed: int=1, cook_bonus:int = None, edible_type:str = "vegetable",
+    def __init__(self, nutrition: int, spoilage: int=0, is_cooked: bool=False, can_cook: bool=False, spoil_speed: int=0, cook_bonus:int = None, edible_type:str = "vegetable",
                  maggot_chance: float=0, maggot_range: Tuple[int,int]=(0,0)):
         super().__init__(nutrition,spoilage,is_cooked,can_cook,spoil_speed,cook_bonus,edible_type,maggot_chance,maggot_range)
 
@@ -281,7 +281,7 @@ class RationEdible(Edible):
     """
     Provides no special effects.
     """
-    def __init__(self, nutrition: int, spoilage: int=0, is_cooked: bool=False, can_cook: bool=True, spoil_speed: int=2, cook_bonus:int = None, edible_type:str = "meat",
+    def __init__(self, nutrition: int, spoilage: int=0, is_cooked: bool=False, can_cook: bool=True, spoil_speed: int=1, cook_bonus:int = None, edible_type:str = "meat",
                  maggot_chance: float=0, maggot_range: Tuple[int,int]=(0,0)):
         super().__init__(nutrition,spoilage,is_cooked,can_cook,spoil_speed,cook_bonus,edible_type,maggot_chance,maggot_range)
 
@@ -372,10 +372,11 @@ class FloatingEyeEdible(RawMeatEdible):
         consumer = action.entity
 
         # Log
-        if not consumer.actor_state.has_telepathy:
-            if consumer == self.engine.player:
-                self.engine.message_log.add_message(f"당신은 다른 생명체들과의 정신적 교감을 느꼈다.", color.player_buff)
-            consumer.actor_state.has_telepathy = True
+        if random.random() <= 0.1:
+            if not consumer.actor_state.has_telepathy:
+                if consumer == self.engine.player:
+                    self.engine.message_log.add_message(f"당신은 다른 생명체들과의 정신적 교감을 느꼈다.", color.player_buff)
+                consumer.actor_state.has_telepathy = True
         return super().effect_always(action)
 
 
