@@ -1,10 +1,10 @@
 import time
-import wave
+import wave, audioop
 import pyaudio
 import threading
 import inspect
 import ctypes
-import struct
+import traceback
 import numpy
 
 from collections import deque
@@ -44,6 +44,7 @@ class SoundThread(threading.Thread):
             super().run()
             # print(f"SOUND::SoundThread running")
         except Exception as e:
+            traceback.print_exc()
             print(f"FATAL ERROR::an error occurred during running SoundThread - {e}")
         finally:
             # print(f"SOUND::SoundThread stopped")
@@ -108,46 +109,48 @@ class SoundManager():
         self.__current_bgm = None # Read-only
         self.__current_bgs = None
 
+        self.master_volume: float = 0.5
+
         self.sound_db = { # TODO: Add volume - make sound_db value contains directory AND volume.
-            "fx_player_hit":"fx\\hit.wav",
-            "fx_player_crit":"fx\\kill.wav",
-            "fx_player_miss":"fx\\miss.wav",
-            "fx_player_attack_blocked":"fx\\blocked.wav",
-            "fx_player_kill":"fx\\crit_hit.wav",
-            "fx_player_death": "fx\\death.wav",
-            "fx_teleport":"fx\\teleport.wav",
-            "fx_pickup":"fx\\pickup.wav",
-            "fx_descend":"fx\\descend.wav",
-            "fx_throw":"fx\\throw.wav",
-            "fx_drop":"fx\\drop.wav",
-            "fx_split":"fx\\equip.wav",
-            "fx_equip": "fx\\equip.wav",
-            "fx_unequip": "fx\\equip.wav",
-            "fx_quaff":"fx\\quaff.wav",
-            "fx_eat":"fx\\eat.wav",
-            "fx_unlock":"fx\\unlock.wav",
-            "fx_open_door":"fx\\open_door.wav",
-            "fx_door_open_fail": "fx\\door_open_fail.wav",
-            "fx_close_door": "fx\\open_door.wav", # Same as opening
-            "fx_try_break_door": "fx\\try_break_door.wav",
-            "fx_force_open_door": "fx\\force_open_door.wav",
-            "fx_break_door": "fx\\break_door.wav",
-            "fx_explosion":"fx\\explosion.wav",
-            "fx_exp_gain":"fx\\exp_gain.wav",
-            "fx_water_splash": "fx\\water_splash.wav",
-            "fx_water_splash_short": "fx\\water_splash_short.wav",
-            "fx_shatter":"fx\\shatter.wav",
-            "fx_fall_impact":"fx\\low_impact.wav",
-            "fx_burden":"fx\\burden.wav",
-            "fx_cash":"fx\\coin.wav",
-            "fx_book":"fx\\book.wav",
-            "fx_victory":"fx\\victory.wav",
-            "fx_destroy_item":"fx\\destroy_item.wav",
+            "fx_player_hit":("fx\\hit.wav",1),
+            "fx_player_crit":("fx\\kill.wav",1),
+            "fx_player_miss":("fx\\miss.wav",1),
+            "fx_player_attack_blocked":("fx\\blocked.wav",1),
+            "fx_player_kill":("fx\\crit_hit.wav",1),
+            "fx_player_death":("fx\\death.wav",1),
+            "fx_teleport":("fx\\teleport.wav",1),
+            "fx_pickup":("fx\\pickup.wav",1),
+            "fx_descend":("fx\\descend.wav",1),
+            "fx_throw":("fx\\throw.wav",1),
+            "fx_drop":("fx\\drop.wav",1),
+            "fx_split":("fx\\equip.wav",1),
+            "fx_equip":("fx\\equip.wav",1),
+            "fx_unequip":("fx\\equip.wav",1),
+            "fx_quaff":("fx\\quaff.wav",1),
+            "fx_eat":("fx\\eat.wav",1),
+            "fx_unlock":("fx\\unlock.wav",1),
+            "fx_open_door":("fx\\open_door.wav",1),
+            "fx_door_open_fail":("fx\\door_open_fail.wav",1),
+            "fx_close_door":("fx\\open_door.wav",1), # Same as opening
+            "fx_try_break_door":("fx\\try_break_door.wav",1),
+            "fx_force_open_door":("fx\\force_open_door.wav",1),
+            "fx_break_door":("fx\\break_door.wav",1),
+            "fx_explosion":("fx\\explosion.wav",1),
+            "fx_exp_gain":("fx\\exp_gain.wav",1),
+            "fx_water_splash":("fx\\water_splash.wav",1),
+            "fx_water_splash_short":("fx\\water_splash_short.wav",1),
+            "fx_shatter":("fx\\shatter.wav",1),
+            "fx_fall_impact":("fx\\low_impact.wav",1),
+            "fx_burden":("fx\\burden.wav",1),
+            "fx_cash":("fx\\coin.wav",1),
+            "fx_book":("fx\\book.wav",1),
+            "fx_victory":("fx\\victory.wav",1),
+            "fx_destroy_item":("fx\\destroy_item.wav",1),
 
-            "bgm_title_screen":"bgm\\Constellation.wav",
-            "bgm_mystical_beginning":"bgm\\Magical_Travel.wav",
+            "bgm_title_screen":("bgm\\Constellation.wav",1),
+            "bgm_mystical_beginning":("bgm\\Magical_Travel.wav",1),
 
-            "bgs_cave":"bgs\\cave.wav",
+            "bgs_cave":("bgs\\cave.wav",1),
         }
 
     @property
@@ -176,7 +179,7 @@ class SoundManager():
 
     def get_path_from_id(self, sound_id: str) -> str:
         """Returns directory"""
-        return "resources\\sound\\"+self.sound_db[sound_id]
+        return "resources\\sound\\"+self.sound_db[sound_id][0]
 
     def __del__(self) -> None:
         try:
@@ -283,6 +286,10 @@ class SoundManager():
                     self.threads["bgs"].terminate() # Stopping the previous thread
         bgs.add(sound_id)  # will be played in next .run()
 
+    def change_volume_of_data(self, data, sampwidth, volume: float=1):
+        """It is highly recommended not to increase volume over 1."""
+        return audioop.mul(data, sampwidth, volume * self.master_volume)
+
     def play_sound(self, sound_id: str=None, loop: bool=False) -> None:
         """
         Play sound of given directory.
@@ -290,16 +297,19 @@ class SoundManager():
         playing = True
         while playing:
             f = wave.open(self.get_path_from_id(sound_id), "rb")
+            sampwidth = f.getsampwidth()
             stream = self.p.open(format=self.p.get_format_from_width(f.getsampwidth()),
                         channels=f.getnchannels(),
                         rate=f.getframerate(),
                         output=True)
 
             data = f.readframes(self.chunk)
+            data = self.change_volume_of_data(data, sampwidth=sampwidth, volume=self.sound_db[sound_id][1])
 
             while data:
                 stream.write(data)
                 data = f.readframes(self.chunk)
+                data = self.change_volume_of_data(data, sampwidth=sampwidth, volume=self.sound_db[sound_id][1])
 
             if not loop:
                 stream.stop_stream()
