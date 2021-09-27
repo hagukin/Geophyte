@@ -1880,7 +1880,7 @@ class PauseGameEventHandler(AskUserEventHandler):
                 self.engine.event_handler = GameHelpEventHandler()
             elif key == tcod.event.K_o:
                 from option import Option
-                Option.option_event_handler(console=self.engine.console, context=self.engine.context, game_started=False)
+                Option.option_event_handler(console=self.engine.console, context=self.engine.context, game_started=False, sound_manager=self.engine.sound_manager)
             elif key == tcod.event.K_ESCAPE:
                 self.engine.event_handler = MainGameEventHandler()
 

@@ -9,6 +9,7 @@ from tcod.path import SimpleGraph, Pathfinder
 from tcod.console import Console
 from tcod.map import compute_fov
 from item_manager import ItemManager
+from configuration import get_game_config
 
 import numpy as np
 import random
@@ -79,13 +80,21 @@ class Engine:
         self.easteregg: int = 0
         self._monster_activation_distance = 10 # distance
         self.sound_manager: SoundManager = None # Initialized in main
-        self.config: Dict = None # Set from initialization
+        self._config: Dict = None # Set from initialization
         self.console: tcod.Console = None # Set from main
         self.context: tcod.context.Context = None # Set from main
         self.camera: Camera = None # Set from initialization
         self.world: World = None # Set from initialization
         self.game_map: GameMap = None # Set from initialization
         self.item_manager: ItemManager = None # Set from initialization -> engine.initialize_item_manager()
+
+    @property
+    def config(self):
+        """Readonly"""
+        return self._config
+
+    def update_config(self) -> None:
+        self._config = get_game_config()
 
     @property
     def is_gameover(self) -> bool:

@@ -5,7 +5,9 @@ import tcod
 import exceptions
 import json
 import configuration as modify
+from sound import SoundManager
 from typing import Optional
+from game import Game
 
 class OptionInputHandler(tcod.event.EventDispatch[None]):
     """
@@ -16,8 +18,8 @@ class OptionInputHandler(tcod.event.EventDispatch[None]):
             return "display"
         elif event.sym == tcod.event.K_c:
             return "control"
-        elif event.sym == tcod.event.K_l:
-            return "language"
+        elif event.sym == tcod.event.K_s:
+            return "sound"
         elif event.sym == tcod.event.K_g:
             return "gameplay"
         elif event.sym == tcod.event.K_r:
@@ -52,14 +54,25 @@ class ControlInputHandler(tcod.event.EventDispatch[None]):
 
 
 
-class LanguageInputHandler(tcod.event.EventDispatch[None]):
+class SoundInputHandler(tcod.event.EventDispatch[None]):
     """
     Handles every inputs that are made in the title screen.
     """
     def ev_keydown(self, event):
+        shift = False
+        if event.mod & (tcod.event.K_LSHIFT or tcod.event.K_RSHIFT):
+            shift = True
+
         if event.sym == tcod.event.K_ESCAPE:
             return "escape"
-
+        elif event.sym == tcod.event.K_KP_PLUS or event.sym == tcod.event.K_PLUS or event.sym == tcod.event.K_EQUALS or event.sym == tcod.event.K_KP_8 or event.sym == tcod.event.K_VOLUMEUP or event.sym == tcod.event.K_UP:
+            if shift:
+                return "volume10up"
+            return "volumeup"
+        elif event.sym == tcod.event.K_KP_MINUS or event.sym == tcod.event.K_MINUS or event.sym == tcod.event.K_KP_2 or event.sym == tcod.event.K_VOLUMEDOWN or event.sym == tcod.event.K_DOWN:
+            if shift:
+                return "volume10down"
+            return "volumedown"
 
 
 class GameplayInputHandler(tcod.event.EventDispatch[None]):
@@ -84,10 +97,10 @@ class ResetInputHandler(tcod.event.EventDispatch[None]):
 
 
 class Option():
-    option_keys = ["(D) - 디스플레이 설정", "(C) - 컨트롤 설정", "(L) - 언어 설정", "(G) - 게임플레이 설정", "(R) - 설정 초기화"]
+    option_keys = ["(D) - 디스플레이 설정", "(C) - 컨트롤 설정", "(S) - 사운드 설정", "(G) - 게임플레이 설정", "(R) - 설정 초기화"]
     display_option_keys = ["(+/-) - 디스플레이 해상도 증가/감소", "(F) - 전체 화면 모드, 창 모드 전환"]
     control_option_keys = []
-    language_option_keys = []
+    sound_option_keys = ["(+/-) - 마스터 볼륨 증가/감소", "쉬프트를 누른 채 조작 - 10% 단위로 조작"]
     gameplay_option_keys = []
     reset_option_keys = ["(Y) - 초기화", "(N) - 취소"]
     opt_x = 0
@@ -126,9 +139,9 @@ class Option():
         elif type == 'control':
             texts = Option.control_option_keys
             opt_title = "컨트롤 설정"
-        elif type == 'language':
-            texts = Option.language_option_keys
-            opt_title  = "언어 설정"
+        elif type == 'sound':
+            texts = Option.sound_option_keys
+            opt_title  = "사운드 설정"
         elif type == 'gameplay':
             texts = Option.gameplay_option_keys
             opt_title = "게임플레이 설정"
@@ -158,8 +171,7 @@ class Option():
             cfg = json.load(f)
 
         fullscreen_str = lambda x : "전체화면" if x else "창 모드"
-        console.print(Option.opt_x + 2, Option.opt_y + 2, string=f"<<---- 현재 디스플레이 설정 ---->>\
-        \n디스플레이 관련 설정은 게임을 다시 시작해야 적용됩니다.\
+        console.print(Option.opt_x + 2, Option.opt_y + 2, string=f"\n디스플레이 관련 설정은 게임을 다시 시작해야 적용됩니다.\
         \n\n해상도: {cfg['screen_width'] * cfg['tile_width']} x {cfg['screen_height'] * cfg['tile_height']}\
         \n\n화면 모드: {fullscreen_str(cfg['fullscreen'])}", fg=color.option_fg)
         Option.render_gui_keys(console, context, 'display', initial_y=10) # TODO Hard-coded
@@ -171,20 +183,18 @@ class Option():
         with open("./config/config.json", "r") as f:
             cfg = json.load(f)
 
-        console.print(Option.opt_x + 2, Option.opt_y + 2, string=f"<<---- 현재 컨트롤 설정 ---->>\
-                \n\n추가 예정", fg=color.option_fg)
+        console.print(Option.opt_x + 2, Option.opt_y + 2, string=f"\n\n추가 예정", fg=color.option_fg)
         Option.render_gui_keys(console, context, 'control', initial_y=5)  # TODO Hard-coded
         context.present(console, keep_aspect=True)
 
     @staticmethod
-    def render_language_option_gui(console: tcod.Console, context: tcod.context.Context):
+    def render_sound_option_gui(console: tcod.Console, context: tcod.context.Context):
         console.clear(fg=color.option_bg, bg=color.option_bg)
         with open("./config/config.json", "r") as f:
             cfg = json.load(f)
 
-        console.print(Option.opt_x + 2, Option.opt_y + 2, string=f"<<---- 현재 언어 설정 ---->>\
-                \n\nSorry, the current version of Geophyte only supports Korean. English translation is going to be available soon.", fg=color.option_fg)
-        Option.render_gui_keys(console, context, 'language', initial_y=5)  # TODO Hard-coded
+        console.print(Option.opt_x + 2, Option.opt_y + 2, string=f"\n\n마스터 볼륨: {cfg['master_volume']}%", fg=color.option_fg)
+        Option.render_gui_keys(console, context, 'sound', initial_y=5)  # TODO Hard-coded
         context.present(console, keep_aspect=True)
 
     @staticmethod
@@ -193,8 +203,7 @@ class Option():
         with open("./config/config.json", "r") as f:
             cfg = json.load(f)
 
-        console.print(Option.opt_x + 2, Option.opt_y + 2, string=f"<<---- 현재 게임플레이 설정 ---->>\
-                \n\n추가 예정", fg=color.option_fg)
+        console.print(Option.opt_x + 2, Option.opt_y + 2, string=f"\n\n추가 예정", fg=color.option_fg)
         Option.render_gui_keys(console, context, 'gameplay', initial_y=5)  # TODO Hard-coded
         context.present(console, keep_aspect=True)
 
@@ -260,7 +269,7 @@ class Option():
         return True
 
     @staticmethod
-    def handle_language_action(console: tcod.Console, context: tcod.context.Context, game_started: bool) -> bool:
+    def handle_sound_action(console: tcod.Console, context: tcod.context.Context, game_started: bool, sound_manager: SoundManager) -> bool:
         """
         Creates a display input handler, wait for any input, and apply the action.
         Returns:
@@ -270,11 +279,35 @@ class Option():
             cfg = json.load(f)
 
         # remove any leftover messages on the screen from previous changes
-        Option.render_control_option_gui(console, context)
+        Option.render_sound_option_gui(console, context)
 
         #  Set Input Handler
-        display_action = Option.get_input_action(LanguageInputHandler())
-        if display_action == "escape":
+        display_action = Option.get_input_action(SoundInputHandler())
+        if display_action == "volumeup":
+            try:
+                modify.change_master_volume(percent=1)
+                sound_manager.update_volume_change()
+            except exceptions.ConfigException:
+                pass
+        elif display_action == "volumedown":
+            try:
+                modify.change_master_volume(percent=-1)
+                sound_manager.update_volume_change()
+            except exceptions.ConfigException:
+                pass
+        elif display_action == "volume10up":
+            try:
+                modify.change_master_volume(percent=10)
+                sound_manager.update_volume_change()
+            except exceptions.ConfigException:
+                pass
+        elif display_action == "volume10down":
+            try:
+                modify.change_master_volume(percent=-10)
+                sound_manager.update_volume_change()
+            except exceptions.ConfigException:
+                pass
+        elif display_action == "escape":
             return False
         return True
 
@@ -323,7 +356,7 @@ class Option():
         return True
 
     @staticmethod
-    def option_event_handler(console: tcod.Console, context: tcod.context.Context, game_started: bool):
+    def option_event_handler(console: tcod.Console, context: tcod.context.Context, game_started: bool, sound_manager:SoundManager):
         """
         Core function that handles most of the things related to the option screen.
         Option screen loop is handled here.
@@ -357,10 +390,10 @@ class Option():
                 context.present(console, keep_aspect=True)
                 while Option.handle_control_action(console, context, game_started): # If false, finish session
                     pass
-            elif option_action == "language":
-                Option.render_language_option_gui(console, context)
+            elif option_action == "sound":
+                Option.render_sound_option_gui(console, context)
                 context.present(console, keep_aspect=True)
-                while Option.handle_language_action(console, context, game_started): # If false, finish session
+                while Option.handle_sound_action(console, context, game_started, sound_manager): # If false, finish session
                     pass
             elif option_action == "gameplay":
                 Option.render_gameplay_option_gui(console, context)

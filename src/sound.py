@@ -153,6 +153,8 @@ class SoundManager():
             "bgs_cave":("bgs\\cave.wav",1),
         }
 
+        self.update_volume_change()
+
     @property
     def current_bgm(self) -> str:
         """returns current bgm directory"""
@@ -162,6 +164,13 @@ class SoundManager():
     def current_bgs(self) -> str:
         """returns current bgs directory"""
         return self.__current_bgs
+
+    def update_volume_change(self) -> None:
+        """
+        Refresh current config volume data to newly updated json.
+        """
+        from configuration import get_game_config
+        self.master_volume = round(get_game_config()["master_volume"] / 100, 2)
 
     def play_bgm_for_biome(self, biome: Biome) -> None:
         """Is called when engine.game_map changes."""

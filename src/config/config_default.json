@@ -18,6 +18,7 @@
     "tileset_path": "resources\\tileset.ttf",
     "world_depth": 25,
     "lang": "ko",
+    "master_volume": 50,
     "autosave": true,
     "report_issue_automatically": false
 }

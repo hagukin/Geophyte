@@ -1,5 +1,6 @@
 import json
 from exceptions import ConfigException
+from game import Game
 
 def get_game_config():
     with open("./config/config.json", "r") as cfg:
@@ -23,6 +24,9 @@ def alter_resolution(tile_width: int, tile_height: int) -> None:
     with open("./config/config.json", "w") as cfg:
         json.dump(game_config, cfg, indent=4)
 
+    if Game.engine:
+        Game.engine.update_config()
+
 
 def toggle_fullscreen() -> None:
     """
@@ -35,3 +39,20 @@ def toggle_fullscreen() -> None:
 
     with open("./config/config.json", "w") as cfg:
         json.dump(game_config, cfg, indent=4)
+
+    if Game.engine:
+        Game.engine.update_config()
+
+
+def change_master_volume(percent: int) -> None:
+    """Increase / Decrease master volume"""
+    with open("./config/config.json", "r") as cfg:
+        game_config = json.load(cfg)
+
+    game_config["master_volume"] = max(min(game_config["master_volume"] + percent, 100),0)
+
+    with open("./config/config.json", "w") as cfg:
+        json.dump(game_config, cfg, indent=4)
+
+    if Game.engine:
+        Game.engine.update_config()

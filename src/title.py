@@ -183,7 +183,7 @@ class Title():
                     context.present(console, keep_aspect=True)
                     continue
             elif title_action == "option":
-                Option.option_event_handler(console=console, context=context, game_started=False)
+                Option.option_event_handler(console=console, context=context, game_started=False, sound_manager=sound_manager)
                 Title.render_title(console, context, logo_x, logo_y, animation_frame)
             elif title_action == "credits":
                 Credit.credit_event_handler(console=console, context=context)

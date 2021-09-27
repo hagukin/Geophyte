@@ -26,7 +26,7 @@ def init_game_variables(player, cfg, console: Console, context: Context):
     engine.context = context
 
     # Save Config to engine
-    engine.config = cfg
+    engine._config = cfg
 
     # Set item manager
     engine.initialize_item_manager()
@@ -74,10 +74,3 @@ def init_game_variables(player, cfg, console: Console, context: Context):
     # save_actor_book(get_all_monsters=True)
 
     return engine
-
-def update_game_variables(engine: Engine):
-    """
-    Re-read the config JSON file.
-    TODO: Function currently under construction
-    """
-    engine.config = get_game_config()
