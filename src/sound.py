@@ -112,11 +112,11 @@ class SoundManager():
         self.master_volume: float = 0.5
 
         self.sound_db = { # TODO: Add volume - make sound_db value contains directory AND volume.
-            "fx_player_hit":("fx\\hit.wav",1),
-            "fx_player_crit":("fx\\kill.wav",1),
-            "fx_player_miss":("fx\\miss.wav",1),
+            "fx_player_hit":("fx\\hit.wav",0.5),
+            "fx_player_crit":("fx\\kill.wav",0.5),
+            "fx_player_miss":("fx\\miss.wav",0.7),
             "fx_player_attack_blocked":("fx\\blocked.wav",1),
-            "fx_player_kill":("fx\\crit_hit.wav",1),
+            "fx_player_kill":("fx\\crit_hit.wav",0.5),
             "fx_player_death":("fx\\death.wav",1),
             "fx_teleport":("fx\\teleport.wav",1),
             "fx_pickup":("fx\\pickup.wav",1),

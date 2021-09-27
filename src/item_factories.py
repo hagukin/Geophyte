@@ -3183,7 +3183,7 @@ ring_of_dexterity = Item(
     name="재주의 반지",
     entity_id="ring_of_dexterity",
     entity_desc=("착용자에게 재주를 부여한다고 알려진 반지이다. "),
-    rarity=3,
+    rarity=1,
     weight=0.2,
     price=400,
     item_type=InventoryOrder.RING,
@@ -3199,10 +3199,13 @@ ring_of_dexterity = Item(
         equipable_type=EquipableOrder.RING,
         upgrade=0,
         possible_regions=("left ring","right ring",),
-        dexterity=2,
+        dexterity=4,
         dexterity_mag=1,
     ),
-    edible=None
+    edible=None,
+    cursable=False,
+    is_artifact=True,
+    initial_upgrades={0:0},
 )
 temp_items_lists.append(ring_of_dexterity)
 item_rarity.append(ring_of_dexterity.rarity)
@@ -3216,7 +3219,7 @@ ring_of_constitution = Item(
     name="활력의 반지",
     entity_id="ring_of_constitution",
     entity_desc=("착용자에게 활력을 부여한다고 알려진 반지이다. "),
-    rarity=3,
+    rarity=1,
     weight=0.2,
     price=400,
     item_type=InventoryOrder.RING,
@@ -3232,10 +3235,13 @@ ring_of_constitution = Item(
         equipable_type=EquipableOrder.RING,
         upgrade=0,
         possible_regions=("left ring","right ring",),
-        constitution=2,
+        constitution=4,
         constitution_mag=1,
     ),
-    edible=None
+    edible=None,
+    cursable=False,
+    is_artifact=True,
+    initial_upgrades={0:0},
 )
 temp_items_lists.append(ring_of_constitution)
 item_rarity.append(ring_of_constitution.rarity)
