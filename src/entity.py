@@ -578,7 +578,7 @@ class Actor(Entity):
         If the actor is buying, subtract this value from 1.
         Return:
             float range between -0.4 to 0.4."""
-        return max(-0.4, min(0.4, (self.status.changed_status["charm"] / 15) - 1) * 0.75)
+        return min(0.4, max(-0.4, -0.4 + (self.status.changed_status["charm"]-11)*0.1))
 
     def drop_all_items(self) -> None:
         """Drop all items this status' parent owns. Mainly used during die()"""
@@ -736,7 +736,8 @@ class Actor(Entity):
         temp.stack_count = random.randint(args["count"][0], args["count"][1])
         temp.parent = self.inventory
 
-        self.inventory.add_item(temp)
+        if not self.inventory.add_item(temp):
+            print(f"WARNING::{self.entity_id}'s inventory is full. {temp.entity_id} - initialize_actor_possesion()")
         if temp.is_artifact:
             print(f"WARNING::{self.entity_id} initialized with an artifact {temp.entity_id} in its possesion.")
             if temp.spawnable:

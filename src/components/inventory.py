@@ -206,6 +206,28 @@ class Inventory(BaseComponent):
             
         self.item_hotkeys = dict(sorted(self.item_hotkeys.items(), key=sort_hotkeys))
 
+    def try_add_item_if_full_drop(self, item: Item) -> bool:
+        """
+        Return:
+            True if successfully added item.
+        """
+        if not self.add_item(item):
+            if self.parent == self.engine.player:
+                self.engine.sound_manager.add_sound_queue("fx_drop")
+                if item.stack_count > 1:
+                    self.engine.message_log.add_message(
+                        f"당신은 {g(item.name, '을')} 땅에 떨어뜨렸다. (x{item.stack_count}).",fg=color.player_neutral_important)
+                else:
+                    self.engine.message_log.add_message(f"당신은 {g(item.name, '을')} 땅에 떨어뜨렸다.",fg=color.player_neutral_important)
+            else:
+                if item.stack_count > 1:
+                    self.engine.message_log.add_message(f"{g(self.parent.name, '이')} {g(item.name, '을')} 땅에 떨어뜨렸다. (x{item.stack_count}).",fg=color.enemy_neutral, target=self.parent)
+                else:
+                    self.engine.message_log.add_message(f"{g(self.parent.name, '이')} {g(item.name, '을')} 땅에 떨어뜨렸다.", fg=color.enemy_neutral,target=self.parent)
+            item.place(self.parent.x, self.parent.y, self.parent.gamemap)
+            return False
+        return True
+
     def add_item(self, item: Item) -> bool:
         """
         Add item to inventory. Also stack items if possible.

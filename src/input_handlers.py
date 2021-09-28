@@ -619,7 +619,7 @@ class StorageSelectEventHandler(AskUserEventHandler):
 
         # Display the price of the item if it is currently being sold
         if item.item_state.is_being_sold_from:
-            item_buy_price_text += f"<{item.price_of_single_item(is_shopkeeper_is_selling=True, discount=1 - self.engine.player.discount_value())}샤인, 미구매> "
+            item_buy_price_text += f"<개당 {item.price_of_single_item(is_shopkeeper_is_selling=True, discount=1 - self.engine.player.discount_value())}샤인, 미구매> "
 
         if self.render_sell_price:
             if item.stack_count == 1:

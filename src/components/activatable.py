@@ -106,7 +106,7 @@ class StealActivatable(Activatable):
                 if len(attacker.inventory.items) >= attacker.inventory.capacity:
                     dup_item.place(x=attacker.x, y=attacker.y, gamemap=attacker.gamemap)
                 else:
-                    attacker.inventory.add_item(dup_item)
+                    attacker.inventory.try_add_item_if_full_drop(dup_item)
 
                 # Log
                 if attacker == self.engine.player:

@@ -112,8 +112,7 @@ class PickupAction(Action):
 
     def transfer_item(self, inventory, item) -> None:
         # Failed to add an item
-        if not inventory.add_item(item):
-            print("WARNING::Failed to add item to inventory - PickupAction.transfer_item()")
+        if not inventory.try_add_item_if_full_drop(item):
             return None
 
         # Remove the item from current gamemap
@@ -416,7 +415,7 @@ class SplitItem(Action):
         spliten_item = self.entity.inventory.split_item(item=self.item, split_amount=self.split_amount)
         if spliten_item:
             spliten_item.stackable = False
-            self.entity.inventory.add_item(item=spliten_item)
+            self.entity.inventory.try_add_item_if_full_drop(item=spliten_item)
             spliten_item.stackable = True
 
             if self.entity == self.engine.player:
@@ -473,7 +472,7 @@ class EatItem(ItemAction):
             return None
 
         if self.entity.status.experience:
-            self.entity.status.experience.gain_constitution_exp(5, 20, chance=0.8) #no limit
+            self.entity.status.experience.gain_constitution_exp(2, 20, chance=0.8)
 
         if self.entity == self.engine.player:
             self.engine.sound_manager.add_sound_queue("fx_eat")
@@ -617,18 +616,17 @@ class ChestTakeAction(ChestAction):
                     self.engine.message_log.add_message("장착되어 있는 아이템을 가져갈 수 없습니다.", color.invalid)
                 continue
 
-            self.actor_storage.add_item(self.chest_storage.delete_item_from_inv(item))
-
-            if self.entity == self.engine.player:
-                if item.stack_count <= 1:
-                    self.engine.message_log.add_message(f"{g(item.name, '을')} 얻었다.", color.obtain_item)
+            if self.actor_storage.try_add_item_if_full_drop(self.chest_storage.delete_item_from_inv(item)):
+                if self.entity == self.engine.player:
+                    if item.stack_count <= 1:
+                        self.engine.message_log.add_message(f"{g(item.name, '을')} 얻었다.", color.obtain_item)
+                    else:
+                        self.engine.message_log.add_message(f"{g(item.name, '을')} 얻었다. (x{item.stack_count})", color.obtain_item)
                 else:
-                    self.engine.message_log.add_message(f"{g(item.name, '을')} 얻었다. (x{item.stack_count})", color.obtain_item)
-            else:
-                if item.stack_count <= 1:
-                    self.engine.message_log.add_message(f"{g(self.entity.name, '이')} {g(item.name, '을')} {self.chest_name}에서 꺼냈다.", color.enemy_unique)
-                else:
-                    self.engine.message_log.add_message(f"{g(self.entity.name, '이')} {g(item.name, '을')} {self.chest_name}에서 꺼냈다. (x{item.stack_count})", color.enemy_unique)
+                    if item.stack_count <= 1:
+                        self.engine.message_log.add_message(f"{g(self.entity.name, '이')} {g(item.name, '을')} {self.chest_name}에서 꺼냈다.", color.enemy_unique)
+                    else:
+                        self.engine.message_log.add_message(f"{g(self.entity.name, '이')} {g(item.name, '을')} {self.chest_name}에서 꺼냈다. (x{item.stack_count})", color.enemy_unique)
 
         self.chest_storage.parent.on_actor_take_trigger(interacted_with=self.entity)
 
@@ -646,7 +644,7 @@ class ChestPutAction(ChestAction):
                     self.engine.message_log.add_message(f"{g(item.name, '을')} 넣을 수 없습니다.", color.invalid)
                 continue
 
-            self.chest_storage.add_item(self.actor_storage.delete_item_from_inv(item))
+            self.chest_storage.try_add_item_if_full_drop(self.actor_storage.delete_item_from_inv(item))
 
             if self.entity == self.engine.player:
                 if item.stack_count <= 1:
@@ -1049,7 +1047,7 @@ class MovementAction(ActionWithDirection):
         if self.entity.status.experience:
             self.entity.status.experience.gain_agility_exp(0.2, 18) # 1 exp per 5 tiles
             if self.entity.actor_state.encumbrance > 0:
-                self.entity.status.experience.gain_strength_exp(0.2*self.entity.actor_state.encumbrance, str_limit=18)
+                self.entity.status.experience.gain_strength_exp(0.3*self.entity.actor_state.encumbrance, str_limit=18)
 
 
 class DoorUnlockAction(ActionWithDirection):
@@ -1404,7 +1402,7 @@ class CashExchangeAction(Action):
         """NOTE: The action will not care how much money each actor currently have.
         You should check whether the transaction is valid BEFORE you perform the action."""
         from item_factories import shines
-        self.taker.inventory.add_item(shines(self.cash_amount).copy(gamemap=None))
+        self.taker.inventory.try_add_item_if_full_drop(shines(self.cash_amount).copy(gamemap=None))
 
         while self.cash_amount > 0:
             shine = self.giver.inventory.check_if_in_inv("shine")

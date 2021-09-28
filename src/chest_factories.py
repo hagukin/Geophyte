@@ -111,7 +111,8 @@ class ChestSemiactor(SemiActor):
             if random.random() <= item[1]:
                 temp = item[0].copy(gamemap=self.gamemap, exact_copy=False)
                 temp.stack_count = random.randint(item[2][0], item[2][1])
-                self.storage.add_item(temp)
+                if not self.storage.add_item(temp):
+                    print(f"ERROR::Chest is full {self.entity_id} - initialize_chest()")
 
 
     def spawn(self, gamemap, x: int, y: int, lifetime=-1, initial_items: List=None):
