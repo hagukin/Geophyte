@@ -138,14 +138,14 @@ class Experience(BaseComponent):
 
         while True:
             if self.hp_exp >= self.parent.max_hp*3:
-                self.parent.max_hp = round(self.parent.max_hp * 1.05)
+                self.parent.max_hp += min(25, round(self.parent.max_hp * 0.05))
                 self.parent.fully_heal()
                 self.lvl_up_msg("hp")
                 self.hp_exp = 0 # reset
                 continue
 
             if self.mp_exp >= self.parent.max_mp*9:
-                self.parent.max_mp = round(self.parent.max_mp * 1.15)
+                self.parent.max_mp += min(50, round(self.parent.max_mp * 0.15))
                 self.parent.fully_gain()
                 self.lvl_up_msg("mp")
                 self.mp_exp = 0 # reset
