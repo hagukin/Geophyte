@@ -409,13 +409,13 @@ class ActorState(BaseComponent):
             constitution = self.parent.status.changed_status["constitution"]
             max_hp = self.parent.status.changed_status["max_hp"]
 
-            heal_percent = constitution * 0.001 # amount of healing indicated as a percentage of maximum health
+            heal_percent = constitution * 0.0015 # amount of healing indicated as a percentage of maximum health
             heal_amount = int(max(1, max_hp * heal_percent)) # absolute amount of healing
             self.parent.status.heal(amount=heal_amount)
-            self.heal_interval = round(100 / constitution)
+            self.heal_interval = max(2, int(150 / constitution))
 
             if self.parent.status.experience:
-                self.parent.status.experience.gain_constitution_exp(5, exp_limit=3000)
+                self.parent.status.experience.gain_constitution_exp(1, exp_limit=1000)
         else:
             self.heal_interval -= 1
 
