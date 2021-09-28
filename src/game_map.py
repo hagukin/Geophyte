@@ -360,6 +360,33 @@ class GameMap:
         self.sort_entities()
         self.update_enemy_fov(is_initialization=True)
 
+    def spawn_monster_of_appr_diff_to_gamemap(self, x:int, y:int) -> Optional[Actor]:
+        """
+        Spawn monster of appropriate difficulty to given location of this gamemap.
+        When spawning monster of gamemap's difficulty after the initial dungeon generation,
+        It is recommended to use this function instead of directly calling procgen's functions.
+        Main usage:
+            gamemap's monster respawning
+            spawn monster readable
+        """
+        import procgen
+        if not self.check_tile_monster_spawnable(x, y):
+            print(f"ERROR::Spawning monster to invalid location {x, y}.")
+            return None
+        difficulty_chosen = procgen.choose_monster_difficulty(gamemap=self, toughness=self.engine.toughness + min(4,round(self.difficulty_rise)))
+        return procgen.spawn_given_monster(
+            x=x,
+            y=y,
+            monster=procgen.choose_monster_by_difficulty(
+                difficulty=difficulty_chosen,
+                radius=(-1, 1)
+            ),
+            spawn_active=False,
+            spawn_sleep=False,
+            is_first_generation=False,
+            dungeon=self
+        )
+
     def respawn_monsters(self) -> None:
         """
         Respawn monsters for this gamemap.
@@ -392,20 +419,8 @@ class GameMap:
                         continue
                     else:
                         # the monster difficulty rise as time goes on to prevent farming. This can be done by adjusting the toughness parameter.
-                        # We are not using procgen.spawn_monster_of_appropriate_difficulty because we want to specify the difficulty.
-                        import procgen
-                        difficulty_chosen = procgen.choose_monster_difficulty(gamemap=self, toughness=self.engine.toughness + min(4, round(self.difficulty_rise)))
-                        procgen.spawn_given_monster(
-                            x=random_x,
-                            y=random_y,
-                            monster=procgen.choose_monster_by_difficulty(
-                                difficulty=difficulty_chosen,
-                                radius=(-1, 1)
-                            ),
-                            spawn_active=False,
-                            spawn_sleep=False,
-                            dungeon=self
-                        )
+                        # We are not using procgen.spawn_monster_of_appropriate_difficulty
+                        self.spawn_monster_of_appr_diff_to_gamemap(random_x, random_y)
                         break
         # Add turn
         self.respawn_turn_left += 1

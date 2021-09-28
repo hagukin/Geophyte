@@ -167,7 +167,7 @@ class SpellActivateable(Activatable):
         """
         Check whether the caster has sufficient mana for casting the spell or not.
 
-        TODO: Add difficulty to spells. 
+        TODO: Add difficulty to spells.
         Chance of successfully casting a spell should be effected by its difficulty.
         """
         if action.entity.status.changed_status["mp"] >= self.mana_cost:
@@ -257,7 +257,7 @@ class MesmerizeSpellActivatable(SelectTargetSpellActivatable):
                 self.engine.message_log.add_message(f"{g(caster.name, '은')} 허공을 향해 마법을 사용했다.",target=caster, fg=color.enemy_unique)
             return None
 
-        if not target.ai or target == caster:
+        if not target.ai or target == caster: # TODO: Currently ai cannot mesmerize player
             # Log
             if caster == self.engine.player:
                 self.engine.message_log.add_message(f"당신의 자신감이 차오른다.", color.player_buff)

@@ -62,8 +62,6 @@ class Biome:
         terrain: dict = None,
         additional_terrain: dict = None,
         remove_all_terrain_of_type: Optional[Tuple[str, ...]] = None,
-
-        # TODO Add biome-differentiated monster generating system feature
     ):
         """
         Args:

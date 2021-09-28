@@ -217,7 +217,6 @@ class Sphere_Of_Acid_Ai(ai.BaseAI):
 ####################################################
 
 class Chatterbox_Ai(ai.BaseAI):
-    #TODO: make Chatterbox chatter
     def __init__(self, alignment:Tuple=(("allied",),(1,)), do_melee_atk:bool=True, do_ranged_atk: bool=False, use_ability: bool=False):
         super().__init__(alignment, do_melee_atk, do_ranged_atk, use_ability)
         self.allied_id.add('chatterbox')

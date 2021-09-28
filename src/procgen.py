@@ -130,7 +130,7 @@ def choose_monster_by_difficulty(difficulty: int, radius: (0,0)) -> Optional[Act
 
 def spawn_given_monster(
     x: int, y: int, monster: Actor, dungeon: GameMap, spawn_active=False, spawn_sleep=False, is_first_generation=False,
-) -> None:
+) -> Optional[Actor]:
     """
     Spawns a given monster to given location from given gamemap.
     This is the only function you should use during procgen process to directly spawn an actor entity.
@@ -160,9 +160,17 @@ def spawn_given_monster(
     if is_first_generation:
         dungeon.starting_monster_num += 1
 
+    return new_monster
+
 
 def spawn_monster_of_appropriate_difficulty(x: int, y: int, dungeon: GameMap, spawn_active=False, spawn_sleep=False, is_first_generation=False) -> None:
-    """Wrapper funciton."""
+    """
+    Wrapper funciton.
+
+    NOTE:
+    It is HIGHLY recommended to use gamemap.spawn_monster_of_appr_diff_to_gamemap() instead
+    when trying to spawn monster of appropriate difficulty outside of the dungeon generation process.
+    """
     spawn_given_monster(
         x=x,
         y=y,

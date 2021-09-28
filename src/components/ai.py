@@ -365,7 +365,9 @@ class BaseAI(BaseComponent):
 
     def check_is_use_ability_possible(self, target: Actor) -> Optional[Optional[Tuple[int,int]], Actor, Ability]:
         """
-        Check if this ai is currently able to use ability, and return the result.
+        Check if this ai is currently able to use ability to given target, and return the result.
+        NOTE: This function only supports skills/spells with hostile target. (or at least the ai has a target in mind. e.g. lightning strike)
+        Which means, skills such as heal_wound cannot be checked here.
 
         If the ai is able to range attack, this function will return the result as following form:
         (coordinate, target, ability_chosen)
@@ -376,7 +378,7 @@ class BaseAI(BaseComponent):
             ability:
                 Return the ability object(not the id!) that are being used.
 
-        TODO: Currnetly this function only supports skills/spells with target entity. (or at least the ai has a target in mind. e.g. lightning strike)
+
         """
         for s in self.parent.ability_inventory.abilities:
             ##########
@@ -404,6 +406,10 @@ class BaseAI(BaseComponent):
                     return ability_info[1], target, s
             elif s.ability_id == "sp_call_of_the_orc_lord":
                 ability_info = Skill_AI.spell_call_of_the_orc_lord(actor=self.parent, target=target)
+                if ability_info[0]:
+                    return ability_info[1], target, s
+            elif s.ability_id == "sp_mesmerize":
+                ability_info = Skill_AI.spell_mesmerize(actor=self.parent, target=target)
                 if ability_info[0]:
                     return ability_info[1], target, s
         return None

@@ -211,13 +211,62 @@ def equip_region_name_to_str(region_name) -> str:
     return translated
 
 
+def spawn_monster_of_appr_diff_8way(gamemap, center_x: int, center_y: int, spawn_cnt: int=8, spawn_on_center: bool=False, randomize: bool=True) -> List[Actor]:
+    """
+    Args:
+        spawn_cnt:
+            the MAXIMUM number of entity spawned.
+            It is very likely that the actual spawn count is smaller.
+        randomize:
+            randomize spawn direction.
+    """
+    spawned_list = []
+
+    if spawn_on_center:
+        if gamemap.check_tile_monster_spawnable(center_x, center_y):
+            tmp = gamemap.spawn_monster_of_appr_diff_to_gamemap(center_x, center_y)
+            if tmp:
+                spawned_list.append(tmp)
+
+    curr_spawn_cnt = 0
+    xs = [1, 0, -1]
+    ys = [1, 0, -1]
+    if randomize:
+        random.shuffle(xs)
+        random.shuffle(ys) # randomize spawn place
+
+    for dx in xs:
+        for dy in ys:
+            if dx == 0 and dy == 0:
+                continue
+            if curr_spawn_cnt >= spawn_cnt:
+                return spawned_list
+            if gamemap.check_tile_monster_spawnable(center_x+dx, center_y+dy):
+                tmp = gamemap.spawn_monster_of_appr_diff_to_gamemap(center_x+dx, center_y+dy)
+                if tmp:
+                    spawned_list.append(tmp)
+                    curr_spawn_cnt += 1
+
+    return spawned_list
+
+
 def spawn_entity_8way(entity, gamemap, center_x: int, center_y: int, spawn_cnt: int=8, spawn_on_center: bool=False, randomize: bool=True) -> List[Entity]:
+    """
+    The function will try to spawn the given entity near the center_x, y.
+
+    Args:
+        spawn_cnt:
+            the MAXIMUM number of entity spawned.
+            It is very likely that the actual spawn count is smaller.
+        randomize:
+            randomize spawn direction.
+    """
     def spawn(_entity, _gamemap, _x: int, _y: int) -> Entity:
         if isinstance(_entity, Actor):
             if gamemap.check_tile_monster_spawnable(_x, _y):
-                return entity.spawn(_gamemap, _x, _y, is_active=True)
+                return _entity.spawn(_gamemap, _x, _y, is_active=True)
         else:
-            return entity.spawn(_gamemap, _x, _y)
+            return _entity.spawn(_gamemap, _x, _y)
 
     spawned_list = []
 
@@ -242,8 +291,7 @@ def spawn_entity_8way(entity, gamemap, center_x: int, center_y: int, spawn_cnt: 
             tmp = spawn(entity, gamemap, center_x+dx, center_y+dy)
             if tmp:
                 spawned_list.append(tmp)
-
-            curr_spawn_cnt += 1
+                curr_spawn_cnt += 1
 
     return spawned_list
 

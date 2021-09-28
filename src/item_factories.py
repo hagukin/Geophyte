@@ -906,6 +906,34 @@ temp_items_lists.append(scroll_of_conflict)
 item_rarity.append(scroll_of_conflict.rarity)
 
 
+### Scroll of Summoning
+scroll_of_summoning = Item(
+    should_randomize=True,
+    char="~",
+    fg=(255, 255, 200),
+    name="소환의 주문서",
+    entity_id="scroll_of_summoning",
+    entity_desc=("소환의 주문서는 무작위의 생명체를 주변에 소환시킨다. "),
+    item_type_desc=("주문서들은 마법을 사용할 줄 모르거나 내재하고 있는 마력이 부족하더라도 마법을 사용할 수 있게 해주는 유용한 도구이다. "
+                    "같은 종류의 주문서를 사용하더라도 주문서가 저주받았다면 전혀 다른 결과를 가져올 수도 있다. "),
+    rarity=40,
+    weight=0.1,
+    price=150,
+    item_type=InventoryOrder.SCROLL,
+    item_state=ItemState(),
+    spawnable=True,
+    flammable=0.3,
+    corrodible=0.1,
+    droppable=True,
+    stackable=True,
+    throwable=throwable.NormalThrowable(air_friction=20),
+    readable=readable.ScrollOfSummoningReadable(),
+    quaffable=None,
+)
+temp_items_lists.append(scroll_of_summoning)
+item_rarity.append(scroll_of_summoning.rarity)
+
+
 #########################################################################
 ############################# SKILLBOOKS ################################
 #########################################################################

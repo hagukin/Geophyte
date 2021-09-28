@@ -432,7 +432,6 @@ class PotionOfLiquifiedAntsThrowable(NormalThrowable):
         for actor in actors:
             trigger_actor = self.engine.game_map.get_actor_at_location(x=self.collision_x, y=self.collision_y)
             actor.status.take_damage(amount=0, attacked_from=trigger_actor) # Trigger ants
-            print(trigger_actor)
 
         if self.engine.game_map.visible[self.shattered_x, self.shattered_y]:
             self.engine.message_log.add_message(f"{self.parent.name}이 깨진 자리에서 {g(spawn.name, '이')} 생겨났다!",color.player_sense)

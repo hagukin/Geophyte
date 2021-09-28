@@ -1169,7 +1169,6 @@ class DoorUnlockAction(ActionWithDirection):
                 )
             )
             return None
-        # If the AI is the actor, TODO
         else:
             if self.entity.ai:
                 if self.entity.status.changed_status["intelligence"] > 13 and self.entity.status.changed_status["dexterity"] > 13:
@@ -1280,7 +1279,7 @@ class DoorOpenAction(ActionWithDirection):
         # If the actor has arm, it can try to open the door regardless of its dexterity
         if self.entity.actor_state.has_left_arm or self.entity.actor_state.has_left_arm:
             can_open_door = True
-        # If the actor has no arm, but has enough dexterity and intelligence, it still can try to open the door 
+        # If the actor has no arm, but has enough dexterity and intelligence, it still can try to open the door
         # TODO : Adjust numbers
         elif dexterity >= 10 and intelligence >= 10:
             can_open_door = True

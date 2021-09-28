@@ -112,3 +112,13 @@ class Skill_AI():
             return True, coordinate
         return False, coordinate
 
+    @staticmethod
+    def spell_mesmerize(actor: Actor, target: Actor) -> Optional[Tuple[bool, Optional[Tuple[int, int]]]]:
+        coordinate = None
+        if not actor.ai.vision[target.x, target.y] or not target.ai: # Will not use mesmerizing if target has no ai (TODO: FIXME: If mesmerizing becomes effective against non-ais, fix this)
+            return False, coordinate
+        # Check if this actor has the ability
+        mesmerize = actor.ability_inventory.get_ability_by_id("sp_mesmerize")
+        if Skill_AI.check_mana(actor=actor, spell=mesmerize):
+            return True, coordinate
+        return False, coordinate

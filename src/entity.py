@@ -352,10 +352,7 @@ class Entity:
         """Spawn a new copy of this instance at the given location.
         NOTE: So technically you are not spawning THIS SPECIFIC ENTITY, instead you are copying this entity and spawning the copy."""
         clone = self.copy(gamemap, exact_copy=exact_copy) # Most of the time, spawn() will have exact_copy param as False
-        clone.x = x
-        clone.y = y
-        clone.gamemap = gamemap
-        gamemap.entities.append(clone)
+        clone.place(x, y, gamemap)
         return clone
 
     def place(self, x: int, y: int, gamemap: Optional[GameMap] = None) -> None:

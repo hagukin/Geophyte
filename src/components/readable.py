@@ -840,6 +840,27 @@ class ScrollOfConflictReadable(Readable):
         self.consume(consumer)
 
 
+class ScrollOfSummoningReadable(Readable):
+    """Spawn maximum of 8 monster onto nearby tiles."""
+    def __init__(self, toughness: int = 0):
+        super().__init__()
+        self.toughness = max(0, toughness)
+
+    def activate(self, action: actions.ReadItem) -> None:
+        consumer = action.entity
+        mon_cnt = 4
+        if self.parent.item_state.BUC == -1: # If cursed, spawn 2 monster
+            mon_cnt = 2
+        elif self.parent.item_state.BUC == 1:
+            mon_cnt = 8
+
+        from src.util import spawn_monster_of_appr_diff_8way
+        mon_list = spawn_monster_of_appr_diff_8way(gamemap=consumer.gamemap, center_x=consumer.x, center_y=consumer.y, spawn_cnt=mon_cnt, randomize=True)
+        for m in mon_list:
+            self.engine.message_log.add_message(f"{g(m.name, '이')} 소환되었다!", fg=color.world)
+        self.consume(consumer)
+
+
 from ability import Ability
 
 class BookReadable(Readable):

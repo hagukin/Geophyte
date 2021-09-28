@@ -25,7 +25,6 @@ class Camera:
         ypos: int=0,
         display_x: int=0,
         display_y: int=0,
-        show_all: bool=False
         ):
         """
         Args:
@@ -47,7 +46,6 @@ class Camera:
         self.dy = 0
         self.display_x = display_x
         self.display_y = display_y
-        self.show_all = show_all # TODO : Add feature and make it work properly with magic mapping
         self.visuals =  deque() # List of visual objects that are going to be rendered this turn.
         self.prev_visuals = deque()
         self.prev_gameturn = 1 # Keeps track of game turn to determine whether the camera should decrease the lifetime of the visual objects or not.
