@@ -1018,7 +1018,7 @@ lightning_bolt_spellbook = Item(
     entity_id="lightning_bolt_spellbook",
     item_type_desc=("마법서는 단순한 책들과는 격을 달리 하는 물건이다. "
                     "이들은 막대한 마법 에너지를 사용해 제작되며, 그 내용도 쉽게 이해하기 어려운 경우가 많다."),
-    rarity=3,
+    rarity=8,
     weight=0.85,
     price=480,
     item_type=InventoryOrder.SPELLBOOK,
@@ -1031,7 +1031,7 @@ lightning_bolt_spellbook = Item(
     throwable=throwable.NormalThrowable(air_friction=20),
     readable=readable.BookReadable(
         ability=ability_factories.lightning_bolt,
-        int_req=14,
+        int_req=17,
         comprehension_chance_per_int_bonus=0.1,
     ),
     quaffable=None,
@@ -1049,7 +1049,7 @@ soul_bolt_spellbook = Item(
     entity_id="soul_bolt_spellbook",
     item_type_desc=("마법서는 단순한 책들과는 격을 달리 하는 물건이다. "
                     "이들은 막대한 마법 에너지를 사용해 제작되며, 그 내용도 쉽게 이해하기 어려운 경우가 많다."),
-    rarity=4,
+    rarity=10,
     weight=0.85,
     price=480,
     item_type=InventoryOrder.SPELLBOOK,
@@ -1062,7 +1062,7 @@ soul_bolt_spellbook = Item(
     throwable=throwable.NormalThrowable(air_friction=20),
     readable=readable.BookReadable(
         ability=ability_factories.soul_bolt,
-        int_req=14,
+        int_req=15,
         comprehension_chance_per_int_bonus=0.1,
     ),
     quaffable=None,
@@ -1080,7 +1080,7 @@ cure_wound_spellbook = Item(
     entity_id="cure_wound_spellbook",
     item_type_desc=("마법서는 단순한 책들과는 격을 달리 하는 물건이다. "
                     "이들은 막대한 마법 에너지를 사용해 제작되며, 그 내용도 쉽게 이해하기 어려운 경우가 많다."),
-    rarity=3,
+    rarity=7,
     weight=0.85,
     price=480,
     item_type=InventoryOrder.SPELLBOOK,
@@ -1093,7 +1093,7 @@ cure_wound_spellbook = Item(
     throwable=throwable.NormalThrowable(air_friction=20),
     readable=readable.BookReadable(
         ability=ability_factories.cure_wound,
-        int_req=13,
+        int_req=16,
         comprehension_chance_per_int_bonus=0.2,
     ),
     quaffable=None,
@@ -1111,7 +1111,7 @@ mesmerize_spellbook = Item(
     entity_id="mesmerize_spellbook",
     item_type_desc=("마법서는 단순한 책들과는 격을 달리 하는 물건이다. "
                     "이들은 막대한 마법 에너지를 사용해 제작되며, 그 내용도 쉽게 이해하기 어려운 경우가 많다."),
-    rarity=3,
+    rarity=8,
     weight=0.85,
     price=480,
     item_type=InventoryOrder.SPELLBOOK,
@@ -1124,7 +1124,7 @@ mesmerize_spellbook = Item(
     throwable=throwable.NormalThrowable(air_friction=20),
     readable=readable.BookReadable(
         ability=ability_factories.mesmerize,
-        int_req=16,
+        int_req=15,
         comprehension_chance_per_int_bonus=0.3,
     ),
     quaffable=None,
@@ -1142,7 +1142,7 @@ teleport_spellbook = Item(
     entity_id="teleport_spellbook",
     item_type_desc=("마법서는 단순한 책들과는 격을 달리 하는 물건이다. "
                     "이들은 막대한 마법 에너지를 사용해 제작되며, 그 내용도 쉽게 이해하기 어려운 경우가 많다."),
-    rarity=3,
+    rarity=10,
     weight=0.85,
     price=480,
     item_type=InventoryOrder.SPELLBOOK,
@@ -1155,7 +1155,7 @@ teleport_spellbook = Item(
     throwable=throwable.NormalThrowable(air_friction=20),
     readable=readable.BookReadable(
         ability=ability_factories.teleport,
-        int_req=15,
+        int_req=18,
         comprehension_chance_per_int_bonus=0.1,
     ),
     quaffable=None,

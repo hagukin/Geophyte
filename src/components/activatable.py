@@ -221,7 +221,7 @@ class CureWoundActivatable(SelectTargetSpellActivatable):
 
         # amound
         amount = random.randint(*self.heal_range)
-        amount *= round(min(2, max(0, caster.status.changed_status["intelligence"] / 20)))
+        amount *= round(min(2, max(0, caster.status.changed_status["intelligence"] / 16)))
         amount_recovered = target.status.heal(amount)
 
         if amount_recovered > 0:

@@ -15,7 +15,7 @@ lightning_bolt = Ability(
     ability_desc="시야 내의 임의의 생명체 위에 번개가 떨어집니다.",
     ability_type=AbilityOrder.REGULAR_SPELL,
     activatable=activatable.LightningStrikeActivatable(
-        mana_cost=30,
+        mana_cost=50,
         difficulty=1,
         damage=30,
         maximum_range=99,
@@ -55,7 +55,7 @@ cure_wound = Ability(
     ability_id="sp_cure_wound",
     ability_desc="선택한 대상의 상처를 치유할 수 있습니다.",
     ability_type=AbilityOrder.REGULAR_SPELL,
-    activatable=activatable.CureWoundActivatable(mana_cost=50, difficulty=0, heal_range=(50,80))
+    activatable=activatable.CureWoundActivatable(mana_cost=40, difficulty=0, heal_range=(5,20))
 )
 
 ### mesmerize
@@ -64,7 +64,7 @@ mesmerize = Ability(
     ability_id="sp_mesmerize",
     ability_desc="선택한 대상을 매혹시켜 아군으로 만들 수 있습니다.",
     ability_type=AbilityOrder.REGULAR_SPELL,
-    activatable=activatable.MesmerizeSpellActivatable(mana_cost=50, difficulty=0)
+    activatable=activatable.MesmerizeSpellActivatable(mana_cost=80, difficulty=0)
 )
 
 ### teleport
