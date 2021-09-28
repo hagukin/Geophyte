@@ -605,7 +605,7 @@ scroll_of_magic_mapping = Item(
     entity_desc=("마법 지도의 주문서를 읽은 사용자는 주위의 공간적 정보들을 일시적으로 인식할 수 있게 된다. "),
     item_type_desc=("주문서들은 마법을 사용할 줄 모르거나 내재하고 있는 마력이 부족하더라도 마법을 사용할 수 있게 해주는 유용한 도구이다. "
                     "같은 종류의 주문서를 사용하더라도 주문서가 저주받았다면 전혀 다른 결과를 가져올 수도 있다. "),
-    rarity=65,
+    rarity=50,
     weight=0.1,
     price=250,
     item_type=InventoryOrder.SCROLL,

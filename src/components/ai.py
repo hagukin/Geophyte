@@ -764,9 +764,9 @@ class BaseAI(BaseComponent):
                 self.target_out_of_sight()
         elif self.attraction:
 
-            # Check if attraction is still in sight
+            # Check if attraction is still in sight AND is still on gamemap AND is not removed from game (e.g. burnt after the ai set its attraction)
             # NOTE: vision already up to date since this function is(and shoud only be) called from perform()
-            if self.vision[self.attraction.x, self.attraction.y]:
+            if self.vision[self.attraction.x, self.attraction.y] and self.attraction.gamemap == self.parent.gamemap and not self.attraction.check_is_deleted_from_game():
                 # If ai has an attraction, set new path
                 if self.attraction.x == self.parent.x and self.attraction.y == self.parent.y:
                     if self.do_what_to_attraction == "eat":

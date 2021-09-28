@@ -1896,7 +1896,7 @@ class DisplayControlEventHandler(AskUserEventHandler):
         y_start = 2
         xpad = 0
         ypad = 0
-        console.print(x=x_start, y=y_start + ypad, string="기초적인 조작은 마우스 클릭로 가능하지만 가급적 키보드 조작을 권장합니다.", fg=color.yellow)
+        console.print(x=x_start, y=y_start + ypad, string="가급적 키보드 조작을 권장합니다.", fg=color.yellow)
         ypad += 3
         console.print(x=x_start, y=y_start + ypad, string="<이동>", fg=color.white)
         console.print(x=x_start, y=y_start + ypad+1, string="키패드 2468 1379 / 키보드 hjkl yubn / 마우스 좌클릭", fg=color.cyan)

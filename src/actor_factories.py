@@ -128,7 +128,7 @@ player = Actor(
 # {"item": item_factories.potion_of_liquified_ants, "chance": 1, "count": (10, 15), "BUC": {1:1,0:0,-1:0}, "upgrade": None},
 # {"item": item_factories.scroll_of_conflict, "chance": 1, "count": (10, 15), "BUC": {1:0,0:1,-1:0}, "upgrade": None},
 # {"item": item_factories.scroll_of_digging, "chance": 1, "count": (10, 12), "BUC": {1:0,0:0,-1:1}, "upgrade": None},
-# {"item": item_factories.scroll_of_magic_mapping, "chance": 1, "count": (10, 10), "BUC": None, "upgrade": None},
+# {"item": item_factories.scroll_of_summoning, "chance": 1, "count": (10, 10), "BUC": None, "upgrade": None},
 #     ),
 #     initial_equipments=(
 #         {"item":item_factories.stonefury, "chance":1, "count":(1,1), "BUC":None, "upgrade": None},

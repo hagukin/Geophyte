@@ -601,6 +601,9 @@ class Actor(Entity):
             new_corpse.edible.parent = new_corpse
 
     def die(self, cause:str="low_hp", drop_item: bool=True, drop_edible: bool=True):
+        if self.actor_state.is_dead:
+            print(f"ERROR::Tried to call actor.die() to dead actor {self.name}. Call cancelled.")
+            return None
         if drop_item:
             self.equipments.remove_all_equipments(forced=True, play_fx=False)
             self.drop_all_items()

@@ -625,6 +625,10 @@ class Status(BaseComponent):
     def take_damage(self, amount, attacked_from:Actor=None) -> None:
         """Reduce the health point by the exact given amount.
         This function can be used for triggering certain actors."""
+        if self.parent.actor_state.is_dead:
+            print(f"WARNING::take_damage() called on dead actor {self.parent.name}, call ignored.")
+            return None
+
         # set attacker (trigger ai)
         if attacked_from:
             if self.parent.ai and attacked_from != self.parent: #Cannot target self
