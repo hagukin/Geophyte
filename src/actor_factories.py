@@ -126,15 +126,13 @@ player = Actor(
 #     initial_items=
 #     (
 # {"item": item_factories.potion_of_liquified_ants, "chance": 1, "count": (10, 15), "BUC": {1:1,0:0,-1:0}, "upgrade": None},
-# {"item": item_factories.scroll_of_conflict, "chance": 1, "count": (10, 15), "BUC": {1:1,0:0,-1:0}, "upgrade": None},
+# {"item": item_factories.scroll_of_conflict, "chance": 1, "count": (10, 15), "BUC": {1:0,0:1,-1:0}, "upgrade": None},
 # {"item": item_factories.scroll_of_digging, "chance": 1, "count": (10, 12), "BUC": {1:0,0:0,-1:1}, "upgrade": None},
 # {"item": item_factories.scroll_of_magic_mapping, "chance": 1, "count": (10, 10), "BUC": None, "upgrade": None},
 #     ),
 #     initial_equipments=(
-#         {"item":item_factories.cloak_of_protection, "chance":1, "count":(1,1), "BUC":None, "upgrade": None},
+#         {"item":item_factories.stonefury, "chance":1, "count":(1,1), "BUC":None, "upgrade": None},
 #         {"item":item_factories.leather_armor, "chance":1, "count":(1,1), "BUC":{-1:1, 0:1, 1:1}, "upgrade": {1:1,2:0,3:0,4:0}},
-#         {"item":item_factories.longsword, "chance":1, "count":(1,1), "BUC":{-1:1, 0:1, 1:1}, "upgrade": {1:1,2:0,3:0,4:0}},
-#         {"item":item_factories.silver_shield, "chance":1, "count":(1,1), "BUC":{-1:1, 0:1, 1:1}, "upgrade": {1:1,2:0,3:0,4:0}},
 #     ),
     # initial_abilities=
     # (

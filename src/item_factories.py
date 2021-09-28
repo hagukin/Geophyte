@@ -2550,6 +2550,51 @@ temp_items_lists.append(battle_axe)
 item_rarity.append(battle_axe.rarity)
 
 
+# Stonefury
+stonefury = Item(
+    char=")",
+    fg=(214, 51, 111),
+    name="스톤퓨리",
+    entity_id="stonefury",
+    entity_desc=("스톤퓨리는 알 수 없는 암석으로 만들어진 도끼날을 갖고 있으며 과거 바이킹들에 의해 만들어졌다고 알려져 있다. "
+                 "흥미롭게도 이 무기는 바이킹 자신들에 의해 봉인되었다고 하는데, 이 무기를 처음 손에 쥔 자가 돌연 격노하며 다른 바이킹들을 무자비하게 학살했기 때문이다. "
+                 "이 무기는 사용자 뿐만 아니라 공격받은 대상에게까지도 막심한 분노를 유발하는 것으로 알려져 있으며, "
+                 "때문에 이 무기가 당시 바이킹이 내전을 통해 몰락하게 되는 시발점이 되었다고 보는 학자들도 존재한다. "),
+    rarity=1,
+    weight=2.8,
+    price=8500,
+    item_type=InventoryOrder.MELEE_WEAPON,
+    item_state=ItemState(is_identified=1),
+    flammable=0,
+    corrodible=0,
+    spawnable=True,
+    droppable=True,
+    stackable=False,
+    throwable=throwable.NormalThrowable(base_throw=12, additional_throw=17, penetration=False),
+    equipable=equipable.Equipable(
+        equipable_type=EquipableOrder.BLADE,
+        upgrade=0,
+        possible_regions=("main hand", "off hand"),
+        equip_size=(4, 6),
+        str_requirement=19,
+        base_melee=12,
+        additional_melee=30,
+        base_melee_mag=2,
+        additional_melee_mag=2.5,
+        alter_actor_state={"is_angry":list((0,-1))},# using list()
+        melee_effects=(("anger_target", 0.5),),
+        melee_effects_var=((0,5),),
+    ),
+    lockpickable=(0.9, 0),
+    is_artifact=True,
+    initial_BUC={1: 1, 0: 0, -1: 0},
+    initial_upgrades={0: 0},
+    cursable=False,
+)
+temp_items_lists.append(stonefury)
+item_rarity.append(stonefury.rarity)
+
+
 ###### CLUBS
 ### Forging hammer
 forging_hammer = Item(
@@ -3096,6 +3141,39 @@ item_rarity.append(amulet_of_magic_aversion.rarity)
 #########################################################################
 ############################### RINGS ###################################
 #########################################################################
+
+
+### Ring of inner peace
+ring_of_inner_peace = Item(
+    should_randomize=True,
+    char="`",
+    fg = (255, 72, 0),
+    name="내적 평화의 반지",
+    entity_id="ring_of_inner_peace",
+    entity_desc=("착용자에게 마음의 평화를 가져다주는 반지이다. "
+                 "착용자는 쉽게 분노하지 않게 된다. "),
+    rarity=3,
+    weight=0.2,
+    price=400,
+    item_type=InventoryOrder.RING,
+    item_state=ItemState(is_identified=0),
+    tradable=True,
+    spawnable=True,
+    flammable=0,
+    corrodible=0,
+    droppable=True,
+    stackable=False,
+    throwable=throwable.NormalThrowable(penetration=False, air_friction=15),
+    equipable=equipable.Equipable(
+        equipable_type=EquipableOrder.RING,
+        upgrade=0,
+        possible_regions=("left ring","right ring",),
+        alter_actor_state={"has_inner_peace":True},
+    ),
+    edible=None
+)
+temp_items_lists.append(ring_of_inner_peace)
+item_rarity.append(ring_of_inner_peace.rarity)
 
 
 ### Ring of water
