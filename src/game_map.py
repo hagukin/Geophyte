@@ -5,11 +5,13 @@ import random
 
 from numpy.lib.arraysetops import isin
 import tiles
+import color
 
 from typing import Iterable, Iterator, Optional, Tuple, List, TYPE_CHECKING
 from entity import Actor, Item, SemiActor
 from order import TilemapOrder
 from game import Game
+from korean import grammar as g
 
 if TYPE_CHECKING:
     from engine import Engine
@@ -110,10 +112,16 @@ class GameMap:
         """
         if self.descending_actors:
             if self.get_blocking_entity_at_location(self.ascend_loc[0], self.ascend_loc[1]) == None:
-                self.engine.change_entity_depth(entity=self.descending_actors.pop(), depth=self.depth, xpos=self.ascend_loc[0], ypos=self.ascend_loc[1])
+                actor = self.descending_actors.pop()
+                self.engine.change_entity_depth(entity=actor, depth=self.depth, xpos=self.ascend_loc[0], ypos=self.ascend_loc[1])
+                if self.visible[self.ascend_loc]:
+                    self.engine.message_log.add_message(f"{g(actor.name, '이')} 계단을 내려왔다.", fg=color.world)
         if self.ascending_actors:
             if self.get_blocking_entity_at_location(self.descend_loc[0], self.descend_loc[1]) == None:
-                self.engine.change_entity_depth(entity=self.ascending_actors.pop(), depth=self.depth, xpos=self.descend_loc[0], ypos=self.descend_loc[1])
+                actor = self.ascending_actors.pop()
+                self.engine.change_entity_depth(entity=actor, depth=self.depth, xpos=self.descend_loc[0], ypos=self.descend_loc[1])
+                if self.visible[self.ascend_loc]:
+                    self.engine.message_log.add_message(f"{g(actor.name, '이')} 계단을 올라왔다.", fg=color.world)
 
     def remove_entity(self, entity: Entity) -> None:
         """Removes all connection with the given entity.
