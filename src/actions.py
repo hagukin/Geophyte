@@ -314,13 +314,7 @@ class ItemAction(Action):
         self.item_selected = item_selected
 
         # Warning
-        warning = True
-        if self.item.parent:
-            if self.item.parent.parent:
-                if self.item.parent.parent == self.entity:
-                    warning = False
-        if warning:
-            print(f"WARNING::Item Action must only be called from item's owner. entity-{self.entity.entity_id}, item-{self.item.entity_id}")
+        self.warn()
 
     @property
     def target_actor(self) -> Optional[Actor]:
@@ -330,8 +324,27 @@ class ItemAction(Action):
     def perform(self) -> None:
         raise NotImplementedError
 
+    def warn(self) -> None:
+        warning = True
+        if self.item.parent:
+            if self.item.parent.parent:
+                if self.item.parent.parent == self.entity:
+                    warning = False
+        if warning:
+            print(f"WARNING::Item Action must only be called from item's owner. entity-{self.entity.entity_id}, item-{self.item.entity_id}")
 
 class ThrowItem(ItemAction):
+    def __init__(
+            self, entity: Actor, item: Item, throw_range: Optional[int]=None, target_xy: Optional[Tuple[int, int]] = None, item_selected: Optional[Item] = None
+    ):
+        """
+        Args:
+            throw_range:
+                if None, throw as far as the actor can.
+        """
+        super().__init__(entity=entity, item=item, target_xy=target_xy, item_selected=item_selected)
+        self.throw_range = throw_range
+
     def perform(self) -> None:
         # Checking for inability
         if self.entity.check_for_immobility():
@@ -466,6 +479,12 @@ class QuaffItem(ItemAction):
 
 
 class EatItem(ItemAction):
+    def warn(self) -> None:
+        if self.entity.ai:
+            return None # AI can eat item without owning the item.
+        else:
+            super().warn()
+
     def perform(self) -> None:
         # Checking for inability
         if self.entity.check_for_immobility():
@@ -1061,13 +1080,13 @@ class DoorUnlockAction(ActionWithDirection):
     """
     def ai_unlock(self) -> None:
         dest_x, dest_y = self.dest_xy
-        semiactor_on_dir = self.engine.game_map.get_semiactor_at_location(dest_x, dest_y, "door")
+        door = self.engine.game_map.get_semiactor_at_location(dest_x, dest_y, "door")
 
         if self.entity.ai:
             self.entity.ai.path = None
 
-        if not semiactor_on_dir:
-            print("WARNING::AI tried to unlock void.")
+        if not door or not isinstance(door.semiactor_info, Door):
+            print("WARNING::AI tried to unlock something thats not unlockable.")
             return None
         else:
             # Ai's chance of unlocking is dependent to its intelligence as well
@@ -1084,8 +1103,8 @@ class DoorUnlockAction(ActionWithDirection):
 
                 import semiactor_factories
                 tmp = semiactor_factories.closed_door.spawn(self.engine.game_map, dest_x, dest_y, -1)
-                semiactor_on_dir.semiactor_info.move_self_to(tmp)
-                semiactor_on_dir.remove_self()
+                door.semiactor_info.move_self_to(tmp)
+                door.remove_self()
 
                 if self.entity.status.experience:
                     self.entity.status.experience.gain_dexterity_exp(30, 18, 600)
@@ -1106,9 +1125,9 @@ class DoorUnlockAction(ActionWithDirection):
 
         # Get door coordinates
         dest_x, dest_y = self.dest_xy
-        semiactor_on_dir = self.engine.game_map.get_semiactor_at_location(dest_x, dest_y, "door")
+        door = self.engine.game_map.get_semiactor_at_location(dest_x, dest_y, "door")
 
-        if not semiactor_on_dir:
+        if not door or not isinstance(door.semiactor_info, Door):
             raise exceptions.Impossible("이 곳에는 잠금을 해제할 물건이 없다.")
         else:
             dexterity = self.entity.status.changed_status["dexterity"]
@@ -1120,7 +1139,7 @@ class DoorUnlockAction(ActionWithDirection):
             if tool_bonus == -1:
                 chance_of_unlocking = 1
             else:
-                chance_of_unlocking = tool_bonus * min(1, dexterity / 18)
+                chance_of_unlocking = tool_bonus * min(1, dexterity / 18 * door.semiactor_info.unlock_chance)
 
             if random.random() <= chance_of_unlocking:
                 # Unlock succeded
@@ -1131,8 +1150,8 @@ class DoorUnlockAction(ActionWithDirection):
                     self.engine.message_log.add_message(f"{g(self.entity.name, '이')} {g(item.name, '을')} 사용해 문의 잠금을 해제했다!", color.enemy_unique, target=self.entity)
 
                 tmp = semiactor_factories.closed_door.spawn(self.engine.game_map, dest_x, dest_y, -1)
-                semiactor_on_dir.semiactor_info.move_self_to(tmp)
-                semiactor_on_dir.remove_self()
+                door.semiactor_info.move_self_to(tmp)
+                door.remove_self()
 
                 if self.entity.status.experience:
                     self.entity.status.experience.gain_dexterity_exp(30, 18, 600)
@@ -1187,26 +1206,26 @@ class DoorBreakAction(ActionWithDirection):
 
         if break_fail > strength:
             if self.entity == self.engine.player:
-                self.engine.message_log.add_message(f"당신은 문을 강제로 열려고 시도했지만 실패했다.",color.player_failed)
+                self.engine.message_log.add_message(f"당신은 {g(door.name, '을')} 강제로 열려고 시도했지만 실패했다.",color.player_failed)
                 self.engine.sound_manager.add_sound_queue("fx_try_break_door")
             else:
-                self.engine.message_log.add_message(f"{g(self.entity.name, '은')} 문을 강제로 열려고 시도했지만 실패했다.", color.enemy_neutral, target=self.entity)
+                self.engine.message_log.add_message(f"{g(self.entity.name, '은')} {g(door.name, '을')} 강제로 열려고 시도했지만 실패했다.", color.enemy_neutral, target=self.entity)
         elif break_fail * 1.5 <= strength: # if the strength value is higher than the break_fail * 1.5, break open the door (Minimum str req. for breaking the door: 20)
             if self.entity == self.engine.player:
-                self.engine.message_log.add_message(f"당신은 문을 파괴했다!", color.player_success)
+                self.engine.message_log.add_message(f"당신은 {g(door.name, '을')} 파괴했다!", color.player_success)
                 self.engine.sound_manager.add_sound_queue("fx_break_door")
             else:
-                self.engine.message_log.add_message(f"{g(self.entity.name, '은')} 문을 파괴했다!", color.enemy_unique, target=self.entity)
+                self.engine.message_log.add_message(f"{g(self.entity.name, '은')} {g(door.name, '을')} 파괴했다!", color.enemy_unique, target=self.entity)
             door.remove_self()
             if self.entity.status.experience:
                 self.entity.status.experience.gain_strength_exp(30, 17, 1000)
             # TODO: drop the wooden door pieces?
         else: # Bust open the door but not break it
             if self.entity == self.engine.player:
-                self.engine.message_log.add_message(f"당신은 문을 강제로 열었다!", color.player_success)
+                self.engine.message_log.add_message(f"당신은 {g(door.name, '을')} 강제로 열었다!", color.player_success)
                 self.engine.sound_manager.add_sound_queue("fx_force_open_door")
             else:
-                self.engine.message_log.add_message(f"{g(self.entity.name, '은')} 문을 강제로 열었다!", color.enemy_unique,target=self.entity)
+                self.engine.message_log.add_message(f"{g(self.entity.name, '은')} {g(door.name, '을')} 강제로 열었다!", color.enemy_unique,target=self.entity)
 
             import semiactor_factories
             tmp = semiactor_factories.opened_door.spawn(self.engine.game_map, door.x, door.y, -1)
@@ -1226,16 +1245,16 @@ class DoorBreakAction(ActionWithDirection):
 
         # Get door coordinates
         dest_x, dest_y = self.dest_xy
-        semiactor_on_dir = self.engine.game_map.get_semiactor_at_location(dest_x, dest_y, semiactor_id="door")
+        door = self.engine.game_map.get_semiactor_at_location(dest_x, dest_y, semiactor_id="door")
 
         if self.entity.ai:
             self.entity.ai.path = None
 
-        if not semiactor_on_dir:
+        if not door or not isinstance(door.semiactor_info, Door):
             self.engine.message_log.add_message("이 곳에는 문이 없다.", fg=color.impossible)
-        elif semiactor_on_dir.entity_id[-11:] == "opened_door":
+        elif door.entity_id[-11:] == "opened_door":
             self.engine.message_log.add_message("이 문은 이미 열려 있다.", fg=color.impossible)
-        elif semiactor_on_dir.entity_id[-11:] == "locked_door":
+        elif door.entity_id[-11:] == "locked_door":
             self.break_door()
             return None
         else:
@@ -1249,10 +1268,10 @@ class DoorOpenAction(ActionWithDirection):
             
         if open_fail > dexterity: # check if the actor failed to open the door
             if self.entity == self.engine.player:
-                self.engine.message_log.add_message(f"당신은 문을 여는 것에 실패했다!", color.player_failed)
+                self.engine.message_log.add_message(f"당신은 {g(door.name, '을')} 여는 것에 실패했다!", color.player_failed)
                 self.engine.sound_manager.add_sound_queue("fx_door_open_fail")
             else:
-                self.engine.message_log.add_message(f"{g(self.entity.name, '은')} 문을 여는 것에 실패했다!", color.enemy_neutral, target=self.entity)
+                self.engine.message_log.add_message(f"{g(self.entity.name, '은')} {g(door.name, '을')} 여는 것에 실패했다!", color.enemy_neutral, target=self.entity)
             from input_handlers import MainGameEventHandler
             self.engine.event_handler = MainGameEventHandler()
             return None
@@ -1294,30 +1313,30 @@ class DoorOpenAction(ActionWithDirection):
 
         # Get door coordinates
         dest_x, dest_y = self.dest_xy
-        semiactor_on_dir = self.engine.game_map.get_semiactor_at_location(dest_x, dest_y, semiactor_id="door")
+        door = self.engine.game_map.get_semiactor_at_location(dest_x, dest_y, semiactor_id="door")
 
         # Get actor status
         dexterity = self.entity.status.changed_status["dexterity"]
         strength = self.entity.status.changed_status["strength"]
         intelligence = self.entity.status.changed_status["intelligence"]
 
-        if not semiactor_on_dir:
+        if not door or not isinstance(door.semiactor_info, Door):
             self.engine.message_log.add_message("이 곳에는 문이 없다.", fg=color.impossible)
             return None
-        elif semiactor_on_dir.entity_id[-11:] == "closed_door":
+        elif door.entity_id[-11:] == "closed_door":
             can_open_door = self.check_can_open_door(dexterity, intelligence)
             
             # Check if the actor can open the door
             if can_open_door:
-                self.open_door(semiactor_on_dir, dexterity, intelligence)
+                self.open_door(door, dexterity, intelligence)
             # If the actor can't open the door but can try to break the door, actor tries it
             else: # If it can, try breaking the door
                 DoorBreakAction(self.entity, self.dx, self.dy).perform()
             return None
-        elif semiactor_on_dir.entity_id[-11:] == "opened_door":
+        elif door.entity_id[-11:] == "opened_door":
             if self.entity == self.engine.player:
                 self.engine.message_log.add_message("이 문은 이미 열려 있다.", color.impossible)
-        elif semiactor_on_dir.entity_id[-11:] == "locked_door":
+        elif door.entity_id[-11:] == "locked_door":
             if self.entity == self.engine.player:
                 self.engine.message_log.add_message(f"문이 굳게 잠겨 열리지 않는다.", color.player_failed)
                 self.engine.sound_manager.add_sound_queue("fx_door_open_fail")
@@ -1336,11 +1355,11 @@ class DoorCloseAction(ActionWithDirection):
 
         # Set coordinates
         dest_x, dest_y = self.dest_xy
-        semiactor_on_dir = self.engine.game_map.get_semiactor_at_location(dest_x, dest_y)
+        door = self.engine.game_map.get_semiactor_at_location(dest_x, dest_y)
 
-        if not semiactor_on_dir:
+        if not door or not isinstance(door.semiactor_info, Door):
             raise exceptions.Impossible("이 곳에는 문이 없다.")
-        elif semiactor_on_dir.entity_id == "opened_door":
+        elif door.entity_id[-11:] == "opened_door":
             can_close_door = False
             dexterity = self.entity.status.changed_status["dexterity"]
             intelligence = self.entity.status.changed_status["intelligence"]
@@ -1353,21 +1372,21 @@ class DoorCloseAction(ActionWithDirection):
                 can_close_door = True
 
             # If any entity (except for the door semiactor that the actor is trying to close) is on the same direction with the door, you can't close
-            if self.engine.game_map.get_any_entity_at_location(dest_x, dest_y, exception=semiactor_on_dir):
+            if self.engine.game_map.get_any_entity_at_location(dest_x, dest_y, exception=door):
                 raise exceptions.Impossible("무언가가 막고 있다.")
 
             # Try to close the door
             close_fail = random.randint(0, 10) # if dex > 10, actor will not fail closing the door by chance
             if not can_close_door or close_fail > dexterity: # check if the actor has no capabilities, or if the actor failed closing it by chance
                 if self.entity == self.engine.player:
-                    self.engine.message_log.add_message(f"당신은 문을 닫는 것에 실패했다!", color.player_failed)
+                    self.engine.message_log.add_message(f"당신은 {g(door.name, '을')} 닫는 것에 실패했다!", color.player_failed)
                 else:
-                    self.engine.message_log.add_message(f"{g(self.entity.name, '은')} 문을 닫는 것에 실패했다!", color.enemy_neutral, target=self.entity)
+                    self.engine.message_log.add_message(f"{g(self.entity.name, '은')} {g(door.name, '을')} 닫는 것에 실패했다!", color.enemy_neutral, target=self.entity)
                 return None
 
             tmp = semiactor_factories.closed_door.spawn(self.engine.game_map, dest_x, dest_y, -1)
-            semiactor_on_dir.semiactor_info.move_self_to(tmp)
-            semiactor_on_dir.remove_self()
+            door.semiactor_info.move_self_to(tmp)
+            door.remove_self()
 
             if self.entity.status.experience:
                 self.entity.status.experience.gain_dexterity_exp(5, 15, 300)
@@ -1376,7 +1395,7 @@ class DoorCloseAction(ActionWithDirection):
                 self.engine.sound_manager.add_sound_queue("fx_close_door")
 
             return None
-        elif semiactor_on_dir.entity_id[-11:] == "closed_door" or semiactor_on_dir.entity_id[-11:] == "locked_door":
+        elif door.entity_id[-11:] == "closed_door" or door.entity_id[-11:] == "locked_door":
             raise exceptions.Impossible("이 문은 이미 닫혀 있다.")
         else:
             raise exceptions.Impossible("이 곳에는 문이 없다.")

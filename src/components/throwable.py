@@ -144,11 +144,11 @@ class Throwable(BaseComponent):
         self.engine.message_log.add_message(
             "방향을 선택하세요.", color.help_msg
         )
-        from input_handlers import RayRangedInputHandler
-        self.engine.event_handler = RayRangedInputHandler(
+        from input_handlers import RayRangedWithDistanceInputHandler
+        self.engine.event_handler = RayRangedWithDistanceInputHandler(
             actor=thrower,
             max_range=self.throw_distance(thrower),
-            callback=lambda xy: actions.ThrowItem(thrower, self.parent, xy),
+            callback=lambda xy, dist: actions.ThrowItem(thrower, self.parent, throw_range=dist, target_xy=xy),
         )
         return None
 
@@ -303,6 +303,13 @@ class NormalThrowable(Throwable):
 
         self.dx = action.target_xy[0]
         self.dy = action.target_xy[1]
+        max_distance = self.throw_distance(thrower)
+        if action.throw_range:
+            if action.throw_range > max_distance:
+                print("WARNING::ThrowItem.throw_range is too far for the actor's capabilities. Inputhandler might be the cause of it.")
+            else:
+                max_distance = action.throw_range
+
         dest_x, dest_y = thrower.x + self.dx, thrower.y + self.dy
         dist = 0
         path = []
@@ -343,7 +350,7 @@ class NormalThrowable(Throwable):
             dest_x += self.dx
             dest_y += self.dy
             dist += 1
-            if dist >= self.throw_distance(thrower=thrower):
+            if dist >= max_distance:
                 break
 
         ### B. Render animation ###

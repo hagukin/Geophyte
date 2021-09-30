@@ -3,7 +3,7 @@ from __future__ import annotations
 import random
 
 from components.inventory import Inventory
-from typing import Callable, Optional, Tuple, TYPE_CHECKING
+from typing import Callable, Optional, Tuple, TYPE_CHECKING, List
 from order import InventoryOrder
 from actions import (
     Action,
@@ -1548,12 +1548,15 @@ class SelectIndexHandler(AskUserEventHandler):
         player = self.engine.player
         self.cursor_loc = self.engine.camera.abs_to_rel(player.x, player.y) # use player coordinates instead of 0,0
 
-    def on_render(self, console: tcod.Console) -> None:
-        """Highlight the tile under the cursor."""
-        super().on_render(console)
+    def render_cursor(self, console) -> None:
         x, y = self.cursor_loc
         console.tiles_rgb["bg"][x, y] = color.white
         console.tiles_rgb["fg"][x, y] = color.black
+
+    def on_render(self, console: tcod.Console) -> None:
+        """Highlight the tile under the cursor."""
+        super().on_render(console)
+        self.render_cursor(console)
 
     def ev_mousemotion(self, event: tcod.event.MouseMotion) -> None:
         # Refresh
@@ -1702,7 +1705,7 @@ class RayRangedInputHandler(SelectDirectionHandler):
         self,
         actor: Actor,
         max_range: int,
-        callback: Callable[[Tuple[int, int]], Optional[Action]],
+        callback: Callable, # Callable[[Tuple[int, int]], Optional[Action]]
         item_cancel_callback: Callable = None,
     ):
         super().__init__(item_cancel_callback)
@@ -1711,9 +1714,21 @@ class RayRangedInputHandler(SelectDirectionHandler):
         self.callback = callback
         self.target = None
 
-    def on_render(self, console: tcod.Console) -> None:
-        """Highlight the tile under the cursor."""
-        super().on_render(console)
+    @property
+    def throw_range(self):
+        """
+        Can be both static and non static.
+        RayRangedInputHandler - static
+        RayRangedWithDirectionInputHandler - nonstatic (user decides the range)
+        """
+        return self.max_range
+
+    def get_path(self) -> Tuple[List[Tuple[int,int]], int, int]:
+        """
+        Calculate the estimated pathway of the ray.
+        NOTE: The function will always check for a collision
+        regardless of whether the ray penetrates objects or not.
+        """
         dx, dy = self.cursor_dir
         dest_x, dest_y = self.actor.x + dx, self.actor.y + dy
         path = []
@@ -1735,11 +1750,18 @@ class RayRangedInputHandler(SelectDirectionHandler):
             dest_x += dx
             dest_y += dy
 
+        return path, dest_x, dest_y
+
+    def on_render(self, console: tcod.Console) -> None:
+        """Highlight the tile under the cursor."""
+        super().on_render(console)
+        path, dest_x, dest_y = self.get_path()
+
         range_count = 0
         while len(path) > 0:
             loc = path.pop(0)
             range_count += 1
-            if range_count > self.max_range:
+            if range_count > self.throw_range:
                 break
             # Use relative coords for rendering
             if self.engine.camera.in_bounds(abs_x=loc[0], abs_y=loc[1]):# Prevents the yellow guide line from going out the camera boundaries
@@ -1748,12 +1770,63 @@ class RayRangedInputHandler(SelectDirectionHandler):
             else:
                 continue
 
-        self.dx = dx
-        self.dy = dy
+        self.dx, self.dy = self.cursor_dir
+        self.render_cursor(console)
 
     def on_index_selected(self, x: int, y: int) -> Optional[Action]:
         self.engine.refresh_screen()
         return self.callback((self.dx, self.dy))
+
+
+class RayRangedWithDistanceInputHandler(RayRangedInputHandler):
+    """Handles targeting an area within a given radius. Any entity within the area will be affected."""
+    def __init__(
+        self,
+        actor: Actor,
+        max_range: int,
+        callback: Callable, # Callable[[Tuple[int, int]], int, Optional[Action]]
+        item_cancel_callback: Callable = None,
+    ):
+        super().__init__(actor, max_range, callback, item_cancel_callback)
+
+    @property
+    def cursor_min_dist_toward_dxdy(self) -> int:
+        """
+        Return:
+            Positive integer.
+
+        . . . . *
+        . . . . .
+        @ + + + +
+
+        (* - cursor, + - range)
+
+        -> return 4 (since dy = 0, ignore cursor's dy distance)
+
+        . . . . .
+        . . + . *
+        . + . . .
+        @ . . . .
+
+        -> return 2 (since dx & dy are both non-zero, min(4, 2) = 2)
+        """
+        cx, cy = self.engine.camera.rel_to_abs(*self.cursor_loc)
+        cdx, cdy = abs(cx - self.actor.x), abs(cy - self.actor.y) # distance
+        if self.cursor_dir[0] != 0 and self.cursor_dir[1] != 0:
+            return min(cdx, cdy)
+        elif self.cursor_dir[0] != 0:
+            return cdx
+        else:
+            return cdy
+
+    @property
+    def throw_range(self):
+        return min(self.max_range, self.cursor_min_dist_toward_dxdy)
+
+    def on_index_selected(self, x: int, y: int) -> Optional[Action]:
+        self.engine.refresh_screen()
+        return self.callback((self.dx, self.dy), self.throw_range)
+
 
 
 class RayDirInputHandler(SelectDirectionHandler):

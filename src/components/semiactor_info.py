@@ -126,10 +126,19 @@ class Door(SemiactorInfo):
         is_burning: bool = False,
         burntness: int = 0,
         corrosion: int = 0,
-        break_str_req: Tuple[int,int] = (17,20)
+        break_str_req: Tuple[int,int] = (17,20),
+        unlock_chance: float = 1
     ):
+        """
+        Args:
+            unlock_chance:
+                0~1.
+                game will multiply this value to player's unlock chance.
+                if the value is 0, the door cannot be unlocked.
+        """
         super().__init__(flammable, corrodable, was_burning, is_burning, burntness, corrosion)
         self.break_str_req = break_str_req
+        self.unlock_chance = unlock_chance
 
 
     def burn(self):
