@@ -64,7 +64,7 @@ mesmerize = Ability(
     ability_id="sp_mesmerize",
     ability_desc="선택한 대상을 매혹시켜 아군으로 만들 수 있습니다.",
     ability_type=AbilityOrder.REGULAR_SPELL,
-    activatable=activatable.MesmerizeSpellActivatable(mana_cost=80, difficulty=0)
+    activatable=activatable.MesmerizeSpellActivatable(mana_cost=105, difficulty=0)
 )
 
 ### teleport
@@ -73,7 +73,7 @@ teleport = Ability(
     ability_id="sp_teleport",
     ability_desc="선택한 위치로 순간이동합니다.",
     ability_type=AbilityOrder.REGULAR_SPELL,
-    activatable=activatable.TeleportSpellActivatable(mana_cost=80, difficulty=0)
+    activatable=activatable.TeleportSpellActivatable(mana_cost=100, difficulty=0)
 )
 
 ####################

@@ -429,13 +429,13 @@ class ActorState(BaseComponent):
         if self.regain_interval <= 0:
             intelligence = self.parent.status.changed_status["intelligence"]
             max_mp = self.parent.status.changed_status["max_mp"]
-            regain_percent = (1 + math.log2(intelligence + 1)) * 0.025 # amount of regaining indicated as a percentage of maximum mana
+            regain_percent = intelligence * 0.0015 # amount of regaining indicated as a percentage of maximum mana
             regain_amount = int(max(1, max_mp * regain_percent)) # absolute amount of healing
             self.parent.status.gain_mana(amount=regain_amount)
-            self.regain_interval = round(100 / intelligence)
+            self.regain_interval = max(2, round(100 / intelligence))
 
             if self.parent.status.experience:
-                self.parent.status.experience.gain_intelligence_exp(5, exp_limit=3000)
+                self.parent.status.experience.gain_intelligence_exp(1, exp_limit=1000)
         else:
             self.regain_interval -= 1
 

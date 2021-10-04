@@ -899,7 +899,7 @@ class Item(Entity):
         name: str = "<Unnamed>",
         entity_id: str = "<Undefined id>",
         item_type_desc: str = "",
-        entity_desc: str = "<Undefined description>",
+        entity_desc: str = "",
         item_quote: str = "",
         rarity: int = 0, # 1 to 10
         action_point: int = 60, # 0 to 60
@@ -1219,7 +1219,7 @@ class SemiActor(Entity):
         name: str = "<Unnamed>",
         entity_id: str = "<Undefined id>",
         semiactor_type_desc: str = "",
-        entity_desc: str = "<Undefined description>",
+        entity_desc: str = "",
         semiactor_quote: str = "",
         do_action: bool = True,
         action_point: int = 60, # 0 to 60
