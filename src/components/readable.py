@@ -11,6 +11,7 @@ from order import InventoryOrder, TilemapOrder
 from korean import grammar as g
 from tiles import TileUtil
 from entity import Actor
+from util import spawn_monster_of_appr_diff_8way
 
 import actions
 import color
@@ -854,7 +855,6 @@ class ScrollOfSummoningReadable(Readable):
         elif self.parent.item_state.BUC == 1:
             mon_cnt = 8
 
-        from src.util import spawn_monster_of_appr_diff_8way
         mon_list = spawn_monster_of_appr_diff_8way(gamemap=consumer.gamemap, center_x=consumer.x, center_y=consumer.y, spawn_cnt=mon_cnt, randomize=True)
         for m in mon_list:
             self.engine.message_log.add_message(f"{g(m.name, '이')} 소환되었다!", fg=color.world)

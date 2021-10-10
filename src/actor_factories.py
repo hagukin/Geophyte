@@ -125,18 +125,18 @@ player = Actor(
     equipments=Equipments(),
     # initial_items=
     # (
-    #     {"item": item_factories.wooden_dagger, "chance": 1, "count": (1, 1), "BUC": {1:1,0:0,-1:0}, "upgrade": None},
+    #     {"item": item_factories.scroll_of_summoning, "chance": 1, "count": (1, 1), "BUC": {1:0,0:1,-1:0}, "upgrade": None},
     # ),
     # initial_equipments=(
     #     {"item":item_factories.ring_of_blindness, "chance":1, "count":(1,1), "BUC":None, "upgrade": None},
     #     {"item":item_factories.ring_of_sky, "chance":1, "count":(1,1), "BUC":{-1:1, 0:1, 1:1}, "upgrade": {1:1,2:0,3:0,4:0}},
     # ),
-    initial_abilities=
-    (
-        (ability_factories.cure_wound, 1),
-        (ability_factories.mesmerize, 1),
-        (ability_factories.teleport, 1),
-    )
+    # initial_abilities=
+    # (
+    #     (ability_factories.cure_wound, 1),
+    #     (ability_factories.mesmerize, 1),
+    #     (ability_factories.teleport, 1),
+    # )
 )
 
 
