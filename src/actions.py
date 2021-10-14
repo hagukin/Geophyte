@@ -438,6 +438,21 @@ class SplitItem(Action):
             return None
 
 
+class UseItem(ItemAction):
+    """
+    Handles applying/using a item for its intended purpose. (e.g. using tools)
+    """
+    def perform(self) -> None:
+        # Checking for inability
+        if self.entity.check_for_immobility():
+            return None
+
+        if self.entity.status.experience:
+            self.entity.status.experience.gain_dexterity_exp(5, 17)
+
+        self.item.usable.activate(self)
+
+
 class ReadItem(ItemAction):
     def perform(self) -> None:
         # Checking for inability

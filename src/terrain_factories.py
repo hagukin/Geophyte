@@ -362,7 +362,7 @@ weapon_shop = ShopTerrain(
     max_height=8,
     custom_gen=ShopTerrGen.generate_shop,
     sell_items=None,
-    sell_items_type_limit=(InventoryOrder.MELEE_WEAPON, InventoryOrder.THROWING_WEAPON,),
+    sell_items_type_limit=(InventoryOrder.MELEE_WEAPON, ),
     shape=None,
 )
 terrain_dict[weapon_shop] = weapon_shop.rarity

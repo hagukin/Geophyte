@@ -18,6 +18,7 @@ from game import Game
 
 if TYPE_CHECKING:
     from components.ai import BaseAI
+    from components.usable import Usable
     from components.readable import Readable
     from components.quaffable import Quaffable
     from components.equipable import Equipable
@@ -926,6 +927,7 @@ class Item(Entity):
         throwable: Throwable = None,
         readable: Readable = None,
         quaffable: Quaffable = None,
+        usable: Usable = None,
         equipable: Equipable = None,
         edible: Edible = None,
         lockpickable: Tuple[float, float] = (0, 0),
@@ -999,6 +1001,9 @@ class Item(Entity):
         self.throwable = throwable
         if throwable:
             self.throwable.parent = self
+        self.usable = usable
+        if usable:
+            self.usable.parent = self
         self.readable = readable
         if readable:
             self.readable.parent = self

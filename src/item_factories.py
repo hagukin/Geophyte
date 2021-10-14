@@ -1,4 +1,4 @@
-from components import readable, quaffable, equipable, throwable
+from components import readable, quaffable, equipable, throwable, usable
 from components.item_state import ItemState
 from entity import Item
 import color
@@ -3814,6 +3814,36 @@ worthless_piece_of_blue_glass = Item(
 )
 temp_items_lists.append(worthless_piece_of_blue_glass)
 item_rarity.append(worthless_piece_of_blue_glass.rarity)
+
+
+#########################################################################
+################################# TOOLS #################################
+#########################################################################
+
+### rustproof wax
+rustproof_wax = Item(
+    char="(",
+    fg = (255, 255, 255),
+    name="부식 방지의 왁스",
+    entity_id="rustproof_wax",
+    entity_desc="갑옷 등에 발라 부식을 다소 방지할 수 있는 왁스이다.",
+    rarity=15,
+    weight=0.07,
+    price=120,
+    item_type=InventoryOrder.TOOL,
+    item_state=ItemState(is_identified=1),
+    tradable=True,
+    spawnable=True,
+    flammable=0.7,
+    corrodible=0,
+    droppable=True,
+    stackable=False,
+    throwable=throwable.NormalThrowable(penetration=False, air_friction=15),
+    usable=usable.RustproofWaxUsable(should_consume=True, corrodible_modifier=0.5),
+    edible=None
+)
+temp_items_lists.append(rustproof_wax)
+item_rarity.append(rustproof_wax.rarity)
 
 
 

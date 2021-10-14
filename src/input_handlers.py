@@ -225,7 +225,6 @@ class ItemUseCancelHandler(AskUserEventHandler):
     def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[Action]:
         if event.sym == tcod.event.K_y or event.sym == tcod.event.K_KP_ENTER:
             self.engine.event_handler = MainGameEventHandler()
-            self.engine.message_log.add_message(f"아이템 사용 취소됨.", color.white, stack=False, show_once=True)
             return self.item_cancel_callback(True)# passing True (action is cancelled)
         elif event.sym == tcod.event.K_n or event.sym == tcod.event.K_ESCAPE:
             return self.item_cancel_callback(False)# passing False (action is not cancelled)
@@ -907,6 +906,9 @@ class InventoryActionSelectHandler(AskUserEventHandler):
         self.possible_actions = []
         self.possible_keys = []
 
+        if self.item.usable:
+            self.possible_actions.append("use")
+            self.possible_keys.append(tcod.event.K_u)
         if self.item.readable:
             self.possible_actions.append("read")
             self.possible_keys.append(tcod.event.K_r)
@@ -966,8 +968,9 @@ class InventoryActionSelectHandler(AskUserEventHandler):
 
         # print possible actions
         for i, action in enumerate(self.possible_actions):
-
-            if action == "read":
+            if action == "use":
+                console.print(x + x_space + 1, y + i + desc_height + 2 + y_space, "(u) 사용하기", fg=color.gui_item_action)
+            elif action == "read":
                 console.print(x + x_space + 1, y + i + desc_height + 2 + y_space, "(r) 읽기", fg=color.gui_item_action)
             elif action == "quaff":
                 console.print(x + x_space + 1, y + i + desc_height + 2 + y_space, "(q) 마시기", fg=color.gui_item_action)
@@ -996,7 +999,9 @@ class InventoryActionSelectHandler(AskUserEventHandler):
             return None
 
         if key in self.possible_keys:
-            if key == tcod.event.K_r:
+            if key == tcod.event.K_u:
+                return self.item.usable.get_action(self.engine.player)
+            elif key == tcod.event.K_r:
                 return self.item.readable.get_action(self.engine.player)
             elif key == tcod.event.K_q:
                 return self.item.quaffable.get_action(self.engine.player)

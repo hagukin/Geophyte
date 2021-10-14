@@ -35,7 +35,6 @@ class TilemapOrder(Enum):
 class InventoryOrder(Enum):
     CASH = auto()
     MELEE_WEAPON = auto()
-    THROWING_WEAPON = auto()
     ARMOR = auto()
     AMULET = auto()
     RING = auto()

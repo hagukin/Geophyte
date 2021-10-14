@@ -123,14 +123,17 @@ player = Actor(
     inventory=Inventory(capacity=52, is_fireproof=False, is_acidproof=False, is_waterproof=False),
     ability_inventory=AbilityInventory(capacity=26),
     equipments=Equipments(),
-    # initial_items=
-    # (
-    #     {"item": item_factories.scroll_of_summoning, "chance": 1, "count": (1, 1), "BUC": {1:0,0:1,-1:0}, "upgrade": None},
-    # ),
-    # initial_equipments=(
-    #     {"item":item_factories.ring_of_blindness, "chance":1, "count":(1,1), "BUC":None, "upgrade": None},
-    #     {"item":item_factories.ring_of_sky, "chance":1, "count":(1,1), "BUC":{-1:1, 0:1, 1:1}, "upgrade": {1:1,2:0,3:0,4:0}},
-    # ),
+#     initial_items=
+#     (
+#         {"item": item_factories.rustproof_wax, "chance": 1, "count": (1, 1), "BUC": {1:0,0:1,-1:0}, "upgrade": None},
+# {"item": item_factories.rustproof_wax, "chance": 1, "count": (1, 1), "BUC": {1:0,0:0,-1:1}, "upgrade": None},
+# {"item": item_factories.rustproof_wax, "chance": 1, "count": (1, 1), "BUC": {1:1,0:0,-1:0}, "upgrade": None},
+#     ),
+#     initial_equipments=(
+#         {"item":item_factories.iron_dagger, "chance":1, "count":(1,1), "BUC":None, "upgrade": None},
+# {"item":item_factories.iron_dagger, "chance":1, "count":(1,1), "BUC":None, "upgrade": None},
+# {"item":item_factories.iron_dagger, "chance":1, "count":(1,1), "BUC":None, "upgrade": None},
+#     ),
     # initial_abilities=
     # (
     #     (ability_factories.cure_wound, 1),

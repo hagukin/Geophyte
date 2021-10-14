@@ -18,7 +18,7 @@ class Inventory(BaseComponent):
         self.capacity = capacity # max 52
         self.is_fireproof = is_fireproof
         self.is_acidproof = is_acidproof
-        self.is_waterproof = is_waterproof
+        self._is_waterproof = is_waterproof
         self.item_hotkeys = {
             "a":None,"b":None,"c":None,"d":None,"e":None,"f":None,"g":None,"h":None,"i":None,"j":None,"k":None,"l":None,"m":None,"n":None,"o":None,"p":None,"q":None,"r":None,"s":None,"t":None,"u":None,"v":None,"w":None,"x":None,"y":None,"z":None,
             "A":None,"B":None,"C":None,"D":None,"E":None,"F":None,"G":None,"H":None,"I":None,"J":None,"K":None,"L":None,"M":None,"N":None,"O":None,"P":None,"Q":None,"R":None,"S":None,"T":None,"U":None,"V":None,"W":None,"X":None,"Y":None,"Z":None
@@ -35,6 +35,45 @@ class Inventory(BaseComponent):
         for i in self.items:
             tmp += i.weight * i.stack_count
         return tmp
+
+    @property
+    def is_waterproof(self) -> bool:
+        """If acidproof, is also waterproof"""
+        return self._is_waterproof or self.is_acidproof
+
+    @is_waterproof.setter
+    def is_waterproof(self, value:bool) -> None:
+        self._is_waterproof = value
+
+    def apply_waterproof(self, value:bool) -> None:
+        if self.is_waterproof == value:
+            return
+        else:
+            self.is_waterproof = value
+            if value:
+                self.engine.message_log.add_message("당신의 인벤토리는 더 이상 물에 젖지 않게 되었다!", fg=color.player_buff)
+            else:
+                self.engine.message_log.add_message("당신의 인벤토리는 이제 물에 젖을 수 있다.", fg=color.player_debuff)
+
+    def apply_fireproof(self, value:bool) -> None:
+        if self.is_fireproof == value:
+            return
+        else:
+            self.is_fireproof = value
+            if value:
+                self.engine.message_log.add_message("당신의 인벤토리는 더 이상 불이 붙지 않게 되었다!", fg=color.player_buff)
+            else:
+                self.engine.message_log.add_message("당신의 인벤토리는 이제 불이 붙을 수 있다.", fg=color.player_debuff)
+
+    def apply_acidproof(self, value:bool) -> None:
+        if self.is_acidproof == value:
+            return
+        else:
+            self.is_acidproof = value
+            if value:
+                self.engine.message_log.add_message("당신의 인벤토리는 더 이상 산성 물질에 녹지 않게 되었다!", fg=color.player_buff)
+            else:
+                self.engine.message_log.add_message("당신의 인벤토리는 이제 산성 물질에 녹을 수 있다.", fg=color.player_debuff)
 
     def is_empty(self) -> bool:
         for item in self.item_hotkeys.values():

@@ -255,7 +255,6 @@ class ScrollOfEnchantmentReadable(SelectItemFromInventoryReadable):
             inventory_component=consumer.inventory,
             show_only_types=(
                 InventoryOrder.MELEE_WEAPON,
-                InventoryOrder.THROWING_WEAPON,
                 InventoryOrder.ARMOR,
                 InventoryOrder.AMULET,
                 InventoryOrder.RING,
