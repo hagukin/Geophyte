@@ -513,7 +513,7 @@ def spawn_doors(
         if room.terrain.spawn_door and dungeon.get_semiactor_at_location(x=door_pos[0], y=door_pos[1], semiactor_id="door") == None:
             random.choices(list(room.terrain.door_types.keys()), list(room.terrain.door_types.values()), k=1)[0].spawn(gamemap=dungeon, x=door_pos[0], y=door_pos[1], lifetime=-1)
         else:
-            print(f"WARNING::Door already exists on {door_pos}. Cancelled Spawning.")
+            print(f"LOG::Door already exists on {door_pos}. Cancelled Spawning.")
 
 def generate_rooms(
     dungeon: GameMap,
@@ -548,8 +548,8 @@ def generate_rooms(
 
         # Run through the other rooms and see if they intersect with this one.
         found = False
-        for x in range(nx, dungeon.tiles.shape[0]):
-            for y in range(ny, dungeon.tiles.shape[1]): # Map border colliding handled in room.move()
+        for x in range(nx, dungeon.tiles.shape[0], dungeon.biome.room_x_spacing):
+            for y in range(ny, dungeon.tiles.shape[1], dungeon.biome.room_y_spacing): # Map border colliding handled in room.move()
                 if any(new_room.intersects(other_room) for other_room in rooms):
                     new_room.move(x, y)
                     continue  # This room intersects, so go to the next attempt.

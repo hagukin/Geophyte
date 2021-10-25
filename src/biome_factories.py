@@ -20,9 +20,10 @@ rocky_dungeon = Biome(
 biome_dict[rocky_dungeon.biome_id] = rocky_dungeon
 biome_rarity.append(rocky_dungeon.rarity)
 
-def rocky_dungeon_small(max_rooms: int):
+def rocky_dungeon_small(max_rooms: int, room_x_spacing: int):
     tmp = copy.deepcopy(rocky_dungeon)
     tmp.max_rooms = max_rooms
+    tmp._room_x_spacing = room_x_spacing
     return tmp
 
 crystal_cavern = Biome(

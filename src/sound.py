@@ -112,8 +112,8 @@ class SoundManager():
         self.master_volume: float = 0.5
 
         self.sound_db = { # TODO: Add volume - make sound_db value contains directory AND volume.
-            "fx_player_hit":("fx\\hit.wav",0.5),
-            "fx_player_crit":("fx\\kill.wav",0.5),
+            "fx_player_hit":("fx\\hit.wav",0.7),
+            "fx_player_crit":("fx\\kill.wav",0.7),
             "fx_player_miss":("fx\\miss.wav",0.7),
             "fx_player_attack_blocked":("fx\\blocked.wav",1),
             "fx_player_kill":("fx\\crit_hit.wav",0.5),
@@ -135,7 +135,7 @@ class SoundManager():
             "fx_try_break_door":("fx\\try_break_door.wav",1),
             "fx_force_open_door":("fx\\force_open_door.wav",1),
             "fx_break_door":("fx\\break_door.wav",1),
-            "fx_explosion":("fx\\explosion.wav",1),
+            "fx_explosion":("fx\\explosion.wav",0.7),
             "fx_exp_gain":("fx\\exp_gain.wav",1),
             "fx_water_splash":("fx\\water_splash.wav",1),
             "fx_water_splash_short":("fx\\water_splash_short.wav",1),

@@ -908,7 +908,7 @@ class InventoryActionSelectHandler(AskUserEventHandler):
 
         if self.item.usable:
             self.possible_actions.append("use")
-            self.possible_keys.append(tcod.event.K_u)
+            self.possible_keys.append(tcod.event.K_y)
         if self.item.readable:
             self.possible_actions.append("read")
             self.possible_keys.append(tcod.event.K_r)
@@ -969,7 +969,7 @@ class InventoryActionSelectHandler(AskUserEventHandler):
         # print possible actions
         for i, action in enumerate(self.possible_actions):
             if action == "use":
-                console.print(x + x_space + 1, y + i + desc_height + 2 + y_space, "(u) 사용하기", fg=color.gui_item_action)
+                console.print(x + x_space + 1, y + i + desc_height + 2 + y_space, "(y) 사용하기", fg=color.gui_item_action)
             elif action == "read":
                 console.print(x + x_space + 1, y + i + desc_height + 2 + y_space, "(r) 읽기", fg=color.gui_item_action)
             elif action == "quaff":
@@ -999,7 +999,7 @@ class InventoryActionSelectHandler(AskUserEventHandler):
             return None
 
         if key in self.possible_keys:
-            if key == tcod.event.K_u:
+            if key == tcod.event.K_y:
                 return self.item.usable.get_action(self.engine.player)
             elif key == tcod.event.K_r:
                 return self.item.readable.get_action(self.engine.player)

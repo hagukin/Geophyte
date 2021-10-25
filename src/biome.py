@@ -50,6 +50,7 @@ class Biome:
         biome_bgm_id: str = "",
         biome_bgs_id: str = "",
         rarity: int = 1,
+        room_spacing: int = 1,
         biome_color: Tuple = color.black,
         max_rooms: int = 100,
         map_width: int = 67, # min 67
@@ -83,6 +84,11 @@ class Biome:
             generate_descending_stair:
                 Whether to randomize descending stair or not.
                 e.g. you can set this to False when generating last level (maximum depth)
+            room_spacing:
+                minimum X axis distance between each room.
+                should always have value over 0. (default 1)
+                higher the value gets, the biome gets less compact.
+                NOTE: Use room_x_spacing or room_y_spacing instead.
             tileset:
                 tileset of this biome.
                 The arguments must be passed by using the "tileset() function" above.
@@ -120,6 +126,13 @@ class Biome:
         self.biome_bgm_id = biome_bgm_id
         self.biome_bgs_id = biome_bgs_id
         self.rarity = rarity
+        self._room_x_spacing = room_spacing
+        if self._room_x_spacing < 1:
+            print(f"WARNING::Biome {name} has room_spacing less than 1.")
+            self._room_x_spacing = 1
+        if self._room_x_spacing > map_width / 2: # Too sparse
+            print(f"WARNING::Biome {name} has room_spacing value as {self._room_x_spacing}. Are you sure this is the right value?")
+        self._room_y_spacing = max(1, int(self._room_x_spacing * map_height / map_width))
         self.biome_color = biome_color
         self.max_rooms = max_rooms
         self.map_width = map_width
@@ -158,6 +171,14 @@ class Biome:
         self.monster_difficulty = monster_difficulty
         if self.monster_difficulty:
             self.adjust_biome_monster_difficulty()
+
+    @property
+    def room_x_spacing(self) -> int:
+        return self._room_x_spacing
+
+    @property
+    def room_y_spacing(self) -> int:
+        return self._room_y_spacing
 
     def adjust_biome_monster_difficulty(self) -> None:
         """Search for any potential error which could be caused from wrong monster difficulty key value.
