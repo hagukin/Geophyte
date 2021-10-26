@@ -149,6 +149,9 @@ class SoundManager():
 
             "bgm_title_screen":("bgm\\Constellation.wav",1),
             "bgm_mystical_beginning":("bgm\\Magical_Travel.wav",1),
+            "bgm_pianomotive": ("bgm\\Pianomotive.wav", 1),
+            "bgm_virtual_relaxation": ("bgm\\Virtual_Relaxation.wav", 1),
+            "bgm_mystic_train": ("bgm\\Mystic_Train.wav", 1),
 
             "bgs_cave":("bgs\\cave.wav",1),
         }

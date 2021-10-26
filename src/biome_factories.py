@@ -28,7 +28,7 @@ def rocky_dungeon_small(max_rooms: int, room_x_spacing: int):
 
 crystal_cavern = Biome(
     name="석영 동굴",
-    biome_bgm_id="bgm_mystical_beginning",
+    biome_bgm_id="bgm_mystic_train",
     biome_id="crystal_cavern",
     biome_desc="Desc of crystal cavern biome (TEST)",
     rarity=30,
@@ -48,8 +48,10 @@ biome_rarity.append(crystal_cavern.rarity)
 
 forest = Biome(
     name="숲",
+    biome_bgm_id="bgm_pianomotive",
     biome_id="forest",
     biome_desc="Desc of forest biome (TEST)",
+    room_spacing=15,
     rarity=1,
     biome_color=color.b_forest,
     tileset=get_tileset({
@@ -78,41 +80,10 @@ forest = Biome(
 biome_dict[forest.biome_id] = forest
 biome_rarity.append(forest.rarity)
 
-#
-# orc_town = Biome(
-#     name="오크 타운",
-#     biome_id="orc_town",
-#     biome_desc="Desc of orc_town biome (TEST)",
-#     rarity=0,
-#     biome_color=color.b_orc_town,
-#     tileset=get_tileset({
-#         "t_wall":tiles.wall_forest,
-#         "t_floor":tiles.floor_forest,
-#         "t_dense_grass":tiles.dense_grass_forest,
-#         "t_sparse_grass":tiles.sparse_grass_forest,
-#     }),
-#     remove_all_terrain_of_type=("spawn_door",), # Remove all terrains that has spawn_door = True.
-#     #NOTE: You can still add back terrains that spawns door such as shops by adding them in 'additional_terrain' argument.
-#     additional_terrain=({
-#         terrain_factories.swamp : 50,
-#         terrain_factories.ocean : 3,
-#         terrain_factories.grass_field_spawn_no_door : 80,
-#         terrain_factories.large_grass_field_spawn_no_door : 80,
-#         terrain_factories.general_shop : 1,
-#         terrain_factories.weapon_shop : 1,
-#         terrain_factories.potion_shop : 1,
-#         terrain_factories.scroll_shop : 1,
-#         terrain_factories.guarded_treasure : 1,
-#     }),
-#     map_width=80,
-#     map_height=60,
-# )
-# biome_dict[forest.biome_id] = forest
-# biome_rarity.append(forest.rarity)
-
 
 desert_dungeon = Biome(
     name="사막",
+    biome_bgm_id="bgm_virtual_relaxation",
     biome_id="desert_dungeon",
     biome_desc="desert_dungeon (TEST)",
     rarity=1,
