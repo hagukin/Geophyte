@@ -98,7 +98,7 @@ class ResetInputHandler(tcod.event.EventDispatch[None]):
 
 class Option():
     option_keys = ["(D) - 디스플레이 설정", "(C) - 컨트롤 설정", "(S) - 사운드 설정", "(G) - 게임플레이 설정", "(R) - 설정 초기화"]
-    display_option_keys = ["(+/-) - 디스플레이 해상도 증가/감소", "(F) - 전체 화면 모드, 창 모드 전환"]
+    display_option_keys = ["(+/-) - 디스플레이 해상도 증가/감소", "(F) - 전체 화면 모드/창 모드 전환"]
     control_option_keys = []
     sound_option_keys = ["(+/-) - 마스터 볼륨 증가/감소", "쉬프트를 누른 채 조작 - 10% 단위로 조작"]
     gameplay_option_keys = []
@@ -171,10 +171,10 @@ class Option():
             cfg = json.load(f)
 
         fullscreen_str = lambda x : "전체화면" if x else "창 모드"
-        console.print(Option.opt_x + 2, Option.opt_y + 2, string=f"\n디스플레이 관련 설정은 게임을 다시 시작해야 적용됩니다.\
-        \n\n해상도: {cfg['screen_width'] * cfg['tile_width']} x {cfg['screen_height'] * cfg['tile_height']}\
+        console.print(Option.opt_x + 2, Option.opt_y + 2, string=f"\n창 모드 사용이 권장됩니다.\n\n디스플레이 관련 설정은 게임을 다시 시작해야 적용됩니다.\
+        \n\n\n\n해상도: {cfg['screen_width'] * cfg['tile_width']} x {cfg['screen_height'] * cfg['tile_height']}\
         \n\n화면 모드: {fullscreen_str(cfg['fullscreen'])}", fg=color.option_fg)
-        Option.render_gui_keys(console, context, 'display', initial_y=10) # TODO Hard-coded
+        Option.render_gui_keys(console, context, 'display', initial_y=14) # TODO Hard-coded
         context.present(console, keep_aspect=True)
 
     @staticmethod

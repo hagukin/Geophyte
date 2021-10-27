@@ -129,8 +129,8 @@ player = Actor(
     equipments=Equipments(),
 #     initial_items=
 #     (
-#         {"item": item_factories.ration, "chance": 1, "count": (1, 1), "BUC": {1:0,0:1,-1:0}, "upgrade": None},
-# {"item": item_factories.scroll_of_magic_mapping, "chance": 1, "count": (100, 100), "BUC": {1:1,0:0,-1:0}, "upgrade": None},
+#         {"item": item_factories.scroll_of_magic_mapping, "chance": 1, "count": (100, 100), "BUC": {1:0,0:0,-1:1}, "upgrade": None},
+# {"item": item_factories.scroll_of_magic_missile, "chance": 1, "count": (100, 100), "BUC": {1:0,0:0,-1:1}, "upgrade": None},
 # {"item": item_factories.ring_of_sky, "chance": 1, "count": (1, 1), "BUC": {1:1,0:0,-1:0}, "upgrade": None},
 #     ),
 #     initial_equipments=(

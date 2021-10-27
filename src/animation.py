@@ -92,7 +92,8 @@ class Animation:
             if 0 <= graphic[0] <= self.engine.camera.width and 0 <= graphic[1] <= self.engine.camera.height: # Clamp inside camera screen
                 should_render = True
                 if self.render_if_in_sight:
-                    if not self.engine.game_map.visible[graphic[0], graphic[1]]:
+                    abs_x, abs_y = self.engine.camera.rel_to_abs(graphic[0], graphic[1])
+                    if not self.engine.game_map.visible[abs_x, abs_y]:
                         should_render = False
                 if should_render:
                     self.engine.console.print(x=graphic[0], y=graphic[1], string=graphic[2]["char"], fg=graphic[2]["fg"], bg=graphic[2]["bg"])

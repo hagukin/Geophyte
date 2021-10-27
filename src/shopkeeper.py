@@ -259,7 +259,7 @@ class Shopkeeper_Ai(ai.BaseAI):
         buyings = []
         for item, buyer in self.picked_up.items():
             if buyer == customer:
-                bill += item.price_of_all_stack(is_shopkeeper_is_selling=True, discount=1 - customer.discount_value())
+                bill += item.price_of_single_item(is_shopkeeper_is_selling=True, discount=1 - customer.discount_value()) # NOTE: IMPORTANT - Shops only sells items that has stack count of 1
                 buyings.append(item)
         # no goods to puy
         if not buyings:

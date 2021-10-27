@@ -121,6 +121,13 @@ class Engine:
         if not self._initialized_pixel:
             self._initialized_pixel = True
             self._pixel = (self.config["tile_width"],self.config["tile_height"])
+            if self.config["fullscreen"]:
+                # If fullscreen pixels per tile is (screen width / tiles in width), (screen height / tiles in height)
+                # NOTE: Not tested on higher resolution monitors
+                import ctypes
+                user32 = ctypes.windll.user32
+                user32.SetProcessDPIAware()
+                self._pixel = (user32.GetSystemMetrics(0) / self.config["screen_width"], user32.GetSystemMetrics(1) / self.config["screen_height"])
 
     @property
     def pixel(self) -> Tuple[int,int]:

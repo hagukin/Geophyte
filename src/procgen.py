@@ -124,7 +124,7 @@ def choose_monster_by_difficulty(difficulty: int, radius: Tuple[int,int]=(-1,2),
         if diff in mon_dict:
             population_list.extend(mon_dict[diff])
             for mon in mon_dict[diff]:
-                rarity_list.append(mon.rarity)
+                rarity_list.append(max(0, int(mon.rarity / 1 + abs(diff - difficulty))))
 
     try:
         monster_to_spawn = random.choices(

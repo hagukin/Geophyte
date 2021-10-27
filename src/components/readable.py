@@ -923,7 +923,7 @@ class BookReadable(Readable):
             self.read(action)  # Identify when successful
             return None
         else:
-            if reader.status.changed_status["intelligence"] >= self.int_req:
+            if reader.status.changed_status["intelligence"] > self.int_req:
                 # failed by chance
                 if reader == self.engine.player:
                     self.engine.message_log.add_message(f"당신은 {self.parent.name}의 내용을 이해하는 것에 실패했다.", fg=color.player_failed)
