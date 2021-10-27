@@ -106,6 +106,9 @@ class ActorState(BaseComponent):
         # Actor is drowning
         # Value: [Current turn, Turns needed for drowning(this is NOT turns left before drowning)]
          is_drowning=None,
+         # Actor is drowning
+         # Value: [Current turn, Turns needed for suffocation(this is NOT turns left before dying)]
+         is_suffocating=None,
 
         ### Status effects - Non-physical
         # Actor is sleeping
@@ -154,6 +157,7 @@ class ActorState(BaseComponent):
 
         ### Physical capabilities
         can_swim: bool = False,
+        can_breathe_air: bool = True,
         can_breathe_underwater: bool = False,
         can_fly: bool = False,
         can_move_on_surface: bool = True, # including walking, crawling, etc. NOTE: This does not include flying, levitating, etc. #TODO make fly-only creatures unable to move without its flying ability
@@ -162,6 +166,7 @@ class ActorState(BaseComponent):
         can_revive_self: bool = False, # can revive after actor dies
         revive_as: Actor = None, # If set to None, and can_revive_self is True, revive as this actor.
         can_sleep: bool = True,
+        live_underwater: bool = False, # If True, the ai will ALWAYS try to stay in the water, even if they are capable of moving on the surface.
 
         ### Mental capabilities
         can_think: bool = True, # Has ability to make the most basic level of logical decision (e.g. feels pain -> moves away)
@@ -211,6 +216,8 @@ class ActorState(BaseComponent):
             is_levitating = [0, 0]
         if is_drowning is None:
             is_drowning = [0, 0]
+        if is_suffocating is None:
+            is_suffocating = [0, 0]
         if is_sleeping is None:
             is_sleeping = [0, 0]
         if is_angry is None:
@@ -253,6 +260,7 @@ class ActorState(BaseComponent):
         self.is_sick = is_sick
         self.is_levitating = is_levitating
         self.is_drowning = is_drowning
+        self.is_suffocating = is_suffocating
 
         self.is_sleeping = is_sleeping
         self.is_angry = is_angry
@@ -280,10 +288,14 @@ class ActorState(BaseComponent):
         self.need_breathe = need_breathe
 
         self.can_swim = can_swim
+        self.can_breathe_air = can_breathe_air
         self.can_breathe_underwater = can_breathe_underwater
         self.can_fly = can_fly
         self.can_move_on_surface = can_move_on_surface
         self.can_sleep = can_sleep # Whether the actor is willing to sleep or not, if can_sleep is false actor cannot sleep (unless the game forces to do so)
+        self.live_underwater = live_underwater
+        if live_underwater and not can_breathe_underwater:
+            print(f"WARNING::Possible typo; actor lives underwater but cannot breathe underwater.")
 
         self.has_immortality = has_immortality
         self.has_telepathy = has_telepathy
@@ -338,7 +350,7 @@ class ActorState(BaseComponent):
             return ""
         elif self.hunger <= hunger_measure * 17:
             return "satiated"
-        elif self.hunger <= hunger_measure * 48:
+        elif self.hunger <= hunger_measure * 25:
             return "overeaten"
         else:
             return "choked by food"
@@ -356,7 +368,11 @@ class ActorState(BaseComponent):
                 self.parent.status.remove_bonus(bonus_id="hunger")
 
             self.previous_hunger_state = hunger_state
-            if hunger_state == "overeaten":
+            if hunger_state == "choked by food":
+                if self.parent == self.engine.player:
+                    self.engine.message_log.add_message(f"당신은 끔찍할 정도로 배가 부르다!", fg=color.player_severe)
+                self.parent.status.add_bonus(Bonus(bonus_id="hunger", bonus_agility=-8))
+            elif hunger_state == "overeaten":
                 if self.parent == self.engine.player:
                     self.engine.message_log.add_message(f"당신은 불쾌할 정도로 배가 부르다.", fg=color.player_severe)
                 self.parent.status.add_bonus(Bonus(bonus_id="hunger", bonus_agility=-4))
@@ -379,7 +395,7 @@ class ActorState(BaseComponent):
                     self.engine.message_log.add_message(f"당신은 배고픔에 허덕이고 있다!", fg=color.player_severe)
                 self.parent.status.add_bonus(Bonus(bonus_id="hunger", bonus_constitution=-8, bonus_strength=-3,bonus_intelligence=-1, bonus_dexterity=-1))
             elif hunger_state == "starved to death":
-                self.parent.status.death(cause="starvation")
+                self.parent.die(cause="starvation")
 
     def gain_nutrition(self, nutrition: int) -> None:
         if self.parent.ai:
@@ -438,6 +454,15 @@ class ActorState(BaseComponent):
                 self.parent.status.experience.gain_intelligence_exp(1, exp_limit=1000)
         else:
             self.regain_interval -= 1
+
+    def actor_breathe(self):
+        """If actor is breathing on surface normally (which is most of the case), nothing will happen."""
+        if not self.can_breathe_air and not self.is_submerged:
+            self.apply_suffocation([0, 15])
+        else:
+            if self.is_submerged and self.can_breathe_underwater:
+                if self.is_suffocating != [0, 0]:
+                    self.apply_suffocation([0, 0])
 
     def actor_burn(self):
         if self.parent.status.changed_status["fire_resistance"] >= 1:
@@ -885,30 +910,23 @@ class ActorState(BaseComponent):
         self.parent.inventory_extinguish()
         self.apply_melting([0, 0, 0, 0])
 
-        # Debuffs on agi and dex if you cant swim
         if self.is_underwater:
             self.parent.inventory_on_water()
 
-            if not self.can_swim and self.size <= 5:
-                if self.is_drowning == [0,0] and not self.can_breathe_underwater and self.need_breathe:
-                    self.apply_drowning([0, 80])
-
-                # agility, dexterity reduce in half (will not stack)
-                self.parent.status.add_bonus(Bonus("submerged_bonus",
-                                                   bonus_agility=-10,
-                                                   bonus_dexterity=-10), ignore_warning=True)
+            if self.can_swim:
+                drown_turn = 80
+                # dexterity reduced slightly
+                self.parent.status.add_bonus(Bonus("submerged_bonus",bonus_dexterity=-5), ignore_warning=True)
             else:
-                if self.is_drowning != [0, 0]:
-                    self.apply_drowning([0, 0])
+                drown_turn = 30
+                # agility, dexterity reduced
+                self.parent.status.add_bonus(Bonus("submerged_bonus", bonus_agility=-10, bonus_dexterity=-10),ignore_warning=True)
 
-                # agility, dexterity reduce in half (will not stack)
-                self.parent.status.add_bonus(Bonus("submerged_bonus",
-                                                   bonus_agility=-5,
-                                                   bonus_dexterity=-5), ignore_warning=True)
+            if self.is_drowning == [0,0] and not self.can_breathe_underwater and self.need_breathe:
+                self.apply_drowning([0, drown_turn])
         else:
             if self.is_drowning != [0, 0]:
                 self.apply_drowning([0, 0])
-
 
     def actor_drowning(self):
         """
@@ -919,9 +937,23 @@ class ActorState(BaseComponent):
 
             # Check if the actor passed its limit
             if self.is_drowning[0] >= self.is_drowning[1]:
-                self.parent.status.death(cause="drowning")
+                self.parent.die(cause="drowning")
         else:
             self.apply_drowning([0, 0])
+            return None
+
+    def actor_suffocating(self):
+        """
+        Actor is suffocating
+        """
+        if self.need_breathe:
+            self.is_suffocating[0] += 1
+
+            # Check if the actor passed its limit
+            if self.is_suffocating[0] >= self.is_suffocating[1]:
+                self.parent.die(cause="suffocating")
+        else:
+            self.apply_suffocation([0, 0])
             return None
 
     def actor_detecting(self):
@@ -1244,6 +1276,14 @@ class ActorState(BaseComponent):
             pass
         else:
             self.is_drowning = value
+
+    def apply_suffocation(self, value: List[int, int]) -> None:
+        if self.is_suffocating != [0,0] and value != [0,0]:
+            # keep current turn unchanged
+            # keep max turn unchanged
+            pass
+        else:
+            self.is_suffocating = value
 
     def apply_wake_up(self):
         """If actor is sleeping, wake actor up."""

@@ -22,11 +22,11 @@ def get_dungeon_biome(depth: int) -> Optional[Dict]:
         return {
             biome_factories.desert_dungeon: 1
         }
-    elif depth <= 23:
+    elif depth <= 24:
         return {
             biome_factories.crystal_cavern:1
         }
-    elif depth == 24:
+    elif depth == 25:
         return {
             biome_factories.ancient_ruins: 1
         }

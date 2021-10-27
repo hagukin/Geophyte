@@ -223,25 +223,29 @@ def render_character_state(
 
     #### Hunger ####
     if character.actor_state.hunger_state == "hungry":
-        hunger_color = color.player_damaged
+        hunger_color = color.player_not_good
         if engine.config["lang"] == "ko":
             hunger_text = "배고픔"
     elif character.actor_state.hunger_state == "overeaten":
-        hunger_color = color.player_damaged
+        hunger_color = color.player_bad
         if engine.config["lang"] == "ko":
             hunger_text = "과식"
     elif character.actor_state.hunger_state == "starving":
-        hunger_color = color.red
+        hunger_color = color.player_bad
         if engine.config["lang"] == "ko":
             hunger_text = "굶주림"
     elif character.actor_state.hunger_state == "fainting":
-        hunger_color = color.red
+        hunger_color = color.player_severe
         if engine.config["lang"] == "ko":
             hunger_text = "배고픔에 허덕임"
     elif character.actor_state.hunger_state == "satiated":
-        hunger_color = color.yellow
+        hunger_color = color.player_not_good
         if engine.config["lang"] == "ko":
             hunger_text = "배부름"
+    elif character.actor_state.hunger_state == "choked by food":
+        hunger_color = color.player_severe
+        if engine.config["lang"] == "ko":
+            hunger_text = "끔찍하게 배부름"
     else:
         hunger_color = color.white
 
@@ -388,17 +392,47 @@ def render_character_state(
         if character.actor_state.is_drowning[0] >= character.actor_state.is_drowning[1] * 0.75:# 75% drowning
             if num1 > window_height:
                 num2 += 1
-                console.print(x=lane2_x, y=y+num2, string=f"익사까지 {character.actor_state.is_drowning[1]-character.actor_state.is_drowning[0]}턴", fg=color.red)
+                console.print(x=lane2_x, y=y+num2, string=f"익사까지 {character.actor_state.is_drowning[1]-character.actor_state.is_drowning[0]}턴", fg=color.player_severe)
             else:
                 num1 += 1
-                console.print(x=lane1_x, y=y+num1, string=f"익사까지 {character.actor_state.is_drowning[1]-character.actor_state.is_drowning[0]}턴", fg=color.red)
+                console.print(x=lane1_x, y=y+num1, string=f"익사까지 {character.actor_state.is_drowning[1]-character.actor_state.is_drowning[0]}턴", fg=color.player_severe)
         elif character.actor_state.is_drowning[0] >= character.actor_state.is_drowning[1] * 0.5:# 50% drowning
             if num1 > window_height:
                 num2 += 1
-                console.print(x=lane2_x, y=y+num2, string=f"익사까지 {character.actor_state.is_drowning[1]-character.actor_state.is_drowning[0]}턴", fg=color.player_damaged)
+                console.print(x=lane2_x, y=y+num2, string=f"익사까지 {character.actor_state.is_drowning[1]-character.actor_state.is_drowning[0]}턴", fg=color.player_bad)
             else:
                 num1 += 1
-                console.print(x=lane1_x, y=y+num1, string=f"익사까지 {character.actor_state.is_drowning[1]-character.actor_state.is_drowning[0]}턴", fg=color.player_damaged)
+                console.print(x=lane1_x, y=y+num1, string=f"익사까지 {character.actor_state.is_drowning[1]-character.actor_state.is_drowning[0]}턴", fg=color.player_bad)
+        else:
+            if num1 > window_height:
+                num2 += 1
+                console.print(x=lane2_x, y=y+num2, string=f"익사까지 {character.actor_state.is_drowning[1]-character.actor_state.is_drowning[0]}턴", fg=color.player_not_good)
+            else:
+                num1 += 1
+                console.print(x=lane1_x, y=y+num1, string=f"익사까지 {character.actor_state.is_drowning[1]-character.actor_state.is_drowning[0]}턴", fg=color.player_not_good)
+    if character.actor_state.is_suffocating != [0,0]:
+        # Display turns left until drowning
+        if character.actor_state.is_suffocating[0] >= character.actor_state.is_suffocating[1] * 0.75:# 75% drowning
+            if num1 > window_height:
+                num2 += 1
+                console.print(x=lane2_x, y=y+num2, string=f"질식사까지 {character.actor_state.is_suffocating[1]-character.actor_state.is_suffocating[0]}턴", fg=color.player_severe)
+            else:
+                num1 += 1
+                console.print(x=lane1_x, y=y+num1, string=f"질식사까지 {character.actor_state.is_suffocating[1]-character.actor_state.is_suffocating[0]}턴", fg=color.player_severe)
+        elif character.actor_state.is_suffocating[0] >= character.actor_state.is_suffocating[1] * 0.5:# 50% drowning
+            if num1 > window_height:
+                num2 += 1
+                console.print(x=lane2_x, y=y+num2, string=f"질식사까지 {character.actor_state.is_suffocating[1]-character.actor_state.is_suffocating[0]}턴", fg=color.player_bad)
+            else:
+                num1 += 1
+                console.print(x=lane1_x, y=y+num1, string=f"질식사까지 {character.actor_state.is_suffocating[1]-character.actor_state.is_suffocating[0]}턴", fg=color.player_bad)
+        else:
+            if num1 > window_height:
+                num2 += 1
+                console.print(x=lane2_x, y=y+num2, string=f"질식사까지 {character.actor_state.is_suffocating[1]-character.actor_state.is_suffocating[0]}턴", fg=color.player_not_good)
+            else:
+                num1 += 1
+                console.print(x=lane1_x, y=y+num1, string=f"질식사까지 {character.actor_state.is_suffocating[1]-character.actor_state.is_suffocating[0]}턴", fg=color.player_not_good)
         
     # Display "None" if there is no status effects
     if not num1 and not num2:

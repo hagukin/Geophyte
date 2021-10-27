@@ -370,6 +370,9 @@ class Engine:
             # Drowning
             if actor.actor_state.is_drowning != [0,0]:
                 actor.actor_state.actor_drowning()
+            # Suffocating
+            if actor.actor_state.is_suffocating != [0, 0]:
+                actor.actor_state.actor_suffocating()
             # Detecting far objects
             if actor.actor_state.is_detecting_obj[2]: #List is not empty
                 actor.actor_state.actor_detecting()
@@ -385,6 +388,10 @@ class Engine:
             # Hunger
             if actor.actor_state.hunger >= 0:
                 actor.actor_state.actor_gets_hungry()
+
+            # Breathe
+            if actor.actor_state.need_breathe:
+                actor.actor_state.actor_breathe()
 
     def handle_semiactor_turns(self) -> None:
         """

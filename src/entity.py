@@ -159,6 +159,7 @@ class Entity:
             self.is_on_air = True
         else:
             self.is_on_air = False
+        self.do_environmental_effects()
 
     def get_possible_bump_action_keywords(self, actor: Actor) -> List[str]:
         """Returns the amount of different bump actions this entity can do."""
@@ -629,9 +630,8 @@ class Actor(Entity):
         # Deep pit
         if self.gamemap.tiles[self.x, self.y]["tile_id"] == "deep_pit":
             if not self.actor_state.is_in_deep_pit:
-                pass  # TODO: Add an effect that happens only right after when the actor fell into the pit
-
-            self.actor_state.is_in_deep_pit = True  # TODO : action에서 deep pit 처리
+                pass  # TODO: Add an effect that happens only right after when the actor falls into the pit
+            self.actor_state.is_in_deep_pit = True
         else:
             self.actor_state.is_in_deep_pit = False
 
@@ -644,7 +644,6 @@ class Actor(Entity):
     def environmental_water(self):
         """Handles when actor is in water"""
         super().environmental_water()
-        self.actor_state.was_submerged = self.actor_state.is_submerged
 
         if self.gamemap.tiles[self.x, self.y]["tile_id"] == "deep_water":
             # FX
@@ -675,10 +674,6 @@ class Actor(Entity):
             self.actor_state.is_submerged = False
             self.actor_state.is_underwater = False
 
-        if not self.actor_state.is_underwater:
-            self.actor_state.apply_drowning([0, 0])
-            self.status.remove_bonus("submerged_bonus", ignore_warning=True)
-
         # Immediate debuff
         if self.actor_state.is_submerged:
             self.actor_state.actor_submerged()
@@ -701,22 +696,42 @@ class Actor(Entity):
                 bleed_damage = max(0, int(fall_damage / 10))
                 self.actor_state.apply_bleeding([bleed_damage, 0, 6])
 
+    def environmental_airborne(self):
+        """Handles environmental effects when the actor is on air"""
+        self.actor_state.is_submerged = False
+        self.actor_state.is_underwater = False
+        self.actor_state.is_in_shallow_pit = False
+        self.actor_state.is_in_deep_pit = False
+
+    def environmental_general(self):
+        """Handles general things such as drowning check"""
+        if not self.actor_state.is_underwater:
+            self.actor_state.apply_drowning([0, 0])
+            self.status.remove_bonus("submerged_bonus", ignore_warning=True)
+
+    def environmental_save_previous_status(self):
+        self.actor_state.was_submerged = self.actor_state.is_submerged
+
     def do_environmental_effects(self):
         """
         Overriding the entity method.
         """
-        ### Call parent function ###
-        super().do_environmental_effects()
+        # Save status from previous turn before doing anything else
+        self.environmental_save_previous_status()
 
-        ### A. Tile related ###
-        if not self.is_on_air:
+        super().do_environmental_effects()
+        self.environmental_general()
+
+        if self.is_on_air:
+            self.environmental_airborne()
+        else:
             # Prevent any error (Mainly prevent flying actor not being on air when first initialized.)
             if self.actor_state.is_flying or self.actor_state.is_levitating != [0, 0]:
                 self.float(True)
             else:
                 self.environmental_pit()
                 self.environmental_water()
-                self.do_special_environmental_effect() # Do action on tile
+                self.do_special_environmental_effect()  # Do action on tile
             
     def gain_action_point(self):
         """
@@ -1079,6 +1094,10 @@ class Item(Entity):
                 return entity_desc
             else:
                 return self._entity_desc
+
+    def environmental_water(self) -> None:
+        super().environmental_water()
+        self.collided_with_water()
 
     def price_of_single_item(self, is_shopkeeper_is_selling: bool, discount: float=1) -> int:
         """

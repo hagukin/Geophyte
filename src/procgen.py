@@ -90,7 +90,7 @@ def choose_monster_difficulty(gamemap: GameMap, toughness: int=0) -> int:
                                            list(gamemap.biome.monster_difficulty.values()),
                                                 k=1)[0] # Toughness is ignored.
     else:
-        avg_diff = round(depth_ * 0.7) + toughness + 1
+        avg_diff = round(depth_ * 0.7) + toughness
         max_diff = avg_diff + 2 # Technically the max difficulty of a spawned monster is avg_diff + 3, since choose_monster_by_difficulty().radius is (-1,1)
 
         # Choose the monster difficulty (Using normal distribution; but there are limits to maximum and minimum values)
@@ -99,22 +99,32 @@ def choose_monster_difficulty(gamemap: GameMap, toughness: int=0) -> int:
     return difficulty_chosen
 
 
-def choose_monster_by_difficulty(difficulty: int, radius: (0,0)) -> Optional[Actor]:
+def choose_monster_by_difficulty(difficulty: int, radius: Tuple[int,int]=(-1,2), type: str="surface") -> Optional[Actor]:
     """
     Args:
         radius:
             if (0,0), function will return monster that exactly matches the given difficulty.
             if (-1,3) and difficulty is 4, function will generate a list of monsters that has difficulty between 3,7 and will choose one randomly.
+        type:
+            surface
+            underwater
     """
-    select_radius = (max(difficulty + radius[0], 1) , max(radius[0], radius[1]) + difficulty)
+    diff_range = (max(difficulty + radius[0], 1) , max(radius[0], radius[1]) + difficulty)
+    if type == "surface":
+        mon_dict = actor_factories.ActorDB.surface_monster_difficulty
+    elif type == "underwater":
+        mon_dict = actor_factories.ActorDB.underwater_monster_difficulty
+    else:
+        print(f"ERROR::Cannot find monster type of {type}")
+        mon_dict = actor_factories.ActorDB.surface_monster_difficulty
 
     population_list = []
-    for i in select_radius:
-        population_list.extend(actor_factories.ActorDB.monster_difficulty[difficulty])
-
     rarity_list = []
-    for i in select_radius:
-        rarity_list.extend(actor_factories.ActorDB.monster_rarity_for_each_difficulty[difficulty])
+    for diff in range(*diff_range):
+        if diff in mon_dict:
+            population_list.extend(mon_dict[diff])
+            for mon in mon_dict[diff]:
+                rarity_list.append(mon.rarity)
 
     try:
         monster_to_spawn = random.choices(
@@ -125,7 +135,7 @@ def choose_monster_by_difficulty(difficulty: int, radius: (0,0)) -> Optional[Act
         return monster_to_spawn
     except IndexError as e:
         print(f"ERROR::Cannot spawn monster of difficulty {difficulty}, radius {radius}.")
-        return None # FIXME
+        return None
 
 
 def spawn_given_monster(
@@ -179,7 +189,6 @@ def spawn_monster_of_appropriate_difficulty(x: int, y: int, dungeon: GameMap, sp
                 dungeon,
                 dungeon.engine.toughness
             ),
-            radius=(-1, 1)
         ),
         dungeon=dungeon,
         spawn_active=spawn_active,
@@ -200,29 +209,14 @@ def spawn_monsters(
         list(room.terrain.monsters_cnt.values()),
         k=1)[0]
 
-    if room.terrain.monster_to_spawn:
-        monsters_to_spawn = random.choices(
-            population=list(room.terrain.monster_to_spawn.keys()),
-            weights=list(room.terrain.monster_to_spawn.values()),
-            k=mon_num
-        )
-    else:
-        monsters_to_spawn = []
-        for _ in range(mon_num):
-            # Choose difficulty
-            difficulty_chosen = choose_monster_difficulty(gamemap=dungeon, toughness=max(dungeon.engine.toughness + room.terrain.adjust_monster_difficulty, 0))
-            if room.terrain.spawn_monster_of_difficulty:
-                difficulty_chosen = room.terrain.spawn_monster_of_difficulty
+    k = 0
+    if room.terrain.gen_water:
+        k = spawn_underwater_monster(room, dungeon, depth, random.randint(0,mon_num))
+    spawn_surface_monster(room, dungeon, depth, mon_num - k)
 
-            while not actor_factories.ActorDB.monster_difficulty[difficulty_chosen]:
-                print(f"WARNING::Difficulty {difficulty_chosen} missing. Choosing a new difficulty...")
-                difficulty_chosen = choose_monster_difficulty(gamemap=dungeon, toughness=max(dungeon.engine.toughness + room.terrain.adjust_monster_difficulty, 0))
 
-            monsters_to_spawn.append(choose_monster_by_difficulty(difficulty_chosen, radius=(-1, 1)))
-
+def spawn_monster_lists(room: Room, dungeon: GameMap, monsters_to_spawn: List[Actor], tile_coordinates: List[Tuple[int,int]]) -> None:
     for monster_to_spawn in monsters_to_spawn:
-        # Spawn location
-        tile_coordinates = room.inner_tiles
         place_tile = random.choice(tile_coordinates)
 
         # Prevent entities clipping
@@ -233,7 +227,105 @@ def spawn_monsters(
         else:
             # Spawn
             spawn_given_monster(x=place_tile[0], y=place_tile[1], monster=monster_to_spawn, dungeon=dungeon,
-                                         spawn_active=False, spawn_sleep=room.terrain.make_monster_sleep, is_first_generation=True)
+                                spawn_active=False, spawn_sleep=room.terrain.make_monster_sleep,
+                                is_first_generation=True)
+
+
+def spawn_surface_monster(
+    room: Room, dungeon: GameMap, depth: int, monster_cnt: int
+) -> int:
+    """
+    Spawn monsters to given room.
+    Sole purpose of this function is to use it in procgen.
+
+    Return:
+        spawned monster count
+    """
+    mon_num = monster_cnt
+
+    if room.terrain.monster_to_spawn:
+        monsters_to_spawn = random.choices(
+            population=list(room.terrain.monster_to_spawn.keys()),
+            weights=list(room.terrain.monster_to_spawn.values()),
+            k=mon_num
+        )
+    else:
+        monsters_to_spawn = []
+        for _ in range(mon_num):
+            # Choose difficulty
+            difficulty_chosen = choose_monster_difficulty(gamemap=dungeon, toughness=max(
+                dungeon.engine.toughness + room.terrain.adjust_monster_difficulty, 0))
+            if room.terrain.spawn_monster_of_difficulty:
+                difficulty_chosen = room.terrain.spawn_monster_of_difficulty
+
+            TRYCOUNT = 100
+            i = 0
+            while not (difficulty_chosen in actor_factories.ActorDB.surface_monster_difficulty):
+                i += 1
+                print(f"WARNING::Difficulty {difficulty_chosen} missing. Choosing a new difficulty...")
+                difficulty_chosen = choose_monster_difficulty(gamemap=dungeon, toughness=max(dungeon.engine.toughness + room.terrain.adjust_monster_difficulty, 0))
+                if i > TRYCOUNT:
+                    print(f"ERROR::Cannot find monster difficulty around {difficulty_chosen}")
+                    return 0
+
+            monsters_to_spawn.append(choose_monster_by_difficulty(difficulty_chosen, type="surface"))
+
+    tile_coordinates = room.inner_tiles
+    spawn_monster_lists(room, dungeon, monsters_to_spawn, tile_coordinates)
+
+    return len(monsters_to_spawn)
+
+
+def spawn_underwater_monster(
+    room: Room, dungeon: GameMap, depth: int, monster_cnt: int
+) -> int:
+    """
+    Spawn monsters to given room.
+    Sole purpose of this function is to use it in procgen.
+
+    Return:
+        spawned mosnter count
+    """
+    mon_num = monster_cnt
+
+    if room.terrain.monster_to_spawn_underwater:
+        monsters_to_spawn = random.choices(
+            population=list(room.terrain.monster_to_spawn_underwater.keys()),
+            weights=list(room.terrain.monster_to_spawn_underwater.values()),
+            k=mon_num
+        )
+    else:
+        monsters_to_spawn = []
+        for _ in range(mon_num):
+            # Choose difficulty
+            difficulty_chosen = choose_monster_difficulty(gamemap=dungeon, toughness=max(dungeon.engine.toughness + room.terrain.adjust_monster_difficulty, 0))
+            if room.terrain.spawn_monster_of_difficulty:
+                difficulty_chosen = room.terrain.spawn_monster_of_difficulty
+
+            search_diff = difficulty_chosen
+            found = False
+            SEARCH_RANGE = 100
+            for i in range(SEARCH_RANGE):
+                if not (search_diff in actor_factories.ActorDB.underwater_monster_difficulty):
+                    search_diff = difficulty_chosen + i
+                if not (search_diff in actor_factories.ActorDB.underwater_monster_difficulty) and difficulty_chosen > i:
+                    search_diff = difficulty_chosen - i
+                if search_diff in actor_factories.ActorDB.underwater_monster_difficulty:
+                    difficulty_chosen = search_diff
+                    found = True
+                    break
+            if not found:
+                print(f"ERROR::Cannot find any underwater monster of range +- {SEARCH_RANGE}")
+                return 0
+
+            monsters_to_spawn.append(choose_monster_by_difficulty(difficulty_chosen, type="underwater"))
+
+    coors = [t for t in room.inner_tiles if dungeon.tiles[t[0], t[1]]["tile_id"][-5:] == "water"]
+    if not coors:
+        return 0  # Cannot spawn underwater monster since there are no water tile
+
+    spawn_monster_lists(room, dungeon, monsters_to_spawn, coors)
+    return len(monsters_to_spawn)
 
 
 def spawn_items(

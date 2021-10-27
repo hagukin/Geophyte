@@ -333,6 +333,14 @@ class GameMap:
                 return True
         return False
 
+    def check_if_tile_is_surface(self, x: int, y: int) -> bool:
+        """
+        Surface = tiles that is not a liquid
+        """
+        if self.tiles[x, y]["tile_id"][-5:] == "water":
+            return False
+        return True
+
     def in_bounds(self, x: int, y: int) -> bool:
         """Return True if x and y are inside of the bounds of this map."""
         return 0 <= x < self.width and 0 <= y < self.height
@@ -387,7 +395,7 @@ class GameMap:
             y=y,
             monster=procgen.choose_monster_by_difficulty(
                 difficulty=difficulty_chosen,
-                radius=(-1, 1)
+                type="surface"
             ),
             spawn_active=False,
             spawn_sleep=False,

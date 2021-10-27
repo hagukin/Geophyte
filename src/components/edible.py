@@ -255,9 +255,9 @@ class RawMeatEdible(Edible):
     Meat rots faster.
     """
     def __init__(self, nutrition: int, spoilage: int=0, is_cooked: bool=False, can_cook: bool=True, spoil_speed: int=12, cook_bonus:int = None, edible_type:str = "meat",
-                 maggot_chance: float=0.2, maggot_range: Tuple[int,int]=(1,1)):
+                 maggot_chance: float=0.1, maggot_range: Tuple[int,int]=(1,1)):
         super().__init__(nutrition,spoilage,is_cooked,can_cook,spoil_speed,cook_bonus,edible_type,maggot_chance,maggot_range)
-        self.maggot_range = (1, max(8, min(int(self.nutrition / 100), 1))) # Number of maggots spawned increase by nutrition value
+        self.maggot_range = (1, max(8, min(int(self.nutrition / 150), 1))) # Number of maggots spawned increase by nutrition value
 
 class InsectEdible(Edible):
     """
@@ -420,18 +420,4 @@ class BlackJellyEdible(Edible):
 #################### D - DRAGONS  ##################
 ####################################################
 
-class RedDragonEdible(Edible):
-    """Used for both dragons and baby dragons"""
-    def __init__(self, nutrition: int, cook_bonus:int, spoilage: int=0, is_cooked: bool=False, can_cook: bool=False, spoil_speed: int=20, edible_type="misc"):
-        super().__init__(nutrition,spoilage,is_cooked,can_cook,spoil_speed,cook_bonus,edible_type)
-
-    def effect_always(self, action: actions.EatItem):
-        consumer = action.entity
-        # Log
-        if random.random() <= 0.5:  # 50% chance resistance gain
-            if consumer == self.engine.player:
-                self.engine.message_log.add_message(f"전신에서 열기가 느껴진다.", color.player_neutral)
-                self.engine.message_log.add_message(f"열기에 조금 더 잘 버틸 수 있을 것 같은 기분이 든다.", color.player_buff)
-            consumer.status.fire_resistance += round(random.random() * 0.2, 2)
-        return super().effect_always(action)
 

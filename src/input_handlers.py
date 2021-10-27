@@ -2202,7 +2202,20 @@ class MainGameEventHandler(EventHandler):
             #         self.engine.world.get_map(self.engine.depth - 1).ascend_loc[1] # NOTE: Chamber of Kugah has no descend loc
             #     )
             # elif key == tcod.event.K_F9:
-            #     raise NotImplementedError()
+            #     import procgen, actor_factories
+            #     procgen.spawn_given_monster(
+            #         x=self.engine.player.x,
+            #         y=self.engine.player.y,
+            #         monster=actor_factories.piranha,
+            #         spawn_active=True,
+            #         spawn_sleep=False,
+            #         is_first_generation=False,
+            #         dungeon=self.engine.game_map
+            #     )
+            # elif key == tcod.event.K_F8:
+            #     import item_factories
+            #     item_factories.scroll_of_magic_mapping.spawn(self.engine.game_map, self.engine.player.x, self.engine.player.y)
+            #     item_factories.scroll_of_teleportation.spawn(self.engine.game_map, self.engine.player.x,self.engine.player.y)
 
         # No valid key was pressed
         return action

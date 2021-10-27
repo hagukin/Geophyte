@@ -495,8 +495,8 @@ class Status(BaseComponent):
             death_message = f"{g(self.parent.name, '은')} 스스로를 가누지 못할 만큼 약해졌다!\n"
         elif cause == "starvation":
             death_message = f"{g(self.parent.name, '은')} 충분한 영양분을 얻지 못했다!\n"
-        elif cause == "drowning":
-            death_message = f"{g(self.parent.name, '은')} 충분한 산소를 공급받지 못했다!\n"
+        elif cause == "drowning" or cause == "suffocating":
+            death_message = f"{g(self.parent.name, '은')} 제대로 호흡하지 못했다!\n"
         else:
             death_message = "UNDEFINED"
 

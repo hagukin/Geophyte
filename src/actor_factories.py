@@ -16,7 +16,7 @@ from components.ai import BaseAI
 
 ### NOTE: Rarity can have value between 0 and 10 ###
 class ActorDB:
-    monster_difficulty = {
+    monster_difficulty = { # Includes both surface and underwater
         0: [],
         1: [], 2: [], 3: [], 4: [], 5: [], 6: [], 7: [], 8: [], 9: [], 10: [],
         11: [], 12: [], 13: [], 14: [], 15: [], 16: [], 17: [], 18: [], 19: [], 20: [],
@@ -29,6 +29,10 @@ class ActorDB:
         11: [], 12: [], 13: [], 14: [], 15: [], 16: [], 17: [], 18: [], 19: [], 20: [],
         21: [], 22: [], 23: [], 24: [], 25: [], 26: [], 27: [], 28: [], 29: [], 30: [],
     }
+
+    surface_monster_difficulty = {}
+    underwater_monster_difficulty = {} # Underwater monsters are also stored in monster_difficulty dictionary.
+    # k, v = difficulty, actor
     
     def get_actor_by_id(entity_id: str) -> Optional[Actor]:
         for monslist in ActorDB.monster_difficulty.values():
@@ -125,9 +129,9 @@ player = Actor(
     equipments=Equipments(),
 #     initial_items=
 #     (
-#         {"item": item_factories.rustproof_wax, "chance": 1, "count": (1, 1), "BUC": {1:0,0:1,-1:0}, "upgrade": None},
-# {"item": item_factories.rustproof_wax, "chance": 1, "count": (1, 1), "BUC": {1:0,0:0,-1:1}, "upgrade": None},
-# {"item": item_factories.rustproof_wax, "chance": 1, "count": (1, 1), "BUC": {1:1,0:0,-1:0}, "upgrade": None},
+#         {"item": item_factories.ration, "chance": 1, "count": (1, 1), "BUC": {1:0,0:1,-1:0}, "upgrade": None},
+# {"item": item_factories.scroll_of_magic_mapping, "chance": 1, "count": (100, 100), "BUC": {1:1,0:0,-1:0}, "upgrade": None},
+# {"item": item_factories.ring_of_sky, "chance": 1, "count": (1, 1), "BUC": {1:1,0:0,-1:0}, "upgrade": None},
 #     ),
 #     initial_equipments=(
 #         {"item":item_factories.iron_dagger, "chance":1, "count":(1,1), "BUC":None, "upgrade": None},
@@ -923,6 +927,72 @@ ActorDB.monster_difficulty[floating_eye.status.difficulty].append(floating_eye)
 
 
 ####################################################
+########### f - fish & sharks & whales  ############
+####################################################
+
+### Piranha
+piranha = Actor(
+    char="f",
+    fg=(0, 255, 0),
+    name="피라냐",
+    entity_id="piranha",
+    entity_desc=("포악한 성격과 게걸스러운 식성으로 악명높은 피라냐는, 수영하기를 좋아하는 모험가들에게는 상당히 골치아픈 존재이다."
+                 "이들은 날카로운 이빨로 먹이를 인정사정없이 물어뜯으며, 작은 몸집에 걸맞는 재빠른 움직임을 보여주기 때문에 많은 주의가 필요하다."),
+    actor_quote=("백상아리도 피라냐 떼 앞에서는 맛있는 고깃덩어리에 지나지 않지."),
+    rarity=0,
+    weight=5.4,
+    spawnable=True,
+    edible=edible.RawMeatEdible(nutrition=50, cook_bonus=50),
+    ai_cls=BaseAI(
+        alignment=(("hostile", ), (1, )),
+        do_melee_atk=True,
+        do_ranged_atk=False,
+        use_ability=False,
+        hostile_type=('@',),
+        attracted_eat_type=("meat",),
+    ),
+    status=Status(
+        hp=30,
+        mp=0,
+        strength=13,
+        dexterity=13,
+        agility=18,
+        intelligence=5,
+        constitution=6,
+        charm=7,
+        difficulty=7,
+        base_melee=5,
+        additional_melee=10,
+        protection=5,
+        hearing=3,
+        eyesight=10,
+        melee_effects_var=((1, 0, 3),),
+        melee_effects=(("bleed_target", 0.3),),
+        ),
+    actor_state=ActorState(
+        size=2,
+        has_left_arm=False,
+        has_right_arm=False,
+        has_leg=False,
+        has_eye=True,
+        has_torso=False,
+        has_blood=True,
+        has_soul=True,
+        can_swim=True,
+        can_talk=False,
+        can_move_on_surface=False,
+        can_breathe_air=False,
+        can_breathe_underwater=True,
+        live_underwater=True,
+    ),
+    inventory=Inventory(capacity=3),
+    ability_inventory=AbilityInventory(capacity=1),
+    equipments=Equipments(),
+)
+ActorDB.monster_difficulty[piranha.status.difficulty].append(piranha)
+
+
+####################################################
 ############### i = flying insects  ################
 ####################################################
 
@@ -1622,24 +1692,25 @@ ActorDB.monster_difficulty[maggot.status.difficulty].append(maggot)
 #################### D - DRAGONS  ##################
 ####################################################
 
-### Baby Red Dragon
-baby_red_dragon = Actor(
+
+### Baby Spearhorn Dragon
+baby_spearhorn_dragon = Actor(
     char="D",
-    fg=(255, 122, 122),
-    name="새끼 레드 드래곤",
-    entity_id="baby_red_dragon",
+    fg=(122, 105, 255),
+    name="새끼 스피어혼 드래곤",
+    entity_id="baby_spearhorn_dragon",
     entity_desc=(""),
     actor_quote=(""),
     rarity=4,
     weight=2123,
     spawnable=True,
-    edible=edible.RedDragonEdible(nutrition=323, cook_bonus=50),
+    edible=edible.RawMeatEdible(nutrition=323, cook_bonus=50),
     ai_cls=BaseAI(
         alignment=(("hostile",), (1,)),
         do_melee_atk=True,
         do_ranged_atk=False,
         use_ability=False,
-        hostile_type=('@','O','T','F'),
+        hostile_type=('@','O','l','T','F'),
     ),
     status=Status(
         hp=125,
@@ -1656,9 +1727,7 @@ baby_red_dragon = Actor(
         protection=25,
         hearing=15,
         eyesight=15,
-        fire_resistance=1,
-        melee_effects_var=((2, 2, 0, 5),),
-        melee_effects=(("burn_target", 0.1),),
+        fire_resistance=0.2,
         ),
     actor_state=ActorState(
         size=4,
@@ -1682,7 +1751,68 @@ baby_red_dragon = Actor(
     ability_inventory=AbilityInventory(capacity=20),
     equipments=Equipments(),
 )
-ActorDB.monster_difficulty[baby_red_dragon.status.difficulty].append(baby_red_dragon)
+ActorDB.monster_difficulty[baby_spearhorn_dragon.status.difficulty].append(baby_spearhorn_dragon)
+
+
+### Baby Armored Dragon
+baby_armored_dragon = Actor(
+    char="D",
+    fg=(50, 168, 68),
+    name="새끼 아머 드래곤",
+    entity_id="baby_armored_dragon",
+    entity_desc=(""),
+    actor_quote=(""),
+    rarity=4,
+    weight=2310,
+    spawnable=True,
+    edible=edible.RawMeatEdible(nutrition=350, cook_bonus=52),
+    ai_cls=BaseAI(
+        alignment=(("hostile",), (1,)),
+        do_melee_atk=True,
+        do_ranged_atk=False,
+        use_ability=False,
+        hostile_type=('@','O','l','T','F'),
+    ),
+    status=Status(
+        hp=125,
+        mp=88,
+        strength=25,
+        dexterity=18,
+        agility=17,
+        intelligence=13,
+        constitution=14,
+        charm=20,
+        difficulty=14,
+        base_melee=37,
+        additional_melee=12,
+        protection=29,
+        hearing=15,
+        eyesight=15,
+        fire_resistance=0.2,
+        ),
+    actor_state=ActorState(
+        size=4,
+        has_left_arm=True,
+        has_right_arm=True,
+        has_leg=True,
+        has_eye=True,
+        has_torso=True,
+        has_blood=True,
+        has_soul=True,
+        has_head=1,
+        can_think=True,
+        can_talk=True,
+        can_move_on_surface=True,
+        can_swim=True,
+        can_fly=True,
+        is_flying=False, # Can fly
+        need_breathe=True,
+    ),
+    inventory=Inventory(capacity=4),
+    ability_inventory=AbilityInventory(capacity=20),
+    equipments=Equipments(),
+)
+ActorDB.monster_difficulty[baby_armored_dragon.status.difficulty].append(baby_armored_dragon)
 
 
 ####################################################
@@ -1702,7 +1832,7 @@ fire_elemental = Actor(
     entity_desc=("불의 정령은 신체의 대부분이 강렬한 화염으로 이루어져 있다. "
         "그러나 이들의 골격만큼은 불꽃이 아닌 알 수 없는 금속으로 이루어져 있으며, 이 금속은 정령이 소멸할 때 함께 기화되어 사라진다. "),
     actor_quote=("난 이거 하나만큼은 자신있게 말할 수 있었지. '불은 끄려면 물을 뿌려라'라고. 녀석을 만나기 전까지는 말이야. "),
-    rarity=8,
+    rarity=15,
     weight=203,
     spawnable=True,
     edible=None,
@@ -1770,7 +1900,7 @@ ice_elemental = Actor(
     entity_desc=("얼음 정령은 푸른 얼음으로 이루어진 전신에서 생명체의 뼛 속까지 얼어붙일 수 있는 냉기를 내뿜는다. "
             "지금까지 이 얼음을 녹이려는 시도는 전부 실패했지만, 정령이 소멸할 때 얼음도 함꼐 기화되어 사라진다. "),
     actor_quote=("두꺼운 옷으로 꽁꽁 싸맨다고? 그런 건 자네의 얼어붙은 시체를 땅에 묻기 어렵게 만들 뿐이라네. "),
-    rarity=8,
+    rarity=15,
     weight=461,
     spawnable=True,
     edible=None,
@@ -1838,7 +1968,7 @@ earth_elemental = Actor(
     entity_desc=("땅의 정령의 신체는 아직까지 밝혀지지 않은 종류의 암석으로 구성되어 있으며, 이 암석들은 보이지 않는 힘에 의해 서로 떨어지지 않고 하나의 형태를 유지하고 있다. "
                 "이 암석은 열, 부식 등에 대해 놀라우리만큼 강한 저항성을 지니고 있으나, 정령이 소멸할 때 암석도 함꼐 기화되어 사라진다. "),
     actor_quote=("혹시나 해서 말하는데, 바위 골렘 같은 조잡한 돌덩어리라고 생각했다가는 넌 눈 깜빡할 사이에 곤죽이 될 거야. "),
-    rarity=8,
+    rarity=15,
     weight=550,
     spawnable=True,
     edible=None,
@@ -1907,7 +2037,7 @@ acid_elemental = Actor(
     entity_desc=("융해의 정령의 신체는 알 수 없는 생명체의 뼈로 이루어져 있으며, 그 중 머리 부분은 인간의 두개골과 유사한 형상을 하고 있다. "
                 "이들의 신체 전체는 점액성을 띄는 강산성 물질로 덮어져 있으며, 이 강산성 점액질은 현재까지 알려진 거의 대부분의 유기물을 녹일 수 있는 것으로 알려져 있다. "),
     actor_quote=("놈과 싸운 어떤 한 기사의 이야기를 들은 적이 있어. 갑옷의 구멍 사이로 붉은 살덩이들이 흘려 내렸다더군. "),
-    rarity=8,
+    rarity=15,
     weight=430,
     spawnable=True,
     edible=None,
@@ -1974,7 +2104,7 @@ poison_elemental = Actor(
     entity_desc=("맹독의 정령은 마치 거대한 독사와도 같은 형상을 하고 있다. "
                 "이들의 신체는 치명적인 독성을 띄는 보랏빛 액체로 이루어져 있으며, 이 액체와 단순히 접촉하는 것만으로도 심각한 피해를 줄 수 있다고 알려져 있다. "),
     actor_quote=("맹독의 정령을 찾는 건 어렵지 않아. 던전 속에 널부러진 시체들을 쭉 따라가다 보면 만날 수 있을 거야. "),
-    rarity=8,
+    rarity=15,
     weight=417,
     spawnable=True,
     edible=None,
@@ -2041,7 +2171,7 @@ lightning_elemental = Actor(
     entity_desc=("번개의 정령의 신체는 먹구름과 같이 보이는 알 수 없는 검은 기체로 이루어져 있으며, 전신에서 번개와도 같은 푸른 색 스파크를 내뿜는다. "
                 "그러나 이들의 골격만큼은 기체가 아닌 알 수 없는 금속으로 이루어져 있으며, 이 금속은 정령이 소멸할 때 함께 기화되어 사라진다. "),
     actor_quote=("세상에 전기가 덜 흐르는 물질은 있어도, 전기가 흐르지 않는 물질은 없다는 거 알아? "),
-    rarity=8,
+    rarity=15,
     weight=153,
     spawnable=True,
     edible=None,
@@ -2879,7 +3009,7 @@ primeval_tortoise = Actor(
     inventory=Inventory(capacity=20),
     ability_inventory=AbilityInventory(capacity=2),
     equipments=Equipments(),
-    initial_drop_on_death=({"item":item_factories.primeval_tortoise_shell, "chance":0.1, "count":(1,1), "BUC": {-1:0,0:1,1:0}, "upgrade":{0:1}},),
+    initial_drop_on_death=({"item":item_factories.primeval_tortoise_shell, "chance":0.3, "count":(1,1), "BUC": {-1:0,0:1,1:0}, "upgrade":{0:1}},),
 )
 ActorDB.monster_difficulty[primeval_tortoise.status.difficulty].append(primeval_tortoise)
 
@@ -3017,3 +3147,14 @@ ActorDB.monster_difficulty[giant.status.difficulty].append(giant)
 for diff in list(ActorDB.monster_difficulty.keys()):
     for actor in ActorDB.monster_difficulty[diff]:
         ActorDB.monster_rarity_for_each_difficulty[diff].append(actor.rarity)
+
+for k, v in ActorDB.monster_difficulty.items():
+    for actor in v:
+        if actor.actor_state.live_underwater:
+            if not k in ActorDB.underwater_monster_difficulty:
+                ActorDB.underwater_monster_difficulty[k] = []
+            ActorDB.underwater_monster_difficulty[k].append(actor)
+        else:
+            if not k in ActorDB.surface_monster_difficulty:
+                ActorDB.surface_monster_difficulty[k] = []
+            ActorDB.surface_monster_difficulty[k].append(actor)

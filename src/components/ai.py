@@ -221,11 +221,15 @@ class BaseAI(BaseComponent):
         NOTE: Currently the ai will not move(for one turn) if it fails to find a random walkable location.
         You can force ai to always move by adding a while loop, but this could cause some performance issues in certain situations.
         """
-        random_x = random.randint(3, self.gamemap.width - 3)
-        random_y = random.randint(3, self.gamemap.height - 3)
+        TRYCOUNT = 3
+        for i in range(TRYCOUNT):
+            random_x = random.randint(3, self.gamemap.width - 3)
+            random_y = random.randint(3, self.gamemap.height - 3)
 
-        if self.gamemap.tiles[random_x, random_y]["walkable"]:
-            self.path = self.get_path_to(random_x, random_y)
+            if self.gamemap.tiles[random_x, random_y]["walkable"]:
+                self.path = self.get_path_to(random_x, random_y)
+            if self.path:
+                break
 
     def perform_idle_action(self) -> None:
         """
@@ -253,22 +257,55 @@ class BaseAI(BaseComponent):
         for e in self.parent.gamemap.entities:
             # Check that an enitiy blocks movement and the cost isn't zero (blocking.)
             if e.blocks_movement and cost[e.x, e.y]:
-                cost[e.x, e.y] += 30
+                cost[e.x, e.y] += intelligence * 3
             if intelligence > 3 and isinstance(e, SemiActor):
                 if (e.x != dest_x or e.y != dest_y) and not e.safe_to_move:
                     cost[e.x, e.y] += intelligence * 5 # AIs with higher intelligence is more likely to dodge dangerous semiactors.
 
-        if intelligence > 3:
-            if not self.parent.is_on_air:
-                dangerous_coordinates = zip(*np.where(self.gamemap.tiles["safe_to_walk"][:,:] == False))
-                for cor in dangerous_coordinates:
-                    if self.gamemap.tiles[cor]["tile_id"] == self.gamemap.tiles[self.parent.x, self.parent.y]["tile_id"]:
-                        # If the actor is already on dangerous tile, same types of tiles will be considered safe.
-                        # (Thus, the ai will be able to find its way out from the middle of giant pool of water.)
-                        continue
-                    if self.gamemap.check_tile_safe(self.parent, cor[0], cor[1], ignore_semiactor=True): # Semiactor is handled below.
-                        break
-                    cost[cor] += intelligence * 4  # AI with higher intelligence is more likely to dodge dangerous tiles.
+        if not self.parent.is_on_air:
+            dangerous_coordinates = zip(*np.where(self.gamemap.tiles["safe_to_walk"][:,:] == False))
+            for cor in dangerous_coordinates:
+                if self.gamemap.tiles[cor]["tile_id"] == self.gamemap.tiles[self.parent.x, self.parent.y]["tile_id"]:
+                    # If the actor is already on dangerous tile, same types of tiles will be considered safe.
+                    # (Thus, the ai will be able to find its way out from the middle of giant pool of water.)
+                    continue
+                if self.gamemap.check_tile_safe(self.parent, cor[0], cor[1], ignore_semiactor=True): # Semiactor is handled below.
+                    break
+                cost[cor] += intelligence * 5 # AI with higher intelligence is more likely to dodge dangerous tiles.
+
+        # Disable ai from moving
+        if self.parent.actor_state.live_underwater:
+            if self.parent.actor_state.is_submerged: # If the actor is already out of the water this process is ignored.
+                nonwater_coordinates = [] # Cannot use numpy.where()
+                for x in range(self.gamemap.tiles.shape[0]):
+                    for y in range(self.gamemap.tiles.shape[1]):
+                        if self.gamemap.tiles[x,y]["tile_id"][-5:] != "water":
+                            nonwater_coordinates.append((x,y))
+                for cor in nonwater_coordinates:
+                    if cor[0] == dest_x and cor[1] == dest_y:
+                        pass
+                    else:
+                        cost[cor] += 50
+                        # NOTE: reason for not using 0 or negative value (blocking the tile) is
+                        # to make ai move through the water as much as possible
+                        # while also being able to track targets that are on the surface
+                        # e.g.
+                        # A. cost[cor] = 0
+                        # . . . @
+                        # f ~ ~ ~ (ai will not move any further)
+                        #
+                        # 1 2 3 4 (ai's path)
+                        # f ~ ~ ~
+                        #
+                        # B. cost[cor] += 50 (or any value)
+                        # . . . @
+                        # ~ ~ ~ f
+                        #
+                        # . . . 4 (ai's path)
+                        # f 1 2 3
+                        #
+                        # ai B is minimizing its distance with its target
+                        # They both are unable to move onto the surface (read the code below)
 
         # Create a graph from the cost array and pass that graph to a new pathfinder
         graph = tcod.path.SimpleGraph(cost=cost, cardinal=2, diagonal=3)
@@ -277,6 +314,19 @@ class BaseAI(BaseComponent):
 
         # Compute the path to the destination and remove the starting point
         path = pathfinder.path_to((dest_x, dest_y))[1:].tolist()
+
+        # if ai is live_underwater and is submerged,
+        # Prevent ai from moving onto the surface
+        # NOTE: even if ai is capable of moving on the surface, it will not move onto the surface as long as it is submerged.
+        if self.parent.actor_state.live_underwater:
+            if self.parent.actor_state.is_submerged:  # If the actor is already out of the water this process is ignored.
+                tmp = []
+                for index in path:
+                    if self.parent.gamemap.check_if_tile_is_surface(index[0], index[1]):
+                        break
+                    else:
+                        tmp.append((index[0], index[1]))
+                return tmp
 
         # Convert from List[List[int]] to List[Tuple[int, int]]
         return [(index[0], index[1]) for index in path]

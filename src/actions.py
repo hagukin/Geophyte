@@ -1044,6 +1044,21 @@ class MovementAction(ActionWithDirection):
                 self.engine.message_log.add_message("길이 막혀 있다.", fg=color.impossible)
             return None
 
+        ### Check if actor is on a surface tile but cannot move on surfaces
+        if not self.entity.actor_state.can_move_on_surface:
+            if self.entity.is_on_air:
+                pass
+            elif self.entity.actor_state.is_submerged:
+                if self.entity.gamemap.check_if_tile_is_surface(dest_x, dest_y):
+                    if self.entity == self.engine.player:
+                        self.engine.message_log.add_message("당신은 해당 위치로 이동할 수 없다.", fg=color.impossible)
+                    return None
+                pass
+            else:
+                if self.entity == self.engine.player:
+                    self.engine.message_log.add_message("당신은 이동할 수 없다.", fg=color.impossible)
+                return None
+
         # If the actor is stuck in pit
         if self.entity.actor_state.is_in_deep_pit:
 
