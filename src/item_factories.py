@@ -1177,7 +1177,7 @@ rags = Item(
     name="천쪼가리",
     entity_id="rags",
     entity_desc=("다 헤져가는 천 쪼가리이다. "),
-    rarity=5,
+    rarity=7,
     weight=0.3,
     price=1,
     item_type=InventoryOrder.ARMOR,
@@ -1210,7 +1210,7 @@ leather_armor = Item(
     name="가죽 갑옷",
     entity_id="leather_armor",
     entity_desc=("질긴 가죽을 덧대 만든 갑옷이다. "),
-    rarity=10,
+    rarity=5,
     weight=4.5,
     price=300,
     item_type=InventoryOrder.ARMOR,
@@ -1242,7 +1242,7 @@ iron_chain_mail = Item(
     name="철제 사슬 갑옷",
     entity_id="iron_chain_mail",
     entity_desc=("철로 만든 사슬들을 엮어 만든 갑옷이다. "),
-    rarity=8,
+    rarity=3,
     weight=17.9,
     price=10,
     item_type=InventoryOrder.ARMOR,
@@ -1274,7 +1274,7 @@ iron_scale_armor = Item(
     name="철제 비늘 갑옷",
     entity_id="iron_scale_armor",
     entity_desc=("작은 철판들을 가죽에 덧대 만든 갑옷이다. "),
-    rarity=8,
+    rarity=3,
     weight=16.9,
     price=15,
     item_type=InventoryOrder.ARMOR,
@@ -1306,7 +1306,7 @@ iron_plate_armor = Item(
     name="철제 판금 갑옷",
     entity_id="iron_plate_armor",
     entity_desc=("철판들을 이어붙여 만든 갑옷이다. "),
-    rarity=5,
+    rarity=3,
     weight=18.5,
     price=10,
     item_type=InventoryOrder.ARMOR,
@@ -1443,7 +1443,7 @@ iron_headpiece = Item(
     name="철제 전투모",
     entity_id="iron_headpiece",
     entity_desc=("머리 윗 부분을 보호해주는 철제 전투모이다. 가죽 끈을 턱에 둘러 머리에 고정시킬 수 있다. "),
-    rarity=12,
+    rarity=9,
     weight=3.2,
     price=8,
     item_type=InventoryOrder.ARMOR,
@@ -1475,7 +1475,7 @@ iron_helmet = Item(
     name="철제 투구",
     entity_id="iron_helmet",
     entity_desc=("철로 만들어진 투구이다. 얼굴 부분을 제외한 모든 부분이 철판으로 둘러쌓여 있다. "),
-    rarity=10,
+    rarity=7,
     weight=4.3,
     price=15,
     item_type=InventoryOrder.ARMOR,
@@ -1507,7 +1507,7 @@ iron_armet = Item(
     name="철제 아멧",
     entity_id="iron_armet",
     entity_desc=("머리 전체를 보호하는 투구이다. 얼굴 부분에 철로 만들어진 바이저가 부착되어 있다. "),
-    rarity=8,
+    rarity=5,
     weight=5,
     price=15,
     item_type=InventoryOrder.ARMOR,
@@ -1575,7 +1575,7 @@ leather_pants = Item(
     name="가죽 바지",
     entity_id="leather_pants",
     entity_desc=("질긴 가죽으로 만들어진 바지이다. "),
-    rarity=12,
+    rarity=9,
     weight=1.2,
     price=10,
     item_type=InventoryOrder.ARMOR,
@@ -1607,7 +1607,7 @@ leather_armored_pants = Item(
     name="가죽 장갑 하의",
     entity_id="leather_armored_pants",
     entity_desc=("가죽에 철판을 덧대 만든 하의이다. "),
-    rarity=10,
+    rarity=7,
     weight=3.8,
     price=15,
     item_type=InventoryOrder.ARMOR,
@@ -1639,7 +1639,7 @@ iron_armored_pants = Item(
     name="철제 장갑 하의",
     entity_id="iron_armored_pants",
     entity_desc=("철판으로 만들어진 하의이다. "),
-    rarity=7,
+    rarity=5,
     weight=8.5,
     price=15,
     item_type=InventoryOrder.ARMOR,
@@ -1672,7 +1672,8 @@ leather_boots = Item(
     fg=(17, 168, 45),
     name="가죽 부츠",
     entity_id="leather_boots",
-    entity_desc=("발목까지 올라오는 가죽 부츠이다. "),
+    entity_desc=("발목까지 올라오는 가죽 부츠이다. "
+                 "일부 지형지물로부터 사용자를 보호할 수 있다. "),
     rarity=8,
     weight=1.54,
     price=15,
@@ -1741,8 +1742,9 @@ iron_boots = Item(
     fg=(17, 113, 168),
     name="철제 부츠",
     entity_id="iron_boots",
-    entity_desc=("발목까지 올라오는 철제 부츠이다. "),
-    rarity=8,
+    entity_desc=("발목까지 올라오는 철제 부츠이다. "
+                 "일부 지형지물로부터 사용자를 보호할 수 있다. "),
+    rarity=5,
     weight=8.3,
     price=15,
     item_type=InventoryOrder.ARMOR,
@@ -1830,6 +1832,41 @@ leather_glove = Item(
 )
 temp_items_lists.append(leather_glove)
 item_rarity.append(leather_glove.rarity)
+
+
+### Mitten
+mitten = Item(
+    char="[",
+    fg=(240, 240, 240),
+    name="벙어리 장갑",
+    entity_id="mitten",
+    entity_desc=("두꺼운 털로 만들어진 벙어리 장갑이다. 사용자를 추위로부터 보호해주지만 물건을 다루기가 약간 더 불편해진다."),
+    rarity=3,
+    weight=0.36,
+    price=15,
+    item_type=InventoryOrder.ARMOR,
+    item_state=ItemState(is_identified=1),
+    spawnable=True,
+    flammable=0.1,
+    corrodible=0,
+    droppable=True,
+    stackable=False,
+    throwable=throwable.NormalThrowable(),
+    equipable=equipable.Equipable(
+        equipable_type=EquipableOrder.LIGHT_ARMOR,
+        upgrade=0,
+        equip_size=(3, 5),
+        possible_regions=("fist",),
+        str_requirement=2,
+        protection=2,
+        protection_mag=1,
+        dexterity=-1,
+        cold_resistance=0.1,
+        cold_resistance_mag=0.1,
+    )
+)
+temp_items_lists.append(mitten)
+item_rarity.append(mitten.rarity)
 
 
 ### Gauntlet of strength
@@ -2227,7 +2264,8 @@ scalpel = Item(
     fg=(255, 77, 77),
     name="스칼펠",
     entity_id="scalpel",
-    entity_desc="주로 외과 수술을 할 때 사용되는 날카로운 의료용 나이프이다. ",
+    entity_desc=("주로 외과 수술을 할 때 사용되는 날카로운 의료용 나이프이다. "
+                 "적에게 출혈을 동반한 치명적인 상처를 입힐 수 있다."),
     rarity=5,
     weight=0.19,
     price=50,
@@ -2247,12 +2285,12 @@ scalpel = Item(
         str_requirement=10,
         base_melee=6,
         additional_melee=1,
-        melee_effects=(("bleed_target", 0.2),),
-        melee_effects_var=((3, 0, 3),),
+        melee_effects=(("bleed_target", 0.3),),
+        melee_effects_var=((4, 1, 3),),
         base_melee_mag=1.2,
         additional_melee_mag=2.5,
     ),
-    lockpickable=(1,0.3),
+    lockpickable=(0.5,0.5),
 )
 temp_items_lists.append(scalpel)
 item_rarity.append(scalpel.rarity)
@@ -2287,7 +2325,7 @@ shortsword = Item(
         base_melee_mag=1.4,
         additional_melee_mag=1.6
     ),
-    lockpickable=(1,0.1),
+    lockpickable=(0.6,0.1),
 )
 temp_items_lists.append(shortsword)
 item_rarity.append(shortsword.rarity)
@@ -2322,7 +2360,7 @@ elven_sword = Item(
         base_melee_mag=1.4,
         additional_melee_mag=2
     ),
-    lockpickable=(1,0.1),
+    lockpickable=(0.3,0.1),
 )
 temp_items_lists.append(elven_sword)
 item_rarity.append(elven_sword.rarity)
@@ -2357,7 +2395,7 @@ longsword = Item(
         base_melee_mag=1.9,
         additional_melee_mag=1.8,
     ),
-    lockpickable=(0.8,0.1),
+    lockpickable=(0.3,0.2),
 )
 temp_items_lists.append(longsword)
 item_rarity.append(longsword.rarity)
@@ -2475,7 +2513,7 @@ axe = Item(
         base_melee_mag=1.3,
         additional_melee_mag=2.1,
     ),
-    lockpickable=(0.8,0.05),
+    lockpickable=(0.5,0.05),
 )
 temp_items_lists.append(axe)
 item_rarity.append(axe.rarity)
@@ -2509,7 +2547,7 @@ tomahawk = Item(
         base_melee_mag=1.2,
         additional_melee_mag=1.9,
     ),
-    lockpickable=(0.8,0.1),
+    lockpickable=(0.2,0.1),
 )
 temp_items_lists.append(tomahawk)
 item_rarity.append(tomahawk.rarity)
@@ -2521,7 +2559,7 @@ battle_axe = Item(
     fg=(214, 51, 111),
     name="전투 도끼",
     entity_id="battle_axe",
-    entity_desc="오로지 전투만을 위해 만들어진 도끼이다. 도끼날이 양면에 달려 있다.",
+    entity_desc="다용도 도구로써의 기능을 포기하고 오로지 전투만을 위해 만들어진 도끼이다. 도끼날이 양면에 달려 있다.",
     rarity=5,
     weight=3.1,
     price=200,
@@ -2544,7 +2582,7 @@ battle_axe = Item(
         base_melee_mag=2,
         additional_melee_mag=2.5,
     ),
-    lockpickable=(0.8,0),
+    lockpickable=(0.5,0.01),
 )
 temp_items_lists.append(battle_axe)
 item_rarity.append(battle_axe.rarity)
@@ -2602,7 +2640,7 @@ forging_hammer = Item(
     name="단조용 망치",
     entity_id="forging_hammer",
     entity_desc="대장간에서 쇠를 내리칠 때 쓰이는 단조용 망치이다. 망치 머리의 끝부분이 둥그런 형태를 하고 있다.",
-    rarity=3,
+    rarity=2,
     weight=0.58,
     price=20,
     item_type=InventoryOrder.MELEE_WEAPON,
@@ -2619,15 +2657,50 @@ forging_hammer = Item(
         possible_regions=("main hand", "off hand"),
         equip_size=(3, 4),
         str_requirement=13,
+        base_melee=5,
+        additional_melee=12,
+        base_melee_mag=1,
+        additional_melee_mag=1.8,
+    ),
+    lockpickable=(0.2,0.01),
+)
+temp_items_lists.append(forging_hammer)
+item_rarity.append(forging_hammer.rarity)
+
+
+### Quarterstaff
+quarterstaff = Item(
+    char=")",
+    fg=(0, 207, 24),
+    name="육척봉",
+    entity_id="quarterstaff",
+    entity_desc="양쪽 끝에 강철을 덧댄 봉 형태의 무기이다. ",
+    rarity=4,
+    weight=1.98,
+    price=15,
+    item_type=InventoryOrder.MELEE_WEAPON,
+    item_state=ItemState(is_identified=1),
+    flammable=0.01,
+    corrodible=0.01,
+    spawnable=True,
+    droppable=True,
+    stackable=False,
+    throwable=throwable.NormalThrowable(base_throw=10, additional_throw=9, penetration=False),
+    equipable=equipable.Equipable(
+        equipable_type=EquipableOrder.CLUB,
+        upgrade=0,
+        possible_regions=("main hand", "off hand"),
+        equip_size=(3, 6),
+        str_requirement=14,
         base_melee=10,
         additional_melee=9,
         base_melee_mag=1.9,
         additional_melee_mag=1.8,
     ),
-    lockpickable=(0.8,0),
+    lockpickable=(0.01,0.2),
 )
-temp_items_lists.append(forging_hammer)
-item_rarity.append(forging_hammer.rarity)
+temp_items_lists.append(quarterstaff)
+item_rarity.append(quarterstaff.rarity)
 
 
 ### Giant Wood Club
@@ -2637,7 +2710,7 @@ giant_wood_club = Item(
     name="통나무 곤봉",
     entity_id="giant_wood_club",
     entity_desc="성인 남성 정도 크기의 거대한 나무 곤봉이다. ",
-    rarity=2,
+    rarity=0,
     weight=80,
     price=5,
     item_type=InventoryOrder.MELEE_WEAPON,
@@ -2663,6 +2736,165 @@ giant_wood_club = Item(
 )
 temp_items_lists.append(giant_wood_club)
 item_rarity.append(giant_wood_club.rarity)
+
+
+# Morning star
+morning_star = Item(
+    char=")",
+    fg=(255, 0, 247),
+    name="철퇴",
+    entity_id="morning_star",
+    entity_desc=("곤봉 끝에 가시달린 철 덩어리가 쇠사슬로 연결되어 있는 무기이다. "
+                 "다소 다루기가 어렵지만 제대로 맞추기만 한다면 어마어마한 위력을 자랑하는 무기이다. "),
+    rarity=8,
+    weight=2.9,
+    price=25,
+    item_type=InventoryOrder.MELEE_WEAPON,
+    item_state=ItemState(is_identified=1),
+    flammable=0,
+    corrodible=0,
+    spawnable=True,
+    droppable=True,
+    stackable=False,
+    throwable=throwable.NormalThrowable(base_throw=8, additional_throw=2, penetration=False, air_friction=100),
+    equipable=equipable.Equipable(
+        equipable_type=EquipableOrder.CLUB,
+        upgrade=0,
+        possible_regions=("main hand", "off hand"),
+        equip_size=(4, 6),
+        str_requirement=15,
+        base_melee=1,
+        additional_melee=30,
+        base_melee_mag=1,
+        additional_melee_mag=2.5,
+    ),
+    lockpickable=(0.05,0.05),
+)
+temp_items_lists.append(morning_star)
+item_rarity.append(morning_star.rarity)
+
+
+###### POLEARMS
+### Spear
+spear = Item(
+    char=")",
+    fg=(0, 47, 255),
+    name="창",
+    entity_id="spear",
+    entity_desc=("뾰족한 머리가 달려있는 대표적인 장병 무기이다. "
+                 "기동성은 다소 떨어지지만 출혈을 동반한 자상을 입힐 수 있다. "),
+    rarity=8,
+    weight=4.8,
+    price=25,
+    item_type=InventoryOrder.MELEE_WEAPON,
+    item_state=ItemState(is_identified=1),
+    flammable=0.01,
+    corrodible=0.01,
+    spawnable=True,
+    droppable=True,
+    stackable=False,
+    throwable=throwable.NormalThrowable(base_throw=5, additional_throw=15, penetration=True),
+    equipable=equipable.Equipable(
+        equipable_type=EquipableOrder.POLEARM,
+        upgrade=0,
+        possible_regions=("main hand", "off hand"),
+        equip_size=(3, 6),
+        str_requirement=14,
+        base_melee=13,
+        additional_melee=3,
+        agility=-2,
+        base_melee_mag=1.9,
+        additional_melee_mag=1,
+        melee_effects=(("bleed_target", 0.2),),
+        melee_effects_var=((3, 0, 3),),
+    ),
+    lockpickable=(0.1,0.5),
+)
+temp_items_lists.append(spear)
+item_rarity.append(spear.rarity)
+
+
+### Halberd
+halberd = Item(
+    char=")",
+    fg=(0, 47, 255),
+    name="할버드",
+    entity_id="halberd",
+    entity_desc=("도끼 형태의 날과 창 형태의 뾰족한 머리가 모두 달려있는 장병 무기이다. "
+                 "기동성은 다소 떨어지지만 출혈을 동반한 자상을 입힐 수 있다. "),
+    rarity=5,
+    weight=6.8,
+    price=80,
+    item_type=InventoryOrder.MELEE_WEAPON,
+    item_state=ItemState(is_identified=1),
+    flammable=0.01,
+    corrodible=0.01,
+    spawnable=True,
+    droppable=True,
+    stackable=False,
+    throwable=throwable.NormalThrowable(base_throw=5, additional_throw=15, penetration=True),
+    equipable=equipable.Equipable(
+        equipable_type=EquipableOrder.POLEARM,
+        upgrade=0,
+        possible_regions=("main hand", "off hand"),
+        equip_size=(3, 6),
+        str_requirement=14,
+        base_melee=18,
+        additional_melee=5,
+        agility=-2,
+        base_melee_mag=2,
+        additional_melee_mag=1.8,
+        melee_effects=(("bleed_target", 0.1),),
+        melee_effects_var=((2, 0, 4),),
+    ),
+    lockpickable=(0.1,0.5),
+)
+temp_items_lists.append(halberd)
+item_rarity.append(halberd.rarity)
+
+
+### Heartpiercer
+heartpiercer = Item(
+    char=")",
+    fg=(0, 47, 255),
+    name="하트피어써",
+    entity_id="soulpiercer",
+    entity_desc=("'심장을 꿰뚫는 자'라는 뜻의 이름을 가진 하트피어써는 세 개의 창끝이 달린 삼지창 형태를 하고 있는 무기이다. "
+                 "하트피어써는 특수한 합금으로 만들어졌는데, 이 합금을 주조하기 위해선 각종 금속들 뿐만 아니라 여러 괴물들의 혈액 또한 필요로 하는 것으로 알려져 있다. "
+                 "이러한 특성 때문에 하트피어써는 생명체의 피를 갈망하며 주변 생명체들의 기운을 빨아들이는데, 이는 하트피어써의 사용자도 예외가 아니다. "
+                 "그럼에도 이러한 특성이 부여하는 강력한 출혈 효과 때문에 하트피어써는 수많은 전사들과 무기 수집가들에게 선망의 대상이 되어왔다."),
+    rarity=1,
+    weight=5.5,
+    price=8666,
+    item_type=InventoryOrder.MELEE_WEAPON,
+    item_state=ItemState(is_identified=1),
+    flammable=0,
+    corrodible=0,
+    spawnable=True,
+    droppable=True,
+    stackable=False,
+    throwable=throwable.NormalThrowable(base_throw=5, additional_throw=35, penetration=True),
+    equipable=equipable.Equipable(
+        equipable_type=EquipableOrder.POLEARM,
+        upgrade=0,
+        possible_regions=("main hand", "off hand"),
+        equip_size=(3, 6),
+        str_requirement=20,
+        base_melee=19,
+        additional_melee=5,
+        constitution=-2,
+        base_melee_mag=2,
+        additional_melee_mag=1.5,
+        melee_effects=(("bleed_target", 0.25),),
+        melee_effects_var=((5, 0, 4),),
+    ),
+    lockpickable=(0.2,0),
+    is_artifact=True,
+    initial_BUC={1: 0, 0: 0, -1: 1},
+    initial_upgrades={0: 0},
+)
+temp_items_lists.append(heartpiercer)
+item_rarity.append(heartpiercer.rarity)
 
 
 ###### SHIELDS
@@ -2698,7 +2930,7 @@ wooden_shield = Item(
         protection_mag=2.1,
         base_melee_mag=0.5,
     ),
-    lockpickable=(0.05,0),
+    lockpickable=(0.05,0.01),
 )
 temp_items_lists.append(wooden_shield)
 item_rarity.append(wooden_shield.rarity)
@@ -2735,7 +2967,7 @@ silver_shield = Item(
         protection_mag=2.2,
         base_melee_mag=1,
     ),
-    lockpickable=(0.1,0),
+    lockpickable=(0.1,0.01),
 )
 temp_items_lists.append(silver_shield)
 item_rarity.append(silver_shield.rarity)
@@ -2777,7 +3009,7 @@ platinum_shield = Item(
         protection_mag=2.1,
         base_melee_mag=1.1,
     ),
-    lockpickable=(0.1,0),
+    lockpickable=(0.1,0.01),
 )
 temp_items_lists.append(platinum_shield)
 item_rarity.append(platinum_shield.rarity)
@@ -2790,7 +3022,7 @@ iron_shield = Item(
     name="철제 방패",
     entity_id="iron_shield",
     entity_desc="철판으로 만들어진 믿음직한 방패이다. ",
-    rarity=8,
+    rarity=5,
     weight=3.5,
     price=5,
     item_type=InventoryOrder.MELEE_WEAPON,
@@ -2814,7 +3046,7 @@ iron_shield = Item(
         protection_mag=1.9,
         base_melee_mag=1,
     ),
-    lockpickable=(0.1,0),
+    lockpickable=(0.1,0.01),
 )
 temp_items_lists.append(iron_shield)
 item_rarity.append(iron_shield.rarity)
@@ -3827,7 +4059,7 @@ rustproof_wax = Item(
     name="부식 방지의 왁스",
     entity_id="rustproof_wax",
     entity_desc="갑옷 등에 발라 부식을 다소 방지할 수 있는 왁스이다.",
-    rarity=15,
+    rarity=20,
     weight=0.07,
     price=120,
     item_type=InventoryOrder.TOOL,
@@ -3845,6 +4077,31 @@ rustproof_wax = Item(
 temp_items_lists.append(rustproof_wax)
 item_rarity.append(rustproof_wax.rarity)
 
+
+### fireproof wax
+fireproof_wax = Item(
+    char="(",
+    fg = (255, 255, 0),
+    name="그을림 방지의 왁스",
+    entity_id="fireproof_wax",
+    entity_desc="갑옷 등에 발라 불이 붙거나 그을리는 것을 다소 방지할 수 있는 왁스이다.",
+    rarity=20,
+    weight=0.07,
+    price=120,
+    item_type=InventoryOrder.TOOL,
+    item_state=ItemState(is_identified=1),
+    tradable=True,
+    spawnable=True,
+    flammable=0,
+    corrodible=0.7,
+    droppable=True,
+    stackable=False,
+    throwable=throwable.NormalThrowable(penetration=False, air_friction=15),
+    usable=usable.FireproofWaxUsable(should_consume=True, flammable_modifier=0.5),
+    edible=None
+)
+temp_items_lists.append(fireproof_wax)
+item_rarity.append(fireproof_wax.rarity)
 
 
 #########################################################################

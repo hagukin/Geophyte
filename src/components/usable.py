@@ -139,3 +139,37 @@ class RustproofWaxUsable(WaxUsable):
 
 
 
+class FireproofWaxUsable(WaxUsable):
+    def __init__(self, should_consume: bool, flammable_modifier:float):
+        """
+        Args:
+            flammable_modifier:
+                value to subtract to item's flammable value.
+        """
+        super().__init__(should_consume)
+        self.flammable_modifier = flammable_modifier
+        if flammable_modifier < 0:
+            print(f"WARNING::flammable_modifier for {self.parent} is lower than 0. Are you sure this is the right value?")
+
+    def effects_on_selected_item(self, user: Actor, selected_item: Item) -> None:
+        if user == self.engine.player:
+            self.engine.message_log.add_message(f"당신은 {g(self.parent.name, '을')} {selected_item.name}에 사용했다.",fg=color.player_neutral_important)
+        else:
+            self.engine.message_log.add_message(f"{g(user.name, '은')} {g(self.parent.name, '을')} {selected_item.name}에 사용했다.", fg=color.player_neutral_important)
+
+        if selected_item.flammable <= 0:
+            return None # Does nothing if the item is already non-flammable.
+
+        if self.parent.item_state.BUC == -1:
+            selected_item.flammable = round(min(1, selected_item.flammable + self.flammable_modifier), 3)
+            if user == self.engine.player:
+                self.engine.message_log.add_message(f"당신의 {g(selected_item.name, '으로')}부터 퀴퀴한 냄새가 난다.", fg=color.player_not_good)
+        else:
+            if self.parent.item_state.BUC == 1:
+                self.flammable_modifier *= 2
+            selected_item.flammable = round(min(max(0.0, selected_item.flammable - self.flammable_modifier), selected_item.flammable), 3)
+            if user == self.engine.player:
+                self.engine.message_log.add_message(f"당신의 {g(selected_item.name, '으로')}부터 향긋한 냄새가 난다.", fg=color.player_not_good)
+
+
+

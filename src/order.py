@@ -53,6 +53,7 @@ class InventoryOrder(Enum):
 class EquipableOrder(Enum):
     BLADE = auto()
     CLUB = auto()
+    POLEARM = auto()
     SHIELD = auto()
     LIGHT_ARMOR = auto()
     HEAVY_ARMOR = auto() # including robes, capes
