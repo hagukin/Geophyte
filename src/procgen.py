@@ -211,7 +211,10 @@ def spawn_monsters(
 
     k = 0
     if room.terrain.gen_water:
-        k = spawn_underwater_monster(room, dungeon, depth, random.randint(0,mon_num))
+        if room.terrain.underwater_mon_ratio != None:
+            k = spawn_underwater_monster(room, dungeon, depth, int(mon_num * room.terrain.underwater_mon_ratio))
+        else:
+            k = spawn_underwater_monster(room, dungeon, depth, random.randint(0,mon_num))
     spawn_surface_monster(room, dungeon, depth, mon_num - k)
 
 

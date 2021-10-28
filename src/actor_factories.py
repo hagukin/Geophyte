@@ -100,7 +100,7 @@ player = Actor(
     render_order=RenderOrder.PLAYER,
     ai_cls=None,
     status=Status(
-        hp=280, #280
+        hp=250, #250
         mp=100, #50
         strength=15, # can be changed during CharGen
         dexterity=15,
@@ -939,7 +939,7 @@ piranha = Actor(
     entity_desc=("포악한 성격과 게걸스러운 식성으로 악명높은 피라냐는, 수영하기를 좋아하는 모험가들에게는 상당히 골치아픈 존재이다."
                  "이들은 날카로운 이빨로 먹이를 인정사정없이 물어뜯으며, 작은 몸집에 걸맞는 재빠른 움직임을 보여주기 때문에 많은 주의가 필요하다."),
     actor_quote=("백상아리도 피라냐 떼 앞에서는 맛있는 고깃덩어리에 지나지 않지."),
-    rarity=0,
+    rarity=30,
     weight=5.4,
     spawnable=True,
     edible=edible.RawMeatEdible(nutrition=50, cook_bonus=50),
@@ -954,20 +954,20 @@ piranha = Actor(
     status=Status(
         hp=30,
         mp=0,
-        strength=13,
+        strength=8,
         dexterity=13,
         agility=18,
         intelligence=5,
         constitution=6,
         charm=7,
-        difficulty=7,
+        difficulty=6,
         base_melee=5,
         additional_melee=10,
         protection=5,
         hearing=3,
         eyesight=10,
         melee_effects_var=((1, 0, 3),),
-        melee_effects=(("bleed_target", 0.3),),
+        melee_effects=(("bleed_target", 0.5),),
         ),
     actor_state=ActorState(
         size=2,
@@ -990,6 +990,128 @@ piranha = Actor(
     equipments=Equipments(),
 )
 ActorDB.monster_difficulty[piranha.status.difficulty].append(piranha)
+
+
+### Eel
+eel = Actor(
+    char="f",
+    fg=(0, 234, 255),
+    name="뱀장어",
+    entity_id="eel",
+    entity_desc=("던전 속의 뱀장어들은 평범한 뱀장어들보다 두 배 가량 거대한 크기를 자랑한다. "
+                 "이들은 날카로운 비늘과 지느러미로 상대를 공격하며 때로는 마치 뱀처럼 먹이를 칭칭 감아 집어삼키기도 한다. "
+                 "뱀장어의 고기는 어류 중에서도 특히 영양분이 높은 것으로 알려져 있다. "),
+    rarity=30,
+    weight=13.2,
+    spawnable=True,
+    edible=edible.RawMeatEdible(nutrition=330, cook_bonus=150),
+    ai_cls=BaseAI(
+        alignment=(("hostile", ), (1, )),
+        do_melee_atk=True,
+        do_ranged_atk=False,
+        use_ability=False,
+        hostile_type=('@',),
+        attracted_eat_type=("meat",),
+    ),
+    status=Status(
+        hp=65,
+        mp=0,
+        strength=13,
+        dexterity=15,
+        agility=19,
+        intelligence=7,
+        constitution=6,
+        charm=7,
+        difficulty=9,
+        base_melee=7,
+        additional_melee=15,
+        protection=8,
+        hearing=3,
+        eyesight=10,
+        ),
+    actor_state=ActorState(
+        size=3,
+        has_left_arm=False,
+        has_right_arm=False,
+        has_leg=False,
+        has_eye=True,
+        has_torso=False,
+        has_blood=True,
+        has_soul=True,
+        can_swim=True,
+        can_talk=False,
+        can_move_on_surface=False,
+        can_breathe_air=False,
+        can_breathe_underwater=True,
+        live_underwater=True,
+    ),
+    inventory=Inventory(capacity=3),
+    ability_inventory=AbilityInventory(capacity=1),
+    equipments=Equipments(),
+)
+ActorDB.monster_difficulty[eel.status.difficulty].append(eel)
+
+
+### Electric eel
+electric_eel = Actor(
+    char="f",
+    fg=(0, 255, 208),
+    name="전기뱀장어",
+    entity_id="electric_eel",
+    entity_desc=("'소리없는 죽음'이라는 별명으로도 불리는 전기뱀장어들은, 상대에게 소리없는 강력한 전격 피해를 가하는 것으로 알려져 있다. "
+                 "이들은 외형적으로 평범한 뱀장어와 큰 차이가 없기 때문에 뱀장어를 사냥하려다 되려 이들에게 사망하는 경우가 종종 발생한다. "),
+    actor_quote=("뱀장어 구이를 좋아하던 옆집 녀석의 이야기를 듣고 나서부터 난 평생 고등어만 먹기로 다짐했지."),
+    rarity=10,
+    weight=13.5,
+    spawnable=True,
+    edible=edible.RawMeatEdible(nutrition=50, cook_bonus=50),
+    ai_cls=BaseAI(
+        alignment=(("hostile", ), (1, )),
+        do_melee_atk=True,
+        do_ranged_atk=False,
+        use_ability=False,
+        hostile_type=('@',),
+        attracted_eat_type=("meat",),
+    ),
+    status=Status(
+        hp=65,
+        mp=0,
+        strength=13,
+        dexterity=15,
+        agility=19,
+        intelligence=7,
+        constitution=6,
+        charm=7,
+        difficulty=12,
+        base_melee=7,
+        additional_melee=15,
+        protection=8,
+        hearing=3,
+        eyesight=10,
+        melee_effects_var=((20, 0.9),),
+        melee_effects=(("electrocute_target", 1),),
+        ),
+    actor_state=ActorState(
+        size=3,
+        has_left_arm=False,
+        has_right_arm=False,
+        has_leg=False,
+        has_eye=True,
+        has_torso=False,
+        has_blood=True,
+        has_soul=True,
+        can_swim=True,
+        can_talk=False,
+        can_move_on_surface=False,
+        can_breathe_air=False,
+        can_breathe_underwater=True,
+        live_underwater=True,
+    ),
+    inventory=Inventory(capacity=3),
+    ability_inventory=AbilityInventory(capacity=1),
+    equipments=Equipments(),
+)
+ActorDB.monster_difficulty[electric_eel.status.difficulty].append(electric_eel)
 
 
 ####################################################

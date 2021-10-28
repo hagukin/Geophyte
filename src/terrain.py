@@ -32,6 +32,7 @@ class Terrain:
         adjust_monster_difficulty: int = 0, # Adjust toughness. Can have negative value
         monster_to_spawn: Dict = None, # Surface monsters only
         monster_to_spawn_underwater: Dict = None, # Underwater monsters only
+        underwater_mon_ratio: Optional[float] = None, # If has value, will generate underwater monster of given ratio from total monster count (is not guarenteed)
         make_monster_sleep: bool=False,
         has_wall: bool = True, #TODO: need to add feature
         protected: bool = False,
@@ -157,7 +158,7 @@ class Terrain:
 
         # Key: amount
         # Value: weight
-        self.items_cnt = {0:15, 1:10, 2:4, 3:1}
+        self.items_cnt = {0:20, 1:10, 2:4, 3:1}
         self.monsters_cnt = {0:4, 1:9, 2:5, 3:2}
         if items_cnt:
             self.items_cnt = items_cnt
@@ -184,6 +185,7 @@ class Terrain:
         self.spawn_monster = spawn_monster
         self.monster_to_spawn = monster_to_spawn
         self.monster_to_spawn_underwater = monster_to_spawn_underwater
+        self.underwater_mon_ratio = underwater_mon_ratio
         self.spawn_monster_of_difficulty = spawn_monster_of_difficulty
         self.adjust_monster_difficulty = adjust_monster_difficulty
 

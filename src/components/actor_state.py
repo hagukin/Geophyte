@@ -532,11 +532,12 @@ class ActorState(BaseComponent):
             return None
         else:
             if self.is_sleeping[1] >= 0: # Last infinitly if negative
-                self.parent.status.add_bonus(bonus=Bonus(
-                    bonus_id="sleep_bonus",
-                    bonus_constitution=min(50, max(10, round(self.parent.status.origin_status["constitution"] * 1.5)))), # Using origin status
-                    ignore_warning=True
-                )
+                if not self.parent.status.check_if_has_bonus("sleep_bonus"): # Prevent overwriting
+                    self.parent.status.add_bonus(bonus=Bonus(
+                        bonus_id="sleep_bonus",
+                        bonus_constitution=min(30, max(10, round(self.parent.status.changed_status["constitution"] * 0.75)))), # Using origin status
+                        ignore_warning=True
+                    )
                 self.is_sleeping[0] += 1
 
     def actor_freeze(self):

@@ -296,6 +296,23 @@ lake = Terrain(
 terrain_dict[lake] = lake.rarity
 
 
+# Piranha lake
+piranha_lake = Terrain(
+    name="피라냐 호수",
+    terrain_id="piranha_lake",
+    terrain_desc="",
+    rarity=3,
+    spawn_item=True,
+    spawn_monster=True,
+    spawn_door=False,
+    gen_water={"core_num_range":(1,4), "scale_range":(4,5), "density":0.9, "no_border":False},
+    monster_to_spawn_underwater={actor_factories.piranha:1},
+    monsters_cnt={3:3, 4:3},
+    underwater_mon_ratio=1, # underwater monsters only (is not guarenteed)
+)
+terrain_dict[piranha_lake] = piranha_lake.rarity
+
+
 # Swamp
 swamp = Terrain(
     name="늪지대",
