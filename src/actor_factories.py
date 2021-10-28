@@ -414,10 +414,11 @@ bat = Actor(
     spawnable=True,
     edible=edible.RawMeatEdible(nutrition=70, cook_bonus=10),
     ai_cls=BaseAI(
-        alignment=(("neutral",),(1,)),
+        alignment=(("hostile", "neutral",),(3,1)),
         do_melee_atk=True,
         do_ranged_atk=False,
         use_ability=False,
+        hostile_type=('@',),
         attracted_eat_type=("insect", "fruit"),
     ),
     status=Status(
@@ -1316,7 +1317,7 @@ elf_herbalist = Actor(
     entity_desc=("엘프 종족은 직업을 불문하고 약초술에 굉장히 능통한 모습을 보이는데, 개중에는 약초술만을 전문적으로 다루는 약초술사들도 존재한다. "
                  "이들은 허브와 다양한 식물들을 배합해 강력한 포션을 만들어내며, 이러한 포션들을 사용해 전투에도 종종 참여하곤 한다. "),
     actor_quote=("약초 따오는건 우리 마누라도 기가 막히게 잘하지. 얼굴도 좀 닮았으면 좋으련만."),
-    rarity=25,
+    rarity=35,
     weight=57,
     spawnable=True,
     edible=edible.RawMeatEdible(nutrition=105),
@@ -1382,7 +1383,7 @@ elf_assasin = Actor(
     entity_desc=("엘프 암살자들은 날렵한 모습을 보여주며, 근거리, 원거리 할 것 없이 지능적으로 적과 전투한다. "
                  "이들은 엘프제 무기를 주로 사용하며, 특히 엘프제 단검을 애용하는 것으로 알려져 있다. "
                  "이들은 어려서부터 단검 투척술을 배운다고 전해지며, 이들이 던지는 단검은 위협적이므로 많은 주의가 필요하다. "),
-    rarity=30,
+    rarity=35,
     weight=71,
     spawnable=True,
     edible=edible.RawMeatEdible(nutrition=135),
@@ -1450,7 +1451,7 @@ elf_fighter = Actor(
                      "엘프 사회 내에서는 종족간의 다양성을 지향하는 온건파와 다른 종족들을 멸시하고 공격하는 강경파가 대립하고 있다. "),
     entity_desc=("엘프 전사들은 엘프 고유의 발달된 감각기관을 이용하여 적의 공격을 능숙하게 피하고 치명적인 일격을 가한다. "
                  "이들은 엘프제 무기를 주로 사용하며, 특히 엘프제 검과 나무 방패를 애용하는 것으로 알려져 있다. "),
-    rarity=40,
+    rarity=45,
     weight=71,
     spawnable=True,
     edible=edible.RawMeatEdible(nutrition=135),

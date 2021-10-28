@@ -90,8 +90,8 @@ def choose_monster_difficulty(gamemap: GameMap, toughness: int=0) -> int:
                                            list(gamemap.biome.monster_difficulty.values()),
                                                 k=1)[0] # Toughness is ignored.
     else:
-        avg_diff = round(depth_ * 0.7) + toughness
-        max_diff = avg_diff + 2 # Technically the max difficulty of a spawned monster is avg_diff + 3, since choose_monster_by_difficulty().radius is (-1,1)
+        avg_diff = round(depth_ * 0.7) + toughness + 2
+        max_diff = avg_diff + 3 # Technically the max difficulty of a spawned monster is avg_diff + 3, since choose_monster_by_difficulty().radius is (-1,1)
 
         # Choose the monster difficulty (Using normal distribution; but there are limits to maximum and minimum values)
         difficulty_chosen = min(max_diff, max(1, round(np.random.normal(avg_diff, 1.5, 1)[0])))
