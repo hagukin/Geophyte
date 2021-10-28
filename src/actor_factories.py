@@ -965,7 +965,7 @@ piranha = Actor(
         additional_melee=10,
         protection=5,
         hearing=3,
-        eyesight=10,
+        eyesight=5,
         melee_effects_var=((1, 0, 3),),
         melee_effects=(("bleed_target", 0.5),),
         ),
@@ -1027,7 +1027,7 @@ eel = Actor(
         additional_melee=15,
         protection=8,
         hearing=3,
-        eyesight=10,
+        eyesight=5,
         ),
     actor_state=ActorState(
         size=3,
@@ -1087,7 +1087,7 @@ electric_eel = Actor(
         additional_melee=15,
         protection=8,
         hearing=3,
-        eyesight=10,
+        eyesight=5,
         melee_effects_var=((20, 0.9),),
         melee_effects=(("electrocute_target", 1),),
         ),
@@ -1370,29 +1370,29 @@ elf_herbalist = Actor(
 ActorDB.monster_difficulty[elf_herbalist.status.difficulty].append(elf_herbalist)
 
 
-### Elf fighter
-elf_fighter = Actor(
+### Elf assasin
+elf_assasin = Actor(
     char="l",
-    fg=(255, 48, 48),
-    name="엘프 전사",
-    entity_id="elf_fighter",
+    fg=(161, 0, 0),
+    name="엘프 암살자",
+    entity_id="elf_assasin",
     actor_type_desc=("엘프들은 예로부터 자연과 동화되어 사는 삶을 중요시해왔다. "
                      "이들은 자기애가 넘치며, 인간을 비롯한 다른 종족들을 하대하는 경향이 있다. "
                      "엘프 사회 내에서는 종족간의 다양성을 지향하는 온건파와 다른 종족들을 멸시하고 공격하는 강경파가 대립하고 있다. "),
-    entity_desc=("엘프 전사들은 날렵한 모습을 보여주며, 근거리, 원거리 할 것 없이 지능적으로 적과 전투한다. "
+    entity_desc=("엘프 암살자들은 날렵한 모습을 보여주며, 근거리, 원거리 할 것 없이 지능적으로 적과 전투한다. "
                  "이들은 엘프제 무기를 주로 사용하며, 특히 엘프제 단검을 애용하는 것으로 알려져 있다. "
                  "이들은 어려서부터 단검 투척술을 배운다고 전해지며, 이들이 던지는 단검은 위협적이므로 많은 주의가 필요하다. "),
-    rarity=40,
+    rarity=30,
     weight=71,
     spawnable=True,
     edible=edible.RawMeatEdible(nutrition=135),
     ai_cls=ai_factories.Elf_Fighter_Ai(),
     status=Status(
-        hp=80,
+        hp=78,
         mp=40,
-        strength=17,
+        strength=16,
         dexterity=18,
-        agility=17,
+        agility=18,
         intelligence=16,
         constitution=14,
         charm=18,
@@ -1436,8 +1436,78 @@ elf_fighter = Actor(
         {"item": item_factories.elven_sword, "chance": 1, "count": (1, 1), "BUC": None, "upgrade": None},
     ),
 )
-ActorDB.monster_difficulty[elf_fighter.status.difficulty].append(elf_fighter)
+ActorDB.monster_difficulty[elf_assasin.status.difficulty].append(elf_assasin)
 
+
+### Elf fighter
+elf_fighter = Actor(
+    char="l",
+    fg=(255, 48, 48),
+    name="엘프 전사",
+    entity_id="elf_fighter",
+    actor_type_desc=("엘프들은 예로부터 자연과 동화되어 사는 삶을 중요시해왔다. "
+                     "이들은 자기애가 넘치며, 인간을 비롯한 다른 종족들을 하대하는 경향이 있다. "
+                     "엘프 사회 내에서는 종족간의 다양성을 지향하는 온건파와 다른 종족들을 멸시하고 공격하는 강경파가 대립하고 있다. "),
+    entity_desc=("엘프 전사들은 엘프 고유의 발달된 감각기관을 이용하여 적의 공격을 능숙하게 피하고 치명적인 일격을 가한다. "
+                 "이들은 엘프제 무기를 주로 사용하며, 특히 엘프제 검과 나무 방패를 애용하는 것으로 알려져 있다. "),
+    rarity=40,
+    weight=71,
+    spawnable=True,
+    edible=edible.RawMeatEdible(nutrition=135),
+    ai_cls=BaseAI(
+        alignment=(("hostile",), (5,)),
+        do_melee_atk=True,
+        do_ranged_atk=False,
+        use_ability=False,
+        hostile_type=('@', 'O', 'F', 'I'),
+    ),
+    status=Status(
+        hp=82,
+        mp=35,
+        strength=16,
+        dexterity=18,
+        agility=17,
+        intelligence=16,
+        constitution=14,
+        charm=18,
+        difficulty=11,
+        base_melee=7,
+        additional_melee=10,
+        protection=14,
+        hearing=15,
+        eyesight=20,
+    ),
+    actor_state=ActorState(
+        size=4,
+        can_talk=True,
+        has_left_arm=True,
+        has_right_arm=True,
+        has_leg=True,
+        has_eye=True,
+        has_torso=True,
+        has_blood=True,
+        has_soul=True,
+        can_swim=True,
+        has_head=1,
+        regain_mana=True,
+    ),
+    inventory=Inventory(capacity=20),
+    ability_inventory=AbilityInventory(capacity=2),
+    equipments=Equipments(),
+    initial_items=(
+        {"item": item_factories.fillapoty, "chance": 0.1, "count": (1, 1), "BUC": None, "upgrade": None},
+        {"item": item_factories.kettoniss, "chance": 0.1, "count": (1, 1), "BUC": None, "upgrade": None},
+        {"item": item_factories.lintol, "chance": 0.1, "count": (1, 1), "BUC": None, "upgrade": None},
+    ),
+    initial_equipments=(
+        {"item": item_factories.elven_cloak, "chance": 1, "count": (1, 1), "BUC": None, "upgrade": None},
+        {"item": item_factories.leather_boots, "chance": 0.5, "count": (1, 1), "BUC": None, "upgrade": None},
+        {"item": item_factories.leather_armor, "chance": 0.5, "count": (1, 1), "BUC": None, "upgrade": None},
+        {"item": item_factories.elven_sword, "chance": 1, "count": (1, 1), "BUC": None, "upgrade": None},
+        {"item": item_factories.wooden_shield, "chance": 0.5, "count": (1, 1), "BUC": None, "upgrade": None},
+    ),
+)
+ActorDB.monster_difficulty[elf_fighter.status.difficulty].append(elf_fighter)
 
 
 ####################################################
@@ -1802,6 +1872,7 @@ maggot = Actor(
         has_torso=False,
         has_blood=False,
         has_soul=False,
+        hunger=25,
     ),
     inventory=Inventory(capacity=1),
     ability_inventory=AbilityInventory(capacity=1),
@@ -2843,7 +2914,6 @@ orc_warrior = Actor(
     ability_inventory=AbilityInventory(capacity=2),
     equipments=Equipments(),
     initial_items=(
-        {"item": item_factories.potion_of_healing, "chance": 0.05, "count": (1, 1), "BUC": None, "upgrade": None},
         {"item": item_factories.shine, "chance": 0.2, "count": (10, 80), "BUC": None, "upgrade": None},
     ),
     initial_equipments=(
@@ -2986,7 +3056,6 @@ orc_lord = Actor(
     ability_inventory=AbilityInventory(capacity=2),
     equipments=Equipments(),
     initial_items=(
-        {"item": item_factories.potion_of_healing, "chance": 0.1, "count": (1, 1), "BUC": None,"upgrade": None},
         {"item": item_factories.scroll_of_lightning, "chance": 0.05, "count": (1, 1), "BUC": None,"upgrade": None},
         {"item": item_factories.shine, "chance": 0.1, "count": (100, 300), "BUC": None, "upgrade": None},
     ),

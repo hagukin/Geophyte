@@ -83,6 +83,8 @@ class Animation:
         """
         This method renders the animation onto screen.
         """
+        if not self.engine.config["render_animation"]:
+            return None
         while True:
             # Break the loop after last frame
             if self.current_frame_num == self.total_frames:

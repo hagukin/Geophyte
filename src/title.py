@@ -81,7 +81,7 @@ class Title():
         x = int(width / 2) - 8
         y = height - 17
         # render
-        console.print(x+2, y+1, string="N - New Game\n\nL - Load Game\n\nO - Options\n\nC - Credits\n\nQ - Quit Game\n", fg=color.white)
+        console.print(x+2, y+1, string="(n) New Game\n\n(l) Load Game\n\n(o) Options\n\n(c) Credits\n\n(q) Quit Game\n", fg=color.white)
 
         # Copyright Note, version mark
         txt1 = "Copyright (C) 2020-2021 by Haguk Kim"

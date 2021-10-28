@@ -51,7 +51,8 @@ class ControlInputHandler(tcod.event.EventDispatch[None]):
     def ev_keydown(self, event):
         if event.sym == tcod.event.K_ESCAPE:
             return "escape"
-
+        elif event.sym == tcod.event.K_i:
+            return "toggle_safe_mouse_movement"
 
 
 class SoundInputHandler(tcod.event.EventDispatch[None]):
@@ -82,7 +83,10 @@ class GameplayInputHandler(tcod.event.EventDispatch[None]):
     def ev_keydown(self, event):
         if event.sym == tcod.event.K_ESCAPE:
             return "escape"
-
+        elif event.sym == tcod.event.K_a:
+            return "toggle_animation"
+        elif event.sym == tcod.event.K_s:
+            return "toggle_autosave"
 
 
 class ResetInputHandler(tcod.event.EventDispatch[None]):
@@ -97,12 +101,12 @@ class ResetInputHandler(tcod.event.EventDispatch[None]):
 
 
 class Option():
-    option_keys = ["(D) - 디스플레이 설정", "(C) - 컨트롤 설정", "(S) - 사운드 설정", "(G) - 게임플레이 설정", "(R) - 설정 초기화"]
-    display_option_keys = ["(+/-) - 디스플레이 해상도 증가/감소", "(F) - 전체 화면 모드/창 모드 전환"]
-    control_option_keys = []
-    sound_option_keys = ["(+/-) - 마스터 볼륨 증가/감소", "쉬프트를 누른 채 조작 - 10% 단위로 조작"]
-    gameplay_option_keys = []
-    reset_option_keys = ["(Y) - 초기화", "(N) - 취소"]
+    option_keys = ["(d) 디스플레이 설정", "(c) 컨트롤 설정", "(s) 사운드 설정", "(g) 게임플레이 설정", "(r) 설정 초기화"]
+    display_option_keys = ["(+/-) 디스플레이 해상도 증가/감소", "(f) 전체 화면 모드/창 모드 전환"]
+    control_option_keys = ["(i) 안전한 마우스 이동 사용/사용 해제"]
+    sound_option_keys = ["(+/-) 마스터 볼륨 증가/감소", "(쉬프트를 누른 채 +/-) 10% 단위로 조작"]
+    gameplay_option_keys = ["(a) 애니메이션 효과 사용/사용 해제", "(s) 게임 종료 시 자동저장 사용/사용 해제"]
+    reset_option_keys = ["(y) 초기화", "(n) 취소"]
     opt_x = 0
     opt_y = 0
 
@@ -183,8 +187,10 @@ class Option():
         with open("./config/config.json", "r") as f:
             cfg = json.load(f)
 
-        console.print(Option.opt_x + 2, Option.opt_y + 2, string=f"\n\n추가 예정", fg=color.option_fg)
-        Option.render_gui_keys(console, context, 'control', initial_y=5)  # TODO Hard-coded
+        string = lambda x: "활성화" if not x else "비활성화"
+        console.print(Option.opt_x + 2, Option.opt_y + 2, string=f"\n\n안전한 마우스 이동: {string(cfg['ignore_enemy_spotted_during_mouse_movement'])}"
+                                                                 f"\n활성화할 경우 마우스 클릭으로 이동하는 도중 새로운 액터가 시야에 들어오거나 시야에 있던 액터가 시야에서 사라지면 이동을 중지합니다", fg=color.option_fg)
+        Option.render_gui_keys(console, context, 'control', initial_y=6)  # TODO Hard-coded
         context.present(console, keep_aspect=True)
 
     @staticmethod
@@ -203,8 +209,10 @@ class Option():
         with open("./config/config.json", "r") as f:
             cfg = json.load(f)
 
-        console.print(Option.opt_x + 2, Option.opt_y + 2, string=f"\n\n추가 예정", fg=color.option_fg)
-        Option.render_gui_keys(console, context, 'gameplay', initial_y=5)  # TODO Hard-coded
+        string = lambda x : "활성화" if x else "비활성화"
+        console.print(Option.opt_x + 2, Option.opt_y + 2, string=f"\n\n애니메이션 효과: {string(cfg['render_animation'])}"
+                                                                 f"\n\n게임 종료 시 자동저장: {string(cfg['autosave'])}", fg=color.option_fg)
+        Option.render_gui_keys(console, context, 'gameplay', initial_y=8)  # TODO Hard-coded
         context.present(console, keep_aspect=True)
 
     @staticmethod
@@ -213,7 +221,7 @@ class Option():
         with open("./config/config.json", "r") as f:
             cfg = json.load(f)
 
-        console.print(Option.opt_x + 2, Option.opt_y + 2, string=f"설정 초기화는 게임을 다시 시작해야 적용됩니다.", fg=color.option_fg)
+        console.print(Option.opt_x + 2, Option.opt_y + 2, string=f"\n\n설정 초기화는 게임을 다시 시작해야 적용됩니다.", fg=color.option_fg)
         Option.render_gui_keys(console, context, 'reset', initial_y=5)  # TODO Hard-coded
         context.present(console, keep_aspect=True)
 
@@ -266,6 +274,8 @@ class Option():
         display_action = Option.get_input_action(ControlInputHandler())
         if display_action == "escape":
             return False
+        elif display_action == "toggle_safe_mouse_movement":
+            modify.toggle_mouse_enemy_ignore(not cfg['ignore_enemy_spotted_during_mouse_movement'])
         return True
 
     @staticmethod
@@ -328,6 +338,10 @@ class Option():
         display_action = Option.get_input_action(GameplayInputHandler())
         if display_action == "escape":
             return False
+        elif display_action == "toggle_animation":
+            modify.toggle_animation(not cfg['render_animation'])
+        elif display_action == "toggle_autosave":
+            modify.toggle_autosave(not cfg['autosave'])
         return True
 
     @staticmethod

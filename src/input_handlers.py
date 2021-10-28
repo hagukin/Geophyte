@@ -1900,7 +1900,10 @@ class RayDirInputHandler(SelectDirectionHandler):
 class QuitInputHandler(AskUserEventHandler):
     def on_render(self, console: tcod.Console) -> None:
         super().on_render(console)
-        self.engine.draw_window(console, text="정말 현재 게임을 종료하시겠습니까? 모든 저장하지 않은 내역은 지워집니다. (Y/N)", title="Quit", frame_fg=color.lime, frame_bg=color.gui_inventory_bg)
+        if not self.engine.config["autosave"]:
+            self.engine.draw_window(console, text="정말 현재 게임을 종료하시겠습니까? 모든 저장하지 않은 내역은 지워집니다. (Y/N)", title="Quit", frame_fg=color.lime, frame_bg=color.gui_inventory_bg)
+        else:
+            self.engine.draw_window(console, text="정말 현재 게임을 종료하시겠습니까? (Y/N)", title="Quit", frame_fg=color.lime, frame_bg=color.gui_inventory_bg)
 
     def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[Action]:
         player = self.engine.player
@@ -1908,7 +1911,8 @@ class QuitInputHandler(AskUserEventHandler):
 
         if event.sym == tcod.event.K_y or event.sym == tcod.event.K_KP_ENTER:
             self.engine.event_handler = MainGameEventHandler()
-            save_game(player=player, engine=engine)
+            if self.engine.config["autosave"]:
+                save_game(player=player, engine=engine)
             quit_game()
             return None
         elif event.sym == tcod.event.K_n or event.sym == tcod.event.K_ESCAPE:
@@ -2184,8 +2188,8 @@ class MainGameEventHandler(EventHandler):
                 self.engine.easteregg += 1
                 if self.engine.easteregg == 50:
                     self.engine.message_log.add_message(f"당신은 슬픈 기분이 든다.", color.white)
-            #
-            #
+
+
             #     ######### TODO FIXME DEBUG
             #     self.engine.change_entity_depth(
             #         self.engine.player,
@@ -2213,9 +2217,9 @@ class MainGameEventHandler(EventHandler):
             #         dungeon=self.engine.game_map
             #     )
             # elif key == tcod.event.K_F8:
-            #     import item_factories
-            #     item_factories.scroll_of_magic_mapping.spawn(self.engine.game_map, self.engine.player.x, self.engine.player.y)
-            #     item_factories.scroll_of_teleportation.spawn(self.engine.game_map, self.engine.player.x,self.engine.player.y)
+            #     for y in range(len(self.engine.game_map.visible[0])):
+            #         for x in range(len(self.engine.game_map.visible)):
+            #             self.engine.game_map.visible[x, y] = True
 
         # No valid key was pressed
         return action

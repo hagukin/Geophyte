@@ -643,8 +643,7 @@ class Actor(Entity):
 
     def environmental_water(self):
         """Handles when actor is in water"""
-        super().environmental_water()
-
+        # Do not call the parent function since entity.do_environmental_effects() is called anyway
         if self.gamemap.tiles[self.x, self.y]["tile_id"] == "deep_water":
             # FX
             if self == self.engine.player and self.engine.sound_manager:
@@ -1097,7 +1096,8 @@ class Item(Entity):
 
     def environmental_water(self) -> None:
         super().environmental_water()
-        self.collided_with_water()
+        if self.gamemap.tiles[self.x, self.y]["tile_id"][-5:] == "water":
+            self.collided_with_water()
 
     def price_of_single_item(self, is_shopkeeper_is_selling: bool, discount: float=1) -> int:
         """

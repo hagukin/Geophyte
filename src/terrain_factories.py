@@ -22,9 +22,39 @@ dungeon_chamber = Terrain(
 terrain_dict[dungeon_chamber] = dungeon_chamber.rarity
 
 
+# battlefield
+battlefield = Terrain(
+    name="전장",
+    terrain_id="battlefield",
+    terrain_desc="",
+    rarity=0,
+    spawn_item=True,
+    spawn_monster=True,
+    monsters_cnt={70:1},# Fill with monsters
+    spawn_door=False,
+    has_door=False,
+    max_width=50,
+    min_width=45,
+    max_height=35,
+    min_height=30,
+    shape={"rectangular":1},
+    monster_to_spawn={
+        actor_factories.orc_warrior:5,
+        actor_factories.orc_blacksmith:1,
+        actor_factories.orc_shaman:1,
+        actor_factories.orc_lord:1,
+        actor_factories.elf_fighter:5,
+        actor_factories.elf_assasin:1,
+        actor_factories.elf_herbalist:1,
+    },
+    gen_grass={"core_num_range":(8,20), "scale_range":(1,4), "density":0.6},
+)
+terrain_dict[battlefield] = battlefield.rarity
+
+
 # Monater lair
 monster_lair = Terrain(
-    name="괴물 소굴",
+    name="괴물 둥지",
     terrain_id="monster_lair",
     terrain_desc="",
     rarity=2,
@@ -277,7 +307,9 @@ ocean = Terrain(
     spawn_item=True,
     spawn_monster=True,
     spawn_door=False,
-    gen_water={"core_num_range":(3,6), "scale_range":(4,8), "density":0.9, "no_border":True},
+    gen_water={"core_num_range":(3,6), "scale_range":(4,5), "density":0.9, "no_border":True},
+    monsters_cnt={0:1, 1:1, 2:2, 3:1},
+    underwater_mon_ratio=1,
 )
 terrain_dict[ocean] = ocean.rarity
 

@@ -68,6 +68,7 @@ def main() -> None:
 
         # Title Screen Loop
         Game.engine = Title.title_event_handler(console=root_console, context=context, cfg=cfg, sound_manager=sound_manager)
+        Game.engine.update_config()
 
         # Initialization
         engine = Game.engine

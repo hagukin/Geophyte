@@ -44,6 +44,7 @@ b_crystal_cavern = (0, 191, 172)
 b_orc_town = (0xBE, 0x5C, 0x43)
 b_desert_dungeon = (156, 148, 109)
 b_ancient_ruin = (57, 87, 83)
+b_warzone = (166, 80, 80)
 
 logo_c1 = green
 title_gui_frame = brown

@@ -90,7 +90,7 @@ class Black_Jelly_Ai(ai.BaseAI):
 ####################################################
 
 class Elf_Herbalist_Ai(ai.BaseAI):
-    def __init__(self, alignment:Tuple=(("hostile","neutral"),(5,1)), do_melee_atk:bool=True, do_ranged_atk: bool=True,  use_ability: bool=False, hostile_type=('@', 'O', 'F', 'I')):
+    def __init__(self, alignment:Tuple=(("hostile","neutral"),(5,1)), do_melee_atk:bool=True, do_ranged_atk: bool=True,  use_ability: bool=False, hostile_type=('@', 'O', 'F', 'I'), attracted_own_id=("fillapoty","kettoniss","lintol")):
         super().__init__(alignment, do_melee_atk, do_ranged_atk, use_ability, hostile_type=hostile_type)
 
     def check_is_ranged_atk_possible(self, attacker, target):

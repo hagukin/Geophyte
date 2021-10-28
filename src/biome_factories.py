@@ -101,6 +101,28 @@ biome_dict[desert_dungeon.biome_id] = desert_dungeon
 biome_rarity.append(desert_dungeon.rarity)
 
 
+orc_elf_warzone = Biome(
+    name="오크 대 엘프 전장",
+    biome_id="orc_elf_warzone",
+    biome_desc="orc_elf_warzone (TEST)",
+    rarity=0,
+    biome_color=color.b_warzone,
+    room_spacing=20,
+    map_width=67,
+    map_height=41,
+    respawn_ratio=0,
+    tileset=get_tileset({
+        "t_wall":tiles.wall_forest,
+        "t_floor":tiles.floor_forest,
+        "t_dense_grass":tiles.dense_grass_forest,
+        "t_sparse_grass":tiles.sparse_grass_forest,
+    }),
+    terrain = {terrain_factories.battlefield:1},
+)
+biome_dict[orc_elf_warzone.biome_id] = orc_elf_warzone
+biome_rarity.append(orc_elf_warzone.rarity)
+
+
 ancient_ruins = Biome(
     name="고대 유적",
     biome_id="ancient_ruins",

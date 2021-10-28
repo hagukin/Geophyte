@@ -18,6 +18,10 @@ def get_dungeon_biome(depth: int) -> Optional[Dict]:
         return {
             biome_factories.forest:1
         }
+    if depth == 13:
+        return {
+            biome_factories.orc_elf_warzone:1
+        }
     elif depth < 18:
         return {
             biome_factories.desert_dungeon: 1
