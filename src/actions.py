@@ -70,18 +70,20 @@ class TeleportAction(ActionWithCoordinate):
 
     def teleport_to_random(self) -> None:
         x, y = self.action_gamemap.get_random_tile(should_no_entity=True, should_walkable=True, should_safe_to_walk=True,
-                                           should_not_protected=True)
+                                           should_not_protected=True, should_connected_with_stair=True)
         self.entity.gamemap.remove_entity(self.entity)
         self.entity.place(x, y, gamemap=self.action_gamemap)
 
     def teleport_to_random_can_be_dangerous(self) -> None:
         x, y = self.action_gamemap.get_random_tile(should_no_entity=True, should_walkable=True, should_safe_to_walk=False,
-                                           should_not_protected=True)
+                                           should_not_protected=True, should_connected_with_stair=True)
         self.entity.gamemap.remove_entity(self.entity)
         self.entity.place(x, y, gamemap=self.action_gamemap)
 
     def teleport_to_given(self) -> None:
-        if self.action_gamemap.get_blocking_entity_at_location(self.x,self.y) or not self.action_gamemap.tiles[self.x, self.y]["walkable"]: # Blocked.
+        if self.action_gamemap.get_blocking_entity_at_location(self.x,self.y) \
+                or not self.action_gamemap.tiles[self.x, self.y]["walkable"] \
+                or not self.action_gamemap.check_if_tile_connected_with_stair(self.x, self.y): # Prevent teleporting to isolated area
             return self.teleport_to_random()
         self.entity.gamemap.remove_entity(self.entity)
         self.entity.place(self.x, self.y, gamemap=self.action_gamemap)
@@ -780,11 +782,12 @@ class MeleeAction(ActionWithDirection):
         """Returns whether the attack was successful or not."""
         # Your chance of successfully attacking will increas when fighting a bigger opponents. Vice versa.
         size_bonus = 1 + (self.target_actor.actor_state.size - self.entity.actor_state.size) * 0.01
+        miss_bonus = 1 + max((self.target_actor.status.changed_status["agility"] - self.entity.status.changed_status["agility"])*0.05, 0)
 
         miss_calc = min(max(
                 (0.75*self.entity.status.changed_status["dexterity"])
                 * size_bonus
-                / max(self.target_actor.status.changed_status["agility"] - self.entity.status.changed_status["agility"], 1)
+                / miss_bonus
                 , 2), 20)
         # 20 -> always has at least 5% chance of missing
         # 2 -> Max Chance to miss: (1 / 2)

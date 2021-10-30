@@ -275,6 +275,43 @@ class GameMap:
                     semiactor_safe = True
         return tile_safe and semiactor_safe
 
+
+    def check_if_tile_connected_with_stair(self, x: int, y: int) -> bool:
+        """
+        NOTE: We assume that the both descending and ascending stairs are connected,
+        so we only check the ascending one since every floor has one.
+
+        NOTE: This function DOES NOT check for dangerous tiles or blocking entities.
+        it only checks if the two position is physically connected with one another.
+
+        Return:
+            True if connected.
+        """
+        import tcod
+        # Copy the walkable array. (All walkable tiles are set to 1)
+        cost = np.array(self.tiles["walkable"], dtype=np.int8)
+
+        # Create a graph from the cost array and pass that graph to a new pathfinder.
+        graph = tcod.path.SimpleGraph(cost=cost, cardinal=2, diagonal=3, greed=1)
+        pathfinder = tcod.path.Pathfinder(graph)
+
+        # Set start position, get stair coordinates
+        pathfinder.add_root((x, y))
+        if self.ascend_loc:
+            dest_x, dest_y = self.ascend_loc
+        elif self.descend_loc:
+            dest_x, dest_y = self.descend_loc
+        else:
+            print(f"FATAL ERROR::There are no stairs in depth {self.depth} - gamemap.check_if_tile_connected_with_stair()")
+            dest_x, dest_y = x, y
+
+        # Compute the path to the destination and remove the starting point.
+        path = pathfinder.path_to((dest_x, dest_y))[1:].tolist()
+        if not path:
+            return False
+        return True
+
+
     def get_random_tile(
             self,
             should_no_entity: bool = False,
@@ -285,8 +322,9 @@ class GameMap:
             should_not_safe_to_walk: bool = False,
             should_not_transparent: bool = False,
             should_not_protected: bool = False,
-            threshold: Optional[int] = 5000,
-            return_random_location_if_not_found: bool = False,
+            should_connected_with_stair: bool = True,
+            threshold: Optional[int] = 60000,
+            return_random_location_if_not_found: bool = True,
     ) -> Tuple[int,int]:
         """
         Args:
@@ -315,6 +353,8 @@ class GameMap:
             if should_not_transparent and self.tiles[x,y]["transparent"]:
                 continue
             if should_not_protected and self.protectmap[x,y]:
+                continue
+            if should_connected_with_stair and not self.check_if_tile_connected_with_stair(x,y):
                 continue
             return (x,y)
 

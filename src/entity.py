@@ -246,7 +246,7 @@ class Entity:
         if self.gamemap.tiles[self.x, self.y]["tile_id"] == "hole":
             new_gamemap = self.engine.world.get_map(depth=self.gamemap.depth + 1)
             x, y = new_gamemap.get_random_tile(should_no_entity=True, should_walkable=True, should_safe_to_walk=True,
-                                               should_not_protected=True)
+                                               should_not_protected=True, should_connected_with_stair=True)
             self.engine.change_entity_depth(entity=self, depth=self.gamemap.depth + 1, xpos=x, ypos=y)
             return None
 
@@ -682,7 +682,7 @@ class Actor(Entity):
         if self.gamemap.tiles[self.x, self.y]["tile_id"] == "hole":
             new_gamemap = self.engine.world.get_map(depth=self.gamemap.depth + 1)
             x, y = new_gamemap.get_random_tile(should_no_entity=True, should_walkable=True, should_safe_to_walk=True,
-                                               should_not_protected=True)
+                                               should_not_protected=True, should_connected_with_stair=True)
             self.engine.change_entity_depth(entity=self, depth=self.gamemap.depth + 1, xpos=x, ypos=y)
 
             fall_damage = int(min(200, round(self.weight)))

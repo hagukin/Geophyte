@@ -163,7 +163,6 @@ class Title():
 
             # Get input from title screen
             if title_action == "new_game":
-                delete_saved_game()
                 chara_gen = chargen.CharGen()
                 player = chara_gen.chargen_event_handler(console=console, context=context, cfg=cfg,sound_manager=sound_manager)
                 if not player:
@@ -172,6 +171,7 @@ class Title():
                 engine.message_log.add_message(f"{engine.player.name}님, 지오파이트의 세계에 오신 것을 환영합니다!", color.welcome_text)
                 sound_manager.remove_bgm()
                 sound_manager.remove_bgs()
+                delete_saved_game()
                 return engine
             elif title_action == "load_game":
                 try:

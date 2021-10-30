@@ -100,8 +100,8 @@ player = Actor(
     render_order=RenderOrder.PLAYER,
     ai_cls=None,
     status=Status(
-        hp=250, #250
-        mp=100, #50
+        hp=180, #180
+        mp=50, #50
         strength=15, # can be changed during CharGen
         dexterity=15,
         agility=15,
@@ -116,7 +116,7 @@ player = Actor(
         hearing=15,
         ),
     actor_state=ActorState(
-        hunger=1100,
+        hunger=1199,
         heal_wounds=True,
         regain_mana=True,
         size=4,
@@ -127,16 +127,18 @@ player = Actor(
     inventory=Inventory(capacity=52, is_fireproof=False, is_acidproof=False, is_waterproof=False),
     ability_inventory=AbilityInventory(capacity=26),
     equipments=Equipments(),
-#     initial_items=
-#     (
-#         {"item": item_factories.scroll_of_magic_mapping, "chance": 1, "count": (100, 100), "BUC": {1:0,0:0,-1:1}, "upgrade": None},
-# {"item": item_factories.scroll_of_magic_missile, "chance": 1, "count": (100, 100), "BUC": {1:0,0:0,-1:1}, "upgrade": None},
-# {"item": item_factories.ring_of_sky, "chance": 1, "count": (1, 1), "BUC": {1:1,0:0,-1:0}, "upgrade": None},
-#     ),
+    # initial_items=
+    # (
+    #     {"item": item_factories.iron_dagger, "chance": 1, "count": (1, 1), "BUC": {1:0,0:1,-1:0}, "upgrade": {1:1}},
+    #     {"item": item_factories.ration, "chance": 1, "count": (1, 1), "BUC": {1:0,0:1,-1:0}, "upgrade": None},
+    # ),
 #     initial_equipments=(
-#         {"item":item_factories.iron_dagger, "chance":1, "count":(1,1), "BUC":None, "upgrade": None},
-# {"item":item_factories.iron_dagger, "chance":1, "count":(1,1), "BUC":None, "upgrade": None},
-# {"item":item_factories.iron_dagger, "chance":1, "count":(1,1), "BUC":None, "upgrade": None},
+#         {"item":item_factories.longsword, "chance":1, "count":(1,1), "BUC":None, "upgrade": {0:1}},
+# {"item":item_factories.iron_plate_armor, "chance":1, "count":(1,1), "BUC":None, "upgrade": {0:1}},
+# {"item":item_factories.iron_armored_pants, "chance":1, "count":(1,1), "BUC":None, "upgrade": {0:1}},
+# {"item":item_factories.iron_helmet, "chance":1, "count":(1,1), "BUC":None, "upgrade": {0:1}},
+# {"item":item_factories.iron_gauntlet, "chance":1, "count":(1,1), "BUC":None, "upgrade": {0:1}},
+# {"item":item_factories.elven_cloak, "chance":1, "count":(1,1), "BUC":None, "upgrade": {0:1}},
 #     ),
     # initial_abilities=
     # (
@@ -172,7 +174,7 @@ shopkeeper = Actor(
         intelligence=26,
         constitution=29,
         charm=25,
-        difficulty=20,
+        difficulty=30,
         base_melee=33,
         additional_melee=20,
         protection=35,
@@ -430,7 +432,7 @@ bat = Actor(
         intelligence=3,
         constitution=8,
         charm=1,
-        difficulty=3,
+        difficulty=5,
         base_melee=2,
         additional_melee=6,
         protection=7,
@@ -608,7 +610,7 @@ large_cat = Actor(
         intelligence=10,
         constitution=14,
         charm=13,
-        difficulty=8,
+        difficulty=9,
         base_melee=13,
         additional_melee=13,
         protection=13,
@@ -775,7 +777,7 @@ large_dog = Actor(
         attracted_eat_type=("meat",),
     ),
     status=Status(
-        hp=72,
+        hp=68,
         mp=10,
         strength=17,
         dexterity=17,
@@ -783,7 +785,7 @@ large_dog = Actor(
         intelligence=11,
         constitution=14,
         charm=15,
-        difficulty=8,
+        difficulty=9,
         base_melee=15,
         additional_melee=8,
         protection=14,
@@ -1323,7 +1325,7 @@ elf_herbalist = Actor(
     edible=edible.RawMeatEdible(nutrition=105),
     ai_cls=ai_factories.Elf_Herbalist_Ai(),
     status=Status(
-        hp=70,
+        hp=65,
         mp=65,
         strength=13,
         dexterity=19,
@@ -1389,7 +1391,7 @@ elf_assasin = Actor(
     edible=edible.RawMeatEdible(nutrition=135),
     ai_cls=ai_factories.Elf_Fighter_Ai(),
     status=Status(
-        hp=78,
+        hp=68,
         mp=40,
         strength=16,
         dexterity=18,
@@ -1463,7 +1465,7 @@ elf_fighter = Actor(
         hostile_type=('@', 'O', 'F', 'I'),
     ),
     status=Status(
-        hp=82,
+        hp=70,
         mp=35,
         strength=16,
         dexterity=18,
@@ -1601,7 +1603,7 @@ sphere_of_acid = Actor(
     edible=None,
     ai_cls=ai_factories.Sphere_Of_Acid_Ai(),
     status=Status(
-        hp=10,
+        hp=20,
         mp=0,
         strength=2,
         dexterity=1,
@@ -1743,7 +1745,7 @@ gaion = Actor(
         poison_resistance=0.3,
         sleep_resistance=0.3,
         melee_effects_var=((0,2),(3, 1, 0, 7),),
-        melee_effects=(("paralyze_target", 0.05),("poison_target",0.1)),
+        melee_effects=(("paralyze_target", 0.1),("poison_target",0.2)),
         ),
     actor_state=ActorState(
         size=4,
@@ -1883,6 +1885,66 @@ ActorDB.monster_difficulty[maggot.status.difficulty].append(maggot)
 
 
 ####################################################
+##################### B - BEARS  ###################
+####################################################
+
+### Brown bear
+brown_bear = Actor(
+    char="B",
+    fg=(222, 208, 169),
+    name="불곰",
+    entity_id="brown_bear",
+    entity_desc=("던전 속의 불곰들은 지상의 불곰은 애교로 보이게 할 정도로 거대하고 흉폭하다. "
+                 "이들은 앞발을 살짝 휘두르는 것 만으로 나무를 베어 넘길 수 있을 정도로 강한 힘을 가졌으며 "
+                 "인간을 먹잇감으로 생각하기 때문에 이들을 마주친다면 전력으로 도망치는 것이 권장된다. "),
+    actor_quote=("불곰을 마주쳤을 땐 그냥 그 자리에 드러눕는게 최고야. 어차피 붙잡혀 갈갈히 찢겨나갈텐데 굳이 힘쓸 필요 없잖아?"),
+    rarity=30,
+    weight=1160,
+    spawnable=True,
+    edible=edible.RawMeatEdible(nutrition=400, cook_bonus=150),
+    ai_cls=BaseAI(
+        alignment=(("hostile",),(1,)),
+        do_melee_atk=True,
+        do_ranged_atk=False,
+        use_ability=False,
+        hostile_type=('@','l'),
+        attracted_eat_type=("insect","meat"),
+    ),
+    status=Status(
+        hp=108,
+        mp=10,
+        strength=23,
+        dexterity=16,
+        agility=15,
+        intelligence=6,
+        constitution=20,
+        charm=18,
+        difficulty=14,
+        base_melee=25,
+        additional_melee=12,
+        protection=18,
+        hearing=15,
+        eyesight=15,
+        ),
+    actor_state=ActorState(
+        size=5,
+        has_left_arm=True,
+        has_right_arm=True,
+        has_leg=True,
+        has_eye=True,
+        has_torso=True,
+        has_blood=True,
+        has_soul=True,
+        can_swim=True,
+    ),
+    inventory=Inventory(capacity=30),
+    ability_inventory=AbilityInventory(capacity=1),
+    equipments=Equipments(),
+)
+ActorDB.monster_difficulty[brown_bear.status.difficulty].append(brown_bear)
+
+
+####################################################
 #################### D - DRAGONS  ##################
 ####################################################
 
@@ -1907,7 +1969,7 @@ baby_spearhorn_dragon = Actor(
         hostile_type=('@','O','l','T','F'),
     ),
     status=Status(
-        hp=125,
+        hp=83,
         mp=88,
         strength=23,
         dexterity=20,
@@ -1915,9 +1977,9 @@ baby_spearhorn_dragon = Actor(
         intelligence=13,
         constitution=15,
         charm=20,
-        difficulty=14,
-        base_melee=40,
-        additional_melee=10,
+        difficulty=15,
+        base_melee=25,
+        additional_melee=20,
         protection=25,
         hearing=15,
         eyesight=15,
@@ -1968,7 +2030,7 @@ baby_armored_dragon = Actor(
         hostile_type=('@','O','l','T','F'),
     ),
     status=Status(
-        hp=125,
+        hp=85,
         mp=88,
         strength=25,
         dexterity=18,
@@ -1976,9 +2038,9 @@ baby_armored_dragon = Actor(
         intelligence=13,
         constitution=14,
         charm=20,
-        difficulty=14,
-        base_melee=37,
-        additional_melee=12,
+        difficulty=15,
+        base_melee=20,
+        additional_melee=30,
         protection=29,
         hearing=15,
         eyesight=15,
@@ -2038,7 +2100,7 @@ fire_elemental = Actor(
         hostile_type=('@',),
     ),
     status=Status(
-        hp=130,
+        hp=95,
         mp=205,
         strength=23,
         dexterity=20,
@@ -2047,7 +2109,7 @@ fire_elemental = Actor(
         constitution=19,
         charm=20,
         difficulty=17,
-        base_melee=35,
+        base_melee=25,
         additional_melee=10,
         protection=21,
         hearing=20,
@@ -2106,7 +2168,7 @@ ice_elemental = Actor(
         hostile_type=('@',),
     ),
     status=Status(
-        hp=130,
+        hp=95,
         mp=205,
         strength=23,
         dexterity=20,
@@ -2115,8 +2177,8 @@ ice_elemental = Actor(
         constitution=16,
         charm=20,
         difficulty=17,
-        base_melee=30,
-        additional_melee=22,
+        base_melee=25,
+        additional_melee=12,
         protection=22,
         hearing=20,
         eyesight=20,
@@ -2174,7 +2236,7 @@ earth_elemental = Actor(
         hostile_type=('@',),
     ),
     status=Status(
-        hp=130,
+        hp=95,
         mp=205,
         strength=24,
         dexterity=20,
@@ -2183,8 +2245,8 @@ earth_elemental = Actor(
         constitution=17,
         charm=20,
         difficulty=17,
-        base_melee=37,
-        additional_melee=12,
+        base_melee=25,
+        additional_melee=20,
         protection=24,
         hearing=20,
         eyesight=20,
@@ -2243,7 +2305,7 @@ acid_elemental = Actor(
         hostile_type=('@',),
     ),
     status=Status(
-        hp=135,
+        hp=95,
         mp=205,
         strength=22,
         dexterity=20,
@@ -2252,7 +2314,7 @@ acid_elemental = Actor(
         constitution=19,
         charm=20,
         difficulty=17,
-        base_melee=37,
+        base_melee=25,
         additional_melee=12,
         protection=20,
         hearing=20,
@@ -2310,7 +2372,7 @@ poison_elemental = Actor(
         hostile_type=('@',),
     ),
     status=Status(
-        hp=123,
+        hp=95,
         mp=205,
         strength=22,
         dexterity=20,
@@ -2319,7 +2381,7 @@ poison_elemental = Actor(
         constitution=20,
         charm=20,
         difficulty=17,
-        base_melee=37,
+        base_melee=25,
         additional_melee=15,
         protection=20,
         hearing=20,
@@ -2377,7 +2439,7 @@ lightning_elemental = Actor(
         hostile_type=('@',),
     ),
     status=Status(
-        hp=132,
+        hp=95,
         mp=205,
         strength=23,
         dexterity=21,
@@ -2386,8 +2448,8 @@ lightning_elemental = Actor(
         constitution=18,
         charm=20,
         difficulty=17,
-        base_melee=32,
-        additional_melee=16,
+        base_melee=25,
+        additional_melee=10,
         protection=21,
         hearing=20,
         eyesight=20,
@@ -2448,7 +2510,7 @@ red_prophet = Actor(
         allied_type=('F',),
     ),
     status=Status(
-        hp=133,
+        hp=90,
         mp=103,
         strength=20,
         dexterity=20,
@@ -2464,8 +2526,8 @@ red_prophet = Actor(
         eyesight=25,
         psychic_resistance=1,
         sleep_resistance=1,
-        melee_effects_var=((3, 0, 6),),
-        melee_effects=(("bleed_target", 0.5),),
+        melee_effects_var=((3, 0, 3),),
+        melee_effects=(("bleed_target", 0.2),),
         ),
     actor_state=ActorState(
         size=4,
@@ -2502,17 +2564,15 @@ unicorn = Actor(
     name="유니콘",
     entity_id="unicorn",
     entity_desc=("유니콘은 하얀색 말과 유사한 외형을 하고 있으며, 머리에 달린 기다란 뿔과 등에 달린 한 쌍의 날개가 이들을 말들과 구분할 수 있게 해준다. "
-            "유니콘에 대해 잘못 알려진 사실 중 한 가지가 '유니콘은 겉으로는 고결해 보이지만 실제로는 무자비하고 난폭하다'는 소문인데, 이는 사실이 아니다."
-            "대다수의 유니콘은 상당히 유순하며, 먼저 누군가를 공격하는 경우는 비교적 드물다. "
-            "그럼에도 이런 소문이 퍼진 것은, 비록 소수이지만 인간에게 적대적인 유니콘들이 존재하고, 그 소수의 유니콘들이 입힌 인명피해가 막심하기 때문이라고 추측된다. "
-            "때문에 유니콘을 마주한다면 설사 적대적이지 않아 보이더라도 극심한 주의를 가하는 게 권장된다."),
+            "던전 속에는 인간에게 적대적인 유니콘들과 그렇지 않은 유니콘들이 모두 존재하며, 때문에 유니콘을 마주한다면 설사 적대적이지 않아 보이더라도 극심한 주의를 가하는 게 권장된다."
+            "유니콘들은 뿔에서 광선을 발사해 적을 공격하기 때문에 적대적인 유니콘을 마주친다면 엄폐물을 활용해 전투하는 것이 권장된다."),
     actor_quote=("그 미친 말대가리들은 보이는 대로 잡아 죽여야 돼. 뭐? 평화의 상징? 그 자식이 뿔로 네 뱃가죽을 헤집어놓으면 그런 소리 못할 걸?"),
-    rarity=3,
+    rarity=10,
     weight=980.5,
     spawnable=True,
     edible=edible.RawMeatEdible(nutrition=330, cook_bonus=100),
     ai_cls=BaseAI(
-        alignment=(("neutral","hostile"), (100,1)), # FIXME: neutral only when human is female
+        alignment=(("neutral","hostile"), (1,1)), # FIXME: neutral only when human is female
         do_melee_atk=True,
         do_ranged_atk=False,
         use_ability=True,
@@ -2520,7 +2580,7 @@ unicorn = Actor(
         attracted_own_type=(InventoryOrder.GEM,),
     ),
     status=Status(
-        hp=95,
+        hp=90,
         mp=120,
         strength=21,
         dexterity=13,
@@ -2529,8 +2589,8 @@ unicorn = Actor(
         constitution=19,
         charm=25,
         difficulty=13,
-        base_melee=33,
-        additional_melee=25,
+        base_melee=10,
+        additional_melee=20,
         protection=24,
         hearing=15,
         eyesight=20,
@@ -2638,6 +2698,74 @@ ActorDB.monster_difficulty[chatterbox.status.difficulty].append(chatterbox)
 
 
 ####################################################
+#################### K - Kraken  ###################
+####################################################
+
+### Kraken
+kraken = Actor(
+    char="K",
+    fg=(255, 51, 0),
+    name="크라켄",
+    entity_id="kraken",
+    entity_desc=("크라켄은 거대한 문어와 유사한 외형을 하고 있으며, 수 십개가 넘는 거대한 촉수들에서 적을 휘감아 공격해온다. "
+                 "크라켄의 촉수에 달린 빨판에서는 생명체를 마비시키는 신경독 성분이 포함된 점액이 분비되며, 이 점액질 성분은 마비 포션의 원료로써 사용되기도 한다. "
+                 "크라켄은 개체별로 조금씩 차이가 있으나 대체적으로 돛단배 하나 정도의 압도적인 크기를 자랑하며, "
+                 "이러한 거대한 크기 때문에 수중에 사는 생명체들 중에서 크라켄에게 위협이 될 만한 생명체는 거의 존재하지 않는다. "),
+    rarity=5,
+    weight=2150,
+    spawnable=True,
+    edible=edible.RawMeatEdible(nutrition=1200, cook_bonus=150),
+    ai_cls=BaseAI(
+        alignment=(("hostile", ), (1, )),
+        do_melee_atk=True,
+        do_ranged_atk=False,
+        use_ability=False,
+        hostile_type=('@','O','l'),
+        attracted_eat_type=("meat",),
+    ),
+    status=Status(
+        hp=420,
+        mp=0,
+        strength=32,
+        dexterity=28,
+        agility=7,
+        intelligence=8,
+        constitution=12,
+        charm=10,
+        difficulty=22,
+        base_melee=35,
+        additional_melee=60,
+        protection=48,
+        hearing=3,
+        eyesight=8,
+        melee_effects_var=((0,5),),
+        melee_effects=(("paralyze_target", 0.1),),
+        ),
+    actor_state=ActorState(
+        size=6,
+        has_left_arm=False,
+        has_right_arm=False,
+        has_leg=False,
+        has_eye=True,
+        has_torso=False,
+        has_blood=True,
+        has_soul=True,
+        can_swim=True,
+        can_talk=False,
+        can_move_on_surface=True,
+        can_breathe_air=True,
+        can_breathe_underwater=True,
+        live_underwater=True,
+    ),
+    inventory=Inventory(capacity=40),
+    ability_inventory=AbilityInventory(capacity=1),
+    equipments=Equipments(),
+)
+ActorDB.monster_difficulty[kraken.status.difficulty].append(kraken)
+
+
+
+####################################################
 ################ M - Mythical Beasts  ##############
 ####################################################
 
@@ -2663,7 +2791,7 @@ baby_phoenix = Actor(
         hostile_type=('@','F','C',),
     ),
     status=Status(
-        hp=85,
+        hp=75,
         mp=320,
         strength=19,
         dexterity=16,
@@ -2671,7 +2799,7 @@ baby_phoenix = Actor(
         intelligence=16,
         constitution=40,
         charm=19,
-        difficulty=9,
+        difficulty=10,
         base_melee=10,
         additional_melee=15,
         protection=15,
@@ -2735,7 +2863,7 @@ phoenix = Actor(
         hostile_type=('@','F','C',),
     ),
     status=Status(
-        hp=135,
+        hp=120,
         mp=632,
         strength=22,
         dexterity=20,
@@ -2744,7 +2872,7 @@ phoenix = Actor(
         constitution=40,
         charm=23,
         difficulty=19,
-        base_melee=33,
+        base_melee=20,
         additional_melee=20,
         protection=20,
         hearing=15,
@@ -2813,7 +2941,7 @@ orc_patrol = Actor(
         hostile_type=('@','l', 'F', 'I'),
     ),
     status=Status(
-        hp=75,
+        hp=65,
         mp=15,
         strength=17,
         dexterity=14,
@@ -2883,7 +3011,7 @@ orc_warrior = Actor(
         hostile_type=('@','l', 'F', 'I'),
     ),
     status=Status(
-        hp=85,
+        hp=70,
         mp=15,
         strength=18,
         dexterity=16,
@@ -2952,7 +3080,7 @@ orc_blacksmith = Actor(
         hostile_type=('@','l', 'F', 'I'),
     ),
     status=Status(
-        hp=83,
+        hp=72,
         mp=40,
         strength=18,
         dexterity=20,
@@ -3024,7 +3152,7 @@ orc_lord = Actor(
         hostile_type=('@','l', 'F', 'I'),
     ),
     status=Status(
-        hp=95,
+        hp=80,
         mp=100,
         strength=21,
         dexterity=19,
@@ -3095,7 +3223,7 @@ orc_shaman = Actor(
         hostile_type=('@','l','F','I'),
     ),
     status=Status(
-        hp=73,
+        hp=66,
         mp=105,
         strength=14,
         dexterity=16,
@@ -3103,7 +3231,7 @@ orc_shaman = Actor(
         intelligence=17,
         constitution=13,
         charm=13,
-        difficulty=9,
+        difficulty=10,
         base_melee=10,
         additional_melee=6,
         protection=11,
@@ -3177,7 +3305,7 @@ primeval_tortoise = Actor(
         difficulty=12,
         base_melee=16,
         additional_melee=36,
-        protection=35,
+        protection=45,
         hearing=10,
         eyesight=10,
         fire_resistance=0.5,
@@ -3216,7 +3344,7 @@ troll = Actor(
     char="T",
     fg=(160, 176, 111),
     name="트롤",
-    entity_id="Troll",
+    entity_id="troll",
     entity_desc=("거대한 인간형 신체와 흉폭한 성격을 지닌 트롤들은 극단적으로 공격적인 성향을 보인다. "
         "이들은 지적으로 뛰어나지 못하며, 항상 피를 갈구하는 위험한 생명체이다. "
         "일부 학자들은 트롤은 사실 선한 심성을 가진 생명체라고 주장하지만, 학계에서는 이 이론은 아직 받아들여지고 있지 않다. "),
@@ -3234,7 +3362,7 @@ troll = Actor(
         hostile_type=('@',),
     ),
     status=Status(
-        hp=156,
+        hp=110,
         mp=16,
         strength=22,
         dexterity=15,
@@ -3292,7 +3420,7 @@ giant = Actor(
         hostile_type=('@',),
     ),
     status=Status(
-        hp=340,
+        hp=150,
         mp=20,
         strength=30,
         dexterity=14,
@@ -3303,7 +3431,7 @@ giant = Actor(
         difficulty=19,
         base_melee=39,
         additional_melee=15,
-        protection=18,
+        protection=20,
         hearing=10,
         eyesight=14,
         fire_resistance=0.2,
@@ -3330,6 +3458,71 @@ giant = Actor(
     )
 )
 ActorDB.monster_difficulty[giant.status.difficulty].append(giant)
+
+
+####################################################
+#################### Y - Yeti ######################
+####################################################
+
+### Yeti
+yeti = Actor(
+    char="Y",
+    fg=(171, 249, 255),
+    name="예티",
+    entity_id="yeti",
+    entity_desc=("예티는 두꺼운 털가죽으로 덮여있는 유인원과 유사한 외형을 하고 있으며, 뾰족한 뿔과 긴 송곳니 한 쌍이 가장 큰 특징이다. "
+                 "주로 추운 곳에서 살아간다는 대중들의 인식과는 다르게 예티는 기후를 가리지 않고 다양한 곳에서 살아가며, 극단적으로는 사막에서 살아가는 것이 포착되기도 한다. "
+                 "이들이 이렇게 다양한 기온에서 살아남을 수 있는 가장 큰 이유는 이들의 혈액이 항상 영하를 웃도는 낮은 온도를 유지하고 있기 때문인데, "
+                 "덕분에 예티는 어느 기온에서나 몸의 체온을 낮게 유지하며 살아갈 수 있다. "
+                 "예티는 이러한 특성을 이용해 적을 공격할 때 신체 일부를 급속도로 냉각시켜 몸을 경질화시켜 위력을 증가시키기도 한다. "
+                 ),
+    rarity=20,
+    weight=1450,
+    spawnable=True,
+    edible=edible.YetiEdible(nutrition=300),
+    ai_cls=BaseAI(
+        alignment=(("hostile",), (1,)),
+        do_melee_atk=True,
+        do_ranged_atk=False,
+        use_ability=False,
+        hostile_type=('@','O','l'),
+    ),
+    status=Status(
+        hp=105,
+        mp=30,
+        strength=21,
+        dexterity=19,
+        agility=15,
+        intelligence=10,
+        constitution=8,
+        charm=12,
+        difficulty=15,
+        base_melee=30,
+        additional_melee=10,
+        protection=19,
+        hearing=15,
+        eyesight=10,
+        cold_resistance=1,
+        poison_resistance=1,
+        melee_effects_var=((2, 1, 0.1, 0, 3),),
+        melee_effects=(("freeze_target", 0.1),),
+        ),
+    actor_state=ActorState(
+        size=5,
+        can_talk=False,
+        has_left_arm=True,
+        has_right_arm=True,
+        has_leg=True,
+        has_eye=True,
+        has_torso=True,
+        has_blood=True,
+        has_soul=True,
+    ),
+    inventory=Inventory(capacity=20),
+    ability_inventory=AbilityInventory(capacity=2),
+    equipments=Equipments(),
+)
+ActorDB.monster_difficulty[yeti.status.difficulty].append(yeti)
 
 
 ######################################### Adding monsters to actual database ############################################

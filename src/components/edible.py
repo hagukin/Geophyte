@@ -420,4 +420,17 @@ class BlackJellyEdible(Edible):
 #################### D - DRAGONS  ##################
 ####################################################
 
+####################################################
+#################### Y - Yeti ######################
+####################################################
 
+class YetiEdible(RawMeatEdible):
+    def effect_always(self, action: actions.EatItem):
+        consumer = action.entity
+        # Log
+        if random.random() <= 0.5: # 50% chance resistance gain
+            if consumer == self.engine.player:
+                self.engine.message_log.add_message(f"전신에서 냉기가 느껴진다.", color.player_neutral)
+                self.engine.message_log.add_message(f"냉기에 조금 더 잘 버틸 수 있을 것 같은 기분이 든다.", color.player_buff)
+            consumer.status.cold_resistance += round(random.random() * 0.2, 2)
+        return super().effect_always(action)

@@ -47,7 +47,7 @@ potion_of_healing = Item(
         break_chance=1,
         identify_when_shattered=0,
         identify_when_collided_with_entity=0,
-        identify_when_collided_with_actor=0
+        identify_when_collided_with_actor=1
     ), # Handle in quaffable. Only identified when actor is healed.
     readable=None,
     quaffable=quaffable.PotionOfHealingQuaffable(heal_range=(70,100)),
@@ -127,7 +127,7 @@ potion_of_paralysis = Item(
         trigger_if_thrown_at=True,
         identify_when_shattered=0,
         identify_when_collided_with_entity=0,
-        identify_when_collided_with_actor=0
+        identify_when_collided_with_actor=1
     ), # Handle in quaffable
     readable=None,
     quaffable=quaffable.PotionOfParalysisQuaffable(turn=10),
@@ -285,7 +285,7 @@ potion_of_acid = Item(
         trigger_if_thrown_at=True,
         identify_when_shattered=0,
         identify_when_collided_with_entity=0,
-        identify_when_collided_with_actor=0, # Handle in quaffable
+        identify_when_collided_with_actor=1,
     ),
     readable=None,
     quaffable=quaffable.PotionOfAcidQuaffable(turn=8),
@@ -324,7 +324,7 @@ potion_of_frost = Item(
         trigger_if_thrown_at=True,
         identify_when_shattered=0,
         identify_when_collided_with_entity=0,
-        identify_when_collided_with_actor=0, # Handle in quaffable
+        identify_when_collided_with_actor=1,
     ),
     readable=None,
     quaffable=quaffable.PotionOfFrostQuaffable(turn=7),
@@ -363,7 +363,7 @@ potion_of_poison = Item(
         trigger_if_thrown_at=True,
         identify_when_shattered=0,
         identify_when_collided_with_entity=0,
-        identify_when_collided_with_actor=0, # Handle in quaffable
+        identify_when_collided_with_actor=1,
     ),
     readable=None,
     quaffable=quaffable.PotionOfPoisonQuaffable(turn=8),
@@ -401,7 +401,7 @@ potion_of_levitation = Item(
         trigger_if_thrown_at=True,
         identify_when_shattered=0,
         identify_when_collided_with_entity=0,
-        identify_when_collided_with_actor=0, # handle in quaffable
+        identify_when_collided_with_actor=1,
     ),
     readable=None,
     quaffable=quaffable.PotionOfLevitationQuaffable(turn=50),
@@ -1228,7 +1228,7 @@ leather_armor = Item(
         possible_regions=("torso",),
         str_requirement=11,
         protection=6,
-        protection_mag=1.6,
+        protection_mag=1.8,
     )
 )
 temp_items_lists.append(leather_armor)
@@ -1260,7 +1260,7 @@ iron_chain_mail = Item(
         possible_regions=("torso",),
         str_requirement=15,
         protection=8,
-        protection_mag=1.8,
+        protection_mag=2.8,
     )
 )
 temp_items_lists.append(iron_chain_mail)
@@ -1292,7 +1292,7 @@ iron_scale_armor = Item(
         possible_regions=("torso",),
         str_requirement=15,
         protection=9,
-        protection_mag=1.5,
+        protection_mag=2.5,
     )
 )
 temp_items_lists.append(iron_scale_armor)
@@ -1324,7 +1324,7 @@ iron_plate_armor = Item(
         possible_regions=("torso",),
         str_requirement=17,
         protection=10,
-        protection_mag=1.8,
+        protection_mag=2.4,
     )
 )
 temp_items_lists.append(iron_plate_armor)
@@ -1427,6 +1427,8 @@ primeval_tortoise_shell = Item(
         possible_regions=("torso",),
         str_requirement=14,
         protection=8,
+        protection_mag=1,
+        fire_resistance_mag=0.1,
         fire_resistance=0.4,
     )
 )
@@ -1525,7 +1527,7 @@ iron_armet = Item(
         possible_regions=("head",),
         str_requirement=15,
         protection=8,
-        protection_mag=1.8,
+        protection_mag=2,
     )
 )
 temp_items_lists.append(iron_armet)
@@ -1593,7 +1595,7 @@ leather_pants = Item(
         possible_regions=("leg",),
         str_requirement=7,
         protection=4,
-        protection_mag=1.4,
+        protection_mag=1.8,
     )
 )
 temp_items_lists.append(leather_pants)
@@ -1625,7 +1627,7 @@ leather_armored_pants = Item(
         possible_regions=("leg",),
         str_requirement=10,
         protection=6,
-        protection_mag=1.4,
+        protection_mag=1.5,
     )
 )
 temp_items_lists.append(leather_armored_pants)
@@ -1657,7 +1659,7 @@ iron_armored_pants = Item(
         possible_regions=("leg",),
         str_requirement=15,
         protection=8,
-        protection_mag=1.66,
+        protection_mag=2,
     )
 )
 temp_items_lists.append(iron_armored_pants)
@@ -1762,7 +1764,7 @@ iron_boots = Item(
         possible_regions=("feet",),
         str_requirement=11,
         protection=6,
-        protection_mag=1.38,
+        protection_mag=1.5,
     )
 )
 temp_items_lists.append(iron_boots)
@@ -2178,8 +2180,8 @@ iron_dagger = Item(
         equip_size=(3, 5),
         str_requirement=10,
         base_melee=7,
-        additional_melee=5,
-        base_melee_mag=1.3,
+        additional_melee=7,
+        base_melee_mag=2,
         additional_melee_mag=1.4,
     ),
     lockpickable=(0.9,0.1),
@@ -2213,8 +2215,8 @@ brass_dagger = Item(
         equip_size=(3, 5),
         str_requirement=10,
         base_melee=8,
-        additional_melee=3,
-        base_melee_mag=1.1,
+        additional_melee=8,
+        base_melee_mag=2,
         additional_melee_mag=1.6,
     ),
     lockpickable=(0.9,0.1),
@@ -2247,9 +2249,9 @@ elven_dagger = Item(
         possible_regions=("main hand", "off hand"),
         equip_size=(3, 5),
         str_requirement=10,
-        base_melee=8,
-        additional_melee=3,
-        base_melee_mag=1.1,
+        base_melee=9,
+        additional_melee=5,
+        base_melee_mag=1.5,
         additional_melee_mag=1.6,
     ),
     lockpickable=(0.9,0.1),
@@ -2266,7 +2268,7 @@ scalpel = Item(
     entity_id="scalpel",
     entity_desc=("주로 외과 수술을 할 때 사용되는 날카로운 의료용 나이프이다. "
                  "적에게 출혈을 동반한 치명적인 상처를 입힐 수 있다."),
-    rarity=5,
+    rarity=3,
     weight=0.19,
     price=50,
     item_type=InventoryOrder.MELEE_WEAPON,
@@ -2283,8 +2285,8 @@ scalpel = Item(
         possible_regions=("main hand", "off hand"),
         equip_size=(3, 5),
         str_requirement=10,
-        base_melee=6,
-        additional_melee=1,
+        base_melee=8,
+        additional_melee=5,
         melee_effects=(("bleed_target", 0.3),),
         melee_effects_var=((4, 1, 3),),
         base_melee_mag=1.2,
@@ -2320,9 +2322,9 @@ shortsword = Item(
         possible_regions=("main hand", "off hand"),
         equip_size=(3, 6),
         str_requirement=13,
-        base_melee=10,
-        additional_melee=8,
-        base_melee_mag=1.4,
+        base_melee=12,
+        additional_melee=12,
+        base_melee_mag=2.2,
         additional_melee_mag=1.6
     ),
     lockpickable=(0.6,0.1),
@@ -2355,10 +2357,10 @@ elven_sword = Item(
         possible_regions=("main hand", "off hand"),
         equip_size=(3, 6),
         str_requirement=12,
-        base_melee=8,
-        additional_melee=14,
+        base_melee=11,
+        additional_melee=15,
         base_melee_mag=1.4,
-        additional_melee_mag=2
+        additional_melee_mag=3
     ),
     lockpickable=(0.3,0.1),
 )
@@ -2390,9 +2392,9 @@ longsword = Item(
         possible_regions=("main hand", "off hand"),
         equip_size=(3, 6),
         str_requirement=17,
-        base_melee=12,
-        additional_melee=10,
-        base_melee_mag=1.9,
+        base_melee=15,
+        additional_melee=15,
+        base_melee_mag=2,
         additional_melee_mag=1.8,
     ),
     lockpickable=(0.3,0.2),
@@ -2428,8 +2430,8 @@ sunbringer = Item(
         possible_regions=("main hand", "off hand"),
         equip_size=(3, 6),
         str_requirement=17,
-        base_melee=18,
-        additional_melee=10,
+        base_melee=20,
+        additional_melee=15,
         base_melee_mag=2.1,
         additional_melee_mag=2,
         melee_effects=(("burn_target", 0.8),),
@@ -2471,9 +2473,9 @@ swordstick = Item(
         possible_regions=("main hand", "off hand"),
         equip_size=(3, 4),
         str_requirement=12,
-        base_melee=11,
+        base_melee=13,
         additional_melee=2,
-        base_melee_mag=1.5,
+        base_melee_mag=2.3,
         additional_melee_mag=2,
     ),
     lockpickable=(0.2,0.5),
@@ -2509,9 +2511,9 @@ axe = Item(
         equip_size=(4, 6),
         str_requirement=15,
         base_melee=8,
-        additional_melee=17,
-        base_melee_mag=1.3,
-        additional_melee_mag=2.1,
+        additional_melee=15,
+        base_melee_mag=1.5,
+        additional_melee_mag=3,
     ),
     lockpickable=(0.5,0.05),
 )
@@ -2543,9 +2545,9 @@ tomahawk = Item(
         equip_size=(3, 5),
         str_requirement=13,
         base_melee=6,
-        additional_melee=12,
-        base_melee_mag=1.2,
-        additional_melee_mag=1.9,
+        additional_melee=14,
+        base_melee_mag=1.4,
+        additional_melee_mag=3,
     ),
     lockpickable=(0.2,0.1),
 )
@@ -2577,10 +2579,10 @@ battle_axe = Item(
         possible_regions=("main hand", "off hand"),
         equip_size=(4, 6),
         str_requirement=19,
-        base_melee=12,
-        additional_melee=17,
+        base_melee=10,
+        additional_melee=26,
         base_melee_mag=2,
-        additional_melee_mag=2.5,
+        additional_melee_mag=3.3,
     ),
     lockpickable=(0.5,0.01),
 )
@@ -2692,8 +2694,8 @@ quarterstaff = Item(
         possible_regions=("main hand", "off hand"),
         equip_size=(3, 6),
         str_requirement=14,
-        base_melee=10,
-        additional_melee=9,
+        base_melee=13,
+        additional_melee=4,
         base_melee_mag=1.9,
         additional_melee_mag=1.8,
     ),
@@ -2727,7 +2729,7 @@ giant_wood_club = Item(
         possible_regions=("main hand", "off hand"),
         equip_size=(5,7),
         str_requirement=20,
-        base_melee=6,
+        base_melee=16,
         additional_melee=10,
         base_melee_mag=2,
         additional_melee_mag=2
@@ -2800,7 +2802,7 @@ spear = Item(
         possible_regions=("main hand", "off hand"),
         equip_size=(3, 6),
         str_requirement=14,
-        base_melee=13,
+        base_melee=16,
         additional_melee=3,
         agility=-2,
         base_melee_mag=1.9,
@@ -2839,7 +2841,7 @@ halberd = Item(
         possible_regions=("main hand", "off hand"),
         equip_size=(3, 6),
         str_requirement=14,
-        base_melee=18,
+        base_melee=20,
         additional_melee=5,
         agility=-2,
         base_melee_mag=2,
@@ -2880,7 +2882,7 @@ heartpiercer = Item(
         possible_regions=("main hand", "off hand"),
         equip_size=(3, 6),
         str_requirement=20,
-        base_melee=19,
+        base_melee=28,
         additional_melee=5,
         constitution=-2,
         base_melee_mag=2,
