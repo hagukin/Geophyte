@@ -1,5 +1,5 @@
 {
-    "debugmode": true,
+    "debugmode": false,
     "screen_width": 96,
     "screen_height": 54,
     "tile_width": 17,

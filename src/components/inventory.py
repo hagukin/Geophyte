@@ -106,8 +106,8 @@ class Inventory(BaseComponent):
                             self.engine.sound_manager.add_sound_queue("fx_burden")
                 else:
                     print(f"WARNING::{self.parent.name} is burdened - encumbrance:{self.parent.actor_state.encumbrance}")
-                self.parent.status.add_bonus(Bonus("burden_bonus", bonus_agility=-1, bonus_dexterity=-1))
-        elif w < strength * 4:
+                self.parent.status.add_bonus(Bonus("burden_bonus", bonus_agility=-2, bonus_dexterity=-2))
+        elif w < strength * 3.5:
             self.parent.actor_state.previous_encumbrance = self.parent.actor_state.encumbrance
             self.parent.actor_state.encumbrance = 2
             if self.parent.actor_state.previous_encumbrance != self.parent.actor_state.encumbrance:
@@ -119,7 +119,7 @@ class Inventory(BaseComponent):
                 else:
                     print(f"WARNING::{self.parent.name} is burdened - encumbrance:{self.parent.actor_state.encumbrance}")
                 self.parent.status.add_bonus(Bonus("burden_bonus", bonus_agility=-5, bonus_dexterity=-5))
-        elif w < strength * 5:
+        elif w < strength * 4:
             self.parent.actor_state.previous_encumbrance = self.parent.actor_state.encumbrance
             self.parent.actor_state.encumbrance = 3
             if self.parent.actor_state.previous_encumbrance != self.parent.actor_state.encumbrance:

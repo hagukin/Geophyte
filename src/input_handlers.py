@@ -2204,37 +2204,37 @@ class MainGameEventHandler(EventHandler):
                     self.engine.message_log.add_message(f"당신은 슬픈 기분이 든다.", color.white)
 
 
-                ######### TODO FIXME DEBUG
-                self.engine.change_entity_depth(
-                    self.engine.player,
-                    self.engine.depth + 1,
-                    self.engine.world.get_map(self.engine.depth + 1).ascend_loc[0],
-                    self.engine.world.get_map(self.engine.depth + 1).ascend_loc[1]
-                )
-            elif key == tcod.event.K_F10:
-                ######### TODO FIXME DEBUG
-                self.engine.change_entity_depth(
-                    self.engine.player,
-                    self.engine.depth - 1,
-                    self.engine.world.get_map(self.engine.depth - 1).ascend_loc[0],
-                    self.engine.world.get_map(self.engine.depth - 1).ascend_loc[1] # NOTE: Chamber of Kugah has no descend loc
-                )
-            elif key == tcod.event.K_F9:
-                # import procgen, actor_factories
-                # procgen.spawn_given_monster(
-                #     x=self.engine.player.x,
-                #     y=self.engine.player.y,
-                #     monster=actor_factories.piranha,
-                #     spawn_active=True,
-                #     spawn_sleep=False,
-                #     is_first_generation=False,
-                #     dungeon=self.engine.game_map
-                # )
-                self.engine.player.status.fully_heal()
-            elif key == tcod.event.K_F8:
-                for y in range(len(self.engine.game_map.visible[0])):
-                    for x in range(len(self.engine.game_map.visible)):
-                        self.engine.game_map.visible[x, y] = True
+            #     ######### TODO FIXME DEBUG
+            #     self.engine.change_entity_depth(
+            #         self.engine.player,
+            #         self.engine.depth + 1,
+            #         self.engine.world.get_map(self.engine.depth + 1).ascend_loc[0],
+            #         self.engine.world.get_map(self.engine.depth + 1).ascend_loc[1]
+            #     )
+            # elif key == tcod.event.K_F10:
+            #     ######### TODO FIXME DEBUG
+            #     self.engine.change_entity_depth(
+            #         self.engine.player,
+            #         self.engine.depth - 1,
+            #         self.engine.world.get_map(self.engine.depth - 1).ascend_loc[0],
+            #         self.engine.world.get_map(self.engine.depth - 1).ascend_loc[1] # NOTE: Chamber of Kugah has no descend loc
+            #     )
+            # elif key == tcod.event.K_F9:
+            #     # import procgen, actor_factories
+            #     # procgen.spawn_given_monster(
+            #     #     x=self.engine.player.x,
+            #     #     y=self.engine.player.y,
+            #     #     monster=actor_factories.piranha,
+            #     #     spawn_active=True,
+            #     #     spawn_sleep=False,
+            #     #     is_first_generation=False,
+            #     #     dungeon=self.engine.game_map
+            #     # )
+            #     self.engine.player.status.fully_heal()
+            # elif key == tcod.event.K_F8:
+            #     for y in range(len(self.engine.game_map.visible[0])):
+            #         for x in range(len(self.engine.game_map.visible)):
+            #             self.engine.game_map.visible[x, y] = True
 
         # No valid key was pressed
         return action
