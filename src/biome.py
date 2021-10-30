@@ -56,7 +56,7 @@ class Biome:
         map_width: int = 67, # min 67
         map_height: int = 41, # min 41
         monster_difficulty: Dict=None,
-        respawn_ratio: float = 0.5,
+        respawn_ratio: float = 0.8,
         respawn_time: float = 50,
         generate_descending_stair: bool = True,
         tileset=None,

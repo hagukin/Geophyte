@@ -456,10 +456,12 @@ class GameMap:
             # Check if there is enough monsters in this gamemap or not
             actor_num = 0
             for entity in self.actors:
-                if entity.is_dead and entity.entity_id != "maggot": # Ignore maggots
+                if entity.is_dead or not entity.spawnable or entity == self.engine.player: # Ignore maggots
+                    continue
+                else:
                     actor_num += 1
 
-            if actor_num > int(self.starting_monster_num * self.respawn_ratio):
+            if actor_num >= int(self.starting_monster_num * self.respawn_ratio):
                 return None
 
             # If player can see every single parts of the map, a monster will not be generated.
@@ -467,7 +469,8 @@ class GameMap:
                 try_count = 1
 
                 # To prevent looping infinitly, this method will stop searching for place to spawn monster after 10 tries.
-                while try_count < 10:
+                THRESHOLD = 200
+                while try_count < 200:
                     random_x = random.randint(3, self.width - 3)
                     random_y = random.randint(3, self.height - 3)
                     if not self.check_tile_monster_spawnable(random_x, random_y, must_not_be_in_sight=True):
