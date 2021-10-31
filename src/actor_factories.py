@@ -129,7 +129,7 @@ player = Actor(
     equipments=Equipments(),
     # initial_items=
     # (
-    #     {"item": item_factories.iron_dagger, "chance": 1, "count": (1, 1), "BUC": {1:0,0:1,-1:0}, "upgrade": {1:1}},
+    #     {"item": item_factories.potion_of_paralysis, "chance": 1, "count": (10, 10), "BUC": {1:0,0:1,-1:0}, "upgrade": None},
     #     {"item": item_factories.ration, "chance": 1, "count": (1, 1), "BUC": {1:0,0:1,-1:0}, "upgrade": None},
     # ),
 #     initial_equipments=(

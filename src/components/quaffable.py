@@ -306,6 +306,7 @@ class PotionOfPoisonQuaffable(Quaffable):
         else:
             if self.engine.game_map.visible[apply_to.x, apply_to.y]:
                 self.engine.message_log.add_message(f"{g(apply_to.name, '이')} 고통 속에 몸부림친다.", color.player_sense, target=apply_to)
+                self.parent.item_state.identify_self(identify_level=1)
 
 
 class PotionOfLevitationQuaffable(Quaffable):

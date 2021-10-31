@@ -47,7 +47,7 @@ potion_of_healing = Item(
         break_chance=1,
         identify_when_shattered=0,
         identify_when_collided_with_entity=0,
-        identify_when_collided_with_actor=1
+        identify_when_collided_with_actor=0, # handles in quaffable
     ), # Handle in quaffable. Only identified when actor is healed.
     readable=None,
     quaffable=quaffable.PotionOfHealingQuaffable(heal_range=(70,100)),
@@ -127,7 +127,7 @@ potion_of_paralysis = Item(
         trigger_if_thrown_at=True,
         identify_when_shattered=0,
         identify_when_collided_with_entity=0,
-        identify_when_collided_with_actor=1
+        identify_when_collided_with_actor=0, # Handles in quaffable
     ), # Handle in quaffable
     readable=None,
     quaffable=quaffable.PotionOfParalysisQuaffable(turn=10),
@@ -285,7 +285,7 @@ potion_of_acid = Item(
         trigger_if_thrown_at=True,
         identify_when_shattered=0,
         identify_when_collided_with_entity=0,
-        identify_when_collided_with_actor=1,
+        identify_when_collided_with_actor=0, # handles in quaffable
     ),
     readable=None,
     quaffable=quaffable.PotionOfAcidQuaffable(turn=8),
@@ -324,7 +324,7 @@ potion_of_frost = Item(
         trigger_if_thrown_at=True,
         identify_when_shattered=0,
         identify_when_collided_with_entity=0,
-        identify_when_collided_with_actor=1,
+        identify_when_collided_with_actor=0, # handles in quaffable
     ),
     readable=None,
     quaffable=quaffable.PotionOfFrostQuaffable(turn=7),
@@ -363,7 +363,7 @@ potion_of_poison = Item(
         trigger_if_thrown_at=True,
         identify_when_shattered=0,
         identify_when_collided_with_entity=0,
-        identify_when_collided_with_actor=1,
+        identify_when_collided_with_actor=0, # handles in quaffable
     ),
     readable=None,
     quaffable=quaffable.PotionOfPoisonQuaffable(turn=8),
@@ -401,7 +401,7 @@ potion_of_levitation = Item(
         trigger_if_thrown_at=True,
         identify_when_shattered=0,
         identify_when_collided_with_entity=0,
-        identify_when_collided_with_actor=1,
+        identify_when_collided_with_actor=0, # handles in quaffable
     ),
     readable=None,
     quaffable=quaffable.PotionOfLevitationQuaffable(turn=50),
