@@ -6,6 +6,7 @@ import random
 import item_factories
 from typing import Tuple, List
 from entity import SemiActor, Actor
+from language import interpret as i
 
 class ChestSemiactor(SemiActor):
     def __init__(
@@ -151,10 +152,10 @@ def choose_random_chest_id(k=1) -> List[str]:
 
 
 large_wooden_chest = ChestSemiactor(
-        char="▣",
+        char="©",
         fg=(191, 128, 0),
         bg=None,
-        name="대형 나무 상자",
+        name=i("대형 나무 상자","large wooden chest"),
         entity_id="large_wooden_chest",
         entity_desc="나무로 만들어진 커다란 상자이다.",
         do_action=False,
@@ -176,10 +177,10 @@ chest_id_to_chest[large_wooden_chest.entity_id] = large_wooden_chest
 
 
 golden_chest = ChestSemiactor(
-        char="▣",
+        char="©",
         fg=(255, 215, 0),
         bg=None,
-        name="황금색 상자",
+        name=i("황금색 상자", "golden chest"),
         entity_id="golden_chest",
         entity_desc="황금색 빛을 내뿜는 상자이다.",
         do_action=False,

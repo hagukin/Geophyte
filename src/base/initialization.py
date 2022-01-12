@@ -11,16 +11,19 @@ from engine import Engine
 from tcod import Console
 from tcod.context import Context
 from configuration import get_game_config
+from language import interpret as i
 
 def init_game_variables(player, cfg, console: Console, context: Context):
     """
     Initialize game variables.(using the config data)
     """
+    from game import Game
+
     # Seed
     seed = random.random() #TODO: Let player enter whatever seed they want
 
     # Generate Engine
-    engine = Engine(player=player)
+    engine = Engine(player=player, language=Game.language)
     engine.world = World(seed, max_depth=999)
     engine.console = console
     engine.context = context
@@ -35,7 +38,6 @@ def init_game_variables(player, cfg, console: Console, context: Context):
     engine.depth = 1
 
     # Set Game.engine. All in-game access to engine object is handled using this class variable.
-    from game import Game
     Game.engine = engine
 
     # Generate camera
@@ -45,8 +47,12 @@ def init_game_variables(player, cfg, console: Console, context: Context):
     from render import randomized_screen_paint
 
     randomized_screen_paint(console, context, color.black, diversity=0)
-    console.print(int(console.width/2) - 4, int(console.height/2), "던전 초기화 중", fg=color.procgen_fg, bg=color.procgen_bg)
-    console.print(int(console.width / 2) - 12, int(console.height / 2)+2, "이 작업은 약간의 시간이 걸릴 수 있습니다.", fg=color.procgen_fg, bg=color.procgen_bg)
+    tmp1 = i("던전 초기화 중",
+             "Creating a new dungeon")
+    console.print(int(console.width/2) - int(len(tmp1)/2), int(console.height/2), tmp1, fg=color.procgen_fg, bg=color.procgen_bg)
+    tmp2 = i("이 작업은 약간의 시간이 걸릴 수 있습니다.",
+             "This may take a while.")
+    console.print(int(console.width / 2) - int(len(tmp2)/2), int(console.height / 2)+2, tmp2, fg=color.procgen_fg, bg=color.procgen_bg)
     context.present(console=console, keep_aspect=True)
 
 
@@ -66,9 +72,6 @@ def init_game_variables(player, cfg, console: Console, context: Context):
     engine.change_entity_depth(entity=engine.player, depth=engine.depth, xpos=engine.game_map.ascend_loc[0], ypos=engine.game_map.ascend_loc[1])
     engine.world.save_world()
 
-    # Initialize book data if there is None
-    from base.data_loader import load_book
-    load_book()
     # Give player a complete encyclopedia
     # from base.data_loader import save_actor_book
     # save_actor_book(get_all_monsters=True)

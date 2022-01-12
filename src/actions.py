@@ -9,6 +9,7 @@ from game import Game
 from components.inventory import PickupTempInv
 from components.semiactor_info import Door
 from korean import grammar as g
+from language import interpret as i
 
 if TYPE_CHECKING:
     from engine import Engine
@@ -90,11 +91,13 @@ class TeleportAction(ActionWithCoordinate):
 
     def perform(self) -> None:
         if self.entity == self.engine.player:
-            self.engine.message_log.add_message("당신은 순간이동했다!", fg=color.player_neutral_important)
+            self.engine.message_log.add_message(i("당신은 순간이동했다!",
+                                                  "You teleported!"), fg=color.player_neutral_important)
             self.engine.sound_manager.add_sound_queue("fx_teleport")
         else:
             if self.engine.game_map.visible[self.entity.x, self.entity.y]:
-                self.engine.message_log.add_message(f"{g(self.entity.name, '이')} 순간이동했다!") # NOTE: ai's path cleared in .place()
+                self.engine.message_log.add_message(i(f"{g(self.entity.name, '이')} 순간이동했다!",
+                                                      f"{self.entity.name} teleported!")) # NOTE: ai's path cleared in .place()
 
         if self.stability == 0:
             return self.teleport_to_given()
@@ -126,19 +129,23 @@ class PickupAction(Action):
         # Log
         if self.entity == self.engine.player:
             if item.stack_count > 1:
-                self.engine.message_log.add_message(f"당신은 {g(item.name, '을')} 주웠다. (x{item.stack_count}).",
+                self.engine.message_log.add_message(i(f"당신은 {g(item.name, '을')} 주웠다. (x{item.stack_count})",
+                                                      f"You pick up {item.name}. (x{item.stack_count})"),
                                                     fg=color.obtain_item)
             else:
-                self.engine.message_log.add_message(f"당신은 {g(item.name, '을')} 주웠다.", fg=color.obtain_item)
+                self.engine.message_log.add_message(i(f"당신은 {g(item.name, '을')} 주웠다.",
+                                                      f"You pick up {item.name}."), fg=color.obtain_item)
 
             self.engine.sound_manager.add_sound_queue("fx_pickup")
         else:
             if item.stack_count > 1:
                 self.engine.message_log.add_message(
-                    f"{g(self.entity.name, '이')} {g(item.name, '을')} 주웠다. (x{item.stack_count}).", target=self.entity,
+                    i(f"{g(self.entity.name, '이')} {g(item.name, '을')} 주웠다. (x{item.stack_count})",
+                      f"{self.entity.name} pick up {item.name}. (x{item.stack_count})"), target=self.entity,
                     fg=color.enemy_unique)
             else:
-                self.engine.message_log.add_message(f"{g(self.entity.name, '이')} {g(item.name, '을')} 주웠다.",
+                self.engine.message_log.add_message(i(f"{g(self.entity.name, '이')} {g(item.name, '을')} 주웠다.",
+                                                      f"{self.entity.name} pick up {item.name}."),
                                                     target=self.entity, fg=color.enemy_unique)
 
         self.transfer_item(inventory, item)
@@ -165,7 +172,8 @@ class PickupAction(Action):
         if self.entity == self.engine.player:
             # If only one item exists, pickup immediately.
             if not items_at_pos:
-                self.engine.message_log.add_message("주울 만한 물건이 아무 것도 없습니다.", fg=color.impossible)
+                self.engine.message_log.add_message(i("주울 만한 물건이 아무 것도 없습니다.",
+                                                      "There is nothing to pick up."), fg=color.impossible)
                 return None
 
             item_len = len(items_at_pos)
@@ -230,9 +238,11 @@ class DescendAction(Action):
                     if actor.ai.owner == self.engine.player or actor.ai.target == self.engine.player:
                         self.engine.game_map.descending_actors.add(actor)
         elif self.engine.game_map.tiles[self.entity.x, self.entity.y]["tile_id"] == "ascending_stair":
-            raise exceptions.Impossible("이 계단은 위로만 향한다.")
+            raise exceptions.Impossible(i("이 계단은 위로만 향한다.",
+                                          "This stair only goes up."))
         else:
-            raise exceptions.Impossible("내려갈 수 없다.")
+            raise exceptions.Impossible(i("내려갈 수 없다.",
+                                          "You can't descend here."))
 
 
 class AscendAction(Action):
@@ -287,9 +297,11 @@ class AscendAction(Action):
                     if actor.ai.owner == self.engine.player or actor.ai.target == self.engine.player:
                         self.engine.game_map.ascending_actors.add(actor)
         elif self.engine.game_map.tiles[self.entity.x, self.entity.y]["tile_id"] == "descending_stair":
-            raise exceptions.Impossible("이 계단은 아래로만 향한다.")
+            raise exceptions.Impossible(i("이 계단은 아래로만 향한다.",
+                                          "This stair only goes down."))
         else:
-            raise exceptions.Impossible("올라갈 수 없다.")
+            raise exceptions.Impossible(i("올라갈 수 없다.",
+                                          "You can't ascend here."))
 
 
 class ItemAction(Action):
@@ -355,11 +367,13 @@ class ThrowItem(ItemAction):
         # Check can remove
         if self.item.item_state.equipped_region:
             if self.entity == self.engine.player:
-                self.engine.message_log.add_message("장착하고 있는 아이템을 던질 수 없습니다.", color.invalid)
+                self.engine.message_log.add_message(i("장착하고 있는 아이템을 던질 수 없습니다.",
+                                                      "You can't throw an equipped item."), color.invalid)
             return None
         if not self.item.droppable:
             if self.entity == self.engine.player:
-                self.engine.message_log.add_message(f"{g(self.item.name, '을')} 던질 수 없습니다.", color.invalid)
+                self.engine.message_log.add_message(i(f"{g(self.item.name, '을')} 던질 수 없습니다.",
+                                                      f"You can't throw {self.item.name}."), color.invalid)
             return None
 
         if self.entity.status.experience:
@@ -379,9 +393,11 @@ class ThrowItem(ItemAction):
         # Actual throw logic handled here
         if self.entity == self.engine.player:
             # No sound
-            self.engine.message_log.add_message(f"당신은 {g(throw_item.name, '을')} 던졌다.", fg=color.player_neutral_important)
+            self.engine.message_log.add_message(i(f"당신은 {g(throw_item.name, '을')} 던졌다.",
+                                                  f"You throw {throw_item.name}."), fg=color.player_neutral_important)
         else:
-            self.engine.message_log.add_message(f"{g(self.entity.name, '이')} {g(throw_item.name, '을')} 던졌다.", fg=color.enemy_unique, target=self.entity)
+            self.engine.message_log.add_message(i(f"{g(self.entity.name, '이')} {g(throw_item.name, '을')} 던졌다.",
+                                                  f"{self.entity.name} throws {throw_item.name}."), fg=color.enemy_unique, target=self.entity)
         throw_item.throwable.activate(self)
 
 
@@ -393,26 +409,32 @@ class DropItem(ItemAction):
 
         if self.item.item_state.equipped_region:
             if self.entity == self.engine.player:
-                self.engine.message_log.add_message("장착하고 있는 아이템을 드랍할 수 없습니다.", color.invalid)
+                self.engine.message_log.add_message(i("장착하고 있는 아이템을 드랍할 수 없습니다.",
+                                                      "You can't drop an equipped item."), color.invalid)
             return None
         if not self.item.droppable:
             if self.entity == self.engine.player:
-                self.engine.message_log.add_message(f"{g(self.item.name, '을')} 드랍할 수 없습니다.", color.invalid)
+                self.engine.message_log.add_message(i(f"{g(self.item.name, '을')} 드랍할 수 없습니다.",
+                                                      f"You can't drop {self.item.name}."), color.invalid)
             return None
 
         if self.entity == self.engine.player:
             self.engine.sound_manager.add_sound_queue("fx_drop")
             if self.item.stack_count > 1:
-                self.engine.message_log.add_message(f"당신은 {g(self.item.name, '을')} 땅에 떨어뜨렸다. (x{self.item.stack_count}).",fg=color.player_neutral_important)
+                self.engine.message_log.add_message(i(f"당신은 {g(self.item.name, '을')} 땅에 떨어뜨렸다. (x{self.item.stack_count})",
+                                                      f"You drop {self.item.name}. (x{self.item.stack_count})"),fg=color.player_neutral_important)
             else:
-                self.engine.message_log.add_message(f"당신은 {g(self.item.name, '을')} 땅에 떨어뜨렸다.",fg=color.player_neutral_important)
+                self.engine.message_log.add_message(i(f"당신은 {g(self.item.name, '을')} 땅에 떨어뜨렸다.",
+                                                      f"You drop {self.item.name}."),fg=color.player_neutral_important)
         else:
             if self.item.stack_count > 1:
                 self.engine.message_log.add_message(
-                    f"{g(self.entity.name, '이')} {g(self.item.name, '을')} 땅에 떨어뜨렸다. (x{self.item.stack_count}).",
+                    i(f"{g(self.entity.name, '이')} {g(self.item.name, '을')} 땅에 떨어뜨렸다. (x{self.item.stack_count})",
+                      f"{self.entity.name} drops {self.item.name}. (x{self.item.stack_count})"),
                     fg=color.enemy_neutral, target=self.entity)
             else:
-                self.engine.message_log.add_message(f"{g(self.entity.name, '이')} {g(self.item.name, '을')} 땅에 떨어뜨렸다.",fg=color.enemy_neutral, target=self.entity)
+                self.engine.message_log.add_message(i(f"{g(self.entity.name, '이')} {g(self.item.name, '을')} 땅에 떨어뜨렸다.",
+                                                      f"{self.entity.name} drops {self.item.name}."),fg=color.enemy_neutral, target=self.entity)
         self.entity.inventory.drop(self.item)
 
 
@@ -463,16 +485,19 @@ class ReadItem(ItemAction):
 
         if self.entity.actor_state.is_confused != [0,0]:
             if self.entity == self.engine.player:
-                self.engine.message_log.add_message(f"당신은 문자를 읽는 데 어려움을 겪었다.", color.player_failed)
+                self.engine.message_log.add_message(i(f"당신은 문자를 읽는 데 어려움을 겪었다.",
+                                                      f"You have trouble reading."), color.player_failed)
             else:
                 print(f"WARNING::{self.entity} failed to read {self.item}.")
             return None
         
         if self.entity == self.engine.player:
             # No sound
-            self.engine.message_log.add_message(f"당신은 {g(self.item.name, '을')} 읽었다.", color.player_neutral_important)
+            self.engine.message_log.add_message(i(f"당신은 {g(self.item.name, '을')} 읽었다.",
+                                                  f"You read {self.item.name}."), color.player_neutral_important)
         else:
-            self.engine.message_log.add_message(f"{g(self.entity.name, '은')} {g(self.item.name, '을')} 읽었다.", color.enemy_unique)
+            self.engine.message_log.add_message(i(f"{g(self.entity.name, '은')} {g(self.item.name, '을')} 읽었다.",
+                                                  f"{self.entity.name} reads {self.item.name}."), color.enemy_unique)
         
         if self.entity.status.experience:
             self.entity.status.experience.gain_intelligence_exp(35, 12)
@@ -536,11 +561,13 @@ class UnequipItem(ItemAction):
         # Check can remove
         if self.entity.equipments.equipments[self.item.item_state.equipped_region] == None:
             if self.entity == self.engine.player:
-                self.engine.message_log.add_message("당신은 해당 위치에 아무 것도 장착하고 있지 않다.", fg=color.impossible)
+                self.engine.message_log.add_message(i("당신은 해당 위치에 아무 것도 장착하고 있지 않다.",
+                                                      "There's nothing to unequip."), fg=color.impossible)
             return None
         elif self.item.item_state.BUC == -1:
             if self.entity == self.engine.player:
-                self.engine.message_log.add_message(f"{g(self.item.name, '이')} 몸에서 떨어지지 않는다!",fg=color.player_failed)
+                self.engine.message_log.add_message(i(f"{g(self.item.name, '이')} 몸에서 떨어지지 않는다!",
+                                                      f"Your {self.item.name} sticks to your body and doesn't get off!"),fg=color.player_failed)
                 self.item.item_state.identify_self(2)
             return None
 
@@ -584,16 +611,20 @@ class FlyAction(Action):
     def fly(self):
         self.entity.actor_state.is_flying = True
         if self.entity == self.engine.player:
-            self.engine.message_log.add_message("당신은 공중을 날고 있다!", fg=color.player_success)
+            self.engine.message_log.add_message(i("당신은 공중을 날고 있다!",
+                                                  "You start to fly!"), fg=color.player_success)
         else:
-            self.engine.message_log.add_message(f"{g(self.entity.name,'가')} 공중을 날고 있다.", fg=color.enemy_unique)
+            self.engine.message_log.add_message(i(f"{g(self.entity.name,'가')} 공중을 날고 있다.",
+                                                  f"{self.entity.name} starts flying."), fg=color.enemy_unique)
 
     def stop_fly(self):
         self.entity.actor_state.is_flying = False
         if self.entity == self.engine.player:
-            self.engine.message_log.add_message("당신은 공중을 나는 것을 멈췄다.", fg=color.player_neutral)
+            self.engine.message_log.add_message(i("당신은 공중을 나는 것을 멈췄다.",
+                                                  "You are no longer flying."), fg=color.player_neutral)
         else:
-            self.engine.message_log.add_message(f"{g(self.entity.name,'가')} 공중을 나는 것을 멈췄다.", fg=color.enemy_neutral)
+            self.engine.message_log.add_message(i(f"{g(self.entity.name,'가')} 공중을 나는 것을 멈췄다.",
+                                                  f"{self.entity.name} stops flying."), fg=color.enemy_neutral)
 
     def perform(self) -> None:
         if self.entity.actor_state.can_fly:
@@ -608,7 +639,8 @@ class FlyAction(Action):
             else:
                 # Cant fly
                 if self.entity == self.engine.player:
-                    self.engine.message_log.add_message("당신은 공중으로 날아오르려 시도했지만 실패했다.", fg=color.player_failed)
+                    self.engine.message_log.add_message(i("당신은 공중으로 날아오르려 시도했지만 실패했다.",
+                                                          "You try to fly but fail."), fg=color.player_failed)
                 return None
 
 class TurnPassAction(Action):
@@ -649,20 +681,25 @@ class ChestTakeAction(ChestAction):
             # Check can remove
             if item.item_state.equipped_region:
                 if self.entity == self.engine.player:
-                    self.engine.message_log.add_message("장착되어 있는 아이템을 가져갈 수 없습니다.", color.invalid)
+                    self.engine.message_log.add_message(i("장착되어 있는 아이템을 가져갈 수 없습니다.",
+                                                          "You can't take something that's equipped."), color.invalid)
                 continue
 
             if self.actor_storage.try_add_item_if_full_drop(self.chest_storage.delete_item_from_inv(item)):
                 if self.entity == self.engine.player:
                     if item.stack_count <= 1:
-                        self.engine.message_log.add_message(f"{g(item.name, '을')} 얻었다.", color.obtain_item)
+                        self.engine.message_log.add_message(i(f"{g(item.name, '을')} 얻었다.",
+                                                              f"You now have {item.name}."), color.obtain_item)
                     else:
-                        self.engine.message_log.add_message(f"{g(item.name, '을')} 얻었다. (x{item.stack_count})", color.obtain_item)
+                        self.engine.message_log.add_message(i(f"{g(item.name, '을')} 얻었다. (x{item.stack_count})",
+                                                              f"You now have {item.name}. (x{item.stack_count}"), color.obtain_item)
                 else:
                     if item.stack_count <= 1:
-                        self.engine.message_log.add_message(f"{g(self.entity.name, '이')} {g(item.name, '을')} {self.chest_name}에서 꺼냈다.", color.enemy_unique)
+                        self.engine.message_log.add_message(i(f"{g(self.entity.name, '이')} {g(item.name, '을')} {self.chest_name}에서 꺼냈다.",
+                                                              f"{self.entity.name} takes {item.name} off from the {self.chest_name}."), color.enemy_unique)
                     else:
-                        self.engine.message_log.add_message(f"{g(self.entity.name, '이')} {g(item.name, '을')} {self.chest_name}에서 꺼냈다. (x{item.stack_count})", color.enemy_unique)
+                        self.engine.message_log.add_message(i(f"{g(self.entity.name, '이')} {g(item.name, '을')} {self.chest_name}에서 꺼냈다. (x{item.stack_count})",
+                                                              f"{self.entity.name} takes {item.name} off from the {self.chest_name}. (x{item.stack_count})"), color.enemy_unique)
 
         self.chest_storage.parent.on_actor_take_trigger(interacted_with=self.entity)
 
@@ -673,25 +710,31 @@ class ChestPutAction(ChestAction):
             # Check can remove
             if item.item_state.equipped_region:
                 if self.entity == self.engine.player:
-                    self.engine.message_log.add_message("장착하고 있는 아이템을 넣을 수 없습니다.", color.invalid)
+                    self.engine.message_log.add_message(i("장착하고 있는 아이템을 넣을 수 없습니다.",
+                                                          "You can't put in something that's equipped."), color.invalid)
                 continue
             elif not item.droppable and self.entity.inventory.check_if_in_inv_object(item):
                 if self.entity == self.engine.player:
-                    self.engine.message_log.add_message(f"{g(item.name, '을')} 넣을 수 없습니다.", color.invalid)
+                    self.engine.message_log.add_message(i(f"{g(item.name, '을')} 넣을 수 없습니다.",
+                                                          f"You can't put in {item.name}."), color.invalid)
                 continue
 
             self.chest_storage.try_add_item_if_full_drop(self.actor_storage.delete_item_from_inv(item))
 
             if self.entity == self.engine.player:
                 if item.stack_count <= 1:
-                    self.engine.message_log.add_message(f"{g(item.name, '을')} 집어넣었다.", color.player_success)
+                    self.engine.message_log.add_message(i(f"{g(item.name, '을')} 집어넣었다.",
+                                                          f"You put your {item.name} in."), color.player_success)
                 else:
-                    self.engine.message_log.add_message(f"{g(item.name, '을')} 집어넣었다. (x{item.stack_count})", color.player_success)
+                    self.engine.message_log.add_message(i(f"{g(item.name, '을')} 집어넣었다. (x{item.stack_count})",
+                                                          f"You put your {item.name} in. (x{item.stack_count})"), color.player_success)
             else:
                 if item.stack_count <= 1:
-                    self.engine.message_log.add_message(f"{g(self.entity.name, '이')} {g(item.name, '을')} {self.chest_name}에 집어넣었다.", color.enemy_unique)
+                    self.engine.message_log.add_message(i(f"{g(self.entity.name, '이')} {g(item.name, '을')} {self.chest_name}에 집어넣었다.",
+                                                          f"{self.entity.name} puts {item.name} into the {self.chest_name}."), color.enemy_unique)
                 else:
-                    self.engine.message_log.add_message(f"{g(self.entity.name, '이')} {g(item.name, '을')} {self.chest_name}에서 집어넣었다. (x{item.stack_count})", color.enemy_unique)
+                    self.engine.message_log.add_message(i(f"{g(self.entity.name, '이')} {g(item.name, '을')} {self.chest_name}에서 집어넣었다. (x{item.stack_count})",
+                                                          f"{self.entity.name} puts {item.name} into the {self.chest_name}. (x{item.stack_count}"), color.enemy_unique)
 
 
 class ActionWithDirection(Action):
@@ -717,10 +760,11 @@ class ActionWithDirection(Action):
                     (1, 1),  # Southeast
                 ]
             )
-            
+
             # Message log
             if self.entity == self.engine.player:
-                self.engine.message_log.add_message(f"당신은 휘청거렸다!", color.player_not_good)
+                self.engine.message_log.add_message(i(f"당신은 휘청거렸다!",
+                                                      f"You stagger!"), color.player_not_good)
 
     @property
     def dest_xy(self) -> Tuple[int, int]:
@@ -847,18 +891,18 @@ class MeleeAction(ActionWithDirection):
         """
         # Check if this melee attack has any special effects
         if effect_set:
-
+            # WARNING: be careful with the translations
             if self.entity == self.engine.player:
-                atk_name = "당신"
-                tar_name = f"{target.name}"
+                atk_name = i("당신", "your")
+                tar_name = i(f"{target.name}",f"{target.name}")
                 fg = color.player_crit
             elif target == self.engine.player:
-                atk_name = f"{self.entity.name}"
-                tar_name = "당신"
+                atk_name = i(f"{self.entity.name}",f"{self.entity.name}'s")
+                tar_name = i("당신", "you")
                 fg = color.player_bad
             else:
-                atk_name = f"{self.entity.name}"
-                tar_name = f"{target.name}"
+                atk_name = i(f"{self.entity.name}",f"{self.entity.name}'s")
+                tar_name = i(f"{target.name}",f"{target.name}")
                 fg = color.enemy_unique
 
             # Apply status effects
@@ -874,58 +918,75 @@ class MeleeAction(ActionWithDirection):
 
                 # Negative status effects
                 if type == "burn_target":
-                    self.engine.message_log.add_message(f"{atk_name}의 공격이 {tar_name}에게 화염 피해를 가했다!", fg=fg, target=self.entity)
+                    self.engine.message_log.add_message(i(f"{atk_name}의 공격이 {tar_name}에게 화염 피해를 가했다!",
+                                                          f"{atk_name} attack inflicts fire damage to {tar_name}!"), fg=fg, target=self.entity)
                     target.actor_state.apply_burning(list(eff["var"]))
                 elif type == "poison_target":
-                    self.engine.message_log.add_message(f"{atk_name}의 공격이 {tar_name}에게 독성 피해를 가했다!", fg=fg, target=self.entity)
+                    self.engine.message_log.add_message(i(f"{atk_name}의 공격이 {tar_name}에게 독성 피해를 가했다!",
+                                                          f"{atk_name} attack inflicts poison damage to {tar_name}!"), fg=fg, target=self.entity)
                     target.actor_state.apply_poisoning(list(eff["var"]))
                 elif type == "freeze_target":
-                    self.engine.message_log.add_message(f"{atk_name}의 공격이 {tar_name}에게 냉기 피해를 가했다!", fg=fg, target=self.entity)
+                    self.engine.message_log.add_message(i(f"{atk_name}의 공격이 {tar_name}에게 냉기 피해를 가했다!",
+                                                          f"{atk_name} attack inflicts cold damage to {tar_name}!"), fg=fg, target=self.entity)
                     target.actor_state.apply_freezing(list(eff["var"]))
                 elif type == "electrocute_target":
-                    self.engine.message_log.add_message(f"{atk_name}의 공격이 {tar_name}에게 전격 피해를 가했다!", fg=fg, target=self.entity)
+                    self.engine.message_log.add_message(i(f"{atk_name}의 공격이 {tar_name}에게 전격 피해를 가했다!",
+                                                          f"{atk_name} attack inflicts electric damage to {tar_name}!"), fg=fg, target=self.entity)
                     target.actor_state.apply_electrocution(list(eff["var"]))
                     target.actor_state.actor_electrocuted(source_actor=caused_by)
                 elif type == "bleed_target":
-                    self.engine.message_log.add_message(f"{atk_name}의 공격이 {tar_name}에게 출혈 피해를 가했다!", fg=fg, target=self.entity)
+                    self.engine.message_log.add_message(i(f"{atk_name}의 공격이 {tar_name}에게 출혈 피해를 가했다!",
+                                                          f"{atk_name} attack inflicts bleeding to {tar_name}!"), fg=fg, target=self.entity)
                     target.actor_state.apply_bleeding(list(eff["var"]))
                 elif type == "paralyze_target":
-                    self.engine.message_log.add_message(f"{atk_name}의 공격이 {tar_name}에게 마비 상태이상을 부여했다!", fg=fg, target=self.entity)
+                    self.engine.message_log.add_message(i(f"{atk_name}의 공격이 {tar_name}에게 마비 상태이상을 부여했다!",
+                                                          f"{atk_name} attack inflicts paralyzation to {tar_name}!"), fg=fg, target=self.entity)
                     target.actor_state.apply_paralyzation(list(eff["var"]))
                 elif type == "slow_target":
-                    self.engine.message_log.add_message(f"{atk_name}의 공격이 {tar_name}에게 속도저하 상태이상을 부여했다!", fg=fg, target=self.entity)
+                    self.engine.message_log.add_message(i(f"{atk_name}의 공격이 {tar_name}에게 속도저하 상태이상을 부여했다!",
+                                                          f"{atk_name} attack inflicts slowness to {tar_name}!"), fg=fg, target=self.entity)
                     target.actor_state.apply_slowness(list(eff["var"]))
                 elif type == "sleep_target":
-                    self.engine.message_log.add_message(f"{atk_name}의 공격이 {tar_name}에게 수면 상태이상을 부여했다!", fg=fg, target=self.entity)
+                    self.engine.message_log.add_message(i(f"{atk_name}의 공격이 {tar_name}에게 수면 상태이상을 부여했다!",
+                                                          f"{atk_name} attack inflicts sleep to {tar_name}!"), fg=fg, target=self.entity)
                     target.actor_state.apply_sleeping(list(eff["var"]), forced=False)
                 elif type == "melt_target":
-                    self.engine.message_log.add_message(f"{atk_name}의 공격이 {tar_name}에게 산성 피해를 가했다!", fg=fg, target=self.entity)
+                    self.engine.message_log.add_message(i(f"{atk_name}의 공격이 {tar_name}에게 산성 피해를 가했다!",
+                                                          f"{atk_name} attack inflicts acid damage to {tar_name}!"), fg=fg, target=self.entity)
                     target.actor_state.apply_melting(list(eff["var"]))
                 elif type == "sick_target":
-                    self.engine.message_log.add_message(f"{atk_name}의 공격이 {tar_name}에게 질병 피해를 가했다!", fg=fg, target=self.entity)
+                    self.engine.message_log.add_message(i(f"{atk_name}의 공격이 {tar_name}에게 질병 피해를 가했다!",
+                                                          f"{atk_name} attack inflicts sickness to {tar_name}!"), fg=fg, target=self.entity)
                     target.actor_state.apply_sickness(list(eff["var"]))
                 elif type == "anger_target":
-                    self.engine.message_log.add_message(f"{atk_name}의 공격이 {tar_name}에게 분노 상태이상을 부여했다!", fg=fg, target=self.entity)
+                    self.engine.message_log.add_message(i(f"{atk_name}의 공격이 {tar_name}에게 분노 상태이상을 부여했다!",
+                                                          f"{atk_name} attack inflicts anger to {tar_name}!"), fg=fg, target=self.entity)
                     target.actor_state.apply_anger(list(eff["var"]))
                 elif type == "confuse_target":
-                    self.engine.message_log.add_message(f"{atk_name}의 공격이 {tar_name}에게 혼란 상태이상을 부여했다!", fg=fg, target=self.entity)
+                    self.engine.message_log.add_message(i(f"{atk_name}의 공격이 {tar_name}에게 혼란 상태이상을 부여했다!",
+                                                          f"{atk_name} attack inflicts confusion to {tar_name}!"), fg=fg, target=self.entity)
                     target.actor_state.apply_confusion(list(eff["var"]))
                 elif type == "hallucinate_target":
-                    self.engine.message_log.add_message(f"{atk_name}의 공격이 {tar_name}에게 환각 상태이상을 부여했다!", fg=fg, target=self.entity)
+                    self.engine.message_log.add_message(i(f"{atk_name}의 공격이 {tar_name}에게 환각 상태이상을 부여했다!",
+                                                          f"{atk_name} attack inflicts hallucination to {tar_name}!"), fg=fg, target=self.entity)
                     target.actor_state.apply_hallucination(list(eff["var"]))
 
                 # Other status effects
                 elif type == "fast_target":
-                    self.engine.message_log.add_message(f"{atk_name}의 공격이 {tar_name}에게 속도증가 상태이상을 부여했다!", fg=fg, target=self.entity)
+                    self.engine.message_log.add_message(i(f"{atk_name}의 공격이 {tar_name}에게 속도증가 상태이상을 부여했다!",
+                                                          f"{atk_name} attack inflicts swiftness to {tar_name}!"), fg=fg, target=self.entity)
                     target.actor_state.apply_haste(list(eff["var"]))
                 elif type == "invisible_target":
-                    self.engine.message_log.add_message(f"{atk_name}의 공격이 {tar_name}에게 투명화 상태이상을 부여했다!", fg=fg, target=self.entity)
+                    self.engine.message_log.add_message(i(f"{atk_name}의 공격이 {tar_name}에게 투명화 상태이상을 부여했다!",
+                                                          f"{atk_name} attack inflicts invisibility to {tar_name}!"), fg=fg, target=self.entity)
                     target.actor_state.apply_invisibility(list(eff["var"]))
                 elif type == "phase_target":
-                    self.engine.message_log.add_message(f"{atk_name}의 공격이 {tar_name}에게 페이징 상태이상을 부여했다!", fg=fg, target=self.entity)
+                    self.engine.message_log.add_message(i(f"{atk_name}의 공격이 {tar_name}에게 페이징 상태이상을 부여했다!",
+                                                          f"{atk_name} attack inflicts phasing to {tar_name}!"), fg=fg, target=self.entity)
                     target.actor_state.apply_phasing(list(eff["var"]))
                 elif type == "levitate_target":
-                    self.engine.message_log.add_message(f"{atk_name}의 공격이 {tar_name}에게 공중부양 상태이상을 부여했다!", fg=fg, target=self.entity)
+                    self.engine.message_log.add_message(i(f"{atk_name}의 공격이 {tar_name}에게 공중부양 상태이상을 부여했다!",
+                                                          f"{atk_name} attack inflicts levitation to {tar_name}!"), fg=fg, target=self.entity)
                     target.actor_state.apply_levitation(list(eff["var"]))
                     
 
@@ -938,7 +999,8 @@ class MeleeAction(ActionWithDirection):
         target = self.target_actor
         if not target:
             if self.entity == self.engine.player:
-                self.engine.message_log.add_message("당신은 허공을 공격했다.", color.impossible)
+                self.engine.message_log.add_message(i("당신은 허공을 공격했다.",
+                                                      "You attack nothing."), color.impossible)
                 self.engine.sound_manager.add_sound_queue("fx_miss")
                 return None
             else:
@@ -948,10 +1010,10 @@ class MeleeAction(ActionWithDirection):
         # Name
         if target == self.engine.player:
             att_name = f"{self.entity.name}"
-            tar_name = "당신"
+            tar_name = i("당신","you")
             miss_fg = color.enemy_atk_missed
         elif self.entity == self.engine.player:
-            att_name = "당신"
+            att_name = i("당신","you")
             tar_name = f"{target.name}"
             miss_fg = color.player_not_good
         else:
@@ -961,7 +1023,11 @@ class MeleeAction(ActionWithDirection):
 
         # Attack missing calculation
         if self.is_miss():
-            self.engine.message_log.add_message(f"{g(att_name, '은')} {g(tar_name, '을')} 공격했지만 빗나갔다.", miss_fg, target=self.entity)
+            if att_name == "you":
+                self.engine.message_log.add_message(f"You attack {tar_name} but miss.", miss_fg,target=self.entity)
+            else:
+                self.engine.message_log.add_message(i(f"{g(att_name, '은')} {g(tar_name, '을')} 공격했지만 빗나갔다.",
+                                                      f"{att_name} attacks {tar_name} but misses."), miss_fg, target=self.entity)
             target.status.take_damage(amount=0, attacked_from=self.entity) #Trigger
             if target.status.experience: # gain exp when attack was successful
                 target.status.experience.gain_agility_exp(10, 17, exp_limit=1000)
@@ -985,7 +1051,11 @@ class MeleeAction(ActionWithDirection):
         damage = self.damage_calculation(crit_multiplier=crit_multiplier)
 
         # Messege log
-        attack_desc = f"{g(att_name, '이')} {g(tar_name, '을')} 공격"
+        if att_name == "you":
+            attack_desc = f"you attack {tar_name}"
+        else:
+            attack_desc = i(f"{g(att_name, '이')} {g(tar_name, '을')} 공격",
+                            f"{att_name} attacks {tar_name}")
         if self.entity is self.engine.player:
             if critical_hit:
                 attack_color = color.player_crit
@@ -1003,7 +1073,11 @@ class MeleeAction(ActionWithDirection):
         # If there is damage
         if damage > 0:
             if self.engine.game_map.visible[self.entity.x, self.entity.y] or self.engine.game_map.visible[target.x, target.y]:
-                self.engine.message_log.add_message(f"{attack_desc}해 {damage} 데미지를 입혔다.", attack_color)
+                if att_name == "you":
+                    self.engine.message_log.add_message(f"{attack_desc} and deal {damage} damage.", attack_color)
+                else:
+                    self.engine.message_log.add_message(i(f"{attack_desc}해 {damage} 데미지를 입혔다.",
+                                                          f"{attack_desc} and deals {damage} damage."), attack_color)
             target.status.take_damage(amount=damage, attacked_from=self.entity)
 
             if self.entity == self.engine.player:
@@ -1013,7 +1087,8 @@ class MeleeAction(ActionWithDirection):
                     hitsound = "fx_player_hit"
         else:
             if self.engine.game_map.visible[self.entity.x, self.entity.y] or self.engine.game_map.visible[target.x, target.y]:
-                self.engine.message_log.add_message(f"{attack_desc}했지만 아무런 데미지도 주지 못했다.", miss_fg)
+                self.engine.message_log.add_message(i(f"{attack_desc}했지만 아무런 데미지도 주지 못했다.",
+                                                      f"{attack_desc} but did no damage."), miss_fg)
             target.status.take_damage(amount=0, attacked_from=self.entity)  # Trigger
 
             if self.entity == self.engine.player:
@@ -1044,7 +1119,8 @@ class MovementAction(ActionWithDirection):
         if not self.engine.game_map.in_bounds(dest_x, dest_y):
             # Destination is out of bounds.
             if self.entity == self.engine.player:
-                self.engine.message_log.add_message("길이 막혀 있다.", fg=color.impossible)
+                self.engine.message_log.add_message(i("길이 막혀 있다.",
+                                                      "It's blocked."), fg=color.impossible)
             return None
 
         ### Check if actor is on a surface tile but cannot move on surfaces
@@ -1054,12 +1130,14 @@ class MovementAction(ActionWithDirection):
             elif self.entity.actor_state.is_submerged:
                 if self.entity.gamemap.check_if_tile_is_surface(dest_x, dest_y):
                     if self.entity == self.engine.player:
-                        self.engine.message_log.add_message("당신은 해당 위치로 이동할 수 없다.", fg=color.impossible)
+                        self.engine.message_log.add_message(i("당신은 해당 위치로 이동할 수 없다.",
+                                                              "You can't move to the given location."), fg=color.impossible)
                     return None
                 pass
             else:
                 if self.entity == self.engine.player:
-                    self.engine.message_log.add_message("당신은 이동할 수 없다.", fg=color.impossible)
+                    self.engine.message_log.add_message(i("당신은 이동할 수 없다.",
+                                                          "You can't move."), fg=color.impossible)
                 return None
 
         # If the actor is stuck in pit
@@ -1077,21 +1155,23 @@ class MovementAction(ActionWithDirection):
 
             if random.random() > crawl_out_chance:
                 if self.entity == self.engine.player:
-                    self.engine.message_log.add_message(f"당신은 구덩이에서 빠져나오려 시도했으나 실패했다.", color.player_failed)
+                    self.engine.message_log.add_message(i(f"당신은 구덩이에서 빠져나오려 시도했으나 실패했다.",
+                                                          f"You try to crawl out from the pit but fail."), color.player_failed)
                 else:
-                    self.engine.message_log.add_message(f"{g(self.entity.name, '은')} 구덩이에서 빠져나오려 했으나 실패했다.", color.enemy_neutral, target=self.entity)
+                    self.engine.message_log.add_message(i(f"{g(self.entity.name, '은')} 구덩이에서 빠져나오려 했으나 실패했다.",
+                                                          f"{self.entity.name} tries to crawl out from the pit but fails."), color.enemy_neutral, target=self.entity)
                 return None # Turn passes
 
         if not self.engine.game_map.tiles["walkable"][dest_x, dest_y]:
             # Destination is blocked by a tile.
             if self.entity == self.engine.player:
-                self.engine.message_log.add_message("길이 막혀 있다.", fg=color.impossible)
+                self.engine.message_log.add_message(i("길이 막혀 있다.","It's blocked."), fg=color.impossible)
             return None
             
         if self.engine.game_map.get_blocking_entity_at_location(dest_x, dest_y):
             # Destination is blocked by an entity.
             if self.entity == self.engine.player:
-                self.engine.message_log.add_message("길이 막혀 있다.", fg=color.impossible)
+                self.engine.message_log.add_message(i("길이 막혀 있다.","It's blocked."), fg=color.impossible)
             return None
 
         self.entity.move(self.dx, self.dy)
@@ -1129,10 +1209,12 @@ class DoorUnlockAction(ActionWithDirection):
             if random.random() <= chance_of_unlocking and intelligence > 10 and dexterity > 7:
                 # Unlock succeded
                 if self.entity == self.engine.player:
-                    self.engine.message_log.add_message(f"당신은 문의 잠금을 해제하는데 성공했다!", color.player_success)
+                    self.engine.message_log.add_message(i(f"당신은 문의 잠금을 해제하는데 성공했다!",
+                                                          f"You successfully unlock the door!"), color.player_success)
                     self.engine.sound_manager.play_sound("fx_unlock")
                 else:
-                    self.engine.message_log.add_message(f"{g(self.entity.name, '이')} 문의 잠금을 해제했다!", color.enemy_unique, target=self.entity)
+                    self.engine.message_log.add_message(i(f"{g(self.entity.name, '이')} 문의 잠금을 해제했다!",
+                                                          f"{self.entity.name} unlocks the door!"), color.enemy_unique, target=self.entity)
 
                 import semiactor_factories
                 tmp = semiactor_factories.closed_door.spawn(self.engine.game_map, dest_x, dest_y, -1)
@@ -1144,9 +1226,11 @@ class DoorUnlockAction(ActionWithDirection):
             else:
                 # Unlock failed
                 if self.entity == self.engine.player:
-                    self.engine.message_log.add_message(f"당신은 문의 잠금을 해제하는데 실패했다.", color.player_failed)
+                    self.engine.message_log.add_message(i(f"당신은 문의 잠금을 해제하는데 실패했다.",
+                                                          f"You fail to unlock the door."), color.player_failed)
                 else:
-                    self.engine.message_log.add_message(f"{g(self.entity.name, '은')} 문의 잠금을 해제하는데 실패했다.", color.enemy_unique, target=self.entity)
+                    self.engine.message_log.add_message(i(f"{g(self.entity.name, '은')} 문의 잠금을 해제하는데 실패했다.",
+                                                          f"{self.entity.name} fails to unlock the door."), color.enemy_unique, target=self.entity)
 
 
     def unlock(self, item: Item) -> None:
@@ -1161,7 +1245,8 @@ class DoorUnlockAction(ActionWithDirection):
         door = self.engine.game_map.get_semiactor_at_location(dest_x, dest_y, "door")
 
         if not door or not isinstance(door.semiactor_info, Door):
-            raise exceptions.Impossible("이 곳에는 잠금을 해제할 물건이 없다.")
+            raise exceptions.Impossible(i("이 곳에는 잠금을 해제할 물건이 없다.",
+                                          "There is nothing to unlock."))
         else:
             dexterity = self.entity.status.changed_status["dexterity"]
 

@@ -3064,7 +3064,7 @@ amulet_of_kugah = Item(
     indestructible=True,
     should_initialize=False,
     should_randomize=False,
-    char="⊕",
+    char="♀",
     fg = (255, 72, 0),
     name="쿠가의 아뮬렛",
     entity_id="amulet_of_kugah",
@@ -3100,7 +3100,7 @@ item_rarity.append(amulet_of_kugah.rarity)
 ### Amulet of Brilliance
 amulet_of_brilliance = Item(
     should_randomize=True,
-    char="⊕",
+    char="♀",
     fg = (255, 72, 0),
     name="지적 각성의 아뮬렛",
     entity_id="amulet_of_brilliance",
@@ -3136,7 +3136,7 @@ item_rarity.append(amulet_of_brilliance.rarity)
 ### Amulet of Sensitivity
 amulet_of_sensitivity = Item(
     should_randomize=True,
-    char="⊕",
+    char="♀",
     fg = (255, 72, 0),
     name="감각 향상의 아뮬렛",
     entity_id="amulet_of_sensitivity",
@@ -3171,7 +3171,7 @@ item_rarity.append(amulet_of_sensitivity.rarity)
 ### Amulet of Telepathy
 amulet_of_telepathy = Item(
     should_randomize=True,
-    char="⊕",
+    char="♀",
     fg = (255, 72, 0),
     name="텔레파시의 아뮬렛",
     entity_id="amulet_of_telepathy",
@@ -3203,7 +3203,7 @@ item_rarity.append(amulet_of_telepathy.rarity)
 ### Amulet of Underwater Breathing
 amulet_of_underwater_breathing = Item(
     should_randomize=True,
-    char="⊕",
+    char="♀",
     fg = (255, 72, 0),
     name="수중 호흡의 아뮬렛",
     entity_id="amulet_of_underwater_breathing",
@@ -3235,7 +3235,7 @@ item_rarity.append(amulet_of_underwater_breathing.rarity)
 ### Amulet of monastic silence
 amulet_of_monastic_silence = Item(
     should_randomize=True,
-    char="⊕",
+    char="♀",
     fg = (255, 72, 0),
     name="묵언 수행의 아뮬렛",
     entity_id="amulet_of_monastic_silence",
@@ -3268,7 +3268,7 @@ item_rarity.append(amulet_of_monastic_silence.rarity)
 ### Amulet of Charisma
 amulet_of_charisma = Item(
     should_randomize=True,
-    char="⊕",
+    char="♀",
     fg = (255, 72, 0),
     name="카리스마의 아뮬렛",
     entity_id="amulet_of_charisma",
@@ -3304,7 +3304,7 @@ item_rarity.append(amulet_of_charisma.rarity)
 ### Amulet of immunity loss
 amulet_of_immunity_loss = Item(
     should_randomize=True,
-    char="⊕",
+    char="♀",
     fg = (255, 72, 0),
     name="면역력 저하의 아뮬렛",
     entity_id="amulet_of_immunity_loss",
@@ -3340,7 +3340,7 @@ item_rarity.append(amulet_of_immunity_loss.rarity)
 ### Amulet of magic aversion
 amulet_of_magic_aversion = Item(
     should_randomize=True,
-    char="⊕",
+    char="♀",
     fg = (255, 72, 0),
     name="반마법의 아뮬렛",
     entity_id="amulet_of_magic_aversion",
@@ -3382,7 +3382,7 @@ item_rarity.append(amulet_of_magic_aversion.rarity)
 ### Ring of inner peace
 ring_of_inner_peace = Item(
     should_randomize=True,
-    char="`",
+    char="◦",
     fg = (255, 72, 0),
     name="내적 평화의 반지",
     entity_id="ring_of_inner_peace",
@@ -3415,7 +3415,7 @@ item_rarity.append(ring_of_inner_peace.rarity)
 ### Ring of water
 ring_of_water = Item(
     should_randomize=True,
-    char="`",
+    char="◦",
     fg = (255, 72, 0),
     name="물의 반지",
     entity_id="ring_of_water",
@@ -3451,7 +3451,7 @@ item_rarity.append(ring_of_water.rarity)
 ### Ring of earth
 ring_of_earth = Item(
     should_randomize=True,
-    char="`",
+    char="◦",
     fg = (255, 72, 0),
     name="땅의 반지",
     entity_id="ring_of_earth",
@@ -3487,7 +3487,7 @@ item_rarity.append(ring_of_earth.rarity)
 ### Ring of sky
 ring_of_sky = Item(
     should_randomize=True,
-    char="`",
+    char="◦",
     fg = (255, 72, 0),
     name="하늘의 반지",
     entity_id="ring_of_sky",
@@ -3520,7 +3520,7 @@ item_rarity.append(ring_of_sky.rarity)
 ### Ring of Dexterity
 ring_of_dexterity = Item(
     should_randomize=True,
-    char="`",
+    char="◦",
     fg = (255, 72, 0),
     name="재주의 반지",
     entity_id="ring_of_dexterity",
@@ -3556,7 +3556,7 @@ item_rarity.append(ring_of_dexterity.rarity)
 ### Ring of Constitution
 ring_of_constitution = Item(
     should_randomize=True,
-    char="`",
+    char="◦",
     fg = (255, 72, 0),
     name="활력의 반지",
     entity_id="ring_of_constitution",
@@ -3592,7 +3592,7 @@ item_rarity.append(ring_of_constitution.rarity)
 ### Ring of Insomnia
 ring_of_insomnia = Item(
     should_randomize=True,
-    char="`",
+    char="◦",
     fg = (255, 72, 0),
     name="불면증의 반지",
     entity_id="ring_of_insomnia",
@@ -3626,7 +3626,7 @@ item_rarity.append(ring_of_insomnia.rarity)
 ### Ring of Martial artist
 ring_of_martial_artist = Item(
     should_randomize=True,
-    char="`",
+    char="◦",
     fg = (255, 72, 0),
     name="무술가의 반지",
     entity_id="ring_of_martial_artist",
@@ -3659,7 +3659,7 @@ item_rarity.append(ring_of_martial_artist.rarity)
 ### Ring of Blindness
 ring_of_blindness = Item(
     should_randomize=True,
-    char="`",
+    char="◦",
     fg = (255, 72, 0),
     name="실명의 반지",
     entity_id="ring_of_blindness",

@@ -12,6 +12,7 @@ import math
 
 from components.base_component import BaseComponent
 from korean import grammar as g
+from language import interpret as i
 
 if TYPE_CHECKING:
     from entity import Actor
@@ -492,16 +493,20 @@ class Status(BaseComponent):
         if cause == "low_hp":
             death_message = ""
         elif cause == "lack_of_strength":
-            death_message = f"{g(self.parent.name, '은')} 스스로를 가누지 못할 만큼 약해졌다!\n"
+            death_message = i(f"{g(self.parent.name, '은')} 스스로를 가누지 못할 만큼 약해졌다!\n",
+                              f"{self.parent.name} is too weak to sustain itself!\n")
         elif cause == "starvation":
-            death_message = f"{g(self.parent.name, '은')} 충분한 영양분을 얻지 못했다!\n"
+            death_message = i(f"{g(self.parent.name, '은')} 충분한 영양분을 얻지 못했다!\n",
+                              f"{self.parent.name} doesn't have enough nutritions to stay alive!\n")
         elif cause == "drowning" or cause == "suffocating":
-            death_message = f"{g(self.parent.name, '은')} 제대로 호흡하지 못했다!\n"
+            death_message = i(f"{g(self.parent.name, '은')} 제대로 호흡하지 못했다!\n"
+                              f"{self.parent.name} doesn't have enough oxygen!\n")
         else:
             death_message = "UNDEFINED"
 
         if self.engine.player is self.parent:
-            death_message += "당신은 죽었다!"
+            death_message += i("당신은 죽었다!",
+                               f"You died!")
             death_message_color = color.player_die
             from base.data_loader import delete_saved_game
             delete_saved_game()
@@ -510,7 +515,8 @@ class Status(BaseComponent):
             self.engine.sound_manager.add_sound_queue("fx_player_death")
             self.engine.event_handler = GameOverEventHandler()
         elif self.engine.game_map.visible[self.parent.x, self.parent.y]:  # if dead entity is in player's visible range
-            death_message += f"{g(self.parent.name, '이')} 죽었다!"
+            death_message += i(f"{g(self.parent.name, '이')} 죽었다!",
+                               f"{self.parent.name} is dead!")
             death_message_color = color.enemy_unique
         else:
             death_message_color = color.white

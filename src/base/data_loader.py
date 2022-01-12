@@ -43,6 +43,8 @@ def load_game():
 
 
 def quit_game():
+    from base.exit import GameExit
+    GameExit.unexpected_exit = False
     sys.exit()
 
 

@@ -35,6 +35,7 @@ from render import (
     render_message_window,
 )
 from entity import Actor, Entity, Item, SemiActor
+from language import interpret as i
 
 if TYPE_CHECKING:
     from game_map import GameMap
@@ -43,7 +44,7 @@ if TYPE_CHECKING:
 
 
 class Engine:
-    def __init__(self, player: Actor):
+    def __init__(self, player: Actor, language: str):
         """
         Vars:
             player_path:
@@ -60,7 +61,12 @@ class Engine:
                 Current gamemap that player is in.
             world:
                 Represents the entire game world.
+        Cons:
+            LANGUAGE:
+                Set once when first initialized.
+                Value should not change even if you save/load the file.
         """
+        self.LANGUAGE: str = language
         self._is_gameover: bool = False
         self._has_won: bool = False
         self._initialized_pixel: bool = False
@@ -790,8 +796,7 @@ class Engine:
         
         # draw frame
         if draw_frame:
-            draw_thick_frame(console, x=gui_x-1, y=gui_y-1, width=28, height=height, title="시야 내 정보", fg=color.gui_frame_fg, bg=color.gui_frame_bg)
-            #console.draw_frame(x=gui_x-1, y=gui_y-1, width=28, height=height, title="시야 내 정보", clear=False, fg=color.gui_frame_fg, bg=color.gui_frame_bg)
+            console.draw_frame(x=gui_x-1, y=gui_y-1, width=28, height=height, title=i("시야 내 정보","In sight"), clear=False, fg=color.gui_frame_fg, bg=color.gui_frame_bg)
 
     def render_rightside(self, console: Console, gui_x: int, gui_y: int) -> None:
         """

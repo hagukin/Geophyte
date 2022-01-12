@@ -28,9 +28,10 @@ from actions import (
     ChestTakeAction,
     ChestPutAction,
 )
-from base.data_loader import save_game, quit_game
+from base.data_loader import save_game, quit_game, delete_saved_game
 from game import Game
 from korean import grammar as g
+from language import interpret as i
 
 import math
 import tcod
@@ -220,7 +221,9 @@ class ItemUseCancelHandler(AskUserEventHandler):
 
     def on_render(self, console: tcod.Console,) -> None:
         super().on_render(console)
-        self.engine.draw_window(console, text="정말 아이템 사용을 취소하시겠습니까? 아이템은 여전히 소모될 수 있습니다. (Y/N)", title="아이템 사용 취소", frame_fg=color.red, frame_bg=color.gui_inventory_bg)
+        self.engine.draw_window(console, text=i("정말 아이템 사용을 취소하시겠습니까? 아이템은 여전히 소모될 수 있습니다. (Y/N)",
+                                                "Do you really want to cancel? Item can get consumed anyway. (Y/N)"),
+                                title=i("아이템 사용 취소","Cancel item usage"), frame_fg=color.red, frame_bg=color.gui_inventory_bg)
 
     def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[Action]:
         if event.sym == tcod.event.K_y or event.sym == tcod.event.K_KP_ENTER:
@@ -231,10 +234,12 @@ class ItemUseCancelHandler(AskUserEventHandler):
 
 
 class SaveInputHandler(AskUserEventHandler):
-
     def on_render(self, console: tcod.Console) -> None:
         super().on_render(console)
-        self.engine.draw_window(console, text="정말 현재 게임을 저장하시겠습니까? (Y/N)", title="저장", frame_fg=color.lime, frame_bg=color.gui_inventory_bg)
+        self.engine.draw_window(console, text=i("게임을 저장한 후 종료하시겠습니까? (Y/N)",
+                                                "Do you really want to save your progress and quit the game? (Y/N)"),
+                                title=i("게임 저장 후 종료", "Save game and quit"), frame_fg=color.lime,
+                                frame_bg=color.gui_inventory_bg)
 
     def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[Action]:
         player = self.engine.player
@@ -242,10 +247,11 @@ class SaveInputHandler(AskUserEventHandler):
 
         if event.sym == tcod.event.K_y or event.sym == tcod.event.K_KP_ENTER:
             self.engine.event_handler = MainGameEventHandler()
-            self.engine.message_log.add_message(f"게임 저장됨.", color.lime, stack=False)
             save_game(player=player, engine=engine)
+            quit_game()
+            return None
         elif event.sym == tcod.event.K_n or event.sym == tcod.event.K_ESCAPE:
-            self.engine.message_log.add_message(f"저장 취소됨.", color.lime, stack=False)
+            self.engine.message_log.add_message(i(f"저장 취소됨.","Save cancelled."), color.lime, stack=False)
         return super().ev_keydown(event)
 
 
@@ -257,7 +263,9 @@ class DangerousTileWalkHandler(AskUserEventHandler):
 
     def on_render(self, console: tcod.Console) -> None:
         super().on_render(console)
-        self.engine.draw_window(console, text="정말 해당 위치로 이동하시겠습니까? (Y/N)", title="위험할 수 있는 타일로 이동", frame_fg=color.red, frame_bg=color.gui_inventory_bg)
+        self.engine.draw_window(console, text=i("정말 해당 위치로 이동하시겠습니까? (Y/N)",
+                                                "Are you sure you want to move there? (Y/N)"),
+                                title=i("위험할 수 있는 타일로 이동","Moving to a dangerous area"), frame_fg=color.red, frame_bg=color.gui_inventory_bg)
 
     def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[Action]:
         if event.sym == tcod.event.K_y or event.sym == tcod.event.K_KP_ENTER:
@@ -273,13 +281,15 @@ class GameClearInputHandler(AskUserEventHandler): #TODO Unfinished
         TODO: Render player History"""
     def on_render(self, console: tcod.Console) -> None:
         super().on_render(console)
-        self.engine.draw_window(console, text="(v):로그 살펴보기 | (/):맵 둘러보기 | F12:스크린샷 | ESC:게임 종료 | (g):아직 할 일이 남아있다", title="승리했습니다!", text_fg=color.black,
+        self.engine.draw_window(console, text=i("(v):로그 살펴보기 | (/):맵 둘러보기 | F12:스크린샷 | ESC:게임 종료 | (g):아직 할 일이 남아있다",
+                                                "(v):View log | (/):Look around | F12:Take screenshot | ESC:Quit game | (g):Continue playing"),
+                                title=i("승리했습니다!","You win!"), text_fg=color.black,
                                 frame_fg=color.black, frame_bg=color.gold)
 
     def ev_keydown(self, event: tcod.event.KeyDown) -> None:
         key = event.sym
         if key == tcod.event.K_ESCAPE:
-            self.engine.event_handler = GameQuitHandler(prev_event_handler=self)
+            self.engine.event_handler = GameQuitNoSaveHandler(prev_event_handler=self)
         elif key == tcod.event.K_v:
             self.engine.event_handler = HistoryViewer()
         elif key == tcod.event.K_SLASH or key == tcod.event.K_KP_DIVIDE:
@@ -289,7 +299,8 @@ class GameClearInputHandler(AskUserEventHandler): #TODO Unfinished
             pic_name = time_str
             # pic_name = self.engine.player.name + "-" + time_str # bugs occur when using certain unicode chars.
             self.engine.context.save_screenshot(f"./screenshots/{pic_name}.png")
-            self.engine.message_log.add_message(f"스크린샷 저장됨. {pic_name}.png", color.cyan)
+            self.engine.message_log.add_message(i(f"스크린샷 저장됨. {pic_name}.png",
+                                                  f"Screenshot saved. {pic_name}.png"), color.cyan)
         elif key == tcod.event.K_g:
             self.engine.revert_victory()
             self.engine.event_handler = MainGameEventHandler()
@@ -305,7 +316,7 @@ class AbilityEventHandler(AskUserEventHandler):
 
     def __init__(self):
         super().__init__()
-        self.TITLE = "능력"
+        self.TITLE = i("능력","Abilities")
 
     def on_render(self, console: tcod.Console) -> None:
         """
@@ -351,9 +362,11 @@ class AbilityEventHandler(AskUserEventHandler):
                 # Message log
                 console.print(x + x_space + 1, y + i + y_space + 1, ability_text, fg=ability_text_color)
         else:
-            console.print(x + x_space + 1, y + y_space + 1, "(없음)", color.gray)
+            from language import interpret as i
+            console.print(x + x_space + 1, y + y_space + 1, i("(없음)","(None)"), color.gray)
 
-        console.print(x + x_space + 1, height - 1, "/키:능력 정렬 | ESC:취소", color.gui_inventory_fg)
+        console.print(x + x_space + 1, height - 1, i("(/):능력 정렬 | ESC:취소",
+                                                     "(/):Sort abilities | ESC:Escape"), color.gui_inventory_fg)
 
     def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[Action]:
         player = self.engine.player
@@ -392,7 +405,7 @@ class AbilityEventHandler(AskUserEventHandler):
             return self.on_ability_selected(selected_ability)
         except Exception as e:
             print(e)
-            self.engine.message_log.add_message("잘못된 입력입니다.", color.invalid)
+            self.engine.message_log.add_message(i("잘못된 입력입니다.","Invalid input."), color.invalid)
             return None
 
     def on_ability_selected(self, ability: Ability) -> Optional[Action]:
@@ -405,7 +418,7 @@ class AbilityActivateHandler(AbilityEventHandler):
 
     def __init__(self):
         super().__init__()
-        self.TITLE = "능력"
+        self.TITLE = i("능력","Abilities")
 
     def on_ability_selected(self, ability: Ability) -> Optional[Action]:
         """Return the action for the selected item."""
@@ -467,12 +480,13 @@ class AbilityActionSelectHandler(AskUserEventHandler):
         console.print(x + x_space + 1, y + y_space + 1, self.ability.ability_desc, fg=color.gui_item_description)
 
         # print possible actions
-        for i, action in enumerate(self.possible_actions):
+        for n, action in enumerate(self.possible_actions):
 
             if action == "cast/conduct":
-                console.print(x + x_space + 1, y + i + desc_height + 2 + y_space, "(c) 마법/기술 사용", fg=color.gui_item_action)
+                console.print(x + x_space + 1, y + n + desc_height + 2 + y_space, i("(c) 마법/기술 사용",
+                                                                                    "(c) Cast magic/Use skill"), fg=color.gui_item_action)
             else:
-                console.print(x + x_space + 1, y + desc_height + 2 + y_space, "(없음)")
+                console.print(x + x_space + 1, y + desc_height + 2 + y_space, i("(없음)","(None)"))
 
     def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[Action]:
         player = self.engine.player
@@ -485,7 +499,7 @@ class AbilityActionSelectHandler(AskUserEventHandler):
             self.engine.event_handler = MainGameEventHandler()
             return None
         else:
-            self.engine.message_log.add_message("잘못된 입력입니다.", color.invalid)
+            self.engine.message_log.add_message(i("잘못된 입력입니다.","Invalid input."), color.invalid)
             self.engine.event_handler = MainGameEventHandler()
             return None
 
@@ -559,11 +573,11 @@ class StorageSelectEventHandler(AskUserEventHandler):
                 item_text += f"{item.equipable.upgrade:+d} "
 
             if item.item_state.BUC == 0:
-                item_text += "저주받지 않은 "
+                item_text += i("저주받지 않은 ","uncursed ")
             elif item.item_state.BUC >= 1:
-                item_text += "축복받은 "
+                item_text += i("축복받은 ","blessed ")
             elif item.item_state.BUC <= -1:
-                item_text += "저주받은 "
+                item_text += i("저주받은 ","cursed ")
 
         item_text += f"{item.name} "
         item_count = ""
@@ -607,38 +621,36 @@ class StorageSelectEventHandler(AskUserEventHandler):
 
         # Display damage status if their is one
         if item.item_state.burntness == 1:
-            item_damage_text += "(다소 그을림) "
+            item_damage_text += i("(다소 그을림) ","(burnt) ")
         elif item.item_state.burntness == 2:
-            item_damage_text += "(상당히 그을림) "
+            item_damage_text += i("(상당히 그을림) ","(severely burnt) ")
         if item.item_state.corrosion == 1:
-            item_damage_text += "(다소 부식됨) "
+            item_damage_text += i("(다소 부식됨) ","(corroded)")
         elif item.item_state.corrosion == 2:
-            item_damage_text += "(심하게 부식됨) "
+            item_damage_text += i("(심하게 부식됨) ","(severely corroded)")
 
         # Display special states if it is true
         if item.item_state.is_burning:
-            item_state_text += "[불붙음] "
+            item_state_text += i("[불붙음] ","[on fire] ")
 
         # Display equip info if it is true(if value isn't None)
-        if self.engine.config["lang"] == "ko":
-            translated = ""
-
-            if item.item_state.equipped_region:
-                from util import equip_region_name_to_str
-                item_equip_text += f"[장착됨-{equip_region_name_to_str(item.item_state.equipped_region)}] "
-        else:
-            if item.item_state.equipped_region:
-                item_equip_text += f"[equipped on {item.item_state.equipped_region}] "
+        if item.item_state.equipped_region:
+            from util import equip_region_name_to_str
+            item_equip_text += i(f"[장착됨-{equip_region_name_to_str(item.item_state.equipped_region)}] ",
+                                 f"[equipped-{equip_region_name_to_str(item.item_state.equipped_region)}] ")
 
         # Display the price of the item if it is currently being sold
         if item.item_state.is_being_sold_from:
-            item_buy_price_text += f"<개당 {item.price_of_single_item(is_shopkeeper_is_selling=True, discount=1 - self.engine.player.discount_value())}샤인, 미구매> "
+            item_buy_price_text += i(f"<개당 {item.price_of_single_item(is_shopkeeper_is_selling=True, discount=1 - self.engine.player.discount_value())}샤인, 미구매> ",
+                                     f"<{item.price_of_single_item(is_shopkeeper_is_selling=True, discount=1 - self.engine.player.discount_value())}shine per item, unpurchased> ")
 
         if self.render_sell_price:
             if item.stack_count == 1:
-                item_sell_price_text += f"<{item.price_of_single_item(is_shopkeeper_is_selling=False, discount=0.5)}샤인에 판매 가능>"
+                item_sell_price_text += i(f"<{item.price_of_single_item(is_shopkeeper_is_selling=False, discount=0.5)}샤인에 판매 가능> ",
+                                          f"<can be sold for {item.price_of_single_item(is_shopkeeper_is_selling=False, discount=0.5)}shine> ")
             else:
-                item_sell_price_text += f"<{item.stack_count}개 총 {item.price_of_all_stack(is_shopkeeper_is_selling=False, discount=0.5)}샤인에 판매 가능>"
+                item_sell_price_text += i(f"<{item.stack_count}개 총 {item.price_of_all_stack(is_shopkeeper_is_selling=False, discount=0.5)}샤인에 판매 가능> ",
+                                          f"<{item.stack_count} can be sold for a total price of {item.price_of_all_stack(is_shopkeeper_is_selling=False, discount=0.5)}shine> ")
 
         return item_text, item_count, item_damage_text, item_state_text, item_equip_text, item_buy_price_text, item_sell_price_text, item_text_color
 
@@ -795,8 +807,9 @@ class StorageSelectSingleEventHandler(StorageSelectEventHandler):
                 ypos = y + y_space + 1
                 self.render_item(xpos, ypos, item_text, item_count, item_damage_text, item_state_text, item_equip_text, item_buy_price_text, item_sell_price_text, item_text_color, y_padding=y_padding)
         else:
-            console.print(x + x_space + 1, y + y_space + 1, "(없음)", color.gray)
-        console.print(x + x_space + 1, height - 1, "/키:인벤토리 정렬 | 아이템에 해당하는 알파뱃:아이템 상호작용 | ESC:취소", color.gui_inventory_fg)
+            console.print(x + x_space + 1, y + y_space + 1, i("(없음)","(None)"), color.gray)
+        console.print(x + x_space + 1, height - 1, i("(/):인벤토리 정렬 | 아이템에 해당하는 알파뱃:아이템 상호작용 | ESC:취소",
+                                                     "(/):Sort inventory | ESC:Escape"), color.gui_inventory_fg)
 
     def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[Action]:
         if event.sym in {  # Ignore modifier keys.
@@ -834,14 +847,14 @@ class StorageSelectSingleEventHandler(StorageSelectEventHandler):
             selected_item = self.inventory_component.item_hotkeys[key]
             if selected_item:
                 if not self.check_should_render_item(selected_item):  # Cannot select hidden item index.
-                    self.engine.message_log.add_message(f"잘못된 입력입니다.", color.invalid)
+                    self.engine.message_log.add_message(i(f"잘못된 입력입니다.","Invalid input."), color.invalid)
                     return None
                 return self.on_item_selected(selected_item)
             else:
-                self.engine.message_log.add_message(f"잘못된 입력입니다.", color.invalid)
+                self.engine.message_log.add_message(i(f"잘못된 입력입니다.","Invalid input."), color.invalid)
                 return None
         except KeyError:
-            self.engine.message_log.add_message("잘못된 입력입니다.", color.invalid)
+            self.engine.message_log.add_message(i(f"잘못된 입력입니다.","Invalid input."), color.invalid)
             return None
         except:
             import traceback
@@ -861,7 +874,7 @@ class InventoryChooseItemAndCallbackHandler(StorageSelectSingleEventHandler):
             self,
             inventory_component: Inventory,
             callback: Callable,
-            title: str = "인벤토리",
+            title: str = i("인벤토리","Inventory"),
             show_only_types: Optional[Tuple[InventoryOrder,...]] =None,
             show_only_status: Tuple[str] = None,
             show_if_satisfy_both: bool = True,
@@ -892,7 +905,7 @@ class InventoryEventHandler(StorageSelectSingleEventHandler):
             show_if_satisfy_both: bool = True,
         ):
         super().__init__(inventory_component, show_only_types, show_only_status, show_if_satisfy_both)
-        self.TITLE = "인벤토리"
+        self.TITLE = i("인벤토리","Inventory")
 
     def on_item_selected(self, item: Item) -> Optional[Action]:
         """Return the action for the selected item."""
@@ -954,7 +967,7 @@ class InventoryActionSelectHandler(AskUserEventHandler):
 
         number_of_possible_actions = len(self.possible_actions)
 
-        height = number_of_possible_actions + desc_height + 3
+        height = number_of_possible_actions*2 + desc_height + 4
         if height <= 3:
             height = 3
 
@@ -978,30 +991,40 @@ class InventoryActionSelectHandler(AskUserEventHandler):
         )
 
         # print item description
-        console.print(x + x_space + 1, y + y_space + 2, "(/) 아이템 정보", fg=color.gui_item_action)
+        from language import interpret
+        console.print(x + x_space + 1, y + y_space + 2, interpret("(/) 아이템 정보","(/) item information"), fg=color.gui_item_action)
 
         # print possible actions
         for i, action in enumerate(self.possible_actions):
             if action == "use":
-                console.print(x + x_space + 1, y + i + desc_height + 2 + y_space, "(y) 사용하기", fg=color.gui_item_action)
+                console.print(x + x_space + 1, y + i*2 + desc_height + 3 + y_space, interpret("(y) 사용하기",
+                                                                                            "(y) use"), fg=color.gui_item_action)
             elif action == "read":
-                console.print(x + x_space + 1, y + i + desc_height + 2 + y_space, "(r) 읽기", fg=color.gui_item_action)
+                console.print(x + x_space + 1, y + i*2 + desc_height + 3 + y_space, interpret("(r) 읽기",
+                                                                                            "(r) read"), fg=color.gui_item_action)
             elif action == "quaff":
-                console.print(x + x_space + 1, y + i + desc_height + 2 + y_space, "(q) 마시기", fg=color.gui_item_action)
+                console.print(x + x_space + 1, y + i*2 + desc_height + 3 + y_space, interpret("(q) 마시기",
+                                                                                            "(q) quaff"), fg=color.gui_item_action)
             elif action == "eat":
-                console.print(x + x_space + 1, y + i + desc_height + 2 + y_space, "(a) 먹기", fg=color.gui_item_action)
+                console.print(x + x_space + 1, y + i*2 + desc_height + 3 + y_space, interpret("(a) 먹기",
+                                                                                            "(a) eat"), fg=color.gui_item_action)
             elif action == "equip":
-                console.print(x + x_space + 1, y + i + desc_height + 2 + y_space, "(e) 장착하기", fg=color.gui_item_action)
+                console.print(x + x_space + 1, y + i*2 + desc_height + 3 + y_space, interpret("(e) 장착하기",
+                                                                                            "(e) equip"), fg=color.gui_item_action)
             elif action == "unequip":
-                console.print(x + x_space + 1, y + i + desc_height + 2 + y_space, "(u) 장착 해제하기", fg=color.gui_item_action)
+                console.print(x + x_space + 1, y + i*2 + desc_height + 3 + y_space, interpret("(u) 장착 해제하기",
+                                                                                            "(u) unequip"), fg=color.gui_item_action)
             elif action == "split":
-                console.print(x + x_space + 1, y + i + desc_height + 2 + y_space, "(s) 아이템 나누기", fg=color.gui_item_action)
+                console.print(x + x_space + 1, y + i*2 + desc_height + 3 + y_space, interpret("(s) 아이템 나누기",
+                                                                                            "(s) split"), fg=color.gui_item_action)
             elif action == "throw":
-                console.print(x + x_space + 1, y + i + desc_height + 2 + y_space, "(t) 던지기", fg=color.gui_item_action)
+                console.print(x + x_space + 1, y + i*2 + desc_height + 3 + y_space, interpret("(t) 던지기",
+                                                                                            "(t) throw"), fg=color.gui_item_action)
             elif action == "drop":
-                console.print(x + x_space + 1, y + i + desc_height + 2 + y_space, "(d) 아이템 떨어뜨리기", fg=color.gui_item_action)
+                console.print(x + x_space + 1, y + i*2 + desc_height + 3 + y_space, interpret("(d) 아이템 떨어뜨리기",
+                                                                                            "(d) drop"), fg=color.gui_item_action)
             else:
-                console.print(x + x_space + 1, y + desc_height + 2 + y_space, "(없음)")
+                console.print(x + x_space + 1, y + desc_height + 2 + y_space, interpret("(없음)","(None)"))
 
     def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[Action]:
         player = self.engine.player
@@ -1037,7 +1060,7 @@ class InventoryActionSelectHandler(AskUserEventHandler):
             self.engine.event_handler = MainGameEventHandler()
             return None
         else:
-            self.engine.message_log.add_message("잘못된 입력입니다.", color.invalid)
+            self.engine.message_log.add_message(i("잘못된 입력입니다.","Invalid input."), color.invalid)
             self.engine.event_handler = MainGameEventHandler()
             return None
 
@@ -1080,8 +1103,10 @@ class InventorySplitHandler(AskUserEventHandler):
         )
 
         # Texts
-        console.print(x + x_space + 1, height + 3, "+,-키:갯수 조작 | 쉬프트를 누른채 조작:10개씩 선택 | 엔터:확인 | ESC:취소", color.gui_inventory_fg)
-        console.print(x + x_space + 1, y + y_space + 2, f"{self.split_amount}개 선택됨.", fg=color.gui_item_description)
+        console.print(x + x_space + 1, height + 3, i("+,-키:갯수 조작 | 쉬프트를 누른채 조작:10개씩 선택 | 엔터:확인 | ESC:취소",
+                                                     "+,-:Adjust quantity | +,- while pressing shift:Adjust by 10 | ENTER:Confirm | ESC:Escape"), color.gui_inventory_fg)
+        console.print(x + x_space + 1, y + y_space + 2, i(f"{self.split_amount}개 선택됨.",
+                                                          f"{self.split_amount} selected."), fg=color.gui_item_description)
 
     def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[Action]:
         player = self.engine.player
@@ -1092,30 +1117,34 @@ class InventorySplitHandler(AskUserEventHandler):
                 if self.split_amount < self.item.stack_count - 10:
                     self.split_amount += 10
                 else:
-                    self.engine.message_log.add_message(f"최대 {self.item.stack_count - 1}개 만큼 선택할 수 있습니다.", color.invalid, show_once=True)
+                    self.engine.message_log.add_message(i(f"최대 {self.item.stack_count - 1}개 만큼 선택할 수 있습니다.",
+                                                          f"You can choose up to {self.item.stack_count - 1}."), color.invalid, show_once=True)
             elif key == tcod.event.K_MINUS or key == tcod.event.K_KP_MINUS:
                 if self.split_amount > 10:
                     self.split_amount -= 10
                 else:
-                    self.engine.message_log.add_message("1개 이상을 선택하셔야 합니다.", color.invalid, show_once=True)
+                    self.engine.message_log.add_message(i("1개 이상을 선택하셔야 합니다.",
+                                                          "You should choose more than 1."), color.invalid, show_once=True)
         else:
             if key == tcod.event.K_PLUS or key == tcod.event.K_KP_PLUS or key == tcod.event.K_EQUALS:
                 if self.split_amount < self.item.stack_count - 1:
                     self.split_amount += 1
                 else:
-                    self.engine.message_log.add_message(f"최대 {self.item.stack_count - 1}개 만큼 선택할 수 있습니다.", color.invalid, show_once=True)
+                    self.engine.message_log.add_message(i(f"최대 {self.item.stack_count - 1}개 만큼 선택할 수 있습니다.",
+                                                          f"You can choose up to {self.item.stack_count - 1}."), color.invalid, show_once=True)
             elif key == tcod.event.K_MINUS or key == tcod.event.K_KP_MINUS:
                 if self.split_amount > 1:
                     self.split_amount -= 1
                 else:
-                    self.engine.message_log.add_message("1개 이상을 선택하셔야 합니다.", color.invalid, show_once=True)
+                    self.engine.message_log.add_message(i("1개 이상을 선택하셔야 합니다.",
+                                                          "You should choose more than 1."), color.invalid, show_once=True)
             elif key == tcod.event.K_ESCAPE:
                 self.engine.event_handler = MainGameEventHandler()
                 return None
             elif key in CONFIRM_KEYS:
                 return SplitItem(self.engine.player, self.item, self.split_amount)
             else:
-                self.engine.message_log.add_message("잘못된 입력입니다.", color.invalid)
+                self.engine.message_log.add_message(i("잘못된 입력입니다.","Invalid input."), color.invalid)
                 self.engine.event_handler = MainGameEventHandler()
                 return None
 
@@ -1125,7 +1154,7 @@ class SleepTurnSelectHandler(AskUserEventHandler):
 
     def __init__(self):
         super().__init__()
-        self.TITLE = f"몇 턴 간 주무시겠습니까?"
+        self.TITLE = i(f"몇 턴 간 주무시겠습니까?","Choose the turns to sleep.")
         self.sleep_turn = 10
 
     def on_render(self, console: tcod.Console) -> None:
@@ -1154,8 +1183,10 @@ class SleepTurnSelectHandler(AskUserEventHandler):
         )
 
         # Texts
-        console.print(x + x_space + 1, height + 3, "+,-키:턴수 조작 | 쉬프트를 누른채 조작:10턴씩 선택 | 엔터:확인 | ESC:취소", color.gui_inventory_fg)
-        console.print(x + x_space + 1, y + y_space + 2, f"{self.sleep_turn}턴 선택됨.", fg=color.gui_item_description)
+        console.print(x + x_space + 1, height + 3, i("+,-키:턴수 조작 | 쉬프트를 누른채 조작:10턴씩 선택 | 엔터:확인 | ESC:취소",
+                                                     "+,-:Adjust turns | +,- while pressing shift:Adjust by 10 | ENTER:Confirm | ESC:Escape"), color.gui_inventory_fg)
+        console.print(x + x_space + 1, y + y_space + 2, i(f"{self.sleep_turn}턴 선택됨.",
+                                                          f"{self.sleep_turn}turns selected."), fg=color.gui_item_description)
 
     def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[Action]:
         player = self.engine.player
@@ -1166,23 +1197,27 @@ class SleepTurnSelectHandler(AskUserEventHandler):
                 if self.sleep_turn < 90:
                     self.sleep_turn += 10
                 else:
-                    self.engine.message_log.add_message(f"최대 99턴까지 선택할 수 있습니다.", color.invalid, show_once=True)
+                    self.engine.message_log.add_message(i(f"최대 99턴까지 선택할 수 있습니다.",
+                                                          "You can choose up to 99 turns."), color.invalid, show_once=True)
             elif key == tcod.event.K_MINUS or key == tcod.event.K_KP_MINUS:
                 if self.sleep_turn >= 20:
                     self.sleep_turn -= 10
                 else:
-                    self.engine.message_log.add_message("10턴 이상을 선택하셔야 합니다.", color.invalid, show_once=True)
+                    self.engine.message_log.add_message(i("10턴 이상을 선택하셔야 합니다.",
+                                                          "You should choose more than 10 turns."), color.invalid, show_once=True)
         else:
             if key == tcod.event.K_PLUS or key == tcod.event.K_KP_PLUS or key == tcod.event.K_EQUALS:
                 if self.sleep_turn < 99:
                     self.sleep_turn += 1
                 else:
-                    self.engine.message_log.add_message(f"최대 99턴까지 선택할 수 있습니다.", color.invalid, show_once=True)
+                    self.engine.message_log.add_message(i(f"최대 99턴까지 선택할 수 있습니다.",
+                                                          "You can choose up to 99 turns."), color.invalid,show_once=True)
             elif key == tcod.event.K_MINUS or key == tcod.event.K_KP_MINUS:
                 if self.sleep_turn > 10:
                     self.sleep_turn -= 1
                 else:
-                    self.engine.message_log.add_message("10턴 이상을 선택하셔야 합니다.", color.invalid, show_once=True)
+                    self.engine.message_log.add_message(i("10턴 이상을 선택하셔야 합니다.",
+                                                          "You should choose more than 10 turns."), color.invalid,show_once=True)
             elif key == tcod.event.K_ESCAPE:
                 self.engine.event_handler = MainGameEventHandler()
                 return None
@@ -1191,7 +1226,7 @@ class SleepTurnSelectHandler(AskUserEventHandler):
                 self.engine.player.actor_state.apply_sleeping([0,self.sleep_turn], sleep_on_will=True) # Is not forced.
                 return None
             else:
-                self.engine.message_log.add_message("잘못된 입력입니다.", color.invalid)
+                self.engine.message_log.add_message(i("잘못된 입력입니다.","Invalid input."), color.invalid)
                 self.engine.event_handler = MainGameEventHandler()
                 return None
 
@@ -1265,9 +1300,10 @@ class StorageSelectMultipleEventHandler(StorageSelectEventHandler):
                 ypos = y + y_space + 1
                 self.render_item(xpos, ypos, item_text, item_count, item_damage_text, item_state_text, item_equip_text, item_buy_price_text, item_sell_price_text, item_text_color, y_padding=y_padding)
         else:
-            console.print(x + x_space + 1, y + y_space + 1, "(없음)", color.gray)
+            console.print(x + x_space + 1, y + y_space + 1, i("(없음)","(None)"), color.gray)
 
-        console.print(x + x_space + 1, height - 1, "/키:인벤토리 정렬 | 엔터:확인 | ESC:취소", color.gui_inventory_fg)
+        console.print(x + x_space + 1, height - 1, i("/키:인벤토리 정렬 | 엔터:확인 | ESC:취소",
+                                                     "(/):Sort inventory | ENTER:Confirm | ESC:Escape"), color.gui_inventory_fg)
 
     def choice_confirmed(self):
         raise NotImplementedError()
@@ -1308,15 +1344,15 @@ class StorageSelectMultipleEventHandler(StorageSelectEventHandler):
             selected_item = self.inventory_component.item_hotkeys[key]
             if selected_item:
                 if not self.check_should_render_item(selected_item):  # Cannot select hidden item index.
-                    self.engine.message_log.add_message(f"잘못된 입력입니다.", color.invalid)
+                    self.engine.message_log.add_message(i(f"잘못된 입력입니다.","Invalid input."), color.invalid)
                     return None
                 self.on_item_selected(selected_item)
                 return None
             else:
-                self.engine.message_log.add_message(f"잘못된 입력입니다.", color.invalid)
+                self.engine.message_log.add_message(i(f"잘못된 입력입니다.","Invalid input."), color.invalid)
                 return None
         except:
-            self.engine.message_log.add_message("잘못된 입력입니다.", color.invalid)
+            self.engine.message_log.add_message(i("잘못된 입력입니다.","Invalid input."), color.invalid)
             return None
 
     def on_item_selected(self, item: Item) -> Optional[Action]:
@@ -1337,7 +1373,7 @@ class NonHostileBumpHandler(AskUserEventHandler):
         """
         super().__init__()
         self.target = target
-        self.TITLE = "무엇을 하시겠습니까?"
+        self.TITLE = i("무엇을 하시겠습니까?","Choose your action.")
         self.can_pay_shopkeeper = False
         self.can_sell_to_shopkeeper = False
         self.update_pay_status()
@@ -1359,7 +1395,11 @@ class NonHostileBumpHandler(AskUserEventHandler):
         super().on_render(console)
 
         number_of_possible_actions = self.target.how_many_bump_action_possible(self.engine.player)
-        height = 5 + 2*number_of_possible_actions
+        height = 3 + 2*number_of_possible_actions
+        if self.can_pay_shopkeeper:
+            height += 2
+        if self.can_sell_to_shopkeeper:
+            height += 2
         x = 0
         y = 0
         x_space = 5 # per side
@@ -1382,39 +1422,49 @@ class NonHostileBumpHandler(AskUserEventHandler):
         y_pad = 2
 
         if self.target.check_if_bump_action_possible(self.engine.player, "open"):
-            console.print(x + x_space + 1, y + y_space + y_pad, "(o) - 문을 연다", fg=color.white)
+            console.print(x + x_space + 1, y + y_space + y_pad, i("(o) 문을 연다",
+                                                                  "(o) open the door"), fg=color.white)
             y_pad += 2
         if self.target.check_if_bump_action_possible(self.engine.player, "close"):
-            console.print(x + x_space + 1, y + y_space + y_pad, "(c) - 문을 닫는다", fg=color.white)
+            console.print(x + x_space + 1, y + y_space + y_pad, i("(c) 문을 닫는다",
+                                                                  "(c) close the door"), fg=color.white)
             y_pad += 2
         if self.target.check_if_bump_action_possible(self.engine.player, "unlock"):
-            console.print(x + x_space + 1, y + y_space + y_pad, "(u) - 문의 잠금을 해제한다", fg=color.white)
+            console.print(x + x_space + 1, y + y_space + y_pad, i("(u) 문의 잠금을 해제한다",
+                                                                  "(u) unlock the door"), fg=color.white)
             y_pad += 2
         if self.target.check_if_bump_action_possible(self.engine.player, "break"):
-            console.print(x + x_space + 1, y + y_space + y_pad, "(b) - 문을 힘으로 개방한다", fg=color.white)
+            console.print(x + x_space + 1, y + y_space + y_pad, i("(b) 문을 힘으로 개방한다",
+                                                                  "(b) break the door"), fg=color.white)
             y_pad += 2
         if self.target.check_if_bump_action_possible(self.engine.player, "takeout"):
-            console.print(x + x_space + 1, y + y_space + y_pad, "(t) - 무언가를 꺼낸다", fg=color.white)
+            console.print(x + x_space + 1, y + y_space + y_pad, i("(t) 무언가를 꺼낸다",
+                                                                  "(t) take out something"), fg=color.white)
             y_pad += 2
         if self.target.check_if_bump_action_possible(self.engine.player, "putin"):
-            console.print(x + x_space + 1, y + y_space + y_pad, "(i) - 무언가를 넣는다", fg=color.white)
+            console.print(x + x_space + 1, y + y_space + y_pad, i("(i) 무언가를 넣는다",
+                                                                  "(i) put in something"), fg=color.white)
             y_pad += 2
         if self.target.check_if_bump_action_possible(self.engine.player, "move"):
-            console.print(x + x_space + 1, y + y_space + y_pad, "(m) - 해당 칸으로 이동한다", fg=color.white)
+            console.print(x + x_space + 1, y + y_space + y_pad, i("(m) 해당 칸으로 이동한다",
+                                                                  "(m) move towards the tile"), fg=color.white)
             y_pad += 2
         if self.can_pay_shopkeeper: # NOTE: does not check for "purchase" keyword
-            console.print(x + x_space + 1, y + y_space + y_pad, "(p) - 소지중인 판매물품들을 구매한다", fg=color.white)
+            console.print(x + x_space + 1, y + y_space + y_pad, i("(p) 소지중인 판매물품들을 구매한다",
+                                                                  "(p) purchase everything in the inventory"), fg=color.white)
             y_pad += 2
         if self.can_sell_to_shopkeeper: # NOTE: does not check for "sell" keyword
-            console.print(x + x_space + 1, y + y_space + y_pad, "(e) - 인벤토리에서 물품들을 선택해 판매한다", fg=color.white)
+            console.print(x + x_space + 1, y + y_space + y_pad, i("(e) 인벤토리에서 물품들을 선택해 판매한다",
+                                                                  "(e) choose items to sell from inventory"), fg=color.white)
             y_pad += 2
         if self.target.check_if_bump_action_possible(self.engine.player, "swap"):
-            console.print(x + x_space + 1, y + y_space + y_pad, "(s) - 위치를 바꾼다", fg=color.white)
+            console.print(x + x_space + 1, y + y_space + y_pad, i("(s) 위치를 바꾼다",
+                                                                  "(s) swap location"), fg=color.white)
             y_pad += 2
         if self.target.check_if_bump_action_possible(self.engine.player, "attack") or self.target.check_if_bump_action_possible(self.engine.player, "force_attack"):
-            console.print(x + x_space + 1, y + y_space + y_pad, "(a) - 공격한다", fg=color.white)
+            console.print(x + x_space + 1, y + y_space + y_pad, i("(a) 공격한다",
+                                                                  "(a) attack"), fg=color.white)
             y_pad += 2
-        console.print(x + x_space + 1, y + y_space + y_pad, "ESC - 취소", fg=color.white)
 
     def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[Action]:
         from chest_factories import ChestSemiactor
@@ -1454,7 +1504,7 @@ class NonHostileBumpHandler(AskUserEventHandler):
             self.engine.event_handler = MainGameEventHandler()
             return None
         else:
-            self.engine.message_log.add_message("잘못된 입력입니다.", color.invalid)
+            self.engine.message_log.add_message(i("잘못된 입력입니다.","Invalid input."), color.invalid)
             self.engine.event_handler = MainGameEventHandler()
             return None
 
@@ -1462,10 +1512,11 @@ class NonHostileBumpHandler(AskUserEventHandler):
 class SellItemsHandler(StorageSelectMultipleEventHandler):
     def __init__(self, sell_to: Entity):
         super().__init__(self.engine.player.inventory, render_sell_price=True, hide_not_tradable=True, hide_not_owned=True, hide_equipped=True)
-        self.TITLE = "판매할 아이템들을 선택하세요."
+        self.TITLE = i("판매할 아이템들을 선택하세요.","Choose items to sell.")
         self.sell_to = sell_to
         self.engine.message_log.add_message(
-            "아이템에 해당하는 알파뱃:아이템 선택/취소 | 엔터:확인 | ESC:나가기", color.help_msg
+            i("아이템에 해당하는 알파뱃:아이템 선택/취소 | 엔터:확인 | ESC:나가기",
+              "ENTER:Sell selected items | ESC:Escape"), color.help_msg
         )
 
     def choice_confirmed(self):
@@ -1484,11 +1535,14 @@ class ChestTakeEventHandler(StorageSelectMultipleEventHandler):
     def __init__(self, chest_inventory_component: Inventory):
         super().__init__(chest_inventory_component)
         if hasattr(chest_inventory_component.parent, "name"):
-            self.TITLE = f"{chest_inventory_component.parent.name}에서 가져갈 아이템을 선택하세요."
+            self.TITLE = i(f"{chest_inventory_component.parent.name}에서 가져갈 아이템을 선택하세요.",
+                           f"Choose items to take from the {chest_inventory_component.parent.name}.")
         else:
-            self.TITLE = "가져갈 아이템들을 선택하세요."
+            self.TITLE = i("가져갈 아이템들을 선택하세요.",
+                           "Choose items to take.")
         self.engine.message_log.add_message(
-            "아이템에 해당하는 알파뱃:아이템 선택/취소 | 엔터:확인 | ESC:나가기", color.help_msg
+            i("아이템에 해당하는 알파뱃:아이템 선택/취소 | 엔터:확인 | ESC:나가기",
+              "ENTER:Take selected items | ESC:Escape"), color.help_msg
         )
         self.chest_inv = chest_inventory_component
 
@@ -1505,11 +1559,14 @@ class ChestPutEventHandler(StorageSelectMultipleEventHandler):
     def __init__(self, actor_inventory_component: Inventory, chest_inventory_component: Inventory):
         super().__init__(actor_inventory_component)
         if hasattr(chest_inventory_component.parent, "name"):
-            self.TITLE = f"{chest_inventory_component.parent.name}에 넣을 아이템을 선택하세요."
+            self.TITLE = i(f"{chest_inventory_component.parent.name}에 넣을 아이템을 선택하세요.",
+                           f"Choose items to put into the {chest_inventory_component.parent.name}.")
         else:
-            self.TITLE = "넣을 아이템들을 선택하세요."
+            self.TITLE = i("넣을 아이템들을 선택하세요.",
+                           "Choose items to put in.")
         self.engine.message_log.add_message(
-            "아이템에 해당하는 알파뱃:아이템 선택/취소 | 엔터:확인 | ESC:나가기", color.help_msg
+            i("아이템에 해당하는 알파뱃:아이템 선택/취소 | 엔터:확인 | ESC:나가기",
+              "ENTER:Put in selected items | ESC:Escape"), color.help_msg
         )
         self.actor_inv = actor_inventory_component
         self.chest_inv = chest_inventory_component
@@ -1526,9 +1583,11 @@ class InventoryDropHandler(StorageSelectMultipleEventHandler):
     """Handle dropping an inventory item."""
     def __init__(self, inventory_component: Inventory):
         super().__init__(inventory_component)
-        self.TITLE = "드랍할 아이템들을 선택하세요."
+        self.TITLE = i("드랍할 아이템들을 선택하세요.",
+                       "Choose items to drop.")
         self.engine.message_log.add_message(
-            "아이템에 해당하는 알파뱃:아이템 선택/취소 | 엔터:확인 | ESC:나가기", color.help_msg
+            i("아이템에 해당하는 알파뱃:아이템 선택/취소 | 엔터:확인 | ESC:나가기",
+              "ENTER:Drop selected items | ESC:Escape"), color.help_msg
         )
 
     def choice_confirmed(self):
@@ -1545,9 +1604,10 @@ class PickupMultipleHandler(StorageSelectMultipleEventHandler):
     """Handle picking up an multiple items."""
     def __init__(self, inventory_component: Inventory):
         super().__init__(inventory_component)
-        self.TITLE = "주울 아이템들을 선택하세요."
+        self.TITLE = i("주울 아이템들을 선택하세요.","Choose items to pick up.")
         self.engine.message_log.add_message(
-            "아이템에 해당하는 알파뱃:아이템 선택/취소 | 엔터:확인 | ESC:나가기", color.help_msg
+            i("아이템에 해당하는 알파뱃:아이템 선택/취소 | 엔터:확인 | ESC:나가기",
+              "ENTER:Pick up selected items | ESC:Escape"), color.help_msg
         )
 
     def choice_confirmed(self):
@@ -1563,7 +1623,8 @@ class SelectIndexHandler(AskUserEventHandler):
     def __init__(self, item_cancel_callback: Callable = None):
         """Sets the cursor to the player when this handler is constructed."""
         super().__init__(item_cancel_callback)
-        self.help_msg += "이동키:커서 조작 | CTRL키를 누른 채로 이동:카메라 조작 | 엔터:확인 | ESC:취소"
+        self.help_msg += i("이동키:커서 조작 | CTRL키를 누른 채로 이동:카메라 조작 | 엔터:확인 | ESC:취소",
+                           "Move:Move cursor | Move while CTRL pressed:Move camera | ENTER:Confirm | ESC:Escape")
         player = self.engine.player
         self.cursor_loc = self.engine.camera.abs_to_rel(player.x, player.y) # use player coordinates instead of 0,0
 
@@ -1591,7 +1652,8 @@ class SelectIndexHandler(AskUserEventHandler):
             # Press down ctrl to move camera
             if event.mod & (tcod.event.KMOD_LCTRL | tcod.event.KMOD_RCTRL):
                 if not self.engine.camera.move(dx, dy):
-                    self.engine.message_log.add_message("더 이상 카메라를 움직일 수 없습니다.", fg=color.impossible)
+                    self.engine.message_log.add_message(i("더 이상 카메라를 움직일 수 없습니다.",
+                                                          "You can't move the camera anymore."), fg=color.impossible)
                 self.cursor_loc = self.engine.clamp_mouse_on_map_rel(*self.cursor_loc)
                 return None
 
@@ -1613,7 +1675,8 @@ class SelectIndexHandler(AskUserEventHandler):
             if event.button == tcod.event.BUTTON_LEFT:
                 return self.on_index_selected(*abs_cursor_loc)
         else:
-            self.engine.message_log.add_message("맵 안의 영역을 클릭하세요.", fg=color.invalid)
+            self.engine.message_log.add_message(i("맵 안의 영역을 클릭하세요.",
+                                                  "Choose the tile within the map area."), fg=color.invalid)
             if self.item_cancel_callback != None:
                 return self.item_cancel_callback(0)
         return super().ev_mousebuttondown(event)
@@ -1862,7 +1925,8 @@ class RayDirInputHandler(SelectDirectionHandler):
         self.callback = callback
         self.target = None
         self.engine.message_log.add_message(
-                "이동키 혹은 마우스:방향 선택 | 엔터:확인 | ESC:취소", color.help_msg
+                i("이동키 혹은 마우스:방향 선택 | 엔터:확인 | ESC:취소",
+                  "Move keys or Mouse:Choose direction | ENTER:Confirm | ESC:Escape"), color.help_msg
             )
 
     def on_render(self, console: tcod.Console) -> None:
@@ -1915,9 +1979,11 @@ class QuitInputHandler(AskUserEventHandler):
     def on_render(self, console: tcod.Console) -> None:
         super().on_render(console)
         if not self.engine.config["autosave"]:
-            self.engine.draw_window(console, text="정말 현재 게임을 종료하시겠습니까? 모든 저장하지 않은 내역은 지워집니다. (Y/N)", title="Quit", frame_fg=color.lime, frame_bg=color.gui_inventory_bg)
+            self.engine.draw_window(console, text=i("정말 현재 게임을 종료하시겠습니까? 지금까지의 모든 진행 내역은 지워집니다. (Y/N)",
+                                                    "Are you sure you want to quit? All progress will be lost. (Y/N)"), title=i("게임 종료","Quit game"), frame_fg=color.red, frame_bg=color.gui_inventory_bg)
         else:
-            self.engine.draw_window(console, text="정말 현재 게임을 종료하시겠습니까? (Y/N)", title="Quit", frame_fg=color.lime, frame_bg=color.gui_inventory_bg)
+            self.engine.draw_window(console, text=i("정말 현재 게임을 종료하시겠습니까? 지금까지의 진행 내용은 저장됩니다. (Y/N)",
+                                                    "Are you sure you want to quit? (Y/N)"), title=i("게임 종료","Quit game"), frame_fg=color.red, frame_bg=color.gui_inventory_bg)
 
     def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[Action]:
         player = self.engine.player
@@ -1927,10 +1993,12 @@ class QuitInputHandler(AskUserEventHandler):
             self.engine.event_handler = MainGameEventHandler()
             if self.engine.config["autosave"]:
                 save_game(player=player, engine=engine)
+            else:
+                delete_saved_game()
             quit_game()
             return None
         elif event.sym == tcod.event.K_n or event.sym == tcod.event.K_ESCAPE:
-            self.engine.message_log.add_message(f"취소됨.", color.lime, stack=False)
+            self.engine.message_log.add_message(i(f"취소됨.","Cancelled."), color.lime, stack=False)
         return super().ev_keydown(event)
 
 
@@ -1941,7 +2009,8 @@ class ForceAttackInputHandler(AskUserEventHandler):
 
     def on_render(self, console: tcod.Console) -> None:
         super().on_render(console)
-        self.engine.draw_window(console, text="정말로 공격하시겠습니까? (Y/N)", title="공격 확인", frame_fg=color.red, frame_bg=color.gui_inventory_bg)
+        self.engine.draw_window(console, text=i("정말로 공격하시겠습니까? (Y/N)",
+                                                "Are you sure you want to attack? (Y/N)"), title=i("공격 확인","Confirm attack"), frame_fg=color.red, frame_bg=color.gui_inventory_bg)
 
     def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[Action]:
         if event.sym == tcod.event.K_y or event.sym == tcod.event.K_KP_ENTER:
@@ -1957,8 +2026,9 @@ class PauseGameEventHandler(AskUserEventHandler):
         super().on_render(console)
         self.engine.draw_window(
             self.engine.console,
-            text="(c):조작키 | (h):도움말 | (o):옵션 | ESC:취소",
-            title="일시정지",
+            text=i("(c):조작키 | (h):도움말 | (o):옵션 | ESC:취소",
+                   "(c):Control | (h):Help | (o):Option | ESC:Escape"),
+            title=i("일시정지","Game paused"),
             frame_fg=color.green,
         )
 
@@ -1976,7 +2046,7 @@ class PauseGameEventHandler(AskUserEventHandler):
                 self.engine.event_handler = GameHelpEventHandler()
             elif key == tcod.event.K_o:
                 from option import Option
-                Option.option_event_handler(console=self.engine.console, context=self.engine.context, game_started=False, sound_manager=self.engine.sound_manager)
+                Option.option_event_handler(console=self.engine.console, context=self.engine.context, game_started=True, sound_manager=self.engine.sound_manager)
             elif key == tcod.event.K_ESCAPE:
                 self.engine.event_handler = MainGameEventHandler()
 
@@ -1992,58 +2062,92 @@ class DisplayControlEventHandler(AskUserEventHandler):
         y_start = 2
         xpad = 0
         ypad = 0
-        console.print(x=x_start, y=y_start + ypad, string="가급적 키보드 조작을 권장합니다.", fg=color.yellow)
+        console.print(x=x_start, y=y_start + ypad, string=i("가급적 키보드 조작을 권장합니다.",
+                                                            "Using keyboard over mouse is recommended."), fg=color.yellow)
         ypad += 3
-        console.print(x=x_start, y=y_start + ypad, string="<이동>", fg=color.white)
-        console.print(x=x_start, y=y_start + ypad+1, string="키패드 2468 1379 / 키보드 hjkl yubn / 마우스 좌클릭", fg=color.cyan)
+        console.print(x=x_start, y=y_start + ypad, string=i("<이동>",
+                                                            "<Movement>"), fg=color.white)
+        console.print(x=x_start, y=y_start + ypad+1, string=i("키패드 2468 1379 / 키보드 hjkl yubn / 마우스 좌클릭",
+                                                              "Keypad 2468 1379 / Keyboard hjkl yubn / Left mouse click"), fg=color.cyan)
         ypad += 2
-        console.print(x=x_start, y=y_start + ypad, string="<턴 넘기기>", fg=color.white)
-        console.print(x=x_start, y=y_start + ypad+1, string="키패드 5 / .(마침표)키", fg=color.cyan)
+        console.print(x=x_start, y=y_start + ypad, string=i("<턴 넘기기>",
+                                                            "<Skip turn>"), fg=color.white)
+        console.print(x=x_start, y=y_start + ypad+1, string=i("키패드 5 / .(마침표)키",
+                                                              "Keypad 5 / (.) key"), fg=color.cyan)
         ypad += 2
-        console.print(x=x_start, y=y_start + ypad, string="<아이템 줍기>", fg=color.white)
-        console.print(x=x_start, y=y_start + ypad+1, string="(g)키", fg=color.cyan)
+        console.print(x=x_start, y=y_start + ypad, string=i("<아이템 줍기>",
+                                                            "<Pick up>"), fg=color.white)
+        console.print(x=x_start, y=y_start + ypad+1, string=i("(g)키",
+                                                              "(g) key"), fg=color.cyan)
         ypad += 2
-        console.print(x=x_start, y=y_start + ypad, string="<계단 올라가기, 내려가기>", fg=color.white)
-        console.print(x=x_start, y=y_start + ypad+1, string="(<, >)키", fg=color.cyan)
+        console.print(x=x_start, y=y_start + ypad, string=i("<계단 올라가기, 내려가기>",
+                                                            "<Ascend/Descend stair>"), fg=color.white)
+        console.print(x=x_start, y=y_start + ypad+1, string=i("(<, >)키",
+                                                              "(<, >) key"), fg=color.cyan)
         ypad += 2
-        console.print(x=x_start, y=y_start + ypad, string="<주위 살펴보기>", fg=color.white)
-        console.print(x=x_start, y=y_start + ypad + 1, string="(/)키", fg=color.cyan)
+        console.print(x=x_start, y=y_start + ypad, string=i("<주위 살펴보기>",
+                                                            "<Look/Inspect>"), fg=color.white)
+        console.print(x=x_start, y=y_start + ypad + 1, string=i("(/)키",
+                                                                "(/) key"), fg=color.cyan)
         ypad += 2
-        console.print(x=x_start, y=y_start + ypad, string="<문 닫기,열기>", fg=color.white)
-        console.print(x=x_start, y=y_start + ypad + 1, string="(c), (o)키", fg=color.cyan)
+        console.print(x=x_start, y=y_start + ypad, string=i("<문 닫기,열기>",
+                                                            "<Close/Open door>"), fg=color.white)
+        console.print(x=x_start, y=y_start + ypad + 1, string=i("(c), (o)키",
+                                                                "(c) key, (o) key"), fg=color.cyan)
         ypad += 2
-        console.print(x=x_start, y=y_start + ypad, string="<인벤토리>", fg=color.white)
-        console.print(x=x_start, y=y_start + ypad + 1, string="(i)키", fg=color.cyan)
+        console.print(x=x_start, y=y_start + ypad, string=i("<인벤토리>",
+                                                            "<Inventory>"), fg=color.white)
+        console.print(x=x_start, y=y_start + ypad + 1, string=i("(i)키",
+                                                                "(i) key"), fg=color.cyan)
         ypad += 2
-        console.print(x=x_start, y=y_start + ypad, string="<인벤토리에서 여러 아이템 선택해 드랍하기>", fg=color.white)
-        console.print(x=x_start, y=y_start + ypad + 1, string="(d)키", fg=color.cyan)
+        console.print(x=x_start, y=y_start + ypad, string=i("<인벤토리에서 여러 아이템 선택해 드랍하기>",
+                                                            "<Choose items from inventory and drop>"), fg=color.white)
+        console.print(x=x_start, y=y_start + ypad + 1, string=i("(d)키",
+                                                                "(d) key"), fg=color.cyan)
         ypad += 2
-        console.print(x=x_start, y=y_start + ypad, string="<능력>", fg=color.white)
-        console.print(x=x_start, y=y_start + ypad + 1, string="(a)키", fg=color.cyan)
+        console.print(x=x_start, y=y_start + ypad, string=i("<능력>",
+                                                            "<Ability>"), fg=color.white)
+        console.print(x=x_start, y=y_start + ypad + 1, string=i("(a)키",
+                                                                "(a) key"), fg=color.cyan)
         ypad += 2
-        console.print(x=x_start, y=y_start + ypad, string="<잠자기>", fg=color.white)
-        console.print(x=x_start, y=y_start + ypad + 1, string="(z)키", fg=color.cyan)
+        console.print(x=x_start, y=y_start + ypad, string=i("<잠자기>",
+                                                            "<Sleep>"), fg=color.white)
+        console.print(x=x_start, y=y_start + ypad + 1, string=i("(z)키",
+                                                                "(z) key"), fg=color.cyan)
         ypad += 2
-        console.print(x=x_start, y=y_start + ypad, string="<공중을 날기>", fg=color.white)
-        console.print(x=x_start, y=y_start + ypad + 1, string="(f)키", fg=color.cyan)
+        console.print(x=x_start, y=y_start + ypad, string=i("<공중을 날기>",
+                                                            "<Fly>"), fg=color.white)
+        console.print(x=x_start, y=y_start + ypad + 1, string=i("(f)키",
+                                                                "(f) key"), fg=color.cyan)
         ypad += 4
-        console.print(x=x_start, y=y_start + ypad, string="<게임 로그 확인>", fg=color.white)
-        console.print(x=x_start, y=y_start + ypad + 1, string="(v)키. 이동키,마우스 휠로 스크롤 가능", fg=color.cyan)
+        console.print(x=x_start, y=y_start + ypad, string=i("<게임 로그 확인>",
+                                                            "<Check game log>"), fg=color.white)
+        console.print(x=x_start, y=y_start + ypad + 1, string=i("(v)키. 이동키,마우스 휠로 스크롤 가능",
+                                                                "(v) key. You can scroll up/down with move keys & mouse wheel"), fg=color.cyan)
         ypad += 2
-        console.print(x=x_start, y=y_start + ypad, string="<도감 확인>", fg=color.white)
-        console.print(x=x_start, y=y_start + ypad + 1, string="TAB", fg=color.cyan)
+        console.print(x=x_start, y=y_start + ypad, string=i("<도감 확인>",
+                                                            "<Encyclopedia>"), fg=color.white)
+        console.print(x=x_start, y=y_start + ypad + 1, string=i("TAB","TAB"), fg=color.cyan)
         ypad += 2
-        console.print(x=x_start, y=y_start + ypad, string="<게임 저장>", fg=color.white)
-        console.print(x=x_start, y=y_start + ypad + 1, string="(S)키  (쉬프트 + (s)키)", fg=color.cyan)
+        console.print(x=x_start, y=y_start + ypad, string=i("<게임 저장>",
+                                                            "<Save game>"), fg=color.white)
+        console.print(x=x_start, y=y_start + ypad + 1, string=i("(S)키  (쉬프트 + (s)키)",
+                                                                "(S) key  (Shift + (s) key)"), fg=color.cyan)
         ypad += 2
-        console.print(x=x_start, y=y_start + ypad, string="<게임 종료>", fg=color.white)
-        console.print(x=x_start, y=y_start + ypad + 1, string="(Q)키  (쉬프트 + (q)키)", fg=color.cyan)
+        console.print(x=x_start, y=y_start + ypad, string=i("<게임 종료>",
+                                                            "<Quit game>"), fg=color.white)
+        console.print(x=x_start, y=y_start + ypad + 1, string=i("(Q)키  (쉬프트 + (q)키)",
+                                                                "(Q) key  (Shift + (q) key)"), fg=color.cyan)
         ypad += 2
-        console.print(x=x_start, y=y_start + ypad, string="<스크린샷 저장>", fg=color.white)
-        console.print(x=x_start, y=y_start + ypad + 1, string="F12", fg=color.cyan)
+        console.print(x=x_start, y=y_start + ypad, string=i("<스크린샷 저장>",
+                                                            "<Take screenshots>"), fg=color.white)
+        console.print(x=x_start, y=y_start + ypad + 1, string=i("F12",
+                                                                "F12"), fg=color.cyan)
         ypad += 2
-        console.print(x=x_start, y=y_start + ypad, string="<게임 일시정지>", fg=color.white)
-        console.print(x=x_start, y=y_start + ypad + 1, string="ESC", fg=color.cyan)
+        console.print(x=x_start, y=y_start + ypad, string=i("<게임 일시정지>",
+                                                            "<Pause game>"), fg=color.white)
+        console.print(x=x_start, y=y_start + ypad + 1, string=i("ESC",
+                                                                "ESC"), fg=color.cyan)
         ypad += 2
 
 
@@ -2051,37 +2155,62 @@ class GameHelpEventHandler(AskUserEventHandler):
     def __init__(self, item_cancel_callback=None):
         super().__init__(item_cancel_callback=item_cancel_callback)
         self.tips = [
-            "당신의 가장 강력한 무기는 바로 당신의 머리입니다. 상황을 분석해 현명하게 위기를 헤쳐나가세요!",
-            "위험한 상황에 빠졌다면 도망치는 것도 하나의 방법입니다.",
-            "저장되지 않은 게임은 게임이 종료될 경우 완전히 삭제됩니다. 게임을 저장했더라도 플레이어가 죽거나, 새 게임을 시작하면 삭제됩니다.",
-            "썩은 음식물에서는 구더기가 생겨날 수 있습니다.",
-            "저주받은 장착품들은 한 번 장착하면 저주를 해제할 때 까지 자력으로 장착을 해제할 수 없습니다.",
-            "감정되지 않은 아이템들은 꼭 감정하지 않더라도 다양한 방법으로 그 종류를 추측할 수 있습니다.",
-            "상점에서는 아이템을 구매하거나 판매할 수 있습니다. 상점을 잘 활용하세요!",
-            "(/)키로 몬스터를 선택해 몬스터의 자세한 정보를 볼 수 있습니다. 한 번 추가된 정보는 TAB키를 눌러 언제든지 다시 확인할 수 있습니다.",
-            "몬스터들의 시야는 범위가 한정되어 있지만, 간혹 텔레파시와 같은 투시 능력을 가지고 있는 몬스터들도 존재합니다.",
-            "항상 게임 로그를 주시하세요. 지금 어떤 일이 일어나는 지를 파악하는 것은 굉장히 중요합니다.",
-            "수면 상태에서는 활력이 평소보다 증가하지만, 잠에서 깰 때 까지 아무 행동도 할 수 없습니다. 잠을 잘 때는 항상 주의하세요!",
-            "음식물은 썩거나 상할 수 있습니다. 상한 음식물로부터는 영양분을 많이 얻을 수 없다는 점에 주의하세요.",
-            "몬스터들간의 전투가 발생했다면 이를 유리한 방향으로 활용하세요!",
-            "저장되지 않은 게임은 게임이 종료될 경우 삭제됩니다. 게임을 저장했더라도 플레이어가 죽거나, 새 게임을 시작하면 삭제됩니다.",
-            "(/)키로 주변을 살펴보고 특정 타일을 선택해 그 타일에 있는 것들에 대한 자세한 설명을 볼 수 있습니다.",
-            "인벤토리 -> 아이템 상호작용 -> (s)키를 눌러 아이템 한 세트를 여러 개의 작은 세트들로 분리할 수 있습니다.",
-            "아이템의 투척 사거리는 플레이어의 수치들과 아이템의 무게, 공기저항 등에 의해 결정됩니다.",
-            "투척, 마법 발사 등 모든 행동은 상하좌우와 대각선 총 8가지 방향으로만 할 수 있습니다. 적이 움직일 위치를 예측해 지능적으로 이동하세요!",
-            "몬스터의 난이도 수치는 꼭 그 몬스터의 강함만을 나타내는 것이 아닙니다. 난이도가 낮은 몬스터라고 방심하는 것은 금물입니다.",
-            "무기를 메인 핸드와 오프 핸드 양손에 쌍수로 장착하는 것은 경우에 따라 득이 될 수도, 실이 될 수도 있습니다. 잘 생각하고 장비하세요!",
-            "일부 함정은 아이템 등을 던저 강제로 발동시켜 해제할 수 있습니다.",
-            "전격 피해는 인접한 액터들을 따라 퍼져 나갈 수 있습니다.",
-            "당신이 하는 대부분의 행동들은 당신의 능력치에 많은 영향을 받습니다.",
-            "공중에 떠 있는 상태에서는 일부 함정이나 지형의 영향을 받지 않습니다.",
-            "지나치게 어려운 마법서를 읽게 된다면 혼란 상태에 빠질 수도 있습니다. 지식을 길러 도전하세요!",
-            "몬스터들은 지능에 따라 다르게 행동합니다. 상대를 잘 파악하세요.",
-            "TAB키를 눌러 몬스터 도감을 볼 수 있습니다.",
-            "포션은 마실 수도, 던질 수도 있습니다.",
-            "물 속에 잠기게 되면 보유한 아이템이 부식될 수 있습니다. 물에 들어가는 것을 피하거나, 인벤토리를 방수 처리하세요!",
-            "몬스터들간의 전투를 유리한 방향으로 활용하세요!",
-            "아이템 뭉치를 (s)키를 사용해 나눌 수 있습니다. 아이템의 분배가 필요할 때 사용하세요.",
+            i("당신의 가장 강력한 무기는 바로 당신의 머리입니다. 상황을 분석해 현명하게 위기를 헤쳐나가세요!",
+              "Making a good decision is much more important than having a strong weapon! Be wise and analytic! "),
+            i("위험한 상황에 빠졌다면 도망치는 것도 하나의 방법입니다.",
+              "Sometimes, running away from a battle might be your best option."),
+            i("저장되지 않은 게임은 게임이 종료될 경우 완전히 삭제됩니다. 게임을 저장했더라도 플레이어가 죽거나, 새 게임을 시작하면 삭제됩니다.",
+              "Any unsaved progress is lost when you quit the game. You also lose your progress if you start a new game."),
+            i("썩은 음식물에서는 구더기가 생겨날 수 있습니다.",
+              "Maggots can spawn from a rotten food."),
+            i("저주받은 장착품들은 한 번 장착하면 저주를 해제할 때 까지 자력으로 장착을 해제할 수 없습니다.",
+              "You can't unequip cursed items without removing the curse. However..."),
+            i("감정되지 않은 아이템들은 꼭 감정하지 않더라도 다양한 방법으로 그 종류를 추측할 수 있습니다.",
+              "There many ways of identifying an unidentified items."),
+            i("상점에서는 아이템을 구매하거나 판매할 수 있습니다. 상점을 잘 활용하세요!",
+              "You can purchase or sell items from the shop. Use it to your advantage!"),
+            i("(/)키로 몬스터를 선택해 몬스터의 자세한 정보를 볼 수 있습니다. 한 번 추가된 정보는 TAB키를 눌러 언제든지 다시 확인할 수 있습니다.",
+              "Press (/) key and select the monster to add them to the encyclopedia."),
+            i("몬스터들의 시야는 범위가 한정되어 있지만, 간혹 텔레파시와 같은 투시 능력을 가지고 있는 몬스터들도 존재합니다.",
+              "Monsters have their own field of vision, and some of them even have special vision such as telepathy."),
+            i("항상 게임 로그를 주시하세요. 지금 어떤 일이 일어나는 지를 파악하는 것은 굉장히 중요합니다.",
+              "Always check the game log. It is extremely important to keep track of what's going on."),
+            i("수면 상태에서는 활력이 평소보다 증가하지만, 잠에서 깰 때 까지 아무 행동도 할 수 없습니다. 잠을 잘 때는 항상 주의하세요!",
+              "When you're asleep your constitution increases, but you are unable to do anything during your sleep."),
+            i("음식물은 썩거나 상할 수 있습니다. 상한 음식물로부터는 영양분을 많이 얻을 수 없다는 점에 주의하세요.",
+              "Edibles can rot or go bad. You won't get as much nutritions from a rotten food."),
+            i("몬스터들간의 전투가 발생했다면 이를 유리한 방향으로 활용하세요!",
+              "When monsters are fighting each other, use it to your advantage!"),
+            i("(/)키로 주변을 살펴보고 특정 타일을 선택해 그 타일에 있는 것들에 대한 자세한 설명을 볼 수 있습니다.",
+              "Press (/) key to look around, and select a tile to inspect things taht are on the selected location."),
+            i("인벤토리 -> 아이템 상호작용 -> (s)키를 눌러 아이템 한 세트를 여러 개의 작은 세트들로 분리할 수 있습니다.",
+              "You can split your item stack into smaller stacks."),
+            i("아이템의 투척 사거리는 플레이어의 수치들과 아이템의 무게, 공기저항 등에 의해 결정됩니다.",
+              "A throwing range of an item is decided by its weight, air friction, thrower's strength, and etc."),
+            i("투척, 마법 발사 등 모든 행동은 상하좌우와 대각선 총 8가지 방향으로만 할 수 있습니다. 적이 움직일 위치를 예측해 지능적으로 이동하세요!",
+              "Every actions can only be done towards 8 directions. Predict others' movement before making a move."),
+            i("몬스터의 난이도 수치는 꼭 그 몬스터의 강함만을 나타내는 것이 아닙니다. 난이도가 낮은 몬스터라고 방심하는 것은 금물입니다.",
+              "Difficulty of a monster doesn't necessarily indicate its power."),
+            i("무기를 메인 핸드와 오프 핸드 양손에 쌍수로 장착하는 것은 경우에 따라 득이 될 수도, 실이 될 수도 있습니다. 잘 생각하고 장비하세요!",
+              "Dual-wielding has its advantages and disadvantages."),
+            i("일부 함정은 아이템 등을 던저 강제로 발동시켜 해제할 수 있습니다.",
+              "Some traps can be disassembled by triggering it with your items."),
+            i("전격 피해는 인접한 액터들을 따라 퍼져 나갈 수 있습니다.",
+              "Electricity can electrify a group of adjacent actors."),
+            i("당신이 하는 대부분의 행동들은 당신의 능력치에 많은 영향을 받습니다.",
+              "Almost every action you make is affected by your status."),
+            i("공중에 떠 있는 상태에서는 일부 함정이나 지형의 영향을 받지 않습니다.",
+              "When you are floating on air, you can move over some traps and terrains."),
+            i("지나치게 어려운 마법서를 읽게 된다면 혼란 상태에 빠질 수도 있습니다. 지식을 길러 도전하세요!",
+              "Reading a spellbook that is too hard for you can make you confused."),
+            i("몬스터들은 지능에 따라 다르게 행동합니다. 상대를 잘 파악하세요.",
+              "Monsters will act differently by their intelligence."),
+            i("TAB키를 눌러 몬스터 도감을 볼 수 있습니다.",
+              "Press TAB to view encyclopedia."),
+            i("포션은 마실 수도, 던질 수도 있습니다.",
+              "Potions can be quaffed, or can be thrown."),
+            i("물 속에 잠기게 되면 보유한 아이템이 부식될 수 있습니다. 물에 들어가는 것을 피하거나, 아이템을 방수 처리하세요!",
+              "Items can corrode when you are submerged. Avoid deep water, or use wax on your items!"),
         ]
         self.curr_tip_index = random.randint(0,len(self.tips)-1)
 
@@ -2115,15 +2244,22 @@ class GameHelpEventHandler(AskUserEventHandler):
         y_start = 2
         xpad = 0
         ypad = 0
-        console.print(x=x_start, y=y_start + ypad, string="당신은 던전 가장 깊은 곳에 있는 '쿠가의 아뮬렛'을 찾아오라는 임무를 받고 끝이 보이지 않는 던전으로 발을 들였습니다.", fg=color.yellow)
+        console.print(x=x_start, y=y_start + ypad, string=i("당신은 던전 가장 깊은 곳에 있는 '쿠가의 아뮬렛'을 찾아오라는 임무를 받고 끝이 보이지 않는 던전으로 발을 들였습니다.",
+                                                            "You have entered the dungeon with a mission to reobtain the Amulet of Kugah."), fg=color.yellow)
         ypad += 1
-        console.print(x=x_start, y=y_start + ypad, string="용감하게 던전을 헤쳐 나가 '쿠가의 아뮬렛'을 지상으로 가져오세요!", fg=color.yellow)
+        console.print(x=x_start, y=y_start + ypad, string=i("용감하게 던전을 헤쳐 나가 '쿠가의 아뮬렛'을 지상으로 가져오세요!",
+                                                            "Travel your way through the dungeon and retrieve the Amulet of Kugah back to the surface!"), fg=color.yellow)
         ypad += 4
         console.print(x=x_start, y=y_start + ypad, string=self.tips[self.curr_tip_index], fg=color.white)
         ypad += 4
-        console.print(x=x_start, y=y_start + ypad, string="(4),(h),(좌측 화살표):이전 도움말 살펴보기 | (6),(l),(우측 화살표):다음 도움말 살펴보기", fg=color.gray)
+        console.print(x=x_start, y=y_start + ypad, string=i("키패드 (4) / 키보드 (h) / 좌측 화살표 키:이전 도움말 살펴보기",
+                                                            "Keypad (4) / Keyboard (h) / Left-arrow key:Previous tip"), fg=color.gray)
         ypad += 1
-        console.print(x=x_start, y=y_start + ypad, string="(/)키:랜덤한 도움말 살펴보기 | ESC:나가기", fg=color.gray)
+        console.print(x=x_start, y=y_start + ypad, string=i("키패드 (6) / 키보드 (l) / 우측 화살표 키:다음 도움말 살펴보기",
+                                                            "Keypad (6) / Keyboard (l) / Right-arrow key:Next tip"), fg=color.gray)
+        ypad += 3
+        console.print(x=x_start, y=y_start + ypad, string=i("(/)키:랜덤한 도움말 살펴보기 | ESC:나가기",
+                                                            "(/) key:View random tip | ESC:Escape"), fg=color.gray)
 
 
 class MainGameEventHandler(EventHandler):
@@ -2195,13 +2331,15 @@ class MainGameEventHandler(EventHandler):
                 pic_name = time_str
                 #pic_name = self.engine.player.name + "-" + time_str # bugs occur when using certain unicode chars.
                 self.engine.context.save_screenshot(f"./screenshots/{pic_name}.png")
-                self.engine.message_log.add_message(f"스크린샷 저장됨. {pic_name}.png", color.cyan)
+                self.engine.message_log.add_message(i(f"스크린샷 저장됨. {pic_name}.png",
+                                                      f"Screenshot saved. {pic_name}.png"), color.cyan)
             elif key == tcod.event.K_F11:
                 if self.engine.easteregg > 50:
                     return None
                 self.engine.easteregg += 1
                 if self.engine.easteregg == 50:
-                    self.engine.message_log.add_message(f"당신은 슬픈 기분이 든다.", color.white)
+                    self.engine.message_log.add_message(i(f"당신은 슬픈 기분이 든다.",
+                                                          f"You feel sad."), color.white)
 
 
             #     ######### TODO FIXME DEBUG
@@ -2262,19 +2400,21 @@ class MainGameEventHandler(EventHandler):
         return None
 
 
-class GameQuitHandler(EventHandler):
+class GameQuitNoSaveHandler(EventHandler):
     def __init__(self, prev_event_handler):
         super().__init__(item_cancel_callback=None)
         self.prev_event_handler = prev_event_handler
 
     def on_render(self, console: tcod.Console) -> None:
-        self.engine.draw_window(console, text="정말 게임을 종료하시겠습니까? (Y/N)", title="Quit", frame_fg=color.red, frame_bg=color.gui_inventory_bg)
+        self.engine.draw_window(console, text=i("정말 게임을 종료하시겠습니까? (Y/N)",
+                                                "Are you sure you want to quit? (Y/N)"), title=i("게임 종료","Quit game"), frame_fg=color.red, frame_bg=color.gui_inventory_bg)
 
     def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[Action]:
         player = self.engine.player
         engine = self.engine
 
         if event.sym == tcod.event.K_y or event.sym == tcod.event.K_KP_ENTER:
+            delete_saved_game()
             quit_game()
             return None
         elif event.sym == tcod.event.K_n or event.sym == tcod.event.K_ESCAPE:
@@ -2284,7 +2424,8 @@ class GameQuitHandler(EventHandler):
 
 class AscendToSurfaceHandler(AskUserEventHandler):
     def on_render(self, console: tcod.Console) -> None:
-        self.engine.draw_window(console, text="정말 지상으로 나가시겠습니까? (Y/N)", title="던전 밖으로 나가기", frame_fg=color.lime, frame_bg=color.gui_inventory_bg)
+        self.engine.draw_window(console, text=i("정말 지상으로 나가시겠습니까? (Y/N)",
+                                                "Are you sure you want to leave the dungeon? (Y/N)"), title=i("던전 밖으로 나가기","Leave the dungeon"), frame_fg=color.lime, frame_bg=color.gui_inventory_bg)
 
     def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[Action]:
         player = self.engine.player
@@ -2292,7 +2433,7 @@ class AscendToSurfaceHandler(AskUserEventHandler):
 
         if event.sym == tcod.event.K_y or event.sym == tcod.event.K_KP_ENTER:
             # TODO: Add upper dungeon contents
-            self.engine.event_handler = GameQuitHandler(prev_event_handler=self)
+            self.engine.event_handler = GameQuitNoSaveHandler(prev_event_handler=self)
             return None
         elif event.sym == tcod.event.K_n or event.sym == tcod.event.K_ESCAPE:
             self.engine.event_handler = MainGameEventHandler()
@@ -2304,12 +2445,15 @@ class GameOverEventHandler(EventHandler):
     TODO: Render player History"""
     def on_render(self, console: tcod.Console) -> None:
         super().on_render(console)
-        self.engine.draw_window(console, text="(v):로그 살펴보기 | (/):맵 둘러보기 | F12:스크린샷 | ESC:게임 종료", title="당신은 죽었습니다.", frame_fg=color.lime, frame_bg=color.gui_inventory_bg)
+        self.engine.draw_window(console, text=i("(v):로그 살펴보기 | (/):맵 둘러보기 | F12:스크린샷 | ESC:게임 종료",
+                                                "(v):View game log | (/):Look around | F12:Take screenshot | ESC:Quit game"),
+                                title=i("당신은 죽었습니다.",
+                                        "You died."), frame_fg=color.lime, frame_bg=color.gui_inventory_bg)
 
     def ev_keydown(self, event: tcod.event.KeyDown) -> None:
         key = event.sym
         if key == tcod.event.K_ESCAPE:
-            self.engine.event_handler = GameQuitHandler(prev_event_handler=self)
+            self.engine.event_handler = GameQuitNoSaveHandler(prev_event_handler=self)
         elif key == tcod.event.K_v:
             self.engine.event_handler = HistoryViewer()
         elif key == tcod.event.K_SLASH or key == tcod.event.K_KP_DIVIDE:
@@ -2319,7 +2463,8 @@ class GameOverEventHandler(EventHandler):
             pic_name = time_str
             # pic_name = self.engine.player.name + "-" + time_str # bugs occur when using certain unicode chars.
             self.engine.context.save_screenshot(f"./screenshots/{pic_name}.png")
-            self.engine.message_log.add_message(f"스크린샷 저장됨. {pic_name}.png", color.cyan)
+            self.engine.message_log.add_message(i(f"스크린샷 저장됨. {pic_name}.png",
+                                                  f"Screenshot saved. {pic_name}.png"), color.cyan)
 
     def ev_mousebuttondown(self, event: tcod.event.KeyDown) -> None:
         return None
@@ -2349,7 +2494,7 @@ class HistoryViewer(EventHandler):
         log_console = tcod.Console(console.width - 6, console.height - 6)
 
         # Draw a frame with a custom banner title.
-        log_console.draw_frame(0, 0, log_console.width, log_console.height, title="게임 로그", fg=color.msg_log_frame, bg=color.msg_log_bg)
+        log_console.draw_frame(0, 0, log_console.width, log_console.height, title=i("게임 로그","Game log"), fg=color.msg_log_frame, bg=color.msg_log_bg)
 
         # Render the message log using the cursor parameter.
         self.engine.message_log.render_messages(

@@ -6,12 +6,13 @@ import semiactor_factories
 import item_factories
 import actor_factories
 from order import InventoryOrder
+from language import interpret as i
 
 terrain_dict = {}
 
 # Dungeon chamber (Standard)
 dungeon_chamber = Terrain(
-    name="던전 챔버",
+    name=i("던전 챔버", "dungeon chamber"),
     terrain_id="dungeon_chamber",
     terrain_desc="",
     rarity=100,
@@ -24,7 +25,7 @@ terrain_dict[dungeon_chamber] = dungeon_chamber.rarity
 
 # battlefield
 battlefield = Terrain(
-    name="전장",
+    name=i("전장", "battlefield"),
     terrain_id="battlefield",
     terrain_desc="",
     rarity=0,
@@ -54,7 +55,7 @@ terrain_dict[battlefield] = battlefield.rarity
 
 # Monater lair
 monster_lair = Terrain(
-    name="괴물 둥지",
+    name=i("괴물 둥지", "monster lair"),
     terrain_id="monster_lair",
     terrain_desc="",
     rarity=2,
@@ -82,7 +83,7 @@ terrain_dict[monster_lair] = monster_lair.rarity
 
 # Forest chamber
 forest_chamber = Terrain(
-    name="숲",
+    name=i("숲", "forest"),
     terrain_id="forest_chamber",
     terrain_desc="",
     rarity=70,
@@ -103,7 +104,7 @@ terrain_dict[forest_chamber] = forest_chamber.rarity
 
 # Forest chamber spawn no door
 forest_chamber_spawn_no_door = Terrain(
-    name="숲",
+    name=i("숲", "forest"),
     terrain_id="forest_chamber_spawn_no_door",
     terrain_desc="",
     rarity=0, # Manual
@@ -125,7 +126,7 @@ terrain_dict[forest_chamber_spawn_no_door] = forest_chamber_spawn_no_door.rarity
 
 # Landmine chamber
 landmine_chamber = Terrain(
-    name="지뢰밭",
+    name=i("지뢰밭", "landmine chamber"),
     terrain_id="landmine_chamber",
     terrain_desc="",
     rarity=30,
@@ -147,7 +148,7 @@ terrain_dict[landmine_chamber] = landmine_chamber.rarity
 
 # Grass Field
 grass_field = Terrain(
-    name="평야",
+    name=i("평야", "grassfield"),
     terrain_id="grass_field",
     terrain_desc="",
     rarity=120,
@@ -160,7 +161,7 @@ terrain_dict[grass_field] = grass_field.rarity
 
 # Grass Field Spawn No Door
 grass_field_spawn_no_door = Terrain(
-    name="평야",
+    name=i("평야", "grassfield"),
     terrain_id="grass_field_spawn_no_door",
     terrain_desc="",
     rarity=0, # Must add terrain manually to generate
@@ -175,7 +176,7 @@ terrain_dict[grass_field_spawn_no_door] = grass_field_spawn_no_door.rarity
 
 # Large Grass Field Spawn No Door
 large_grass_field_spawn_no_door = Terrain(
-    name="평야",
+    name=i("평야", "grassfield"),
     terrain_id="large_grass_field_spawn_no_door",
     terrain_desc="",
     rarity=0, # Must add terrain manually to generate
@@ -192,7 +193,7 @@ terrain_dict[large_grass_field_spawn_no_door] = large_grass_field_spawn_no_door.
 
 # Trap Field
 trap_field = Terrain(
-    name="함정 필드",
+    name=i("함정 필드", "trap field"),
     terrain_id="trap_field",
     terrain_desc="",
     rarity=50,
@@ -218,7 +219,7 @@ terrain_dict[trap_field] = trap_field.rarity
 
 # Trap Field with grass
 trap_field_with_grass = Terrain(
-    name="함정 필드",
+    name=i("함정 필드", "trap field"),
     terrain_id="trap_field_with_grass",
     terrain_desc="",
     rarity=25,
@@ -245,7 +246,7 @@ terrain_dict[trap_field] = trap_field.rarity
 
 # Chest Room
 chest_room = Terrain(
-    name="창고",
+    name=i("창고", "storage"),
     terrain_id="chest_room",
     terrain_desc="",
     rarity=5,
@@ -267,7 +268,7 @@ terrain_dict[chest_room] = chest_room.rarity
 
 # Large pit
 large_pit = Terrain(
-    name="큰 구덩이",
+    name=i("큰 구덩이", "large pit"),
     terrain_id="large_pit",
     terrain_desc="",
     rarity=3,
@@ -287,7 +288,7 @@ terrain_dict[large_pit] = large_pit.rarity
 
 # Giant Hole
 giant_hole = Terrain(
-    name="큰 구멍",
+    name=i("큰 구멍", "giant hole"),
     terrain_id="giant_hole",
     terrain_desc="",
     rarity=7,
@@ -300,7 +301,7 @@ terrain_dict[giant_hole] = giant_hole.rarity
 
 # Ocean
 ocean = Terrain(
-    name="바다",
+    name=i("바다", "ocean"),
     terrain_id="ocean",
     terrain_desc="",
     rarity=2,
@@ -316,7 +317,7 @@ terrain_dict[ocean] = ocean.rarity
 
 # Lake
 lake = Terrain(
-    name="호수",
+    name=i("호수", "lake"),
     terrain_id="lake",
     terrain_desc="",
     rarity=6,
@@ -330,7 +331,7 @@ terrain_dict[lake] = lake.rarity
 
 # Piranha lake
 piranha_lake = Terrain(
-    name="피라냐 호수",
+    name=i("피라냐 호수", "piranha lake"),
     terrain_id="piranha_lake",
     terrain_desc="",
     rarity=3,
@@ -347,7 +348,7 @@ terrain_dict[piranha_lake] = piranha_lake.rarity
 
 # Swamp
 swamp = Terrain(
-    name="늪지대",
+    name=i("늪지대", "swamp"),
     terrain_id="swamp",
     terrain_desc="",
     rarity=30,
@@ -363,7 +364,7 @@ terrain_dict[swamp] = swamp.rarity
 # General shop
 from custom_terrgen import ShopTerrGen
 general_shop = ShopTerrain(
-    name="잡동사니 상점",
+    name=i("잡동사니 상점", "general shop"),
     terrain_id="general_shop",
     terrain_desc="",
     rarity=3,
@@ -382,7 +383,7 @@ terrain_dict[general_shop] = general_shop.rarity
 # Potion shop
 from custom_terrgen import ShopTerrGen
 potion_shop = ShopTerrain(
-    name="포션 상점",
+    name=i("포션 상점", "potion shop"),
     terrain_id="potion_shop",
     terrain_desc="",
     rarity=2,
@@ -401,7 +402,7 @@ terrain_dict[potion_shop] = potion_shop.rarity
 # Weapon shop
 from custom_terrgen import ShopTerrGen
 weapon_shop = ShopTerrain(
-    name="무기 상점",
+    name=i("무기 상점", "weapon shop"),
     terrain_id="weapon_shop",
     terrain_desc="",
     rarity=1,
@@ -420,7 +421,7 @@ terrain_dict[weapon_shop] = weapon_shop.rarity
 # Armor shop
 from custom_terrgen import ShopTerrGen
 armor_shop = ShopTerrain(
-    name="갑옷 상점",
+    name=i("갑옷 상점", "armor shop"),
     terrain_id="armor_shop",
     terrain_desc="",
     rarity=1,
@@ -439,7 +440,7 @@ terrain_dict[armor_shop] = armor_shop.rarity
 # Scroll shop
 from custom_terrgen import ShopTerrGen
 scroll_shop = ShopTerrain(
-    name="주문서 상점",
+    name=i("주문서 상점", "scroll shop"),
     terrain_id="scroll_shop",
     terrain_desc="",
     rarity=2,
@@ -458,7 +459,7 @@ terrain_dict[scroll_shop] = scroll_shop.rarity
 # Chamber Of Kugah
 from custom_terrgen import ChamberOfKugahTerrGen
 chamber_of_kugah = ChamberOfKugahTerrain(
-    name="쿠가의 성소",
+    name=i("쿠가의 성소", "chamber of Kugah"),
     terrain_id="chamber_of_kugah",
     terrain_desc="",
     rarity=0,
@@ -477,7 +478,7 @@ terrain_dict[chamber_of_kugah] = chamber_of_kugah.rarity
 # Chamber Of Kugah
 from custom_terrgen import GuardedTreasureTerrGen
 guarded_treasure = GuardedTreasureTerrain(
-    name="보호받는 보물",
+    name=i("보호받는 보물", "guarded treasure"),
     terrain_id="guarded_treasure",
     terrain_desc="",
     rarity=2,

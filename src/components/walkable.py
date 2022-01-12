@@ -8,6 +8,7 @@ from numpy.lib.twodim_base import tri
 from components.base_component import BaseComponent
 from entity import Actor, Item, Entity
 from korean import grammar as g
+from language import interpret as i
 
 
 class Walkable(BaseComponent):
@@ -76,7 +77,7 @@ class TrapWalkable(Walkable):
                 self.when_actor_on_trap(target)
                 if self.trigger_once:
                     self.parent._fg = color.black
-                    self.parent._name += "(해제됨)"
+                    self.parent._name += i("(해제됨)",f"(disassembled)")
                 return None
             if self.check_item and isinstance(target, Item):
                 self.triggered = True # NOTE: triggered = True must be called before calling when_item_on_trap()
@@ -84,7 +85,7 @@ class TrapWalkable(Walkable):
                 self.when_item_on_trap(target)
                 if self.trigger_once:
                     self.parent._fg = color.black
-                    self.parent._name += "(해제됨)"
+                    self.parent._name += i("(해제됨)",f"(disassembled)")
                 return None
         else:
             # If there is no target currently, set previous_entity back to None
@@ -100,9 +101,13 @@ class SpikeTrapWalkable(TrapWalkable):
     def when_actor_on_trap(self, target):
         # No effects when levitating(flying)
         if target.is_on_air:
-            if self.gamemap.visible[target.x, target.y]:
-                self.engine.message_log.add_message(f"{g(target.name, '이')} {self.parent.name} 위를 넘어갔다.", target=target)
-
+            if target == self.engine.player:
+                self.engine.message_log.add_message(i(f"당신은 {self.parent.name} 위를 넘어갔다.",
+                                                      f"You hovered over {self.parent.name}."), target=target)
+            else:
+                if self.gamemap.visible[target.x, target.y]:
+                    self.engine.message_log.add_message(i(f"{g(target.name, '이')} {self.parent.name} 위를 넘어갔다.",
+                                                          f"{target.name} hovered over {self.parent.name}."), target=target)
             return None
 
         # No damage when something is equipped on feet
@@ -112,7 +117,8 @@ class SpikeTrapWalkable(TrapWalkable):
                 if feet_item.equipable.eq_protection > 0:  # Solid boots
                     if target == self.engine.player:
                         self.engine.message_log.add_message(
-                            f"당신은 {g(self.parent.name, '을')} 밟았지만, {g(feet_item.name, '이')} {g(target.name, '을')} 보호했다!",
+                            i(f"당신은 {g(self.parent.name, '을')} 밟았지만, {g(feet_item.name, '이')} 당신을 보호했다!",
+                              f"You stepped on the {self.parent.name}, but your {feet_item.name} protected you!"),
                             fg=color.player_neutral)
 
                     return None
@@ -120,10 +126,12 @@ class SpikeTrapWalkable(TrapWalkable):
         # else
         dmg = self.base_damage + random.randint(0, self.add_damage)
         if target == self.engine.player:
-            self.engine.message_log.add_message(f"당신은 {g(self.parent.name, '을')} 밟아 {dmg} 데미지를 받았다.")
+            self.engine.message_log.add_message(i(f"당신은 {g(self.parent.name, '을')} 밟아 {dmg} 데미지를 받았다.",
+                                                  f"You stepped on the {self.parent.name} and took {dmg} damage."), fg=color.player_bad)
         else:
-            self.engine.message_log.add_message(f"{g(target.name, '이')} {g(self.parent.name, '을')} 밟아 {dmg} 데미지를 받았다.",
-                                                target=target)
+            self.engine.message_log.add_message(i(f"{g(target.name, '이')} {g(self.parent.name, '을')} 밟아 {dmg} 데미지를 받았다.",
+                                                  f"{target.name} stepped on the {self.parent.name} and took {dmg} damage."),
+                                                target=target, fg=color.enemy_unique)
         target.status.take_damage(dmg)
 
 
@@ -145,9 +153,14 @@ class FlameTrapWalkable(TrapWalkable):
     def when_actor_on_trap(self, target):
         # No effects when levitating(flying)
         if target.is_on_air:
-            if self.gamemap.visible[target.x, target.y]:
-                self.engine.message_log.add_message(f"{g(target.name, '이')} {self.parent.name} 위를 넘어갔다.", target=target)
-
+            if target == self.engine.player:
+                self.engine.message_log.add_message(i(f"당신은 {self.parent.name} 위를 넘어갔다.",
+                                                      f"You hovered over {self.parent.name}."), target=target)
+            else:
+                if self.gamemap.visible[target.x, target.y]:
+                    self.engine.message_log.add_message(i(f"{g(target.name, '이')} {self.parent.name} 위를 넘어갔다.",
+                                                          f"{target.name} hovered over {self.parent.name}."),
+                                                        target=target)
             return None
 
         # No damage when something is equipped on feet
@@ -158,16 +171,19 @@ class FlameTrapWalkable(TrapWalkable):
                 if feet_item.equipable.eq_protection > 0:  # Solid boots
                     if target == self.engine.player:
                         self.engine.message_log.add_message(
-                            f"당신은 {g(self.parent.name, '을')} 밟았지만, {g(feet_item.name, '이')} {g(target.name, '을')} 보호했다!",
+                            i(f"당신은 {g(self.parent.name, '을')} 밟았지만, {g(feet_item.name, '이')} 당신을 보호했다!",
+                              f"You stepped on the {self.parent.name}, but your {feet_item.name} protected you!"),
                             fg=color.player_neutral)
 
                     return None
 
         # else
         if target == self.engine.player:
-            self.engine.message_log.add_message(f"당신은 {g(self.parent.name, '을')} 밟았다.", target=target)
+            self.engine.message_log.add_message(i(f"당신은 {g(self.parent.name, '을')} 밟았다.",
+                                                  f"You stepped on the {self.parent.name}."), target=target, fg=color.player_bad)
         else:
-            self.engine.message_log.add_message(f"{g(target.name, '이')} {g(self.parent.name, '을')} 밟았다.", target=target)
+            self.engine.message_log.add_message(i(f"{g(target.name, '이')} {g(self.parent.name, '을')} 밟았다.",
+                                                  f"{target.name} stepped on the {self.parent.name}."), target=target, fg=color.enemy_unique)
         if not target.actor_state.is_dead:
             target.actor_state.apply_burning(list(self.burn_value))
 
@@ -193,9 +209,14 @@ class IcicleTrapWalkable(TrapWalkable):
     def when_actor_on_trap(self, target):
         # No effects when levitating(flying)
         if target.is_on_air:
-            if self.gamemap.visible[target.x, target.y]:
-                self.engine.message_log.add_message(f"{g(target.name, '이')} {self.parent.name} 위를 넘어갔다.", target=target)
-
+            if target == self.engine.player:
+                self.engine.message_log.add_message(i(f"당신은 {self.parent.name} 위를 넘어갔다.",
+                                                      f"You hovered over {self.parent.name}."), target=target)
+            else:
+                if self.gamemap.visible[target.x, target.y]:
+                    self.engine.message_log.add_message(i(f"{g(target.name, '이')} {self.parent.name} 위를 넘어갔다.",
+                                                          f"{target.name} hovered over {self.parent.name}."),
+                                                        target=target)
             return None
 
         # No damage when something is equipped on feet
@@ -205,7 +226,8 @@ class IcicleTrapWalkable(TrapWalkable):
                 if feet_item.equipable.eq_protection > 0:  # Solid boots
                     if target == self.engine.player:
                         self.engine.message_log.add_message(
-                            f"당신은 {g(self.parent.name, '을')} 밟았지만, {g(feet_item.name, '이')} {g(target.name, '을')} 보호했다!",
+                            i(f"당신은 {g(self.parent.name, '을')} 밟았지만, {g(feet_item.name, '이')} 당신을 보호했다!",
+                              f"You stepped on the {self.parent.name}, but your {feet_item.name} protected you!"),
                             fg=color.player_neutral)
 
                     return None
@@ -213,10 +235,14 @@ class IcicleTrapWalkable(TrapWalkable):
         # else
         dmg = self.base_damage + random.randint(0, self.add_damage)
         if target == self.engine.player:
-            self.engine.message_log.add_message(f"당신은 {g(self.parent.name, '을')} 밟아 {dmg} 데미지를 받았다.")
+            self.engine.message_log.add_message(i(f"당신은 {g(self.parent.name, '을')} 밟아 {dmg} 데미지를 받았다.",
+                                                  f"You stepped on the {self.parent.name} and took {dmg} damage."),
+                                                fg=color.player_bad)
         else:
-            self.engine.message_log.add_message(f"{g(target.name, '이')} {g(self.parent.name, '을')} 밟아 {dmg} 데미지를 받았다.",
-                                                target=target)
+            self.engine.message_log.add_message(
+                i(f"{g(target.name, '이')} {g(self.parent.name, '을')} 밟아 {dmg} 데미지를 받았다.",
+                  f"{target.name} stepped on the {self.parent.name} and took {dmg} damage."),
+                target=target, fg=color.enemy_unique)
         target.status.take_damage(dmg)
         if not target.actor_state.is_dead:
             target.actor_state.apply_freezing(list(self.freeze_value))
@@ -232,9 +258,14 @@ class AcidSprayTrapWalkable(TrapWalkable):
     def when_actor_on_trap(self, target):
         # No effects when levitating(flying)
         if target.is_on_air:
-            if self.gamemap.visible[target.x, target.y]:
-                self.engine.message_log.add_message(f"{g(target.name, '이')} {self.parent.name} 위를 넘어갔다.", target=target, fg=color.player_sense)
-
+            if target == self.engine.player:
+                self.engine.message_log.add_message(i(f"당신은 {self.parent.name} 위를 넘어갔다.",
+                                                      f"You hovered over {self.parent.name}."), target=target)
+            else:
+                if self.gamemap.visible[target.x, target.y]:
+                    self.engine.message_log.add_message(i(f"{g(target.name, '이')} {self.parent.name} 위를 넘어갔다.",
+                                                          f"{target.name} hovered over {self.parent.name}."),
+                                                        target=target)
             return None
 
         # No damage when something is equipped on feet
@@ -245,17 +276,21 @@ class AcidSprayTrapWalkable(TrapWalkable):
                 if feet_item.equipable.eq_protection > 0:  # Solid boots
                     if target == self.engine.player:
                         self.engine.message_log.add_message(
-                            f"당신은 {g(self.parent.name, '을')} 밟았지만, {g(feet_item.name, '이')} {g(target.name, '을')} 보호했다!",
+                            i(f"당신은 {g(self.parent.name, '을')} 밟았지만, {g(feet_item.name, '이')} 당신을 보호했다!",
+                              f"You stepped on the {self.parent.name}, but your {feet_item.name} protected you!"),
                             fg=color.player_neutral)
 
                     return None
 
         # else
         if target == self.engine.player:
-            self.engine.message_log.add_message(f"당신은 {g(self.parent.name, '을')} 밟았다.", target=target, fg=color.player_not_good)
-            self.engine.message_log.add_message(f"{g(target.name, '이')} 산성 물질을 분사한다!", target=target, fg=color.player_bad)
+            self.engine.message_log.add_message(i(f"당신은 {g(self.parent.name, '을')} 밟았다.",
+                                                  f"You stepped on {self.parent.name}."), target=target, fg=color.player_bad)
+            self.engine.message_log.add_message(i(f"{g(target.name, '이')} 산성 물질을 분사한다!",
+                                                  f"{target.name} sprays acid!"), target=target, fg=color.player_bad)
         else:
-            self.engine.message_log.add_message(f"{g(target.name, '이')} {g(self.parent.name, '을')} 밟았다.", target=target, fg=color.enemy_neutral)
+            self.engine.message_log.add_message(i(f"{g(target.name, '이')} {g(self.parent.name, '을')} 밟았다.",
+                                                  f"{target.name} stepped on {self.parent.name}."), target=target, fg=color.enemy_unique)
         if not target.actor_state.is_dead:
             target.actor_state.apply_melting(list(self.melt_value))
 
@@ -271,9 +306,14 @@ class PoisonSpikeTrapWalkable(TrapWalkable):
     def when_actor_on_trap(self, target):
         # No effects when levitating(flying)
         if target.is_on_air:
-            if self.gamemap.visible[target.x, target.y]:
-                self.engine.message_log.add_message(f"{g(target.name, '이')} {self.parent.name} 위를 넘어갔다.", target=target,
-                                                    fg=color.player_sense)
+            if target == self.engine.player:
+                self.engine.message_log.add_message(i(f"당신은 {self.parent.name} 위를 넘어갔다.",
+                                                      f"You hovered over {self.parent.name}."), target=target)
+            else:
+                if self.gamemap.visible[target.x, target.y]:
+                    self.engine.message_log.add_message(i(f"{g(target.name, '이')} {self.parent.name} 위를 넘어갔다.",
+                                                          f"{target.name} hovered over {self.parent.name}."),
+                                                        target=target)
             return None
 
         # No damage when something is equipped on feet
@@ -283,7 +323,8 @@ class PoisonSpikeTrapWalkable(TrapWalkable):
                 if feet_item.equipable.eq_protection > 0: # Solid boots
                     if target == self.engine.player:
                         self.engine.message_log.add_message(
-                            f"당신은 {g(self.parent.name, '을')} 밟았지만, {g(feet_item.name, '이')} {g(target.name, '을')} 보호했다!",
+                            i(f"당신은 {g(self.parent.name, '을')} 밟았지만, {g(feet_item.name, '이')} 당신을 보호했다!",
+                              f"You stepped on the {self.parent.name}, but your {feet_item.name} protected you!"),
                             fg=color.player_neutral)
 
                     return None
@@ -291,10 +332,14 @@ class PoisonSpikeTrapWalkable(TrapWalkable):
         # else
         dmg = self.base_damage + random.randint(0, self.add_damage)
         if target == self.engine.player:
-            self.engine.message_log.add_message(f"당신은 {g(self.parent.name, '을')} 밟아 {dmg} 데미지를 받았다.", fg=color.player_bad)
+            self.engine.message_log.add_message(i(f"당신은 {g(self.parent.name, '을')} 밟아 {dmg} 데미지를 받았다.",
+                                                  f"You stepped on the {self.parent.name} and took {dmg} damage."),
+                                                fg=color.player_bad)
         else:
-            self.engine.message_log.add_message(f"{g(target.name, '이')} {g(self.parent.name, '을')} 밟아 {dmg} 데미지를 받았다.",
-                                                target=target, fg=color.enemy_unique)
+            self.engine.message_log.add_message(
+                i(f"{g(target.name, '이')} {g(self.parent.name, '을')} 밟아 {dmg} 데미지를 받았다.",
+                  f"{target.name} stepped on the {self.parent.name} and took {dmg} damage."),
+                target=target, fg=color.enemy_unique)
         target.status.take_damage(dmg)
         if not target.actor_state.is_dead:
             target.actor_state.apply_poisoning(list(self.poison_value))
@@ -315,11 +360,14 @@ class SonicBoomTrapWalkable(TrapWalkable):
     def sonic_boom(self, target) -> None:
         from util import get_distance
         if self.parent == self.engine.player:
-            self.engine.message_log.add_message(f"던전 전체에 굉음이 울린다!", fg=color.world, target=self.parent)
+            self.engine.message_log.add_message(i(f"던전 전체에 굉음이 울린다!",
+                                                  f"A roaring sound echoes the dungeon!"), fg=color.world, target=self.parent)
         elif self.engine.game_map.visible[self.parent.x, self.parent.y]:
-            self.engine.message_log.add_message(f"던전 전체에 굉음이 울린다!", fg=color.world, target=self.parent)
+            self.engine.message_log.add_message(i(f"던전 전체에 굉음이 울린다!",
+                                                  f"A roaring sound echoes the dungeon!"), fg=color.world, target=self.parent)
         elif get_distance(self.parent.x, self.parent.y, self.engine.player.x, self.engine.player.y) <= self.engine.player.status.changed_status["hearing"]:
-            self.engine.message_log.add_message(f"던전 어디에선가 굉음이 들린다.", fg=color.player_sense, target=self.parent)
+            self.engine.message_log.add_message(i(f"던전 어디에선가 굉음이 들린다.",
+                                                  f"You hear a loud noise coming from somewhere."), fg=color.player_sense, target=self.parent)
         for actor in self.engine.game_map.actors:
             if actor.ai:
                 if get_distance(self.parent.x, self.parent.y, actor.x, actor.y) <= actor.status.changed_status["hearing"]:
@@ -331,15 +379,22 @@ class SonicBoomTrapWalkable(TrapWalkable):
     def when_actor_on_trap(self, target):
         # No effects when levitating(flying)
         if target.is_on_air:
-            if self.gamemap.visible[target.x, target.y]:
-                self.engine.message_log.add_message(f"{g(target.name, '이')} {self.parent.name} 위를 넘어갔다.", target=target,
-                                                    fg=color.player_sense)
+            if target == self.engine.player:
+                self.engine.message_log.add_message(i(f"당신은 {self.parent.name} 위를 넘어갔다.",
+                                                      f"You hovered over {self.parent.name}."), target=target)
+            else:
+                if self.gamemap.visible[target.x, target.y]:
+                    self.engine.message_log.add_message(i(f"{g(target.name, '이')} {self.parent.name} 위를 넘어갔다.",
+                                                          f"{target.name} hovered over {self.parent.name}."),
+                                                        target=target)
             return None
 
         if target == self.engine.player:
-            self.engine.message_log.add_message(f"당신은 {g(self.parent.name, '을')} 밟았다.", target=target)
+            self.engine.message_log.add_message(i(f"당신은 {g(self.parent.name, '을')} 밟았다.",
+                                                  f"You stepped on the {self.parent.name}."), target=target, fg=color.player_bad)
         else:
-            self.engine.message_log.add_message(f"{g(target.name, '이')} {g(self.parent.name, '을')} 밟았다.", target=target)
+            self.engine.message_log.add_message(i(f"{g(target.name, '이')} {g(self.parent.name, '을')} 밟았다.",
+                                                  f"{target.name} stepped on the {self.parent.name}."), target=target, fg=color.enemy_unique)
 
         self.sonic_boom(target)
         if not target.actor_state.is_dead:
@@ -365,7 +420,8 @@ class ExplosionTrapWalkable(TrapWalkable):
         self.cause_fire = cause_fire
 
     def explode(self, entity: Entity) -> None:
-        self.engine.message_log.add_message(f"{g(self.parent.name, '이')} 폭발했다!", target=self.parent, fg=color.world)
+        self.engine.message_log.add_message(i(f"{g(self.parent.name, '이')} 폭발했다!",
+                                              f"{self.parent.name} explodes!"), target=self.parent, fg=color.world)
         from explosion_action import ExplodeAction
         expl = ExplodeAction(
             self.parent,
@@ -384,16 +440,25 @@ class ExplosionTrapWalkable(TrapWalkable):
     def when_actor_on_trap(self, target):
         # No effects when levitating(flying)
         if target.is_on_air:
-            if self.gamemap.visible[target.x, target.y]:
-                self.engine.message_log.add_message(f"{g(target.name, '이')} {self.parent.name} 위를 넘어갔다.", target=target,
-                                                    fg=color.player_sense)
+            if target == self.engine.player:
+                self.engine.message_log.add_message(i(f"당신은 {self.parent.name} 위를 넘어갔다.",
+                                                      f"You hovered over {self.parent.name}."), target=target)
+            else:
+                if self.gamemap.visible[target.x, target.y]:
+                    self.engine.message_log.add_message(i(f"{g(target.name, '이')} {self.parent.name} 위를 넘어갔다.",
+                                                          f"{target.name} hovered over {self.parent.name}."),
+                                                        target=target)
             return None
 
         # else
         if target == self.engine.player:
-            self.engine.message_log.add_message(f"당신은 {g(self.parent.name, '을')} 밟았다.", fg=color.player_not_good)
+            self.engine.message_log.add_message(i(f"당신은 {g(self.parent.name, '을')} 밟았다.",
+                                                  f"You stepped on the {self.parent.name}."), target=target,
+                                                fg=color.player_bad)
         else:
-            self.engine.message_log.add_message(f"{g(target.name, '이')} {g(self.parent.name, '을')} 밟았다.", target=target, fg=color.enemy_unique)
+            self.engine.message_log.add_message(i(f"{g(target.name, '이')} {g(self.parent.name, '을')} 밟았다.",
+                                                  f"{target.name} stepped on the {self.parent.name}."), target=target,
+                                                fg=color.enemy_unique)
         self.explode(target)
 
 ############################################################

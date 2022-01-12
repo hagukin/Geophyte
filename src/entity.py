@@ -13,6 +13,7 @@ from numpy.core.shape_base import block
 from input_handlers import ForceAttackInputHandler, ChestPutEventHandler, ChestTakeEventHandler
 from order import RenderOrder, InventoryOrder
 from korean import grammar as g
+from language import interpret as i
 from tiles import TileUtil
 from game import Game
 
@@ -163,7 +164,7 @@ class Entity:
 
     def get_possible_bump_action_keywords(self, actor: Actor) -> List[str]:
         """Returns the amount of different bump actions this entity can do."""
-        allactions = ("move", "swap", "force_attack", "attack", "takeout", "putin", "open", "close", "unlock", "break")
+        allactions = ("move", "swap", "attack", "takeout", "putin", "open", "close", "unlock", "break") # Removed 'forceattack'
         tmp = []
         for action in allactions:
             if self.check_if_bump_action_possible(actor, action):
@@ -598,7 +599,7 @@ class Actor(Entity):
             import item_factories
             new_corpse = item_factories.corpse.spawn(self.gamemap, self.x, self.y)
             new_corpse.weight = max(self.weight * max(0.2, random.random()*0.9), 0.001)
-            new_corpse.change_name(self.name + " 시체")
+            new_corpse.change_name(self.name + i(" 시체"," corpse"))
             new_corpse.edible = self.edible  # copy edible value from parent
             new_corpse.edible.parent = new_corpse
 
@@ -688,7 +689,8 @@ class Actor(Entity):
             fall_damage = int(min(200, round(self.weight)))
             fall_damage = max(0, random.randint(int(fall_damage/2), fall_damage))
             if self == self.engine.player:
-                self.engine.message_log.add_message(f"당신은 추락으로부터 {fall_damage} 데미지를 받았다!", fg=color.player_severe)
+                self.engine.message_log.add_message(i(f"당신은 추락으로부터 {fall_damage} 데미지를 받았다!",
+                                                      f"You took {fall_damage} damage from the fall!"), fg=color.player_severe)
                 self.engine.sound_manager.add_sound_queue("fx_fall_impact")
             self.status.take_damage(amount=fall_damage, attacked_from=None)
             if not self.actor_state.is_dead:
@@ -826,15 +828,18 @@ class Actor(Entity):
         # Paralyzation
         if self.actor_state.is_paralyzing != [0,0]:
             if self == self.engine.player:
-                self.engine.message_log.add_message(f"당신은 마비되어 아무 것도 할 수 없다!", color.player_severe)
+                self.engine.message_log.add_message(i(f"당신은 마비되어 아무 것도 할 수 없다!",
+                                                      f"You are paralyzed and can't do anything!"), color.player_severe)
             return True
         if self.actor_state.is_frozen != [0,0,0]:
             if self == self.engine.player:
-                self.engine.message_log.add_message(f"당신은 완전히 얼어붙어 아무 것도 할 수 없다!", color.player_severe)
+                self.engine.message_log.add_message(i(f"당신은 완전히 얼어붙어 아무 것도 할 수 없다!",
+                                                      f"You are completely frozen and can't do anything!"), color.player_severe)
             return True
         if self.actor_state.is_sleeping != [0,0]:
             if self == self.engine.player:
-                self.engine.message_log.add_message(f"당신은 잠에 들어 아무 것도 할 수 없다!", color.player_severe)
+                self.engine.message_log.add_message(i(f"당신은 잠에 들어 아무 것도 할 수 없다!",
+                                                      f"You are fallen asleep and can't do anything!"), color.player_severe)
             return True
         return False
     
@@ -871,9 +876,11 @@ class Actor(Entity):
         # Burn the actor
         if self.actor_state.is_burning == [0,0,0,0]: # was not already burning
             if self == self.engine.player:
-                self.engine.message_log.add_message(f"당신의 몸에 불이 붙었다!",target=self, fg=color.player_bad)
+                self.engine.message_log.add_message(i(f"당신의 몸에 불이 붙었다!",
+                                                      f"You catch on fire!"),target=self, fg=color.player_bad)
             else:
-                self.engine.message_log.add_message(f"{self.name}에게 불이 붙었다!", target=self, fg=color.enemy_unique)
+                self.engine.message_log.add_message(i(f"{self.name}에게 불이 붙었다!",
+                                                      f"{self.name} catches on fire!"), target=self, fg=color.enemy_unique)
             self.actor_state.apply_burning([fire.rule.base_damage, fire.rule.add_damage, 0, fire.rule.fire_duration])
 
     def change_tile_on_path(self):

@@ -6,6 +6,7 @@ from typing import Optional
 from actions import Action
 from util import multiline
 from korean import grammar as g
+from language import interpret as i
 import actor_factories
 import tcod
 import color
@@ -76,7 +77,8 @@ class MonsterBookIndexHandler(AskUserEventHandler):
             self.engine.event_handler = MonsterInfoHandler(monster, self.page)
             return None
         except KeyError:
-            self.engine.message_log.add_message("잘못된 입력입니다.", color.invalid)
+            self.engine.message_log.add_message(i("잘못된 입력입니다.",
+                                                  f"Invalid input."), color.invalid)
             return self.on_exit()
         except:
             import traceback
@@ -86,7 +88,7 @@ class MonsterBookIndexHandler(AskUserEventHandler):
 
     def on_render(self, console: tcod.Console) -> None:
         """Render current page"""
-        console.draw_frame(0, 0, console.width, console.height, "던전 몬스터 도감", fg=color.book_fg, bg=color.book_bg)
+        console.draw_frame(0, 0, console.width, console.height, i("던전 몬스터 도감",f"Monster Encyclopedia"), fg=color.book_fg, bg=color.book_bg)
         console.draw_frame(1, 1, console.width - 2, console.height - 2, f"{monchar[self.page]}", fg=color.book_fg, bg=color.book_bg)
 
         start_x = 3
@@ -109,7 +111,8 @@ class MonsterBookIndexHandler(AskUserEventHandler):
             console.print(start_x + xpad, start_y+ypad, " |", fg=color.white)
             xpad += 2
 
-            diffstr = f" 위험도 {m.status.difficulty}"
+            diffstr = i(f" 위험도 {m.status.difficulty}",
+                        f" Difficulty {m.status.difficulty}")
             console.print(start_x + xpad, start_y + ypad, diffstr, fg=color.white)
             xpad += len(diffstr)
             console.print(start_x + xpad, start_y + ypad, " |", fg=color.white)
@@ -133,7 +136,8 @@ class MonsterInfoHandler(AskUserEventHandler):
         if not self.engine._is_gameover:
             if save_actor_book(actor=self.monster): # Try save actor info to the book
                 # succeded
-                self.engine.message_log.add_message(text=f"{g(self.monster.name, '이')} 몬스터 도감에 추가되었습니다.", fg=color.add_to_book)
+                self.engine.message_log.add_message(text=i(f"{g(self.monster.name, '이')} 몬스터 도감에 추가되었습니다.",
+                                                           f"{self.monster.name} is now added to the encyclopedia."), fg=color.add_to_book)
 
     def on_render(self, console: tcod.Console) -> None:
         console.draw_frame(0, 0, console.width, console.height, bg=color.book_bg)

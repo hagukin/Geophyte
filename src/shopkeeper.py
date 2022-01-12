@@ -9,6 +9,7 @@ from typing import List, Tuple, Optional, Dict
 from actions import WaitAction, CashExchangeAction
 from entity import Actor, Item
 from korean import grammar as g
+from language import interpret as i
 
 
 class Shopkeeper_Ai(ai.BaseAI):
@@ -196,42 +197,54 @@ class Shopkeeper_Ai(ai.BaseAI):
         """
         if not item.tradable:
             if customer == self.engine.player:
-                self.engine.message_log.add_message("거래가 불가능한 아이템을 판매할 수 없습니다.", fg=color.impossible)
+                self.engine.message_log.add_message(i("거래가 불가능한 아이템을 판매할 수 없습니다.",
+                                                      f"You can't sell a non-tradable item."), fg=color.impossible)
             # This part should never be reached in the first place since you cannot select non-tradable items from SellItemHandler
             return None
         if item.item_state.equipped_region is not None:
             if customer == self.engine.player:
-                self.engine.message_log.add_message("장착하고 있는 아이템을 판매할 수 없습니다.", fg=color.impossible)
+                self.engine.message_log.add_message(i("장착하고 있는 아이템을 판매할 수 없습니다.",
+                                                      f"You can't sell an item that is equipped."), fg=color.impossible)
             # This part should never be reached in the first place since you cannot select equipped items from SellItemHandler
             return None
         if item.item_state.is_being_sold_from is not None:
             if customer == self.engine.player:
-                self.engine.message_log.add_message("소유권이 없는 아이템을 판매할 수 없습니다.", fg=color.impossible)
+                self.engine.message_log.add_message(i("소유권이 없는 아이템을 판매할 수 없습니다.",
+                                                      f"You can't sell an item that you don't own."), fg=color.impossible)
             # This part should never be reached in the first place since you cannot select not-owned items from SellItemHandler
             return None
         if not item.droppable:
             if customer == self.engine.player:
-                self.engine.message_log.add_message("드랍할 수 없는 아이템을 판매할 수 없습니다.", fg=color.impossible) # This part CAN be reached.
+                self.engine.message_log.add_message(i("드랍할 수 없는 아이템을 판매할 수 없습니다.",
+                                                      f"You can't sell an item that can't be dropped."), fg=color.impossible) # This part CAN be reached.
             return None
 
         buying_price = item.price_of_all_stack(is_shopkeeper_is_selling=False, discount=0.5)
         if self.parent.inventory.check_has_enough_money(buying_price):
             if customer == self.engine.player:
                 if item.stack_count > 1:
-                    self.engine.message_log.add_message(f"당신은 {item.name} (x{item.stack_count}) 을 총 {buying_price}샤인에 판매했다.", fg=color.shop_sold)
+                    self.engine.message_log.add_message(i(f"당신은 {item.name} (x{item.stack_count}) 을 총 {buying_price}샤인에 판매했다.",
+                                                          f"You sold your {item.name} (x{item.stack_count}) for a total price of {buying_price}shine."), fg=color.shop_sold)
                 else:
-                    self.engine.message_log.add_message(f"당신은 {g(item.name, '을')} {buying_price}샤인에 판매했다.", fg=color.shop_sold)
+                    self.engine.message_log.add_message(i(f"당신은 {g(item.name, '을')} {buying_price}샤인에 판매했다.",
+                                                          f"You sold your {item.name} for a price of {buying_price}shine."), fg=color.shop_sold)
             else:
                 if item.stack_count > 1:
-                    self.engine.message_log.add_message(f"{g(customer.name, '이')} {item.name} (x{item.stack_count}) 을 총 {buying_price}샤인에 판매했다.", fg=color.enemy_unique)
+                    self.engine.message_log.add_message(i(f"{g(customer.name, '이')} {item.name} (x{item.stack_count}) 을 총 {buying_price}샤인에 판매했다.",
+                                                          f"{customer.name} sold {item.name} (x{item.stack_count}) for a total price of {buying_price}shine."), fg=color.enemy_unique)
                 else:
-                    self.engine.message_log.add_message(f"{g(customer.name, '이')} {g(item.name, '을')} {buying_price}샤인에 판매했다.", fg=color.enemy_unique)
+                    self.engine.message_log.add_message(i(f"{g(customer.name, '이')} {g(item.name, '을')} {buying_price}샤인에 판매했다.",
+                                                          f"{customer.name} sold {item.name} for a price of {buying_price}shine."), fg=color.enemy_unique)
             self.give_cash(customer, buying_price)
             tmp = customer.inventory.delete_item_from_inv(item)
             self.add_item_to_shop(tmp)
             self.place_item_in_shop(tmp)
         else:
-            self.engine.message_log.add_speech(f"아쉽지만 지금은 {g(item.name, '을')} 살 수 없다네.", speaker=self.parent, stack=False)
+            if customer == self.engine.player:
+                self.engine.message_log.add_speech(i(f"아쉽지만 지금은 {g(item.name, '을')} 살 수 없다네.",
+                                                     f"I'm sorry sir, but I can't afford your {item.name}."), speaker=self.parent, stack=False)
+            else:
+                print(f"WARNING::Shopkeeper can't purchase {item.name} from AI.")
             return None
 
     def purchase_items(self, customer: Actor, items: List[Item]) -> None:
@@ -247,9 +260,11 @@ class Shopkeeper_Ai(ai.BaseAI):
             self.take_cash(customer, selling_price)
             self.remove_item_from_shop(item)
             if customer == self.engine.player:
-                self.engine.message_log.add_message(f"당신은 {g(item.name, '을')} {selling_price}샤인에 구매했다.", fg=color.shop_purchased)
+                self.engine.message_log.add_message(i(f"당신은 {g(item.name, '을')} {selling_price}샤인에 구매했다.",
+                                                      f"You have purchased {item.name} for {selling_price}shine."), fg=color.shop_purchased)
             else:
-                self.engine.message_log.add_message(f"{g(customer.name, '이')} {g(item.name, '을')} {selling_price}샤인에 구매했다.",fg=color.shop_purchased)
+                self.engine.message_log.add_message(i(f"{g(customer.name, '이')} {g(item.name, '을')} {selling_price}샤인에 구매했다.",
+                                                      f"{customer.name} purchased {item.name} for {selling_price}shine."),fg=color.enemy_unique)
         else:
             return None
 
@@ -268,13 +283,15 @@ class Shopkeeper_Ai(ai.BaseAI):
 
         # Customer has insufficient money
         if not customer.inventory.check_has_enough_money(bill):
-            self.engine.message_log.add_speech(f"가지고 있는 샤인이 부족한 것 같군.", speaker=self.parent, stack=False)
+            self.engine.message_log.add_speech(i("가지고 있는 샤인이 부족한 것 같군.",
+                                                 "Sir, I'm afraid that you don't have enough shines."), speaker=self.parent, stack=False)
             return None
 
         # Purchase everything
         for buying in buyings:
             self.sell_item(customer, buying)
-        self.engine.message_log.add_speech("좋은 거래 고맙네.", speaker=self.parent, stack=False)
+        self.engine.message_log.add_speech(i("좋은 거래 고맙네.",
+                                             "Thank you for your items sir."), speaker=self.parent, stack=False)
 
     def perform(self) -> None:
         """

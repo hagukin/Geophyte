@@ -1,6 +1,5 @@
 import json
 from exceptions import ConfigException
-from game import Game
 
 def get_game_config():
     with open("./config/config.json", "r") as cfg:
@@ -24,6 +23,7 @@ def alter_resolution(tile_width: int, tile_height: int) -> None:
     with open("./config/config.json", "w") as cfg:
         json.dump(game_config, cfg, indent=4)
 
+    from game import Game
     if Game.engine:
         Game.engine.update_config()
 
@@ -40,6 +40,7 @@ def toggle_fullscreen() -> None:
     with open("./config/config.json", "w") as cfg:
         json.dump(game_config, cfg, indent=4)
 
+    from game import Game
     if Game.engine:
         Game.engine.update_config()
 
@@ -54,6 +55,7 @@ def change_master_volume(percent: int) -> None:
     with open("./config/config.json", "w") as cfg:
         json.dump(game_config, cfg, indent=4)
 
+    from game import Game
     if Game.engine:
         Game.engine.update_config()
 
@@ -68,6 +70,7 @@ def toggle_animation(using: bool) -> None:
     with open("./config/config.json", "w") as cfg:
         json.dump(game_config, cfg, indent=4)
 
+    from game import Game
     if Game.engine:
         Game.engine.update_config()
 
@@ -82,6 +85,7 @@ def toggle_autosave(using: bool) -> None:
     with open("./config/config.json", "w") as cfg:
         json.dump(game_config, cfg, indent=4)
 
+    from game import Game
     if Game.engine:
         Game.engine.update_config()
 
@@ -92,6 +96,27 @@ def toggle_mouse_enemy_ignore(using: bool) -> None:
         game_config = json.load(cfg)
 
     game_config["ignore_enemy_spotted_during_mouse_movement"] = using
+
+    with open("./config/config.json", "w") as cfg:
+        json.dump(game_config, cfg, indent=4)
+
+    from game import Game
+    if Game.engine:
+        Game.engine.update_config()
+
+def change_language() -> None:
+    """Change in-game language"""
+    with open("./config/config.json", "r") as cfg:
+        game_config = json.load(cfg)
+
+    # TODO: Find a better way to enumerate through the list of supported languages
+    if game_config["lang"] == "EN":
+        game_config["lang"] = "KR"
+    else:
+        game_config["lang"] = "EN"
+
+    from game import Game
+    Game.update_language(game_config["lang"])
 
     with open("./config/config.json", "w") as cfg:
         json.dump(game_config, cfg, indent=4)

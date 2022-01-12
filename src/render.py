@@ -4,6 +4,7 @@ import random
 from typing import Optional, Tuple, TYPE_CHECKING
 from util import draw_thick_frame
 from entity import Actor, Item
+from language import interpret as i
 
 import tcod
 import color
@@ -61,14 +62,14 @@ def get_names_at_location(x: int, y: int, game_map: GameMap, display_id: bool=Fa
             elif isinstance(entity, Actor):
                 if entity.ai:
                     if entity.ai.owner == game_map.engine.player:
-                        name += "(아군)"
+                        name += i("(아군)","(ally)")
                     # else:
                     #     if entity.ai:
                     #         if not entity.ai.check_if_enemy(game_map.engine.player):
                     #             name += "(우호적)"
 
             if entity.is_on_air:
-                name += "(공중에 떠 있음)"
+                name += i("(공중에 떠 있음)","(airborne)")
 
             names.append(name)
 
@@ -100,9 +101,13 @@ def render_gameinfo(
     """print dungeon depth, game turn, etc."""
     depth_ = depth
     if depth <= 0:
-        depth_ = f"{depth*-1 + 1} (지상)"
-    console.print(x=x, y=y, string=f"층: {depth_}", fg=color.cyan)
-    console.print(x=x+11, y=y, string=f"턴수: {game_turn}", fg=color.white)
+        depth_ = i(f"{depth*-1 + 1} (지상)",
+                   f"{depth*-1 + 1} (Overground)")
+    tmp = i(f"층: {depth_}",f"Depth: {depth_}")
+    console.print(x=x, y=y, string=tmp, fg=color.cyan)
+    console.print(x=x+len(tmp)+3, y=y, string=i(f"턴수: {game_turn}",
+                                              f"Turns: {game_turn}"), fg=color.white)
+
 
 
 def render_health_bar(
@@ -110,12 +115,13 @@ def render_health_bar(
 ) -> None:
     bar_width = int(float(current_value) / maximum_value * total_width)
 
-    console.draw_rect(x=x, y=y, width=total_width, height=1, ch=1, bg=color.health_bar_empty)
+    console.draw_rect(x=x, y=y, width=total_width, height=1, ch=0, bg=color.health_bar_empty)
 
     if bar_width > 0:
-        console.draw_rect(x=x, y=y, width=bar_width, height=1, ch=1, bg=color.health_bar_filled)
+        console.draw_rect(x=x, y=y, width=bar_width, height=1, ch=0, bg=color.health_bar_filled)
 
-    console.print(x=x, y=y, string=f"체력: {current_value}/{maximum_value}", fg=color.white)
+    console.print(x=x, y=y, string=i(f"체력: {current_value}/{maximum_value}",
+                                     f"Health: {current_value}/{maximum_value}"), fg=color.white)
 
 
 def render_mana_bar(
@@ -123,12 +129,13 @@ def render_mana_bar(
 ) -> None:
     bar_width = int(float(current_value) / maximum_value * total_width)
 
-    console.draw_rect(x=x, y=y, width=total_width, height=1, ch=1, bg=color.mana_bar_empty)
+    console.draw_rect(x=x, y=y, width=total_width, height=1, ch=0, bg=color.mana_bar_empty)
 
     if bar_width > 0:
-        console.draw_rect(x=x, y=y, width=bar_width, height=1, ch=1, bg=color.mana_bar_filled)
+        console.draw_rect(x=x, y=y, width=bar_width, height=1, ch=0, bg=color.mana_bar_filled)
 
-    console.print(x=x, y=y, string=f"마나: {current_value}/{maximum_value}", fg=color.white)
+    console.print(x=x, y=y, string=i(f"마나: {current_value}/{maximum_value}",
+                                     f"Mana  : {current_value}/{maximum_value}"), fg=color.white)
 
 
 def sign(num: int):
@@ -182,27 +189,29 @@ def render_character_status(
 
     # Status
     str, fg = get_stats_string_and_fg(stat["strength"], origin["strength"])
-    console.print(x=x, y=y+y_span, string="힘: "+str, fg=fg)
+    console.print(x=x, y=y+y_span, string=i("힘: ","Str: ")+str, fg=fg)
     str, fg = get_stats_string_and_fg(stat["dexterity"], origin["dexterity"])
-    console.print(x=x+13, y=y+y_span, string="재주: "+str, fg=fg)
+    console.print(x=x+13, y=y+y_span, string=i("재주: ","Dex: ")+str, fg=fg)
     str, fg = get_stats_string_and_fg(stat["constitution"], origin["constitution"])
-    console.print(x=x, y=y+y_span+1, string="활력: "+str, fg=fg)
+    console.print(x=x, y=y+y_span+1, string=i("활력: ","Con: ")+str, fg=fg)
     str, fg = get_stats_string_and_fg(stat["agility"], origin["agility"])
-    console.print(x=x+13, y=y+y_span+1, string="민첩: "+str, fg=fg)
+    console.print(x=x+13, y=y+y_span+1, string=i("민첩: ","Agi: ")+str, fg=fg)
     str, fg = get_stats_string_and_fg(stat["intelligence"], origin["intelligence"])
-    console.print(x=x, y=y+y_span+2, string="지능: "+str, fg=fg)
+    console.print(x=x, y=y+y_span+2, string=i("지능: ","Int: ")+str, fg=fg)
     str, fg = get_stats_string_and_fg(stat["charm"], origin["charm"])
-    console.print(x=x+13, y=y+y_span+2, string="매력: "+str, fg=fg)
+    console.print(x=x+13, y=y+y_span+2, string=i("매력: ","Cha: ")+str, fg=fg)
 
     # Armor
-    console.print(x=x, y=y+y_span+4, string=f"보호도: {stat['protection']}", fg=color.white)
-    console.print(x=x, y=y+y_span+6, string=f"기본 공격력: {stat['base_melee']}", fg=color.white)
-    console.print(x=x, y=y+y_span+7, string=f"추가 공격력: 0 ~ {stat['additional_melee']}", fg=color.white)
+    console.print(x=x, y=y+y_span+4, string=i(f"보호도: {stat['protection']}",
+                                              f"Protection: {stat['protection']}"), fg=color.white)
+    console.print(x=x, y=y+y_span+6, string=i(f"기본 공격력: {stat['base_melee']}",
+                                              f"Base Atk: {stat['base_melee']}"), fg=color.white)
+    console.print(x=x, y=y+y_span+7, string=i(f"추가 공격력: 0 ~ {stat['additional_melee']}",
+                                              f"Add. Atk: {stat['additional_melee']}"), fg=color.white)
 
     # border for status gui
     if draw_frame:
-        draw_thick_frame(console, x=x-1, y=y-1, width=width, height=height, title="스테이터스", fg=color.gui_frame_fg, bg=color.gui_frame_bg)
-        #console.draw_frame(x=x-1, y=y-1, width=width, height=height, title="스테이터스", clear=False, fg=color.gui_frame_fg, bg=color.gui_frame_bg)
+        console.draw_frame(x=x-1, y=y-1, width=width, height=height, title=i("스테이터스","Status"), clear=False, fg=color.gui_frame_fg, bg=color.gui_frame_bg)
 
 
 def render_character_state(
@@ -224,28 +233,22 @@ def render_character_state(
     #### Hunger ####
     if character.actor_state.hunger_state == "hungry":
         hunger_color = color.player_not_good
-        if engine.config["lang"] == "ko":
-            hunger_text = "배고픔"
+        hunger_text = i("배고픔","hungry")
     elif character.actor_state.hunger_state == "overeaten":
         hunger_color = color.player_bad
-        if engine.config["lang"] == "ko":
-            hunger_text = "과식"
+        hunger_text = i("과식","overeaten")
     elif character.actor_state.hunger_state == "starving":
         hunger_color = color.player_bad
-        if engine.config["lang"] == "ko":
-            hunger_text = "굶주림"
+        hunger_text = i("굶주림","starving")
     elif character.actor_state.hunger_state == "fainting":
         hunger_color = color.player_severe
-        if engine.config["lang"] == "ko":
-            hunger_text = "배고픔에 허덕임"
+        hunger_text = i("배고픔에 허덕임","fainting")
     elif character.actor_state.hunger_state == "satiated":
         hunger_color = color.player_not_good
-        if engine.config["lang"] == "ko":
-            hunger_text = "배부름"
+        hunger_text = i("배부름","satiated")
     elif character.actor_state.hunger_state == "choked by food":
         hunger_color = color.player_severe
-        if engine.config["lang"] == "ko":
-            hunger_text = "끔찍하게 배부름"
+        hunger_text = i("끔찍하게 배부름","choked by food")
     else:
         hunger_color = color.white
 
@@ -261,188 +264,217 @@ def render_character_state(
     if character.actor_state.is_burning != [0,0,0,0]:
         if num1 > window_height:
             num2 += 1
-            console.print(x=lane2_x, y=y+num2, string="불 붙음", fg=color.red)
+            console.print(x=lane2_x, y=y+num2, string=i("불 붙음", "on fire"), fg=color.red)
         else:
             num1 += 1
-            console.print(x=lane1_x, y=y+num1, string="불 붙음", fg=color.red)
+            console.print(x=lane1_x, y=y+num1, string=i("불 붙음", "on fire"), fg=color.red)
     if character.actor_state.is_freezing != [0,0,0,0,0]:
         if num1 > window_height:
             num2 += 1
-            console.print(x=lane2_x, y=y+num2, string="얼고 있음", fg=color.ice)
+            console.print(x=lane2_x, y=y+num2, string=i("얼고 있음", "freezing"), fg=color.ice)
         else:
             num1 += 1
-            console.print(x=lane1_x, y=y+num1, string="얼고 있음", fg=color.ice)
+            console.print(x=lane1_x, y=y+num1, string=i("얼고 있음", "freezing"), fg=color.ice)
     if character.actor_state.is_frozen != [0,0,0]:
         if num1 > window_height:
             num2 += 1
-            console.print(x=lane2_x, y=y+num2, string="얼어붙음", fg=color.blue_ice)
+            console.print(x=lane2_x, y=y+num2, string=i("얼어붙음", "frozen"), fg=color.blue_ice)
         else:
             num1 += 1
-            console.print(x=lane1_x, y=y+num1, string="얼어붙음", fg=color.blue_ice)
+            console.print(x=lane1_x, y=y+num1, string=i("얼어붙음", "frozen"), fg=color.blue_ice)
     if character.actor_state.is_paralyzing != [0,0]:
         if num1 > window_height:
             num2 += 1
-            console.print(x=lane2_x, y=y+num2, string="마비됨", fg=color.yellow)
+            console.print(x=lane2_x, y=y+num2, string=i("마비됨", "paralyzed"), fg=color.yellow)
         else:
             num1 += 1
-            console.print(x=lane1_x, y=y+num1, string="마비됨", fg=color.yellow)
+            console.print(x=lane1_x, y=y+num1, string=i("마비됨", "paralyzed"), fg=color.yellow)
     if character.actor_state.is_sleeping != [0,0]:
         if num1 > window_height:
             num2 += 1
-            console.print(x=lane2_x, y=y+num2, string="잠이 듬", fg=color.pink)
+            console.print(x=lane2_x, y=y+num2, string=i("잠이 듬", "sleeping"), fg=color.pink)
         else:
             num1 += 1
-            console.print(x=lane1_x, y=y+num1, string="잠이 듬", fg=color.pink)
+            console.print(x=lane1_x, y=y+num1, string=i("잠이 듬", "sleeping"), fg=color.pink)
     if character.actor_state.is_confused != [0,0]:
         if num1 > window_height:
             num2 += 1
-            console.print(x=lane2_x, y=y+num2, string="혼란", fg=color.yellow)
+            console.print(x=lane2_x, y=y+num2, string=i("혼란", "confused"), fg=color.yellow)
         else:
             num1 += 1
-            console.print(x=lane1_x, y=y+num1, string="혼란", fg=color.yellow)
+            console.print(x=lane1_x, y=y+num1, string=i("혼란", "confused"), fg=color.yellow)
     if character.actor_state.is_bleeding != [0,0,0]:
         if num1 > window_height:
             num2 += 1
-            console.print(x=lane2_x, y=y+num2, string="출혈", fg=color.blood)
+            console.print(x=lane2_x, y=y+num2, string=i("출혈", "bleeding"), fg=color.blood)
         else:
             num1 += 1
-            console.print(x=lane1_x, y=y+num1, string="출혈", fg=color.blood)
+            console.print(x=lane1_x, y=y+num1, string=i("출혈", "bleeding"), fg=color.blood)
     if character.actor_state.is_angry != [0,0]:
         if num1 > window_height:
             num2 += 1
-            console.print(x=lane2_x, y=y+num2, string="분노", fg=color.red)
+            console.print(x=lane2_x, y=y+num2, string=i("분노", "rage"), fg=color.red)
         else:
             num1 += 1
-            console.print(x=lane1_x, y=y+num1, string="분노", fg=color.red)
+            console.print(x=lane1_x, y=y+num1, string=i("분노", "rage"), fg=color.red)
     if character.actor_state.is_melting != [0,0,0,0]:
         if num1 > window_height:
             num2 += 1
-            console.print(x=lane2_x, y=y+num2, string="산에 뒤덮임", fg=color.lime)
+            console.print(x=lane2_x, y=y+num2, string=i("산에 뒤덮임", "dissolving"), fg=color.lime)
         else:
             num1 += 1
-            console.print(x=lane1_x, y=y+num1, string="산에 뒤덮임", fg=color.lime)
+            console.print(x=lane1_x, y=y+num1, string=i("산에 뒤덮임", "dissolving"), fg=color.lime)
     if character.actor_state.is_poisoned != [0,0,0,0]:
         if num1 > window_height:
             num2 += 1
-            console.print(x=lane2_x, y=y+num2, string="중독", fg=color.purple)
+            console.print(x=lane2_x, y=y+num2, string=i("중독", "poisoned"), fg=color.purple)
         else:
             num1 += 1
-            console.print(x=lane1_x, y=y+num1, string="중독", fg=color.purple)
+            console.print(x=lane1_x, y=y+num1, string=i("중독", "poisoned"), fg=color.purple)
     if character.actor_state.is_levitating != [0,0]:
         if num1 > window_height:
             num2 += 1
-            console.print(x=lane2_x, y=y+num2, string="공중 부양", fg=color.white)
+            console.print(x=lane2_x, y=y+num2, string=i("공중 부양", "levitating"), fg=color.white)
         else:
             num1 += 1
-            console.print(x=lane1_x, y=y+num1, string="공중 부양", fg=color.white)
+            console.print(x=lane1_x, y=y+num1, string=i("공중 부양", "levitating"), fg=color.white)
     if character.actor_state.encumbrance == 1:
         if num1 > window_height:
             num2 += 1
-            console.print(x=lane2_x, y=y+num2, string="약간의 중량 초과", fg=color.burdened)
+            console.print(x=lane2_x, y=y+num2, string=i("약간의 중량 초과", "burdened"), fg=color.burdened)
         else:
             num1 += 1
-            console.print(x=lane1_x, y=y+num1, string="약간의 중량 초과", fg=color.burdened)
+            console.print(x=lane1_x, y=y+num1, string=i("약간의 중량 초과", "burdened"), fg=color.burdened)
     if character.actor_state.encumbrance == 2:
         if num1 > window_height:
             num2 += 1
-            console.print(x=lane2_x, y=y+num2, string="중량 초과", fg=color.stressed)
+            console.print(x=lane2_x, y=y+num2, string=i("중량 초과", "stressed"), fg=color.stressed)
         else:
             num1 += 1
-            console.print(x=lane1_x, y=y+num1, string="중량 초과", fg=color.stressed)
+            console.print(x=lane1_x, y=y+num1, string=i("중량 초과", "stressed"), fg=color.stressed)
     if character.actor_state.encumbrance == 3:
         if num1 > window_height:
             num2 += 1
-            console.print(x=lane2_x, y=y+num2, string="심각한 중량 초과", fg=color.overloaded)
+            console.print(x=lane2_x, y=y+num2, string=i("심각한 중량 초과", "overloaded"), fg=color.overloaded)
         else:
             num1 += 1
-            console.print(x=lane1_x, y=y+num1, string="심각한 중량 초과", fg=color.overloaded)
+            console.print(x=lane1_x, y=y+num1, string=i("심각한 중량 초과", "overloaded"), fg=color.overloaded)
     if character.actor_state.encumbrance == 4:
         if num1 > window_height:
             num2 += 1
-            console.print(x=lane2_x, y=y+num2, string="치명적인 중량 초과", fg=color.overloaded)
+            console.print(x=lane2_x, y=y+num2, string=i("치명적인 중량 초과", "fatal overload"), fg=color.overloaded)
         else:
             num1 += 1
-            console.print(x=lane1_x, y=y+num1, string="치명적인 중량 초과", fg=color.overloaded)
+            console.print(x=lane1_x, y=y+num1, string=i("치명적인 중량 초과", "fatal overload"), fg=color.overloaded)
     for detecting in character.actor_state.is_detecting_obj[2]:
         if detecting == "actor":
             if num1 > window_height:
                 num2 += 1
-                console.print(x=lane2_x, y=y+num2, string="생명체 감지", fg=color.actor_detection)
+                console.print(x=lane2_x, y=y+num2, string=i("생명체 감지", "detect creatures"), fg=color.actor_detection)
             else:
                 num1 += 1
-                console.print(x=lane1_x, y=y+num1, string="생명체 감지", fg=color.actor_detection)
+                console.print(x=lane1_x, y=y+num1, string=i("생명체 감지", "detect creatures"), fg=color.actor_detection)
         #TODO Make rest
     if character.actor_state.is_submerged:
         if character.actor_state.is_underwater:
             if num1 > window_height:
                 num2 += 1
-                console.print(x=lane2_x, y=y+num2, string="완전히 물에 잠김", fg=color.water_blue)
+                console.print(x=lane2_x, y=y+num2, string=i("완전히 물에 잠김", "submerged"), fg=color.water_blue)
             else:
                 num1 += 1
-                console.print(x=lane1_x, y=y+num1, string="완전히 물에 잠김", fg=color.water_blue)
+                console.print(x=lane1_x, y=y+num1, string=i("완전히 물에 잠김", "submerged"), fg=color.water_blue)
         else:
             if num1 > window_height:
                 num2 += 1
-                console.print(x=lane2_x, y=y+num2, string="일부분 물에 잠김", fg=color.water_blue)
+                console.print(x=lane2_x, y=y+num2, string=i("일부분 물에 잠김", "soaked"), fg=color.water_blue)
             else:
                 num1 += 1
-                console.print(x=lane1_x, y=y+num1, string="일부분 물에 잠김", fg=color.water_blue)
+                console.print(x=lane1_x, y=y+num1, string=i("일부분 물에 잠김", "soaked"), fg=color.water_blue)
     if character.actor_state.is_drowning != [0,0]:
         # Display turns left until drowning
         if character.actor_state.is_drowning[0] >= character.actor_state.is_drowning[1] * 0.75:# 75% drowning
             if num1 > window_height:
                 num2 += 1
-                console.print(x=lane2_x, y=y+num2, string=f"익사까지 {character.actor_state.is_drowning[1]-character.actor_state.is_drowning[0]}턴", fg=color.player_severe)
+                console.print(x=lane2_x, y=y+num2, string=i(f"익사까지 {character.actor_state.is_drowning[1]-character.actor_state.is_drowning[0]}턴",
+                                                            f"drown:{character.actor_state.is_drowning[1]-character.actor_state.is_drowning[0]}"), fg=color.player_severe)
             else:
                 num1 += 1
-                console.print(x=lane1_x, y=y+num1, string=f"익사까지 {character.actor_state.is_drowning[1]-character.actor_state.is_drowning[0]}턴", fg=color.player_severe)
+                console.print(x=lane1_x, y=y+num1, string=i(f"익사까지 {character.actor_state.is_drowning[1]-character.actor_state.is_drowning[0]}턴",
+                                                            f"drown:{character.actor_state.is_drowning[1]-character.actor_state.is_drowning[0]}"), fg=color.player_severe)
         elif character.actor_state.is_drowning[0] >= character.actor_state.is_drowning[1] * 0.5:# 50% drowning
             if num1 > window_height:
                 num2 += 1
-                console.print(x=lane2_x, y=y+num2, string=f"익사까지 {character.actor_state.is_drowning[1]-character.actor_state.is_drowning[0]}턴", fg=color.player_bad)
+                console.print(x=lane1_x, y=y + num1, string=i(
+                    f"익사까지 {character.actor_state.is_drowning[1] - character.actor_state.is_drowning[0]}턴",
+                    f"drown:{character.actor_state.is_drowning[1]-character.actor_state.is_drowning[0]}"),
+                              fg=color.player_bad)
             else:
                 num1 += 1
-                console.print(x=lane1_x, y=y+num1, string=f"익사까지 {character.actor_state.is_drowning[1]-character.actor_state.is_drowning[0]}턴", fg=color.player_bad)
+                console.print(x=lane1_x, y=y + num1, string=i(
+                    f"익사까지 {character.actor_state.is_drowning[1] - character.actor_state.is_drowning[0]}턴",
+                    f"drown:{character.actor_state.is_drowning[1]-character.actor_state.is_drowning[0]}"),
+                              fg=color.player_bad)
         else:
             if num1 > window_height:
                 num2 += 1
-                console.print(x=lane2_x, y=y+num2, string=f"익사까지 {character.actor_state.is_drowning[1]-character.actor_state.is_drowning[0]}턴", fg=color.player_not_good)
+                console.print(x=lane1_x, y=y + num1, string=i(
+                    f"익사까지 {character.actor_state.is_drowning[1] - character.actor_state.is_drowning[0]}턴",
+                    f"drown:{character.actor_state.is_drowning[1]-character.actor_state.is_drowning[0]}"),
+                              fg=color.player_not_good)
             else:
                 num1 += 1
-                console.print(x=lane1_x, y=y+num1, string=f"익사까지 {character.actor_state.is_drowning[1]-character.actor_state.is_drowning[0]}턴", fg=color.player_not_good)
+                console.print(x=lane1_x, y=y + num1, string=i(
+                    f"익사까지 {character.actor_state.is_drowning[1] - character.actor_state.is_drowning[0]}턴",
+                    f"drown:{character.actor_state.is_drowning[1]-character.actor_state.is_drowning[0]}"),
+                              fg=color.player_not_good)
     if character.actor_state.is_suffocating != [0,0]:
         # Display turns left until drowning
         if character.actor_state.is_suffocating[0] >= character.actor_state.is_suffocating[1] * 0.75:# 75% drowning
             if num1 > window_height:
                 num2 += 1
-                console.print(x=lane2_x, y=y+num2, string=f"질식사까지 {character.actor_state.is_suffocating[1]-character.actor_state.is_suffocating[0]}턴", fg=color.player_severe)
+                console.print(x=lane2_x, y=y+num2, string=i(f"질식사까지 {character.actor_state.is_suffocating[1]-character.actor_state.is_suffocating[0]}턴",
+                                                            f"suffocation:{character.actor_state.is_suffocating[1] - character.actor_state.is_suffocating[0]}"), fg=color.player_severe)
             else:
                 num1 += 1
-                console.print(x=lane1_x, y=y+num1, string=f"질식사까지 {character.actor_state.is_suffocating[1]-character.actor_state.is_suffocating[0]}턴", fg=color.player_severe)
+                console.print(x=lane2_x, y=y + num2, string=i(
+                    f"질식사까지 {character.actor_state.is_suffocating[1] - character.actor_state.is_suffocating[0]}턴",
+                    f"suffocation:{character.actor_state.is_suffocating[1] - character.actor_state.is_suffocating[0]}"),
+                              fg=color.player_severe)
         elif character.actor_state.is_suffocating[0] >= character.actor_state.is_suffocating[1] * 0.5:# 50% drowning
             if num1 > window_height:
                 num2 += 1
-                console.print(x=lane2_x, y=y+num2, string=f"질식사까지 {character.actor_state.is_suffocating[1]-character.actor_state.is_suffocating[0]}턴", fg=color.player_bad)
+                console.print(x=lane2_x, y=y + num2, string=i(
+                    f"질식사까지 {character.actor_state.is_suffocating[1] - character.actor_state.is_suffocating[0]}턴",
+                    f"suffocation:{character.actor_state.is_suffocating[1] - character.actor_state.is_suffocating[0]}"),
+                              fg=color.player_bad)
             else:
                 num1 += 1
-                console.print(x=lane1_x, y=y+num1, string=f"질식사까지 {character.actor_state.is_suffocating[1]-character.actor_state.is_suffocating[0]}턴", fg=color.player_bad)
+                console.print(x=lane2_x, y=y + num2, string=i(
+                    f"질식사까지 {character.actor_state.is_suffocating[1] - character.actor_state.is_suffocating[0]}턴",
+                    f"suffocation:{character.actor_state.is_suffocating[1] - character.actor_state.is_suffocating[0]}"),
+                              fg=color.player_bad)
         else:
             if num1 > window_height:
                 num2 += 1
-                console.print(x=lane2_x, y=y+num2, string=f"질식사까지 {character.actor_state.is_suffocating[1]-character.actor_state.is_suffocating[0]}턴", fg=color.player_not_good)
+                console.print(x=lane2_x, y=y + num2, string=i(
+                    f"질식사까지 {character.actor_state.is_suffocating[1] - character.actor_state.is_suffocating[0]}턴",
+                    f"suffocation:{character.actor_state.is_suffocating[1] - character.actor_state.is_suffocating[0]}"),
+                              fg=color.player_not_good)
             else:
                 num1 += 1
-                console.print(x=lane1_x, y=y+num1, string=f"질식사까지 {character.actor_state.is_suffocating[1]-character.actor_state.is_suffocating[0]}턴", fg=color.player_not_good)
+                console.print(x=lane2_x, y=y + num2, string=i(
+                    f"질식사까지 {character.actor_state.is_suffocating[1] - character.actor_state.is_suffocating[0]}턴",
+                    f"suffocation:{character.actor_state.is_suffocating[1] - character.actor_state.is_suffocating[0]}"),
+                              fg=color.player_not_good)
         
     # Display "None" if there is no status effects
     if not num1 and not num2:
         num1 = 1
-        console.print(x=lane1_x, y=y+num1, string="(없음)", fg=color.gray)
+        console.print(x=lane1_x, y=y+num1, string=i("(없음)","(None)"), fg=color.gray)
 
     # border for state gui
     if draw_frame:
-        draw_thick_frame(console, x=x-1, y=y, width=28, height=window_height+2, title="상태 이상", fg=color.gui_frame_fg, bg=color.gui_frame_bg)
-        #console.draw_frame(x=x-1, y=y, width=28, height=window_height+2, title="상태 이상", clear=False,  fg=color.gui_frame_fg, bg=color.gui_frame_bg)
+        console.draw_frame(x=x-1, y=y, width=28, height=window_height+2, title=i("상태 이상","State"), clear=False,  fg=color.gui_frame_fg, bg=color.gui_frame_bg)
 
 
 def render_character_equipments(
@@ -453,7 +485,8 @@ def render_character_equipments(
     NOTE: This function can display any actor's status.
     """
 
-    console.print(x=x, y=y, string=f"메인 핸드: {character.equipments.equipments['main_hand']}", fg=color.gui_status_text)
+    console.print(x=x, y=y, string=i(f"메인 핸드: {character.equipments.equipments['main_hand'].name}",
+                                     f"Main hand: {character.equipments.equipments['main_hand'].name}"), fg=color.gui_status_text)
     #TODO: Display item name instead of memory address
     #TODO: Do not display unequipped body parts
 

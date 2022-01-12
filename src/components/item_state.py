@@ -7,6 +7,7 @@ import color
 
 from components.base_component import BaseComponent
 from korean import grammar as g
+from language import interpret as i
 
 if TYPE_CHECKING:
     from entity import Item, Actor
@@ -193,14 +194,17 @@ class ItemState(BaseComponent):
             self.was_burning = True
             if owner:
                 if owner == self.engine.player:
-                    self.engine.message_log.add_message(f"당신의 {self.parent.name}에 불이 붙었다.", fg=color.player_severe)
+                    self.engine.message_log.add_message(i(f"당신의 {self.parent.name}에 불이 붙었다.",
+                                                          f"Your {self.parent.name} is on fire."), fg=color.player_severe)
                 #else:
                     #self.engine.message_log.add_message(f"{owner.name}\'s {self.parent.name} is burning.", fg=color.white)
             else:
                 if self.engine.game_map.visible[self.parent.x, self.parent.y]:
-                    self.engine.message_log.add_message(f"{self.parent.name}에 불이 붙었다.", fg=color.world)
+                    self.engine.message_log.add_message(i(f"{self.parent.name}에 불이 붙었다.",
+                                                          f"{self.parent.name} is on fire."), fg=color.world)
                 else:
-                    self.engine.message_log.add_message("당신은 무언가 타는 듯한 냄새를 맡았다.", fg=color.player_sense, show_once=True)
+                    self.engine.message_log.add_message(i("당신은 무언가 타는 듯한 냄새를 맡았다.",
+                                                          f"You smell something burning."), fg=color.player_sense, show_once=True)
 
         # Further burning calculation
         will_burn = random.random()
@@ -214,30 +218,37 @@ class ItemState(BaseComponent):
             if owner:
                 if self.burntness == 1:
                     if owner == self.engine.player:
-                        self.engine.message_log.add_message(f"당신의 {g(self.parent.name, '이')} 다소 그을렸다.", fg=color.player_not_good)
+                        self.engine.message_log.add_message(i(f"당신의 {g(self.parent.name, '이')} 다소 그을렸다.",
+                                                              f"Your {self.parent.name} is burnt."), fg=color.player_not_good)
                     #else:
                         #self.engine.message_log.add_message(f"{owner.name}\'s {self.parent.name} is slightly burnt.", fg=color.white)
                 elif self.burntness == 2:
                     if owner == self.engine.player:
-                        self.engine.message_log.add_message(f"당신의 {g(self.parent.name, '이')} 상당히 그을렸다.", fg=color.player_severe)
+                        self.engine.message_log.add_message(i(f"당신의 {g(self.parent.name, '이')} 상당히 그을렸다.",
+                                                              f"Your {self.parent.name} is very burnt."), fg=color.player_severe)
                     #else:
                         #self.engine.message_log.add_message(f"{owner.name}\'s {self.parent.name} is very burnt", fg=color.white)
             else:
                 if self.burntness == 1:
-                    self.engine.message_log.add_message(f"{g(self.parent.name, '이')} 다소 그을렸다.", fg=color.world, target=self.parent)
+                    self.engine.message_log.add_message(i(f"{g(self.parent.name, '이')} 다소 그을렸다.",
+                                                          f"{self.parent.name} is burnt."), fg=color.world, target=self.parent)
                 elif self.burntness == 2:
-                    self.engine.message_log.add_message(f"{g(self.parent.name, '이')} 상당히 그을렸다.", fg=color.world, target=self.parent)
+                    self.engine.message_log.add_message(i(f"{g(self.parent.name, '이')} 상당히 그을렸다.",
+                                                          f"{self.parent.name} is very burnt."), fg=color.world, target=self.parent)
 
         # if Burnt out
         if self.burntness == 3:
             if owner:
                 if owner == self.engine.player:
-                    self.engine.message_log.add_message(f"당신의 {g(self.parent.name, '이')} 연소했다!", fg=color.player_severe)
+                    self.engine.message_log.add_message(i(f"당신의 {g(self.parent.name, '이')} 연소했다!",
+                                                          f"Your {self.parent.name} burns away!"), fg=color.player_severe)
                 else:
                     if self.parent in owner.equipments.equipments.values(): # prints log only if the item is equipped
-                        self.engine.message_log.add_message(f"{owner.name}의 {g(self.parent.name, '이')} 연소했다!", fg=color.enemy_unique, target=owner)
+                        self.engine.message_log.add_message(i(f"{owner.name}의 {g(self.parent.name, '이')} 연소했다!",
+                                                              f"{owner.name}'s {self.parent.name} burns away!"), fg=color.enemy_unique, target=owner)
             else:
-                self.engine.message_log.add_message(f"{g(self.parent.name, '이')} 연소했다!", fg=color.world, target=self.parent)
+                self.engine.message_log.add_message(i(f"{g(self.parent.name, '이')} 연소했다!",
+                                                      f"{self.parent.name} burns away!"), fg=color.world, target=self.parent)
         
             #Adjust variables
             self.is_burning = False
@@ -251,9 +262,11 @@ class ItemState(BaseComponent):
         if extinguish_chance >= self.parent.flammable:
             if owner:
                 if owner == self.engine.player:
-                    self.engine.message_log.add_message(f"당신의 {g(self.parent.name, '이')} 타는 것을 멈췄다.", fg=color.player_neutral)
+                    self.engine.message_log.add_message(i(f"당신의 {g(self.parent.name, '이')} 타는 것을 멈췄다.",
+                                                          f"Your {self.parent.name} stops burning."), fg=color.player_neutral)
             else:
-                self.engine.message_log.add_message(f"{g(self.parent.name, '이')} 타는 것을 멈췄다.", fg=color.world, target=self.parent)
+                self.engine.message_log.add_message(i(f"{g(self.parent.name, '이')} 타는 것을 멈췄다.",
+                                                      f"{self.parent.name} stops burning."), fg=color.world, target=self.parent)
             
             self.is_burning = False
             self.was_burning = False
@@ -270,12 +283,15 @@ class ItemState(BaseComponent):
             # Log
             if owner:
                 if owner == self.engine.player:
-                    self.engine.message_log.add_message(f"당신의 {g(self.parent.name, '이')} 완전히 부식되어 사라졌다.", fg=color.player_severe)
+                    self.engine.message_log.add_message(i(f"당신의 {g(self.parent.name, '이')} 완전히 부식되어 사라졌다!",
+                                                          f"Your {self.parent.name} corrodes away!"), fg=color.player_severe)
                 else:
                     if self.parent in owner.equipments.equipments.values(): # prints log only if the item is equipped
-                        self.engine.message_log.add_message(f"{owner.name}의 {g(self.parent.name, '이')} 완전히 부식되어 사라졌다.", fg=color.enemy_unique, target=owner)
+                        self.engine.message_log.add_message(i(f"{owner.name}의 {g(self.parent.name, '이')} 완전히 부식되어 사라졌다!",
+                                                              f"{owner.name}'s {self.parent.name} corrodes away!"), fg=color.enemy_unique, target=owner)
             else:
-                self.engine.message_log.add_message(f"{g(self.parent.name, '이')} 완전히 부식되어 사라졌다.", fg=color.world, target=self.parent)
+                self.engine.message_log.add_message(i(f"{g(self.parent.name, '이')} 완전히 부식되어 사라졌다!",
+                                                      f"{self.parent.name} corrodes away!"), fg=color.world, target=self.parent)
 
             # Completely corroded
             self.parent.remove_self()
@@ -283,10 +299,12 @@ class ItemState(BaseComponent):
             # Log
             if owner:
                 if owner == self.engine.player:
-                    self.engine.message_log.add_message(f"당신의 {g(self.parent.name, '이')} 심하게 부식되었다.", fg=color.player_bad)
+                    self.engine.message_log.add_message(i(f"당신의 {g(self.parent.name, '이')} 심하게 부식되었다.",
+                                                          f"Your {self.parent.name} is severely corroded."), fg=color.player_bad)
         elif self.corrosion == 1:
             # Log
             if owner:
                 if owner == self.engine.player:
-                    self.engine.message_log.add_message(f"당신의 {g(self.parent.name, '이')} 다소 부식되었다.", fg=color.player_not_good)
+                    self.engine.message_log.add_message(i(f"당신의 {g(self.parent.name, '이')} 다소 부식되었다.",
+                                                          f"Your {self.parent.name} is corroded."), fg=color.player_not_good)
 

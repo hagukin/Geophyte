@@ -9,6 +9,7 @@ import color
 import json
 import threading
 from game import Game
+from option import Option
 from configuration import get_game_config
 from title import Title
 from sound import SoundManager
@@ -43,14 +44,26 @@ def main() -> None:
     sound_thread.daemon = True # is Daemon thread. will stop when main thread dies.
     sound_thread.start()
 
+    # Prevent save data exploits
+    from base.exit import GameExit
+    GameExit.unexpected_exit = True
+
     # Get Configuration
     cfg = get_game_config()
+
+    # Initialize book data if there is None. Else load the book data
+    from base.data_loader import load_book
+    load_book()
 
     # Toggle Fullscreen
     if cfg["fullscreen"]:
         set_screen = tcod.context.SDL_WINDOW_FULLSCREEN_DESKTOP
     else:
         set_screen = tcod.context.SDL_WINDOW_ALLOW_HIGHDPI
+
+    # Set language
+    Game.language = cfg['lang']
+    Option.update_lang()
 
     with tcod.context.new(
         columns=cfg["screen_width"],
@@ -67,7 +80,7 @@ def main() -> None:
         root_console = tcod.Console(cfg["screen_width"], cfg["screen_height"], order="F")
 
         # Title Screen Loop
-        Game.engine = Title.title_event_handler(console=root_console, context=context, cfg=cfg, sound_manager=sound_manager)
+        Game.engine = Title.title_event_handler(console=root_console, context=context, sound_manager=sound_manager)
         Game.engine.update_config()
 
         # Initialization

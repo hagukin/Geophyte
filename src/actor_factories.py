@@ -12,6 +12,7 @@ from components.actor_state import ActorState
 from entity import Actor
 from order import RenderOrder, InventoryOrder
 from typing import Optional
+from language import interpret as i
 from components.ai import BaseAI
 
 ### NOTE: Rarity can have value between 0 and 10 ###
@@ -89,9 +90,10 @@ DEBUG = Actor(
 player = Actor(
     char="@",
     fg=(0, 255, 0),
-    name="모험가",
+    name="",
     entity_id="player",
-    actor_type_desc=("당신은 쿠가의 아뮬렛을 가져오라는 임무를 받고 끝이 보이지 않는 던전으로 발을 들였다. "),
+    actor_type_desc=(i("당신은 쿠가의 아뮬렛을 가져오라는 임무를 받고 끝이 보이지 않는 던전으로 발을 들였다. ",
+                       "You have entered the dungeon with a mission to reobtain the Amulet of Kugah.")),
     rarity=0,
     weight=70,
     spawnable=False,
@@ -153,12 +155,18 @@ player = Actor(
 shopkeeper = Actor(
     char="@",
     fg=(214, 181, 49),
-    name="상인",
+    name=i("상인","shopkeeper"),
     entity_id="shopkeeper",
-    entity_desc=("던전 속에서 장사를 하기 위해서는 많은 것들이 필요하다. "
+    entity_desc=i(("던전 속에서 장사를 하기 위해서는 많은 것들이 필요하다. "
     "고객을 사로잡는 화려한 언변, 값어치있는 물건을 알아보는 눈썰미, 물건을 감정하기 위한 폭 넓은 지식. "
     "그러나 무엇보다 중요한 건, 바로 상점을 지킬 힘이다. "),
-    actor_quote=("저 아래 괴물 소굴에서 장사하는 놈들은 둘 중에 하나야. 미쳤거나, 아니면 완전히 정신이 나갔거나. "),
+                  ("There are a lot of things you'll need to live as a merchant in the dungeon. "
+                   "You'll need an eloquence, an intelligence, a sharp-eye, "
+                   "but most of all, you'll need the power to protect your goods and yourself "
+                   "from the murderous creatures living in the dungeon. ")),
+    actor_quote=i(("저 아래 괴물 소굴에서 장사하는 놈들은 둘 중에 하나야. 미쳤거나, 아니면 완전히 정신이 나갔거나. "),
+                  ("There are two types of men who does a business down there. "
+                   "They are either A) has a serious mental sickness or B) is completely out of their mind. ")),
     rarity=0,
     weight = 75,
     swappable=False, # Cannot swap
@@ -223,12 +231,16 @@ ActorDB.monster_difficulty[shopkeeper.status.difficulty].append(shopkeeper)
 ant = Actor(
     char="a",
     fg=(51, 13, 0),
-    name="개미",
+    name=i("개미","ant"),
     entity_id="ant",
-    entity_desc=("던전에서 뿜어나오는 어두운 기운은 동물은 물론 곤충들까지 거대하고 흉측한 괴수로 변이시켰다. "
+    entity_desc=i(("던전에서 뿜어나오는 어두운 기운은 동물은 물론 곤충들까지 거대하고 흉측한 괴수로 변이시켰다. "
     "그렇지만 개중에는 어두운 기운의 영향을 덜 받은 개체들도 있기 마련이다. "
     "비교적 던전의 기운을 덜 받은 이 개미들은 기껏해야 사람 손가락 남짓한 크기로, 대체로 별 위협이 되지 않는다. "),
-    actor_quote=("우리 엄마는 저보고 항상 개미같이 열심히 일하는 사람이 되라고 말했어요. "),
+                  ("The dark energy emitted from the underground transforms insects and animals into violent beasts."
+                   "However there are few those who are slightly less threatning. "
+                   "Ants are one of them. They are about the size of a human finger, and usually are not considered as a threat.")),
+    actor_quote=i(("우리 엄마는 저보고 항상 개미같이 열심히 일하는 사람이 되라고 말했어요. "),
+                  ("My mom always told me that I should work hard like an ant.")),
     rarity=15,
     weight = 0.07,
     spawnable=True,
@@ -281,13 +293,17 @@ ActorDB.monster_difficulty[ant.status.difficulty].append(ant)
 fire_ant = Actor(
     char="a",
     fg=(255, 0, 0),
-    name="불개미",
+    name=i("불개미","fire ant"),
     entity_id="fire_ant",
-    entity_desc=("던전의 불개미들은 만지면 따끔한 수준의 지상의 불개미들과는 차원이 다른 존재이다. "
+    entity_desc=i(("던전의 불개미들은 만지면 따끔한 수준의 지상의 불개미들과는 차원이 다른 존재이다. "
     "성인 남성 주먹 정도의 크기인 이들은, 전신에 두른 약한 화염으로 자신을 방어한다. "
     "이들이 턱에서 쏘는 작은 불꽃은 인간에게 크게 위협적이지는 않지만, "
     "책이나 주문서를 가지고 다니는 마법사들에게는 큰 골칫거리로 여겨진다. "),
-    actor_quote=("썅, 빌어먹을 불개미녀석들, 이번에는 400샤인짜리 주문서를 태워먹었다고. "),
+                  ("Fire ants in the dungeon are literally a 'fire' ants. "
+                   "They are about the size of a human fist and they protect themselves by surrounding their body with a flame. "
+                   "Their flames are mostly not lethal but are considered a huge problem amongst wizards who carries books and scrolls.")),
+    actor_quote=i(("썅, 빌어먹을 불개미녀석들, 이번에는 400샤인짜리 주문서를 태워먹었다고. "),
+                  ("Those goddamn fire ants. This time I've lost a scroll that worth 400 shine. ")),
     rarity=30,
     weight=0.1,
     spawnable=True,
@@ -342,11 +358,14 @@ ActorDB.monster_difficulty[fire_ant.status.difficulty].append(fire_ant)
 volt_ant = Actor(
     char="a",
     fg=(99, 255, 193),
-    name="스파크 개미",
+    name=i("스파크 개미","volt ant"),
     entity_id="volt_ant",
-    entity_desc=("스파크 개미들은 몸에 두른 전류를 통해 적으로부터 자신을 보호한다. "
+    entity_desc=i(("스파크 개미들은 몸에 두른 전류를 통해 적으로부터 자신을 보호한다. "
     "스파크 개미는 시큼텁텁한 맛이 나는 것으로 알려져 있으며, 일부 모험가들 사이에서는 별미로 꼽힌다. "),
-    actor_quote=("이놈들을 잔뜩 잡아서 안주로 팔면 대박이 날 거야. "),
+                  ("Spark ants protect themselves by generating a electric volt. "
+                   "They are well known for their unique sour-and-crackling taste and often considered a delicacy. ")),
+    actor_quote=i(("이놈들을 잔뜩 잡아서 안주로 팔면 대박이 날 거야. "),
+                  ("I'm going to get rich if I sell these little ones with a beer.")),
     rarity=30,
     weight=0.1,
     spawnable=True,
@@ -405,11 +424,15 @@ ActorDB.monster_difficulty[volt_ant.status.difficulty].append(volt_ant)
 bat = Actor(
     char="b",
     fg=(94, 0, 122),
-    name="박쥐",
+    name=i("박쥐","bat"),
     entity_id="bat",
-    entity_desc=("박쥐는 조류가 아님에도, 공중에서 자유자재로 날아다닐 수 있는 비행능력을 보유하고 있다. "
+    entity_desc=i(("박쥐는 조류가 아님에도, 공중에서 자유자재로 날아다닐 수 있는 비행능력을 보유하고 있다. "
     "특유의 혐오감을 주는 외형 때문에 이들은 오랜 시간 인간들에게 박해받아왔고, 때문에 인간의 발길이 비교적 적은 던전 속에서 살아가는 박쥐들의 수가 점점 늘어나고 있다. "),
-    actor_quote=("동굴에 사는 쬐끄만 박쥐들은 오래 보면 귀엽기라도 하단 말이야. 근데 던전에 사는 놈들은 몇 번을 봐도 적응이 안된단 말이지. "),
+                  ("Although bats are technically not a bird, they can still fly around freely. "
+                   "Historically bats were a symbol of betrayal and were generally hated by the humans. "
+                   "Due to this hatred the number of bats living in the dungeon is increasing since there are less humans underground. ")),
+    actor_quote=i(("박쥐놈들은 병이나 옮길 줄 알지, 맛도 없고, 생긴 것도 징그럽고, 하등 도움이 안돼. "),
+                 ("Who likes bat? I mean, what do they even do? Probably spreading diseases? They don't even taste that good.")),
     rarity=30,
     weight=3,
     spawnable=True,
@@ -469,12 +492,16 @@ ActorDB.monster_difficulty[bat.status.difficulty].append(bat)
 kitten = Actor(
     char="c",
     fg=(222, 208, 169),
-    name="새끼고양이",
+    name=i("새끼고양이","kitten"),
     entity_id="kitten",
-    entity_desc=("던전 속에서 새끼고양이는 둘 중 하나로 취급된다. "
+    entity_desc=i(("던전 속에서 새끼고양이는 둘 중 하나로 취급된다. "
     "작고 귀여운 동물, "
     "혹은 영양가 넘치는 자그마한 고깃덩어리. "),
-    actor_quote=("얼마 전 옆집 고양이가 새끼를 낳았다던데, 그 집 식구들이 요즘 기운이 넘쳐보이는 건 기분 탓인가? "),
+                  ("Kittens can be seen as a two different thing. "
+                   "A cute and adorable animal that should be protected, "
+                   "or a small and delicious piece of meat. ")),
+    actor_quote=i(("얼마 전 옆집 고양이가 새끼를 낳았다던데, 그 집 식구들이 요즘 기운이 넘쳐보이는 건 기분 탓인가? "),
+                 ("I heard that our neighbor's cat had a kitten recently. Maybe that's why they look healthier than before.")),
     rarity=10,
     weight=3.3,
     spawnable=True,

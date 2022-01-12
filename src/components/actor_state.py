@@ -4,6 +4,7 @@ from typing import Optional, TYPE_CHECKING, List, Set, Tuple, Any
 from numpy.core.fromnumeric import sort
 from components.base_component import BaseComponent
 from korean import grammar as g
+from language import interpret as i
 from components.status import Bonus
 
 import random
@@ -370,29 +371,35 @@ class ActorState(BaseComponent):
             self.previous_hunger_state = hunger_state
             if hunger_state == "choked by food":
                 if self.parent == self.engine.player:
-                    self.engine.message_log.add_message(f"당신은 끔찍할 정도로 배가 부르다!", fg=color.player_severe)
+                    self.engine.message_log.add_message(i(f"당신은 끔찍할 정도로 배가 부르다!",
+                                                          f"You feel terribly full!"), fg=color.player_severe)
                 self.parent.status.add_bonus(Bonus(bonus_id="hunger", bonus_agility=-8))
             elif hunger_state == "overeaten":
                 if self.parent == self.engine.player:
-                    self.engine.message_log.add_message(f"당신은 불쾌할 정도로 배가 부르다.", fg=color.player_severe)
+                    self.engine.message_log.add_message(i(f"당신은 불쾌할 정도로 배가 부르다.",
+                                                          f"You feel very full."), fg=color.player_severe)
                 self.parent.status.add_bonus(Bonus(bonus_id="hunger", bonus_agility=-4))
             elif hunger_state == "satiated":
                 if self.parent == self.engine.player:
-                    self.engine.message_log.add_message(f"당신은 배가 부르다.", fg=color.player_not_good)
+                    self.engine.message_log.add_message(i(f"당신은 배가 부르다.",
+                                                          f"You feel satiated."), fg=color.player_not_good)
                 self.parent.status.add_bonus(Bonus(bonus_id="hunger", bonus_agility=-2, bonus_constitution=+1, bonus_strength=+1))
             elif hunger_state == "hungry":
                 if self.parent == self.engine.player:
-                    self.engine.message_log.add_message(f"당신은 배가 고프다.", fg=color.player_not_good)
+                    self.engine.message_log.add_message(i(f"당신은 배가 고프다.",
+                                                          f"You feel hungry."), fg=color.player_not_good)
                 self.parent.status.add_bonus(Bonus(bonus_id="hunger", bonus_constitution=-2, bonus_strength=-1))
             elif hunger_state == "starving":
                 self.parent.actor_state.apply_wake_up()
                 if self.parent == self.engine.player:
-                    self.engine.message_log.add_message(f"당신은 굶주리고 있다!", fg=color.player_bad)
+                    self.engine.message_log.add_message(i(f"당신은 굶주리고 있다!",
+                                                          f"You are starving!"), fg=color.player_bad)
                 self.parent.status.add_bonus(Bonus(bonus_id="hunger", bonus_constitution=-4, bonus_strength=-2,bonus_intelligence=-1, bonus_dexterity=-1))
             elif hunger_state == "fainting":
                 self.parent.actor_state.apply_wake_up()
                 if self.parent == self.engine.player:
-                    self.engine.message_log.add_message(f"당신은 배고픔에 허덕이고 있다!", fg=color.player_severe)
+                    self.engine.message_log.add_message(i(f"당신은 배고픔에 허덕이고 있다!",
+                                                          f"You are fainting from hunger!"), fg=color.player_severe)
                 self.parent.status.add_bonus(Bonus(bonus_id="hunger", bonus_constitution=-8, bonus_strength=-3,bonus_intelligence=-1, bonus_dexterity=-1))
             elif hunger_state == "starved to death":
                 self.parent.die(cause="starvation")
@@ -467,9 +474,11 @@ class ActorState(BaseComponent):
     def actor_burn(self):
         if self.parent.status.changed_status["fire_resistance"] >= 1:
             if self.parent == self.engine.player:
-                self.engine.message_log.add_message(f"당신은 화염에 저항했다!", fg=color.player_success)
+                self.engine.message_log.add_message(i(f"당신은 화염에 저항했다!",
+                                                      f"You resist fire!"), fg=color.player_success)
             else:
-                self.engine.message_log.add_message(f"{g(self.parent.name, '은')} 화염에 저항했다!", fg=color.enemy_unique, target=self.parent)
+                self.engine.message_log.add_message(i(f"{g(self.parent.name, '은')} 화염에 저항했다!",
+                                                      f"{self.parent.name} resists fire!"), fg=color.enemy_unique, target=self.parent)
             self.apply_burning([0, 0, 0, 0])
         else:
             if self.is_burning[3] > 0 and self.is_burning[2] >= self.is_burning[3]: # Stop burning
@@ -489,9 +498,11 @@ class ActorState(BaseComponent):
 
                 # Log before actual damage
                 if self.parent == self.engine.player:
-                    self.engine.message_log.add_message(f"당신은 화염으로부터 {fire_dmg} 데미지를 받았다.", fg=color.player_bad)
+                    self.engine.message_log.add_message(i(f"당신은 화염으로부터 {fire_dmg} 데미지를 받았다.",
+                                                          f"You took {fire_dmg} damage from fire."), fg=color.player_bad)
                 else:
-                    self.engine.message_log.add_message(f"{g(self.parent.name, '은')} 화염으로부터 {fire_dmg} 데미지를 받았다.", fg=color.enemy_neutral, target=self.parent)
+                    self.engine.message_log.add_message(i(f"{g(self.parent.name, '은')} 화염으로부터 {fire_dmg} 데미지를 받았다.",
+                                                          f"{self.parent.name} took {fire_dmg} damage from fire."), fg=color.enemy_neutral, target=self.parent)
                 self.parent.status.take_damage(amount=fire_dmg)
 
             # Chance of fire going off
@@ -499,9 +510,11 @@ class ActorState(BaseComponent):
             if extinguish_chance <= self.parent.status.changed_status["fire_resistance"]:
                 self.apply_burning([0, 0, 0, 0])
                 if self.parent == self.engine.player:
-                    self.engine.message_log.add_message(f"당신은 더 이상 불타고 있지 않다.", fg=color.player_neutral)
+                    self.engine.message_log.add_message(i("당신은 더 이상 불타고 있지 않다.",
+                                                          f"You are no longer burning."), fg=color.player_neutral)
                 else:
-                    self.engine.message_log.add_message(f"{g(self.parent.name, '은')} 더 이상 불타고 있지 않다.", fg=color.enemy_neutral, target=self.parent)
+                    self.engine.message_log.add_message(i(f"{g(self.parent.name, '은')} 더 이상 불타고 있지 않다.",
+                                                          f"{self.parent.name} is no longer burning."), fg=color.enemy_neutral, target=self.parent)
 
     def actor_paralyzing(self):
         """
@@ -511,9 +524,11 @@ class ActorState(BaseComponent):
         if self.is_paralyzing[0] >= self.is_paralyzing[1] and self.is_paralyzing[1] > 0: # Stop paralyzing
             # Log
             if self.parent == self.engine.player:
-                self.engine.message_log.add_message(f"당신은 다시 움직일 수 있게 되었다.", fg=color.white)
+                self.engine.message_log.add_message(i(f"당신은 다시 움직일 수 있게 되었다.",
+                                                      f"You are no longer paralyzed."), fg=color.white)
             else:
-                self.engine.message_log.add_message(f"{g(self.parent.name, '이')} 다시 움직이기 시작한다.", fg=color.white, target=self.parent)
+                self.engine.message_log.add_message(i(f"{g(self.parent.name, '이')} 다시 움직이기 시작한다.",
+                                                      f"{self.parent.name} starts to move again."), fg=color.white, target=self.parent)
             # Remove paralyzation
             self.apply_paralyzation([0,0])
             return None
@@ -551,9 +566,11 @@ class ActorState(BaseComponent):
 
         if self.parent.status.changed_status["cold_resistance"] >= 1:
             if self.parent == self.engine.player:
-                self.engine.message_log.add_message(f"당신은 냉기에 저항했다!", fg=color.player_success)
+                self.engine.message_log.add_message(i(f"당신은 냉기에 저항했다!",
+                                                      f"You resist cold!"), fg=color.player_success)
             else:
-                self.engine.message_log.add_message(f"{g(self.parent.name, '은')} 냉기에 저항했다!", fg=color.enemy_unique,target=self.parent)
+                self.engine.message_log.add_message(i(f"{g(self.parent.name, '은')} 냉기에 저항했다!",
+                                                      f"{self.parent.name} resists cold!"), fg=color.enemy_unique,target=self.parent)
             self.apply_freezing([0, 0, 0, 0, 0])
             # Reset this actor's agility value
             self.parent.status.remove_bonus("freeze_bonus")
@@ -570,9 +587,11 @@ class ActorState(BaseComponent):
                 cold_dmg = self.parent.status.calculate_dmg_reduction(damage=cold_dmg, damage_type="cold")
 
                 if self.parent == self.engine.player:
-                    self.engine.message_log.add_message(f"당신은 얼어붙고 있다. {cold_dmg} 데미지를 받았다.",fg=color.player_bad)
+                    self.engine.message_log.add_message(i(f"당신은 얼어붙고 있다. {cold_dmg} 데미지를 받았다.",
+                                                          f"You are freezing. You took {cold_dmg} damage."),fg=color.player_bad)
                 else:
-                    self.engine.message_log.add_message(f"{g(self.parent.name, '은')} 얼어붙고 있다. {cold_dmg} 데미지를 받았다.",fg=color.enemy_neutral, target=self.parent)
+                    self.engine.message_log.add_message(i(f"{g(self.parent.name, '은')} 얼어붙고 있다. {cold_dmg} 데미지를 받았다.",
+                                                          f"{self.parent.name} is freezing. {self.parent.name.capitalize()} took {cold_dmg} damage."),fg=color.enemy_neutral, target=self.parent)
 
                 self.parent.status.take_damage(amount=cold_dmg)
 
@@ -601,9 +620,11 @@ class ActorState(BaseComponent):
                 self.apply_freezing([0, 0, 0, 0, 0])
                 self.parent.status.remove_bonus("freeze_bonus")
                 if self.parent == self.engine.player:
-                    self.engine.message_log.add_message(f"당신은 더 이상 얼어붙고 있지 않다.", fg=color.player_neutral)
+                    self.engine.message_log.add_message(i(f"당신은 더 이상 얼어붙고 있지 않다.",
+                                                          f"You are no longer freezing."), fg=color.player_neutral)
                 else:
-                    self.engine.message_log.add_message(f"{g(self.parent.name, '은')} 더 이상 얼어붙고 있지 않다.", fg=color.enemy_neutral, target=self.parent)
+                    self.engine.message_log.add_message(i(f"{g(self.parent.name, '은')} 더 이상 얼어붙고 있지 않다.",
+                                                          f"{self.parent.name} is no longer freezing."), fg=color.enemy_neutral, target=self.parent)
 
     def actor_frozen(self):
         """
@@ -622,9 +643,11 @@ class ActorState(BaseComponent):
 
             # log before dmg
             if self.parent == self.engine.player:
-                self.engine.message_log.add_message(f"당신은 완전히 얼어붙었다. {cold_dmg} 데미지를 받았다!", fg=color.player_severe)
+                self.engine.message_log.add_message(i(f"당신은 완전히 얼어붙었다. {cold_dmg} 데미지를 받았다!",
+                                                      f"You are completely frozen. You took {cold_dmg} damage."), fg=color.player_severe)
             else:
-                self.engine.message_log.add_message(f"{g(self.parent.name, '은')} 완전히 얼어붙었다. {cold_dmg} 데미지를 받았다!",fg=color.enemy_unique, target=self.parent)
+                self.engine.message_log.add_message(i(f"{g(self.parent.name, '은')} 완전히 얼어붙었다. {cold_dmg} 데미지를 받았다!",
+                                                      f"{self.parent.name} is completely frozen and took {cold_dmg} damage."),fg=color.enemy_unique, target=self.parent)
 
             # dmg apply
             self.parent.status.take_damage(amount=cold_dmg)
@@ -638,9 +661,11 @@ class ActorState(BaseComponent):
             self.apply_frozen([0,0,0])
             self.parent.status.remove_bonus("frozen_bonus")
             if self.parent == self.engine.player:
-                self.engine.message_log.add_message(f"당신은 더 이상 얼어있지 않다.", fg=color.player_neutral)
+                self.engine.message_log.add_message(i(f"당신은 더 이상 얼어있지 않다.",
+                                                      f"You are no longer frozen."), fg=color.player_neutral)
             else:
-                self.engine.message_log.add_message(f"{g(self.parent.name, '은')} 더 이상 얼어있지 않다.", fg=color.enemy_neutral, target=self.parent)
+                self.engine.message_log.add_message(i(f"{g(self.parent.name, '은')} 더 이상 얼어있지 않다.",
+                                                      f"{self.parent.name} is no longer frozen."), fg=color.enemy_neutral, target=self.parent)
 
     def get_connected_actors(self, prev_actors:Set = None):
         """
@@ -696,9 +721,11 @@ class ActorState(BaseComponent):
             # Resistance
             if target.status.changed_status["shock_resistance"] >= 1:
                 if target == self.engine.player:
-                    self.engine.message_log.add_message(f"당신은 전격에 저항했다!", fg=color.player_success)
+                    self.engine.message_log.add_message(i(f"당신은 전격에 저항했다!",
+                                                          f"You resist electric shock!"), fg=color.player_success)
                 else:
-                    self.engine.message_log.add_message(f"{g(target.name, '은')} 전격에 저항했다!", fg=color.enemy_unique, target=target)
+                    self.engine.message_log.add_message(i(f"{g(target.name, '은')} 전격에 저항했다!",
+                                                          f"{target.name} resists electric shock!"), fg=color.enemy_unique, target=target)
                 self.is_electrocuting = [0, 0]
             else:
                 # Damage differs from targets depending on the distance
@@ -709,14 +736,18 @@ class ActorState(BaseComponent):
                 # Log
                 if target == self.engine.player:
                     if shock_dmg == 0:
-                        self.engine.message_log.add_message(f"당신은 전격으로부터 아무런 데미지도 받지 않았다.",fg=color.player_success, target=target)
+                        self.engine.message_log.add_message(i(f"당신은 전격으로부터 아무런 데미지도 받지 않았다.",
+                                                              f"You took no damage from electric shock."),fg=color.player_success, target=target)
                     else:
-                        self.engine.message_log.add_message(f"당신은 전격으로부터 {shock_dmg} 데미지를 받았다.",fg=color.player_bad, target=target)
+                        self.engine.message_log.add_message(i(f"당신은 전격으로부터 {shock_dmg} 데미지를 받았다.",
+                                                              f"You took {shock_dmg} damage from electric shock."),fg=color.player_bad, target=target)
                 else:
                     if shock_dmg == 0:
-                        self.engine.message_log.add_message(f"{g(target.name, '은')} 전격으로부터 아무런 데미지도 받지 않았다.", fg=color.enemy_neutral, target=target)
+                        self.engine.message_log.add_message(i(f"{g(target.name, '은')} 전격으로부터 아무런 데미지도 받지 않았다.",
+                                                            f"{target.name} took no damage from electric shock."), fg=color.enemy_neutral, target=target)
                     else:
-                        self.engine.message_log.add_message(f"{g(target.name, '은')} 전격으로부터 {shock_dmg} 데미지를 받았다.", fg=color.enemy_neutral, target=target)
+                        self.engine.message_log.add_message(i(f"{g(target.name, '은')} 전격으로부터 {shock_dmg} 데미지를 받았다.",
+                                                              f"{target.name} took {shock_dmg} damage from electric shock."), fg=color.enemy_neutral, target=target)
                 
                 # Apply dmg
                 target.status.take_damage(amount=shock_dmg)
@@ -729,9 +760,11 @@ class ActorState(BaseComponent):
         # Check turns
         if self.is_confused[0] >= self.is_confused[1] and self.is_confused[1] > 0: # stop confused
             if self.parent == self.engine.player:
-                self.engine.message_log.add_message(f"당신은 다시 정신을 차렸다.", fg=color.player_neutral)
+                self.engine.message_log.add_message(i(f"당신은 다시 정신을 차렸다.",
+                                                      f"You are no longer confused."), fg=color.player_neutral)
             else:
-                self.engine.message_log.add_message(f"{g(self.parent.name, '은')} 정신을 차린 듯 하다.", target=self.parent, fg=color.enemy_neutral)
+                self.engine.message_log.add_message(i(f"{g(self.parent.name, '은')} 정신을 차린 듯 하다.",
+                                                      f"{self.parent.name} come to its senses."), target=self.parent, fg=color.enemy_neutral)
             self.apply_confusion([0,0])
         elif self.is_confused[0] >= 0: # lasts forever if negative
             self.is_confused[0] += 1
@@ -744,7 +777,8 @@ class ActorState(BaseComponent):
         # Check turns
         if self.is_angry[0] >= self.is_angry[1] and self.is_angry[1] > 0: # stop being angered
             if self.parent == self.engine.player:
-                self.engine.message_log.add_message(f"당신은 더 이상 분노하고 있지 않다.", fg=color.player_neutral)
+                self.engine.message_log.add_message(i(f"당신은 더 이상 분노하고 있지 않다.",
+                                                      f"You are not raging anymore."), fg=color.player_neutral)
             self.apply_anger([0,0])
         elif self.is_angry[0] >= 0: # lasts forever if negative
             self.is_angry[0] += 1
@@ -758,18 +792,22 @@ class ActorState(BaseComponent):
         if random.random() <= self.parent.status.changed_status["acid_resistance"]:
             self.apply_melting([0, 0, 0, 0])
             if self.parent == self.engine.player:
-                self.engine.message_log.add_message(f"당신은 더 이상 산으로부터 데미지를 받고 있지 않다.", fg=color.player_neutral)
+                self.engine.message_log.add_message(i(f"당신은 더 이상 산으로부터 데미지를 받고 있지 않다.",
+                                                      f"You are no longer dissolving."), fg=color.player_neutral)
             else:
-                self.engine.message_log.add_message(f"{g(self.parent.name, '은')} 더 이상 산으로부터 데미지를 받고 있지 않다.",fg=color.enemy_neutral, target=self.parent)
+                self.engine.message_log.add_message(i(f"{g(self.parent.name, '은')} 더 이상 산으로부터 데미지를 받고 있지 않다.",
+                                                      f"{self.parent.name} is no longer dissolving."),fg=color.enemy_neutral, target=self.parent)
             return None
                 
         # Check turns
         if self.is_melting[2] >= self.is_melting[3] and self.is_melting[3] > 0: # Stop melting
             self.apply_melting([0, 0, 0, 0])
             if self.parent == self.engine.player:
-                self.engine.message_log.add_message(f"당신은 더 이상 산으로부터 데미지를 받고 있지 않다.", fg=color.player_neutral)
+                self.engine.message_log.add_message(i(f"당신은 더 이상 산으로부터 데미지를 받고 있지 않다.",
+                                                      f"You are no longer dissolving."), fg=color.player_neutral)
             else:
-                self.engine.message_log.add_message(f"{g(self.parent.name, '은')} 더 이상 산으로부터 데미지를 받고 있지 않다.",fg=color.enemy_neutral, target=self.parent)
+                self.engine.message_log.add_message(i(f"{g(self.parent.name, '은')} 더 이상 산으로부터 데미지를 받고 있지 않다.",
+                                                      f"{self.parent.name} is no longer dissolving."),fg=color.enemy_neutral, target=self.parent)
             return None
         else:
             if self.is_melting[3] >= 0: # lasts forever if negative
@@ -786,10 +824,11 @@ class ActorState(BaseComponent):
 
             # Log before dmg
             if self.parent == self.engine.player:
-                self.engine.message_log.add_message(f"당신은 산성 물질로 인해 녹아내리고 있다. {acid_dmg} 데미지를 받았다.", fg=color.player_bad, target=self.parent)
+                self.engine.message_log.add_message(i(f"당신은 산성 물질로 인해 녹아내리고 있다. {acid_dmg} 데미지를 받았다.",
+                                                      f"You start to dissolve in acid. You took {acid_dmg} damage."), fg=color.player_bad, target=self.parent)
             else:
-                self.engine.message_log.add_message(
-                    f"{g(self.parent.name, '은')} 산성 물질로 인해 녹아내리고 있다. {acid_dmg} 데미지를 받았다.", fg=color.enemy_neutral, target=self.parent)
+                self.engine.message_log.add_message(i(f"{g(self.parent.name, '은')} 산성 물질로 인해 녹아내리고 있다. {acid_dmg} 데미지를 받았다.",
+                                                      f"{self.parent.name} start to dissolve in acid. You took {acid_dmg} damage."), fg=color.enemy_neutral, target=self.parent)
 
             # dmg
             self.parent.status.take_damage(amount=acid_dmg)
@@ -807,9 +846,11 @@ class ActorState(BaseComponent):
         # Check turns
         if self.is_bleeding[1] >= self.is_bleeding[2] and self.is_bleeding[2] > 0: # Stop bleeding
             if self.parent == self.engine.player:
-                self.engine.message_log.add_message(f"당신은 더 이상 출혈 상태가 아니다.", fg=color.player_neutral)
+                self.engine.message_log.add_message(i(f"당신은 더 이상 출혈 상태가 아니다.",
+                                                      f"You are no longer bleeding."), fg=color.player_neutral)
             else:
-                self.engine.message_log.add_message(f"{self.parent.name}의 출혈이 멎은 듯 하다.", fg=color.enemy_neutral, target=self.parent)
+                self.engine.message_log.add_message(i(f"{self.parent.name}의 출혈이 멎은 듯 하다.",
+                                                      f"{self.parent.name} is no longer bleeding."), fg=color.enemy_neutral, target=self.parent)
             self.apply_bleeding([0,0,0])
         else:
             if self.is_bleeding[2] >= 0: # lasts forever if negative
@@ -819,9 +860,11 @@ class ActorState(BaseComponent):
 
             # Log before dmg
             if self.parent == self.engine.player:
-                self.engine.message_log.add_message(f"당신은 출혈로 인해 {blood_dmg} 데미지를 받았다.",fg=color.player_bad)
+                self.engine.message_log.add_message(i(f"당신은 출혈로 인해 {blood_dmg} 데미지를 받았다.",
+                                                      f"You took {blood_dmg} damage from bleeding."),fg=color.player_bad)
             else:
-                self.engine.message_log.add_message(f"{g(self.parent.name, '은')} 출혈로 인해 {blood_dmg} 데미지를 받았다.", fg=color.enemy_neutral, target=self.parent)
+                self.engine.message_log.add_message(i(f"{g(self.parent.name, '은')} 출혈로 인해 {blood_dmg} 데미지를 받았다.",
+                                                      f"{self.parent.name} took {blood_dmg} damage from bleeding."), fg=color.enemy_neutral, target=self.parent)
 
             # Apply damage
             self.parent.status.take_damage(amount=blood_dmg)
@@ -838,7 +881,8 @@ class ActorState(BaseComponent):
         """
         if self.is_levitating[0] >= self.is_levitating[1] and self.is_levitating[1] > 0: # Stop levitating
             if self.parent == self.engine.player:
-                self.engine.message_log.add_message(f"당신은 더 이상 공중 부양 상태가 아니다.", fg=color.player_neutral)
+                self.engine.message_log.add_message(i(f"당신은 더 이상 공중 부양 상태가 아니다.",
+                                                      f"You are no longer levitating."), fg=color.player_neutral)
             self.apply_levitation([0, 0])
             self.parent.float(False)
         elif self.is_levitating[1] >= 0:  # lasts forever if negative
@@ -853,17 +897,21 @@ class ActorState(BaseComponent):
         """
         if self.parent.status.changed_status["poison_resistance"] >= 1:
             if self.parent == self.engine.player:
-                self.engine.message_log.add_message(f"당신은 독에 저항했다!", fg=color.player_success)
+                self.engine.message_log.add_message(i(f"당신은 독에 저항했다!",
+                                                      f"You resist poison!"), fg=color.player_success)
             else:
-                self.engine.message_log.add_message(f"{g(self.parent.name, '은')} 독에 저항했다!", fg=color.enemy_unique, target=self.parent)
+                self.engine.message_log.add_message(i(f"{g(self.parent.name, '은')} 독에 저항했다!",
+                                                      f"{self.parent.name} resists poison!"), fg=color.enemy_unique, target=self.parent)
             self.apply_poisoning([0, 0, 0, 0])
             self.parent.status.remove_bonus("poison_bonus")
         else:
             if self.is_poisoned[2] >= self.is_poisoned[3] and self.is_poisoned[3] > 0: # Stop poisoning
                 if self.parent == self.engine.player:
-                    self.engine.message_log.add_message(f"당신은 더 이상 중독 상태가 아니다.", fg=color.player_neutral)
+                    self.engine.message_log.add_message(i(f"당신은 더 이상 중독 상태가 아니다.",
+                                                          f"You are no longer poisoned."), fg=color.player_neutral)
                 else:
-                    self.engine.message_log.add_message(f"{g(self.parent.name, '은')} 기운을 차린 듯 하다.", target=self.parent, fg=color.enemy_neutral)
+                    self.engine.message_log.add_message(i(f"{g(self.parent.name, '은')} 기운을 차린 듯 하다.",
+                                                          f"{self.parent.name} is no longer poisoned."), target=self.parent, fg=color.enemy_neutral)
                 self.apply_poisoning([0, 0, 0, 0])
                 self.parent.status.remove_bonus("poison_bonus")
             else:
@@ -878,9 +926,11 @@ class ActorState(BaseComponent):
 
                 # Log before dmg
                 if self.parent == self.engine.player:
-                    self.engine.message_log.add_message(f"당신은 독으로 인해 {poison_dmg} 데미지를 받았다.", fg=color.player_bad)
+                    self.engine.message_log.add_message(i(f"당신은 독으로 인해 {poison_dmg} 데미지를 받았다.",
+                                                          f"You took {poison_dmg} damage from poison."), fg=color.player_bad)
                 else:
-                    self.engine.message_log.add_message(f"{g(self.parent.name, '은')} 독으로 인해 {poison_dmg} 데미지를 받았다.", fg=color.enemy_neutral, target=self.parent)
+                    self.engine.message_log.add_message(i(f"{g(self.parent.name, '은')} 독으로 인해 {poison_dmg} 데미지를 받았다.",
+                                                          f"{self.parent.name} took {poison_dmg} damage from poison."), fg=color.enemy_neutral, target=self.parent)
 
                 # dmg
                 self.parent.status.take_damage(amount=poison_dmg)
@@ -894,9 +944,11 @@ class ActorState(BaseComponent):
                 self.apply_poisoning([0, 0, 0, 0])
                 self.parent.status.remove_bonus("poison_bonus")
                 if self.parent == self.engine.player:
-                    self.engine.message_log.add_message(f"당신은 더 이상 중독 상태가 아니다.", fg=color.player_neutral)
+                    self.engine.message_log.add_message(i(f"당신은 더 이상 중독 상태가 아니다.",
+                                                          f"You are no longer poisoned."), fg=color.player_neutral)
                 else:
-                    self.engine.message_log.add_message(f"{g(self.parent.name, '은')} 기운을 차린 듯 하다.", target=self.parent, fg=color.enemy_neutral)
+                    self.engine.message_log.add_message(i(f"{g(self.parent.name, '은')} 기운을 차린 듯 하다.",
+                                                          f"{self.parent.name} is no longer poisoned."), target=self.parent, fg=color.enemy_neutral)
     
     def actor_submerged(self):
         """
@@ -965,7 +1017,8 @@ class ActorState(BaseComponent):
         # Check turns
         if self.is_detecting_obj[0] >= self.is_detecting_obj[1] and self.is_detecting_obj[1] > 0: # Stop detecting
             if self.parent == self.engine.player:
-                self.engine.message_log.add_message(f"당신은 감각이 다시 원래대로 돌아오는 것을 느꼈다.", target=self.parent, fg=color.player_neutral)
+                self.engine.message_log.add_message(i(f"당신은 감각이 다시 원래대로 돌아오는 것을 느꼈다.",
+                                                      f"Your senses come back to normal."), target=self.parent, fg=color.player_neutral)
             self.apply_object_detection([0,0,[]])
         elif self.is_detecting_obj[1] >= 0: # lasts forever if negative
             self.is_detecting_obj[0] += 1
@@ -1303,9 +1356,11 @@ class ActorState(BaseComponent):
             # Wakeup log
             if self.is_sleeping != [0, 0] and value == [0, 0]:
                 if self.parent == self.engine.player:
-                    self.engine.message_log.add_message(f"당신은 잠에서 깨어났다!", fg=color.player_neutral_important)
+                    self.engine.message_log.add_message(i(f"당신은 잠에서 깨어났다!",
+                                                          f"You wake up!"), fg=color.player_neutral_important)
                 else:
-                    self.engine.message_log.add_message(f"{g(self.parent.name, '은')} 잠에서 깨어났다!", fg=color.enemy_unique,
+                    self.engine.message_log.add_message(i(f"{g(self.parent.name, '은')} 잠에서 깨어났다!",
+                                                          f"{self.parent.name} wakes up!"), fg=color.enemy_unique,
                                                         target=self.parent)
             self.is_sleeping = value
 
@@ -1323,7 +1378,8 @@ class ActorState(BaseComponent):
         elif sleep_on_will:
             if not self.can_sleep and value != [0,0]:
                 if self.parent == self.engine.player:
-                    self.engine.message_log.add_message(f"당신은 잠을 자려 시도했지만 잠이 오지 않는다!", fg=color.player_success)
+                    self.engine.message_log.add_message(i(f"당신은 잠을 자려 시도했지만 잠이 오지 않는다!",
+                                                          f"You try to take a sleep but fail!"), fg=color.player_success)
                 return None
             else:
                 return self.sleep_success(value)
@@ -1333,9 +1389,11 @@ class ActorState(BaseComponent):
         else:
             if value != [0,0]:
                 if self.parent == self.engine.player:
-                    self.engine.message_log.add_message(f"당신은 잠에 저항했다!", fg=color.player_success)
+                    self.engine.message_log.add_message(i(f"당신은 잠에 저항했다!",
+                                                          f"You resist sleep!"), fg=color.player_success)
                 else:
-                    self.engine.message_log.add_message(f"{g(self.parent.name, '은')} 잠에 저항했다!", fg=color.enemy_unique, target=self.parent)
+                    self.engine.message_log.add_message(i(f"{g(self.parent.name, '은')} 잠에 저항했다!",
+                                                          f"{self.parent.name} resists sleep!"), fg=color.enemy_unique, target=self.parent)
 
     def apply_anger(self, value: List[int,int]) -> None:
         if self.has_inner_peace:

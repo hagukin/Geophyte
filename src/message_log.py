@@ -4,6 +4,8 @@ from util import draw_thick_frame
 import tcod
 import color
 
+from game import Game
+from language import interpret
 from util import get_distance
 from typing import Iterable, List, Reversible, Tuple
 from entity import Entity, Actor
@@ -46,6 +48,8 @@ class MessageLog:
         """
         if text == '':
             return None
+        if Game.language == "EN":
+            text = text.capitalize()
 
         if target:
             if not self.engine.game_map.visible[target.x, target.y]:
@@ -74,7 +78,7 @@ class MessageLog:
         speak_text = text
         speaker_fg = speaker.fg
         if not self.engine.game_map.visible[speaker.x, speaker.y]:
-            speaker_name = "(시야에 없음)"
+            speaker_name = interpret("(시야에 없음)", "(out of sight)")
             speaker_fg = color.white
 
             # Will change some characters of the text to "?" to give a effect of not clearly hearing things that arew too far or out of sight.
@@ -85,7 +89,7 @@ class MessageLog:
                     speak_text[i] = '?'
 
         if not speaker.actor_state.can_talk:
-            speak_text = "(알아들을 수 없음)"
+            speak_text = interpret("(알아들을 수 없음)", "(unrecognizable)")
 
         self.add_message(f"{speaker_name}: ", speaker_fg, target=speaker, stack=stack, show_once=show_once)
         self.add_message(speak_text, fg, target=speaker, stack=stack, show_once=show_once)
@@ -100,7 +104,7 @@ class MessageLog:
 
         if draw_frame:
             draw_thick_frame(console, x=x-1, y=y-1, width=width+2, height=height+2, fg=color.gui_frame_fg, bg=color.gui_frame_bg)
-            #console.draw_frame(x=x-1, y=y-1, width=width+2, height=height+2, clear=False, fg=color.gui_frame_fg, bg=color.gui_frame_bg)
+            console.draw_frame(x=x-1, y=y-1, width=width+2, height=height+2, clear=False, fg=color.gui_frame_fg, bg=color.gui_frame_bg)
 
     @staticmethod
     def wrap(string: str, width: int) -> Iterable[str]:

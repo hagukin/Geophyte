@@ -3,6 +3,7 @@ from typing import List, TYPE_CHECKING
 from components.base_component import BaseComponent
 from korean import grammar as g
 from order import AbilityOrder
+from language import interpret as i
 
 import color
 
@@ -66,9 +67,11 @@ class AbilityInventory(BaseComponent):
 
         if self.parent == self.engine.player:
             if ability.ability_type == AbilityOrder.REGULAR_SKILL or ability.ability_type == AbilityOrder.PASSIVE_SKILL:
-                self.engine.message_log.add_message(f"당신은 {ability.name} 기술을 습득했다!", fg=color.player_success)
+                self.engine.message_log.add_message(i(f"당신은 새로운 기술을 습득했다! - {ability.name}",
+                                                      f"You have learned a new skill! - {ability.name}"), fg=color.player_success)
             else:
-                self.engine.message_log.add_message(f"당신은 {ability.name} 마법을 습득했다!", fg=color.player_success)
+                self.engine.message_log.add_message(i(f"당신은 새로운 마법을 습득했다! - {ability.name}",
+                                                      f"You have learned a new spell! - {ability.name}"), fg=color.player_success)
         self.add_ability(ability)
 
     def add_ability(self, ability: Ability) -> None:

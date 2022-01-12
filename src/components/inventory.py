@@ -6,6 +6,7 @@ from components.base_component import BaseComponent
 from components.status import Bonus
 from exceptions import Impossible
 from korean import grammar as g
+from language import interpret as i
 
 if TYPE_CHECKING:
     from entity import Actor, Item
@@ -50,30 +51,39 @@ class Inventory(BaseComponent):
             return
         else:
             self.is_waterproof = value
-            if value:
-                self.engine.message_log.add_message("당신의 인벤토리는 더 이상 물에 젖지 않게 되었다!", fg=color.player_buff)
-            else:
-                self.engine.message_log.add_message("당신의 인벤토리는 이제 물에 젖을 수 있다.", fg=color.player_debuff)
+            if self.parent == self.engine.player:
+                if value:
+                    self.engine.message_log.add_message(i("당신의 인벤토리는 더 이상 물에 젖지 않게 되었다!",
+                                                          f"Your inventory is now waterproof!"), fg=color.player_buff)
+                else:
+                    self.engine.message_log.add_message(i("당신의 인벤토리는 이제 물에 젖을 수 있다.",
+                                                          f"Your inventory is no longer waterproof."), fg=color.player_debuff)
 
     def apply_fireproof(self, value:bool) -> None:
         if self.is_fireproof == value:
             return
         else:
             self.is_fireproof = value
-            if value:
-                self.engine.message_log.add_message("당신의 인벤토리는 더 이상 불이 붙지 않게 되었다!", fg=color.player_buff)
-            else:
-                self.engine.message_log.add_message("당신의 인벤토리는 이제 불이 붙을 수 있다.", fg=color.player_debuff)
+            if self.parent == self.engine.player:
+                if value:
+                    self.engine.message_log.add_message(i("당신의 인벤토리는 더 이상 불이 붙지 않게 되었다!",
+                                                          f"Your inventory is now fireproof!"), fg=color.player_buff)
+                else:
+                    self.engine.message_log.add_message(i("당신의 인벤토리는 이제 불이 붙을 수 있다.",
+                                                          f"Your inventory is no longer fireproof."), fg=color.player_debuff)
 
     def apply_acidproof(self, value:bool) -> None:
         if self.is_acidproof == value:
             return
         else:
             self.is_acidproof = value
-            if value:
-                self.engine.message_log.add_message("당신의 인벤토리는 더 이상 산성 물질에 녹지 않게 되었다!", fg=color.player_buff)
-            else:
-                self.engine.message_log.add_message("당신의 인벤토리는 이제 산성 물질에 녹을 수 있다.", fg=color.player_debuff)
+            if self.parent == self.engine.player:
+                if value:
+                    self.engine.message_log.add_message(i("당신의 인벤토리는 더 이상 산성 물질에 녹지 않게 되었다!",
+                                                          f"Your inventory is now acidproof!"), fg=color.player_buff)
+                else:
+                    self.engine.message_log.add_message(i("당신의 인벤토리는 이제 산성 물질에 녹을 수 있다.",
+                                                          f"Your inventory is no longer acidproof."), fg=color.player_debuff)
 
     def is_empty(self) -> bool:
         for item in self.item_hotkeys.values():
@@ -100,7 +110,8 @@ class Inventory(BaseComponent):
             self.parent.actor_state.encumbrance = 1
             if self.parent.actor_state.previous_encumbrance != self.parent.actor_state.encumbrance:
                 if self.parent == self.engine.player and not self.parent.is_dead:
-                    self.engine.message_log.add_message("당신은 약간의 불편함을 느낀다.", fg=color.white)
+                    self.engine.message_log.add_message(i("당신은 약간의 불편함을 느낀다.",
+                                                          f"You feel burdened."), fg=color.white)
                     if self.engine.sound_manager:
                         if self.parent.actor_state.previous_encumbrance < self.parent.actor_state.encumbrance:
                             self.engine.sound_manager.add_sound_queue("fx_burden")
@@ -112,7 +123,8 @@ class Inventory(BaseComponent):
             self.parent.actor_state.encumbrance = 2
             if self.parent.actor_state.previous_encumbrance != self.parent.actor_state.encumbrance:
                 if self.parent == self.engine.player and not self.parent.is_dead:
-                    self.engine.message_log.add_message("당신은 다소 불편함을 느낀다.", fg=color.player_not_good)
+                    self.engine.message_log.add_message(i("당신은 다소 불편함을 느낀다.",
+                                                          f"You feel stressed."), fg=color.player_not_good)
                     if self.engine.sound_manager:
                         if self.parent.actor_state.previous_encumbrance < self.parent.actor_state.encumbrance:
                             self.engine.sound_manager.add_sound_queue("fx_burden")
@@ -124,7 +136,8 @@ class Inventory(BaseComponent):
             self.parent.actor_state.encumbrance = 3
             if self.parent.actor_state.previous_encumbrance != self.parent.actor_state.encumbrance:
                 if self.parent == self.engine.player and not self.parent.is_dead:
-                    self.engine.message_log.add_message("당신은 불편함을 느낀다.", fg=color.player_bad)
+                    self.engine.message_log.add_message(i("당신은 불편함을 느낀다.",
+                                                          f"You are overloaded. You feel very stressed."), fg=color.player_bad)
                     if self.engine.sound_manager:
                         if self.parent.actor_state.previous_encumbrance < self.parent.actor_state.encumbrance:
                             self.engine.sound_manager.add_sound_queue("fx_burden")
@@ -136,7 +149,8 @@ class Inventory(BaseComponent):
             self.parent.actor_state.encumbrance = 4
             if self.parent.actor_state.previous_encumbrance != self.parent.actor_state.encumbrance:
                 if self.parent == self.engine.player and not self.parent.is_dead:
-                    self.engine.message_log.add_message("당신은 심한 불편함을 느낀다.", fg=color.player_severe)
+                    self.engine.message_log.add_message(i("당신은 심한 불편함을 느낀다.",
+                                                          f"You are seriously overloaded. You feel incredibly stressed."), fg=color.player_severe)
                     if self.engine.sound_manager:
                         if self.parent.actor_state.previous_encumbrance < self.parent.actor_state.encumbrance:
                             self.engine.sound_manager.add_sound_queue("fx_burden")
@@ -255,14 +269,18 @@ class Inventory(BaseComponent):
                 self.engine.sound_manager.add_sound_queue("fx_drop")
                 if item.stack_count > 1:
                     self.engine.message_log.add_message(
-                        f"당신은 {g(item.name, '을')} 땅에 떨어뜨렸다. (x{item.stack_count}).",fg=color.player_neutral_important)
+                        i(f"당신은 {g(item.name, '을')} 땅에 떨어뜨렸다. (x{item.stack_count})",
+                          f"You drop your {item.name}. (x{item.stack_count})"),fg=color.player_neutral_important)
                 else:
-                    self.engine.message_log.add_message(f"당신은 {g(item.name, '을')} 땅에 떨어뜨렸다.",fg=color.player_neutral_important)
+                    self.engine.message_log.add_message(i(f"당신은 {g(item.name, '을')} 땅에 떨어뜨렸다.",
+                                                          f"You drop your {item.name}."),fg=color.player_neutral_important)
             else:
                 if item.stack_count > 1:
-                    self.engine.message_log.add_message(f"{g(self.parent.name, '이')} {g(item.name, '을')} 땅에 떨어뜨렸다. (x{item.stack_count}).",fg=color.enemy_neutral, target=self.parent)
+                    self.engine.message_log.add_message(i(f"{g(self.parent.name, '이')} {g(item.name, '을')} 땅에 떨어뜨렸다. (x{item.stack_count})",
+                                                          f"{self.parent.name} dropped {item.name}. (x{item.stack_count})"),fg=color.enemy_neutral, target=self.parent)
                 else:
-                    self.engine.message_log.add_message(f"{g(self.parent.name, '이')} {g(item.name, '을')} 땅에 떨어뜨렸다.", fg=color.enemy_neutral,target=self.parent)
+                    self.engine.message_log.add_message(i(f"{g(self.parent.name, '이')} {g(item.name, '을')} 땅에 떨어뜨렸다.",
+                                                          f"{self.parent.name} dropped {item.name}."), fg=color.enemy_neutral,target=self.parent)
             item.place(self.parent.x, self.parent.y, self.parent.gamemap)
             return False
         return True
@@ -275,7 +293,9 @@ class Inventory(BaseComponent):
             Whether the adding was successful or not
         """
         if self.check_if_full():
-            self.engine.message_log.add_message("인벤토리가 가득 찼습니다.", fg=color.impossible)
+            if self.parent == self.engine.player:
+                self.engine.message_log.add_message(i("인벤토리가 가득 찼습니다.",
+                                                      f"Your inventory is full."), fg=color.impossible)
             return False
 
         if item.stackable:
@@ -340,7 +360,8 @@ class Inventory(BaseComponent):
         WARNING: This function does not automatically puts item in the inventory.
         """
         if item.stack_count <= 1:
-            self.engine.message_log.add_message(f"{g(item.name, '은')} 더 이상 나눌 수 없습니다.", fg=color.impossible)
+            self.engine.message_log.add_message(i(f"{g(item.name, '은')} 더 이상 나눌 수 없습니다.",
+                                                  f"{item.name} can't be splitted anymore."), fg=color.impossible)
             # This part of the code should never be reached. filtered from input handler.
             return None
 
@@ -354,11 +375,13 @@ class Inventory(BaseComponent):
                 self.decrease_item_stack(item, remove_count=split_amount) # item is removed automatically, but is not added automatically.
                 return spliten_item
             else:
-                self.engine.message_log.add_message(f"최소한 하나 이상을 선택하세요.", fg=color.impossible)
+                self.engine.message_log.add_message(i(f"최소한 하나 이상을 선택하세요.",
+                                                      f"You need to select at least 1."), fg=color.impossible)
                 # This part of the code should never be reached. filtered from input handler.
                 return None
         else:
-            self.engine.message_log.add_message(f"최대 {item.stack_count - 1}개 까지만 선택할 수 있습니다.", fg=color.impossible)
+            self.engine.message_log.add_message(i(f"최대 {item.stack_count - 1}개 까지만 선택할 수 있습니다.",
+                                                  f"You can only select up to {item.stack_count - 1}."), fg=color.impossible)
             # This part of the code should never be reached. filtered from input handler.
             return None
 

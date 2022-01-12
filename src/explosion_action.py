@@ -4,6 +4,7 @@ from tcod.map import compute_fov
 from entity import Entity, Actor, Item
 from util import get_distance
 from korean import grammar as g
+from language import interpret as i
 from actions import Action
 
 import anim_graphics
@@ -128,9 +129,11 @@ class ExplodeAction(RadiusAction):
         distance = get_distance(self.entity.x, self.entity.y, actor.x, actor.y)
         dmg = actor.status.calculate_dmg_reduction(self.real_dmg(dist=distance), "explosion")
         if actor == self.engine.player:
-            self.engine.message_log.add_message(f"당신은 폭발로부터 {dmg} 데미지를 받았다.", color.player_bad)
+            self.engine.message_log.add_message(i(f"당신은 폭발로부터 {dmg} 데미지를 받았다.",
+                                                  f"You took {dmg} damage from the explosion."), color.player_bad)
         else:
-            self.engine.message_log.add_message(f"{g(actor.name, '이')} 폭발로부터 {dmg} 데미지를 받았다.", color.yellow, target=actor)
+            self.engine.message_log.add_message(i(f"{g(actor.name, '이')} 폭발로부터 {dmg} 데미지를 받았다.",
+                                                  f"{actor.name} took {dmg} damage from the explosion."), color.yellow, target=actor)
         actor.status.take_damage(dmg)
 
     def item_in_radius_action(self, item: Item):

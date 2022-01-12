@@ -8,6 +8,7 @@ import configuration as modify
 from sound import SoundManager
 from typing import Optional
 from game import Game
+from language import interpret as i
 
 class OptionInputHandler(tcod.event.EventDispatch[None]):
     """
@@ -80,6 +81,9 @@ class GameplayInputHandler(tcod.event.EventDispatch[None]):
     """
     Handles every inputs that are made in the title screen.
     """
+    def __init__(self, game_started: bool):
+        self.game_started = game_started
+
     def ev_keydown(self, event):
         if event.sym == tcod.event.K_ESCAPE:
             return "escape"
@@ -87,28 +91,52 @@ class GameplayInputHandler(tcod.event.EventDispatch[None]):
             return "toggle_animation"
         elif event.sym == tcod.event.K_s:
             return "toggle_autosave"
+        elif event.sym == tcod.event.K_l:
+            if not self.game_started:
+                return "change_language"
+            else:
+                return "fail_to_change_language"
+
 
 
 class ResetInputHandler(tcod.event.EventDispatch[None]):
     """
     Handles every inputs that are made in the title screen.
     """
+    def __init__(self, game_started: bool):
+        self.game_started = game_started
+
     def ev_keydown(self, event):
         if event.sym == tcod.event.K_y:
-            return "reset"
+            if not self.game_started:
+                return "reset"
+            else:
+                return "fail_to_reset"
         elif event.sym == tcod.event.K_ESCAPE or event.sym == tcod.event.K_n:
             return "escape"
 
 
 class Option():
-    option_keys = ["(d) 디스플레이 설정", "(c) 컨트롤 설정", "(s) 사운드 설정", "(g) 게임플레이 설정", "(r) 설정 초기화"]
-    display_option_keys = ["(+/-) 디스플레이 해상도 증가/감소", "(f) 전체 화면 모드/창 모드 전환"]
-    control_option_keys = ["(i) 안전한 마우스 이동 사용/사용 해제"]
-    sound_option_keys = ["(+/-) 마스터 볼륨 증가/감소", "(쉬프트를 누른 채 +/-) 10% 단위로 조작"]
-    gameplay_option_keys = ["(a) 애니메이션 효과 사용/사용 해제", "(s) 게임 종료 시 자동저장 사용/사용 해제"]
-    reset_option_keys = ["(y) 초기화", "(n) 취소"]
     opt_x = 0
     opt_y = 0
+
+    @staticmethod
+    def update_lang():
+        Option.option_keys = [i("(d) 디스플레이 설정", "(d) Display settings"),
+                               i("(c) 컨트롤 설정", "(c) Control settings"),
+                               i("(s) 사운드 설정", "(s) Sound settings"),
+                               i("(g) 게임플레이 설정/Gameplay settings", "(g) Gameplay settings/게임플레이 설정"),
+                               i("(r) 설정 초기화", "(r) Reset settings")]
+        Option.display_option_keys = [i("(+/-) 디스플레이 해상도 증가/감소", "(+/-) Increase/Decrease display resolution"),
+                               i("(f) 전체 화면 모드/창 모드 전환", "(f) Fullscreen/Windowed mode")]
+        Option.control_option_keys = [i("(i) 안전한 마우스 이동 사용/사용 해제", "(i) Enable/Disable safe mouse movement")]
+        Option.sound_option_keys = [i("(+/-) 마스터 볼륨 증가/감소", "(+/-) Increase/Decrease master volume"),
+                             i("(쉬프트를 누른 채 +/-) 10% 단위로 조작", "(+/- while pressing shift) Adjust by 10%")]
+        Option.gameplay_option_keys = [i("(a) 애니메이션 효과 사용/사용 해제", "(a) Enable/Disable animation"),
+                                i("(s) 게임 종료 시 자동저장 사용/사용 해제", "(s) Enable/Disable autosave"),
+                                i("(l) 언어 변경/Change language", "(l) Change language/언어 변경")]
+        Option.reset_option_keys = [i("(y) 초기화", "(y) Reset"),
+                             i("(n) 취소", "(n) Cancel")]
 
     @staticmethod
     def get_input_action(input_handler):
@@ -136,22 +164,22 @@ class Option():
         texts = None
         if type == 'option':
             texts = Option.option_keys
-            opt_title = "설정"
+            opt_title = i("설정", "Option")
         elif type == 'display':
             texts = Option.display_option_keys
-            opt_title = "디스플레이 설정"
+            opt_title = i("디스플레이 설정", "Display settings")
         elif type == 'control':
             texts = Option.control_option_keys
-            opt_title = "컨트롤 설정"
+            opt_title = i("컨트롤 설정", "Control settings")
         elif type == 'sound':
             texts = Option.sound_option_keys
-            opt_title  = "사운드 설정"
+            opt_title  = i("사운드 설정", "Sound settings")
         elif type == 'gameplay':
             texts = Option.gameplay_option_keys
-            opt_title = "게임플레이 설정"
+            opt_title = i("게임플레이 설정", "Gameplay settings")
         elif type == 'reset':
             texts = Option.reset_option_keys
-            opt_title = "설정을 초기화하시겠습니까?"
+            opt_title = i("설정을 초기화하시겠습니까?", "Do you really want to reset your settings?")
         else:
             raise Exception("FATAL ERROR::option.render_gui - something went wrong.")
 
@@ -174,10 +202,13 @@ class Option():
         with open("./config/config.json", "r") as f:
             cfg = json.load(f)
 
-        fullscreen_str = lambda x : "전체화면" if x else "창 모드"
-        console.print(Option.opt_x + 2, Option.opt_y + 2, string=f"\n창 모드 사용이 권장됩니다.\n\n디스플레이 관련 설정은 게임을 다시 시작해야 적용됩니다.\
+        fullscreen_str = lambda x : i("전체화면","fullscreen") if x else i("창 모드","windowed")
+        console.print(Option.opt_x + 2, Option.opt_y + 2, string=i(f"\n창 모드 사용이 권장됩니다.\n\n디스플레이 관련 설정은 게임을 다시 시작해야 적용됩니다.\
         \n\n\n\n해상도: {cfg['screen_width'] * cfg['tile_width']} x {cfg['screen_height'] * cfg['tile_height']}\
-        \n\n화면 모드: {fullscreen_str(cfg['fullscreen'])}", fg=color.option_fg)
+        \n\n화면 모드: {fullscreen_str(cfg['fullscreen'])}",
+                                                                   f"\nWindowed mode is recommended.\n\nRestart the game to apply new display settings.\
+        \n\n\n\nResolution: {cfg['screen_width'] * cfg['tile_width']} x {cfg['screen_height'] * cfg['tile_height']}\
+        \n\nScreen mode: {fullscreen_str(cfg['fullscreen'])}"), fg=color.option_fg)
         Option.render_gui_keys(console, context, 'display', initial_y=14) # TODO Hard-coded
         context.present(console, keep_aspect=True)
 
@@ -187,10 +218,12 @@ class Option():
         with open("./config/config.json", "r") as f:
             cfg = json.load(f)
 
-        string = lambda x: "활성화" if not x else "비활성화"
-        console.print(Option.opt_x + 2, Option.opt_y + 2, string=f"\n\n안전한 마우스 이동: {string(cfg['ignore_enemy_spotted_during_mouse_movement'])}"
-                                                                 f"\n활성화할 경우 마우스 클릭으로 이동하는 도중 새로운 액터가 시야에 들어오거나 시야에 있던 액터가 시야에서 사라지면 이동을 중지합니다", fg=color.option_fg)
-        Option.render_gui_keys(console, context, 'control', initial_y=6)  # TODO Hard-coded
+        string = lambda x: i("활성화","enabled") if not x else i("비활성화","disabled")
+        console.print(Option.opt_x + 2, Option.opt_y + 2, string=i(f"\n\n안전한 마우스 이동: {string(cfg['ignore_enemy_spotted_during_mouse_movement'])}"
+                                                                 f"\n\n활성화할 경우 마우스 클릭으로 이동하는 도중 새로운 액터가 시야에 들어오거나 시야에 있던 액터가 시야에서 사라지면 이동을 중지합니다.",
+                                                                   f"\n\nSafe mouse movement: {string(cfg['ignore_enemy_spotted_during_mouse_movement'])}"
+                                                                 f"\n\nWhen enabled, you will stop moving when a new actor appears/disappears in your sight."), fg=color.option_fg)
+        Option.render_gui_keys(console, context, 'control', initial_y=7)  # TODO Hard-coded
         context.present(console, keep_aspect=True)
 
     @staticmethod
@@ -199,7 +232,8 @@ class Option():
         with open("./config/config.json", "r") as f:
             cfg = json.load(f)
 
-        console.print(Option.opt_x + 2, Option.opt_y + 2, string=f"\n\n마스터 볼륨: {cfg['master_volume']}%", fg=color.option_fg)
+        console.print(Option.opt_x + 2, Option.opt_y + 2, string=i(f"\n\n마스터 볼륨: {cfg['master_volume']}%",
+                                                                   f"\n\nMaster volume: {cfg['master_volume']}%"), fg=color.option_fg)
         Option.render_gui_keys(console, context, 'sound', initial_y=5)  # TODO Hard-coded
         context.present(console, keep_aspect=True)
 
@@ -209,10 +243,17 @@ class Option():
         with open("./config/config.json", "r") as f:
             cfg = json.load(f)
 
-        string = lambda x : "활성화" if x else "비활성화"
-        console.print(Option.opt_x + 2, Option.opt_y + 2, string=f"\n\n애니메이션 효과: {string(cfg['render_animation'])}"
-                                                                 f"\n\n게임 종료 시 자동저장: {string(cfg['autosave'])}", fg=color.option_fg)
-        Option.render_gui_keys(console, context, 'gameplay', initial_y=8)  # TODO Hard-coded
+        string = lambda x : i("활성화","enabled") if x else i("비활성화","disabled")
+        stringlang = lambda x : "한국어/Korean" if x == "KR" else ("English/영어" if x == "EN" else "Unknown language. Using English instead.")
+        console.print(Option.opt_x + 2, Option.opt_y + 2, string=i(f"\n\n애니메이션 효과: {string(cfg['render_animation'])}"
+                                                                 f"\n\n게임 종료 시 자동저장: {string(cfg['autosave'])}"
+                                                                   f"\n\n현재 언어: {stringlang(cfg['lang'])}"
+                                                                   f"\n\n게임 플레이 중에는 언어를 변경할 수 없습니다.",
+                                                                   f"\n\nAnimation: {string(cfg['render_animation'])}"
+                                                                 f"\n\nAutosave: {string(cfg['autosave'])}"
+                                                                   f"\n\nCurrent language: {stringlang(cfg['lang'])}"
+                                                                   f"\n\nYou can't change the language during the game."), fg=color.option_fg)
+        Option.render_gui_keys(console, context, 'gameplay', initial_y=12)  # TODO Hard-coded
         context.present(console, keep_aspect=True)
 
     @staticmethod
@@ -221,8 +262,11 @@ class Option():
         with open("./config/config.json", "r") as f:
             cfg = json.load(f)
 
-        console.print(Option.opt_x + 2, Option.opt_y + 2, string=f"\n\n설정 초기화는 게임을 다시 시작해야 적용됩니다.", fg=color.option_fg)
-        Option.render_gui_keys(console, context, 'reset', initial_y=5)  # TODO Hard-coded
+        console.print(Option.opt_x + 2, Option.opt_y + 2, string=i(f"\n\n설정 초기화는 게임을 다시 시작해야 적용됩니다."
+                                                                   "\n\n게임 플레이 중에는 설정을 초기화할 수 없습니다.",
+                                                                   f"\n\nRestart the game after resetting the settings."
+                                                                   "\n\nYou can't reset the settings during the game."), fg=color.option_fg)
+        Option.render_gui_keys(console, context, 'reset', initial_y=8)  # TODO Hard-coded
         context.present(console, keep_aspect=True)
 
     @staticmethod
@@ -332,16 +376,21 @@ class Option():
             cfg = json.load(f)
 
         # remove any leftover messages on the screen from previous changes
+        Option.update_lang()
         Option.render_gameplay_option_gui(console, context)
 
         #  Set Input Handler
-        display_action = Option.get_input_action(GameplayInputHandler())
+        display_action = Option.get_input_action(GameplayInputHandler(game_started))
         if display_action == "escape":
             return False
         elif display_action == "toggle_animation":
             modify.toggle_animation(not cfg['render_animation'])
         elif display_action == "toggle_autosave":
             modify.toggle_autosave(not cfg['autosave'])
+        elif display_action == "change_language":
+            modify.change_language()
+        elif display_action == "fail_to_change_language":
+            pass
         return True
 
     @staticmethod
@@ -355,7 +404,7 @@ class Option():
         Option.render_reset_option_gui(console, context)
 
         #  Set Input Handler
-        display_action = Option.get_input_action(ResetInputHandler())
+        display_action = Option.get_input_action(ResetInputHandler(game_started))
         if display_action == "reset":
             try:
                 with open("./config/config_default.json", "r") as f:
@@ -366,6 +415,8 @@ class Option():
                 pass
         elif display_action == "escape":
             return False
+        elif display_action == "fail_to_reset":
+            pass
 
         return True
 

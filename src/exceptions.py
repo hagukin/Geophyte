@@ -8,3 +8,8 @@ class ConfigException(Exception):
     """
     EXception raised when user tried to modify the config file but failed.
     """
+
+class DiffLangException(Exception):
+    """
+    Exception raised when trying to load a gamefile that has a different language.
+    """

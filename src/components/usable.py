@@ -4,6 +4,7 @@ from typing import Optional, TYPE_CHECKING, Tuple, List
 
 from components.base_component import BaseComponent
 from korean import grammar as g
+from language import interpret as i
 from order import InventoryOrder
 
 import actions
@@ -44,7 +45,8 @@ class Usable(BaseComponent):
             return
         self.parent.parent.decrease_item_stack(self.parent, remove_count=1)
         if show_msg and consumer == self.engine.player:
-            self.engine.message_log.add_message(f"당신의 {g(self.parent.name, '이')} 소모되었다.", color.player_bad)
+            self.engine.message_log.add_message(i(f"당신의 {g(self.parent.name, '이')} 소모되었다.",
+                                                  f"Your {self.parent.name} is consumed."), color.player_bad)
 
     def item_use_cancelled(self, actor: Actor) -> actions.Action:
         """
@@ -60,7 +62,8 @@ class SelectItemFromInventoryUsable(Usable):
         if cancelled:
             return self.item_use_cancelled(actor=user)
 
-        self.engine.message_log.add_message("아이템을 선택하세요.", color.help_msg)
+        self.engine.message_log.add_message(i("아이템을 선택하세요.",
+                                              f"Choose an item."), color.help_msg)
 
         from input_handlers import InventoryChooseItemAndCallbackHandler
         self.engine.event_handler = InventoryChooseItemAndCallbackHandler(
@@ -86,7 +89,8 @@ class WaxUsable(SelectItemFromInventoryUsable):
         if cancelled:
             return self.item_use_cancelled(actor=user)
 
-        self.engine.message_log.add_message("아이템을 선택하세요.", color.help_msg)
+        self.engine.message_log.add_message(i("아이템을 선택하세요.",
+                                              f"Choose an item."), color.help_msg)
 
         from input_handlers import InventoryChooseItemAndCallbackHandler
         self.engine.event_handler = InventoryChooseItemAndCallbackHandler(
@@ -119,9 +123,11 @@ class RustproofWaxUsable(WaxUsable):
 
     def effects_on_selected_item(self, user: Actor, selected_item: Item) -> None:
         if user == self.engine.player:
-            self.engine.message_log.add_message(f"당신은 {g(self.parent.name, '을')} {selected_item.name}에 사용했다.",fg=color.player_neutral_important)
+            self.engine.message_log.add_message(i(f"당신은 {g(self.parent.name, '을')} {selected_item.name}에 사용했다.",
+                                                  f"You used {self.parent.name} on your {selected_item.name}."),fg=color.player_neutral_important)
         else:
-            self.engine.message_log.add_message(f"{g(user.name, '은')} {g(self.parent.name, '을')} {selected_item.name}에 사용했다.", fg=color.player_neutral_important)
+            self.engine.message_log.add_message(i(f"{g(user.name, '은')} {g(self.parent.name, '을')} {selected_item.name}에 사용했다.",
+                                                  f"{user.name} used {self.parent.name} on its {selected_item.name}."), fg=color.player_neutral_important)
 
         if selected_item.corrodible <= 0:
             return None # Does nothing if the item is already non-corrodible.
@@ -129,13 +135,15 @@ class RustproofWaxUsable(WaxUsable):
         if self.parent.item_state.BUC == -1:
             selected_item.corrodible = round(min(1, selected_item.corrodible + self.corrodible_modifier), 3)
             if user == self.engine.player:
-                self.engine.message_log.add_message(f"당신의 {g(selected_item.name, '으로')}부터 퀴퀴한 냄새가 난다.", fg=color.player_not_good)
+                self.engine.message_log.add_message(i(f"당신의 {g(selected_item.name, '으로')}부터 퀴퀴한 냄새가 난다.",
+                                                      f"Your {selected_item.name} starts smelling bad."), fg=color.player_not_good)
         else:
             if self.parent.item_state.BUC == 1:
                 self.corrodible_modifier *= 2
             selected_item.corrodible = round(min(max(0.0, selected_item.corrodible - self.corrodible_modifier), selected_item.corrodible), 3)
             if user == self.engine.player:
-                self.engine.message_log.add_message(f"당신의 {g(selected_item.name, '으로')}부터 향긋한 냄새가 난다.", fg=color.player_not_good)
+                self.engine.message_log.add_message(i(f"당신의 {g(selected_item.name, '으로')}부터 향긋한 냄새가 난다.",
+                                                      f"Your {selected_item.name} starts smelling nice."), fg=color.player_not_good)
 
 
 
@@ -153,9 +161,11 @@ class FireproofWaxUsable(WaxUsable):
 
     def effects_on_selected_item(self, user: Actor, selected_item: Item) -> None:
         if user == self.engine.player:
-            self.engine.message_log.add_message(f"당신은 {g(self.parent.name, '을')} {selected_item.name}에 사용했다.",fg=color.player_neutral_important)
+            self.engine.message_log.add_message(i(f"당신은 {g(self.parent.name, '을')} {selected_item.name}에 사용했다.",
+                                                  f"You used {self.parent.name} on your {selected_item.name}."),fg=color.player_neutral_important)
         else:
-            self.engine.message_log.add_message(f"{g(user.name, '은')} {g(self.parent.name, '을')} {selected_item.name}에 사용했다.", fg=color.player_neutral_important)
+            self.engine.message_log.add_message(i(f"{g(user.name, '은')} {g(self.parent.name, '을')} {selected_item.name}에 사용했다.",
+                                                  f"{user.name} used {self.parent.name} on its {selected_item.name}."),fg=color.player_neutral_important)
 
         if selected_item.flammable <= 0:
             return None # Does nothing if the item is already non-flammable.
@@ -163,13 +173,15 @@ class FireproofWaxUsable(WaxUsable):
         if self.parent.item_state.BUC == -1:
             selected_item.flammable = round(min(1, selected_item.flammable + self.flammable_modifier), 3)
             if user == self.engine.player:
-                self.engine.message_log.add_message(f"당신의 {g(selected_item.name, '으로')}부터 퀴퀴한 냄새가 난다.", fg=color.player_not_good)
+                self.engine.message_log.add_message(i(f"당신의 {g(selected_item.name, '으로')}부터 퀴퀴한 냄새가 난다.",
+                                                      f"Your {selected_item.name} starts smelling bad."),fg=color.player_not_good)
         else:
             if self.parent.item_state.BUC == 1:
                 self.flammable_modifier *= 2
             selected_item.flammable = round(min(max(0.0, selected_item.flammable - self.flammable_modifier), selected_item.flammable), 3)
             if user == self.engine.player:
-                self.engine.message_log.add_message(f"당신의 {g(selected_item.name, '으로')}부터 향긋한 냄새가 난다.", fg=color.player_not_good)
+                self.engine.message_log.add_message(i(f"당신의 {g(selected_item.name, '으로')}부터 향긋한 냄새가 난다.",
+                                                      f"Your {selected_item.name} starts smelling nice."),fg=color.player_not_good)
 
 
 

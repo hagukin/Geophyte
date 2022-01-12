@@ -3,12 +3,13 @@ import terrain_factories
 import tiles
 import copy
 import color
+from language import interpret as i
 
 biome_dict = {}
 biome_rarity = []
 
 rocky_dungeon = Biome(
-    name="돌무더기",
+    name=i("돌무더기", f"rocky dungeon"),
     biome_bgm_id="bgm_mystical_beginning",
     biome_id="rocky_dungeon",
     biome_desc="Desc of rocky dungeon biome (TEST)",
@@ -27,7 +28,7 @@ def rocky_dungeon_small(max_rooms: int, room_x_spacing: int):
     return tmp
 
 crystal_cavern = Biome(
-    name="석영 동굴",
+    name=i("석영 동굴", f"crystal cavern"),
     biome_bgm_id="bgm_mystic_train",
     biome_id="crystal_cavern",
     biome_desc="Desc of crystal cavern biome (TEST)",
@@ -47,7 +48,7 @@ biome_dict[crystal_cavern.biome_id] = crystal_cavern
 biome_rarity.append(crystal_cavern.rarity)
 
 forest = Biome(
-    name="숲",
+    name=i("숲", "forest"),
     biome_bgm_id="bgm_pianomotive",
     biome_id="forest",
     biome_desc="Desc of forest biome (TEST)",
@@ -82,7 +83,7 @@ biome_rarity.append(forest.rarity)
 
 
 desert_dungeon = Biome(
-    name="사막",
+    name=i("사막", "desert dungeon"),
     biome_bgm_id="bgm_virtual_relaxation",
     biome_id="desert_dungeon",
     biome_desc="desert_dungeon (TEST)",
@@ -102,7 +103,7 @@ biome_rarity.append(desert_dungeon.rarity)
 
 
 orc_elf_warzone = Biome(
-    name="오크 대 엘프 전장",
+    name=i("전쟁터", "warzone"),
     biome_id="orc_elf_warzone",
     biome_desc="orc_elf_warzone (TEST)",
     rarity=0,
@@ -124,7 +125,7 @@ biome_rarity.append(orc_elf_warzone.rarity)
 
 
 ancient_ruins = Biome(
-    name="고대 유적",
+    name=i("고대 유적", "ancient ruins"),
     biome_id="ancient_ruins",
     biome_desc="ancient_ruins (TEST)",
     rarity=0,

@@ -319,7 +319,7 @@ def floor_crystal():
         unfreezable=0,
         phaseable=True,
         transparent=True,
-        diggable=False,
+        diggable=True,
         dark=(
             ord("·"),
             (60, 60, 60),
@@ -445,7 +445,7 @@ def wall_crystal():
         unfreezable=0,
         phaseable=True,
         transparent=False,
-        diggable=False,
+        diggable=True,
         dark=(
             ord("#"),
             (20, 20, 20),

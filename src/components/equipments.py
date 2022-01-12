@@ -5,6 +5,8 @@ from components.equipable import Equipable
 from korean import grammar as g
 from util import equip_region_name_to_str
 from components.status import Bonus
+from language import interpret as i
+from game import Game
 import exceptions
 
 import color
@@ -129,6 +131,36 @@ class Equipments(BaseComponent):
         else:
             return True, None
 
+    def equip_region_lang(self, region: str) -> str:
+        if Game.language == "KR":
+            if region == "main hand":
+                if self.parent.actor_state.is_right_handed:
+                    return "오른팔"
+                else:
+                    return "왼팔"
+            elif region == "off hand":
+                if self.parent.actor_state.is_right_handed:
+                    return "왼팔"
+                else:
+                    return "오른팔"
+            elif region == "head" or region == "face" or region == "amulet":
+                return "머리"
+            elif region == "torso" or region == "belt" or region == "cloak":
+                return "상반신"
+            elif region == "fist":
+                return "손"
+            elif region == "leg" or region == "feet":
+                return "다리"
+            elif region == "left ring":
+                return "왼손"
+            elif region == "right ring":
+                return "오른손"
+            else:
+                raise Exception(f"FATAL ERROR::INVALID REGION - {region}")
+        else:
+            return region # English
+
+
     def can_equip_region_check(self, item: Item, region: str) -> Tuple[bool, str]:
         """
         Return:
@@ -142,50 +174,50 @@ class Equipments(BaseComponent):
         if region == "main hand":
             if self.parent.actor_state.is_right_handed:
                 if self.parent.actor_state.has_right_arm:
-                    return True, "오른팔"
+                    return True, self.equip_region_lang(region)
                 else:
-                    return False, "오른팔"
+                    return False, self.equip_region_lang(region)
             else:
                 if self.parent.actor_state.has_left_arm:
-                    return True, "왼팔"
+                    return True, self.equip_region_lang(region)
                 else:
-                    return False, "왼팔"
+                    return False, self.equip_region_lang(region)
         elif region == "off hand":
             if self.parent.actor_state.is_right_handed:
                 if self.parent.actor_state.has_left_arm:
-                    return True, "왼팔"
+                    return True, self.equip_region_lang(region)
                 else:
-                    return False, "왼팔"
+                    return False, self.equip_region_lang(region)
             else:
                 if self.parent.actor_state.has_right_arm:
-                    return True, "오른팔"
+                    return True, self.equip_region_lang(region)
                 else:
-                    return False, "오른팔"
+                    return False, self.equip_region_lang(region)
         elif region == "head" or region == "face" or region == "amulet":
             if self.parent.actor_state.has_head >= 1:
-                return True, "머리"
+                return True, self.equip_region_lang(region)
             else:
-                return False, "머리"
+                return False, self.equip_region_lang(region)
         elif region == "torso" or region == "belt" or region == "cloak":
             if self.parent.actor_state.has_torso:
-                return True, "상반신"
-            return False, "상반신"
+                return True, self.equip_region_lang(region)
+            return False, self.equip_region_lang(region)
         elif region == "fist":
             if self.parent.actor_state.has_left_arm or self.parent.actor_state.has_right_arm:
-                return True, "손"
-            return False, "손"
+                return True, self.equip_region_lang(region)
+            return False, self.equip_region_lang(region)
         elif region == "leg" or region == "feet":
             if self.parent.actor_state.has_leg:
-                return True, "다리"
-            return False, "다리"
+                return True, self.equip_region_lang(region)
+            return False, self.equip_region_lang(region)
         elif region == "left ring":
             if self.parent.actor_state.has_left_arm:
-                return True, "팔"
-            return False, "팔"
+                return True, self.equip_region_lang(region)
+            return False, self.equip_region_lang(region)
         elif region == "right ring":
-            if self.parent.actor_state.has_left_arm:
-                return True, "팔"
-            return False, "팔"
+            if self.parent.actor_state.has_right_arm:
+                return True, self.equip_region_lang(region)
+            return False, self.equip_region_lang(region)
         else:
             raise Exception(f"FATAL ERROR::CAN'T FIND THE APPROPRIATE EQUIP REGION FOR THE GIVEN ITEM {item.entity_id}")
 
@@ -211,7 +243,8 @@ class Equipments(BaseComponent):
             if self.equipments[region]:
                 if self.parent == self.engine.player:
                     self.engine.message_log.add_message(
-                        f"당신은 {equip_region_name_to_str(region)} 부위에 이미 {g(self.equipments[region].name, '을')} 장착하고 있다.",
+                        i(f"당신은 {equip_region_name_to_str(region)} 부위에 이미 {g(self.equipments[region].name, '을')} 장착하고 있다.",
+                          f"You are already equipping {self.equipments[region].name} on your {equip_region_name_to_str(region)} region."),
                         fg=color.impossible)
                 else:
                     print(f"DEBUG::{self.parent.entity_id} cannot equip {item.name} on {region} region because it is already equipping {self.equipments[region].name}.")
@@ -221,7 +254,8 @@ class Equipments(BaseComponent):
             if not can_equip_region:
                 if self.parent == self.engine.player:
                     self.engine.message_log.add_message(
-                        f"당신은 {g(region_name, '이')} 없기 때문에 {g(item.name, '을')} {equip_region_name_to_str(region)} 부위에 장착할 수 없다.",
+                        i(f"당신은 {g(region_name, '이')} 없기 때문에 {g(item.name, '을')} {equip_region_name_to_str(region)} 부위에 장착할 수 없다.",
+                          f"You can't equip your {item.name} on your {equip_region_name_to_str(region)} region since you lack {region_name}."),
                         fg=color.impossible)
                 else:
                     print(f"DEBUG::{self.parent.entity_id} cannot equip {item.name} on {region} region due to its lack of {region_name}.")
@@ -233,11 +267,13 @@ class Equipments(BaseComponent):
                 if self.parent == self.engine.player:
                     if item_is_too_big:
                         self.engine.message_log.add_message(
-                            f"{g(item.name, '는')} 당신이 장착하기에 너무 크다.",
+                            i(f"{g(item.name, '는')} 당신이 장착하기에 너무 크다.",
+                              f"{item.name} is too big for you to equip."),
                             fg=color.impossible)
                     else:
                         self.engine.message_log.add_message(
-                            f"{g(item.name, '는')} 당신이 장착하기에 너무 작다.",
+                            i(f"{g(item.name, '는')} 당신이 장착하기에 너무 작다.",
+                              f"{item.name} is too small for you to equip."),
                             fg=color.impossible)
                 else:
                     print(f"DEBUG::{self.parent.entity_id} cannot equip {item.name} due to its size.")
@@ -277,7 +313,8 @@ class Equipments(BaseComponent):
         if item.item_state.equipped_region:
             if not forced:
                 if self.parent == self.engine.player:
-                    raise exceptions.Impossible(f"당신은 이미 {g(item.name, '을')} 장착하고 있다.")
+                    raise exceptions.Impossible(i(f"당신은 이미 {g(item.name, '을')} 장착하고 있다.",
+                                                  f"{item.name.capitalize()} is already equipped."))
             return None
 
         # If equip region is specified, pass a tuple of size = 1.
@@ -307,14 +344,17 @@ class Equipments(BaseComponent):
         if not forced:
             if self.parent == self.engine.player:
                 self.engine.message_log.add_message(
-                    f"당신은 {g(item.name, '을')} {equip_region_name_to_str(curr_equipped_region)} 부위에 장착했다.",
+                    i(f"당신은 {g(item.name, '을')} {equip_region_name_to_str(curr_equipped_region)} 부위에 장착했다.",
+                      f"You equip your {item.name} on {equip_region_name_to_str(curr_equipped_region)} region."),
                     fg=color.player_buff)
                 if (curr_equipped_region == "main hand" or curr_equipped_region == "off hand") and self.equipments["main hand"] != None and self.equipments["off hand"] != None:
                     self.engine.message_log.add_message(
-                        text=f"당신은 {g(self.equipments['main hand'].name, '와')} {g(self.equipments['off hand'].name, '을')} 쌍수로 장비했다.",
+                        text=i(f"당신은 {g(self.equipments['main hand'].name, '와')} {g(self.equipments['off hand'].name, '을')} 쌍수로 장비했다.",
+                               f"You duel wield {self.equipments['main hand'].name} and {self.equipments['off hand'].name}."),
                         fg=color.player_buff)
             else:
-                self.engine.message_log.add_message(f"{g(self.parent.name, '이')} {g(item.name, '을')} {equip_region_name_to_str(curr_equipped_region)} 부위에 장착했다.", fg=color.enemy_unique, target=self.parent)
+                self.engine.message_log.add_message(i(f"{g(self.parent.name, '이')} {g(item.name, '을')} {equip_region_name_to_str(curr_equipped_region)} 부위에 장착했다.",
+                                                      f"{self.parent.name} equips {item.name} on {equip_region_name_to_str(curr_equipped_region)} region."), fg=color.enemy_unique, target=self.parent)
         self.update_dual_wielding() # update
 
     def can_unequip_by_equipper(self, item: Item) -> bool:
@@ -354,9 +394,11 @@ class Equipments(BaseComponent):
 
         if not forced: # If the equipments is burned, rotted, etc(forced), do not display the log message.
             if self.parent == self.engine.player:
-                self.engine.message_log.add_message(f"당신은 {g(self.equipments[region].name, '을')} {equip_region_name_to_str(region)} 부위에서 장착 해제했다.", fg=color.player_neutral)
+                self.engine.message_log.add_message(i(f"당신은 {g(self.equipments[region].name, '을')} {equip_region_name_to_str(region)} 부위에서 장착 해제했다.",
+                                                      f"You unequip your {self.equipments[region].name} from {equip_region_name_to_str(region)} region."), fg=color.player_neutral)
             else:
-                self.engine.message_log.add_message(f"{g(self.parent.name, '이')} {g(self.equipments[region].name, '을')} 장착 해제했다.", fg=color.enemy_unique, target=self.parent)
+                self.engine.message_log.add_message(i(f"{g(self.parent.name, '이')} {g(self.equipments[region].name, '을')} 장착 해제했다.",
+                                                      f"{self.parent.name} unequips {self.equipments[region].name}."), fg=color.enemy_unique, target=self.parent)
 
         self.equipments[region] = None
         self.update_equipments_state_change() # NOTE: Must call this function AFTER you remove the item from the slot.

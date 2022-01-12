@@ -3,6 +3,7 @@ from base.data_loader import load_game
 from render import render_img
 from base.data_loader import quit_game, delete_saved_game
 from game import Game
+from language import interpret as i
 
 import color
 import tcod
@@ -12,6 +13,7 @@ import chargen
 from option import Option
 from credits import Credit
 from sound import SoundManager
+from exceptions import DiffLangException
 
 
 class TitleInputHandler(tcod.event.EventDispatch[None]):
@@ -84,7 +86,7 @@ class Title():
         console.print(x+2, y+1, string="(n) New Game\n\n(l) Load Game\n\n(o) Options\n\n(c) Credits\n\n(q) Quit Game\n", fg=color.white)
 
         # Copyright Note, version mark
-        txt1 = "Copyright (C) 2020-2021 by Haguk Kim"
+        txt1 = "Copyright (C) 2020-2022 by Haguk Kim"
         txt2 = "Geophyte "+Game.version
         console.print(width - len(txt1) - 1, height - 4, string=txt1, fg=color.white)
         console.print(width - len(txt2) - 1, height - 2, string=txt2, fg=color.white)
@@ -135,7 +137,7 @@ class Title():
         sound_manager.change_bgm("bgm_title_screen", force_change=False, show_warning=False)
 
     @staticmethod
-    def title_event_handler(console, context, cfg, sound_manager: SoundManager):
+    def title_event_handler(console, context, sound_manager: SoundManager):
         """
         Core function that handles most of the things related to the title screen.
         Title screen loop is handled here.
@@ -161,6 +163,10 @@ class Title():
                 animation_frame += 1
             context.present(console, keep_aspect=True)
 
+            # Load config
+            from configuration import get_game_config
+            cfg = get_game_config()
+
             # Get input from title screen
             if title_action == "new_game":
                 chara_gen = chargen.CharGen()
@@ -168,18 +174,38 @@ class Title():
                 if not player:
                     continue # Exit chargen, go back to title
                 engine = init_game_variables(player, cfg, console, context)
-                engine.message_log.add_message(f"{engine.player.name}님, 지오파이트의 세계에 오신 것을 환영합니다!", color.welcome_text)
+                engine.message_log.add_message(
+                    i(f"{engine.player.name}님, 지오파이트의 세계에 오신 것을 환영합니다!",
+                      f"{engine.player.name}, Welcome to the world of Geophyte!"), color.welcome_text)
                 sound_manager.remove_bgm()
                 sound_manager.remove_bgs()
                 delete_saved_game()
                 return engine
             elif title_action == "load_game":
+                langstr = "(알 수 없음)"
                 try:
                     engine = load_game()
-                    engine.message_log.add_message(f"{engine.player.name}님, 지오파이트의 세계에 돌아오신 것을 환영합니다!", color.welcome_text)
+
+                    # Language check
+                    try:
+                        if engine.LANGUAGE != cfg['lang']:
+                            langstr = engine.LANGUAGE
+                            raise DiffLangException
+                    except DiffLangException:
+                        console.print(5, 5, string=i(f"다른 언어로 플레이한 세이브 파일은 열 수 없습니다. 현재:{cfg['lang']} 세이브파일:{langstr}",
+                                                     f"Your current language doen't match with savefile's. Current:{cfg['lang']} Savefile:{langstr}"),
+                                      fg=color.red)
+                        context.present(console, keep_aspect=True)
+                        continue
+
+                    engine.message_log.add_message(
+                        i(f"{engine.player.name}님, 지오파이트의 세계에 돌아오신 것을 환영합니다!",
+                          f"{engine.player.name}, Welcome back to the world of Geophyte!"),
+                          color.welcome_text)
                     return engine
-                except:
-                    console.print(5, 5, string="세이브 파일을 찾지 못했습니다.", fg=color.red)
+                except FileNotFoundError:
+                    console.print(5, 5, string=i("세이브 파일을 찾지 못했습니다.",
+                                                 "Failed to find a valid game data."), fg=color.red)
                     context.present(console, keep_aspect=True)
                     continue
             elif title_action == "option":

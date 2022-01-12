@@ -3,6 +3,7 @@ from order import InventoryOrder
 from korean import grammar as g
 from game import Game
 from typing import List
+from language import interpret as i
 
 import random
 import copy
@@ -26,31 +27,31 @@ class ItemManager:
         self.generated_artifacts = set() # List of artifacts that have been spawned, and should not be spawned naturally again.
 
         self.colors_for_potions = [
-            ("적혈색",(178,34,34), None),
-            ("빨간색",(255,0,0), None),
-            ("핑크색",(255,0,127), None),
-            ("자주색",(199,21,133), None),
-            ("주황색",(255,69,0), None),
-            ("백황색",(255,165,0), None),
-            ("황금색",(255,215,0), None),
-            ("노란색",(255,255,0), None),
-            ("빛나는",(255,255,224), None),
-            ("뿌연",(189,183,107), None),
-            ("라벤더색",(230,230,250), None),
-            ("마젠타색",(255,0,255), None),
-            ("인디고색",(75,0,130), None),
-            ("라임색",(0,255,0), None),
-            ("반짝이는",(0,250,154), None),
-            ("초록색",(34,139,34), None),
-            ("올리브색",(128,128,0), None),
-            ("시안색",(0,255,255), None),
-            ("하늘색",(173,216,230), None),
-            ("파란색",(0,0,255), None),
-            ("군청색",(0,0,128), None),
-            ("하얀색",(255,250,250), None),
-            ("은색",(192,192,192), None),
-            ("회색",(128,128,128), None),
-            ("검정색",(10,10,10), None),
+            (i("적혈색","blood-red"),(178,34,34), None),
+            (i("빨간색","red"),(255,0,0), None),
+            (i("핑크색","pink"),(255,0,127), None),
+            (i("자주색","amethyst"),(199,21,133), None),
+            (i("주황색","orange"),(255,69,0), None),
+            (i("백황색","pale-orange"),(255,165,0), None),
+            (i("황금색","gold"),(255,215,0), None),
+            (i("노란색","yellow"),(255,255,0), None),
+            (i("빛나는","shining"),(255,255,224), None),
+            (i("뿌연","cloudy"),(189,183,107), None),
+            (i("라벤더색","lavender"),(230,230,250), None),
+            (i("마젠타색","magenta"),(255,0,255), None),
+            (i("인디고색","indigo"),(75,0,130), None),
+            (i("라임색","lime"),(0,255,0), None),
+            (i("반짝이는","flashing"),(0,250,154), None),
+            (i("초록색","green"),(34,139,34), None),
+            (i("올리브색","olive"),(128,128,0), None),
+            (i("시안색","cyan"),(0,255,255), None),
+            (i("하늘색","skyblue"),(173,216,230), None),
+            (i("파란색","blue"),(0,0,255), None),
+            (i("군청색","ultramarine"),(0,0,128), None),
+            (i("하얀색","white"),(255,250,250), None),
+            (i("은색","silver"),(192,192,192), None),
+            (i("회색","gray"),(128,128,128), None),
+            (i("검정색","black"),(10,10,10), None),
         ] # NOTE: Currently 24 colors available TODO: Multi lang support
         self.colors_for_scrolls = copy.copy(self.colors_for_potions)
         self.colors_for_amulets = copy.copy(self.colors_for_potions)
@@ -58,35 +59,35 @@ class ItemManager:
         self.colors_for_rings = copy.copy(self.colors_for_potions)
 
         self.shapes_for_amulets = [
-            "오각형",
-            "사각형",
-            "별 모양",
-            "칠각형",
-            "팔각형",
-            "구형",
-            "원뿔형",
-            "피라미드 모양",
-            "눈송이 모양",
-            "십자가 모양",
-            "다이아몬드 모양",
-            "역삼각형",
-            "삼각형",
-            "반구형",
+            i("오각형","pentagonal"),
+            i("사각형","rectangular"),
+            i("별 모양","star"),
+            i("칠각형","heptagonal"),
+            i("팔각형","octagonal"),
+            i("구형","spherical"),
+            i("원뿔형","cone"),
+            i("피라미드 모양","pyramid"),
+            i("눈송이 모양","snowflake-shaped"),
+            i("십자가 모양","cross-shaped"),
+            i("다이아몬드 모양","diamond-shaped"),
+            i("역삼각형","inverted triangular"),
+            i("삼각형","triangular"),
+            i("반구형","semispherical"),
             ]
 
         self.shapes_for_rings = [
-            "황동",
-            "강철",
-            "백금",
-            "가시달린",
-            "타원형",
-            "뱀 문양",
-            "사자 문양",
-            "구부러진",
-            "황금",
-            "은제",
-            "구리",
-            "무쇠",
+            i("황동","brass"),
+            i("강철","steel"),
+            i("백금","platinum"),
+            i("가시달린","spiked"),
+            i("타원형","oval"),
+            i("뱀 문양","snake emblem"),
+            i("사자 문양","lion emblem"),
+            i("구부러진","bent"),
+            i("황금","gold"),
+            i("은제","silver"),
+            i("구리","copper"),
+            i("무쇠","iron"),
         ]
 
         # shuffle
@@ -152,36 +153,43 @@ class ItemManager:
     def randomize_item(self, item: Item):
         if item.item_type.value == InventoryOrder.SCROLL.value:
             color_name, fg, bg = self.gen_randomized_color(item_type=InventoryOrder.SCROLL)
-            self.items_fake_info[item.entity_id]["name"] = f"{self.gen_randomized_string(random.randint(4, 8))}이라고 적혀있는 주문서"
-            self.items_fake_info[item.entity_id]["entity_desc"] = "얇은 종이로 만들어진 주문서이다. 주문서의 내용을 해독할 수 없다."
+            self.items_fake_info[item.entity_id]["name"] = i(f"{self.gen_randomized_string(random.randint(4, 8))}이라고 적혀있는 주문서",
+                                                             f"a scroll called {self.gen_randomized_string(random.randint(4, 8))}")
+            self.items_fake_info[item.entity_id]["entity_desc"] = i("얇은 종이로 만들어진 주문서이다. 주문서의 내용을 해독할 수 없다.",
+                                                                    "The scroll is made out of thin paper. You don't recognize the exact type.")
             self.items_fake_info[item.entity_id]["fg"] = fg
         elif item.item_type.value == InventoryOrder.POTION.value:
             color_name, fg, bg = self.gen_randomized_color(item_type=InventoryOrder.POTION)
-            self.items_fake_info[item.entity_id]["name"] = color_name + " 물약"
-            self.items_fake_info[item.entity_id]["entity_desc"] = f"{color_name} 물약이다. 마시면 무슨 일이 일어날지 알 수 없다."
+            self.items_fake_info[item.entity_id]["name"] = i(color_name + " 물약", color_name + " potion")
+            self.items_fake_info[item.entity_id]["entity_desc"] = i(f"{color_name} 물약이다. 마시면 무슨 일이 일어날지 알 수 없다.",
+                                                                    f"{color_name.capitalize()} potion. You don't know what's going to happen when you drink it.")
             self.items_fake_info[item.entity_id]["fg"] = fg
             self.items_fake_info[item.entity_id]["bg"] = bg
         elif item.item_type.value == InventoryOrder.GEM.value:
-            self.items_fake_info[item.entity_id]["name"] = "반짝거리는 돌맹이"
-            self.items_fake_info[item.entity_id]["entity_desc"] = "투명하고 반짝거리는 돌맹이이다. 종류를 정확히 식별할 수 없다."
+            self.items_fake_info[item.entity_id]["name"] = i("반짝거리는 돌맹이", "shiny rock")
+            self.items_fake_info[item.entity_id]["entity_desc"] = i("투명하고 반짝거리는 돌맹이이다. 종류를 정확히 식별할 수 없다.",
+                                                                    "The rock is transparent and shiny. You can't tell the exact type.")
         elif item.item_type.value == InventoryOrder.AMULET.value:
             color_name, fg, bg = self.gen_randomized_color(item_type=InventoryOrder.AMULET)
             shape = self.gen_randomized_shape(item_type=InventoryOrder.AMULET)
-            self.items_fake_info[item.entity_id]["name"] = f"{shape} 아뮬렛"
-            self.items_fake_info[item.entity_id]["entity_desc"] = f"{shape} 아뮬렛이다. 종류를 정확히 식별할 수 없다."
+            self.items_fake_info[item.entity_id]["name"] = i(f"{shape} 아뮬렛", f"{shape} amulet")
+            self.items_fake_info[item.entity_id]["entity_desc"] = i(f"{shape} 아뮬렛이다. 종류를 정확히 식별할 수 없다.",
+                                                                    f"{shape.capitalize()} amulet. You don't recognize the exact type.")
             self.items_fake_info[item.entity_id]["fg"] = fg
             self.items_fake_info[item.entity_id]["bg"] = bg
         elif item.item_type.value == InventoryOrder.SPELLBOOK.value:
             color_name, fg, bg = self.gen_randomized_color(item_type=InventoryOrder.SPELLBOOK) # Skillbooks are not randomized.
-            self.items_fake_info[item.entity_id]["name"] = color_name + " 마법서"
-            self.items_fake_info[item.entity_id]["entity_desc"] = f"{color_name} 마법서이다. 복잡한 고대 문자들이 적혀 있다."
+            self.items_fake_info[item.entity_id]["name"] = i(color_name + " 마법서", color_name + " spellbook")
+            self.items_fake_info[item.entity_id]["entity_desc"] = i(f"{color_name} 마법서이다. 복잡한 고대 문자들이 적혀 있다.",
+                                                                    f"{color_name.capitalize()} spellbook. There are ancient glyphs written inside.")
             self.items_fake_info[item.entity_id]["fg"] = fg
             self.items_fake_info[item.entity_id]["bg"] = bg
         elif item.item_type.value == InventoryOrder.RING.value:
             color_name, fg, bg = self.gen_randomized_color(item_type=InventoryOrder.RING)
             shape = self.gen_randomized_shape(item_type=InventoryOrder.RING)
-            self.items_fake_info[item.entity_id]["name"] = f"{shape} 반지"
-            self.items_fake_info[item.entity_id]["entity_desc"] = f"{shape} 반지이다. 종류를 정확히 식별할 수 없다."
+            self.items_fake_info[item.entity_id]["name"] = i(f"{shape} 반지", f"{shape} ring")
+            self.items_fake_info[item.entity_id]["entity_desc"] = i(f"{shape} 반지이다. 종류를 정확히 식별할 수 없다.",
+                                                                    f"{shape.capitalize()} ring. You don't recognize the exact type.")
             self.items_fake_info[item.entity_id]["fg"] = fg
             self.items_fake_info[item.entity_id]["bg"] = bg
         else:

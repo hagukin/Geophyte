@@ -184,7 +184,7 @@ class Camera:
         if draw_frame:
             import util
             util.draw_thick_frame(console, x=self.display_x-1, y=self.display_y-1, width=self.width+2, height=self.height+2, fg=color.camera_frame_fg, bg=color.camera_frame_bg)
-            #console.draw_frame(x=self.display_x-1, y=self.display_y-1, width=self.width+2, height=self.height+2, clear=False, fg=color.camera_frame_fg, bg=color.camera_frame_bg)
+            console.draw_frame(x=self.display_x-1, y=self.display_y-1, width=self.width+2, height=self.height+2, clear=False, fg=color.camera_frame_fg, bg=color.camera_frame_bg)
 
     def abs_to_rel(self, abs_x: int, abs_y: int) -> Tuple[int,int]:
         """

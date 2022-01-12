@@ -12,6 +12,7 @@ from entity import Actor, Item, SemiActor
 from order import TilemapOrder
 from game import Game
 from korean import grammar as g
+from language import interpret as i
 
 if TYPE_CHECKING:
     from engine import Engine
@@ -115,13 +116,15 @@ class GameMap:
                 actor = self.descending_actors.pop()
                 self.engine.change_entity_depth(entity=actor, depth=self.depth, xpos=self.ascend_loc[0], ypos=self.ascend_loc[1])
                 if self.visible[self.ascend_loc]:
-                    self.engine.message_log.add_message(f"{g(actor.name, '이')} 계단을 내려왔다.", fg=color.world)
+                    self.engine.message_log.add_message(i(f"{g(actor.name, '이')} 계단을 내려왔다.",
+                                                          f"{actor.name} went down the stair."), fg=color.world)
         if self.ascending_actors:
             if self.get_blocking_entity_at_location(self.descend_loc[0], self.descend_loc[1]) == None:
                 actor = self.ascending_actors.pop()
                 self.engine.change_entity_depth(entity=actor, depth=self.depth, xpos=self.descend_loc[0], ypos=self.descend_loc[1])
                 if self.visible[self.ascend_loc]:
-                    self.engine.message_log.add_message(f"{g(actor.name, '이')} 계단을 올라왔다.", fg=color.world)
+                    self.engine.message_log.add_message(i(f"{g(actor.name, '이')} 계단을 올라왔다.",
+                                                          f"{actor.name} went up the stair."), fg=color.world)
 
     def remove_entity(self, entity: Entity) -> None:
         """Removes all connection with the given entity.

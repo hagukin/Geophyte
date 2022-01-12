@@ -6,6 +6,7 @@ from components.base_component import BaseComponent
 from input_handlers import RayDirInputHandler, RayRangedInputHandler, SingleRangedAttackHandler
 from korean import grammar as g
 from entity import Actor, Entity
+from language import interpret as i
 
 import random
 import actions
@@ -56,7 +57,8 @@ class StealActivatable(Activatable):
     """
     def get_action(self, caster: Actor, x: int=None, y: int=None, target: Actor=None):
         if caster == self.engine.player:
-            self.engine.message_log.add_message("대상을 선택하세요.", color.help_msg)
+            self.engine.message_log.add_message(i("대상을 선택하세요." 
+                                                  "Choose a target."), color.help_msg)
             self.engine.event_handler = RayDirInputHandler(
                 actor=caster,
                 max_range=1,
@@ -73,9 +75,11 @@ class StealActivatable(Activatable):
         # If there is no target
         if not target:
             if attacker == self.engine.player:
-                self.engine.message_log.add_message(f"당신은 허공에서 훔칠만한 것을 찾아보았지만 실패했다.", target=attacker, fg=color.player_failed)
+                self.engine.message_log.add_message(i(f"당신은 허공에서 훔칠만한 것을 찾아보았지만 실패했다.",
+                                                      f"You try to steal something from a thin air but failed."), target=attacker, fg=color.player_failed)
             else:
-                self.engine.message_log.add_message(f"{g(attacker.name, '은')} 허공에서 훔칠만한 것을 찾아보았지만 실패했다.",target=attacker, fg=color.enemy_unique)
+                self.engine.message_log.add_message(i(f"{g(attacker.name, '은')} 허공에서 훔칠만한 것을 찾아보았지만 실패했다.",
+                                                      f"{attacker.name} tries to steal something from a thin air but failed."),target=attacker, fg=color.enemy_unique)
             return None
 
         # Chance of successfully stealing depends on the caster's dexterity.
@@ -112,30 +116,40 @@ class StealActivatable(Activatable):
                 if attacker == self.engine.player:
                     if item_count > 1:
                         self.engine.message_log.add_message(
-                            f"당신은 {g(target.name, '로')}부터 {g(dup_item.name, '을')} 훔쳤다! (x{dup_item.stack_count})", fg=color.player_success)
+                            i(f"당신은 {g(target.name, '로')}부터 {g(dup_item.name, '을')} 훔쳤다! (x{dup_item.stack_count})",
+                              f"You successfully steal {dup_item.name} from {target.name}! (x{dup_item.stack_count})"), fg=color.player_success)
                     else:
                         self.engine.message_log.add_message(
-                            f"당신은 {g(target.name, '로')}부터 {g(dup_item.name, '을')} 훔쳤다!", fg=color.player_success)
+                            i(f"당신은 {g(target.name, '로')}부터 {g(dup_item.name, '을')} 훔쳤다!",
+                              f"You successfully steal {dup_item.name} from {target.name}!"), fg=color.player_success)
                 else:
                     if item_count > 1:
-                        self.engine.message_log.add_message(f"{g(attacker.name, '은')} {g(target.name, '로')}부터 {g(dup_item.name, '을')} 훔쳤다! (x{dup_item.stack_count})", target=attacker, fg=color.enemy_unique)
+                        self.engine.message_log.add_message(
+                            i(f"{g(attacker.name, '은')} {g(target.name, '로')}부터 {g(dup_item.name, '을')} 훔쳤다! (x{dup_item.stack_count})",
+                              f"{attacker.name} steals {dup_item.name} from {target.name}! (x{dup_item.stack_count})"), target=attacker, fg=color.enemy_unique)
                     else:
-                        self.engine.message_log.add_message(f"{g(attacker.name, '은')} {g(target.name, '로')}부터 {g(dup_item.name, '을')} 훔쳤다!", target=attacker, fg=color.enemy_unique)
+                        self.engine.message_log.add_message(
+                            i(f"{g(attacker.name, '은')} {g(target.name, '로')}부터 {g(dup_item.name, '을')} 훔쳤다!",
+                              f"{attacker.name} steals {dup_item.name} from {target.name}!"), target=attacker, fg=color.enemy_unique)
 
                 target.status.take_damage(amount=0, attacked_from=attacker)# make target hostile
             else:
                 if attacker == self.engine.player:
                     self.engine.message_log.add_message(
-                        f"당신은 {g(target.name, '로')}부터 무언가를 훔치려 시도했지만 훔칠 만한 것이 아무 것도 없었다.", fg=color.player_failed)
+                        i(f"당신은 {g(target.name, '로')}부터 무언가를 훔치려 시도했지만 훔칠 만한 것이 아무 것도 없었다.",
+                          f"You try to steal something from {target.name}, but there is nothing."), fg=color.player_failed)
                 else:
-                    self.engine.message_log.add_message(f"{g(attacker.name, '은')} {g(target.name, '로')}부터 무언가를 훔치려 시도했지만 훔칠 만한 것이 아무 것도 없었다.", target=attacker, fg=color.enemy_unique)
+                    self.engine.message_log.add_message(i(f"{g(attacker.name, '은')} {g(target.name, '로')}부터 무언가를 훔치려 시도했지만 훔칠 만한 것이 아무 것도 없었다.",
+                                                          f"{attacker.name} tries to steal something from {target.name}, but there is nothing."), target=attacker, fg=color.enemy_unique)
                 target.status.take_damage(amount=0, attacked_from=attacker)# make target hostile
         # B. Stealing Failed
         else:
             if attacker == self.engine.player:
-                self.engine.message_log.add_message(f"당신은 {g(target.name, '로')}부터 무언가를 훔치려 시도했지만 실패했다.", fg=color.player_failed)
+                self.engine.message_log.add_message(i(f"당신은 {g(target.name, '로')}부터 무언가를 훔치려 시도했지만 실패했다.",
+                                                      f"You try to steal something from {target.name}, but failed."), fg=color.player_failed)
             else:
-                self.engine.message_log.add_message(f"{g(attacker.name, '은')} {g(target.name, '로')}부터 무언가를 훔치려 시도했지만 실패했다.", target=attacker, fg=color.enemy_unique)
+                self.engine.message_log.add_message(i(f"{g(attacker.name, '은')} {g(target.name, '로')}부터 무언가를 훔치려 시도했지만 실패했다.",
+                                                      f"{attacker.name} tries to steal something from {target.name}, but failed."), target=attacker, fg=color.enemy_unique)
             target.status.take_damage(amount=0, attacked_from=attacker)# make target hostile
 
 
@@ -175,9 +189,11 @@ class SpellActivateable(Activatable):
             self.spend_mana(caster=action.entity, amount=self.mana_cost)
         else:
             if action.entity == self.engine.player:
-                self.engine.message_log.add_message(f"당신은 마나 부족으로 인해 마법 사용에 실패했다.", fg=color.player_not_good)
+                self.engine.message_log.add_message(i(f"당신은 마나 부족으로 인해 마법 사용에 실패했다.",
+                                                      f"You fail to cast a magic spell from lack of mana."), fg=color.player_not_good)
             else:
-                self.engine.message_log.add_message(f"{g(action.entity.name, '은')} 마나 부족으로 인해 마법 사용에 실패했다.", target=action.entity, fg=color.enemy_neutral)
+                self.engine.message_log.add_message(i(f"{g(action.entity.name, '은')} 마나 부족으로 인해 마법 사용에 실패했다.",
+                                                      f"{action.entity.name} fails to cast a magic spell from lack of mana."), target=action.entity, fg=color.enemy_neutral)
 
 class SelectTargetSpellActivatable(SpellActivateable):
     def __init__(self, mana_cost: int, difficulty: int):
@@ -187,7 +203,8 @@ class SelectTargetSpellActivatable(SpellActivateable):
 
     def get_action(self, caster: Actor, x: int = None, y: int = None, target: Actor = None):
         if caster == self.engine.player:
-            self.engine.message_log.add_message("대상을 선택하세요.", color.help_msg)
+            self.engine.message_log.add_message(i("대상을 선택하세요.",
+                                                  "Choose a target."), color.help_msg)
             self.engine.event_handler = SingleRangedAttackHandler(
                 callback=lambda xy: actions.AbilityAction(entity=caster, ability=self.parent, x=xy[0], y=xy[1],
                                                           target=self.gamemap.get_actor_at_location(x=xy[0], y=xy[1])),
@@ -214,34 +231,41 @@ class CureWoundActivatable(SelectTargetSpellActivatable):
         # If there is no target
         if not target:
             if caster == self.engine.player:
-                self.engine.message_log.add_message(f"당신은 허공을 향해 마법을 사용했다.", target=caster, fg=color.player_failed)
+                self.engine.message_log.add_message(i(f"당신은 허공을 향해 마법을 사용했다.",
+                                                      f"You cast a magic spell to a thin air."), target=caster, fg=color.player_failed)
             else:
-                self.engine.message_log.add_message(f"{g(caster.name, '은')} 허공을 향해 마법을 사용했다.",target=caster, fg=color.enemy_unique)
+                self.engine.message_log.add_message(i(f"{g(caster.name, '은')} 허공을 향해 마법을 사용했다.",
+                                                      f"{caster.name} casts a magic spell to a thin air."),target=caster, fg=color.enemy_unique)
             return None
 
         # amound
-        amount = random.randint(*self.heal_range)
+        amount = min(random.randint(*self.heal_range), int(target.status.changed_status["max_hp"] / 5))
         amount *= round(min(2, max(0, caster.status.changed_status["intelligence"] / 16)))
         amount_recovered = target.status.heal(amount)
 
         if amount_recovered > 0:
             if target == self.engine.player:
-                self.engine.message_log.add_message(f"당신의 상처가 낫기 시작한다!", color.player_buff, )
-                self.engine.message_log.add_message(f"당신은 {amount_recovered}만큼의 체력을 회복했다.",
-                                                    color.player_neutral_important, )
+                self.engine.message_log.add_message(i(f"당신의 상처가 낫기 시작한다!",
+                                                      "Your wounds starts to heal!"), color.player_buff, )
+                self.engine.message_log.add_message(i(f"당신은 {amount_recovered}만큼의 체력을 회복했다.",
+                                                      f"You gain {amount_recovered} health."),color.player_neutral_important, )
             else:
                 if self.engine.game_map.visible[target.x, target.y]:
-                    self.engine.message_log.add_message(f"{target.name}의 상처가 낫기 시작한다!", color.player_sense,
+                    self.engine.message_log.add_message(i(f"{target.name}의 상처가 낫기 시작한다!"
+                                                          ,f"{target.name}'s wounds starts to heal!"), color.player_sense,
                                                         target=target)
         else:
             if target == self.engine.player:
-                self.engine.message_log.add_message(f"당신은 조금 더 건강해진 느낌이 든다.", color.player_buff, )
+                self.engine.message_log.add_message(i(f"당신은 조금 더 건강해진 느낌이 든다.",
+                                                      f"You feel better."), color.player_buff, )
             else:
                 if self.engine.game_map.visible[target.x, target.y]:
-                    self.engine.message_log.add_message(f"{target.name}의 상처가 낫기 시작한다!", color.player_sense,
+                    self.engine.message_log.add_message(i(f"{target.name}의 상처가 낫기 시작한다!",
+                                                          f"{target.name}'s wounds starts to heal!"), color.player_sense,
                                                         target=target)
             if target.status.experience:
-                target.status.experience.gain_constitution_exp(10, 17)
+                target.status.experience.gain_constitution_exp(5, 10)
+                target.status.experience.gain_intelligence_exp(10, 17)
 
 
 class MesmerizeSpellActivatable(SelectTargetSpellActivatable):
@@ -252,15 +276,18 @@ class MesmerizeSpellActivatable(SelectTargetSpellActivatable):
         # If there is no target
         if not target:
             if caster == self.engine.player:
-                self.engine.message_log.add_message(f"당신은 허공을 향해 마법을 사용했다.", target=caster, fg=color.player_failed)
+                self.engine.message_log.add_message(i(f"당신은 허공을 향해 마법을 사용했다.",
+                                                      f"You cast a magic spell to a thin air."), target=caster, fg=color.player_failed)
             else:
-                self.engine.message_log.add_message(f"{g(caster.name, '은')} 허공을 향해 마법을 사용했다.",target=caster, fg=color.enemy_unique)
+                self.engine.message_log.add_message(i(f"{g(caster.name, '은')} 허공을 향해 마법을 사용했다.",
+                                                      f"{caster.name} casts a magic spell to a thin air."),target=caster, fg=color.enemy_unique)
             return None
 
         if not target.ai or target == caster: # TODO: Currently ai cannot mesmerize player
             # Log
             if caster == self.engine.player:
-                self.engine.message_log.add_message(f"당신의 자신감이 차오른다.", color.player_buff)
+                self.engine.message_log.add_message(i(f"당신의 자신감이 차오른다.",
+                                                      f"You feel more confident."), color.player_buff)
             # else:
             #     self.engine.message_log.add_message(f"{g(caster.name, '은')} 자신감이 넘쳐 보인다.", color.player_sense, target=caster)
             # NOTE: Ignore ai log
@@ -272,21 +299,27 @@ class MesmerizeSpellActivatable(SelectTargetSpellActivatable):
             if target.ai.try_tame(caster, tame_bonus=tame_bonus):
                 # Log
                 if caster == self.engine.player:
-                    self.engine.message_log.add_message(f"{g(target.name, '을')} 길들였다!", color.player_success, target=target)
+                    self.engine.message_log.add_message(i(f"{g(target.name, '을')} 길들였다!",
+                                                          f"You successfully tamed {target.name}!"), color.player_success, target=target)
                     if target.actor_state.can_talk:
-                        self.engine.message_log.add_message(f"{g(target.name, '이')} 당신에게 충성을 표했다.", color.player_success, target=target)
+                        self.engine.message_log.add_message(i(f"{g(target.name, '이')} 당신에게 충성을 표했다.",
+                                                              f"{target.name} shows its loyalty towards you."), color.player_success, target=target)
                     else:
-                        self.engine.message_log.add_message(f"{g(target.name, '이')} 당신에 대한 신뢰를 보였다.", color.player_success, target=target)
+                        self.engine.message_log.add_message(i(f"{g(target.name, '이')} 당신에 대한 신뢰를 보였다.",
+                                                              f"{target.name} trusts you as an ally."), color.player_success, target=target)
                 else:
-                    self.engine.message_log.add_message(f"{g(target.name, '은')} 이제 {g(caster.name, '을')} 주인으로 섬긴다!", color.enemy_unique, target=target)
+                    self.engine.message_log.add_message(i(f"{g(target.name, '은')} 이제 {g(caster.name, '을')} 주인으로 섬긴다!",
+                                                          f"{target.name} is now a servant of {caster.name}!"), color.enemy_unique, target=target)
 
                 if caster.status.experience:
                     caster.status.experience.gain_charm_exp(100, exp_limit=1000)
             else:
                 if caster == self.engine.player:
-                    self.engine.message_log.add_message(f"{g(target.name, '은')} 당신의 정신적 지배에 저항했다!", color.player_failed, target=target)
+                    self.engine.message_log.add_message(i(f"{g(target.name, '은')} 당신의 정신적 지배에 저항했다!",
+                                                          f"{target.name} resists your command!"), color.player_failed, target=target)
                 else:
-                    self.engine.message_log.add_message(f"{g(target.name, '은')} {caster.name}의 명령을 거부했다!", color.enemy_unique, target=target)
+                    self.engine.message_log.add_message(i(f"{g(target.name, '은')} {caster.name}의 명령을 거부했다!",
+                                                          f"{target.name} resists {caster.name}'s command!"), color.enemy_unique, target=target)
 
 
 class TeleportSpellActivatable(SelectTargetSpellActivatable):
@@ -329,9 +362,11 @@ class LightningStrikeActivatable(SpellActivateable):
 
         if target:
             if target == self.engine.player:
-                self.engine.message_log.add_message(f"번개가 당신을 내리쳤다!", fg=color.player_bad)
+                self.engine.message_log.add_message(i(f"번개가 당신을 내리쳤다!",
+                                                      f"A lightning strikes you!"), fg=color.player_bad)
             else:
-                self.engine.message_log.add_message(f"번개가 {g(target.name, '을')} 내리쳤다!", target=caster, fg=color.enemy_unique)
+                self.engine.message_log.add_message(i(f"번개가 {g(target.name, '을')} 내리쳤다!",
+                                                      f"A lightning strikes {target.name}!"), target=caster, fg=color.enemy_unique)
 
             target.status.take_damage(amount=0, attacked_from=caster) # trigger target
             target.actor_state.apply_electrocution([self.damage, 0.5])
@@ -365,7 +400,7 @@ class RaySpellActivatable(SpellActivateable):
 
     def get_action(self, caster: Actor, x: int=None, y: int=None, target: Actor=None):
         if caster == self.engine.player:
-            self.engine.message_log.add_message("방향을 선택하세요.", color.help_msg)
+            self.engine.message_log.add_message(i("방향을 선택하세요.",f"Choose a direction."), color.help_msg)
             self.engine.event_handler = RayRangedInputHandler(
                 actor=caster,
                 max_range=999,
@@ -463,9 +498,11 @@ class SpectralBeamActivatable(RaySpellActivatable):
         real_damage = round(real_damage)
         # Log
         if target == self.engine.player:
-            self.engine.message_log.add_message(f"형형색색의 광선이 당신을 강타해 {real_damage} 데미지를 입혔다.", fg=color.player_bad)
+            self.engine.message_log.add_message(i(f"형형색색의 광선이 당신을 강타해 {real_damage} 데미지를 입혔다.",
+                                                  f"A colorful beam of light strikes you and deals {real_damage} damage."), fg=color.player_bad)
         else:
-            self.engine.message_log.add_message(f"형형색색의 광선이 {g(target.name, '을')} 강타해 {real_damage} 데미지를 입혔다.",
+            self.engine.message_log.add_message(i(f"형형색색의 광선이 {g(target.name, '을')} 강타해 {real_damage} 데미지를 입혔다.",
+                                                  f"A colorful beam of light strikes {target.name} and deals {real_damage} damage."),
                                                 target=target, fg=color.enemy_unique)
         target.status.take_damage(amount=real_damage, attacked_from=caster)
 
@@ -482,17 +519,21 @@ class SoulBoltActivatable(RaySpellActivatable):
         if target.actor_state.has_soul:
             # Log
             if target == self.engine.player:
-                self.engine.message_log.add_message(f"청록색 마탄이 당신의 영혼에 충돌해 {real_damage} 데미지를 입혔다.", fg=color.player_bad)
+                self.engine.message_log.add_message(i(f"청록색 마탄이 당신의 영혼에 충돌해 {real_damage} 데미지를 입혔다.",
+                                                      f"A teal magical bolt collides with your soul and deals {real_damage} damage."), fg=color.player_bad)
             else:
-                self.engine.message_log.add_message(f"청록색 마탄이 {target.name}의 영혼에 충돌해 {real_damage} 데미지를 입혔다.",
+                self.engine.message_log.add_message(i(f"청록색 마탄이 {target.name}의 영혼에 충돌해 {real_damage} 데미지를 입혔다.",
+                                                      f"A teal magical bolt collides with {target.name}'s soul and deals {real_damage} damage."),
                                                     target=target, fg=color.enemy_unique)
             target.status.take_damage(amount=real_damage, attacked_from=caster)
         else:
             # Log
             if target == self.engine.player:
-                self.engine.message_log.add_message(f"청록색 마탄은 당신에게 아무런 피해도 주지 못한 채 당신을 통과해 지나갔다. ", fg=color.player_neutral_important)
+                self.engine.message_log.add_message(i(f"청록색 마탄은 당신에게 아무런 피해도 주지 못한 채 당신을 통과해 지나갔다.",
+                                                      f"A teal magical bolt goes right through you without dealing any damage."), fg=color.player_neutral_important)
             else:
-                self.engine.message_log.add_message(f"청록색 마탄은 아무런 피해도 주지 못한 채 {g(target.name, '을')} 통과해 지나갔다. ",fg=color.enemy_unique)
+                self.engine.message_log.add_message(i(f"청록색 마탄은 아무런 피해도 주지 못한 채 {g(target.name, '을')} 통과해 지나갔다.",
+                                                      f"A teal magical bolt goes right through {target.name} without dealing any damage."),fg=color.enemy_unique)
             # No trigger
 
 
@@ -502,7 +543,8 @@ class EffectToAllEntityInGamemapSpellActivatable(SelectTargetSpellActivatable):
     """
     def get_action(self, caster: Actor, x: int=None, y: int=None, target: Actor=None):
         if caster == self.engine.player:
-            self.engine.message_log.add_message("타겟을 선택하세요.", color.help_msg)
+            self.engine.message_log.add_message(i("대상을 선택하세요.",
+                                                  "Choose a target."), color.help_msg)
             self.engine.event_handler = SingleRangedAttackHandler(
                 callback=lambda xy: actions.AbilityAction(entity=caster, ability=self.parent, x=xy[0], y=xy[1], target=self.gamemap.get_actor_at_location(x=xy[0], y=xy[1])),
             )
@@ -547,16 +589,21 @@ class CallOfTheOrcLordActivatable(EffectToAllEntityInGamemapSpellActivatable):
                 entity.ai.target = action.target
                 entity.ai.path = entity.ai.get_path_to(action.target.x, action.target.y)
                 if action.target == self.engine.player:
-                    self.engine.message_log.add_message(f"{g(entity.name, '이')} 당신을 향해 적대감을 드러낸다!", fg=color.player_bad, target=entity, stack=False)
+                    self.engine.message_log.add_message(i(f"{g(entity.name, '이')} 당신을 향해 적대감을 드러낸다!",
+                                                          f"{entity.name} shows hostility towards you!"), fg=color.player_bad, target=entity, stack=False)
                 else:
-                    self.engine.message_log.add_message(f"{g(entity.name, '이')} {g(action.target.name, '을')} 향해 적대감을 드러낸다!", fg=color.enemy_unique, target=entity, stack=False)
+                    self.engine.message_log.add_message(i(f"{g(entity.name, '이')} {g(action.target.name, '을')} 향해 적대감을 드러낸다!",
+                                                          f"{entity.name} shows hostility towards {action.target.name}!"), fg=color.enemy_unique, target=entity, stack=False)
 
     def cast(self, action: actions.AbilityAction) -> None:
         if self.engine.game_map.visible[action.entity.x, action.entity.y]:
             if action.entity == self.engine.player:
-                self.engine.message_log.add_message(f"당신은 던전 전체에 울리는 쩌렁쩌렁한 포효를 내질렀다!",fg=color.player_buff, target=action.entity, stack=False)
+                self.engine.message_log.add_message(i(f"당신은 던전 전체에 울리는 쩌렁쩌렁한 포효를 내질렀다!",
+                                                      f"You roar and echo the dungeon!"),fg=color.player_buff, target=action.entity, stack=False)
             else:
-                self.engine.message_log.add_message(f"{g(action.entity.name, '이')} 던전 전체에 울리는 쩌렁쩌렁한 포효를 내지른다!", fg=color.enemy_unique,target=action.entity, stack=False)
+                self.engine.message_log.add_message(i(f"{g(action.entity.name, '이')} 던전 전체에 울리는 쩌렁쩌렁한 포효를 내지른다!",
+                                                      f"{action.entity.name} roars and echoes the dungeon!"), fg=color.enemy_unique,target=action.entity, stack=False)
         else:
-            self.engine.message_log.add_message(f"던전 전체에 오크의 포효소리가 울린다!", fg=color.world)
+            self.engine.message_log.add_message(i(f"던전 전체에 오크의 포효소리가 울린다!",
+                                                  f"You hear a loud roar of an orc!"), fg=color.world)
         return super().cast(action)

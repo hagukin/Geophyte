@@ -4,6 +4,7 @@ from typing import Optional, List, TYPE_CHECKING
 from animation import Animation
 from components.base_component import BaseComponent
 from korean import grammar as g
+from language import interpret as i
 from tiles import TileUtil
 from entity import Actor, SemiActor, Entity
 from order import InventoryOrder
@@ -129,9 +130,11 @@ class Throwable(BaseComponent):
         if random.random() <= self.break_chance:
             self.shattered = True
             if self.parent.item_type.value == InventoryOrder.POTION.value:
-                self.engine.message_log.add_message(f"{g(self.parent.name, '이')} 깨졌다.", fg=color.gray)
+                self.engine.message_log.add_message(i(f"{g(self.parent.name, '이')} 깨졌다.",
+                                                      f"{self.parent.name} is shattered."), fg=color.gray)
             else:
-                self.engine.message_log.add_message(f"{g(self.parent.name, '이')} 파괴되었다.", fg=color.gray)
+                self.engine.message_log.add_message(i(f"{g(self.parent.name, '이')} 파괴되었다.",
+                                                      f"{self.parent.name} is destroyed."), fg=color.gray)
 
     def throw_distance(self, thrower: Actor):
         throw_dist_constant = 0.05
@@ -142,7 +145,8 @@ class Throwable(BaseComponent):
     def get_action(self, thrower: Actor) -> Optional[actions.Action]:
         """Try to return the action for this item."""
         self.engine.message_log.add_message(
-            "방향을 선택하세요.", color.help_msg
+            i("방향을 선택하세요.",
+              f"Choose a direction."), color.help_msg
         )
         from input_handlers import RayRangedWithDistanceInputHandler
         self.engine.event_handler = RayRangedWithDistanceInputHandler(
@@ -202,9 +206,11 @@ class NormalThrowable(Throwable):
         # Check dodged
         if self.is_miss(thrower=thrower, target=collided):
             if collided is self.engine.player:
-                self.engine.message_log.add_message(f"당신은 {g(self.parent.name, '을')} 피했다.", color.player_atk_missed)
+                self.engine.message_log.add_message(i(f"당신은 {g(self.parent.name, '을')} 피했다.",
+                                                      f"You dodge {self.parent.name}."), color.player_atk_missed)
             else:
-                self.engine.message_log.add_message(f"{g(collided.name, '이')} {g(self.parent.name, '을')} 피했다.", color.player_atk_missed, target=collided,)
+                self.engine.message_log.add_message(i(f"{g(collided.name, '이')} {g(self.parent.name, '을')} 피했다.",
+                                                      f"{collided.name} dodges {self.parent.name}."), color.player_atk_missed, target=collided,)
         else:
             # set dmg
             crit_multiplier = self.crit_calculation(thrower=thrower)
@@ -213,17 +219,28 @@ class NormalThrowable(Throwable):
             # log
             thrower_name = thrower.name
             collided_name = collided.name
+            throw_fg = color.enemy_neutral
 
             if thrower == self.engine.player:
-                thrower_name = "당신"
+                thrower_name = i("당신", "you")
+                throw_fg = color.player_atk
             if collided == self.engine.player:
-                collided_name = "당신"
+                collided_name = i("당신", "you")
+                throw_fg = color.player_melee_hit
 
-            if dmg > 0:
-                self.engine.message_log.add_message(f"{g(thrower_name, '이')} {g(self.parent.name, '을')} {collided_name}에게 던져 {dmg} 데미지를 입혔다.", target=thrower,)
+            if dmg >= 0:
+                if collided_name == "you" and thrower_name != "you":
+                    self.engine.message_log.add_message(f"{thrower_name} throws {self.parent.name} at you and deal {dmg} damage.", target=thrower,fg=throw_fg)
+                elif thrower_name == "you":
+                    if collided_name == "you":
+                        collided_name = "yourself"
+                    self.engine.message_log.add_message(f"You throw {self.parent.name} at {collided_name} and deal {dmg} damage.",target=thrower,fg=throw_fg)
+                else:
+                    self.engine.message_log.add_message(i(f"{g(thrower_name, '이')} {g(self.parent.name, '을')} {collided_name}에게 던져 {dmg} 데미지를 입혔다.",
+                                                          f"{thrower_name} throws {self.parent.name} at the {collided_name} and deals {dmg} damage."), target=thrower,fg=throw_fg)
                 collided.status.take_damage(amount=dmg, attacked_from=thrower)
             else:
-                self.engine.message_log.add_message(f"{g(thrower_name, '이')} {g(self.parent.name, '을')} {collided_name}에게 던져 0 데미지를 입혔다.", target=thrower, )
+                print(f"WARNING::Throwing dealt negative damage - thrower:{thrower_name}, dmg:{dmg}")
 
             # check destruction
             self.break_calculation()
@@ -412,7 +429,8 @@ class PotionOfFlameThrowable(PotionQuaffAndThrowSameEffectThrowable):
         tmp.rule.add_damage = int(self.parent.quaffable.add_dmg / 2)
         spawn_entity_8way(entity=tmp, gamemap=self.engine.game_map, center_x=self.shattered_x-self.dx, center_y=self.shattered_y-self.dy, spawn_cnt=8, spawn_on_center=True)
         if self.engine.game_map.visible[self.shattered_x, self.shattered_y]:
-            self.engine.message_log.add_message(f"{self.parent.name}이 깨진 자리에서 불꽃이 피어났다!",color.player_sense)
+            self.engine.message_log.add_message(i(f"{self.parent.name}이 깨진 자리에서 불꽃이 피어났다!",
+                                                  f"Flames start to rise!"),color.player_sense)
             self.parent.item_state.identify_self(self.identify_when_shattered)
 
 
@@ -441,7 +459,8 @@ class PotionOfLiquifiedAntsThrowable(NormalThrowable):
             actor.status.take_damage(amount=0, attacked_from=trigger_actor) # Trigger ants
 
         if self.engine.game_map.visible[self.shattered_x, self.shattered_y]:
-            self.engine.message_log.add_message(f"{self.parent.name}이 깨진 자리에서 {g(spawn.name, '이')} 생겨났다!",color.player_sense)
+            self.engine.message_log.add_message(i(f"{self.parent.name}이 깨진 자리에서 {g(spawn.name, '이')} 생겨났다!",
+                                                  f"{spawn.name} spawns!."),color.player_sense)
             self.parent.item_state.identify_self(self.identify_when_shattered)
 
 
@@ -450,7 +469,8 @@ class ToxicGooThrowable(NormalThrowable):
         super().effect_when_collided_with_actor(target, thrower)
         if target.actor_state.is_poisoned == [0,0,0,0]:
             # Log
-            self.engine.message_log.add_message(f"{g(target.name, '은')} 독성 점액에 뒤덮였다.", color.white, target=target)
+            self.engine.message_log.add_message(i(f"{g(target.name, '은')} 독성 점액에 뒤덮였다.",
+                                                  f"{target.name} is covered with toxic goo."), color.white, target=target)
 
             # Poison
             target.actor_state.apply_poisoning([1, 1, 0, 3])

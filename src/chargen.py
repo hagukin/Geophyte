@@ -9,13 +9,15 @@ import time
 import copy
 from typing import Optional, Callable, Dict, Tuple, Any
 from sound import SoundManager
+from language import interpret as i
 
 class CharGenInputHandler(tcod.event.EventDispatch[None]):
     """
     Handles every inputs that are made in the title screen.
     """
     def __init__(self):
-        self.help_msg = "엔터:확인 | ESC:이전으로"
+        self.help_msg = i("엔터:확인 | ESC:이전으로",
+                          "ENTER:Confirm | ESC:Escape")
 
     def render_gui(self, console) -> None:
         """
@@ -51,10 +53,12 @@ class NameGenInputHandler(CharGenInputHandler):
         super().render_gui(console)
         width = tcod.console_get_width(console)
         height = tcod.console_get_height(console)
-        x = int(width / 2) - 5
+        tmp = i(f"이름을 입력하세요:",
+                "Enter your name:")
+        x = int(width / 2) - int(len(tmp)/2)
         y = int(height / 2) - 5
-        console.print(x, y, string=f"이름을 입력하세요:", fg=color.white)
-        console.print(x + 5 - int(len(CharGen.player_name)/2), y + 3, string=CharGen.player_name, fg=color.white)
+        console.print(x, y, string=tmp, fg=color.white)
+        console.print(x + int(len(tmp)/2) - int(len(CharGen.player_name)/2), y + 3, string=CharGen.player_name, fg=color.white)
 
 
 class StatusGenInputHandler(CharGenInputHandler):
@@ -64,7 +68,8 @@ class StatusGenInputHandler(CharGenInputHandler):
 
     def __init__(self, points: int):
         super().__init__()
-        self.help_msg += " | 알파뱃:스테이터스 선택 | +,-키:포인트 사용/차감 | (r)-스테이터스 초기화 | (v)-랜덤"
+        self.help_msg += i(" | 알파뱃:스테이터스 선택 | +,-키:포인트 사용/차감 | (r):스테이터스 초기화 | (v):랜덤",
+                           " | +,-:Add/Subtract points | (r):Reset | (v):Randomize")
         self.selected = None
         self.points = points
 
@@ -72,10 +77,12 @@ class StatusGenInputHandler(CharGenInputHandler):
         if not stat:
             return None
         if self.points < 1:
-            CharGen.show_warning("포인트가 부족합니다.")
+            CharGen.show_warning(i("포인트가 부족합니다.",
+                                   "Not enough points."))
             return None
         if CharGen.status_points_used[stat] >= StatusGenInputHandler.MAX_ADD_POINT:
-            CharGen.show_warning("더 이상 포인트를 사용할 수 없습니다.")
+            CharGen.show_warning(i("더 이상 포인트를 사용할 수 없습니다.",
+                                   "You have reached your maximum limit."))
             return None
         CharGen.status_points_used[stat] += 1
         self.points -= 1
@@ -84,7 +91,8 @@ class StatusGenInputHandler(CharGenInputHandler):
         if not stat:
             return None
         if CharGen.status_points_used[stat] <= -1 * StatusGenInputHandler.MAX_SUB_POINT:
-            CharGen.show_warning("더 이상 포인트를 차감할 수 없습니다.")
+            CharGen.show_warning(i("더 이상 포인트를 차감할 수 없습니다.",
+                                   "You have reached your minimum limit."))
             return None
         CharGen.status_points_used[stat] -= 1
         self.points += 1
@@ -154,7 +162,8 @@ class StatusGenInputHandler(CharGenInputHandler):
         str_fg = color.gui_chargen_status_name_fg
         if self.selected == "strength":
             str_fg = color.gui_selected_item
-        console.print(string="(s) 힘", x=x, y=y(), fg=str_fg)
+        console.print(string=i("(s) 힘",
+                               "(s) Strength"), x=x, y=y(), fg=str_fg)
         ypad += 2
         console.print(string=f"{StatusGenInputHandler.DEFAULT_STAT + CharGen.status_points_used['strength']} ({CharGen.status_points_used['strength']:+d}pt)", x=x, y=y(), fg=color.white)
         ypad += 5
@@ -162,7 +171,8 @@ class StatusGenInputHandler(CharGenInputHandler):
         dex_fg = color.gui_chargen_status_name_fg
         if self.selected == "dexterity":
             dex_fg = color.gui_selected_item
-        console.print(string="(d) 재주", x=x, y=y(), fg=dex_fg)
+        console.print(string=i("(d) 재주",
+                               "(d) Dexterity"), x=x, y=y(), fg=dex_fg)
         ypad += 2
         console.print(
             string=f"{StatusGenInputHandler.DEFAULT_STAT + CharGen.status_points_used['dexterity']} ({CharGen.status_points_used['dexterity']:+d}pt)",
@@ -172,7 +182,8 @@ class StatusGenInputHandler(CharGenInputHandler):
         con_fg = color.gui_chargen_status_name_fg
         if self.selected == "constitution":
             con_fg = color.gui_selected_item
-        console.print(string="(c) 활력", x=x, y=y(), fg=con_fg)
+        console.print(string=i("(c) 활력",
+                               "(c) Constitution"), x=x, y=y(), fg=con_fg)
         ypad += 2
         console.print(
             string=f"{StatusGenInputHandler.DEFAULT_STAT + CharGen.status_points_used['constitution']} ({CharGen.status_points_used['constitution']:+d}pt)",
@@ -182,7 +193,8 @@ class StatusGenInputHandler(CharGenInputHandler):
         agi_fg = color.gui_chargen_status_name_fg
         if self.selected == "agility":
             agi_fg = color.gui_selected_item
-        console.print(string="(a) 민첩", x=x, y=y(), fg=agi_fg)
+        console.print(string=i("(a) 민첩",
+                               "(a) Agility"), x=x, y=y(), fg=agi_fg)
         ypad += 2
         console.print(
             string=f"{StatusGenInputHandler.DEFAULT_STAT + CharGen.status_points_used['agility']} ({CharGen.status_points_used['agility']:+d}pt)",
@@ -192,7 +204,8 @@ class StatusGenInputHandler(CharGenInputHandler):
         int_fg = color.gui_chargen_status_name_fg
         if self.selected == "intelligence":
             int_fg = color.gui_selected_item
-        console.print(string="(i) 지능", x=x, y=y(), fg=int_fg)
+        console.print(string=i("(i) 지능",
+                               "(i) Intelligence"), x=x, y=y(), fg=int_fg)
         ypad += 2
         console.print(
             string=f"{StatusGenInputHandler.DEFAULT_STAT + CharGen.status_points_used['intelligence']} ({CharGen.status_points_used['intelligence']:+d}pt)",
@@ -202,7 +215,8 @@ class StatusGenInputHandler(CharGenInputHandler):
         char_fg = color.gui_chargen_status_name_fg
         if self.selected == "charm":
             char_fg = color.gui_selected_item
-        console.print(string="(h) 매력", x=x, y=y(), fg=char_fg)
+        console.print(string=i("(h) 매력",
+                               "(h) Charm"), x=x, y=y(), fg=char_fg)
         ypad += 2
         console.print(
             string=f"{StatusGenInputHandler.DEFAULT_STAT + CharGen.status_points_used['charm']} ({CharGen.status_points_used['charm']:+d}pt)",
@@ -217,17 +231,23 @@ class StatusGenInputHandler(CharGenInputHandler):
         """
         string = ""
         if self.selected == "strength":
-            string = "육체적인 완력을 나타냅니다."
+            string = i("육체적인 완력을 나타냅니다.",
+                       "Your physical power.")
         elif self.selected == "dexterity":
-            string = "물건을 원하는 대로 다룰 수 있는 능력을 나타냅니다."
+            string = i("물건을 원하는 대로 다룰 수 있는 능력을 나타냅니다.",
+                       "Your capability of using objects proficiently.")
         elif self.selected == "constitution":
-            string = "신체의 강인함 및 건강을 나타냅니다."
+            string = i("신체의 강인함 및 건강을 나타냅니다.",
+                       "Your physical health and endurance.")
         elif self.selected == "agility":
-            string = "얼마나 민첩하게 행동할 수 있는지를 나타냅니다."
+            string = i("얼마나 민첩하게 행동할 수 있는지를 나타냅니다.",
+                       "Your speed of doing things.")
         elif self.selected == "intelligence":
-            string = "두뇌 능력 및 마법에 대한 이해도를 포괄적으로 나타냅니다."
+            string = i("두뇌 능력 및 마법에 대한 이해도를 포괄적으로 나타냅니다.",
+                       "Your brainpower and your understanding of magic.")
         elif self.selected == "charm":
-            string = "얼마나 외적으로 매력적으로 느껴지는가, 혹은 얼마나 상대방에게 위압감을 줄 수 있는가를 나타냅니다."
+            string = i("얼마나 외적으로 매력적으로 느껴지는가, 혹은 얼마나 상대방에게 위압감을 줄 수 있는가를 나타냅니다.",
+                       "Your charisma and your attractiveness.")
         console.print(string=string, x=x, y=y, fg=color.white)
 
     def render_gui(self, console) -> None:
@@ -237,12 +257,13 @@ class StatusGenInputHandler(CharGenInputHandler):
         super().render_gui(console=console)
         width = tcod.console_get_width(console)
         height = tcod.console_get_height(console)
-        console.print(0, height - 3, string=f"{self.points} 포인트 사용 가능", fg=color.green)
+        console.print(0, height - 3, string=i(f"{self.points} 포인트 사용 가능",
+                                              f"{self.points} points remaining"), fg=color.green)
         x = 2
         y = 2
         f_width = 31
         f_height = 43
-        draw_thick_frame(console, x, y, f_width, f_height, title="스테이터스", bg=color.gui_chargen_status_frame_bg,fg=color.gui_chargen_status_frame_fg, char_type=0)
+        console.draw_frame(x, y, f_width, f_height, title=i("스테이터스","Status"), bg=color.gui_chargen_status_frame_bg,fg=color.gui_chargen_status_frame_fg)
         super().render_gui(console)
         self.render_status(console, x, y)
         self.render_status_desc(console, x + f_width + 2, y + 2)
@@ -372,7 +393,7 @@ class CharGen():
     def generate_player(self) -> None:
         name = self.player_name.strip()
         if not name or name == "":
-            name = "모험가"
+            name = i("모험가","Player")
         CharGen.player.change_name(name)
 
         CharGen.player.status.strength = StatusGenInputHandler.DEFAULT_STAT + CharGen.status_points_used["strength"]

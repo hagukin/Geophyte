@@ -5,6 +5,7 @@ from typing import Tuple, Optional, List, Any
 from tcod.map import compute_fov
 from tcod import Console, console_get_width
 from entity import Actor, Entity
+from game import Game
 
 import math
 import numpy as np
@@ -182,33 +183,35 @@ def multiline(
 
 def equip_region_name_to_str(region_name) -> str:
     translated = None
-    if region_name == "main hand":
-        translated = "메인 핸드"
-    elif region_name == "off hand":
-        translated = "오프 핸드"
-    elif region_name == "head":
-        translated = "머리"
-    elif region_name == "face":
-        translated = "얼굴"
-    elif region_name == "torso":
-        translated = "상반신"
-    elif region_name == "fist":
-        translated = "손"
-    elif region_name == "belt":
-        translated = "허리춤"
-    elif region_name == "leg":
-        translated = "다리"
-    elif region_name == "feet":
-        translated = "발"
-    elif region_name == "cloak":
-        translated = "망토"
-    elif region_name == "amulet":
-        translated = "아뮬렛"
-    elif region_name == "left ring":
-        translated = "왼손 반지"
-    elif region_name == "right ring":
-        translated = "오른손 반지"
-    return translated
+    if Game.language == "KR":
+        if region_name == "main hand":
+            translated = "메인 핸드"
+        elif region_name == "off hand":
+            translated = "오프 핸드"
+        elif region_name == "head":
+            translated = "머리"
+        elif region_name == "face":
+            translated = "얼굴"
+        elif region_name == "torso":
+            translated = "상반신"
+        elif region_name == "fist":
+            translated = "손"
+        elif region_name == "belt":
+            translated = "허리춤"
+        elif region_name == "leg":
+            translated = "다리"
+        elif region_name == "feet":
+            translated = "발"
+        elif region_name == "cloak":
+            translated = "망토"
+        elif region_name == "amulet":
+            translated = "아뮬렛"
+        elif region_name == "left ring":
+            translated = "왼손 반지"
+        elif region_name == "right ring":
+            translated = "오른손 반지"
+        return translated
+    return region_name
 
 
 def spawn_monster_of_appr_diff_8way(gamemap, center_x: int, center_y: int, spawn_cnt: int=8, spawn_on_center: bool=False, randomize: bool=True) -> List[Actor]:
