@@ -304,7 +304,7 @@ class CharGen():
         CharGen.is_first_input = False
 
     def render_warning_msg(self, console) -> None:
-        console.print(0, 0, string=CharGen.warning_msg, fg=color.red)
+        console.print(1, 1, string=CharGen.warning_msg, fg=color.red)
 
     def move_next_gen(self) -> bool:
         """
@@ -326,6 +326,7 @@ class CharGen():
         if CharGen.curr_order == 0:
             return True
         CharGen.curr_order = max(0, CharGen.curr_order - 1)
+        CharGen.warning_msg = ""
         return False
 
     def get_chargen_action(self, sec_per_frame, input_handler):

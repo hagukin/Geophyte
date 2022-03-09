@@ -13,3 +13,8 @@ class DiffLangException(Exception):
     """
     Exception raised when trying to load a gamefile that has a different language.
     """
+
+class DiffVerException(Exception):
+    """
+    Exception when the game's version does not match with a savefile.
+    """

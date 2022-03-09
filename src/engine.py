@@ -44,7 +44,7 @@ if TYPE_CHECKING:
 
 
 class Engine:
-    def __init__(self, player: Actor, language: str):
+    def __init__(self, player: Actor, language: str, version: str):
         """
         Vars:
             player_path:
@@ -67,6 +67,7 @@ class Engine:
                 Value should not change even if you save/load the file.
         """
         self.LANGUAGE: str = language
+        self.VERSION: str = version
         self._is_gameover: bool = False
         self._has_won: bool = False
         self._initialized_pixel: bool = False

@@ -360,6 +360,7 @@ class Inventory(BaseComponent):
         WARNING: This function does not automatically puts item in the inventory.
         """
         if item.stack_count <= 1:
+            self.engine.sound_manager.add_sound_queue("fx_invalid")
             self.engine.message_log.add_message(i(f"{g(item.name, '은')} 더 이상 나눌 수 없습니다.",
                                                   f"{item.name} can't be splitted anymore."), fg=color.impossible)
             # This part of the code should never be reached. filtered from input handler.
@@ -375,11 +376,13 @@ class Inventory(BaseComponent):
                 self.decrease_item_stack(item, remove_count=split_amount) # item is removed automatically, but is not added automatically.
                 return spliten_item
             else:
+                self.engine.sound_manager.add_sound_queue("fx_invalid")
                 self.engine.message_log.add_message(i(f"최소한 하나 이상을 선택하세요.",
                                                       f"You need to select at least 1."), fg=color.impossible)
                 # This part of the code should never be reached. filtered from input handler.
                 return None
         else:
+            self.engine.sound_manager.add_sound_queue("fx_invalid")
             self.engine.message_log.add_message(i(f"최대 {item.stack_count - 1}개 까지만 선택할 수 있습니다.",
                                                   f"You can only select up to {item.stack_count - 1}."), fg=color.impossible)
             # This part of the code should never be reached. filtered from input handler.

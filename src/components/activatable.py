@@ -57,7 +57,7 @@ class StealActivatable(Activatable):
     """
     def get_action(self, caster: Actor, x: int=None, y: int=None, target: Actor=None):
         if caster == self.engine.player:
-            self.engine.message_log.add_message(i("대상을 선택하세요." 
+            self.engine.message_log.add_message(i("대상을 선택하세요.",
                                                   "Choose a target."), color.help_msg)
             self.engine.event_handler = RayDirInputHandler(
                 actor=caster,
@@ -83,8 +83,7 @@ class StealActivatable(Activatable):
             return None
 
         # Chance of successfully stealing depends on the caster's dexterity.
-        k = max(25 - attacker.status.changed_status["dexterity"], 1)
-        success_rate = (k + 2) / (k * 2)
+        success_rate = max(0.1, attacker.status.changed_status["dexterity"] / (target.status.changed_status["dexterity"]*2))
 
         # A. Stealing Succeeded
         if random.random() <= success_rate:
@@ -114,6 +113,7 @@ class StealActivatable(Activatable):
 
                 # Log
                 if attacker == self.engine.player:
+                    self.engine.sound_manager.add_sound_queue("fx_steal")
                     if item_count > 1:
                         self.engine.message_log.add_message(
                             i(f"당신은 {g(target.name, '로')}부터 {g(dup_item.name, '을')} 훔쳤다! (x{dup_item.stack_count})",
@@ -245,6 +245,7 @@ class CureWoundActivatable(SelectTargetSpellActivatable):
 
         if amount_recovered > 0:
             if target == self.engine.player:
+                self.engine.sound_manager.add_sound_queue("fx_heal")
                 self.engine.message_log.add_message(i(f"당신의 상처가 낫기 시작한다!",
                                                       "Your wounds starts to heal!"), color.player_buff, )
                 self.engine.message_log.add_message(i(f"당신은 {amount_recovered}만큼의 체력을 회복했다.",
@@ -256,6 +257,7 @@ class CureWoundActivatable(SelectTargetSpellActivatable):
                                                         target=target)
         else:
             if target == self.engine.player:
+                self.engine.sound_manager.add_sound_queue("fx_heal")
                 self.engine.message_log.add_message(i(f"당신은 조금 더 건강해진 느낌이 든다.",
                                                       f"You feel better."), color.player_buff, )
             else:
@@ -361,6 +363,8 @@ class LightningStrikeActivatable(SpellActivateable):
                     closest_distance = distance
 
         if target:
+            if self.parent.gamemap.visible[caster.x, caster.y]:
+                self.engine.sound_manager.add_sound_queue("fx_lightning")
             if target == self.engine.player:
                 self.engine.message_log.add_message(i(f"번개가 당신을 내리쳤다!",
                                                       f"A lightning strikes you!"), fg=color.player_bad)
@@ -379,13 +383,14 @@ class RaySpellActivatable(SpellActivateable):
 
     NOTE: Based off of RayReadable.
     """
-    def __init__(self, mana_cost: int, difficulty: int, anim_graphic, damage_range: Tuple[int, int] = (0, 0), penetration: bool = False, max_range: int = 1000, stack_anim_frame: bool = True):
+    def __init__(self, mana_cost: int, difficulty: int, anim_graphic, damage_range: Tuple[int, int] = (0, 0), penetration: bool = False, max_range: int = 1000, stack_anim_frame: bool = True, fx_id: str="fx_ray"):
         super().__init__(mana_cost, difficulty)
         self._anim_graphic = anim_graphic
         self.damage_range = damage_range
         self.penetration = penetration
         self.max_range = max_range
         self.stack_anim_frame = stack_anim_frame
+        self.fx_id = fx_id
 
     @property
     def anim_graphic(self):
@@ -428,6 +433,11 @@ class RaySpellActivatable(SpellActivateable):
         """effects applied to the actor that the ray collided with."""
         pass
 
+    def play_ray_fx(self, caster: Actor):
+        """Play sound fx when the ray is being casted AND caster is player"""
+        if caster == self.engine.player and self.fx_id:
+            self.engine.sound_manager.add_sound_queue(self.fx_id)
+
     def cast(self, action: actions.AbilityAction) -> None:
         caster = action.entity
         target = None # Added during calc
@@ -437,6 +447,8 @@ class RaySpellActivatable(SpellActivateable):
         dest_x, dest_y = caster.x + dx, caster.y + dy
         path = []
         targets = []
+
+        self.play_ray_fx(caster)
 
         while True:
             # ray is out of the map border

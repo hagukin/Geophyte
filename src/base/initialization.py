@@ -23,7 +23,7 @@ def init_game_variables(player, cfg, console: Console, context: Context):
     seed = random.random() #TODO: Let player enter whatever seed they want
 
     # Generate Engine
-    engine = Engine(player=player, language=Game.language)
+    engine = Engine(player=player, language=Game.language, version=Game.version)
     engine.world = World(seed, max_depth=999)
     engine.console = console
     engine.context = context

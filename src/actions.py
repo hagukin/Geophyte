@@ -91,6 +91,7 @@ class TeleportAction(ActionWithCoordinate):
 
     def perform(self) -> None:
         if self.entity == self.engine.player:
+            self.engine.sound_manager.add_sound_queue("fx_teleport")
             self.engine.message_log.add_message(i("당신은 순간이동했다!",
                                                   "You teleported!"), fg=color.player_neutral_important)
             self.engine.sound_manager.add_sound_queue("fx_teleport")
@@ -368,12 +369,12 @@ class ThrowItem(ItemAction):
         if self.item.item_state.equipped_region:
             if self.entity == self.engine.player:
                 self.engine.message_log.add_message(i("장착하고 있는 아이템을 던질 수 없습니다.",
-                                                      "You can't throw an equipped item."), color.invalid)
+                                                      "You can't throw an equipped item."), color.impossible)
             return None
         if not self.item.droppable:
             if self.entity == self.engine.player:
                 self.engine.message_log.add_message(i(f"{g(self.item.name, '을')} 던질 수 없습니다.",
-                                                      f"You can't throw {self.item.name}."), color.invalid)
+                                                      f"You can't throw {self.item.name}."), color.impossible)
             return None
 
         if self.entity.status.experience:
@@ -392,10 +393,11 @@ class ThrowItem(ItemAction):
 
         # Actual throw logic handled here
         if self.entity == self.engine.player:
-            # No sound
+            self.engine.sound_manager.add_sound_queue("fx_throw")
             self.engine.message_log.add_message(i(f"당신은 {g(throw_item.name, '을')} 던졌다.",
                                                   f"You throw {throw_item.name}."), fg=color.player_neutral_important)
         else:
+            # No sound
             self.engine.message_log.add_message(i(f"{g(self.entity.name, '이')} {g(throw_item.name, '을')} 던졌다.",
                                                   f"{self.entity.name} throws {throw_item.name}."), fg=color.enemy_unique, target=self.entity)
         throw_item.throwable.activate(self)
@@ -410,12 +412,12 @@ class DropItem(ItemAction):
         if self.item.item_state.equipped_region:
             if self.entity == self.engine.player:
                 self.engine.message_log.add_message(i("장착하고 있는 아이템을 드랍할 수 없습니다.",
-                                                      "You can't drop an equipped item."), color.invalid)
+                                                      "You can't drop an equipped item."), color.impossible)
             return None
         if not self.item.droppable:
             if self.entity == self.engine.player:
                 self.engine.message_log.add_message(i(f"{g(self.item.name, '을')} 드랍할 수 없습니다.",
-                                                      f"You can't drop {self.item.name}."), color.invalid)
+                                                      f"You can't drop {self.item.name}."), color.impossible)
             return None
 
         if self.entity == self.engine.player:
@@ -682,7 +684,7 @@ class ChestTakeAction(ChestAction):
             if item.item_state.equipped_region:
                 if self.entity == self.engine.player:
                     self.engine.message_log.add_message(i("장착되어 있는 아이템을 가져갈 수 없습니다.",
-                                                          "You can't take something that's equipped."), color.invalid)
+                                                          "You can't take something that's equipped."), color.impossible)
                 continue
 
             if self.actor_storage.try_add_item_if_full_drop(self.chest_storage.delete_item_from_inv(item)):
@@ -711,12 +713,12 @@ class ChestPutAction(ChestAction):
             if item.item_state.equipped_region:
                 if self.entity == self.engine.player:
                     self.engine.message_log.add_message(i("장착하고 있는 아이템을 넣을 수 없습니다.",
-                                                          "You can't put in something that's equipped."), color.invalid)
+                                                          "You can't put in something that's equipped."), color.impossible)
                 continue
             elif not item.droppable and self.entity.inventory.check_if_in_inv_object(item):
                 if self.entity == self.engine.player:
                     self.engine.message_log.add_message(i(f"{g(item.name, '을')} 넣을 수 없습니다.",
-                                                          f"You can't put in {item.name}."), color.invalid)
+                                                          f"You can't put in {item.name}."), color.impossible)
                 continue
 
             self.chest_storage.try_add_item_if_full_drop(self.actor_storage.delete_item_from_inv(item))

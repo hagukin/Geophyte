@@ -503,8 +503,22 @@ def remove_awkward_entities(
                     or gamemap.tiles[e.x, e.y]["tile_id"] == "descending_stair"\
                     or gamemap.tilemap[e.x, e.y] == TilemapOrder.MAP_BORDER.value:
                     trash.append(e)
-    for e in trash: # 별도의 루프에서 처리해줘야함
+    for e in trash:
         print(f"DEBUG::Removed awkwardly placed entity {e.entity_id}.")
+        e.remove_self()
+
+def remove_biome_banned_entities(
+        gamemap: GameMap
+) -> None:
+    trash = []
+    if not gamemap.biome.banned_entities:
+        return
+    banlist = set(gamemap.biome.banned_entities)
+    for e in gamemap.entities:
+        if e.entity_id in banlist:
+            trash.append(e)
+    for e in trash:
+        print(f"DEBUG::Removed biome:{gamemap.biome.biome_id} banned entity {e.entity_id}.")
         e.remove_self()
 
 def generate_earth(
@@ -1066,6 +1080,9 @@ def generate_dungeon(
         rooms=rooms,
         )
     remove_awkward_entities(
+        gamemap=dungeon
+    )
+    remove_biome_banned_entities(
         gamemap=dungeon
     )
     if debugmode:

@@ -66,6 +66,7 @@ class AbilityInventory(BaseComponent):
                 return None
 
         if self.parent == self.engine.player:
+            self.engine.sound_manager.add_sound_queue("fx_gain_ability")
             if ability.ability_type == AbilityOrder.REGULAR_SKILL or ability.ability_type == AbilityOrder.PASSIVE_SKILL:
                 self.engine.message_log.add_message(i(f"당신은 새로운 기술을 습득했다! - {ability.name}",
                                                       f"You have learned a new skill! - {ability.name}"), fg=color.player_success)

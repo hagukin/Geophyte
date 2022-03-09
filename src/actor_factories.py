@@ -12,7 +12,7 @@ from components.actor_state import ActorState
 from entity import Actor
 from order import RenderOrder, InventoryOrder
 from typing import Optional
-from language import interpret as i
+from language import interpret as t
 from components.ai import BaseAI
 
 ### NOTE: Rarity can have value between 0 and 10 ###
@@ -92,7 +92,7 @@ player = Actor(
     fg=(0, 255, 0),
     name="",
     entity_id="player",
-    actor_type_desc=(i("당신은 쿠가의 아뮬렛을 가져오라는 임무를 받고 끝이 보이지 않는 던전으로 발을 들였다. ",
+    actor_type_desc=(t("당신은 쿠가의 아뮬렛을 가져오라는 임무를 받고 끝이 보이지 않는 던전으로 발을 들였다. ",
                        "You have entered the dungeon with a mission to reobtain the Amulet of Kugah.")),
     rarity=0,
     weight=70,
@@ -131,8 +131,8 @@ player = Actor(
     equipments=Equipments(),
     # initial_items=
     # (
-    #     {"item": item_factories.potion_of_paralysis, "chance": 1, "count": (10, 10), "BUC": {1:0,0:1,-1:0}, "upgrade": None},
-    #     {"item": item_factories.ration, "chance": 1, "count": (1, 1), "BUC": {1:0,0:1,-1:0}, "upgrade": None},
+    #     {"item": item_factories.steal_skillbook, "chance": 1, "count": (10, 10), "BUC": {1:0,0:1,-1:0}, "upgrade": None},
+    #     {"item": item_factories.potion_of_healing, "chance": 1, "count": (1, 1), "BUC": {1:0,0:1,-1:0}, "upgrade": None},
     # ),
 #     initial_equipments=(
 #         {"item":item_factories.longsword, "chance":1, "count":(1,1), "BUC":None, "upgrade": {0:1}},
@@ -155,16 +155,16 @@ player = Actor(
 shopkeeper = Actor(
     char="@",
     fg=(214, 181, 49),
-    name=i("상인","shopkeeper"),
+    name=t("상인", "shopkeeper"),
     entity_id="shopkeeper",
-    entity_desc=i(("던전 속에서 장사를 하기 위해서는 많은 것들이 필요하다. "
+    entity_desc=t(("던전 속에서 장사를 하기 위해서는 많은 것들이 필요하다. "
     "고객을 사로잡는 화려한 언변, 값어치있는 물건을 알아보는 눈썰미, 물건을 감정하기 위한 폭 넓은 지식. "
     "그러나 무엇보다 중요한 건, 바로 상점을 지킬 힘이다. "),
                   ("There are a lot of things you'll need to live as a merchant in the dungeon. "
                    "You'll need an eloquence, an intelligence, a sharp-eye, "
                    "but most of all, you'll need the power to protect your goods and yourself "
                    "from the murderous creatures living in the dungeon. ")),
-    actor_quote=i(("저 아래 괴물 소굴에서 장사하는 놈들은 둘 중에 하나야. 미쳤거나, 아니면 완전히 정신이 나갔거나. "),
+    actor_quote=t(("저 아래 괴물 소굴에서 장사하는 놈들은 둘 중에 하나야. 미쳤거나, 아니면 완전히 정신이 나갔거나. "),
                   ("There are two types of men who does a business down there. "
                    "They are either A) has a serious mental sickness or B) is completely out of their mind. ")),
     rarity=0,
@@ -231,15 +231,15 @@ ActorDB.monster_difficulty[shopkeeper.status.difficulty].append(shopkeeper)
 ant = Actor(
     char="a",
     fg=(51, 13, 0),
-    name=i("개미","ant"),
+    name=t("개미", "ant"),
     entity_id="ant",
-    entity_desc=i(("던전에서 뿜어나오는 어두운 기운은 동물은 물론 곤충들까지 거대하고 흉측한 괴수로 변이시켰다. "
+    entity_desc=t(("던전에서 뿜어나오는 어두운 기운은 동물은 물론 곤충들까지 거대하고 흉측한 괴수로 변이시켰다. "
     "그렇지만 개중에는 어두운 기운의 영향을 덜 받은 개체들도 있기 마련이다. "
     "비교적 던전의 기운을 덜 받은 이 개미들은 기껏해야 사람 손가락 남짓한 크기로, 대체로 별 위협이 되지 않는다. "),
                   ("The dark energy emitted from the underground transforms insects and animals into violent beasts."
                    "However there are few those who are slightly less threatning. "
                    "Ants are one of them. They are about the size of a human finger, and usually are not considered as a threat.")),
-    actor_quote=i(("우리 엄마는 저보고 항상 개미같이 열심히 일하는 사람이 되라고 말했어요. "),
+    actor_quote=t(("우리 엄마는 저보고 항상 개미같이 열심히 일하는 사람이 되라고 말했어요. "),
                   ("My mom always told me that I should work hard like an ant.")),
     rarity=15,
     weight = 0.07,
@@ -293,16 +293,16 @@ ActorDB.monster_difficulty[ant.status.difficulty].append(ant)
 fire_ant = Actor(
     char="a",
     fg=(255, 0, 0),
-    name=i("불개미","fire ant"),
+    name=t("불개미", "fire ant"),
     entity_id="fire_ant",
-    entity_desc=i(("던전의 불개미들은 만지면 따끔한 수준의 지상의 불개미들과는 차원이 다른 존재이다. "
+    entity_desc=t(("던전의 불개미들은 만지면 따끔한 수준의 지상의 불개미들과는 차원이 다른 존재이다. "
     "성인 남성 주먹 정도의 크기인 이들은, 전신에 두른 약한 화염으로 자신을 방어한다. "
     "이들이 턱에서 쏘는 작은 불꽃은 인간에게 크게 위협적이지는 않지만, "
     "책이나 주문서를 가지고 다니는 마법사들에게는 큰 골칫거리로 여겨진다. "),
                   ("Fire ants in the dungeon are literally a 'fire' ants. "
                    "They are about the size of a human fist and they protect themselves by surrounding their body with a flame. "
                    "Their flames are mostly not lethal but are considered a huge problem amongst wizards who carries books and scrolls.")),
-    actor_quote=i(("썅, 빌어먹을 불개미녀석들, 이번에는 400샤인짜리 주문서를 태워먹었다고. "),
+    actor_quote=t(("썅, 빌어먹을 불개미녀석들, 이번에는 400샤인짜리 주문서를 태워먹었다고. "),
                   ("Those goddamn fire ants. This time I've lost a scroll that worth 400 shine. ")),
     rarity=30,
     weight=0.1,
@@ -358,13 +358,13 @@ ActorDB.monster_difficulty[fire_ant.status.difficulty].append(fire_ant)
 volt_ant = Actor(
     char="a",
     fg=(99, 255, 193),
-    name=i("스파크 개미","volt ant"),
+    name=t("스파크 개미", "volt ant"),
     entity_id="volt_ant",
-    entity_desc=i(("스파크 개미들은 몸에 두른 전류를 통해 적으로부터 자신을 보호한다. "
+    entity_desc=t(("스파크 개미들은 몸에 두른 전류를 통해 적으로부터 자신을 보호한다. "
     "스파크 개미는 시큼텁텁한 맛이 나는 것으로 알려져 있으며, 일부 모험가들 사이에서는 별미로 꼽힌다. "),
                   ("Spark ants protect themselves by generating a electric volt. "
                    "They are well known for their unique sour-and-crackling taste and often considered a delicacy. ")),
-    actor_quote=i(("이놈들을 잔뜩 잡아서 안주로 팔면 대박이 날 거야. "),
+    actor_quote=t(("이놈들을 잔뜩 잡아서 안주로 팔면 대박이 날 거야. "),
                   ("I'm going to get rich if I sell these little ones with a beer.")),
     rarity=30,
     weight=0.1,
@@ -424,15 +424,15 @@ ActorDB.monster_difficulty[volt_ant.status.difficulty].append(volt_ant)
 bat = Actor(
     char="b",
     fg=(94, 0, 122),
-    name=i("박쥐","bat"),
+    name=t("박쥐", "bat"),
     entity_id="bat",
-    entity_desc=i(("박쥐는 조류가 아님에도, 공중에서 자유자재로 날아다닐 수 있는 비행능력을 보유하고 있다. "
+    entity_desc=t(("박쥐는 조류가 아님에도, 공중에서 자유자재로 날아다닐 수 있는 비행능력을 보유하고 있다. "
     "특유의 혐오감을 주는 외형 때문에 이들은 오랜 시간 인간들에게 박해받아왔고, 때문에 인간의 발길이 비교적 적은 던전 속에서 살아가는 박쥐들의 수가 점점 늘어나고 있다. "),
                   ("Although bats are technically not a bird, they can still fly around freely. "
                    "Historically bats were a symbol of betrayal and were generally hated by the humans. "
                    "Due to this hatred the number of bats living in the dungeon is increasing since there are less humans underground. ")),
-    actor_quote=i(("박쥐놈들은 병이나 옮길 줄 알지, 맛도 없고, 생긴 것도 징그럽고, 하등 도움이 안돼. "),
-                 ("Who likes bat? I mean, what do they even do? Probably spreading diseases? They don't even taste that good.")),
+    actor_quote=t(("박쥐놈들은 병이나 옮길 줄 알지, 맛도 없고, 생긴 것도 징그럽고, 하등 도움이 안돼. "),
+                  ("Who likes bat? I mean, what do they even do? Probably spreading diseases? They don't even taste that good.")),
     rarity=30,
     weight=3,
     spawnable=True,
@@ -492,16 +492,16 @@ ActorDB.monster_difficulty[bat.status.difficulty].append(bat)
 kitten = Actor(
     char="c",
     fg=(222, 208, 169),
-    name=i("새끼고양이","kitten"),
+    name=t("새끼고양이", "kitten"),
     entity_id="kitten",
-    entity_desc=i(("던전 속에서 새끼고양이는 둘 중 하나로 취급된다. "
+    entity_desc=t(("던전 속에서 새끼고양이는 둘 중 하나로 취급된다. "
     "작고 귀여운 동물, "
     "혹은 영양가 넘치는 자그마한 고깃덩어리. "),
                   ("Kittens can be seen as a two different thing. "
                    "A cute and adorable animal that should be protected, "
                    "or a small and delicious piece of meat. ")),
-    actor_quote=i(("얼마 전 옆집 고양이가 새끼를 낳았다던데, 그 집 식구들이 요즘 기운이 넘쳐보이는 건 기분 탓인가? "),
-                 ("I heard that our neighbor's cat had a kitten recently. Maybe that's why they look healthier than before.")),
+    actor_quote=t(("얼마 전 옆집 고양이가 새끼를 낳았다던데, 그 집 식구들이 요즘 기운이 넘쳐보이는 건 기분 탓인가? "),
+                  ("I heard that our neighbor's cat had a kitten recently. Maybe that's why they look healthier than before.")),
     rarity=10,
     weight=3.3,
     spawnable=True,
@@ -553,12 +553,16 @@ ActorDB.monster_difficulty[kitten.status.difficulty].append(kitten)
 cat = Actor(
     char="c",
     fg=(217, 184, 91),
-    name="고양이",
+    name=t("고양이", "cat"),
     entity_id="cat",
-    entity_desc=("고양이들은 게으르지만 맹수의 본능을 지닌 민첩한 사냥꾼들이다. "
+    entity_desc=t(("고양이들은 게으르지만 맹수의 본능을 지닌 민첩한 사냥꾼들이다. "
     "이들은 잡식성이고 시력이 좋기 때문에 많은 모험가들에게 애완동물로 사랑받는다. "
     "고양이들이 사람의 꿈을 조종하는 영적인 능력을 지녔다고 주장하는 학자들도 있지만, 명확히 밝혀진 것은 없다. "),
-    actor_quote=("그 녀석하고 눈이 마주친 날이면 난 항상 악몽을 꿔. 그런데도 왜일까, 녀석만 보면 자꾸 먹이를 주게 돼. "),
+                  ("Cats are lazy but they have an instinct of a beast. "
+                   "Due to their omnivorous taste and their swiftness, they are often regarded as a good pet for an dungeon explorere. "
+                   "Some scholars claim that cats have some kind of spiritual ability to control human's dream, but nothing has been proved yet. ")),
+    actor_quote=(t("그 녀석하고 눈이 마주친 날이면 난 항상 악몽을 꿔. 그런데도 나도 모르게 녀석만 보면 자꾸 먹이를 주게 돼. ",
+                   "I always get nightmares when I see his eyes. But for some reason I always find myself petting and feeding him.")),
     rarity=40,
     weight=6.5,
     spawnable=True,
@@ -610,11 +614,16 @@ ActorDB.monster_difficulty[cat.status.difficulty].append(cat)
 large_cat = Actor(
     char="c",
     fg=(230, 169, 0),
-    name="큰 고양이",
+    name=t("큰 고양이", "large cat"),
     entity_id="large_cat",
-    entity_desc=("던전의 기운을 받은 고양이들은 지상의 맹수에 가까운 크기로 자라기도 한다. " 
+    entity_desc=t(("던전의 기운을 받은 고양이들은 지상의 맹수에 가까운 크기로 자라기도 한다. " 
         "이들은 결코 맹수는 아니지만, 무방비한 모험가에게는 충분한 위협이 될 수 있다. "),
-    actor_quote=("내 흉터가 고양이 때문에 생겼다는 건 죽어도 비밀이다, 알겠지? "),
+                  ("Cats that lives in the dungeon sometimes grow as big as a beasts on the surface. "
+                   "Although they're not a beast, they're well enough to be a threat to an unprepared explorer.")),
+    actor_quote=(t("부탁이네, 내 흉터가 고양이 때문에 생겼다는 건 아무에게도 말하지 말아주게... "
+                 "다들 이건 타이탄과 싸우다 생긴 흉터라고 믿고 있단 말이야. ",
+                   "Please, I beg you, don't tell anyone that this scars are from a cat... "
+                   "Everyone is thinking that its from a fight with a titan. ")),
     rarity=35,
     weight=18.5,
     spawnable=True,
@@ -671,13 +680,18 @@ ActorDB.monster_difficulty[large_cat.status.difficulty].append(large_cat)
 puppy = Actor(
     char="d",
     fg=(196, 220, 255),
-    name="강아지",
+    name=t("강아지", "puppy"),
     entity_id="puppy",
-    actor_type_desc=("인간 최고의 친구라는 이명은 던전 안에서도 예외가 아니다. "
-        "이들은 한 번 충성을 바친 주인에게는 무슨 일이 있어도 복종하며, 자신의 목숨을 바치는 데에도 망설임이 없다. "),
-    entity_desc=("강아지들은 호기심이 넘치는 존재들이다. "
-        "이들은 성체에 비해 한참 뒤떨어지는 신체능력을 가졌지만, 넘치는 에너지 만큼은 성체를 압도한다. "),
-    actor_quote=("포션술사는 절대 강아지를 길러선 안돼. 집이 언제 불바다가 될 지 모르거든. "),
+    actor_type_desc=(t("인간 최고의 친구라는 이명은 던전 안에서도 예외가 아니다. "
+        "이들은 한 번 충성을 바친 주인에게는 무슨 일이 있어도 복종하며, 자신의 목숨을 바치는 데에도 망설임이 없다. ",
+                       "Dogs are known for being a man's best friend. "
+                       "They obey to their owner no matter what, and they won't hesitate to sacrifice themselves to save its owner. ")),
+    entity_desc=(t("강아지들은 호기심이 넘치는 존재들이다. "
+        "이들은 성체에 비해 한참 뒤떨어지는 신체능력을 가졌지만, 넘치는 에너지 만큼은 성체를 압도한다. ",
+                   "Puppies are especially curious beings. "
+                   "They lack physical strengh, but their joy and energy overpower adults.")),
+    actor_quote=(t("포션술사는 절대 강아지를 길러선 안돼. 집이 언제 불바다가 될 지 모르거든. ",
+                   "Alchemists should never have a puppy. The moment you blink, your house could go down on flames.")),
     rarity=10,
     weight=5.7,
     spawnable=True,
@@ -729,11 +743,14 @@ ActorDB.monster_difficulty[puppy.status.difficulty].append(puppy)
 dog = Actor(
     char="d",
     fg=(105, 165, 255),
-    name="개",
+    name=t("개", "dog"),
     entity_id="dog",
-    actor_type_desc=("인간 최고의 친구라는 이명은 던전 안에서도 예외가 아니다. "
-        "이들은 한 번 충성을 바친 주인에게는 무슨 일이 있어도 복종하며, 자신의 목숨을 바치는 데에도 망설임이 없다. "),
-    actor_quote=("가족이 날 버려도 너만은 함께 해주는구나, 토비. "),
+    actor_type_desc=(t("인간 최고의 친구라는 이명은 던전 안에서도 예외가 아니다. "
+                       "이들은 한 번 충성을 바친 주인에게는 무슨 일이 있어도 복종하며, 자신의 목숨을 바치는 데에도 망설임이 없다. ",
+                       "Dogs are known for being a man's best friend. "
+                       "They obey to their owner no matter what, and they won't hesitate to sacrifice themselves to save its owner. ")),
+    actor_quote=(t("가족이 날 버려도 너만은 함께 해주는구나, 토비. ",
+                   "MY dog Toby stayed with me in my darkest of times. He means everything to me. ")),
     rarity=35,
     weight=38.5,
     spawnable=True,
@@ -785,11 +802,15 @@ ActorDB.monster_difficulty[dog.status.difficulty].append(dog)
 large_dog = Actor(
     char="d",
     fg=(0, 102, 255),
-    name="큰 개",
+    name=t("큰 개", "large dog"),
     entity_id="large_dog",
-    actor_type_desc=("인간 최고의 친구라는 이명은 던전 안에서도 예외가 아니다. "
-        "...적으로 마주치지만 않는다면. "),
-    actor_quote=("사냥꾼의 가장 강력한 무기는 단검도, 활도 아니야. 그건 바로 녀석의 사냥개지. "),
+    actor_type_desc=(t("인간 최고의 친구라는 이명은 던전 안에서도 예외가 아니다. "
+                       "이들은 한 번 충성을 바친 주인에게는 무슨 일이 있어도 복종하며, 자신의 목숨을 바치는 데에도 망설임이 없다. ",
+                       "Dogs are known for being a man's best friend. "
+                       "They obey to their owner no matter what, and they won't hesitate to sacrifice themselves to save its owner. ")),
+    actor_quote=t(("사냥꾼의 가장 강력한 무기는 단검도, 활도 아니야. 그건 바로 녀석의 사냥개지. "),
+                  ("What's your most important weapon as a hunter? "
+                   "A knife? A bow? No, its your dog. ")),
     rarity=35,
     weight=55.3,
     spawnable=True,
@@ -841,11 +862,14 @@ ActorDB.monster_difficulty[large_dog.status.difficulty].append(large_dog)
 cerberus = Actor(
     char="d",
     fg=(227, 45, 0),
-    name="케르베로스",
+    name=t("케르베로스", "cerberus"),
     entity_id="cerberus",
-    entity_desc=("머리가 세 개 달린 커다란 개의 형상을 하고 있는 케르베로스는 예로부터 많은 사람들에게 공포의 대상으로 여겨졌다. "
+    entity_desc=t(("머리가 세 개 달린 커다란 개의 형상을 하고 있는 케르베로스는 예로부터 많은 사람들에게 공포의 대상으로 여겨졌다. "
         "이들은 일반적인 개들보다 뛰어난 신체 능력을 가지고 있으며, 세 개의 머리에서 약한 화염을 내뿜을 수 있다. "
         "세 개의 머리는 각각 별도의 자아를 지니고 있으나, 몸의 지배권 또한 세 개로 나누어져 있는지는 밝혀지지 않았다. "),
+                  ("Cerberus has a appearance of a dog with a three heads, and has been feared by many people. "
+                   "Their strengths are well above a regular dogs, and they can spit fire from their three heads. "
+                   "It is known that each head has its own personality, but its unclear whether they control their body seperately. ")),
     rarity=18,
     weight=165,
     spawnable=True,
@@ -902,12 +926,17 @@ ActorDB.monster_difficulty[large_dog.status.difficulty].append(cerberus)
 floating_eye = Actor(
     char="e",
     fg=(255, 255, 255),
-    name="떠다니는 눈",
+    name=t("떠다니는 눈", "floating_eye"),
     entity_id="floating_eye",
-    entity_desc=("던전 안의 많은 생명체들 중에서도 가장 기원을 알 수 없는 존재가 바로 '떠다니는 눈' 들이다. "
+    entity_desc=t(("던전 안의 많은 생명체들 중에서도 가장 기원을 알 수 없는 존재가 바로 '떠다니는 눈' 들이다. "
         "이들은 눈을 마주치는 것으로 생명체를 마비시킬 수 있는 강력한 힘을 가졌지만 "
         "다행히 이들은 호전적이지 않으며, 또 물리적으로는 아무런 위협이 되지 못한다. "),
-    actor_quote=("녀석의 눈을 바라봤을 때, 마치 몸의 지배권을 빼앗기는 느낌이었어. 내가 녀석이 되고 녀석이 내가 되는 듯한 느낌이었지. "),
+                  ("Floating eyes are one of the most unknown and mysterious entity in the dungeon. "
+                   "They have an ability to paralyze a creature just by staring at one, "
+                   "but thankfully they are not hostile, and they possess no physical threat. ")),
+    actor_quote=t(("녀석의 눈을 바라봤을 때, 마치 몸의 지배권을 빼앗기는 느낌이었어. 내가 녀석이 되고 녀석이 내가 되는 듯한 느낌이었지. "),
+                  ("When I saw its eyes it felt like I was losing control over my body. "
+                   "It felt like... I became it, and it became me. ")),
     rarity=15,
     weight=255.8,
     spawnable=True,
@@ -963,11 +992,14 @@ ActorDB.monster_difficulty[floating_eye.status.difficulty].append(floating_eye)
 piranha = Actor(
     char="f",
     fg=(0, 255, 0),
-    name="피라냐",
+    name=t("피라냐", "piranha"),
     entity_id="piranha",
-    entity_desc=("포악한 성격과 게걸스러운 식성으로 악명높은 피라냐는, 수영하기를 좋아하는 모험가들에게는 상당히 골치아픈 존재이다."
+    entity_desc=t(("포악한 성격과 게걸스러운 식성으로 악명높은 피라냐는, 수영하기를 좋아하는 모험가들에게는 상당히 골치아픈 존재이다."
                  "이들은 날카로운 이빨로 먹이를 인정사정없이 물어뜯으며, 작은 몸집에 걸맞는 재빠른 움직임을 보여주기 때문에 많은 주의가 필요하다."),
-    actor_quote=("백상아리도 피라냐 떼 앞에서는 맛있는 고깃덩어리에 지나지 않지."),
+                  ("Piranhas are noctorious for their violent behavior and greed for food. "
+                   "They are agile, and they rip apart their prey with a sharp teeth, so you need to be cautious when dealing with them. ")),
+    actor_quote=t(("백상아리도 피라냐 떼 앞에서는 맛있는 고깃덩어리에 지나지 않지."),
+                  ("Even a great white shark is nothing more than a chunk of meat to a group of piranhas.")),
     rarity=30,
     weight=5.4,
     spawnable=True,
@@ -1025,11 +1057,14 @@ ActorDB.monster_difficulty[piranha.status.difficulty].append(piranha)
 eel = Actor(
     char="f",
     fg=(0, 234, 255),
-    name="뱀장어",
+    name=t("뱀장어", "eel"),
     entity_id="eel",
-    entity_desc=("던전 속의 뱀장어들은 평범한 뱀장어들보다 두 배 가량 거대한 크기를 자랑한다. "
+    entity_desc=t(("던전 속의 뱀장어들은 평범한 뱀장어들보다 두 배 가량 거대한 크기를 자랑한다. "
                  "이들은 날카로운 비늘과 지느러미로 상대를 공격하며 때로는 마치 뱀처럼 먹이를 칭칭 감아 집어삼키기도 한다. "
                  "뱀장어의 고기는 어류 중에서도 특히 영양분이 풍부한 것으로 알려져 있다. "),
+                  ("Eels that live in the dungeon are about as twice as bigger than those who live on the surface. "
+                   "They attack with their sharp scales and fins, and sometimes wrap around their prey like a snake. "
+                   "Eels are also known for their high nutritions and great taste. ")),
     rarity=30,
     weight=13.2,
     spawnable=True,
@@ -1085,11 +1120,14 @@ ActorDB.monster_difficulty[eel.status.difficulty].append(eel)
 electric_eel = Actor(
     char="f",
     fg=(0, 255, 208),
-    name="전기뱀장어",
+    name=t("전기뱀장어", "electric eel"),
     entity_id="electric_eel",
-    entity_desc=("'소리없는 죽음'이라는 별명으로도 불리는 전기뱀장어들은, 상대에게 소리없는 강력한 전격 피해를 가하는 것으로 알려져 있다. "
-                 "이들은 외형적으로 평범한 뱀장어와 큰 차이가 없기 때문에 뱀장어를 사냥하려다 되려 이들에게 사망하는 경우가 종종 발생한다. "),
-    actor_quote=("뱀장어 구이를 좋아하던 옆집 녀석의 이야기를 듣고 나서부터 난 평생 고등어만 먹기로 다짐했지."),
+    entity_desc=(t("'소리없는 죽음'이라는 별명으로도 불리는 전기뱀장어들은, 상대에게 소리없는 강력한 전격 피해를 가하는 것으로 알려져 있다. "
+                 "이들은 외형적으로 평범한 뱀장어와 큰 차이가 없기 때문에 뱀장어를 사냥하려다 되려 이들에게 사망하는 경우가 종종 발생한다. ",
+                   "Electric eels, also known as 'the silent death', electrocute their prey without any noise. "
+                   "Their appearance are very similar to a regular eel, and people often die from mistaking one from another. ")),
+    actor_quote=(t("뱀장어 구이를 좋아하던 옆집 녀석의 이야기를 듣고 나서부터 난 평생 고등어만 먹기로 다짐했지.",
+                   "I used to like roasted eel. But after what to my neighbor, I swore never to eat it again. ")),
     rarity=10,
     weight=13.5,
     spawnable=True,
@@ -1151,11 +1189,15 @@ ActorDB.monster_difficulty[electric_eel.status.difficulty].append(electric_eel)
 fly = Actor(
     char="i",
     fg=(171, 63, 63),
-    name="파리",
+    name=t("파리", "fly"),
     entity_id="fly",
-    entity_desc=("\'던전의 청소부\' 라는 이명으로도 불리는 이 파리들은, 지상의 파리보다 몇 십 배는 더 큰 덩치에 걸맞는 왕성한 식욕을 보여준다. "
+    entity_desc=t(("\'던전의 청소부\' 라는 이명으로도 불리는 이 파리들은, 지상의 파리보다 몇 십 배는 더 큰 덩치에 걸맞는 왕성한 식욕을 보여준다. "
         "이들은 던전 속 썩어가는 거대한 시체들을 모조리 먹어치우며, 그 시체에 알을 낳고 번식한다. "),
-    actor_quote=("파리들이 다 죽으면 던전이 시체더미가 된다고는 하지만, 그 징그럽게 생긴 날개를 보고서도 놈을 죽이지 않을 놈이 몇이나 있을까? "),
+                  ("Flies are known as 'the cleaner of the dungeon'. "
+                   "They are much bigger than a regular fly, and they eat, and lay eggs to every food that they can find. ")),
+    actor_quote=(t("파리들이 다 죽으면 던전이 시체더미가 된다고는 하지만, 그 징그럽게 생긴 날개를 보고서도 놈을 죽이지 않을 놈이 몇이나 있을까? ",
+                   "Yes, Its true that if all flies are gone the dungeon will be filled with a pile of rotten corpses, "
+                   "but I mean, how can you hold yourself from killing those disgusting insects?")),
     rarity=40,
     weight=0.07,
     spawnable=True,
@@ -1210,12 +1252,17 @@ ActorDB.monster_difficulty[fly.status.difficulty].append(fly)
 giant_wasp = Actor(
     char="i",
     fg=(250, 250, 0),
-    name="거대 말벌",
+    name=t("거대 말벌", "giant wasp"),
     entity_id="giant_wasp",
-    entity_desc=("성인 남성 손가락 만한 이들의 독침은, 독 없이 그 자체만으로도 치명상을 입히기 충분하다. "
-        "거대 말벌들은 곡예에 가까운 비행 능력을 보여주며, 쏜살같은 속도로 목표물에게 날아들어 독침을 찔러넣는다. "
+    entity_desc=t(("성인 남성 손가락 만한 이들의 독침은, 독을 제외한 그 자체만으로도 치명상을 입히기 충분하다. "
+        "거대 말벌은 곡예에 가까운 비행 능력을 보여주며, 쏜살같은 속도로 목표물에게 날아들어 독침을 찔러넣는다. "
         "독침을 찔러 넣을 때는 눈, 생식기 등 급소를 노리는 것으로 알려져 있으며, 때문에 이들을 상대할 때는 갑옷을 입었다고 하더라도 큰 주의가 필요하다. "),
-    actor_quote=("독이 묻은 단검을 떠올려 봐. 꽤 살벌하지? 그런데 그 단검이 날아다니면서 너를 쫓아와 네 고간을 찌른다고 생각해봐. 대체 이보다 끔찍한 게 어디 있겠어? "),
+                  ("Giant wasp's sting is about the size of a human finger. "
+                   "They have an incredible flying skills, and are known to target the weak points of their prey. "
+                   "Due to their nature, you should be cautious even if you are wearing a heavy armor. ")),
+    actor_quote=t(("독이 묻은 단검을 떠올려 봐. 꽤 살벌하지? 그런데 그 단검이 날아다니면서 너를 쫓아와 네 고간을 찌른다고 생각해봐. 대체 이보다 끔찍한 게 어디 있겠어? "),
+                  ("Imagine a dagger with a poisoned tip. Quite threatning isn't it? "
+                  "Now imagine that the dagger is flying around at a high speed and is hunting you to stab you in your genital.")),
     rarity=35,
     weight=1.5,
     spawnable=True,
@@ -1275,12 +1322,16 @@ ActorDB.monster_difficulty[giant_wasp.status.difficulty].append(giant_wasp)
 black_jelly = Actor(
     char="j",
     fg=(10, 20, 10),
-    name="검정 덩어리",
+    name=t("검정 덩어리", "black jelly"),
     entity_id="black_jelly",
-    entity_desc=("점액질로 이루어진 이 생명체들은 딱히 이렇다 할 외형적 특징을 가지고 있지 않아 \"덩어리\"라는 이름으로 불린다. "
+    entity_desc=t(("점액질로 이루어진 이 생명체들은 딱히 이렇다 할 외형적 특징을 가지고 있지 않아 \"덩어리\"라는 이름으로 불린다. "
                 "이들 중 검정색을 띄고 있는 개체들은 독성 점액질로 이루어져 있는데, 이들은 신체 내에서 독성 가스를 압축한 뒤 터뜨려 자신의 점액질 일부를 적에게 발사하는 형식으로 적을 공격한다고 알려져 있다. "
                 "독성 점액질은 본체에서 분리되고 얼마 지나지 않아 썩어 사라지며, 본체 또한 많은 부분이 절단되면 순식간에 썩어 사라지는 특징을 보인다. "),
-    actor_quote=("이 놈들만큼 비료로 쓰기 좋은 게 또 없어. 당나귀 똥처럼 냄새도 안나지, 썩기는 또 순식간에 잘 썩지. 거기에 이놈들 살덩이는 잘라도 잘라도 계속 다시 자라나서 비료값 걱정도 할 필요 없다니깐? "),
+                  ("Black jellies are made out of poisonous goo. "
+                   "They attack by shooting out part of their body, and they do it by compressing the gas from the inside. "
+                   "The goo rots quickly once they are seperated from the body, and the body itself also rots quickly when they get heavily damaged. ")),
+    actor_quote=(t("이 놈들만큼 비료로 쓰기 좋은 게 또 없어. 당나귀 똥처럼 냄새도 안나지, 썩기는 또 순식간에 잘 썩지. 거기에 이놈들 살덩이는 잘라도 잘라도 계속 다시 자라나서 비료값 걱정도 할 필요 없다니깐? ",
+                   "These are the best fertilizer I've ever seen. They don't smell, they rot quickly, and most of all they grow again and again so you don't even have to worry about the bill. ")),
     rarity=33,
     weight=187,
     spawnable=True,
@@ -1337,14 +1388,20 @@ ActorDB.monster_difficulty[black_jelly.status.difficulty].append(black_jelly)
 elf_herbalist = Actor(
     char="l",
     fg=(255, 128, 247),
-    name="엘프 약초술사",
+    name=t("엘프 약초술사", "elf herbalist"),
     entity_id="elf_herbalist",
-    actor_type_desc=("엘프들은 예로부터 자연과 동화되어 사는 삶을 중요시해왔다. "
+    actor_type_desc=t(("엘프들은 예로부터 자연과 동화되어 사는 삶을 중요시해왔다. "
         "이들은 자기애가 넘치며, 인간을 비롯한 다른 종족들을 하대하는 경향이 있다. "
         "엘프 사회 내에서는 종족간의 다양성을 지향하는 온건파와 다른 종족들을 멸시하고 공격하는 강경파가 대립하고 있다. "),
-    entity_desc=("엘프 종족은 직업을 불문하고 약초술에 굉장히 능통한 모습을 보이는데, 개중에는 약초술만을 전문적으로 다루는 약초술사들도 존재한다. "
+                      ("Elves love only two things. Nature, and themselves. "
+                       "They are known for their egocentric behavior, and they often look down on other species. "
+                       "However, there are also are elves who support a diversity of a species. ")),
+    entity_desc=t(("엘프 종족은 직업을 불문하고 약초술에 굉장히 능통한 모습을 보이는데, 개중에는 약초술만을 전문적으로 다루는 약초술사들도 존재한다. "
                  "이들은 허브와 다양한 식물들을 배합해 강력한 포션을 만들어내며, 이러한 포션들을 사용해 전투에도 종종 참여하곤 한다. "),
-    actor_quote=("약초 따오는건 우리 마누라도 기가 막히게 잘하지. 얼굴도 좀 닮았으면 좋으련만."),
+                  ("Elves are generally very good at alchemy regardless of their profession, but there are specialists who study the deeper alchemy. "
+                   "They create effective potions by mixing different herbes and plants, and they sometime even participate in a battle using these potions. ")),
+    actor_quote=t(("약초 따오는건 우리 마누라도 기가 막히게 잘하지. 얼굴도 좀 닮았으면 좋으련만."),
+                  ("Just like elves, my wife is also an expert in colecting herbs. I just wish she looked like one as well.")),
     rarity=35,
     weight=57,
     spawnable=True,
@@ -1403,14 +1460,19 @@ ActorDB.monster_difficulty[elf_herbalist.status.difficulty].append(elf_herbalist
 elf_assasin = Actor(
     char="l",
     fg=(161, 0, 0),
-    name="엘프 암살자",
+    name=t("엘프 암살자", "elf assasin"),
     entity_id="elf_assasin",
-    actor_type_desc=("엘프들은 예로부터 자연과 동화되어 사는 삶을 중요시해왔다. "
-                     "이들은 자기애가 넘치며, 인간을 비롯한 다른 종족들을 하대하는 경향이 있다. "
-                     "엘프 사회 내에서는 종족간의 다양성을 지향하는 온건파와 다른 종족들을 멸시하고 공격하는 강경파가 대립하고 있다. "),
-    entity_desc=("엘프 암살자들은 날렵한 모습을 보여주며, 근거리, 원거리 할 것 없이 지능적으로 적과 전투한다. "
+    actor_type_desc=t(("엘프들은 예로부터 자연과 동화되어 사는 삶을 중요시해왔다. "
+                       "이들은 자기애가 넘치며, 인간을 비롯한 다른 종족들을 하대하는 경향이 있다. "
+                       "엘프 사회 내에서는 종족간의 다양성을 지향하는 온건파와 다른 종족들을 멸시하고 공격하는 강경파가 대립하고 있다. "),
+                      ("Elves love only two things. Nature, and themselves. "
+                       "They are known for their egocentric behavior, and they often look down on other species. "
+                       "However, there are also are elves who support a diversity of a species. ")),
+    entity_desc=t(("엘프 암살자들은 날렵한 모습을 보여주며, 근거리, 원거리 할 것 없이 지능적으로 적과 전투한다. "
                  "이들은 엘프제 무기를 주로 사용하며, 특히 엘프제 단검을 애용하는 것으로 알려져 있다. "
                  "이들은 어려서부터 단검 투척술을 배운다고 전해지며, 이들이 던지는 단검은 위협적이므로 많은 주의가 필요하다. "),
+                  ("Elf assasins are extremely agile, and they fight their enemy intellegently. "
+                   "They often wield elven weapons, especially the elven daggers which they use to throw.")),
     rarity=35,
     weight=71,
     spawnable=True,
@@ -1472,13 +1534,18 @@ ActorDB.monster_difficulty[elf_assasin.status.difficulty].append(elf_assasin)
 elf_fighter = Actor(
     char="l",
     fg=(255, 48, 48),
-    name="엘프 전사",
+    name=t("엘프 전사", "elf fighter"),
     entity_id="elf_fighter",
-    actor_type_desc=("엘프들은 예로부터 자연과 동화되어 사는 삶을 중요시해왔다. "
-                     "이들은 자기애가 넘치며, 인간을 비롯한 다른 종족들을 하대하는 경향이 있다. "
-                     "엘프 사회 내에서는 종족간의 다양성을 지향하는 온건파와 다른 종족들을 멸시하고 공격하는 강경파가 대립하고 있다. "),
-    entity_desc=("엘프 전사들은 엘프 고유의 발달된 감각기관을 이용하여 적의 공격을 능숙하게 피하고 치명적인 일격을 가한다. "
+    actor_type_desc=t(("엘프들은 예로부터 자연과 동화되어 사는 삶을 중요시해왔다. "
+                       "이들은 자기애가 넘치며, 인간을 비롯한 다른 종족들을 하대하는 경향이 있다. "
+                       "엘프 사회 내에서는 종족간의 다양성을 지향하는 온건파와 다른 종족들을 멸시하고 공격하는 강경파가 대립하고 있다. "),
+                      ("Elves love only two things. Nature, and themselves. "
+                       "They are known for their egocentric behavior, and they often look down on other species. "
+                       "However, there are also are elves who support a diversity of a species. ")),
+    entity_desc=t(("엘프 전사들은 엘프 고유의 발달된 감각기관을 이용하여 적의 공격을 능숙하게 피하고 치명적인 일격을 가한다. "
                  "이들은 엘프제 무기를 주로 사용하며, 특히 엘프제 검과 나무 방패를 애용하는 것으로 알려져 있다. "),
+                  ("Elf fighters uses their elven senses to dodge and predict the enemy movements. "
+                   "They often wield elven weapons, escpecially the elven sword and the wooden shield. ")),
     rarity=45,
     weight=71,
     spawnable=True,
@@ -1547,7 +1614,7 @@ ActorDB.monster_difficulty[elf_fighter.status.difficulty].append(elf_fighter)
 nymph = Actor(
     char="n",
     fg=(63, 245, 39),
-    name="님프",
+    name=t("님프", "nymph"),
     entity_id="nymph",
     entity_desc=("아름다운 님프와 인간 남성이 사랑에 빠지는 일은 현실에서도 종종 일어나곤 한다. "
         "그러나 그 결말은 신화 속 이야기처럼 아름답지 않다. "
@@ -1615,7 +1682,7 @@ ActorDB.monster_difficulty[nymph.status.difficulty].append(nymph)
 sphere_of_acid = Actor(
     char="o",
     fg=(123, 255, 0),
-    name="산성 구체",
+    name=t("산성 구체", "sphere of acid"),
     entity_id="sphere_of_acid",
     entity_desc=("산성 구체는 이름 그대로 산성을 띄는 가스들이 뭉친 구체이다. "
         "인간을 비롯한 일부 생명체에게만 반응하는 것을 보아 이들은 분명 인지 능력을 가지고는 있지만, "
@@ -1677,7 +1744,7 @@ ActorDB.monster_difficulty[sphere_of_acid.status.difficulty].append(sphere_of_ac
 jumping_spider = Actor(
     char="s",
     fg=(127, 235, 224),
-    name="깡충거미",
+    name=t("깡충거미", "jumping spider"),
     entity_id="jumping_spider",
     entity_desc=("손톱 정도 크기의 이 자그마한 거미들은 자신보다 덩치 큰 생명체들의 몸에 붙어 벼룩이나 빈대, 구더기 등을 잡아먹으며 살아간다. "
         "예로부터 몇몇 모험가들은 옷에 붙어있는 자그마한 벌레들을 잡기 위해 옷 속에 깡충거미를 집어넣기도 했다고 전해지며, "
@@ -1733,7 +1800,7 @@ ActorDB.monster_difficulty[jumping_spider.status.difficulty].append(jumping_spid
 gaion = Actor(
     char="s",
     fg=(160, 77, 255),
-    name="가이온",
+    name=t("가이온", "gaion"),
     entity_id="gaion",
     entity_desc=("가이온은 상반신은 인간, 하반신은 전갈의 모습을 한 반인반수이다. 이들은 굉장히 호전적이고, 대체로 인간과 비슷한 수준의 지능을 가지고 있다고 알려져 있다. "
         "그러나 인간과 달리 대다수의 가이온들은 무리를 이루지 않고 홀로 살아가며, 갓 태어난 새끼들 조차 독립적으로 생활하는 모습을 보인다. "
@@ -1803,7 +1870,7 @@ ActorDB.monster_difficulty[gaion.status.difficulty].append(gaion)
 earthworm = Actor(
     char="w",
     fg=(171, 108, 56),
-    name="지렁이",
+    name=t("지렁이", "earthworm"),
     entity_id="earthworm",
     entity_desc=("던전 속 식물들이 태양빛 없이 자랄 수 있는 가장 큰 이유는 바로 지렁이들이 배출한 양분 덕분일 것이다. "
         "이들은 지상의 평범한 지렁이들의 수 십 배 이상으로 토지를 기름지게 만들며, 식물들이 햇빛 없이도 자랄 수 있게 해 주는 알 수 없는 성분을 배출한다. "
@@ -1859,7 +1926,7 @@ ActorDB.monster_difficulty[earthworm.status.difficulty].append(earthworm)
 maggot = Actor(
     char="w",
     fg=(222, 222, 222),
-    name="구더기",
+    name=t("구더기", "maggot"),
     entity_id="maggot",
     entity_desc=("모험가들이 가장 무서워하는 생물이 무엇일까? 악마? 드래곤? 답은 바로 구더기이다. "
         "구더기들은 앞에 놓인 것이 무엇이든 간에 쉬지 않고 먹어치우며, 모험가들의 비상식량도 예외는 아니다. "),
@@ -1918,7 +1985,7 @@ ActorDB.monster_difficulty[maggot.status.difficulty].append(maggot)
 brown_bear = Actor(
     char="B",
     fg=(222, 208, 169),
-    name="불곰",
+    name=t("불곰", "brown bear"),
     entity_id="brown_bear",
     entity_desc=("던전 속의 불곰들은 지상의 불곰은 애교로 보이게 할 정도로 거대하고 흉폭하다. "
                  "이들은 앞발을 살짝 휘두르는 것 만으로 나무를 베어 넘길 수 있을 정도로 강한 힘을 가졌으며 "
@@ -1979,7 +2046,7 @@ ActorDB.monster_difficulty[brown_bear.status.difficulty].append(brown_bear)
 baby_spearhorn_dragon = Actor(
     char="D",
     fg=(122, 105, 255),
-    name="새끼 스피어혼 드래곤",
+    name=t("새끼 스피어혼 드래곤", "baby spearhorn dragon"),
     entity_id="baby_spearhorn_dragon",
     entity_desc=(""),
     actor_quote=(""),
@@ -2040,7 +2107,7 @@ ActorDB.monster_difficulty[baby_spearhorn_dragon.status.difficulty].append(baby_
 baby_armored_dragon = Actor(
     char="D",
     fg=(50, 168, 68),
-    name="새끼 아머 드래곤",
+    name=t("새끼 아머 드래곤", "baby armored dragon"),
     entity_id="baby_armored_dragon",
     entity_desc=(""),
     actor_quote=(""),
@@ -2105,7 +2172,7 @@ ActorDB.monster_difficulty[baby_armored_dragon.status.difficulty].append(baby_ar
 fire_elemental = Actor(
     char="E",
     fg=(255, 0, 0),
-    name="불의 정령",
+    name=t("불의 정령", "fire elemental"),
     entity_id="fire_elemental",
     actor_type_desc=("정령들의 존재는 익히 알려져 있지만, 그들의 기원을 두고는 무수한 추측만이 오갈 뿐이다. "
         "이들이 자연의 산물이라고 주장하는 자들이 있는가 하면, 고대의 마법사들의 창조물이라고 주장하는 자들도 있다. "
@@ -2173,7 +2240,7 @@ ActorDB.monster_difficulty[fire_elemental.status.difficulty].append(fire_element
 ice_elemental = Actor(
     char="E",
     fg=(207, 247, 255),
-    name="얼음 정령",
+    name=t("얼음 정령", "ice elemental"),
     entity_id="ice_elemental",
     actor_type_desc=("정령들의 존재는 익히 알려져 있지만, 그들의 기원을 두고는 무수한 추측만이 오갈 뿐이다. "
                      "이들이 자연의 산물이라고 주장하는 자들이 있는가 하면, 고대의 마법사들의 창조물이라고 주장하는 자들도 있다. "
@@ -2241,7 +2308,7 @@ ActorDB.monster_difficulty[ice_elemental.status.difficulty].append(ice_elemental
 earth_elemental = Actor(
     char="E",
     fg=(117, 52, 0),
-    name="땅의 정령",
+    name=t("땅의 정령", "earth elemental"),
     entity_id="earth_elemental",
     actor_type_desc=("정령들의 존재는 익히 알려져 있지만, 그들의 기원을 두고는 무수한 추측만이 오갈 뿐이다. "
                      "이들이 자연의 산물이라고 주장하는 자들이 있는가 하면, 고대의 마법사들의 창조물이라고 주장하는 자들도 있다. "
@@ -2310,7 +2377,7 @@ ActorDB.monster_difficulty[earth_elemental.status.difficulty].append(earth_eleme
 acid_elemental = Actor(
     char="E",
     fg=(155, 179, 0),
-    name="융해의 정령",
+    name=t("융해의 정령", "acid elemental"),
     entity_id="acid_elemental_ai",
     actor_type_desc=("정령들의 존재는 익히 알려져 있지만, 그들의 기원을 두고는 무수한 추측만이 오갈 뿐이다. "
         "이들이 자연의 산물이라고 주장하는 자들이 있는가 하면, 고대의 마법사들의 창조물이라고 주장하는 자들도 있다. "
@@ -2377,7 +2444,7 @@ ActorDB.monster_difficulty[acid_elemental.status.difficulty].append(acid_element
 poison_elemental = Actor(
     char="E",
     fg=(101, 0, 179),
-    name="맹독의 정령",
+    name=t("맹독의 정령", "poison elemental"),
     entity_id="poison_elemental",
     actor_type_desc=("정령들의 존재는 익히 알려져 있지만, 그들의 기원을 두고는 무수한 추측만이 오갈 뿐이다. "
                      "이들이 자연의 산물이라고 주장하는 자들이 있는가 하면, 고대의 마법사들의 창조물이라고 주장하는 자들도 있다. "
@@ -2444,7 +2511,7 @@ ActorDB.monster_difficulty[poison_elemental.status.difficulty].append(poison_ele
 lightning_elemental = Actor(
     char="E",
     fg=(0, 255, 251),
-    name="번개 정령",
+    name=t("번개 정령", "lightning elemental"),
     entity_id="lightning_elemental",
     actor_type_desc=("정령들의 존재는 익히 알려져 있지만, 그들의 기원을 두고는 무수한 추측만이 오갈 뿐이다. "
                      "이들이 자연의 산물이라고 주장하는 자들이 있는가 하면, 고대의 마법사들의 창조물이라고 주장하는 자들도 있다. "
@@ -2514,7 +2581,7 @@ ActorDB.monster_difficulty[lightning_elemental.status.difficulty].append(lightni
 red_prophet = Actor(
     char="F",
     fg=(122, 8, 0),
-    name="붉은 선지자",
+    name=t("붉은 선지자", "red prophet"),
     entity_id="red_prophet",
     actor_type_desc=("통상 '악마'라고 불리우는 이 저주받은 존재들은 생명 그 자체를 혐오하는 사악한 존재들이다. "
                      "이들은 굉장히 위험하기 때문에 발견하는 즉시 도망치거나 전투 준비를 갖춰야 한다."),
@@ -2587,7 +2654,7 @@ ActorDB.monster_difficulty[red_prophet.status.difficulty].append(red_prophet)
 unicorn = Actor(
     char="H",
     fg=(255, 255, 255),
-    name="유니콘",
+    name=t("유니콘", "unicorn"),
     entity_id="unicorn",
     entity_desc=("유니콘은 하얀색 말과 유사한 외형을 하고 있으며, 머리에 달린 기다란 뿔과 등에 달린 한 쌍의 날개가 이들을 말들과 구분할 수 있게 해준다. "
             "던전 속에는 인간에게 적대적인 유니콘들과 그렇지 않은 유니콘들이 모두 존재하며, 때문에 유니콘을 마주한다면 설사 적대적이지 않아 보이더라도 극심한 주의를 가하는 게 권장된다."
@@ -2672,7 +2739,7 @@ ActorDB.monster_difficulty[unicorn.status.difficulty].append(unicorn)
 chatterbox = Actor(
     char="I",
     fg=(255, 230, 230),
-    name="수다쟁이 괴물",
+    name=t("수다쟁이 괴물", "chatterbox"),
     entity_id="chatterbox",
     entity_desc=("던전에서 누군가 당신을 부르는 소리가 들린다면 뒤를 돌아보기보다는 검을 뽑아드는 편이 더 현명한 선택일지도 모른다. "
         "'수다쟁이'라는 이름으로 불리는 이 생명체는, 극단적으로 팔다리가 긴 여성 인간과 유사한 형태를 하고 있다. "
@@ -2731,7 +2798,7 @@ ActorDB.monster_difficulty[chatterbox.status.difficulty].append(chatterbox)
 kraken = Actor(
     char="K",
     fg=(255, 51, 0),
-    name="크라켄",
+    name=t("크라켄", "kraken"),
     entity_id="kraken",
     entity_desc=("크라켄은 거대한 문어와 유사한 외형을 하고 있으며, 수 십개가 넘는 거대한 촉수들에서 적을 휘감아 공격해온다. "
                  "크라켄의 촉수에 달린 빨판에서는 생명체를 마비시키는 신경독 성분이 포함된 점액이 분비되며, 이 점액질 성분은 마비 포션의 원료로써 사용되기도 한다. "
@@ -2799,7 +2866,7 @@ ActorDB.monster_difficulty[kraken.status.difficulty].append(kraken)
 baby_phoenix = Actor(
     char="M",
     fg=(255, 115, 0),
-    name="새끼 불사조",
+    name=t("새끼 불사조", "baby phoenix"),
     entity_id="baby_phoenix",
     actor_type_desc=("불사조는 인류보다도 오랜 세월을 이 땅에서 살아온 환상의 존재들이며, 마치 거대한 독수리와 공작새를 합친 듯한 외형을 하고 있다. "
             "이들은 살과 근육이 아닌, 붉은 화염을 연상케 하는 무언가로 구성되어 있으며, 이 '화염'이 무엇인지에 대한 의견은 학자들마다 분분하다. "
@@ -2871,7 +2938,7 @@ ActorDB.monster_difficulty[baby_phoenix.status.difficulty].append(baby_phoenix)
 phoenix = Actor(
     char="M",
     fg=(255, 8, 0),
-    name="불사조",
+    name=t("불사조", "phoenix"),
     entity_id="phoenix",
     actor_type_desc=("불사조는 인류보다도 오랜 세월을 이 땅에서 살아온 환상의 존재들이며, 마치 거대한 독수리와 공작새를 합친 듯한 외형을 하고 있다. "
             "이들은 살과 근육이 아닌, 붉은 화염을 연상케 하는 무언가로 구성되어 있으며, 이 '화염'이 무엇인지에 대한 의견은 학자들마다 분분하다. "
@@ -2947,7 +3014,7 @@ ActorDB.monster_difficulty[phoenix.status.difficulty].append(phoenix)
 orc_patrol = Actor(
     char="O",
     fg=(135, 184, 0),
-    name="오크 정찰병",
+    name=t("오크 정찰병", "orc patrol"),
     entity_id="orc_patrol",
     actor_type_desc=("인간과 가장 오랫동안 대립해온 종족인 오크는 힘과 명예를 중시하는 문화를 가지고 있다. "
                      "오크 사회에서 위계 질서는 절대적이며, 오크들간의 서열은 오직 힘으로 결정된다. "
@@ -3016,7 +3083,7 @@ ActorDB.monster_difficulty[orc_patrol.status.difficulty].append(orc_patrol)
 orc_warrior = Actor(
     char="O",
     fg=(0, 181, 15),
-    name="오크 전사",
+    name=t("오크 전사", "orc warrior"),
     entity_id="orc_warrior",
     actor_type_desc=("인간과 가장 오랫동안 대립해온 종족인 오크는 힘과 명예를 중시하는 문화를 가지고 있다. "
                      "오크 사회에서 위계 질서는 절대적이며, 오크들간의 서열은 오직 힘으로 결정된다. "
@@ -3086,7 +3153,7 @@ ActorDB.monster_difficulty[orc_warrior.status.difficulty].append(orc_warrior)
 orc_blacksmith = Actor(
     char="O",
     fg=(255, 132, 66),
-    name="오크 대장장이",
+    name=t("오크 대장장이", "orc blacksmith"),
     entity_id="orc_blacksmith",
     actor_type_desc=("인간과 가장 오랫동안 대립해온 종족인 오크는 힘과 명예를 중시하는 문화를 가지고 있다. "
                      "오크 사회에서 위계 질서는 절대적이며, 오크들간의 서열은 오직 힘으로 결정된다. "
@@ -3155,7 +3222,7 @@ ActorDB.monster_difficulty[orc_blacksmith.status.difficulty].append(orc_blacksmi
 orc_lord = Actor(
     char="O",
     fg=(222, 196, 0),
-    name="오크 족장",
+    name=t("오크 족장", "orc lord"),
     entity_id="orc_lord",
     actor_type_desc=("인간과 가장 오랫동안 대립해온 종족인 오크는 힘과 명예를 중시하는 문화를 가지고 있다. "
                      "오크 사회에서 위계 질서는 절대적이며, 오크들간의 서열은 오직 힘으로 결정된다. "
@@ -3228,7 +3295,7 @@ ActorDB.monster_difficulty[orc_lord.status.difficulty].append(orc_lord)
 orc_shaman = Actor(
     char="O",
     fg=(209, 240, 153),
-    name="오크 주술사",
+    name=t("오크 주술사", "orc shaman"),
     entity_id="orc_shaman",
     actor_type_desc=("인간과 가장 오랫동안 대립해온 종족인 오크는 힘과 명예를 중시하는 문화를 가지고 있다. "
                      "오크 사회에서 위계 질서는 절대적이며, 오크들간의 서열은 오직 힘으로 결정된다. "
@@ -3303,7 +3370,7 @@ ActorDB.monster_difficulty[orc_shaman.status.difficulty].append(orc_shaman)
 primeval_tortoise = Actor(
     char="R",
     fg=(0, 13, 255),
-    name="태고의 거북",
+    name=t("태고의 거북", "primeval tortoise"),
     entity_id="primeval_tortoise",
     entity_desc=("코끼리 정도의 몸집을 가진 이 거대한 육지거북은 평균 수명이 2천년 가량을 웃도는 것으로 알려져 있다. "
                  "이들은 육중한 몸 때문에 빠르게 움직이지 못하지만 단단한 등껍질과 거대한 앞발로 스스로를 보호한다. "),
@@ -3369,7 +3436,7 @@ ActorDB.monster_difficulty[primeval_tortoise.status.difficulty].append(primeval_
 troll = Actor(
     char="T",
     fg=(160, 176, 111),
-    name="트롤",
+    name=t("트롤", "troll"),
     entity_id="troll",
     entity_desc=("거대한 인간형 신체와 흉폭한 성격을 지닌 트롤들은 극단적으로 공격적인 성향을 보인다. "
         "이들은 지적으로 뛰어나지 못하며, 항상 피를 갈구하는 위험한 생명체이다. "
@@ -3428,7 +3495,7 @@ ActorDB.monster_difficulty[troll.status.difficulty].append(troll)
 giant = Actor(
     char="T",
     fg=(150, 30, 190),
-    name="자이언트",
+    name=t("자이언트", "giant"),
     entity_id="giant",
     entity_desc=("자이언트는 오우거, 트롤 등의 야수들보다도 더 큰 거대한 몸집을 가졌지만, 이들에 비하면 비교적 지능적인 존재이다. "
         "이들은 말을 할 수 있는 수준의 지성을 가지고 있으며, 간혹 무기를 만들어 사용하는 것이 관찰되기도 했다. "
@@ -3494,7 +3561,7 @@ ActorDB.monster_difficulty[giant.status.difficulty].append(giant)
 yeti = Actor(
     char="Y",
     fg=(171, 249, 255),
-    name="예티",
+    name=t("예티", "yeti"),
     entity_id="yeti",
     entity_desc=("예티는 두꺼운 털가죽으로 덮여있는 유인원과 유사한 외형을 하고 있으며, 뾰족한 뿔과 긴 송곳니 한 쌍이 가장 큰 특징이다. "
                  "주로 추운 곳에서 살아간다는 대중들의 인식과는 다르게 예티는 기후를 가리지 않고 다양한 곳에서 살아가며, 극단적으로는 사막에서 살아가는 것이 포착되기도 한다. "

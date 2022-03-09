@@ -88,9 +88,11 @@ class SelectTileReadable(Readable):
         target = action.target_actor
 
         if not self.can_select_not_visible_tile and not self.engine.game_map.visible[action.target_xy]:
+            self.engine.sound_manager.add_sound_queue("fx_invalid")
             raise Impossible(i("보이지 않는 지역을 선택할 수는 없습니다.",
                                f"You can't choose a non-visible area."))
         if not self.can_select_not_explored_tile and not self.engine.game_map.explored[action.target_xy]:
+            self.engine.sound_manager.add_sound_queue("fx_invalid")
             raise Impossible(i("모험하지 않은 지역을 선택할 수는 없습니다.",
                                f"You can't choose a non-explored area."))
 
@@ -116,9 +118,11 @@ class ScrollOfTeleportationReadable(SelectTileReadable):
 
         if consumer == self.engine.player:
             if not self.can_select_not_visible_tile and not self.engine.game_map.visible[action.target_xy]:
+                self.engine.sound_manager.add_sound_queue("fx_invalid")
                 raise Impossible(i("보이지 않는 지역을 선택할 수는 없습니다.",
                                    f"You can't choose a non-visible area."))
             if not self.can_select_not_explored_tile and not self.engine.game_map.explored[action.target_xy]:
+                self.engine.sound_manager.add_sound_queue("fx_invalid")
                 raise Impossible(i("모험하지 않은 지역을 선택할 수는 없습니다.",
                                    f"You can't choose a non-explored area."))
 
@@ -207,9 +211,9 @@ class ScrollOfTameReadable(SelectTileReadable):
                 consumer.status.experience.gain_charm_exp(200)
         else:
             if self.parent.item_state.BUC == 1:
-                tame_bonus = 5
+                tame_bonus = 4
             elif self.parent.item_state.BUC == -1:
-                tame_bonus = -3
+                tame_bonus = -1
                 target.status.take_damage(amount=0, attacked_from=consumer) # trigger
             else:
                 tame_bonus = 0
@@ -293,6 +297,7 @@ class ScrollOfEnchantmentReadable(SelectItemFromInventoryReadable):
     def effects_on_selected_item(self, consumer: Actor, selected_item: Item):
         # Log
         if consumer == self.engine.player:
+            self.engine.sound_manager.add_sound_queue("fx_enchant")
             if self.parent.item_state.BUC == 1:
                 if selected_item.equipable:
                     selected_item.equipable.upgrade_this(random.randint(1,2))
@@ -336,10 +341,12 @@ class ScrollOfIdentifyReadable(SelectItemFromInventoryReadable):
             if self.parent.item_state.BUC == 1:
                 for inv_item in consumer.inventory.items:
                     items.append(inv_item)
-            for i in items:
-                i.item_state.identify_self(2)
-                self.engine.message_log.add_message(i(f"당신은 {g(i.name, '을')} 감정했다.",
-                                                      f"You identify {i.name}."), color.player_success)
+            if items:
+                self.engine.sound_manager.add_sound_queue("fx_identify")
+            for item in items:
+                item.item_state.identify_self(2)
+                self.engine.message_log.add_message(i(f"당신은 {g(item.name, '을')} 감정했다.",
+                                                      f"You identify {item.name}."), color.player_success)
 
         if consumer.status.experience:
             consumer.status.experience.gain_intelligence_exp(20, exp_limit=2000)
@@ -375,6 +382,7 @@ class ScrollOfRemoveCurseReadable(SelectItemFromInventoryReadable):
             # Log
             if consumer == self.engine.player:
                 if buc == -1 and success: #If item was cursed before
+                    self.engine.sound_manager.add_sound_queue("fx_remove_curse")
                     self.engine.message_log.add_message(i(f"당신의 {g(selected_item.name, '로')}부터 사악한 기운이 사라졌다!",
                                                           f"Your {selected_item.name} is no longer cursed!"), color.player_success, target=consumer)
                 elif buc == -1 and not success:
@@ -389,6 +397,7 @@ class ScrollOfRemoveCurseReadable(SelectItemFromInventoryReadable):
             # Log
             if consumer == self.engine.player:
                 if buc != -1 and success:  # If item was not cursed before
+                    self.engine.sound_manager.add_sound_queue("fx_evil")
                     self.engine.message_log.add_message(i(f"당신의 {g(selected_item.name, '로')}부터 사악한 기운이 느껴진다!",
                                                           f"You sense something evil from your {selected_item.name}!"),color.player_bad, target=consumer)
                 elif buc != -1 and not success:
@@ -416,6 +425,7 @@ class ScrollOfMagicMappingReadable(Readable):
 
     def get_action(self, consumer):
         if consumer == self.engine.player:
+            self.engine.sound_manager.add_sound_queue("fx_magic_mapping")
             if self.parent.item_state.BUC == 1:
                 self.engine.message_log.add_message(i(f"당신의 머리 속에 이 층의 모든 비밀들이 전해졌다.",
                                                       f"You begin to notice every secrets of this level."), color.player_sense,)
@@ -486,6 +496,7 @@ class ScrollOfMeteorStormReadable(Readable): #TODO: Make parent class like other
         consumer = action.entity
 
         if not self.engine.game_map.visible[target_xy]:
+            self.engine.sound_manager.add_sound_queue("fx_invalid")
             raise Impossible(i("보이지 않는 지역을 선택할 수는 없습니다.",
                                f"You can't choose a non-visible area."))
 
@@ -523,13 +534,20 @@ class ScrollOfMeteorStormReadable(Readable): #TODO: Make parent class like other
         if not targets_hit and self.engine.game_map.visible[target_xy[0], target_xy[1]]:# nothing was hit
             self.engine.message_log.add_message(i(f"운석이 바닥과 충돌했다.",
                                                   f"Meteor collides with the ground."), fg=color.player_sense)
+        self.engine.sound_manager.add_sound_queue("fx_low_impact")
         self.consume(consumer)
 
         
 class AutoTargetingHarmfulReadable(Readable):
-    def __init__(self, maximum_range: int):
+    def __init__(self, maximum_range: int, fx_id: Optional[str]=None):
         super().__init__()
         self.maximum_range = maximum_range
+        self.fx_id = fx_id
+
+    def play_fx(self):
+        """Play when activated."""
+        if self.fx_id:
+            self.engine.sound_manager.add_sound_queue(self.fx_id)
 
     def effects_on_target_actor(self, consumer:Actor, target: Actor):
         pass
@@ -569,11 +587,12 @@ class AutoTargetingHarmfulReadable(Readable):
                 # if there is no valid target, it will target the reader instead.
                 self.effects_on_target_actor(consumer=consumer, target=consumer)
 
+        self.play_fx()
         self.consume(consumer)
 
 
 class RayReadable(Readable):
-    def __init__(self, anim_graphic, damage_range: Tuple[int,int]=(0,0), penetration: bool=False, wall_penetration_cnt: int=0, max_range: int=1000):
+    def __init__(self, anim_graphic, damage_range: Tuple[int,int]=(0,0), penetration: bool=False, wall_penetration_cnt: int=0, max_range: int=1000, stack_anim_frame: bool = True, fx_id: str="fx_ray"):
         """
         Args:
             anim_graphic:
@@ -588,6 +607,8 @@ class RayReadable(Readable):
         self.penetration = penetration
         self.wall_penetration_cnt = wall_penetration_cnt
         self.max_range = max_range
+        self.stack_anim_frame = stack_anim_frame
+        self.fx_id = fx_id
 
     @property
     def anim_graphic(self):
@@ -630,6 +651,11 @@ class RayReadable(Readable):
         """effects applied to the actor that the ray collided with."""
         pass
 
+    def play_ray_fx(self, consumer:Actor):
+        """Play sound fx when the ray is being casted AND consumer is player"""
+        if consumer == self.engine.player and self.fx_id:
+            self.engine.sound_manager.add_sound_queue(self.fx_id)
+
     def get_action(self, consumer, cancelled: bool=False) -> Optional[actions.Action]:
         if cancelled:
             return self.item_use_cancelled(actor=consumer)
@@ -662,6 +688,8 @@ class RayReadable(Readable):
             wall_penetration_cnt = round(wall_penetration_cnt * 2)
         elif self.parent.item_state.BUC == -1:
             wall_penetration_cnt = round(wall_penetration_cnt / 2)
+
+        self.play_ray_fx(consumer)
 
         while True:
             # ray is out of the map border
@@ -714,7 +742,7 @@ class RayReadable(Readable):
             self.effects_on_path(action=action, x=loc[0], y=loc[1])
 
         # instantiate animation and render it
-        ray_animation = Animation(engine=self.engine, frames=frames, stack_frames=True) # sec_per_frames = default
+        ray_animation = Animation(engine=self.engine, frames=frames, stack_frames=self.stack_anim_frame) # sec_per_frames = default
         ray_animation.render()
 
         # effects on the entities
@@ -812,8 +840,8 @@ class ScrollOfFreezingRayReadable(RayReadable):
 
 
 class ScrollOfLightningReadable(AutoTargetingHarmfulReadable):
-    def __init__(self, maximum_range: int, damage_range: Tuple[int,int]):
-        super().__init__(maximum_range)
+    def __init__(self, maximum_range: int, fx_id, damage_range: Tuple[int,int]):
+        super().__init__(maximum_range, fx_id)
         self.damage_range = damage_range
 
     @property
@@ -824,19 +852,16 @@ class ScrollOfLightningReadable(AutoTargetingHarmfulReadable):
         # Log
         if target == self.engine.player:
             self.engine.message_log.add_message(
-                i(f"번개가 큰 천둥소리와 함께 당신을 내리쳤다!",
+                i(f"번개가 당신을 내리쳤다!",
                   f"A lightning strikes you!"), fg=color.player_bad
             )
         else:
             self.engine.message_log.add_message(
-                i(f"번개가 큰 천둥소리와 함께 {g(target.name, '을')} 내리쳤다!",
+                i(f"번개가 {g(target.name, '을')} 내리쳤다!",
                   f"A lightning strikes {target.name}!"), target=target, fg=color.enemy_unique
             )
 
-        # trigger target
-        target.status.take_damage(amount=0, attacked_from=consumer)
-
-        # damage
+        target.status.take_damage(amount=0, attacked_from=consumer) # trigger target
         target.actor_state.apply_electrocution([self.damage, 0.5])
         target.actor_state.actor_electrocuted(source_actor=consumer)
 
@@ -851,8 +876,8 @@ class ScrollOfDestroyEquipmentReadable(Readable):
             destroy_item = random.choice(equipments)
             if destroy_item.item_state.BUC != 1 and not destroy_item.indestructible:
                 destroy_item.remove_self()
-                self.engine.sound_manager.add_sound_queue("fx_destroy_item")
                 if action.entity == self.engine.player:
+                    self.engine.sound_manager.add_sound_queue("fx_destroy_item")
                     self.engine.message_log.add_message(i(f"당신의 {g(destroy_item.name, '이')} 먼지가 되어 사라졌다!",
                                                           f"Your {destroy_item.name} crumbles to dust!"), fg=color.player_severe)
                 else:
@@ -869,15 +894,13 @@ class ScrollOfHatredReadable(Readable):
     def activate(self, action: actions.ReadItem) -> None:
         consumer = action.entity
         if consumer == self.engine.player:
-            if self.parent.item_state.BUC == 1:
-                self.engine.message_log.add_message(i(f"던전 전체에서 당신을 향한 끔찍한 증오심이 느껴진다!",
-                                                      f"You sense a dreadful amount of hatred towards you from the dungeon!"),fg=color.player_severe)
-            else:
-                self.engine.message_log.add_message(i(f"던전 전체에서 당신을 향한 끔찍한 증오심이 느껴진다!",
-                                                      f"You sense a dreadful amount of hatred towards you from the dungeon!"),fg=color.player_severe)
+            self.engine.message_log.add_message(i(f"던전 전체에서 당신을 향한 끔찍한 증오심이 느껴진다!",
+                                                  f"You sense a dreadful amount of hatred towards you from the dungeon!"),fg=color.player_severe)
+            self.engine.sound_manager.add_sound_queue("fx_hatred")
+
         for actor in consumer.gamemap.actors:
             if actor.ai:
-                if actor.ai.check_if_enemy(consumer) or self.parent.item_state.BUC == 1: # If blessed, trigger all actor
+                if actor.ai.check_if_enemy(consumer):
                     actor.status.take_damage(0, attacked_from=consumer)
                     actor.ai.path = actor.ai.get_path_to(consumer.x, consumer.y)
         self.consume(consumer)
@@ -888,21 +911,26 @@ class ScrollOfConflictReadable(Readable):
         super().__init__()
         self.last_turn = last_turn
 
+    def trigger_consumer(self, consumer: Actor) -> None:
+        consumer.actor_state.apply_anger([0, self.last_turn])
+        if consumer == self.engine.player:
+            self.engine.message_log.add_message(i(f"당신은 참을 수 없는 분노를 느낀다!",
+                                                  f"You feel an uncontrollable rage building inside you!"),
+                                                fg=color.player_severe)
+
     def activate(self, action: actions.ReadItem) -> None:
         consumer = action.entity
         if consumer == self.engine.player:
+            self.engine.sound_manager.add_sound_queue("fx_roar")
             self.engine.message_log.add_message(i(f"던전 곳곳에서 분노에 가득 찬 울부짖음이 들려온다!",
                                                   f"You hear an angry screams coming from the dungeon!"),fg=color.player_severe)
 
-        if self.parent.item_state.BUC == -1: # If cursed, anger only the consumer
-            consumer.actor_state.apply_anger([0,self.last_turn])
-            if consumer == self.engine.player:
-                self.engine.message_log.add_message(i(f"당신은 참을 수 없는 분노를 느낀다!",
-                                                      f"You feel an uncontrollable rage building inside you!"),fg=color.player_severe)
+        if self.parent.item_state.BUC == -1: # If cursed, trigger only the consumer
+            self.trigger_consumer(consumer)
         else:
             for actor in consumer.gamemap.actors:
-                if actor == consumer and self.parent.item_state.BUC == 1: # If blessed, trigger all but consumer
-                    continue
+                if actor == consumer and self.parent.item_state.BUC == 0: # If blessed, trigger all including the consumer.
+                    self.trigger_consumer(consumer)
                 else:
                     if actor.ai:
                         actor.ai.target = None # Reset target
@@ -928,6 +956,8 @@ class ScrollOfSummoningReadable(Readable):
         for m in mon_list:
             self.engine.message_log.add_message(i(f"{g(m.name, '이')} 소환되었다!",
                                                   f"{m.name} is summoned!"), fg=color.world)
+        if mon_list:
+            self.engine.sound_manager.add_sound_queue("fx_summon")
         self.consume(consumer)
 
 
@@ -1042,6 +1072,7 @@ class SatanicBibleBookReadable(BookReadable):
             reader.status.gain_intelligence(1)
             reader.status.gain_charm(1)
             if reader == self.engine.player:
+                self.engine.sound_manager.add_sound_queue("fx_evil2")
                 self.engine.message_log.add_message(i("당신은 무언가 중요한 것을 댓가로 더 강해진 듯한 기분이 들었다.",
                                                       f"You feel stronger in exchange for something important."), fg=color.player_neutral_important)
         else:

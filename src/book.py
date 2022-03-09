@@ -42,7 +42,7 @@ class MonsterBookIndexHandler(AskUserEventHandler):
 
     def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[Action]:
         """By default any key exits this input handler."""
-        if event.sym == tcod.event.K_ESCAPE:
+        if event.sym == tcod.event.K_ESCAPE or event.sym == tcod.event.K_TAB or event.sym == tcod.event.K_KP_TAB:
             return self.on_exit()
 
         if event.sym in {  # Ignore modifier keys.
@@ -136,6 +136,7 @@ class MonsterInfoHandler(AskUserEventHandler):
         if not self.engine._is_gameover:
             if save_actor_book(actor=self.monster): # Try save actor info to the book
                 # succeded
+                self.engine.sound_manager.add_sound_queue("fx_ui_positive")
                 self.engine.message_log.add_message(text=i(f"{g(self.monster.name, '이')} 몬스터 도감에 추가되었습니다.",
                                                            f"{self.monster.name} is now added to the encyclopedia."), fg=color.add_to_book)
 

@@ -362,10 +362,11 @@ class AbilityEventHandler(AskUserEventHandler):
                 # Message log
                 console.print(x + x_space + 1, y + i + y_space + 1, ability_text, fg=ability_text_color)
         else:
-            from language import interpret as i
-            console.print(x + x_space + 1, y + y_space + 1, i("(없음)","(None)"), color.gray)
+            from language import interpret as t
+            console.print(x + x_space + 1, y + y_space + 1, t("(없음)","(None)"), color.gray)
 
-        console.print(x + x_space + 1, height - 1, i("(/):능력 정렬 | ESC:취소",
+        from language import interpret as t
+        console.print(x + x_space + 1, height - 1, t("(/):능력 정렬 | ESC:취소",
                                                      "(/):Sort abilities | ESC:Escape"), color.gui_inventory_fg)
 
     def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[Action]:
@@ -1117,12 +1118,14 @@ class InventorySplitHandler(AskUserEventHandler):
                 if self.split_amount < self.item.stack_count - 10:
                     self.split_amount += 10
                 else:
+                    self.engine.sound_manager.add_sound_queue("fx_invalid")
                     self.engine.message_log.add_message(i(f"최대 {self.item.stack_count - 1}개 만큼 선택할 수 있습니다.",
                                                           f"You can choose up to {self.item.stack_count - 1}."), color.invalid, show_once=True)
             elif key == tcod.event.K_MINUS or key == tcod.event.K_KP_MINUS:
                 if self.split_amount > 10:
                     self.split_amount -= 10
                 else:
+                    self.engine.sound_manager.add_sound_queue("fx_invalid")
                     self.engine.message_log.add_message(i("1개 이상을 선택하셔야 합니다.",
                                                           "You should choose more than 1."), color.invalid, show_once=True)
         else:
@@ -1130,12 +1133,14 @@ class InventorySplitHandler(AskUserEventHandler):
                 if self.split_amount < self.item.stack_count - 1:
                     self.split_amount += 1
                 else:
+                    self.engine.sound_manager.add_sound_queue("fx_invalid")
                     self.engine.message_log.add_message(i(f"최대 {self.item.stack_count - 1}개 만큼 선택할 수 있습니다.",
                                                           f"You can choose up to {self.item.stack_count - 1}."), color.invalid, show_once=True)
             elif key == tcod.event.K_MINUS or key == tcod.event.K_KP_MINUS:
                 if self.split_amount > 1:
                     self.split_amount -= 1
                 else:
+                    self.engine.sound_manager.add_sound_queue("fx_invalid")
                     self.engine.message_log.add_message(i("1개 이상을 선택하셔야 합니다.",
                                                           "You should choose more than 1."), color.invalid, show_once=True)
             elif key == tcod.event.K_ESCAPE:
@@ -1197,12 +1202,14 @@ class SleepTurnSelectHandler(AskUserEventHandler):
                 if self.sleep_turn < 90:
                     self.sleep_turn += 10
                 else:
+                    self.engine.sound_manager.add_sound_queue("fx_invalid")
                     self.engine.message_log.add_message(i(f"최대 99턴까지 선택할 수 있습니다.",
                                                           "You can choose up to 99 turns."), color.invalid, show_once=True)
             elif key == tcod.event.K_MINUS or key == tcod.event.K_KP_MINUS:
                 if self.sleep_turn >= 20:
                     self.sleep_turn -= 10
                 else:
+                    self.engine.sound_manager.add_sound_queue("fx_invalid")
                     self.engine.message_log.add_message(i("10턴 이상을 선택하셔야 합니다.",
                                                           "You should choose more than 10 turns."), color.invalid, show_once=True)
         else:
@@ -1210,12 +1217,14 @@ class SleepTurnSelectHandler(AskUserEventHandler):
                 if self.sleep_turn < 99:
                     self.sleep_turn += 1
                 else:
+                    self.engine.sound_manager.add_sound_queue("fx_invalid")
                     self.engine.message_log.add_message(i(f"최대 99턴까지 선택할 수 있습니다.",
                                                           "You can choose up to 99 turns."), color.invalid,show_once=True)
             elif key == tcod.event.K_MINUS or key == tcod.event.K_KP_MINUS:
                 if self.sleep_turn > 10:
                     self.sleep_turn -= 1
                 else:
+                    self.engine.sound_manager.add_sound_queue("fx_invalid")
                     self.engine.message_log.add_message(i("10턴 이상을 선택하셔야 합니다.",
                                                           "You should choose more than 10 turns."), color.invalid,show_once=True)
             elif key == tcod.event.K_ESCAPE:
@@ -1652,6 +1661,7 @@ class SelectIndexHandler(AskUserEventHandler):
             # Press down ctrl to move camera
             if event.mod & (tcod.event.KMOD_LCTRL | tcod.event.KMOD_RCTRL):
                 if not self.engine.camera.move(dx, dy):
+                    self.engine.sound_manager.add_sound_queue("fx_invalid")
                     self.engine.message_log.add_message(i("더 이상 카메라를 움직일 수 없습니다.",
                                                           "You can't move the camera anymore."), fg=color.impossible)
                 self.cursor_loc = self.engine.clamp_mouse_on_map_rel(*self.cursor_loc)
@@ -1675,6 +1685,7 @@ class SelectIndexHandler(AskUserEventHandler):
             if event.button == tcod.event.BUTTON_LEFT:
                 return self.on_index_selected(*abs_cursor_loc)
         else:
+            self.engine.sound_manager.add_sound_queue("fx_invalid")
             self.engine.message_log.add_message(i("맵 안의 영역을 클릭하세요.",
                                                   "Choose the tile within the map area."), fg=color.invalid)
             if self.item_cancel_callback != None:
@@ -2342,37 +2353,38 @@ class MainGameEventHandler(EventHandler):
                                                           f"You feel sad."), color.white)
 
 
-            #     ######### TODO FIXME DEBUG
-            #     self.engine.change_entity_depth(
-            #         self.engine.player,
-            #         self.engine.depth + 1,
-            #         self.engine.world.get_map(self.engine.depth + 1).ascend_loc[0],
-            #         self.engine.world.get_map(self.engine.depth + 1).ascend_loc[1]
-            #     )
-            # elif key == tcod.event.K_F10:
-            #     ######### TODO FIXME DEBUG
-            #     self.engine.change_entity_depth(
-            #         self.engine.player,
-            #         self.engine.depth - 1,
-            #         self.engine.world.get_map(self.engine.depth - 1).ascend_loc[0],
-            #         self.engine.world.get_map(self.engine.depth - 1).ascend_loc[1] # NOTE: Chamber of Kugah has no descend loc
-            #     )
-            # elif key == tcod.event.K_F9:
-            #     # import procgen, actor_factories
-            #     # procgen.spawn_given_monster(
-            #     #     x=self.engine.player.x,
-            #     #     y=self.engine.player.y,
-            #     #     monster=actor_factories.piranha,
-            #     #     spawn_active=True,
-            #     #     spawn_sleep=False,
-            #     #     is_first_generation=False,
-            #     #     dungeon=self.engine.game_map
-            #     # )
-            #     self.engine.player.status.fully_heal()
-            # elif key == tcod.event.K_F8:
-            #     for y in range(len(self.engine.game_map.visible[0])):
-            #         for x in range(len(self.engine.game_map.visible)):
-            #             self.engine.game_map.visible[x, y] = True
+                ######### TODO FIXME DEBUG
+                self.engine.change_entity_depth(
+                    self.engine.player,
+                    self.engine.depth + 1,
+                    self.engine.world.get_map(self.engine.depth + 1).ascend_loc[0],
+                    self.engine.world.get_map(self.engine.depth + 1).ascend_loc[1]
+                )
+            elif key == tcod.event.K_F10:
+                ######### TODO FIXME DEBUG
+                self.engine.change_entity_depth(
+                    self.engine.player,
+                    self.engine.depth - 1,
+                    self.engine.world.get_map(self.engine.depth - 1).ascend_loc[0],
+                    self.engine.world.get_map(self.engine.depth - 1).ascend_loc[1] # NOTE: Chamber of Kugah has no descend loc
+                )
+            elif key == tcod.event.K_F9:
+                # import procgen, actor_factories
+                # procgen.spawn_given_monster(
+                #     x=self.engine.player.x,
+                #     y=self.engine.player.y,
+                #     monster=actor_factories.piranha,
+                #     spawn_active=True,
+                #     spawn_sleep=False,
+                #     is_first_generation=False,
+                #     dungeon=self.engine.game_map
+                # )
+                self.engine.player.status.fully_heal()
+            elif key == tcod.event.K_F8:
+                for y in range(len(self.engine.game_map.visible[0])):
+                    for x in range(len(self.engine.game_map.visible)):
+                        self.engine.game_map.visible[x, y] = True
+                self.engine.player.status.experience.gain_intelligence_exp(9999)
 
         # No valid key was pressed
         return action

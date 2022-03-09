@@ -102,28 +102,6 @@ forest_chamber = Terrain(
 terrain_dict[forest_chamber] = forest_chamber.rarity
 
 
-# Forest chamber spawn no door
-forest_chamber_spawn_no_door = Terrain(
-    name=i("숲", "forest"),
-    terrain_id="forest_chamber_spawn_no_door",
-    terrain_desc="",
-    rarity=0, # Manual
-    spawn_item=True,
-    spawn_monster=True,
-    gen_grass={"core_num_range":(1,6), "scale_range":(1,4), "density":0.3},
-    gen_plants={
-        "checklist":{
-            semiactor_factories.oak_tree:5,
-        },
-        "max_plants_per_room":99,
-        "spawn_chance":0.2,
-        "forced_plants_gen_number":0
-    },
-    spawn_door=False,
-)
-terrain_dict[forest_chamber_spawn_no_door] = forest_chamber_spawn_no_door.rarity
-
-
 # Landmine chamber
 landmine_chamber = Terrain(
     name=i("지뢰밭", "landmine chamber"),
@@ -157,38 +135,6 @@ grass_field = Terrain(
     gen_grass={"core_num_range":(1,8), "scale_range":(1,4), "density":0.6},
 )
 terrain_dict[grass_field] = grass_field.rarity
-
-
-# Grass Field Spawn No Door
-grass_field_spawn_no_door = Terrain(
-    name=i("평야", "grassfield"),
-    terrain_id="grass_field_spawn_no_door",
-    terrain_desc="",
-    rarity=0, # Must add terrain manually to generate
-    spawn_item=True,
-    spawn_monster=True,
-    has_door=True, # HAS DOOR CONVEXES
-    spawn_door=False,
-    gen_grass={"core_num_range":(1,8), "scale_range":(1,4), "density":0.6},
-)
-terrain_dict[grass_field_spawn_no_door] = grass_field_spawn_no_door.rarity
-
-
-# Large Grass Field Spawn No Door
-large_grass_field_spawn_no_door = Terrain(
-    name=i("평야", "grassfield"),
-    terrain_id="large_grass_field_spawn_no_door",
-    terrain_desc="",
-    rarity=0, # Must add terrain manually to generate
-    spawn_item=True,
-    spawn_monster=True,
-    has_door=True, # HAS DOOR CONVEXES
-    spawn_door=False,
-    min_width=9,
-    max_width=14,
-    gen_grass={"core_num_range":(1,8), "scale_range":(1,9), "density":0.6},
-)
-terrain_dict[large_grass_field_spawn_no_door] = large_grass_field_spawn_no_door.rarity
 
 
 # Trap Field

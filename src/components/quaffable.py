@@ -64,6 +64,7 @@ class PotionOfHealingQuaffable(Quaffable):
 
         if amount_recovered > 0:
             if apply_to == self.engine.player:
+                self.engine.sound_manager.add_sound_queue("fx_heal")
                 self.engine.message_log.add_message(i(f"당신의 상처가 낫기 시작한다!",
                                                       f"Your wounds begin to heal!"),color.player_buff,)
                 self.engine.message_log.add_message(i(f"당신은 {amount_recovered}만큼의 체력을 회복했다.",
@@ -106,6 +107,7 @@ class PotionOfManaQuaffable(Quaffable):
 
         if amount_recovered > 0:
             if apply_to == self.engine.player:
+                self.engine.sound_manager.add_sound_queue("fx_heal")
                 self.engine.message_log.add_message(i(f"영적으로 치유되는 느낌이 든다!",
                                                       f"You feel spritually healed!"),color.player_buff,)
                 self.engine.message_log.add_message(i(f"당신은 {amount_recovered}만큼의 마나를 회복했다.",

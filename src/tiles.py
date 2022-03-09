@@ -394,12 +394,12 @@ def wall_forest():
         transparent=False,
         diggable=True,
         dark=(
-            ord("♤"),
+            ord("♠"),
             (20, 20, 20),
             (20, 20, 50)
         ),
         light=(
-            ord("♤"),
+            ord("♠"),
             (78, 135, 80),
             (17, 77, 19)
         ),

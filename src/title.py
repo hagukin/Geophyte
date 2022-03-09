@@ -13,7 +13,7 @@ import chargen
 from option import Option
 from credits import Credit
 from sound import SoundManager
-from exceptions import DiffLangException
+from exceptions import DiffLangException, DiffVerException
 
 
 class TitleInputHandler(tcod.event.EventDispatch[None]):
@@ -87,7 +87,7 @@ class Title():
 
         # Copyright Note, version mark
         txt1 = "Copyright (C) 2020-2022 by Haguk Kim"
-        txt2 = "Geophyte "+Game.version
+        txt2 = "Geophyte "+Game.version+f" ({Game.language})"
         console.print(width - len(txt1) - 1, height - 4, string=txt1, fg=color.white)
         console.print(width - len(txt2) - 1, height - 2, string=txt2, fg=color.white)
 
@@ -183,6 +183,7 @@ class Title():
                 return engine
             elif title_action == "load_game":
                 langstr = "(알 수 없음)"
+                verstr = "(알 수 없음)"
                 try:
                     engine = load_game()
 
@@ -192,9 +193,23 @@ class Title():
                             langstr = engine.LANGUAGE
                             raise DiffLangException
                     except DiffLangException:
-                        console.print(5, 5, string=i(f"다른 언어로 플레이한 세이브 파일은 열 수 없습니다. 현재:{cfg['lang']} 세이브파일:{langstr}",
-                                                     f"Your current language doen't match with savefile's. Current:{cfg['lang']} Savefile:{langstr}"),
+                        console.print(1, 1, string=i(f"다른 언어로 플레이한 세이브 파일은 열 수 없습니다. 현재:{cfg['lang']} 세이브파일:{langstr}",
+                                                     f"Your current language doesn't match with savefile's. Current:{cfg['lang']} Savefile:{langstr}"),
                                       fg=color.red)
+                        sound_manager.add_sound_queue("fx_ui_warning")
+                        context.present(console, keep_aspect=True)
+                        continue
+
+                    # Version check
+                    try:
+                        if engine.VERSION != Game.version:
+                            verstr = engine.VERSION
+                            raise DiffVerException
+                    except DiffVerException:
+                        console.print(1, 1, string=i(f"다른 버전의 게임에서 플레이한 세이브 파일은 열 수 없습니다. 현재:{Game.version} 세이브파일:{verstr}",
+                                                     f"Your current game version doesn't match with savefile's. Current:{Game.version} Savefile:{verstr}"),
+                                      fg=color.red)
+                        sound_manager.add_sound_queue("fx_ui_warning")
                         context.present(console, keep_aspect=True)
                         continue
 
@@ -204,10 +219,19 @@ class Title():
                           color.welcome_text)
                     return engine
                 except FileNotFoundError:
-                    console.print(5, 5, string=i("세이브 파일을 찾지 못했습니다.",
+                    console.print(1, 1, string=i("세이브 파일을 찾지 못했습니다.",
                                                  "Failed to find a valid game data."), fg=color.red)
+                    sound_manager.add_sound_queue("fx_ui_warning")
                     context.present(console, keep_aspect=True)
                     continue
+                except Exception:
+                    console.print(1, 1, string=i(f"세이브 파일이 훼손되어 로드할 수 없습니다.",
+                                                 f"Savefile corrupted, failed to load."),
+                                  fg=color.red)
+                    sound_manager.add_sound_queue("fx_ui_warning")
+                    context.present(console, keep_aspect=True)
+                    continue
+
             elif title_action == "option":
                 Option.option_event_handler(console=console, context=context, game_started=False, sound_manager=sound_manager)
                 Title.render_title(console, context, logo_x, logo_y, animation_frame)

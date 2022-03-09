@@ -1,6 +1,7 @@
 from components import readable, quaffable, equipable, throwable, usable
 from components.item_state import ItemState
 from entity import Item
+from language import interpret as t
 import color
 import anim_graphics
 import components.edible as edible
@@ -21,7 +22,7 @@ potion_of_healing = Item(
     should_randomize=True,
     char="!",
     fg=(127, 0, 255),
-    name="회복의 물약",
+    name=t("회복의 물약", "potion of healing"),
     entity_id="potion_of_healing",
     entity_desc=("회복의 물약은 유기체의 손상된 조직을 빠른 속도로 치유한다. "
                  "흥미롭게도 회복의 물약의 구체적인 작동 원리는 밝혀지지 않은 채 조제법 만이 전해져 내려오고 있는데, "
@@ -61,7 +62,7 @@ potion_of_mana = Item(
     should_randomize=True,
     char="!",
     fg=(127, 0, 255),
-    name="마나 회복의 물약",
+    name=t("마나 회복의 물약", "potion of mana"),
     entity_id="potion_of_mana",
     entity_desc=("마나 회복의 물약은 음용자의 마나를 회복시킨다. "
                  "물약 속에는 다량의 마법 에너지들이 농축되어 있으며, 때문에 마나 회복의 물약을 만들기 위해서는 살아있는 생명체의 마나를 뽑아내는 과정이 필요하다. "
@@ -101,7 +102,7 @@ potion_of_paralysis = Item(
     should_randomize=True,
     char="!",
     fg=(255, 0, 255),
-    name="마비 물약",
+    name=t("마비 물약", "potion of paralysis"),
     entity_id="potion_of_paralysis",
     entity_desc=("마비 물약은 생명체를 일시적으로 마비시킬 수 있는 위험한 포션이다. "
                  "주로 사냥꾼들이 위험한 야수들을 사냥할 때 사용하곤 한다. "
@@ -141,8 +142,8 @@ potion_of_sleep = Item(
     should_randomize=True,
     char="!",
     fg=(255, 0, 255),
-    name="수면 물약",
-    entity_id="potion_of_paralysis",
+    name=t("수면 물약", "potion of sleep"),
+    entity_id="potion_of_sleep",
     entity_desc=("수면 물약은 생명체를 순식간에 깊은 잠에 빠지게 만든다. "
                  "생명체는 통상적인 수면보다 깊게 잠들게 되지만, 외부로부터의 충격을 받으면 잠에서 깰 수 있다. "
                  ),
@@ -181,7 +182,7 @@ potion_of_monster_detection = Item(
     should_randomize=True,
     char="!",
     fg=(255, 0, 255),
-    name="생명체 탐지의 물약",
+    name=t("생명체 탐지의 물약", "potion of monster detection"),
     entity_id="potion_of_monster_detection",
     entity_desc=("모든 생명체는 약간이지만 다른 생명체의 마력을 감지할 수 있는데, 우리가 간혹 '인기척이 느껴진다'는 기분을 받는 것도 이 때문이다. "
                  "생명체 탐지의 물약은 이 감각을 극도로 증폭시켜 복용자가 일시적으로 주변의 다른 생명체들을 감지할 수 있도록 만든다."
@@ -220,7 +221,7 @@ potion_of_flame = Item(
     should_randomize=True,
     char="!",
     fg=(255, 0, 255),
-    name="화염의 물약",
+    name=t("화염의 물약", "potion of flame"),
     entity_id="potion_of_flame",
     entity_desc=("화염의 물약은 대기와 반응해 불꽃을 일으킨다. "
                  "과거 화염 물약을 연료로 사용하려는 시도가 있었지만, 수많은 인명피해가 발생하고 나서 이러한 시도는 금지되었다. "
@@ -260,7 +261,7 @@ potion_of_acid = Item(
     should_randomize=True,
     char="!",
     fg=(255, 0, 255),
-    name="강산성 물약",
+    name=t("강산성 물약", "potion of acid"),
     entity_id="potion_of_acid",
     entity_desc=("강산성 물약은 산성을 띄는 화합물들에 마법적 변이를 가해 만든 물약으로, 이를 다룰 때는 극도로 주의를 기울여야 한다."
                  ),
@@ -299,7 +300,7 @@ potion_of_frost = Item(
     should_randomize=True,
     char="!",
     fg=(255, 0, 255),
-    name="냉기의 물약",
+    name=t("냉기의 물약", "potion of frost"),
     entity_id="potion_of_frost",
     entity_desc=("냉기의 물약은 대기와 반응하면 순식간에 얼어붙는 성질을 지녔다. "
                  ),
@@ -338,7 +339,7 @@ potion_of_poison = Item(
     should_randomize=True,
     char="!",
     fg=(255, 0, 255),
-    name="맹독의 물약",
+    name=t("맹독의 물약", "potion of poison"),
     entity_id="potion_of_poison",
     entity_desc=("맹독의 물약은 다양한 독성 화합물들에 마법적 변이를 가해 만든 물약으로, 대부분의 생명체들에게 치명적인 효과를 줄 수 있다. "
                  ),
@@ -377,7 +378,7 @@ potion_of_levitation = Item(
     should_randomize=True,
     char="!",
     fg=(255, 0, 255),
-    name="공중 부양의 물약",
+    name=t("공중 부양의 물약", "potion of levitation"),
     entity_id="potion_of_levitation",
     entity_desc=("공중 부양의 물약은 음용자를 일시적으로 지상에서 다섯 뼘 정도 떠오르게 만든다. "),
     item_type_desc=("예로부터 물약은 인간, 비인간을 막론하고 다양한 지적 생명체들에게 널리 연구되어왔다. "
@@ -415,7 +416,7 @@ potion_of_liquified_ants = Item(
     should_randomize=True,
     char="!",
     fg=(255, 0, 255),
-    name="액화 개미 물약",
+    name=t("액화 개미 물약", "potion of liquified ants"),
     entity_id="potion_of_liquified_ants",
     entity_desc=("액화 개미의 물약은 말 그대로 개미들에 마법적 변이를 가해 액체 형태로 만든 물약으로, "
                  "물약은 대기와 반응하여 다시 고체 형태의 개미들로 되돌아온다."
@@ -459,7 +460,7 @@ scroll_of_confusion = Item(
     should_randomize=True,
     char="~",
     fg=(207, 63, 255),
-    name="혼란의 주문서",
+    name=t("혼란의 주문서", "scroll of confusion"),
     entity_id="scroll_of_confusion",
     entity_desc=("혼란의 주문서를 읽은 사용자는 한 차례 자신이 원하는 생명체를 선택해 그 생명체의 사고를 방해해 혼란스럽게 만들 수 있다. "),
     item_type_desc=("주문서들은 마법을 사용할 줄 모르거나 내재하고 있는 마력이 부족하더라도 마법을 사용할 수 있게 해주는 유용한 도구이다. "
@@ -487,7 +488,7 @@ scroll_of_meteor_storm = Item(
     should_randomize=True,
     char="~",
     fg=(255, 100, 0),
-    name="운석 폭풍의 주문서",
+    name=t("운석 폭풍의 주문서", "scroll of meteor storm"),
     entity_id="scroll_of_meteor_storm",
     entity_desc=("운석 폭풍의 주문서를 읽은 사용자는 한 차례 자신이 원하는 공간에 거대한 운석을 소환할 수 있게 된다. "),
     item_type_desc=("주문서들은 마법을 사용할 줄 모르거나 내재하고 있는 마력이 부족하더라도 마법을 사용할 수 있게 해주는 유용한 도구이다. "
@@ -515,7 +516,7 @@ scroll_of_lightning = Item(
     should_randomize=True,
     char="~",
     fg=(255, 252, 99),
-    name="번개의 주문서",
+    name=t("번개의 주문서", "scroll of lightning"),
     entity_id="scroll_of_lightning",
     entity_desc=("번개의 주문서를 읽으면 읽은 사용자의 주변에 강력한 방전 현상이 발생해 주위 생명체에 강력한 번개를 내리친다. "),
     item_type_desc=("주문서들은 마법을 사용할 줄 모르거나 내재하고 있는 마력이 부족하더라도 마법을 사용할 수 있게 해주는 유용한 도구이다. "
@@ -531,7 +532,7 @@ scroll_of_lightning = Item(
     droppable=True,
     stackable=True,
     throwable=throwable.NormalThrowable(air_friction=20),
-    readable=readable.ScrollOfLightningReadable(damage_range=(38, 45), maximum_range=20),
+    readable=readable.ScrollOfLightningReadable(damage_range=(38, 45), fx_id="fx_lightning", maximum_range=20),
     quaffable=None,
 )
 temp_items_lists.append(scroll_of_lightning)
@@ -543,7 +544,7 @@ scroll_of_magic_missile = Item(
     should_randomize=True,
     char="~",
     fg=(100, 50, 255),
-    name="마법 광선의 주문서",
+    name=t("마법 광선의 주문서", "scroll of magic missile"),
     entity_id="scroll_of_magic_missile",
     entity_desc=("마법 광선의 주문서를 읽은 사용자는 강력한 마법 에너지가 내재된 광선을 발사할 수 있게 된다. "),
     item_type_desc=("주문서들은 마법을 사용할 줄 모르거나 내재하고 있는 마력이 부족하더라도 마법을 사용할 수 있게 해주는 유용한 도구이다. "
@@ -571,7 +572,7 @@ scroll_of_digging = Item(
     should_randomize=True,
     char="~",
     fg=(100, 50, 255),
-    name="굴착의 주문서",
+    name=t("굴착의 주문서", "scroll of digging"),
     entity_id="scroll_of_digging",
     entity_desc=("굴착의 주문서를 읽은 사용자는 대부분의 지형을 파괴시킬 수 있는 광선을 발사할 수 있게 된다. "
                  "이 광선은 대부분의 생명체에게는 아무런 피해를 주지 않는 것으로 알려져 있다. "),
@@ -600,7 +601,7 @@ scroll_of_magic_mapping = Item(
     should_randomize=True,
     char="~",
     fg=(255, 90, 90),
-    name="마법 지도의 주문서",
+    name=t("마법 지도의 주문서", "scroll of magic mapping"),
     entity_id="scroll_of_magic_mapping",
     entity_desc=("마법 지도의 주문서를 읽은 사용자는 주위의 공간적 정보들을 일시적으로 인식할 수 있게 된다. "),
     item_type_desc=("주문서들은 마법을 사용할 줄 모르거나 내재하고 있는 마력이 부족하더라도 마법을 사용할 수 있게 해주는 유용한 도구이다. "
@@ -628,7 +629,7 @@ scroll_of_scorching_ray = Item(
     should_randomize=True,
     char="~",
     fg=(255, 0, 30),
-    name="맹렬한 화염 광선의 주문서",
+    name=t("맹렬한 화염 광선의 주문서", "scroll of scorching ray"),
     entity_id="scroll_of_scorching_ray",
     entity_desc=("맹렬한 화염 광선의 주문서를 읽은 사용자는 주위 것들을 태워버리는 강렬한 화염으로 이루어진 광선을 발사할 수 있게 된다. "),
     item_type_desc=("주문서들은 마법을 사용할 줄 모르거나 내재하고 있는 마력이 부족하더라도 마법을 사용할 수 있게 해주는 유용한 도구이다. "
@@ -656,7 +657,7 @@ scroll_of_freezing_ray = Item(
     should_randomize=True,
     char="~",
     fg=(255, 0, 30),
-    name="얼어붙는 빙결 광선의 주문서",
+    name=t("얼어붙는 빙결 광선의 주문서", "scroll of freezing ray"),
     entity_id="scroll_of_freezing_ray",
     entity_desc=("얼어붙는 빙결 광선의 주문서를 읽은 사용자는 주위 것들을 얼려버리는 차가운 냉기로 이루어진 광선을 발사할 수 있게 된다. "),
     item_type_desc=("주문서들은 마법을 사용할 줄 모르거나 내재하고 있는 마력이 부족하더라도 마법을 사용할 수 있게 해주는 유용한 도구이다. "
@@ -684,7 +685,7 @@ scroll_of_tame = Item(
     should_randomize=True,
     char="~",
     fg=(255, 0, 200),
-    name="복종의 주문서",
+    name=t("복종의 주문서", "scroll of tame"),
     entity_id="scroll_of_tame",
     entity_desc=("복종의 주문서를 읽은 사용자는 다른 생명체를 복종시킬 수 있는 강력한 고위 주문을 한 차례 사용할 수 있게 된다. "),
     item_type_desc=("주문서들은 마법을 사용할 줄 모르거나 내재하고 있는 마력이 부족하더라도 마법을 사용할 수 있게 해주는 유용한 도구이다. "
@@ -712,7 +713,7 @@ scroll_of_enchantment = Item(
     should_randomize=True,
     char="~",
     fg=(191, 255, 0),
-    name="마법 강화의 주문서",
+    name=t("마법 강화의 주문서", "scroll of enchantment"),
     entity_id="scroll_of_enchantment",
     entity_desc=("마법 강화의 주문서를 읽은 사용자는 보유 중인 도구에 마법 에너지를 부여해 도구의 성능을 강화할 수 있게 된다. "),
     item_type_desc=("주문서들은 마법을 사용할 줄 모르거나 내재하고 있는 마력이 부족하더라도 마법을 사용할 수 있게 해주는 유용한 도구이다. "
@@ -740,7 +741,7 @@ scroll_of_identify = Item(
     should_randomize=True,
     char="~",
     fg=(255, 255, 200),
-    name="감정의 주문서",
+    name=t("감정의 주문서", "scroll of identify"),
     entity_id="scroll_of_identify",
     entity_desc=("감정의 주문서를 읽은 사용자는 원하는 물품의 성질에 대해 더 자세하게 이해할 수 있게 된다. "),
     item_type_desc=("주문서들은 마법을 사용할 줄 모르거나 내재하고 있는 마력이 부족하더라도 마법을 사용할 수 있게 해주는 유용한 도구이다. "
@@ -769,7 +770,7 @@ scroll_of_remove_curse = Item(
     should_randomize=True,
     char="~",
     fg=(255, 255, 200),
-    name="저주 해제의 주문서",
+    name=t("저주 해제의 주문서", "scroll of remove curse"),
     entity_id="scroll_of_remove_curse",
     entity_desc=("저주 해제의 주문서를 읽은 사용자는 물건에 걸린 저주를 제거할 수 있는 강력한 고위 마법을 한 차례 사용할 수 있게 된다. "),
     item_type_desc=("주문서들은 마법을 사용할 줄 모르거나 내재하고 있는 마력이 부족하더라도 마법을 사용할 수 있게 해주는 유용한 도구이다. "
@@ -797,7 +798,7 @@ scroll_of_teleportation = Item(
     should_randomize=True,
     char="~",
     fg=(255, 255, 200),
-    name="순간 이동의 주문서",
+    name=t("순간 이동의 주문서", "scroll of teleportation"),
     entity_id="scroll_of_teleportation",
     entity_desc=("순간 이동의 주문서를 읽은 사용자는 물리적으로 떨어진 공간으로 순간 이동을 할 수 있는 고위 마법을 한 차례 사용할 수 있게 된다. "
                  "불안정한 이동을 하는 경우가 잦다고 한다. "
@@ -827,7 +828,7 @@ scroll_of_destroy_equipment = Item(
     should_randomize=True,
     char="~",
     fg=(255, 255, 200),
-    name="장착품 파괴의 주문서",
+    name=t("장착품 파괴의 주문서", "scroll of destroy equipment"),
     entity_id="scroll_of_destroy_equipment",
     entity_desc=("장착품 파괴의 주문서는 사용자가 장비한 임의의 장착품 하나에 강력한 마법 에너지를 투사해 마법적으로 붕괴시킨다."),
     item_type_desc=("주문서들은 마법을 사용할 줄 모르거나 내재하고 있는 마력이 부족하더라도 마법을 사용할 수 있게 해주는 유용한 도구이다. "
@@ -855,7 +856,7 @@ scroll_of_hatred = Item(
     should_randomize=True,
     char="~",
     fg=(255, 255, 200),
-    name="증오의 주문서",
+    name=t("증오의 주문서", "scroll of hatred"),
     entity_id="scroll_of_hatred",
     entity_desc=("증오의 주문서는 주변의 생명체들에게 사용자를 향한 강한 증오감을 심어준다."),
     item_type_desc=("주문서들은 마법을 사용할 줄 모르거나 내재하고 있는 마력이 부족하더라도 마법을 사용할 수 있게 해주는 유용한 도구이다. "
@@ -883,7 +884,7 @@ scroll_of_conflict = Item(
     should_randomize=True,
     char="~",
     fg=(255, 255, 200),
-    name="불화의 주문서",
+    name=t("불화의 주문서", "scroll of conflict"),
     entity_id="scroll_of_conflict",
     entity_desc=("불화의 주문서는 자신을 포함한 주변 생명체들에게 걷잡을 수 없는 분노를 느끼게 만들어 서로 간의 불화를 발생시킨다. "),
     item_type_desc=("주문서들은 마법을 사용할 줄 모르거나 내재하고 있는 마력이 부족하더라도 마법을 사용할 수 있게 해주는 유용한 도구이다. "
@@ -911,7 +912,7 @@ scroll_of_summoning = Item(
     should_randomize=True,
     char="~",
     fg=(255, 255, 200),
-    name="소환의 주문서",
+    name=t("소환의 주문서", "scroll of summoning"),
     entity_id="scroll_of_summoning",
     entity_desc=("소환의 주문서는 무작위의 생명체를 주변에 소환시킨다. "),
     item_type_desc=("주문서들은 마법을 사용할 줄 모르거나 내재하고 있는 마력이 부족하더라도 마법을 사용할 수 있게 해주는 유용한 도구이다. "
@@ -943,7 +944,8 @@ steal_skillbook = Item(
     should_randomize=False, # NOTE: Skillbook names are not randomized.
     char="=",
     fg=(255, 255, 200),
-    name="'대도둑 레오파드의 소매치기 특강'이라고 적힌 책",
+    name=t("'대도둑 레오파드의 소매치기 특강'이라고 적힌 책",
+           "A book called 'Tips and tricks for thieves written by the Great Theif Leopard'"),
     entity_id="steal_skillbook",
     entity_desc=("표지에 큼지막한 글씨로 저자의 이름이 적혀있다. "),
     rarity=2,
@@ -962,7 +964,8 @@ steal_skillbook = Item(
     readable=readable.BookReadable(
         ability=ability_factories.steal,
         int_req=11,
-        read_msg="책에는 어떻게 하면 들키지 않고 소매치기를 할 수 있는지에 대한 내용들이 적혀있다.",
+        read_msg=t("책에는 어떻게 하면 들키지 않고 소매치기를 할 수 있는지에 대한 내용들이 적혀있다.",
+                   "The book explains a variety of ways to steal things without getting caught."),
         comprehension_chance_per_int_bonus=1, # Guarenteed
     ),
     quaffable=None,
@@ -977,9 +980,10 @@ satanic_bible = Item(
     should_randomize=False,
     char="=",
     fg=(161, 0, 0),
-    name="악마의 성서",
+    name=t("악마의 성서", "satanic bible"),
     entity_id="satanic_bible",
-    entity_desc="알 수 없는 언어가 뺴곡히 적혀있다. 중간중간 의미를 알 수 없는 삽화들이 그려져 있다. 책 표지는 파충류의 비늘과도 유사한 무언가로 만들어져 있다.",
+    entity_desc=t("알 수 없는 언어가 빼곡히 적혀있다. 중간중간 의미를 알 수 없는 삽화들이 그려져 있다. 책 표지는 파충류의 비늘과도 유사한 무언가로 만들어져 있다.",
+                  "The book contains unrecognizable glyphs and odd pictures. The cover of the book is made of something that resembles a scale of a snake."),
     rarity=0,
     weight=0.66,
     price=13,
@@ -1014,7 +1018,7 @@ lightning_bolt_spellbook = Item(
     should_randomize=True,
     char="=",
     fg=(255, 255, 200),
-    name="뇌격 마법서",
+    name=t("뇌격 마법서", "spellbook of lightning bolt"),
     entity_id="lightning_bolt_spellbook",
     item_type_desc=("마법서는 단순한 책들과는 격을 달리 하는 물건이다. "
                     "이들은 막대한 마법 에너지를 사용해 제작되며, 그 내용도 쉽게 이해하기 어려운 경우가 많다."),
@@ -1045,7 +1049,7 @@ soul_bolt_spellbook = Item(
     should_randomize=True,
     char="=",
     fg=(255, 255, 200),
-    name="소울 볼트 마법서",
+    name=t("소울 볼트 마법서", "spellbook of soul bolt"),
     entity_id="soul_bolt_spellbook",
     item_type_desc=("마법서는 단순한 책들과는 격을 달리 하는 물건이다. "
                     "이들은 막대한 마법 에너지를 사용해 제작되며, 그 내용도 쉽게 이해하기 어려운 경우가 많다."),
@@ -1076,7 +1080,7 @@ cure_wound_spellbook = Item(
     should_randomize=True,
     char="=",
     fg=(255, 255, 200),
-    name="상처 치유 마법서",
+    name=t("상처 치유 마법서", "spellbook of cure wound"),
     entity_id="cure_wound_spellbook",
     item_type_desc=("마법서는 단순한 책들과는 격을 달리 하는 물건이다. "
                     "이들은 막대한 마법 에너지를 사용해 제작되며, 그 내용도 쉽게 이해하기 어려운 경우가 많다."),
@@ -1107,7 +1111,7 @@ mesmerize_spellbook = Item(
     should_randomize=True,
     char="=",
     fg=(255, 255, 200),
-    name="매혹 마법서",
+    name=t("매혹 마법서", "spellbook of mesmerization"),
     entity_id="mesmerize_spellbook",
     item_type_desc=("마법서는 단순한 책들과는 격을 달리 하는 물건이다. "
                     "이들은 막대한 마법 에너지를 사용해 제작되며, 그 내용도 쉽게 이해하기 어려운 경우가 많다."),
@@ -1138,7 +1142,7 @@ teleport_spellbook = Item(
     should_randomize=True,
     char="=",
     fg=(255, 255, 200),
-    name="순간이동 마법서",
+    name=t("순간이동 마법서", "spellbook of teleportation"),
     entity_id="teleport_spellbook",
     item_type_desc=("마법서는 단순한 책들과는 격을 달리 하는 물건이다. "
                     "이들은 막대한 마법 에너지를 사용해 제작되며, 그 내용도 쉽게 이해하기 어려운 경우가 많다."),
@@ -1174,7 +1178,7 @@ item_rarity.append(teleport_spellbook.rarity)
 rags = Item(
     char="[",
     fg=(231, 255, 173),
-    name="천쪼가리",
+    name=t("천쪼가리", "rags"),
     entity_id="rags",
     entity_desc=("다 헤져가는 천 쪼가리이다. "),
     rarity=7,
@@ -1207,7 +1211,7 @@ item_rarity.append(rags.rarity)
 leather_armor = Item(
     char="[",
     fg=(255, 100, 50),
-    name="가죽 갑옷",
+    name=t("가죽 갑옷", "leather armor"),
     entity_id="leather_armor",
     entity_desc=("질긴 가죽을 덧대 만든 갑옷이다. "),
     rarity=5,
@@ -1239,7 +1243,7 @@ item_rarity.append(leather_armor.rarity)
 iron_chain_mail = Item(
     char="[",
     fg=(94, 255, 0),
-    name="철제 사슬 갑옷",
+    name=t("철제 사슬 갑옷", "iron chain mail"),
     entity_id="iron_chain_mail",
     entity_desc=("철로 만든 사슬들을 엮어 만든 갑옷이다. "),
     rarity=3,
@@ -1271,7 +1275,7 @@ item_rarity.append(iron_chain_mail.rarity)
 iron_scale_armor = Item(
     char="[",
     fg=(166, 255, 254),
-    name="철제 비늘 갑옷",
+    name=t("철제 비늘 갑옷", "iron scale armor"),
     entity_id="iron_scale_armor",
     entity_desc=("작은 철판들을 가죽에 덧대 만든 갑옷이다. "),
     rarity=3,
@@ -1303,7 +1307,7 @@ item_rarity.append(iron_scale_armor.rarity)
 iron_plate_armor = Item(
     char="[",
     fg=(255, 100, 50),
-    name="철제 판금 갑옷",
+    name=t("철제 판금 갑옷", "iron plate armor"),
     entity_id="iron_plate_armor",
     entity_desc=("철판들을 이어붙여 만든 갑옷이다. "),
     rarity=3,
@@ -1335,7 +1339,7 @@ item_rarity.append(iron_plate_armor.rarity)
 merchant_robe = Item(
     char="[",
     fg=(120, 60, 250),
-    name="상인의 로브",
+    name=t("상인의 로브", "merchant robe"),
     entity_id="merchant_robe",
     entity_desc="던전에서 장사하는 상인들이 착용하는 로브로, 상인 길드 로고가 그려진 작은 금속 단추가 달려 있다.",
     rarity=0,
@@ -1372,7 +1376,7 @@ item_rarity.append(merchant_robe.rarity)
 silk_dress = Item(
     char="[",
     fg=(255, 222, 251),
-    name="실크 드레스",
+    name=t("실크 드레스", "silk dress"),
     entity_id="silk_dress",
     entity_desc="실크로 만들어진 드레스이다. ",
     rarity=1,
@@ -1406,7 +1410,7 @@ item_rarity.append(silk_dress.rarity)
 primeval_tortoise_shell = Item(
     char="[",
     fg=(37, 171, 0),
-    name="태고의 거북 등껍질",
+    name=t("태고의 거북 등껍질", "primeval tortoise shell"),
     entity_id="primeval_tortoise_shell",
     entity_desc="태고의 거북의 등껍질 조각이다. 방어구로 착용할 수 있을 것 같아 보인다.",
     rarity=0,
@@ -1442,7 +1446,7 @@ item_rarity.append(primeval_tortoise_shell.rarity)
 iron_headpiece = Item(
     char="[",
     fg=(201, 168, 0),
-    name="철제 전투모",
+    name=t("철제 전투모", "iron headpiece"),
     entity_id="iron_headpiece",
     entity_desc=("머리 윗 부분을 보호해주는 철제 전투모이다. 가죽 끈을 턱에 둘러 머리에 고정시킬 수 있다. "),
     rarity=9,
@@ -1474,7 +1478,7 @@ item_rarity.append(iron_headpiece.rarity)
 iron_helmet = Item(
     char="[",
     fg=(0, 201, 70),
-    name="철제 투구",
+    name=t("철제 투구", "iron helmet"),
     entity_id="iron_helmet",
     entity_desc=("철로 만들어진 투구이다. 얼굴 부분을 제외한 모든 부분이 철판으로 둘러쌓여 있다. "),
     rarity=7,
@@ -1506,7 +1510,7 @@ item_rarity.append(iron_helmet.rarity)
 iron_armet = Item(
     char="[",
     fg=(10, 104, 255),
-    name="철제 아멧",
+    name=t("철제 아멧", "iron armet"),
     entity_id="iron_armet",
     entity_desc=("머리 전체를 보호하는 투구이다. 얼굴 부분에 철로 만들어진 바이저가 부착되어 있다. "),
     rarity=5,
@@ -1538,7 +1542,7 @@ item_rarity.append(iron_armet.rarity)
 horned_helmet = Item(
     char="[",
     fg=(166, 255, 254),
-    name="뿔 달린 투구",
+    name=t("뿔 달린 투구", "horned helmet"),
     entity_id="horned_helmet",
     entity_desc=("머리를 보호하는 투구이다. 머리 양쪽에 철로 만들어진 뿔 한 쌍이 달려 있다. "),
     rarity=5,
@@ -1574,7 +1578,7 @@ item_rarity.append(horned_helmet.rarity)
 leather_pants = Item(
     char="[",
     fg=(255, 61, 71),
-    name="가죽 바지",
+    name=t("가죽 바지", "leather pants"),
     entity_id="leather_pants",
     entity_desc=("질긴 가죽으로 만들어진 바지이다. "),
     rarity=9,
@@ -1606,7 +1610,7 @@ item_rarity.append(leather_pants.rarity)
 leather_armored_pants = Item(
     char="[",
     fg=(120, 214, 175),
-    name="가죽 장갑 하의",
+    name=t("가죽 장갑 하의", "leather armored pants"),
     entity_id="leather_armored_pants",
     entity_desc=("가죽에 철판을 덧대 만든 하의이다. "),
     rarity=7,
@@ -1638,7 +1642,7 @@ item_rarity.append(leather_armored_pants.rarity)
 iron_armored_pants = Item(
     char="[",
     fg=(159, 224, 90),
-    name="철제 장갑 하의",
+    name=t("철제 장갑 하의", "iron armored pants"),
     entity_id="iron_armored_pants",
     entity_desc=("철판으로 만들어진 하의이다. "),
     rarity=5,
@@ -1672,7 +1676,7 @@ item_rarity.append(iron_armored_pants.rarity)
 leather_boots = Item(
     char="[",
     fg=(17, 168, 45),
-    name="가죽 부츠",
+    name=t("가죽 부츠", "leather boots"),
     entity_id="leather_boots",
     entity_desc=("발목까지 올라오는 가죽 부츠이다. "
                  "일부 지형지물로부터 사용자를 보호할 수 있다. "),
@@ -1705,7 +1709,7 @@ item_rarity.append(leather_boots.rarity)
 boots_of_haste = Item(
     char="[",
     fg=(0, 255, 76),
-    name="신속의 부츠",
+    name=t("신속의 부츠", "boots of haste"),
     entity_id="boots_of_haste",
     entity_desc=(""),
     rarity=1,
@@ -1742,7 +1746,7 @@ item_rarity.append(boots_of_haste.rarity)
 iron_boots = Item(
     char="[",
     fg=(17, 113, 168),
-    name="철제 부츠",
+    name=t("철제 부츠", "iron boots"),
     entity_id="iron_boots",
     entity_desc=("발목까지 올라오는 철제 부츠이다. "
                  "일부 지형지물로부터 사용자를 보호할 수 있다. "),
@@ -1776,7 +1780,7 @@ item_rarity.append(iron_boots.rarity)
 iron_gauntlet = Item(
     char="[",
     fg=(255, 221, 143),
-    name="철제 건틀릿",
+    name=t("철제 건틀릿", "iron gauntlet"),
     entity_id="iron_gauntlet",
     entity_desc=("손과 팔 부분을 보호하는 건틀릿이다. "),
     rarity=6,
@@ -1808,7 +1812,7 @@ item_rarity.append(iron_gauntlet.rarity)
 leather_glove = Item(
     char="[",
     fg=(168, 111, 50),
-    name="가죽 장갑",
+    name=t("가죽 장갑", "leather glove"),
     entity_id="leather_glove",
     entity_desc=("가죽으로 된 장갑이다. 사냥꾼들이 즐겨 착용한다. "),
     rarity=8,
@@ -1840,7 +1844,7 @@ item_rarity.append(leather_glove.rarity)
 mitten = Item(
     char="[",
     fg=(240, 240, 240),
-    name="벙어리 장갑",
+    name=t("벙어리 장갑", "mitten"),
     entity_id="mitten",
     entity_desc=("두꺼운 털로 만들어진 벙어리 장갑이다. 사용자를 추위로부터 보호해주지만 물건을 다루기가 약간 더 불편해진다."),
     rarity=3,
@@ -1875,7 +1879,7 @@ item_rarity.append(mitten.rarity)
 gauntlet_of_strength = Item(
     char="[",
     fg=(255, 0, 81),
-    name="힘의 건틀릿",
+    name=t("힘의 건틀릿", "gauntlet of strength"),
     entity_id="gauntlet_of_strength",
     entity_desc=(""),
     rarity=1,
@@ -1915,8 +1919,8 @@ item_rarity.append(gauntlet_of_strength.rarity)
 red_cloak = Item(
     char="[",
     fg=(138, 0, 0),
-    name="적색 망토",
-    entity_id="blue_cloak",
+    name=t("적색 망토", "red cloak"),
+    entity_id="red_cloak",
     entity_desc="적색 천으로 만들어진 망토이다. 천 표면이 알 수 없는 무언가로 코팅되어 있다.",
     rarity=3,
     weight=2.4,
@@ -1948,7 +1952,7 @@ item_rarity.append(red_cloak.rarity)
 blue_cloak = Item(
     char="[",
     fg=(0, 98, 255),
-    name="청색 망토",
+    name=t("청색 망토", "blue cloak"),
     entity_id="blue_cloak",
     entity_desc="청색 천으로 만들어진 망토이다. 천 표면이 알 수 없는 무언가로 코팅되어 있다.",
     rarity=3,
@@ -1981,7 +1985,7 @@ item_rarity.append(blue_cloak.rarity)
 green_cloak = Item(
     char="[",
     fg=(0, 98, 255),
-    name="녹색 망토",
+    name=t("녹색 망토", "green cloak"),
     entity_id="green_cloak",
     entity_desc="녹색 천으로 만들어진 망토이다. 천 표면이 알 수 없는 무언가로 코팅되어 있다.",
     rarity=3,
@@ -2014,7 +2018,7 @@ item_rarity.append(green_cloak.rarity)
 elven_cloak = Item(
     char="[",
     fg=(126, 255, 20),
-    name="엘프제 망토",
+    name=t("엘프제 망토", "elven cloak"),
     entity_id="elven_cloak",
     entity_desc="엘프들이 흔히 입는 가벼운 망토이다. 엘프를 상징하는 문양이 정교한 자수로 새겨져 있다.",
     rarity=3,
@@ -2045,7 +2049,7 @@ item_rarity.append(elven_cloak.rarity)
 hooded_cloak = Item(
     char="[",
     fg=(237, 255, 253),
-    name="후드가 달린 망토",
+    name=t("후드가 달린 망토", "hooded cloak"),
     entity_id="hooded_cloak",
     entity_desc="머리에 쓸 수 있는 후드가 달린 망토이다.",
     rarity=7,
@@ -2076,7 +2080,7 @@ item_rarity.append(hooded_cloak.rarity)
 cloak_of_protection = Item(
     char="[",
     fg=(0, 255, 166),
-    name="보호의 망토",
+    name=t("보호의 망토", "cloak of protection"),
     entity_id="cloak_of_protection",
     entity_desc=("아주 오래 전, 고룡의 비늘에서부터 섬유를 추출하는 방법을 찾아낸 의류 장인이 있었다. "
                  "이 섬유는 비늘 형태일 때보다도 훨씬 더 튼튼했다고 전해지며, 현존하는 어떠한 섬유도 이에 버금가는 내구성을 가지고 있지 않은 것으로 알려져 있다. "
@@ -2124,7 +2128,7 @@ item_rarity.append(cloak_of_protection.rarity)
 wooden_dagger = Item(
     char=")",
     fg=(128, 84, 38),
-    name="나무 단검",
+    name=t("나무 단검", "wooden dagger"),
     entity_id="wooden_dagger",
     entity_desc="주로 병사들의 훈련에 사용되는 나무 단검이다. ",
     rarity=16,
@@ -2159,7 +2163,7 @@ item_rarity.append(wooden_dagger.rarity)
 iron_dagger = Item(
     char=")",
     fg=(255, 145, 0),
-    name="철제 단검",
+    name=t("철제 단검", "iron dagger"),
     entity_id="iron_dagger",
     entity_desc="다양한 용도로 사용이 가능한 철제 단검이다. ",
     rarity=18,
@@ -2194,7 +2198,7 @@ item_rarity.append(iron_dagger.rarity)
 brass_dagger = Item(
     char=")",
     fg=(204, 184, 35),
-    name="황동 단검",
+    name=t("황동 단검", "brass dagger"),
     entity_id="brass_dagger",
     entity_desc="다양한 용도로 사용이 가능한 황동 단검이다. ",
     rarity=10,
@@ -2229,7 +2233,7 @@ item_rarity.append(brass_dagger.rarity)
 elven_dagger = Item(
     char=")",
     fg=(84, 255, 41),
-    name="엘프제 단검",
+    name=t("엘프제 단검", "elven dagger"),
     entity_id="elven_dagger",
     entity_desc="엘프들에 의해 단조된 단검이다. 검날에 엘프 고유의 문양이 새겨져 있다. ",
     rarity=6,
@@ -2264,7 +2268,7 @@ item_rarity.append(elven_dagger.rarity)
 scalpel = Item(
     char=")",
     fg=(255, 77, 77),
-    name="스칼펠",
+    name=t("스칼펠", "scalpel"),
     entity_id="scalpel",
     entity_desc=("주로 외과 수술을 할 때 사용되는 날카로운 의료용 나이프이다. "
                  "적에게 출혈을 동반한 치명적인 상처를 입힐 수 있다."),
@@ -2302,7 +2306,7 @@ item_rarity.append(scalpel.rarity)
 shortsword = Item(
     char=")",
     fg=(215, 219, 171),
-    name="숏소드",
+    name=t("숏소드", "shortsword"),
     entity_id="shortsword",
     entity_desc="단검보다는 크지만 장검보다는 작은 팔뚝 정도 크기의 검이다. ",
     rarity=12,
@@ -2337,7 +2341,7 @@ item_rarity.append(shortsword.rarity)
 elven_sword = Item(
     char=")",
     fg=(0, 255, 166),
-    name="엘프제 검",
+    name=t("엘프제 검", "elven sword"),
     entity_id="elven_sword",
     entity_desc="긴 손잡이와 휘어있는 검날이 달려있는 엘프제 무기이다.",
     rarity=4,
@@ -2372,7 +2376,7 @@ item_rarity.append(elven_sword.rarity)
 longsword = Item(
     char=")",
     fg=(152, 227, 226),
-    name="롱소드",
+    name=t("롱소드", "longsword"),
     entity_id="longsword",
     entity_desc="양쪽 모두에 날이 달려있는 긴 검이다. 기사들이 즐겨 사용하는 무기이다. ",
     rarity=7,
@@ -2407,7 +2411,7 @@ item_rarity.append(longsword.rarity)
 sunbringer = Item(
     char=")",
     fg=(255, 34, 0),
-    name="선브링거",
+    name=t("선브링거", "sunbringer"),
     entity_id="sunbringer",
     entity_desc=("태양을 집어삼킨 검이라고도 불리우는 선브링거는 알 수 없는 재질의 금속으로 만들어진 고대의 롱소드이다. "
                  "선브링거는 소유자가 검을 휘두를 때 강력한 불꽃을 방출하며, 선브링거라는 이름은 붉게 빛나는 검신의 모습을 보고 붙여졌다."
@@ -2453,7 +2457,7 @@ item_rarity.append(sunbringer.rarity)
 swordstick = Item(
     char=")",
     fg=(196, 255, 202),
-    name="소드 스틱",
+    name=t("소드 스틱", "swordstick"),
     entity_id="swordstick",
     entity_desc="화려한 보석들로 치장된 지팡이 형태의 칼이다. 손잡이 부분을 당겨 긴 날이 달린 검을 뽑을 수 있다. ",
     rarity=6,
@@ -2490,7 +2494,7 @@ item_rarity.append(swordstick.rarity)
 axe = Item(
     char=")",
     fg=(112, 105, 255),
-    name="도끼",
+    name=t("도끼", "axe"),
     entity_id="axe",
     entity_desc="쇠로 만든 도끼날이 달린 평범한 도끼이다. ",
     rarity=12,
@@ -2524,7 +2528,7 @@ item_rarity.append(axe.rarity)
 tomahawk = Item(
     char=")",
     fg=(120, 66, 245),
-    name="토마호크",
+    name=t("토마호크", "tomahawk"),
     entity_id="tomahawk",
     entity_desc="던지기 쉽게 짧은 손잡이가 달려있는 도끼이다. ",
     rarity=9,
@@ -2559,7 +2563,7 @@ item_rarity.append(tomahawk.rarity)
 battle_axe = Item(
     char=")",
     fg=(214, 51, 111),
-    name="전투 도끼",
+    name=t("전투 도끼", "battle axe"),
     entity_id="battle_axe",
     entity_desc="다용도 도구로써의 기능을 포기하고 오로지 전투만을 위해 만들어진 도끼이다. 도끼날이 양면에 달려 있다.",
     rarity=5,
@@ -2594,7 +2598,7 @@ item_rarity.append(battle_axe.rarity)
 stonefury = Item(
     char=")",
     fg=(214, 51, 111),
-    name="스톤퓨리",
+    name=t("스톤퓨리", "stonefury"),
     entity_id="stonefury",
     entity_desc=("스톤퓨리는 알 수 없는 암석으로 만들어진 도끼날을 갖고 있으며 과거 바이킹들에 의해 만들어졌다고 알려져 있다. "
                  "이 무기는 사용자에게 강력한 분노를 불러일으키며, 공격받은 대상에게까지도 막심한 분노를 유발하는 것으로 알려져 있다. "
@@ -2639,7 +2643,7 @@ item_rarity.append(stonefury.rarity)
 forging_hammer = Item(
     char=")",
     fg=(92, 28, 28),
-    name="단조용 망치",
+    name=t("단조용 망치", "forging hammer"),
     entity_id="forging_hammer",
     entity_desc="대장간에서 쇠를 내리칠 때 쓰이는 단조용 망치이다. 망치 머리의 끝부분이 둥그런 형태를 하고 있다.",
     rarity=2,
@@ -2674,7 +2678,7 @@ item_rarity.append(forging_hammer.rarity)
 quarterstaff = Item(
     char=")",
     fg=(0, 207, 24),
-    name="육척봉",
+    name=t("육척봉", "quarterstaff"),
     entity_id="quarterstaff",
     entity_desc="양쪽 끝에 강철을 덧댄 봉 형태의 무기이다. ",
     rarity=4,
@@ -2709,7 +2713,7 @@ item_rarity.append(quarterstaff.rarity)
 giant_wood_club = Item(
     char=")",
     fg=(97, 53, 0),
-    name="통나무 곤봉",
+    name=t("통나무 곤봉", "giant wood club"),
     entity_id="giant_wood_club",
     entity_desc="성인 남성 정도 크기의 거대한 나무 곤봉이다. ",
     rarity=0,
@@ -2744,7 +2748,7 @@ item_rarity.append(giant_wood_club.rarity)
 morning_star = Item(
     char=")",
     fg=(255, 0, 247),
-    name="철퇴",
+    name=t("철퇴", "morning star"),
     entity_id="morning_star",
     entity_desc=("곤봉 끝에 가시달린 철 덩어리가 쇠사슬로 연결되어 있는 무기이다. "
                  "다소 다루기가 어렵지만 제대로 맞추기만 한다면 어마어마한 위력을 자랑하는 무기이다. "),
@@ -2781,7 +2785,7 @@ item_rarity.append(morning_star.rarity)
 spear = Item(
     char=")",
     fg=(0, 47, 255),
-    name="창",
+    name=t("창", "spear"),
     entity_id="spear",
     entity_desc=("뾰족한 머리가 달려있는 대표적인 장병 무기이다. "
                  "기동성은 다소 떨어지지만 출혈을 동반한 자상을 입힐 수 있다. "),
@@ -2820,7 +2824,7 @@ item_rarity.append(spear.rarity)
 halberd = Item(
     char=")",
     fg=(0, 47, 255),
-    name="할버드",
+    name=t("할버드", "halberd"),
     entity_id="halberd",
     entity_desc=("도끼 형태의 날과 창 형태의 뾰족한 머리가 모두 달려있는 장병 무기이다. "
                  "기동성은 다소 떨어지지만 출혈을 동반한 자상을 입힐 수 있다. "),
@@ -2859,8 +2863,8 @@ item_rarity.append(halberd.rarity)
 heartpiercer = Item(
     char=")",
     fg=(0, 47, 255),
-    name="하트피어써",
-    entity_id="soulpiercer",
+    name=t("하트피어써", "heartpiercer"),
+    entity_id="heartpiercer",
     entity_desc=("'심장을 꿰뚫는 자'라는 뜻의 이름을 가진 하트피어써는 세 개의 창끝이 달린 삼지창 형태를 하고 있는 무기이다. "
                  "하트피어써는 특수한 합금으로 만들어졌는데, 이 합금을 주조하기 위해선 각종 금속들 뿐만 아니라 여러 괴물들의 혈액 또한 필요로 하는 것으로 알려져 있다. "
                  "이러한 특성 때문에 하트피어써는 생명체의 피를 갈망하며 주변 생명체들의 기운을 빨아들이는데, 이는 하트피어써의 사용자도 예외가 아니다. "
@@ -2904,7 +2908,7 @@ item_rarity.append(heartpiercer.rarity)
 wooden_shield = Item(
     char=")",
     fg=(252, 186, 3),
-    name="나무 방패",
+    name=t("나무 방패", "wooden shield"),
     entity_id="wooden_shield",
     entity_desc="나무를 덧대 만든 방패이다. ",
     rarity=10,
@@ -2942,7 +2946,7 @@ item_rarity.append(wooden_shield.rarity)
 silver_shield = Item(
     char=")",
     fg=(189, 189, 189),
-    name="은 방패",
+    name=t("은 방패", "silver shield"),
     entity_id="silver_shield",
     entity_desc="은으로 만들어진 방패이다. 마법 공격으로부터의 저항성이 뛰어나다. ",
     rarity=3,
@@ -2979,7 +2983,7 @@ item_rarity.append(silver_shield.rarity)
 platinum_shield = Item(
     char=")",
     fg=(255, 255, 255),
-    name="백금 방패",
+    name=t("백금 방패", "platinum shield"),
     entity_id="platinum_shield",
     entity_desc="백금으로 만들어진 방패이다. 대부분의 속성 피해로부터 어느 정도 내성을 제공한다. ",
     rarity=2,
@@ -3021,7 +3025,7 @@ item_rarity.append(platinum_shield.rarity)
 iron_shield = Item(
     char=")",
     fg=(252, 186, 3),
-    name="철제 방패",
+    name=t("철제 방패", "iron shield"),
     entity_id="iron_shield",
     entity_desc="철판으로 만들어진 믿음직한 방패이다. ",
     rarity=5,
@@ -3066,7 +3070,7 @@ amulet_of_kugah = Item(
     should_randomize=False,
     char="♀",
     fg = (255, 72, 0),
-    name="쿠가의 아뮬렛",
+    name=t("쿠가의 아뮬렛", "amulet of Kugah"),
     entity_id="amulet_of_kugah",
     entity_desc="창조신 쿠가가 힘을 되찾기 위해 필요한 아뮬렛이다.",
     rarity=0,
@@ -3102,7 +3106,7 @@ amulet_of_brilliance = Item(
     should_randomize=True,
     char="♀",
     fg = (255, 72, 0),
-    name="지적 각성의 아뮬렛",
+    name=t("지적 각성의 아뮬렛", "amulet of brilliance"),
     entity_id="amulet_of_brilliance",
     entity_desc=(""),
     rarity=1,
@@ -3138,7 +3142,7 @@ amulet_of_sensitivity = Item(
     should_randomize=True,
     char="♀",
     fg = (255, 72, 0),
-    name="감각 향상의 아뮬렛",
+    name=t("감각 향상의 아뮬렛", "amulet of sensitivity"),
     entity_id="amulet_of_sensitivity",
     entity_desc="착용자의 감각기관을 예민하게 만드는 것으로 알려진 아뮬렛이다. ",
     rarity=5,
@@ -3173,7 +3177,7 @@ amulet_of_telepathy = Item(
     should_randomize=True,
     char="♀",
     fg = (255, 72, 0),
-    name="텔레파시의 아뮬렛",
+    name=t("텔레파시의 아뮬렛", "amulet of telepathy"),
     entity_id="amulet_of_telepathy",
     entity_desc="착용자에게 텔레파시의 능력을 부여한다고 알려진 아뮬렛이다. ",
     rarity=5,
@@ -3205,7 +3209,7 @@ amulet_of_underwater_breathing = Item(
     should_randomize=True,
     char="♀",
     fg = (255, 72, 0),
-    name="수중 호흡의 아뮬렛",
+    name=t("수중 호흡의 아뮬렛", "amulet of underwater breathing"),
     entity_id="amulet_of_underwater_breathing",
     entity_desc="착용자에게 물 속에서 호흡할 수 있는 능력을 부여한다고 알려진 아뮬렛이다. ",
     rarity=5,
@@ -3237,7 +3241,7 @@ amulet_of_monastic_silence = Item(
     should_randomize=True,
     char="♀",
     fg = (255, 72, 0),
-    name="묵언 수행의 아뮬렛",
+    name=t("묵언 수행의 아뮬렛", "amulet of monastic silence"),
     entity_id="amulet_of_monastic_silence",
     entity_desc="착용자는 말을 하는 능력을 잃게 되지만, 보다 더 빠르게 행동할 수 있게 된다. ",
     rarity=5,
@@ -3270,7 +3274,7 @@ amulet_of_charisma = Item(
     should_randomize=True,
     char="♀",
     fg = (255, 72, 0),
-    name="카리스마의 아뮬렛",
+    name=t("카리스마의 아뮬렛", "amulet of charisma"),
     entity_id="amulet_of_charisma",
     entity_desc="착용자를 한 층 더 카리스마 넘치게 만들어주는 것으로 알려진 아뮬렛이다. ",
     rarity=1,
@@ -3306,7 +3310,7 @@ amulet_of_immunity_loss = Item(
     should_randomize=True,
     char="♀",
     fg = (255, 72, 0),
-    name="면역력 저하의 아뮬렛",
+    name=t("면역력 저하의 아뮬렛", "amulet of immunity loss"),
     entity_id="amulet_of_immunity_loss",
     entity_desc="착용자의 신체적 면역력을 낮추는 효과를 지닌 아뮬렛이다. ",
     rarity=5,
@@ -3342,7 +3346,7 @@ amulet_of_magic_aversion = Item(
     should_randomize=True,
     char="♀",
     fg = (255, 72, 0),
-    name="반마법의 아뮬렛",
+    name=t("반마법의 아뮬렛", "amulet of magic aversion"),
     entity_id="amulet_of_magic_aversion",
     entity_desc="착용자와 마법과의 상호작용을 방해하는 아뮬렛이다. ",
     rarity=5,
@@ -3384,7 +3388,7 @@ ring_of_inner_peace = Item(
     should_randomize=True,
     char="◦",
     fg = (255, 72, 0),
-    name="내적 평화의 반지",
+    name=t("내적 평화의 반지", "ring of inner piece"),
     entity_id="ring_of_inner_peace",
     entity_desc=("착용자에게 마음의 평화를 가져다주는 반지이다. "
                  "착용자는 쉽게 분노하지 않게 된다. "),
@@ -3417,7 +3421,7 @@ ring_of_water = Item(
     should_randomize=True,
     char="◦",
     fg = (255, 72, 0),
-    name="물의 반지",
+    name=t("물의 반지", "ring of water"),
     entity_id="ring_of_water",
     entity_desc=("착용자에게 물의 기운을 부여하는 반지이다. "
                  "착용자는 물 속에서 빠르게 이동을 할 수 있게 되고, 화염과 산에 저항을 가지게 되지만, 냉기에 다소 취약해진다."),
@@ -3453,7 +3457,7 @@ ring_of_earth = Item(
     should_randomize=True,
     char="◦",
     fg = (255, 72, 0),
-    name="땅의 반지",
+    name=t("땅의 반지", "ring of earth"),
     entity_id="ring_of_earth",
     entity_desc=("착용자에게 땅의 기운을 부여하는 반지이다. "
                  "착용자는 전격과 독, 그리고 냉기에 저항을 가지게 된다."),
@@ -3489,7 +3493,7 @@ ring_of_sky = Item(
     should_randomize=True,
     char="◦",
     fg = (255, 72, 0),
-    name="하늘의 반지",
+    name=t("하늘의 반지", "ring of sky"),
     entity_id="ring_of_sky",
     entity_desc=("착용자에게 하늘의 기운을 부여하는 반지이다. "
                  "착용자는 하늘을 날 수 있게 된다. "),
@@ -3522,7 +3526,7 @@ ring_of_dexterity = Item(
     should_randomize=True,
     char="◦",
     fg = (255, 72, 0),
-    name="재주의 반지",
+    name=t("재주의 반지", "ring of dexterity"),
     entity_id="ring_of_dexterity",
     entity_desc=("착용자에게 재주를 부여한다고 알려진 반지이다. "),
     rarity=1,
@@ -3558,7 +3562,7 @@ ring_of_constitution = Item(
     should_randomize=True,
     char="◦",
     fg = (255, 72, 0),
-    name="활력의 반지",
+    name=t("활력의 반지", "ring of constitution"),
     entity_id="ring_of_constitution",
     entity_desc=("착용자에게 활력을 부여한다고 알려진 반지이다. "),
     rarity=1,
@@ -3594,7 +3598,7 @@ ring_of_insomnia = Item(
     should_randomize=True,
     char="◦",
     fg = (255, 72, 0),
-    name="불면증의 반지",
+    name=t("불면증의 반지", "ring of insomnia"),
     entity_id="ring_of_insomnia",
     entity_desc=("착용자가 잠을 잘 수 없게 만든다고 알려진 반지이다. "),
     rarity=6,
@@ -3628,7 +3632,7 @@ ring_of_martial_artist = Item(
     should_randomize=True,
     char="◦",
     fg = (255, 72, 0),
-    name="무술가의 반지",
+    name=t("무술가의 반지", "ring of martial artist"),
     entity_id="ring_of_martial_artist",
     entity_desc=("착용자가 다양한 무술 기술들을 사용할 수 있게 만들어준다고 알려진 반지이다. "),
     rarity=6,
@@ -3661,7 +3665,7 @@ ring_of_blindness = Item(
     should_randomize=True,
     char="◦",
     fg = (255, 72, 0),
-    name="실명의 반지",
+    name=t("실명의 반지", "ring of blindness"),
     entity_id="ring_of_blindness",
     entity_desc=("착용자의 시력을 악화시킨다고 알려진 반지이다. "),
     rarity=6,
@@ -3697,7 +3701,7 @@ item_rarity.append(ring_of_blindness.rarity)
 corpse = Item(
     char="%",
     fg = (191, 0, 0),
-    name="시체",# Name automatically changes later
+    name=t("시체", "corpse"),# Name automatically changes later
     entity_id="corpse",
     entity_desc="",
     rarity=0,
@@ -3722,7 +3726,7 @@ item_rarity.append(corpse.rarity) # All items should be appended regardless of i
 ration = Item(
     char="%",
     fg = (255, 0, 247),
-    name="비상식량",
+    name=t("비상식량", "ration"),
     entity_id="ration",
     entity_desc=("여러 종류의 가공육들과 비스켓, 약간의 물이 들어있는 비상식량이다. "
                  "쉽게 상하지 않아 던전을 탐험하는 모험가들이 자주 휴대하고 다닌다. "),
@@ -3748,7 +3752,7 @@ item_rarity.append(ration.rarity)
 lintol = Item(
     char="%",
     fg = (255, 99, 224),
-    name="린톨",
+    name=t("린톨", "lintol"),
     entity_id="lintol",
     entity_desc=("뾰족하고 얇은 잎사귀를 가진 허브의 한 종류이다. 린톨은 예로부터 해열제로 널리 사용되어왔다. "),
     rarity=5,
@@ -3774,7 +3778,7 @@ item_rarity.append(lintol.rarity)
 fillapoty = Item(
     char="%",
     fg = (255, 99, 224),
-    name="필라포티",
+    name=t("필라포티", "fillapoty"),
     entity_id="fillapoty",
     entity_desc=("넓은 잎사귀를 가진 허브의 한 종류이다. 필라포티의 잎을 가르면 나오는 즙은 해독 작용을 하는 것으로 알려져 있다. "),
     rarity=5,
@@ -3800,7 +3804,7 @@ item_rarity.append(fillapoty.rarity)
 kettoniss = Item(
     char="%",
     fg = (255, 123, 0),
-    name="케토니스",
+    name=t("케토니스", "kettoniss"),
     entity_id="kettoniss",
     entity_desc=("둥근 잎사귀를 가진 허브의 한 종류이다. 케토니스를 달인 차는 추위에 효과적이라고 알려져 있다. "),
     rarity=5,
@@ -3831,7 +3835,7 @@ diamond = Item(
     should_randomize=True,
     char="*",
     fg = (255, 255, 255),
-    name="다이아몬드",
+    name=t("다이아몬드", "diamond"),
     entity_id="diamond",
     entity_desc="하얀 빛의 아름다운 보석이다. 상당한 고가에 거래된다.",
     rarity=1,
@@ -3859,7 +3863,7 @@ ruby = Item(
     should_randomize=True,
     char="*",
     fg = (255, 0, 38),
-    name="루비",
+    name=t("루비", "ruby"),
     entity_id="ruby",
     entity_desc="붉은 빛의 아름다운 보석이다. 상당한 고가에 거래된다.",
     rarity=1,
@@ -3887,7 +3891,7 @@ emerald = Item(
     should_randomize=True,
     char="*",
     fg = (21, 207, 0),
-    name="에메랄드",
+    name=t("에메랄드", "emerald"),
     entity_id="emerald",
     entity_desc="푸른 빛의 아름다운 보석이다. 상당한 고가에 거래된다.",
     rarity=1,
@@ -3915,7 +3919,7 @@ sapphire = Item(
     should_randomize=True,
     char="*",
     fg = (0, 162, 255),
-    name="사파이어",
+    name=t("사파이어", "sapphire"),
     entity_id="sapphire",
     entity_desc="녹색 빛의 아름다운 보석이다. 상당한 고가에 거래된다.",
     rarity=1,
@@ -3943,7 +3947,7 @@ worthless_piece_of_white_glass = Item(
     should_randomize=True,
     char="*",
     fg = (255, 255, 255),
-    name="싸구려 유리 조각",
+    name=t("싸구려 유리 조각", "worthless piece white glass"),
     entity_id="worthless_piece_of_white_glass",
     entity_desc="아무런 가치도 없는 깨진 유리 조각이다.",
     rarity=3,
@@ -3971,7 +3975,7 @@ worthless_piece_of_red_glass = Item(
     should_randomize=True,
     char="*",
     fg = (255, 0, 38),
-    name="싸구려 유리 조각",
+    name=t("싸구려 유리 조각", "worthless piece red glass"),
     entity_id="worthless_piece_of_red_glass",
     entity_desc="아무런 가치도 없는 깨진 유리 조각이다.",
     rarity=3,
@@ -3999,7 +4003,7 @@ worthless_piece_of_green_glass = Item(
     should_randomize=True,
     char="*",
     fg = (21, 207, 0),
-    name="싸구려 유리 조각",
+    name=t("싸구려 유리 조각", "worthless piece green glass"),
     entity_id="worthless_piece_of_green_glass",
     entity_desc="아무런 가치도 없는 깨진 유리 조각이다.",
     rarity=3,
@@ -4027,7 +4031,7 @@ worthless_piece_of_blue_glass = Item(
     should_randomize=True,
     char="*",
     fg = (0, 162, 255),
-    name="싸구려 유리 조각",
+    name=t("싸구려 유리 조각", "worthless piece blue glass"),
     entity_id="worthless_piece_of_blue_glass",
     entity_desc="아무런 가치도 없는 깨진 유리 조각이다.",
     rarity=3,
@@ -4058,7 +4062,7 @@ item_rarity.append(worthless_piece_of_blue_glass.rarity)
 rustproof_wax = Item(
     char="(",
     fg = (255, 255, 255),
-    name="부식 방지의 왁스",
+    name=t("부식 방지의 왁스", "rustproof wax"),
     entity_id="rustproof_wax",
     entity_desc="갑옷 등에 발라 부식을 다소 방지할 수 있는 왁스이다.",
     rarity=20,
@@ -4084,7 +4088,7 @@ item_rarity.append(rustproof_wax.rarity)
 fireproof_wax = Item(
     char="(",
     fg = (255, 255, 0),
-    name="그을림 방지의 왁스",
+    name=t("그을림 방지의 왁스", "fireproof wax"),
     entity_id="fireproof_wax",
     entity_desc="갑옷 등에 발라 불이 붙거나 그을리는 것을 다소 방지할 수 있는 왁스이다.",
     rarity=20,
@@ -4114,7 +4118,7 @@ item_rarity.append(fireproof_wax.rarity)
 toxic_goo = Item(
     char="*",
     fg = (61, 0, 82),
-    name="독성 점액",
+    name=t("독성 점액", "toxic goo"),
     entity_id="toxic_goo",
     entity_desc="검은 덩어리의 몸에서 떨어져 나온 검정색 점액질 물체이다.",
     rarity=0,
@@ -4156,7 +4160,7 @@ item_rarity.append(toxic_goo.rarity)
 shine = Item(
     char="$",
     fg = color.gold,
-    name="샤인",
+    name=t("샤인", "shine"),
     entity_id="shine",
     entity_desc="물건을 사고 팔 때 사용되는 화폐이다.",
     rarity=0,
@@ -4182,7 +4186,7 @@ item_rarity.append(shine.rarity)
 shines = lambda amount: Item(
     char="$",
     fg = color.gold,
-    name="샤인",
+    name=t("샤인", "shine"),
     entity_id="shine",
     entity_desc="물건을 사고 팔 때 사용되는 화폐이다.",
     rarity=0,

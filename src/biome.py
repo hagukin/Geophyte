@@ -63,6 +63,7 @@ class Biome:
         terrain: dict = None,
         additional_terrain: dict = None,
         remove_all_terrain_of_type: Optional[Tuple[str, ...]] = None,
+        banned_entities: Optional[Tuple[str, ...]] = None,
     ):
         """
         Args:
@@ -116,6 +117,10 @@ class Biome:
                 We do check if every key is valid beforehand, still it is highly recommended to follow the following rules:
                     1) dictionary should have more than 1 item.
                     2) you should check each keys in the dictionary is valid.
+            banned_entities:
+                Contains entity ids.
+                Remove all entity within the gamemap that has the given id.
+                This process is handled at the very last moment of procgen.
         """
         if tileset is None:
             tileset = get_tileset()
@@ -160,6 +165,8 @@ class Biome:
                         if k.gen_grass:
                             self.terrain[k] = 0
                 #TODO Add other conditions
+
+        self.banned_entities = banned_entities # Handled during procgen
 
         if additional_terrain: # Handled after removal
             for k, v in additional_terrain.items():
