@@ -233,7 +233,7 @@ class DescendAction(Action):
                 self.engine.world.get_map(n_depth).ascend_loc[1]
                 )
             for actor in actors:
-                if not actor.actor_state.can_chase_through_stair or actor.is_dead:
+                if not actor.actor_state.can_chase_through_stair or actor.is_dead or not actor.actor_state.can_move_on_surface:
                     continue
                 if actor.ai:
                     if actor.ai.owner == self.engine.player or actor.ai.target == self.engine.player:

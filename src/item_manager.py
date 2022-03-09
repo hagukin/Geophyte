@@ -154,7 +154,7 @@ class ItemManager:
         if item.item_type.value == InventoryOrder.SCROLL.value:
             color_name, fg, bg = self.gen_randomized_color(item_type=InventoryOrder.SCROLL)
             self.items_fake_info[item.entity_id]["name"] = i(f"{self.gen_randomized_string(random.randint(4, 8))}이라고 적혀있는 주문서",
-                                                             f"a scroll called {self.gen_randomized_string(random.randint(4, 8))}")
+                                                             f"scroll called {self.gen_randomized_string(random.randint(4, 8))}")
             self.items_fake_info[item.entity_id]["entity_desc"] = i("얇은 종이로 만들어진 주문서이다. 주문서의 내용을 해독할 수 없다.",
                                                                     "The scroll is made out of thin paper. You don't recognize the exact type.")
             self.items_fake_info[item.entity_id]["fg"] = fg

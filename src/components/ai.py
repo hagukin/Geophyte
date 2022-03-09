@@ -751,7 +751,6 @@ class BaseAI(BaseComponent):
 
         # Check if target's gamemap is identical with ai's gamemap.
         # e.g. if player was being chased, goes down a level, and climbs back up
-        # TODO: make some ai be able to follow target that has different gamemap (stair)
         if self.target:
             if self.target.gamemap != self.parent.gamemap:
                 print(f"WARNING::Removing {self.parent.entity_id} ai's target. Target has different gamemap. ai depth: {self.parent.gamemap.depth}, target depth: {self.target.gamemap.depth}")
