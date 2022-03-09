@@ -1,5 +1,6 @@
 from typing import Tuple, Optional
 from game import Game
+from language import interpret as t
 
 import numpy as np  # type: ignore
 import random
@@ -235,7 +236,7 @@ def vintronium():
         brightest_fg_color=(60, 0, 106),
         darkest_bg_color=(15, 15, 15),
         brightest_bg_color=(35, 35, 35),
-        tile_name="빈트로늄",
+        tile_name=t("빈트로늄","vintronium"),
         tile_id="vintronium",
     )
 
@@ -261,7 +262,7 @@ def floor():
             (150, 150, 150),
             (47, 47, 47)
         ),
-        tile_name="석재 바닥",
+        tile_name=t("석재 바닥","stone floor"),
         tile_id="floor",
     )
 def floor_forest():
@@ -284,7 +285,7 @@ def floor_forest():
             (70, 65, 89),
             (72, 115, 63),
         ),
-        tile_name="흙",
+        tile_name=t("흙","dirt floor"),
         tile_id="floor",
     )
 def floor_desert():
@@ -307,7 +308,7 @@ def floor_desert():
             (209, 199, 155),
             (115, 110, 99),
         ),
-        tile_name="모래 바닥",
+        tile_name=t("모래 바닥","sand floor"),
         tile_id="floor",
     )
 def floor_crystal():
@@ -330,7 +331,7 @@ def floor_crystal():
             (123, 173, 173),
             (45, 58, 64),
         ),
-        tile_name="석영 바닥",
+        tile_name=t("석영 바닥","crystal floor"),
         tile_id="floor",
     )
 def floor_ancient_ruins():
@@ -353,7 +354,7 @@ def floor_ancient_ruins():
             (70, 65, 89),
             (47, 47, 47),
         ),
-        tile_name="고대 타일",
+        tile_name=t("고대 타일","ancient tile"),
         tile_id="floor",
     )
 
@@ -380,7 +381,7 @@ def wall():
         ),
         darkest_bg_color=(90, 60, 30),
         brightest_bg_color=(210, 110, 40),
-        tile_name="벽",
+        tile_name=t("벽","wall"),
         tile_id="wall",
     )
 def wall_forest():
@@ -407,7 +408,7 @@ def wall_forest():
         brightest_fg_color=(84, 196, 89),
         darkest_bg_color=(1, 51, 2),
         brightest_bg_color=(2, 115, 4),
-        tile_name="빽빽한 수목",
+        tile_name=t("빽빽한 수목","dense trees"),
         tile_id="wall",
     )
 def wall_desert():
@@ -432,7 +433,7 @@ def wall_desert():
         ),
         darkest_bg_color=(227, 216, 148),
         brightest_bg_color=(254, 207, 71),
-        tile_name="사암 벽",
+        tile_name=t("사암 벽","sandstone wall"),
         tile_id="wall",
     )
 
@@ -460,7 +461,7 @@ def wall_crystal():
         brightest_fg_color=(150, 236, 255),
         darkest_bg_color=(0, 43, 150),
         brightest_bg_color=(194, 140, 255),
-        tile_name="석영 벽",
+        tile_name=t("석영 벽","crystal wall"),
         tile_id="wall",
     )
 
@@ -486,7 +487,7 @@ def wall_ancient_ruins():
         ),
         darkest_bg_color=(108, 123, 149),
         brightest_bg_color=(139, 186, 187),
-        tile_name="고대 벽",
+        tile_name=t("고대 벽","ancient wall"),
         tile_id="wall",
     )
 
@@ -513,7 +514,7 @@ def dense_grass():
         ),
         darkest_fg_color=(150, 190, 50),
         brightest_fg_color=(15, 255, 0),
-        tile_name="잔디",
+        tile_name=t("잔디","grass"),
         tile_id="dense_grass",
     )
 def dense_grass_forest():
@@ -538,7 +539,7 @@ def dense_grass_forest():
         ),
         darkest_fg_color=(150, 190, 50),
         brightest_fg_color=(15, 255, 0),
-        tile_name="잔디",
+        tile_name=t("잔디","grass"),
         tile_id="dense_grass",
     )
 def dense_grass_desert():
@@ -563,7 +564,7 @@ def dense_grass_desert():
         ),
         darkest_fg_color=(150, 190, 50),
         brightest_fg_color=(15, 255, 0),
-        tile_name="사막 풀",
+        tile_name=t("사막 풀","desert grass"),
         tile_id="dense_grass",
     )
 
@@ -589,7 +590,7 @@ def sparse_grass():
             (85, 200, 55),
             (47, 47, 47)
         ),
-        tile_name="잔디",
+        tile_name=t("잔디","grass"),
         tile_id="sparse_grass",
     )
 def sparse_grass_forest():
@@ -612,7 +613,7 @@ def sparse_grass_forest():
             (70, 65, 89),
             (72, 115, 63),
         ),
-        tile_name="잔디",
+        tile_name=t("잔디","grass"),
         tile_id="sparse_grass",
     )
 def sparse_grass_desert():
@@ -635,7 +636,7 @@ def sparse_grass_desert():
             (150, 190, 50),
             (115, 110, 99),
         ),
-        tile_name="사막 풀",
+        tile_name=t("사막 풀","desert grass"),
         tile_id="sparse_grass",
     )
 
@@ -661,7 +662,7 @@ def burnt_floor():
             (250, 10, 0),
             (35, 25, 25)
         ),
-        tile_name="그을린 바닥",
+        tile_name=t("그을린 바닥","burnt floor"),
         tile_id="burnt_floor",
     )
 
@@ -687,7 +688,7 @@ def ascending_stair():
             (255, 255, 0),
             (80, 80, 80)
         ),
-        tile_name="올라가는 계단",
+        tile_name=t("올라가는 계단","ascending stair"),
         tile_id="ascending_stair",
     )
 
@@ -713,7 +714,7 @@ def descending_stair():
             (255, 255, 0),
             (80, 80, 80)
         ),
-        tile_name="내려가는 계단",
+        tile_name=t("내려가는 계단","descending stair"),
         tile_id="descending_stair",
     )
 
@@ -739,7 +740,7 @@ def hole():
             (0, 0, 0),
             (0, 0, 0)
         ),
-        tile_name="구멍",
+        tile_name=t("구멍","hole"),
         tile_id="hole",
     )
 
@@ -765,7 +766,7 @@ def deep_pit():
             (0, 0, 0),
             (31, 27, 24)
         ),
-        tile_name="깊은 구덩이",
+        tile_name=t("깊은 구덩이","deep pit"),
         tile_id="deep_pit",
     )
 
@@ -791,7 +792,7 @@ def shallow_pit():
             (0, 0, 0),
             (56, 46, 38)
         ),
-        tile_name="얕은 구덩이",
+        tile_name=t("얕은 구덩이","shallow pit"),
         tile_id="shallow_pit",
     )
 
@@ -819,7 +820,7 @@ def deep_water():
         ),
         darkest_bg_color=(75, 68, 182),
         brightest_bg_color=(32, 24, 145),
-        tile_name="깊은 물",
+        tile_name=t("깊은 물","deep water"),
         tile_id="deep_water",
     )
 def deep_water_crystal():
@@ -844,7 +845,7 @@ def deep_water_crystal():
         ),
         darkest_bg_color=(93, 49, 112),
         brightest_bg_color=(139, 76, 166),
-        tile_name="깊은 물",
+        tile_name=t("깊은 물","deep water"),
         tile_id="deep_water",
     )
 
@@ -871,7 +872,7 @@ def shallow_water():
         ),
         darkest_bg_color=(75, 68, 182),
         brightest_bg_color=(106, 107, 250),
-        tile_name="얕은 물",
+        tile_name=t("얕은 물","shallow water"),
         tile_id="shallow_water",
     )
 def shallow_water_crystal():
@@ -896,7 +897,7 @@ def shallow_water_crystal():
         ),
         darkest_bg_color=(163, 126, 194),
         brightest_bg_color=(219, 170, 240),
-        tile_name="얕은 물",
+        tile_name=t("얕은 물","shallow water"),
         tile_id="shallow_water",
     )
 
@@ -925,6 +926,6 @@ def ice():
         ),
         darkest_bg_color=(94, 230, 226),
         brightest_bg_color=(219, 255, 254),
-        tile_name="얼음",
+        tile_name=t("얼음","ice"),
         tile_id="ice",
     )
