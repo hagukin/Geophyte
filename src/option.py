@@ -89,8 +89,6 @@ class GameplayInputHandler(tcod.event.EventDispatch[None]):
             return "escape"
         elif event.sym == tcod.event.K_a:
             return "toggle_animation"
-        elif event.sym == tcod.event.K_s:
-            return "toggle_autosave"
         elif event.sym == tcod.event.K_l:
             if not self.game_started:
                 return "change_language"
@@ -133,7 +131,6 @@ class Option():
         Option.sound_option_keys = [i("(+/-) 마스터 볼륨 증가/감소", "(+/-) Increase/Decrease master volume"),
                              i("(쉬프트를 누른 채 +/-) 10% 단위로 조작", "(+/- while pressing shift) Adjust by 10%")]
         Option.gameplay_option_keys = [i("(a) 애니메이션 효과 사용/사용 해제", "(a) Enable/Disable animation"),
-                                i("(s) 게임 종료 시 자동저장 사용/사용 해제", "(s) Enable/Disable autosave"),
                                 i("(l) 언어 변경/Change language", "(l) Change language/언어 변경")]
         Option.reset_option_keys = [i("(y) 초기화", "(y) Reset"),
                              i("(n) 취소", "(n) Cancel")]
@@ -246,14 +243,12 @@ class Option():
         string = lambda x : i("활성화","enabled") if x else i("비활성화","disabled")
         stringlang = lambda x : "한국어/Korean" if x == "KR" else ("English/영어" if x == "EN" else "Unknown language. Using English instead.")
         console.print(Option.opt_x + 2, Option.opt_y + 2, string=i(f"\n\n애니메이션 효과: {string(cfg['render_animation'])}"
-                                                                 f"\n\n게임 종료 시 자동저장: {string(cfg['autosave'])}"
                                                                    f"\n\n현재 언어: {stringlang(cfg['lang'])}"
                                                                    f"\n\n게임 플레이 중에는 언어를 변경할 수 없습니다.",
                                                                    f"\n\nAnimation: {string(cfg['render_animation'])}"
-                                                                 f"\n\nAutosave: {string(cfg['autosave'])}"
                                                                    f"\n\nCurrent language: {stringlang(cfg['lang'])}"
                                                                    f"\n\nYou can't change the language during the game."), fg=color.option_fg)
-        Option.render_gui_keys(console, context, 'gameplay', initial_y=12)  # TODO Hard-coded
+        Option.render_gui_keys(console, context, 'gameplay', initial_y=9)  # TODO Hard-coded
         context.present(console, keep_aspect=True)
 
     @staticmethod
@@ -385,8 +380,6 @@ class Option():
             return False
         elif display_action == "toggle_animation":
             modify.toggle_animation(not cfg['render_animation'])
-        elif display_action == "toggle_autosave":
-            modify.toggle_autosave(not cfg['autosave'])
         elif display_action == "change_language":
             modify.change_language()
         elif display_action == "fail_to_change_language":

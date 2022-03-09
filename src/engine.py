@@ -117,13 +117,6 @@ class Engine:
     def win_game(self) -> None:
         self._has_won = True
 
-    def revert_victory(self) -> None:
-        """Player can postpone victory."""
-        if self._has_won:
-            self._has_won = False
-            return
-        raise Exception("FATAL ERROR::engine.revert_victory is called but the player haven't won yet.")
-
     def initialize_pixel(self) -> None:
         if not self._initialized_pixel:
             self._initialized_pixel = True

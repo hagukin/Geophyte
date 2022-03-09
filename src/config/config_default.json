@@ -20,6 +20,5 @@
     "world_depth": 25,
     "lang": "KR",
     "master_volume": 50,
-    "autosave": false,
     "report_issue_automatically": false
 }

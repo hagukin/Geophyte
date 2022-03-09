@@ -8,6 +8,7 @@ import tcod
 import color
 import json
 import threading
+from exceptions import RestartException
 from game import Game
 from option import Option
 from configuration import get_game_config
@@ -37,6 +38,27 @@ class SystemLog(object):
     def flush(self):
         pass
 sys.stdout = SystemLog()
+
+def track_error(engine, is_sys_error:bool) -> None:
+    # Print error to stderr then print the error to the message log
+    traceback.print_exc()  # stdout is SystemLog
+    if not is_sys_error and debug:
+        engine.message_log.add_message(traceback.format_exc(), color.error)
+
+    file = "log\\error_log.txt"
+    if is_sys_error:
+        file = "log\\system_error_log.txt"
+    with open(file, 'a+') as f:
+        import datetime
+        date = str(datetime.datetime.now())
+        log = "======================" + date + "======================\n"
+        log += traceback.format_exc()
+        f.write(log)
+    if engine.config["report_issue_automatically"]:
+        try:
+            raise NotImplementedError()
+        except Exception as e:
+            print(f"ERROR::Issue report failed. - {e}")
 
 def main() -> None:
     sound_manager = SoundManager()
@@ -79,64 +101,56 @@ def main() -> None:
     ) as context:
         root_console = tcod.Console(cfg["screen_width"], cfg["screen_height"], order="F")
 
-        # Title Screen Loop
-        Game.engine = Title.title_event_handler(console=root_console, context=context, sound_manager=sound_manager)
-        Game.engine.update_config()
+        try:
+            # System loop
+            while True:
+                # Title Screen Loop
+                Game.engine = Title.title_event_handler(console=root_console, context=context, sound_manager=sound_manager)
+                Game.engine.update_config()
 
-        # Initialization
-        engine = Game.engine
-        engine.console = root_console
-        engine.context = context
-        engine.sound_manager = sound_manager
-        engine.initialize_pixel()
-        sound_manager.play_bgm_for_biome(engine.game_map.biome)
-        sound_manager.play_bgs_for_biome(engine.game_map.biome)
+                # Initialization
+                engine = Game.engine
+                engine.console = root_console
+                engine.context = context
+                engine.sound_manager = sound_manager
+                engine.initialize_pixel()
+                sound_manager.play_bgm_for_biome(engine.game_map.biome)
+                sound_manager.play_bgs_for_biome(engine.game_map.biome)
 
-        # Main Game Loop
-        while True:
-            try:
-                if engine.player_path or engine.player_dir:
-                    cx, cy = engine.player.x, engine.player.y
-                    turn_pass = engine.do_player_queue_actions()
-                    if cx == engine.player.x and cy == engine.player.y:
-                        engine.player_path.clear()
-                    engine.player_dir = None
-                    engine.handle_world(turn_pass=turn_pass)
-
-                    # Render game
-                    root_console.clear()
-                    engine.event_handler.on_render(console=root_console) #refreshing graphics for the root console
-                    context.present(root_console, keep_aspect=True)
-                else:
-                    for event in tcod.event.wait(timeout=None):# set to None = wait indefinitly for any events
-                        context.convert_event(event)
-                        turn_pass = engine.event_handler.handle_events(event)# returns True if player does any action that costs a in-game turn
-                        engine.handle_world(turn_pass=turn_pass)
-
-                        # Render game
-                        root_console.clear()
-                        engine.event_handler.on_render(console=root_console) #refreshing graphics for the root console
-                        context.present(root_console, keep_aspect=True)
-
-                ### WRITE DEBUG FUNCTIONS HERE ###
-
-            except Exception:
-                # Print error to stderr then print the error to the message log
-                traceback.print_exc() # stdout is SystemLog
-                if debug:
-                    engine.message_log.add_message(traceback.format_exc(), color.error)
-                with open("log\\error_log.txt", 'a+') as f:
-                    import datetime
-                    date = str(datetime.datetime.now())
-                    log = "======================"+date+"======================\n"
-                    log += traceback.format_exc()
-                    f.write(log)
-                if engine.config["report_issue_automatically"]:
+                # Main Game Loop
+                while True:
                     try:
-                        raise NotImplementedError()
-                    except Exception as e:
-                        print(f"ERROR::Issue report failed. - {e}")
+                        if engine.player_path or engine.player_dir:
+                            cx, cy = engine.player.x, engine.player.y
+                            turn_pass = engine.do_player_queue_actions()
+                            if cx == engine.player.x and cy == engine.player.y:
+                                engine.player_path.clear()
+                            engine.player_dir = None
+                            engine.handle_world(turn_pass=turn_pass)
 
+                            # Render game
+                            root_console.clear()
+                            engine.event_handler.on_render(console=root_console) #refreshing graphics for the root console
+                            context.present(root_console, keep_aspect=True)
+                        else:
+                            for event in tcod.event.wait(timeout=None):# set to None = wait indefinitly for any events
+                                context.convert_event(event)
+                                turn_pass = engine.event_handler.handle_events(event)# returns True if player does any action that costs a in-game turn
+                                engine.handle_world(turn_pass=turn_pass)
+
+                                # Render game
+                                root_console.clear()
+                                engine.event_handler.on_render(console=root_console) #refreshing graphics for the root console
+                                context.present(root_console, keep_aspect=True)
+
+                            ### WRITE DEBUG FUNCTIONS HERE ###
+                    except RestartException:
+                        break
+                    except Exception:
+                        track_error(engine, is_sys_error=False)
+        except Exception as e:
+            track_error(engine, is_sys_error=True)
+            sys.exit()
 
 if __name__ == "__main__":
     # Set this to True when testing performance

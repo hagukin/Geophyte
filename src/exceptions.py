@@ -18,3 +18,6 @@ class DiffVerException(Exception):
     """
     Exception when the game's version does not match with a savefile.
     """
+
+class RestartException(Exception):
+    """Raised when you want to restart the game session but not the system itself."""

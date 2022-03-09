@@ -238,7 +238,7 @@ class SaveInputHandler(AskUserEventHandler):
         super().on_render(console)
         self.engine.draw_window(console, text=i("게임을 저장한 후 종료하시겠습니까? (Y/N)",
                                                 "Do you really want to save your progress and quit the game? (Y/N)"),
-                                title=i("게임 저장 후 종료", "Save game and quit"), frame_fg=color.lime,
+                                title=i("게임 저장 후 종료", "Save game and quit"), frame_fg=color.red,
                                 frame_bg=color.gui_inventory_bg)
 
     def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[Action]:
@@ -248,10 +248,10 @@ class SaveInputHandler(AskUserEventHandler):
         if event.sym == tcod.event.K_y or event.sym == tcod.event.K_KP_ENTER:
             self.engine.event_handler = MainGameEventHandler()
             save_game(player=player, engine=engine)
-            quit_game()
-            return None
+            from exceptions import RestartException
+            raise RestartException()
         elif event.sym == tcod.event.K_n or event.sym == tcod.event.K_ESCAPE:
-            self.engine.message_log.add_message(i(f"저장 취소됨.","Save cancelled."), color.lime, stack=False)
+            self.engine.message_log.add_message(i(f"취소됨.","Cancelled."), color.lime, stack=False)
         return super().ev_keydown(event)
 
 
@@ -281,15 +281,15 @@ class GameClearInputHandler(AskUserEventHandler): #TODO Unfinished
         TODO: Render player History"""
     def on_render(self, console: tcod.Console) -> None:
         super().on_render(console)
-        self.engine.draw_window(console, text=i("(v):로그 살펴보기 | (/):맵 둘러보기 | F12:스크린샷 | ESC:게임 종료 | (g):아직 할 일이 남아있다",
-                                                "(v):View log | (/):Look around | F12:Take screenshot | ESC:Quit game | (g):Continue playing"),
+        self.engine.draw_window(console, text=i("(v):로그 살펴보기 | (/):맵 둘러보기 | F12:스크린샷 | ESC:게임 종료",
+                                                "(v):View log | (/):Look around | F12:Take screenshot | ESC:Quit game"),
                                 title=i("승리했습니다!","You win!"), text_fg=color.black,
                                 frame_fg=color.black, frame_bg=color.gold)
 
     def ev_keydown(self, event: tcod.event.KeyDown) -> None:
         key = event.sym
         if key == tcod.event.K_ESCAPE:
-            self.engine.event_handler = GameQuitNoSaveHandler(prev_event_handler=self)
+            self.engine.event_handler = GoTitleHandler(prev_event_handler=self)
         elif key == tcod.event.K_v:
             self.engine.event_handler = HistoryViewer()
         elif key == tcod.event.K_SLASH or key == tcod.event.K_KP_DIVIDE:
@@ -301,9 +301,6 @@ class GameClearInputHandler(AskUserEventHandler): #TODO Unfinished
             self.engine.context.save_screenshot(f"./screenshots/{pic_name}.png")
             self.engine.message_log.add_message(i(f"스크린샷 저장됨. {pic_name}.png",
                                                   f"Screenshot saved. {pic_name}.png"), color.cyan)
-        elif key == tcod.event.K_g:
-            self.engine.revert_victory()
-            self.engine.event_handler = MainGameEventHandler()
 
     def ev_mousebuttondown(self, event: tcod.event.KeyDown) -> None:
         return None
@@ -1986,33 +1983,6 @@ class RayDirInputHandler(SelectDirectionHandler):
         return self.callback(self.dx, self.dy)
 
 
-class QuitInputHandler(AskUserEventHandler):
-    def on_render(self, console: tcod.Console) -> None:
-        super().on_render(console)
-        if not self.engine.config["autosave"]:
-            self.engine.draw_window(console, text=i("정말 현재 게임을 종료하시겠습니까? 지금까지의 모든 진행 내역은 지워집니다. (Y/N)",
-                                                    "Are you sure you want to quit? All progress will be lost. (Y/N)"), title=i("게임 종료","Quit game"), frame_fg=color.red, frame_bg=color.gui_inventory_bg)
-        else:
-            self.engine.draw_window(console, text=i("정말 현재 게임을 종료하시겠습니까? 지금까지의 진행 내용은 저장됩니다. (Y/N)",
-                                                    "Are you sure you want to quit? (Y/N)"), title=i("게임 종료","Quit game"), frame_fg=color.red, frame_bg=color.gui_inventory_bg)
-
-    def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[Action]:
-        player = self.engine.player
-        engine = self.engine
-
-        if event.sym == tcod.event.K_y or event.sym == tcod.event.K_KP_ENTER:
-            self.engine.event_handler = MainGameEventHandler()
-            if self.engine.config["autosave"]:
-                save_game(player=player, engine=engine)
-            else:
-                delete_saved_game()
-            quit_game()
-            return None
-        elif event.sym == tcod.event.K_n or event.sym == tcod.event.K_ESCAPE:
-            self.engine.message_log.add_message(i(f"취소됨.","Cancelled."), color.lime, stack=False)
-        return super().ev_keydown(event)
-
-
 class ForceAttackInputHandler(AskUserEventHandler):
     def __init__(self, melee_action: MeleeAction, item_cancel_callback: Callable = None, ):
         super().__init__(item_cancel_callback)
@@ -2295,8 +2265,6 @@ class MainGameEventHandler(EventHandler):
             elif key == tcod.event.K_COMMA:
                 action = AscendAction(player)
             elif key == tcod.event.K_q:
-                self.engine.event_handler = QuitInputHandler()
-            elif key == tcod.event.K_s:
                 self.engine.event_handler = SaveInputHandler()
         else:
             if key in MOVE_KEYS:
@@ -2353,38 +2321,38 @@ class MainGameEventHandler(EventHandler):
                                                           f"You feel sad."), color.white)
 
 
-                ######### TODO FIXME DEBUG
-                self.engine.change_entity_depth(
-                    self.engine.player,
-                    self.engine.depth + 1,
-                    self.engine.world.get_map(self.engine.depth + 1).ascend_loc[0],
-                    self.engine.world.get_map(self.engine.depth + 1).ascend_loc[1]
-                )
-            elif key == tcod.event.K_F10:
-                ######### TODO FIXME DEBUG
-                self.engine.change_entity_depth(
-                    self.engine.player,
-                    self.engine.depth - 1,
-                    self.engine.world.get_map(self.engine.depth - 1).ascend_loc[0],
-                    self.engine.world.get_map(self.engine.depth - 1).ascend_loc[1] # NOTE: Chamber of Kugah has no descend loc
-                )
-            elif key == tcod.event.K_F9:
-                # import procgen, actor_factories
-                # procgen.spawn_given_monster(
-                #     x=self.engine.player.x,
-                #     y=self.engine.player.y,
-                #     monster=actor_factories.piranha,
-                #     spawn_active=True,
-                #     spawn_sleep=False,
-                #     is_first_generation=False,
-                #     dungeon=self.engine.game_map
-                # )
-                self.engine.player.status.fully_heal()
-            elif key == tcod.event.K_F8:
-                for y in range(len(self.engine.game_map.visible[0])):
-                    for x in range(len(self.engine.game_map.visible)):
-                        self.engine.game_map.visible[x, y] = True
-                self.engine.player.status.experience.gain_intelligence_exp(9999)
+            #     ######### TODO FIXME DEBUG
+            #     self.engine.change_entity_depth(
+            #         self.engine.player,
+            #         self.engine.depth + 1,
+            #         self.engine.world.get_map(self.engine.depth + 1).ascend_loc[0],
+            #         self.engine.world.get_map(self.engine.depth + 1).ascend_loc[1]
+            #     )
+            # elif key == tcod.event.K_F10:
+            #     ######### TODO FIXME DEBUG
+            #     self.engine.change_entity_depth(
+            #         self.engine.player,
+            #         self.engine.depth - 1,
+            #         self.engine.world.get_map(self.engine.depth - 1).ascend_loc[0],
+            #         self.engine.world.get_map(self.engine.depth - 1).ascend_loc[1] # NOTE: Chamber of Kugah has no descend loc
+            #     )
+            # elif key == tcod.event.K_F9:
+            #     # import procgen, actor_factories
+            #     # procgen.spawn_given_monster(
+            #     #     x=self.engine.player.x,
+            #     #     y=self.engine.player.y,
+            #     #     monster=actor_factories.piranha,
+            #     #     spawn_active=True,
+            #     #     spawn_sleep=False,
+            #     #     is_first_generation=False,
+            #     #     dungeon=self.engine.game_map
+            #     # )
+            #     self.engine.player.status.fully_heal()
+            # elif key == tcod.event.K_F8:
+            #     for y in range(len(self.engine.game_map.visible[0])):
+            #         for x in range(len(self.engine.game_map.visible)):
+            #             self.engine.game_map.visible[x, y] = True
+            #     self.engine.player.status.experience.gain_intelligence_exp(9999)
 
         # No valid key was pressed
         return action
@@ -2412,43 +2380,24 @@ class MainGameEventHandler(EventHandler):
         return None
 
 
-class GameQuitNoSaveHandler(EventHandler):
+class GoTitleHandler(EventHandler):
     def __init__(self, prev_event_handler):
         super().__init__(item_cancel_callback=None)
         self.prev_event_handler = prev_event_handler
 
     def on_render(self, console: tcod.Console) -> None:
-        self.engine.draw_window(console, text=i("정말 게임을 종료하시겠습니까? (Y/N)",
-                                                "Are you sure you want to quit? (Y/N)"), title=i("게임 종료","Quit game"), frame_fg=color.red, frame_bg=color.gui_inventory_bg)
+        self.engine.draw_window(console, text=i("정말 타이틀 화면으로 나가시겠습니까? (Y/N)",
+                                                "Are you sure you want to quit and go to title screen? (Y/N)"), title=i("타이틀 화면으로","Go to title screen"), frame_fg=color.lime, frame_bg=color.gui_inventory_bg)
 
     def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[Action]:
         player = self.engine.player
         engine = self.engine
 
         if event.sym == tcod.event.K_y or event.sym == tcod.event.K_KP_ENTER:
-            delete_saved_game()
-            quit_game()
-            return None
+            from exceptions import RestartException
+            raise RestartException()
         elif event.sym == tcod.event.K_n or event.sym == tcod.event.K_ESCAPE:
             self.engine.event_handler = self.prev_event_handler
-        return None
-
-
-class AscendToSurfaceHandler(AskUserEventHandler):
-    def on_render(self, console: tcod.Console) -> None:
-        self.engine.draw_window(console, text=i("정말 지상으로 나가시겠습니까? (Y/N)",
-                                                "Are you sure you want to leave the dungeon? (Y/N)"), title=i("던전 밖으로 나가기","Leave the dungeon"), frame_fg=color.lime, frame_bg=color.gui_inventory_bg)
-
-    def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[Action]:
-        player = self.engine.player
-        engine = self.engine
-
-        if event.sym == tcod.event.K_y or event.sym == tcod.event.K_KP_ENTER:
-            # TODO: Add upper dungeon contents
-            self.engine.event_handler = GameQuitNoSaveHandler(prev_event_handler=self)
-            return None
-        elif event.sym == tcod.event.K_n or event.sym == tcod.event.K_ESCAPE:
-            self.engine.event_handler = MainGameEventHandler()
         return None
 
 
@@ -2457,15 +2406,15 @@ class GameOverEventHandler(EventHandler):
     TODO: Render player History"""
     def on_render(self, console: tcod.Console) -> None:
         super().on_render(console)
-        self.engine.draw_window(console, text=i("(v):로그 살펴보기 | (/):맵 둘러보기 | F12:스크린샷 | ESC:게임 종료",
-                                                "(v):View game log | (/):Look around | F12:Take screenshot | ESC:Quit game"),
+        self.engine.draw_window(console, text=i("(v):로그 살펴보기 | (/):맵 둘러보기 | F12:스크린샷 | ESC:타이틀 화면으로",
+                                                "(v):View game log | (/):Look around | F12:Take screenshot | ESC:Go to title screen"),
                                 title=i("당신은 죽었습니다.",
                                         "You died."), frame_fg=color.lime, frame_bg=color.gui_inventory_bg)
 
     def ev_keydown(self, event: tcod.event.KeyDown) -> None:
         key = event.sym
         if key == tcod.event.K_ESCAPE:
-            self.engine.event_handler = GameQuitNoSaveHandler(prev_event_handler=self)
+            self.engine.event_handler = GoTitleHandler(prev_event_handler=self)
         elif key == tcod.event.K_v:
             self.engine.event_handler = HistoryViewer()
         elif key == tcod.event.K_SLASH or key == tcod.event.K_KP_DIVIDE:

@@ -131,7 +131,7 @@ player = Actor(
     equipments=Equipments(),
     # initial_items=
     # (
-    #     {"item": item_factories.steal_skillbook, "chance": 1, "count": (10, 10), "BUC": {1:0,0:1,-1:0}, "upgrade": None},
+    #     {"item": item_factories.amulet_of_kugah, "chance": 1, "count": (10, 10), "BUC": {1:0,0:1,-1:0}, "upgrade": None},
     #     {"item": item_factories.potion_of_healing, "chance": 1, "count": (1, 1), "BUC": {1:0,0:1,-1:0}, "upgrade": None},
     # ),
 #     initial_equipments=(

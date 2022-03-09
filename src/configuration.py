@@ -75,21 +75,6 @@ def toggle_animation(using: bool) -> None:
         Game.engine.update_config()
 
 
-def toggle_autosave(using: bool) -> None:
-    """Toggle ingame animation effects"""
-    with open("./config/config.json", "r") as cfg:
-        game_config = json.load(cfg)
-
-    game_config["autosave"] = using
-
-    with open("./config/config.json", "w") as cfg:
-        json.dump(game_config, cfg, indent=4)
-
-    from game import Game
-    if Game.engine:
-        Game.engine.update_config()
-
-
 def toggle_mouse_enemy_ignore(using: bool) -> None:
     """Toggle ingame animation effects"""
     with open("./config/config.json", "r") as cfg:
