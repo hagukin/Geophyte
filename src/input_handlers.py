@@ -2110,11 +2110,6 @@ class DisplayControlEventHandler(AskUserEventHandler):
                                                             "<Encyclopedia>"), fg=color.white)
         console.print(x=x_start, y=y_start + ypad + 1, string=i("TAB","TAB"), fg=color.cyan)
         ypad += 2
-        console.print(x=x_start, y=y_start + ypad, string=i("<게임 저장>",
-                                                            "<Save game>"), fg=color.white)
-        console.print(x=x_start, y=y_start + ypad + 1, string=i("(S)키  (쉬프트 + (s)키)",
-                                                                "(S) key  (Shift + (s) key)"), fg=color.cyan)
-        ypad += 2
         console.print(x=x_start, y=y_start + ypad, string=i("<게임 종료>",
                                                             "<Quit game>"), fg=color.white)
         console.print(x=x_start, y=y_start + ypad + 1, string=i("(Q)키  (쉬프트 + (q)키)",

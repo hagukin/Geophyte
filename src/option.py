@@ -247,9 +247,11 @@ class Option():
                                                                    f"\n\n게임 플레이 중에는 언어를 변경할 수 없습니다.",
                                                                    f"\n\nAnimation: {string(cfg['render_animation'])}"
                                                                    f"\n\nCurrent language: {stringlang(cfg['lang'])}"
-                                                                   f"\n\nYou can't change the language during the game."), fg=color.option_fg)
+                                                                   f"\n\nYou can't change the language during gameplay session."), fg=color.option_fg)
         Option.render_gui_keys(console, context, 'gameplay', initial_y=9)  # TODO Hard-coded
         context.present(console, keep_aspect=True)
+
+    done_reset = False
 
     @staticmethod
     def render_reset_option_gui(console: tcod.Console, context: tcod.context.Context):
@@ -260,7 +262,10 @@ class Option():
         console.print(Option.opt_x + 2, Option.opt_y + 2, string=i(f"\n\n설정 초기화는 게임을 다시 시작해야 적용됩니다."
                                                                    "\n\n게임 플레이 중에는 설정을 초기화할 수 없습니다.",
                                                                    f"\n\nRestart the game after resetting the settings."
-                                                                   "\n\nYou can't reset the settings during the game."), fg=color.option_fg)
+                                                                   "\n\nYou can't reset the settings during gameplay session."), fg=color.option_fg)
+        if Option.done_reset:
+            console.print(1,1,string=i("설정 초기화 완료.","Config reset done."), fg=color.red)
+            Option.done_reset = False
         Option.render_gui_keys(console, context, 'reset', initial_y=8)  # TODO Hard-coded
         context.present(console, keep_aspect=True)
 
@@ -404,6 +409,7 @@ class Option():
                     default_cfg = json.load(f)
                 with open("./config/config.json", "w") as f2:
                     json.dump(default_cfg, f2, indent=4)
+                Option.done_reset = True
             except exceptions.ConfigException:
                 pass
         elif display_action == "escape":
