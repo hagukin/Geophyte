@@ -233,7 +233,7 @@ class DescendAction(Action):
                 self.engine.world.get_map(n_depth).ascend_loc[1]
                 )
             for actor in actors:
-                if not actor.actor_state.can_chase_through_stair or actor.is_dead or not actor.actor_state.can_move_on_surface:
+                if not actor.actor_state.can_chase_through_stair or actor.is_dead:
                     continue
                 if actor.ai:
                     if actor.ai.owner == self.engine.player or actor.ai.target == self.engine.player:
@@ -281,7 +281,9 @@ class AscendAction(Action):
                     self.engine.event_handler = GameClearInputHandler()
                     return None
                 else:
-                    raise NotImplementedError() # TODO: Surface level contents
+                    raise exceptions.Impossible(i("당신은 쿠가의 아뮬렛을 탈환해 지상으로 복귀해야 한다. 이대로 돌아갈 수 없다.",
+                                                  "You must retrieve the amulet of Kugah to return to the surface.")) # TODO: Surface level contents
+                    #NOTE: raising an exception won't cost a turn but if you use msg log and return None it would.
 
             # Move entity to other level
             self.engine.change_entity_depth(

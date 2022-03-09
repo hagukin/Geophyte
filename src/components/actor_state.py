@@ -315,7 +315,9 @@ class ActorState(BaseComponent):
 
     @property
     def can_chase_through_stair(self) -> bool:
-        return True # Currently all actors can chase other actor through stairs
+        if not self.can_move_on_surface and not self.parent.is_on_air:
+            return False
+        return True
 
     @property
     def hunger_state(self) -> str:

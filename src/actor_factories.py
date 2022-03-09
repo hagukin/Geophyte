@@ -475,7 +475,6 @@ bat = Actor(
         has_torso=False,
         has_blood=True,
         has_soul=True,
-        can_move_on_surface=False,
     ),
     inventory=Inventory(capacity=1),
     ability_inventory=AbilityInventory(capacity=1),
