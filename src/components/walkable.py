@@ -132,7 +132,7 @@ class SpikeTrapWalkable(TrapWalkable):
             self.engine.message_log.add_message(i(f"{g(target.name, '이')} {g(self.parent.name, '을')} 밟아 {dmg} 데미지를 받았다.",
                                                   f"{target.name} stepped on the {self.parent.name} and took {dmg} damage."),
                                                 target=target, fg=color.enemy_unique)
-        target.status.take_damage(dmg)
+        target.status.take_damage(dmg, fx="fx_damaged3")
 
 
 class FlameTrapWalkable(TrapWalkable):
@@ -170,6 +170,7 @@ class FlameTrapWalkable(TrapWalkable):
                 feet_item.collided_with_fire()
                 if feet_item.equipable.eq_protection > 0:  # Solid boots
                     if target == self.engine.player:
+                        self.engine.sound_manager.add_sound_queue("fx_damaged3")
                         self.engine.message_log.add_message(
                             i(f"당신은 {g(self.parent.name, '을')} 밟았지만, {g(feet_item.name, '이')} 당신을 보호했다!",
                               f"You stepped on the {self.parent.name}, but your {feet_item.name} protected you!"),
@@ -179,6 +180,7 @@ class FlameTrapWalkable(TrapWalkable):
 
         # else
         if target == self.engine.player:
+            self.engine.sound_manager.add_sound_queue("fx_damaged3")
             self.engine.message_log.add_message(i(f"당신은 {g(self.parent.name, '을')} 밟았다.",
                                                   f"You stepped on the {self.parent.name}."), target=target, fg=color.player_bad)
         else:
@@ -243,7 +245,7 @@ class IcicleTrapWalkable(TrapWalkable):
                 i(f"{g(target.name, '이')} {g(self.parent.name, '을')} 밟아 {dmg} 데미지를 받았다.",
                   f"{target.name} stepped on the {self.parent.name} and took {dmg} damage."),
                 target=target, fg=color.enemy_unique)
-        target.status.take_damage(dmg)
+        target.status.take_damage(dmg, fx="fx_damaged3")
         if not target.actor_state.is_dead:
             target.actor_state.apply_freezing(list(self.freeze_value))
         if not target.actor_state.is_dead:
@@ -275,6 +277,7 @@ class AcidSprayTrapWalkable(TrapWalkable):
                 feet_item.collided_with_acid()
                 if feet_item.equipable.eq_protection > 0:  # Solid boots
                     if target == self.engine.player:
+                        self.engine.sound_manager.add_sound_queue("fx_damaged3")
                         self.engine.message_log.add_message(
                             i(f"당신은 {g(self.parent.name, '을')} 밟았지만, {g(feet_item.name, '이')} 당신을 보호했다!",
                               f"You stepped on the {self.parent.name}, but your {feet_item.name} protected you!"),
@@ -284,6 +287,7 @@ class AcidSprayTrapWalkable(TrapWalkable):
 
         # else
         if target == self.engine.player:
+            self.engine.sound_manager.add_sound_queue("fx_damaged3")
             self.engine.message_log.add_message(i(f"당신은 {g(self.parent.name, '을')} 밟았다.",
                                                   f"You stepped on {self.parent.name}."), target=target, fg=color.player_bad)
             self.engine.message_log.add_message(i(f"{g(target.name, '이')} 산성 물질을 분사한다!",
@@ -336,11 +340,10 @@ class PoisonSpikeTrapWalkable(TrapWalkable):
                                                   f"You stepped on the {self.parent.name} and took {dmg} damage."),
                                                 fg=color.player_bad)
         else:
-            self.engine.message_log.add_message(
-                i(f"{g(target.name, '이')} {g(self.parent.name, '을')} 밟아 {dmg} 데미지를 받았다.",
-                  f"{target.name} stepped on the {self.parent.name} and took {dmg} damage."),
-                target=target, fg=color.enemy_unique)
-        target.status.take_damage(dmg)
+            self.engine.message_log.add_message(i(f"{g(target.name, '이')} {g(self.parent.name, '을')} 밟아 {dmg} 데미지를 받았다.",
+                                                  f"{target.name} stepped on the {self.parent.name} and took {dmg} damage."),
+                                                target=target, fg=color.enemy_unique)
+        target.status.take_damage(dmg, fx="fx_damaged3")
         if not target.actor_state.is_dead:
             target.actor_state.apply_poisoning(list(self.poison_value))
 
@@ -360,18 +363,22 @@ class SonicBoomTrapWalkable(TrapWalkable):
     def sonic_boom(self, target) -> None:
         from util import get_distance
         if self.parent == self.engine.player:
+            self.engine.sound_manager.add_sound_queue("fx_sonicboom")
             self.engine.message_log.add_message(i(f"던전 전체에 굉음이 울린다!",
                                                   f"A roaring sound echoes the dungeon!"), fg=color.world, target=self.parent)
         elif self.engine.game_map.visible[self.parent.x, self.parent.y]:
+            self.engine.sound_manager.add_sound_queue("fx_sonicboom")
             self.engine.message_log.add_message(i(f"던전 전체에 굉음이 울린다!",
                                                   f"A roaring sound echoes the dungeon!"), fg=color.world, target=self.parent)
         elif get_distance(self.parent.x, self.parent.y, self.engine.player.x, self.engine.player.y) <= self.engine.player.status.changed_status["hearing"]:
+            self.engine.sound_manager.add_sound_queue("fx_sonicboom")
             self.engine.message_log.add_message(i(f"던전 어디에선가 굉음이 들린다.",
                                                   f"You hear a loud noise coming from somewhere."), fg=color.player_sense, target=self.parent)
         for actor in self.engine.game_map.actors:
             if actor.ai:
                 if get_distance(self.parent.x, self.parent.y, actor.x, actor.y) <= actor.status.changed_status["hearing"]:
                     actor.ai.activate()
+                actor.actor_state.apply_wake_up() # sleep check handled inside
 
     def when_item_on_trap(self, target) -> None:
         self.sonic_boom(target)

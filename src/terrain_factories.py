@@ -102,26 +102,25 @@ forest_chamber = Terrain(
 terrain_dict[forest_chamber] = forest_chamber.rarity
 
 
-# Landmine chamber
-landmine_chamber = Terrain(
-    name=i("지뢰밭", "landmine chamber"),
-    terrain_id="landmine_chamber",
+# explosion chamber
+explosion_chamber = Terrain(
+    name=i("폭발 챔버", "explosion chamber"),
+    terrain_id="flame_chamber",
     terrain_desc="",
     rarity=30,
     spawn_item=True,
     spawn_monster=False,
-    gen_grass=None,
+    gen_grass={"core_num_range":(4,8), "scale_range":(1,4), "density":0.9},
     gen_traps={
         "checklist":{
             semiactor_factories.explosion_trap:5,
         },
-        "max_traps_per_room":100,
-        "spawn_chance":0.5,
-        "forced_traps_gen_number":0
+        "max_traps_per_room":5,
+        "spawn_chance":0.1,
+        "forced_traps_gen_number":1
     },
-    gen_chests={"checklist":{"large_wooden_chest" : 10}, "chest_num_range":(1,1), "initial_items":None},
 )
-terrain_dict[landmine_chamber] = landmine_chamber.rarity
+terrain_dict[explosion_chamber] = explosion_chamber.rarity
 
 
 # Grass Field
@@ -313,7 +312,7 @@ general_shop = ShopTerrain(
     name=i("잡동사니 상점", "general shop"),
     terrain_id="general_shop",
     terrain_desc="",
-    rarity=99,#3
+    rarity=3,
     min_width=6,
     max_width=8,
     min_height=6,

@@ -228,6 +228,8 @@ class Engine:
                         self.world.save_map_to_memory(new_map, tmp_depth)
                 if not self.world.check_if_map_on_mem(tmp_depth):
                     self.world.save_map_to_memory(self.world.load_map_from_serialized_data(tmp_depth), tmp_depth)
+
+            self.game_map.init_physics()
         else:
             if not self.world.check_if_map_has_been_generated(depth): # When entity moves to an ungenerated map, it causes FATAL ERROR as seen below.
                 print("FATAL ERROR::NON-PLAYER ENTITY TRIED TO MOVE TO A NONGENERATED DEPTH. FUNCTION CANCELLED.")

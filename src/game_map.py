@@ -104,6 +104,20 @@ class GameMap:
             if isinstance(entity, SemiActor) and entity.is_active
         )
 
+    def init_physics(self) -> None:
+        """
+        Calculate physics for all entities in this gamemap.
+        Main use of this function is to calculate physics when player descends.
+        Previous version of the game used to calculate when they are being spawned (in procgen),
+        but this caused an issue when an entity spawned on a hole and there is no gamemap below it which cause an error.
+        (since spawn() calls .place() and .place() calls .do_enviornmental(), and .do_environmental() calls .do_environmental_hole()
+        which calculates gravitational falling to the next floor which does not exists yet)
+        So now the game will NOT calculate physics for the inital entity spawn,
+        and will start calculating when the player enters the gamemap. (which guarentees that there is gamemap below that floor)
+        """
+        for e in self.entities:
+            e.do_physics()
+
     def actors_change_depth_gradually(self) -> None:
         """
         Is called each game loop (engine.handle_world()).

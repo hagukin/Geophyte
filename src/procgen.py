@@ -158,7 +158,7 @@ def spawn_given_monster(
         return None
 
     # Spawn new monster
-    new_monster = monster.spawn(dungeon, x, y)
+    new_monster = monster.spawn(dungeon, x, y, apply_physics=False) # No physics applied when initial generation to prevent entity falling to a nongenerated depth
 
     # DEBUG
     # print(new_monster.entity_id)
@@ -371,7 +371,7 @@ def spawn_items(
                 and dungeon.tilemap[place_tile[0], place_tile[1]] != TilemapOrder.ASCEND_STAIR.value\
                 and dungeon.tilemap[place_tile[0], place_tile[1]] != TilemapOrder.DESCEND_STAIR.value:
             # Do not remove artifact checking line. If you remove this line, artifacts be spawned multiple times during this function call.
-            item_to_spawn.spawn(dungeon, place_tile[0], place_tile[1])
+            item_to_spawn.spawn(dungeon, place_tile[0], place_tile[1], apply_physics=False) # No physics applied when initial generation to prevent entity falling to a nongenerated depth
 
 
 def get_path_to(
@@ -621,7 +621,9 @@ def spawn_doors(
         dungeon.tiles[door_pos] = dungeon.tileset["t_floor"]()
 
         if room.terrain.spawn_door and dungeon.get_semiactor_at_location(x=door_pos[0], y=door_pos[1], semiactor_id="door") == None:
-            random.choices(list(room.terrain.door_types.keys()), list(room.terrain.door_types.values()), k=1)[0].spawn(gamemap=dungeon, x=door_pos[0], y=door_pos[1], lifetime=-1)
+            random.choices(list(room.terrain.door_types.keys()), list(room.terrain.door_types.values()), k=1)[0]\
+                .spawn(gamemap=dungeon, x=door_pos[0], y=door_pos[1], lifetime=-1, apply_physics=False)
+            # No physics applied when initial generation to prevent entity falling to a nongenerated depth
         else:
             print(f"LOG::Door already exists on {door_pos}. Cancelled Spawning.")
 
@@ -937,6 +939,18 @@ def debug(dungeon, save_as_txt: bool = False):
     
     sys.stdout = sys.__stdout__ #stdout back to normal
 
+from language import interpret as t
+
+def render_generation_screen(console, context, string, engine, diversity: int=0) -> None:
+    gen_dun_str = t("던전 생성 중", "Generating dungeon")
+    screen_center_x = int(engine.config["screen_width"] / 2)
+    screen_center_y = int(engine.config["screen_height"] / 2)
+
+    randomized_screen_paint(console, context, color.black, diversity=diversity)
+    console.print(screen_center_x - int(len(gen_dun_str) / 2), screen_center_y, gen_dun_str, fg=color.procgen_fg, bg=color.procgen_bg)
+    console.print(screen_center_x - int(len(string) / 2), screen_center_y + 2, string, fg=color.procgen_fg)
+    context.present(console=console, keep_aspect=True)
+
 
 def generate_dungeon(
     console: Console,
@@ -959,17 +973,11 @@ def generate_dungeon(
 
     dungeon = GameMap(depth=depth, biome=biome) #NOTE: tilemap initialization happens during  gamemap.__init__()
 
-    screen_center_x = int(engine.config["screen_width"] / 2)
-    screen_center_y = int(engine.config["screen_height"] / 2)
-
     t = time.time()
-    gen_dun_str = i("던전 생성 중", "Generating dungeon")
+    diversity = 0
     if display_process:
-        randomized_screen_paint(console, context, color.black, diversity=0)
-        console.print(screen_center_x - int(len(gen_dun_str)/2), screen_center_y, gen_dun_str, fg=color.procgen_fg, bg=color.procgen_bg)
-        tmp = i("토양 생성 중...", "Generating earth...")
-        console.print(screen_center_x - int(len(tmp)/2), screen_center_y + 2, tmp, fg=color.procgen_fg)
-        context.present(console=console, keep_aspect=True)
+        render_generation_screen(console, context, i("토양 생성 중...", "Generating earth..."), engine, diversity)
+        diversity += 3
     print("Generating Earth...")
     generate_earth(
         dungeon=dungeon,
@@ -982,11 +990,8 @@ def generate_dungeon(
         t = time.time()
 
     if display_process:
-        randomized_screen_paint(console, context, color.black, diversity=10)
-        console.print(screen_center_x - int(len(gen_dun_str)/2), screen_center_y, gen_dun_str, fg=color.procgen_fg, bg=color.procgen_bg)
-        tmp = i("던전 공간 생성 중...", "Generating dungeon rooms...")
-        console.print(screen_center_x - int(len(tmp)/2), screen_center_y + 2, tmp, fg=color.procgen_fg)
-        context.present(console=console, keep_aspect=True)
+        render_generation_screen(console, context, i("던전 공간 생성 중...", "Generating dungeon rooms..."), engine, diversity)
+        diversity += 3
     print("Generating Dungeon Rooms...")
     generate_rooms(
         dungeon=dungeon,
@@ -999,11 +1004,8 @@ def generate_dungeon(
         t = time.time()
 
     if display_process:
-        randomized_screen_paint(console, context, color.black, diversity=15)
-        console.print(screen_center_x - int(len(gen_dun_str)/2), screen_center_y, gen_dun_str, fg=color.procgen_fg, bg=color.procgen_bg)
-        tmp = i("터널 생성 중...", "Generating tunnels...")
-        console.print(screen_center_x - int(len(tmp) / 2), screen_center_y + 2, tmp, fg=color.procgen_fg)
-        context.present(console=console, keep_aspect=True)
+        render_generation_screen(console, context, i("터널 생성 중...", "Generating tunnels..."), engine, diversity)
+        diversity += 3
     print("Generating Tunnels...")
     generate_tunnels(
         dungeon=dungeon,
@@ -1014,11 +1016,8 @@ def generate_dungeon(
         t = time.time()
 
     if display_process:
-        randomized_screen_paint(console, context, color.black, diversity=25)
-        console.print(screen_center_x - int(len(gen_dun_str)/2), screen_center_y, gen_dun_str, fg=color.procgen_fg, bg=color.procgen_bg)
-        tmp = i("지형 생성 중...", "Generating terrains...")
-        console.print(screen_center_x - int(len(tmp) / 2), screen_center_y + 2, tmp, fg=color.procgen_fg)
-        context.present(console=console, keep_aspect=True)
+        render_generation_screen(console, context, i("지형 생성 중...", "Generating terrains..."), engine, diversity)
+        diversity += 3
     print("Generating Terrains...")
     generate_terrain(
         dungeon=dungeon,
@@ -1031,11 +1030,8 @@ def generate_dungeon(
         t = time.time()
 
     if display_process:
-        randomized_screen_paint(console, context, color.black, diversity=30)
-        console.print(screen_center_x - int(len(gen_dun_str)/2), screen_center_y, gen_dun_str, fg=color.procgen_fg, bg=color.procgen_bg)
-        tmp = i("계단 생성 중...", "Generating staircases...")
-        console.print(screen_center_x - int(len(tmp) / 2), screen_center_y + 2, tmp, fg=color.procgen_fg)
-        context.present(console=console, keep_aspect=True)
+        render_generation_screen(console, context, i("계단 생성 중...", "Generating staircases..."), engine, diversity)
+        diversity += 3
     print("Generating Staircases...")
     if not biome.generate_descending_stair:
         generate_stair(
@@ -1054,11 +1050,8 @@ def generate_dungeon(
         t = time.time()
 
     if display_process:
-        randomized_screen_paint(console, context, color.black, diversity=35)
-        console.print(screen_center_x - int(len(gen_dun_str)/2), screen_center_y, gen_dun_str, fg=color.procgen_fg, bg=color.procgen_bg)
-        tmp = i("엔티티 생성 중...", "Spawning entities...")
-        console.print(screen_center_x - int(len(tmp) / 2), screen_center_y + 2, tmp, fg=color.procgen_fg)
-        context.present(console=console, keep_aspect=True)
+        render_generation_screen(console, context, i("엔티티 생성 중...", "Spawning entities..."), engine, diversity)
+        diversity += 3
     print("Spawning Entities...")
     generate_entities(
         dungeon=dungeon,
@@ -1070,11 +1063,8 @@ def generate_dungeon(
         t = time.time()
 
     if display_process:
-        randomized_screen_paint(console, context, color.black, diversity=20)
-        console.print(screen_center_x - int(len(gen_dun_str)/2), screen_center_y, gen_dun_str, fg=color.procgen_fg, bg=color.procgen_bg)
-        tmp = i("던전 다듬는 중...", "Adjusting dungeon...")
-        console.print(screen_center_x - int(len(tmp) / 2), screen_center_y + 2, tmp, fg=color.procgen_fg)
-        context.present(console=console, keep_aspect=True)
+        render_generation_screen(console, context, i("던전 다듬는 중...", "Adjusting dungeon..."), engine, diversity)
+        diversity += 3
     print("Adjusting Dungeon...")
     adjust_convex(
         dungeon=dungeon,
@@ -1086,6 +1076,7 @@ def generate_dungeon(
     remove_biome_banned_entities(
         gamemap=dungeon
     )
+
     if debugmode:
         print(f"Adjusting Tunnels - {time.time() - t}s")
         t = time.time()

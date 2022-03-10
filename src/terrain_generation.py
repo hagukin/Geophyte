@@ -205,18 +205,23 @@ def generate_trap(gamemap: GameMap, room: Room) -> None:
 
     # 1. Generate force-generated traps first
     if forced_traps_gen_number: # if not 0
-        trap_coordinates = random.choices(gen_tiles, k=min(len(room.inner_tiles), forced_traps_gen_number)) # Prevents the trap num going higher than the available inner tiles num
-        
-        for loc in set(trap_coordinates):
-            # Choose trap type
-            trap_chosen = random.choices(list(checklist.keys()), weights=list(checklist.values()), k=1)[0]
+        trap_coordinates = None
+        try:
+            trap_coordinates = random.choices(gen_tiles, k=min(len(room.inner_tiles), forced_traps_gen_number)) # Prevents the trap num going higher than the available inner tiles num
+        except Exception as e:
+            print(f"ERROR::{e} - generate_trap()")
 
-            # Spawn trap
-            if trap_count <= max_traps_per_room:
-                grow_trap(gamemap=gamemap, x=loc[0], y=loc[1], trap_semiactor=trap_chosen)
-                trap_count += 1
-            else:
-                break
+        if trap_coordinates: # If there is no trap_coordinates ignore the process
+            for loc in set(trap_coordinates):
+                # Choose trap type
+                trap_chosen = random.choices(list(checklist.keys()), weights=list(checklist.values()), k=1)[0]
+
+                # Spawn trap
+                if trap_count <= max_traps_per_room:
+                    grow_trap(gamemap=gamemap, x=loc[0], y=loc[1], trap_semiactor=trap_chosen)
+                    trap_count += 1
+                else:
+                    break
 
     # 2. Spawn inside the given room
     # Shuffle the inner tiles to prevent traps getting crammed in specific location

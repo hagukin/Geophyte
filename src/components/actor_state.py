@@ -505,7 +505,7 @@ class ActorState(BaseComponent):
                 else:
                     self.engine.message_log.add_message(i(f"{g(self.parent.name, '은')} 화염으로부터 {fire_dmg} 데미지를 받았다.",
                                                           f"{self.parent.name} took {fire_dmg} damage from fire."), fg=color.enemy_neutral, target=self.parent)
-                self.parent.status.take_damage(amount=fire_dmg)
+                self.parent.status.take_damage(amount=fire_dmg, fx="fx_damaged2")
 
             # Chance of fire going off
             extinguish_chance = random.random()
@@ -595,7 +595,7 @@ class ActorState(BaseComponent):
                     self.engine.message_log.add_message(i(f"{g(self.parent.name, '은')} 얼어붙고 있다. {cold_dmg} 데미지를 받았다.",
                                                           f"{self.parent.name} is freezing. {self.parent.name.capitalize()} took {cold_dmg} damage."),fg=color.enemy_neutral, target=self.parent)
 
-                self.parent.status.take_damage(amount=cold_dmg)
+                self.parent.status.take_damage(amount=cold_dmg, fx="fx_damaged2")
 
                 # Slows actor down (not stacked)
                 self.parent.status.add_bonus(Bonus("freeze_bonus", bonus_agility=-1 * self.is_freezing[1]))
@@ -652,7 +652,7 @@ class ActorState(BaseComponent):
                                                       f"{self.parent.name} is completely frozen and took {cold_dmg} damage."),fg=color.enemy_unique, target=self.parent)
 
             # dmg apply
-            self.parent.status.take_damage(amount=cold_dmg)
+            self.parent.status.take_damage(amount=cold_dmg, fx="fx_damaged2")
 
             # slows actor down (will not stack)
             self.parent.status.add_bonus(Bonus("frozen_bonus", bonus_agility=-1000)) # agility value will be set to 1 (it will get clamped)
@@ -718,7 +718,7 @@ class ActorState(BaseComponent):
         for target in targets:
             # If there is a source actor, trigger target to that source actor.
             if source_actor:
-                target.status.take_damage(amount=0, attacked_from=source_actor)
+                target.status.take_damage(amount=0, attacked_from=source_actor, fx="fx_damaged2")
 
             # Resistance
             if target.status.changed_status["shock_resistance"] >= 1:
@@ -752,7 +752,7 @@ class ActorState(BaseComponent):
                                                               f"{target.name} took {shock_dmg} damage from electric shock."), fg=color.enemy_neutral, target=target)
                 
                 # Apply dmg
-                target.status.take_damage(amount=shock_dmg)
+                target.status.take_damage(amount=shock_dmg, fx="fx_damaged2")
 
     def actor_confused(self):
         """
@@ -833,7 +833,7 @@ class ActorState(BaseComponent):
                                                       f"{self.parent.name} start to dissolve in acid. You took {acid_dmg} damage."), fg=color.enemy_neutral, target=self.parent)
 
             # dmg
-            self.parent.status.take_damage(amount=acid_dmg)
+            self.parent.status.take_damage(amount=acid_dmg, fx="fx_damaged2")
 
 
     def actor_bleed(self):
@@ -869,7 +869,7 @@ class ActorState(BaseComponent):
                                                       f"{self.parent.name} took {blood_dmg} damage from bleeding."), fg=color.enemy_neutral, target=self.parent)
 
             # Apply damage
-            self.parent.status.take_damage(amount=blood_dmg)
+            self.parent.status.take_damage(amount=blood_dmg, fx="fx_damaged2")
 
         # Check if the bleeding has stopped (Similar to resistance)
         # Each turn, there is cons / cons + 60 chance of stop bleeding
@@ -935,7 +935,7 @@ class ActorState(BaseComponent):
                                                           f"{self.parent.name} took {poison_dmg} damage from poison."), fg=color.enemy_neutral, target=self.parent)
 
                 # dmg
-                self.parent.status.take_damage(amount=poison_dmg)
+                self.parent.status.take_damage(amount=poison_dmg, fx="fx_damaged2")
 
                 # Lowers constitution (Debuff will stack, But there is no specific value. Constitution will reduce in half each turn.)
                 self.parent.status.add_bonus(Bonus("poison_bonus", bonus_constitution=-1 * int(self.parent.status.changed_status["constitution"] / 2)))
@@ -1344,8 +1344,9 @@ class ActorState(BaseComponent):
     def apply_wake_up(self):
         """If actor is sleeping, wake actor up."""
         #NOTE: Log handled in apply_sleeping
-        self.parent.status.remove_bonus(bonus_id="sleep_bonus", ignore_warning=True)
-        self.apply_sleeping([0, 0], forced=True)
+        if self.is_sleeping != [0, 0]:
+            self.parent.status.remove_bonus(bonus_id="sleep_bonus", ignore_warning=True)
+            self.apply_sleeping([0, 0], forced=True)
 
     def sleep_success(self, value: List[int,int]) -> None:
         if self.is_sleeping[1] < 0 and value != [0,

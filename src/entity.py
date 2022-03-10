@@ -160,7 +160,7 @@ class Entity:
             self.is_on_air = True
         else:
             self.is_on_air = False
-        self.do_environmental_effects()
+        self.do_physics()
 
     def get_possible_bump_action_keywords(self, actor: Actor) -> List[str]:
         """Returns the amount of different bump actions this entity can do."""
@@ -276,6 +276,9 @@ class Entity:
         """Handle entity on a hole tile."""
         if self.gamemap.tiles[self.x, self.y]["tile_id"] == "hole":
             new_gamemap = self.engine.world.get_map(depth=self.gamemap.depth + 1)
+            if not new_gamemap:
+                print(f"ERROR::Depth {self.gamemap.depth + 1} is not generated yet. Ignoring environmental_hole(). entity:{self.entity_id}")
+                return None
             x, y = new_gamemap.get_random_tile(should_no_entity=True, should_walkable=True, should_safe_to_walk=True,
                                                should_not_protected=True, should_connected_with_stair=True)
             self.engine.change_entity_depth(entity=self, depth=self.gamemap.depth + 1, xpos=x, ypos=y)
@@ -381,14 +384,24 @@ class Entity:
             clone.initialize_self()
         return clone
 
-    def spawn(self: T, gamemap: GameMap, x: int, y: int, exact_copy: bool=False) -> T:
-        """Spawn a new copy of this instance at the given location.
-        NOTE: So technically you are not spawning THIS SPECIFIC ENTITY, instead you are copying this entity and spawning the copy."""
+    def spawn(self: T, gamemap: GameMap, x: int, y: int, exact_copy: bool=False, apply_physics: bool=True) -> T:
+        """
+        Spawn a new copy of this instance at the given location.
+        NOTE: So technically you are not spawning THIS SPECIFIC ENTITY, instead you are copying this entity and spawning the copy.
+        Args:
+            apply_physics:
+                if True, call environmental() functions during .place() call.
+        """
+        if gamemap.tiles[x, y]["tile_id"][-4:] == "hole":
+            print(f"ERROR::You should avoid spawning an entities on holes. This could cause an unexpected issue! - entity: {self.entity_id}, depth: {gamemap.depth}, xy:{x,y}")
         clone = self.copy(gamemap, exact_copy=exact_copy) # Most of the time, spawn() will have exact_copy param as False
-        clone.place(x, y, gamemap)
+        clone.place(x, y, gamemap, apply_physics=apply_physics)
         return clone
 
-    def place(self, x: int, y: int, gamemap: Optional[GameMap] = None) -> None:
+    def do_physics(self) -> None:
+        self.do_environmental_effects()
+
+    def place(self, x: int, y: int, gamemap: Optional[GameMap] = None, apply_physics: bool=True) -> None:
         """
         Place this entitiy at a new location.
         If new gamemap is given, remove entity from previous gamemap, and place it onto new gamemap."""
@@ -399,7 +412,8 @@ class Entity:
             gamemap.entities.append(self)
 
         # Apply environmental effects when placed.
-        self.do_environmental_effects()
+        if apply_physics:
+            self.do_physics()
 
     def chebyshevDist(self, x: int, y: int) -> float:
         """
@@ -419,7 +433,7 @@ class Entity:
         self.y += dy
 
         # Apply environmental effects when moved.
-        self.do_environmental_effects()
+        self.do_physics()
 
     def collided_with_fire(self):
         pass
@@ -599,8 +613,8 @@ class Actor(Entity):
         self.action_speed = self.status.agility
         return self.action_speed
 
-    def place(self, x: int, y: int, gamemap: Optional[GameMap] = None) -> None:
-        super().place(x, y, gamemap)
+    def place(self, x: int, y: int, gamemap: Optional[GameMap] = None, apply_physics: bool=True) -> None:
+        super().place(x, y, gamemap, apply_physics=apply_physics)
         if self.ai:
             if self.ai.path:
                 self.ai.path.clear() #NOTE: If actor is moving towards a nearby tile, use move() instead.
@@ -841,11 +855,11 @@ class Actor(Entity):
         clone = super().copy(gamemap=gamemap, exact_copy=exact_copy)
         return clone
 
-    def spawn(self: T, gamemap: GameMap, x: int, y: int, is_active: bool=False) -> T:
+    def spawn(self: T, gamemap: GameMap, x: int, y: int, is_active: bool=False, apply_physics:bool=True) -> T:
         """
         Spawn a copy of this instance at the given location.
         """
-        clone = super().spawn(gamemap, x, y)
+        clone = super().spawn(gamemap, x, y, apply_physics=apply_physics)
         if is_active and clone.ai:
             clone.ai.activate()
         return clone
@@ -1209,12 +1223,12 @@ class Item(Entity):
         clone.parent = parent
         return clone
 
-    def spawn(self: T, gamemap: GameMap, x: int, y: int, exact_copy: bool=False) -> T:
+    def spawn(self: T, gamemap: GameMap, x: int, y: int, exact_copy: bool=False, apply_physics:bool=True) -> T:
         """
         Spawn a copy of this instance at the given location.
         Item cannot be spawned with parent(Inventory)
         """
-        clone = super().spawn(gamemap, x, y, exact_copy)
+        clone = super().spawn(gamemap, x, y, exact_copy, apply_physics=apply_physics)
         if self.is_artifact:
             if self.engine.item_manager.check_artifact_id_generated(self.entity_id):
                 print(f"WARNING::Spawning item {self.entity_id} which cannot be naturally spawned. This might not be an error. - Item.spawn()")  # Does not stop the spawning
@@ -1362,9 +1376,9 @@ class SemiActor(Entity):
         clone.lifetime = lifetime
         return clone
         
-    def spawn(self: T, gamemap: GameMap, x: int, y: int, lifetime: int=3) -> T:
+    def spawn(self: T, gamemap: GameMap, x: int, y: int, lifetime: int=3, apply_physics:bool=True) -> T:
         """Spawn a copy of this instance at the given location."""
-        clone = super().spawn(gamemap, x, y)
+        clone = super().spawn(gamemap, x, y, apply_physics=apply_physics)
         clone.lifetime = lifetime
         return clone
 

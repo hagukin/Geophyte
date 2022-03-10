@@ -628,7 +628,7 @@ class Status(BaseComponent):
             dmg = max(0, dmg)
         return dmg
 
-    def take_damage(self, amount, attacked_from:Actor=None) -> None:
+    def take_damage(self, amount, attacked_from:Actor=None, fx=None) -> None:
         """Reduce the health point by the exact given amount.
         This function can be used for triggering certain actors."""
         if self.parent.actor_state.is_dead:
@@ -648,6 +648,8 @@ class Status(BaseComponent):
         if self.parent == self.engine.player:
             self.engine.player_path.clear()
             self.engine.player_dir = None
+            if fx and amount > 0:
+                self.engine.sound_manager.add_sound_queue(fx)
 
     ### Magic Power
     @property

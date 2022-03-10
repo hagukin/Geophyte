@@ -1032,8 +1032,9 @@ class MeleeAction(ActionWithDirection):
                 self.engine.message_log.add_message(i(f"{g(att_name, '은')} {g(tar_name, '을')} 공격했지만 빗나갔다.",
                                                       f"{att_name} attacks {tar_name} but misses."), miss_fg, target=self.entity)
             target.status.take_damage(amount=0, attacked_from=self.entity) #Trigger
-            if target.status.experience: # gain exp when attack was successful
-                target.status.experience.gain_agility_exp(10, 17, exp_limit=1000)
+            if target.status.experience:
+                if self.entity.status.changed_status["agility"] > target.status.changed_status["agility"]: # gain exp when dodged
+                    target.status.experience.gain_agility_exp(10, 17, exp_limit=1000)
 
             if self.entity == self.engine.player:
                 self.engine.sound_manager.add_sound_queue("fx_player_miss")
@@ -1081,13 +1082,15 @@ class MeleeAction(ActionWithDirection):
                 else:
                     self.engine.message_log.add_message(i(f"{attack_desc}해 {damage} 데미지를 입혔다.",
                                                           f"{attack_desc} and deals {damage} damage."), attack_color)
-            target.status.take_damage(amount=damage, attacked_from=self.entity)
 
             if self.entity == self.engine.player:
                 if critical_hit:
                     hitsound = "fx_player_crit"
                 else:
                     hitsound = "fx_player_hit"
+
+            dmg_sound = "fx_damaged"
+            target.status.take_damage(amount=damage, attacked_from=self.entity, fx=dmg_sound)
         else:
             if self.engine.game_map.visible[self.entity.x, self.entity.y] or self.engine.game_map.visible[target.x, target.y]:
                 self.engine.message_log.add_message(i(f"{attack_desc}했지만 아무런 데미지도 주지 못했다.",

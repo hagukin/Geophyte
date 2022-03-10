@@ -5,7 +5,7 @@ import threading
 import inspect
 import ctypes
 import traceback
-import numpy
+import random
 
 from collections import deque
 from typing import Any, Optional
@@ -118,6 +118,11 @@ class SoundManager():
             "fx_block":("fx\\block.wav",0.5),
             "fx_player_kill":("fx\\crit_hit.wav",0.25),
             "fx_player_death":("fx\\death.wav",0.5),
+            "fx_damaged": ("fx\\damaged.wav", 1),
+            "fx_damaged2": ("fx\\damaged2.wav", 1),
+            "fx_damaged3":("fx\\damaged3.wav", 0.7),
+            "fx_damaged4": ("fx\\damaged4.wav", 1),
+            "fx_near_death_damage": ("fx\\near_death_damage.wav", 0.5),
             "fx_teleport":("fx\\teleport.wav",1),
             "fx_pickup":("fx\\pickup.wav",0.5),
             "fx_steal": ("fx\\pickup.wav", 0.5),
@@ -167,10 +172,12 @@ class SoundManager():
             "fx_lightning": ("fx\\lightning.wav", 0.9),
             "fx_fire_impact": ("fx\\fire_impact.wav", 0.5),
             "fx_fire_lit": ("fx\\fire_lit.wav", 0.5),
+            "fx_fire_lit2": ("fx\\fire_lit2.wav", 0.8),
             "fx_burn": ("fx\\burn.wav", 1),
+            "fx_spray": ("fx\\spray.wav", 1),
             "fx_ice_impact": ("fx\\ice_impact.wav", 0.5),
             "fx_credit": ("fx\\credit.wav", 0.5),
-            "fx_big_impact": ("fx\\big_impact.wav", 0.5),
+            "fx_sonicboom": ("fx\\sonicboom.wav", 0.5),
             "fx_low_impact": ("fx\\low_impact.wav", 0.5),
             "fx_bad_impact": ("fx\\bad_impact.wav", 0.5),
             "fx_magic_applied2": ("fx\\magic_applied2.wav", 0.5),
@@ -281,11 +288,24 @@ class SoundManager():
         self.__current_bgs = snd
         th.start()
 
-    def add_sound_queue(self, sound_id: Optional[str]) -> None:
+    def add_sound_queue(self, sound_id: str) -> None:
         if sound_id:
             sound_queue.append(sound_id)
         else:
             print("SOUND::ERROR::passed None to add_sound_queue()")
+
+    def add_sound_queue_rand(self, sound_id_prefix: str, sound_index_len: int):
+        """
+        Choose a random sound id from given prefix and index len.
+        e.g. walk.wav, walk2.wav, walk3.wav
+        -> sound_id_prefix = walk, sound_index_len = 3
+        TODO: implement tile walk fx manager
+        """
+        f = lambda ind: "" if ind == 1 else str(ind)
+        if sound_id_prefix and sound_index_len:
+            sound_queue.append(sound_id_prefix + f(random.randint(1,sound_index_len)))
+        else:
+            print("SOUND::ERROR::passed None to add_sound_queue_rand()")
 
     def remove_bgm(self) -> None:
         if "bgm" in self.threads.keys():
