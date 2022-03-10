@@ -89,7 +89,7 @@ def save_actor_book(actor: Optional=None, get_all_monsters: bool=False) -> bool:
                 }
 
             # Insert data
-            from actor_factories import ActorDB
+            from actor_db import ActorDB
             for monllist in ActorDB.monster_difficulty.values():
                 if monllist:
                     for m in monllist:

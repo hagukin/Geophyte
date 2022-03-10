@@ -1,5 +1,5 @@
 {
-    "debugmode": false,
+    "debugmode": true,
     "screen_width": 96,
     "screen_height": 54,
     "tile_width": 16,
@@ -18,7 +18,7 @@
     "ignore_enemy_spotted_during_mouse_movement": false,
     "tileset_path": "resources\\tileset.ttf",
     "world_depth": 25,
-    "lang": "KR",
+    "lang": "EN",
     "master_volume": 50,
     "report_issue_automatically": false
 }

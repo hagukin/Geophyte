@@ -2,7 +2,7 @@ import random
 
 from typing import TYPE_CHECKING
 from unique_terrains.guarded_treasure import GuardedTreasureTerrain
-from room_factories import Room
+from rooms import Room
 from game_map import GameMap
 from entity import Actor
 import random

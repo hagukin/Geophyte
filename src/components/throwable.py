@@ -238,7 +238,8 @@ class NormalThrowable(Throwable):
                 else:
                     self.engine.message_log.add_message(i(f"{g(thrower_name, '이')} {g(self.parent.name, '을')} {collided_name}에게 던져 {dmg} 데미지를 입혔다.",
                                                           f"{thrower_name} throws {self.parent.name} at the {collided_name} and deals {dmg} damage."), target=thrower,fg=throw_fg)
-                collided.status.take_damage(amount=dmg, attacked_from=thrower)
+                if dmg > 0:
+                    collided.status.take_damage(amount=dmg, attacked_from=thrower) # Will not trigger the ai unless there is 1 or more damage.
             else:
                 print(f"WARNING::Throwing dealt negative damage - thrower:{thrower_name}, dmg:{dmg}")
 
@@ -313,6 +314,9 @@ class NormalThrowable(Throwable):
         if self.identify_when_shattered > 0 and self.engine.game_map.visible[self.shattered_x, self.shattered_y]:
             self.parent.item_state.identify_self(self.identify_when_shattered)
 
+    def effects_when_contact_with_ground(self, thrower, loc) -> None:
+        """When item reached its destination without colliding with anything and contacts the ground."""
+        self.drop_thrown_item(thrower, loc)
 
     def activate_logic(self, action: actions.ThrowItem) -> None:
         thrower = action.entity
@@ -373,8 +377,8 @@ class NormalThrowable(Throwable):
         ### B. Render animation ###
         loc = self.render_animation(path, thrower=thrower)
 
-        ### C. Drop Item ###
-        self.drop_thrown_item(thrower, loc)
+        ### C. Item reached its destination ###
+        self.effects_when_contact_with_ground(thrower, loc)
         
         ### D. Effects when shattered ###
         if self.shattered:
@@ -387,13 +391,25 @@ class NormalThrowable(Throwable):
         self.reset_values()
 
 
+class ShatterWhenContactGroundThrowable(NormalThrowable):
+    """
+    Items that COULD shatter when thrown at the ground.
+    e.g. potions
+
+    If you want to make specific throwing weapons that can break even if they just missed a target and landed on the ground such as toxic goo,
+    inherit this class.
+    """
+    def effects_when_contact_with_ground(self, thrower, loc) -> None:
+        # Check for breaking
+        self.break_calculation() # NOTE: potion break guarenteed
+
 
 ###########################################################################################################################
 ###########################################################################################################################
 ###########################################################################################################################
 ###########################################################################################################################
 
-class PotionQuaffAndThrowSameEffectThrowable(NormalThrowable):
+class PotionQuaffAndThrowSameEffectThrowable(ShatterWhenContactGroundThrowable):
     """Potion that applies the same effect when quaffed and when thrown(collided) should use this general throwable component.
     If there is any difference between the two, you should override NormalThrowable class and make a new one."""
     def __init__(self,
@@ -443,7 +459,7 @@ class PotionOfFrostThrowable(PotionQuaffAndThrowSameEffectThrowable):
                 self.engine.game_map.tiles[self.shattered_x-self.dx+dx, self.shattered_y-self.dy+dy] = TileUtil.freeze(self.engine.game_map.tiles[self.shattered_x-self.dx+dx, self.shattered_y-self.dy+dy])
 
 
-class PotionOfLiquifiedAntsThrowable(NormalThrowable):
+class PotionOfLiquifiedAntsThrowable(ShatterWhenContactGroundThrowable):
     def effects_when_shattered(self):
         super().effects_when_shattered()
         # Spawn 8 ants maximum surrounding the consumer.
@@ -464,7 +480,7 @@ class PotionOfLiquifiedAntsThrowable(NormalThrowable):
             self.parent.item_state.identify_self(self.identify_when_shattered)
 
 
-class ToxicGooThrowable(NormalThrowable):
+class ToxicGooThrowable(ShatterWhenContactGroundThrowable):
     def effect_when_collided_with_actor(self, target: Actor, thrower: Actor) -> None:
         super().effect_when_collided_with_actor(target, thrower)
         if target.actor_state.is_poisoned == [0,0,0,0]:

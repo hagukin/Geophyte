@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import random
+from deprecated import deprecated
 
 from components.inventory import Inventory
 from typing import Callable, Optional, Tuple, TYPE_CHECKING, List
@@ -1371,20 +1372,15 @@ class StorageSelectMultipleEventHandler(StorageSelectEventHandler):
 
 class NonHostileBumpHandler(AskUserEventHandler):
     def __init__(self, target: Entity):
-        """
-        Vars:
-            can_pay_shopkeeper:
-                인풋으로 받은 타겟이 shopkeeper이고, 또 플레이어가 현재 빚을 진 상태인 경우.
-                만약 이 이벤트 핸들러가 상인이 아닌 다른 무언가에 의해 호출되었다면 이 값은 사용되지 않는다.
-        """
         super().__init__()
         self.target = target
         self.TITLE = i("무엇을 하시겠습니까?","Choose your action.")
-        self.can_pay_shopkeeper = False
-        self.can_sell_to_shopkeeper = False
-        self.update_pay_status()
 
+    @deprecated
     def update_pay_status(self):
+        """
+        Deprecated
+        """
         if hasattr(self.target, "ai"):
             if self.target.ai:
                 from shopkeeper import Shopkeeper_Ai
@@ -1402,10 +1398,6 @@ class NonHostileBumpHandler(AskUserEventHandler):
 
         number_of_possible_actions = self.target.how_many_bump_action_possible(self.engine.player)
         height = 3 + 2*number_of_possible_actions
-        if self.can_pay_shopkeeper:
-            height += 2
-        if self.can_sell_to_shopkeeper:
-            height += 2
         x = 0
         y = 0
         x_space = 5 # per side
@@ -1455,11 +1447,11 @@ class NonHostileBumpHandler(AskUserEventHandler):
             console.print(x + x_space + 1, y + y_space + y_pad, i("(m) 해당 칸으로 이동한다",
                                                                   "(m) move towards the tile"), fg=color.white)
             y_pad += 2
-        if self.can_pay_shopkeeper: # NOTE: does not check for "purchase" keyword
+        if self.target.check_if_bump_action_possible(self.engine.player, "purchase"):
             console.print(x + x_space + 1, y + y_space + y_pad, i("(p) 소지중인 판매물품들을 구매한다",
                                                                   "(p) purchase everything in the inventory"), fg=color.white)
             y_pad += 2
-        if self.can_sell_to_shopkeeper: # NOTE: does not check for "sell" keyword
+        if self.target.check_if_bump_action_possible(self.engine.player, "sell"):
             console.print(x + x_space + 1, y + y_space + y_pad, i("(e) 인벤토리에서 물품들을 선택해 판매한다",
                                                                   "(e) choose items to sell from inventory"), fg=color.white)
             y_pad += 2
@@ -1473,38 +1465,35 @@ class NonHostileBumpHandler(AskUserEventHandler):
             y_pad += 2
 
     def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[Action]:
-        from chest_factories import ChestSemiactor
+        from chests import ChestSemiactor
         from entity import Actor
         key = event.sym
         dx, dy = self.target.x - self.engine.player.x, self.target.y - self.engine.player.y
 
-        if not self.target.blocks_movement and key == tcod.event.K_m:
+        if self.target.check_if_bump_action_possible(self.engine.player, "move") and key == tcod.event.K_m:
             return self.target.get_bumpaction(self.engine.player, "move")
-        elif self.can_pay_shopkeeper and key == tcod.event.K_p:
-            self.engine.event_handler = MainGameEventHandler()
-            self.target.ai.sell_all_picked_ups(customer=self.engine.player)
-            return None
-        elif self.can_sell_to_shopkeeper and key == tcod.event.K_e:
-            self.engine.event_handler = SellItemsHandler(sell_to=self.target)
-            return None
-        elif self.target.swappable and key == tcod.event.K_s:
+        elif self.target.check_if_bump_action_possible(self.engine.player, "purchase") and key == tcod.event.K_p:
+            return self.target.get_bumpaction(self.engine.player, "purchase")
+        elif self.target.check_if_bump_action_possible(self.engine.player, "sell") and key == tcod.event.K_e:
+            return self.target.get_bumpaction(self.engine.player, "sell")
+        elif self.target.check_if_bump_action_possible(self.engine.player, "swap") and key == tcod.event.K_s:
             return self.target.get_bumpaction(self.engine.player, "swap")
-        elif isinstance(self.target, Actor) and key == tcod.event.K_a:
+        elif self.target.check_if_bump_action_possible(self.engine.player, "attack") and key == tcod.event.K_a:
             if self.target.check_if_bump_action_possible(self.engine.player, "force_attack"): # prioritize force_attack
                 return self.target.get_bumpaction(self.engine.player, "force_attack")
             else:
                 return self.target.get_bumpaction(self.engine.player, "attack")
-        elif key == tcod.event.K_t and isinstance(self.target, ChestSemiactor):
+        elif self.target.check_if_bump_action_possible(self.engine.player, "takeout") and key == tcod.event.K_t:
             return self.target.get_bumpaction(self.engine.player, "takeout")
-        elif key == tcod.event.K_i and isinstance(self.target, ChestSemiactor):
+        elif self.target.check_if_bump_action_possible(self.engine.player, "putin") and key == tcod.event.K_i:
             return self.target.get_bumpaction(self.engine.player, "putin")
-        elif key == tcod.event.K_o:
+        elif self.target.check_if_bump_action_possible(self.engine.player, "open") and key == tcod.event.K_o:
             return self.target.get_bumpaction(self.engine.player, "open")
-        elif key == tcod.event.K_c:
+        elif self.target.check_if_bump_action_possible(self.engine.player, "close") and key == tcod.event.K_c:
             return self.target.get_bumpaction(self.engine.player, "close")
-        elif key == tcod.event.K_u:
+        elif self.target.check_if_bump_action_possible(self.engine.player, "unlock") and key == tcod.event.K_u:
             return self.target.get_bumpaction(self.engine.player, "unlock")
-        elif key == tcod.event.K_b:
+        elif self.target.check_if_bump_action_possible(self.engine.player, "break") and key == tcod.event.K_b:
             return self.target.get_bumpaction(self.engine.player, "break")
         elif key == tcod.event.K_ESCAPE:
             self.engine.event_handler = MainGameEventHandler()
@@ -2316,38 +2305,32 @@ class MainGameEventHandler(EventHandler):
                                                           f"You feel sad."), color.white)
 
 
-            #     ######### TODO FIXME DEBUG
-            #     self.engine.change_entity_depth(
-            #         self.engine.player,
-            #         self.engine.depth + 1,
-            #         self.engine.world.get_map(self.engine.depth + 1).ascend_loc[0],
-            #         self.engine.world.get_map(self.engine.depth + 1).ascend_loc[1]
-            #     )
-            # elif key == tcod.event.K_F10:
-            #     ######### TODO FIXME DEBUG
-            #     self.engine.change_entity_depth(
-            #         self.engine.player,
-            #         self.engine.depth - 1,
-            #         self.engine.world.get_map(self.engine.depth - 1).ascend_loc[0],
-            #         self.engine.world.get_map(self.engine.depth - 1).ascend_loc[1] # NOTE: Chamber of Kugah has no descend loc
-            #     )
-            # elif key == tcod.event.K_F9:
-            #     # import procgen, actor_factories
-            #     # procgen.spawn_given_monster(
-            #     #     x=self.engine.player.x,
-            #     #     y=self.engine.player.y,
-            #     #     monster=actor_factories.piranha,
-            #     #     spawn_active=True,
-            #     #     spawn_sleep=False,
-            #     #     is_first_generation=False,
-            #     #     dungeon=self.engine.game_map
-            #     # )
-            #     self.engine.player.status.fully_heal()
-            # elif key == tcod.event.K_F8:
-            #     for y in range(len(self.engine.game_map.visible[0])):
-            #         for x in range(len(self.engine.game_map.visible)):
-            #             self.engine.game_map.visible[x, y] = True
-            #     self.engine.player.status.experience.gain_intelligence_exp(9999)
+                ######### TODO FIXME DEBUG
+                self.engine.change_entity_depth(
+                    self.engine.player,
+                    self.engine.depth + 1,
+                    self.engine.world.get_map(self.engine.depth + 1).ascend_loc[0],
+                    self.engine.world.get_map(self.engine.depth + 1).ascend_loc[1]
+                )
+            elif key == tcod.event.K_F10:
+                ######### TODO FIXME DEBUG
+                self.engine.change_entity_depth(
+                    self.engine.player,
+                    self.engine.depth - 1,
+                    self.engine.world.get_map(self.engine.depth - 1).ascend_loc[0],
+                    self.engine.world.get_map(self.engine.depth - 1).ascend_loc[1] # NOTE: Chamber of Kugah has no descend loc
+                )
+            elif key == tcod.event.K_F9:
+                from util import spawn_entity_8way
+                from actor_factories import chatterbox
+                actors = spawn_entity_8way(entity=chatterbox, gamemap=self.engine.game_map,
+                                           center_x=self.engine.player.x+1, center_y=self.engine.player.y+1,
+                                           spawn_cnt=1, spawn_on_center=True)
+                self.engine.player.status.fully_heal()
+            elif key == tcod.event.K_F8:
+                for y in range(len(self.engine.game_map.visible[0])):
+                    for x in range(len(self.engine.game_map.visible)):
+                        self.engine.game_map.visible[x, y] = True
 
         # No valid key was pressed
         return action

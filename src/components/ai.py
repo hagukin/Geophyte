@@ -368,7 +368,7 @@ class BaseAI(BaseComponent):
         Return the action this ai will perform when its melee attacking something.
         If the ai has any sort of special effects to its melee attack, its passed as a parameter.
         """
-        return MeleeAction(self.parent, dx, dy).perform()
+        return MeleeAction(self.parent, dx, dy).perform() # Do not change this into bumpaction!
 
     def perform_ranged_action(self, dx, dy, ammo):
         """
@@ -798,7 +798,7 @@ class BaseAI(BaseComponent):
                 # Check if the ai can melee attack
                 if self.do_melee_atk:
                     if self.check_is_melee_atk_possible(attacker=self.parent, target=self.target, cheby_dist=distance):
-                        return self.perform_melee_action(dx=dx, dy=dy)
+                        return self.perform_melee_action(dx=dx, dy=dy) # Do not change this into bumpaction!
 
                 # Check if the ai can range attack
                 if self.do_ranged_atk:
@@ -847,11 +847,7 @@ class BaseAI(BaseComponent):
                 self.target = None
 
             # Reset the target, set attraction if there is no valid target nearby
-            tmp_target = self.get_target()
-            if tmp_target == None:
-                self.set_attraction()
-            else:
-                self.target = tmp_target
+            self.set_target_or_attraction()
         
         # If there is already a path, follow the path
         if self.path:
@@ -860,6 +856,17 @@ class BaseAI(BaseComponent):
         else:
             # No target, no path -> perform_idle_action()
             return self.perform_idle_action()
+
+    def set_target_or_attraction(self):
+        """
+        Set target and attraction.
+        Set attraction only if there is no valid target.
+        """
+        tmp_target = self.get_target()
+        if tmp_target == None:
+            self.set_attraction()
+        else:
+            self.target = tmp_target
 
     def perform_peaceful(self):
         if self.path:
@@ -885,15 +892,37 @@ class BaseAI(BaseComponent):
     def get_action_when_bumped_with(self, bumped_entity: Entity):
         """Returns an Action to perform when bumped with given entity.
         Is called from BumpAction.perform() """
+        dx = bumped_entity.x - self.parent.x
+        dy = bumped_entity.y - self.parent.y
         if bumped_entity.entity_id[-5:] == "chest":
-            return actions.MovementAction(
-                self.parent,
-                dx=bumped_entity.x - self.parent.x,
-                dy=bumped_entity.y - self.parent.y)
+            return actions.MovementAction(self.parent, dx=dx, dy=dy) #TODO: Make ai to open chests
+        elif bumped_entity.entity_id[-11:] == "closed_door":
+            return actions.DoorOpenAction(self.parent, dx=dx, dy=dy)
         elif bumped_entity.entity_id[-11:] == "locked_door":
-            return actions.DoorUnlockAction(
-                self.parent,
-                dx=bumped_entity.x - self.parent.x,
-                dy=bumped_entity.y - self.parent.y)
+            return actions.DoorUnlockAction(self.parent, dx=dx, dy=dy)
+            # NOTE: when DoorUnlockAction is performed,
+            # ai will automatically go for breakaction instead if its not intelligent enough.
+        elif isinstance(bumped_entity, Actor):
+            # NOTE: AI attacks its target by directly calling MeleeAction!
+            # This means that when this part of the code has been reached, the bumped entity is not ai's target.
+            # e.g. when ai is chasing A and B blocks the way, but B is an enemy, ai set B as its new target and attacks.
+            if self.target == bumped_entity:
+                print("WARNING::AI should've attacked its target by directly calling MeleeAction, but it called BumpAction instead. Maybe the ai cannot melee attack?")
+            if self.check_if_enemy(bumped_entity):
+                # If ai was chasing A, but suddenly B blocks the way, and B is A's enemy as well,
+                # ai will either target B instead, or keep follow A depending on the situation.
+                # If B is stronger than the ai, and B is not hostile to ai, there is no need to risk fighting B, so ai will ignore B and keep follow A.
+                # Else, ai will change its target.
+                # This is mainly to prevent player using shopkeeper as a barricade and let it kill everything that approaches the player.
+                if bumped_entity.ai:
+                    # shopkeepers are generally stronger than most monsters, and will not target anyone first since its neutral.
+                    # So most monsters will just wait until the shopkeeper moves.
+                    # However, if the shopkeeper lost its temper (angered) or the ai is even stronger than the shopkeeper, the ai will set a new target (which is probably going to be the shopkeeper)
+                    if bumped_entity.status.difficulty >= self.parent.status.difficulty and not bumped_entity.ai.check_if_enemy(self.parent):
+                        return actions.WaitAction(self.parent)
+                # reset path and set new target
+                self.path = None
+                self.set_target_or_attraction()
+            return actions.WaitAction(self.parent)
         else:
             return actions.WaitAction(self.parent)

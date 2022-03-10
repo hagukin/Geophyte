@@ -3,6 +3,7 @@ from typing import Tuple, List, Optional, TYPE_CHECKING, Dict
 import tiles
 import color
 import actor_factories
+from actor_db import ActorDB
 
 def get_tileset(
     adjustments: dict=None,
@@ -193,11 +194,11 @@ class Biome:
         likewise, is monster difficulty is {28: 1}, and 28 is a valid difficulty but there is no monster that has difficulty 28, it is removed as well."""
         remove_key = []
         for key in self.monster_difficulty.keys():
-            if key not in actor_factories.ActorDB.monster_difficulty.keys():
+            if key not in ActorDB.monster_difficulty.keys():
                 print(f"ERROR::Biome {self.biome_id} has monster_difficulty specified and key {key} is invalid. Key is removed.")
                 remove_key.append(key)
                 continue
-            elif not actor_factories.ActorDB.monster_difficulty[key]:
+            elif not ActorDB.monster_difficulty[key]:
                 print(f"ERROR::Biome {self.biome_id} has monster_difficulty specified and key {key} is valid, but there are no monsters that belong to {key} key difficulty. Key is removed.")
                 remove_key.append(key)
                 continue

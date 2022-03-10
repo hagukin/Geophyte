@@ -186,6 +186,7 @@ class Title():
                 verstr = "(알 수 없음)"
                 try:
                     engine = load_game()
+                    err_flag = False
 
                     # Language check
                     try:
@@ -198,6 +199,7 @@ class Title():
                                       fg=color.red)
                         sound_manager.add_sound_queue("fx_ui_warning")
                         context.present(console, keep_aspect=True)
+                        err_flag = True
                         continue
 
                     # Version check
@@ -211,12 +213,14 @@ class Title():
                                       fg=color.red)
                         sound_manager.add_sound_queue("fx_ui_warning")
                         context.present(console, keep_aspect=True)
+                        err_flag = True
                         continue
 
-                    engine.message_log.add_message(
-                        i(f"{engine.player.name}님, 지오파이트의 세계에 돌아오신 것을 환영합니다!",
-                          f"{engine.player.name}, Welcome back to the world of Geophyte!"),
-                          color.welcome_text)
+                    if not err_flag:
+                        engine.message_log.add_message(
+                            i(f"{engine.player.name}님, 지오파이트의 세계에 돌아오신 것을 환영합니다!",
+                              f"{engine.player.name}, Welcome back to the world of Geophyte!"),
+                              color.welcome_text)
                     return engine
                 except FileNotFoundError:
                     console.print(1, 1, string=i("세이브 파일을 찾지 못했습니다.",

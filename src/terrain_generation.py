@@ -5,14 +5,15 @@ from typing import List, Tuple, TYPE_CHECKING, Optional
 
 from entity import SemiActor
 from order import TilemapOrder
-from room_factories import Room
+from rooms import Room
 from game_map import GameMap
 
 import semiactor_factories
+import chests
 import chest_factories
 
 if TYPE_CHECKING:
-    from room_factories import Room
+    from rooms import Room
 
 
 def grow_grass(
@@ -493,7 +494,7 @@ def generate_pits(gamemap: GameMap, room: Room) -> None:
 
 
 
-def grow_chest(gamemap, x, y, chest_id:str, lifetime=-1, initial_items: List=None) -> chest_factories.ChestSemiactor:
+def grow_chest(gamemap, x, y, chest_id:str, lifetime=-1, initial_items: List=None) -> chests.ChestSemiactor:
     """
     Spawn a chest type SemiActor instance of given name at given location.
     NOTE: This function is based on grow_traps() function

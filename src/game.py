@@ -11,6 +11,5 @@ class Game():
         """Update all in-game language."""
         Game.language = lang
 
-        import importlib, actor_factories, item_factories
-        importlib.reload(actor_factories)
-        importlib.reload(item_factories)
+        from language import reimport_all
+        reimport_all()

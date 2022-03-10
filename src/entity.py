@@ -164,7 +164,7 @@ class Entity:
 
     def get_possible_bump_action_keywords(self, actor: Actor) -> List[str]:
         """Returns the amount of different bump actions this entity can do."""
-        allactions = ("move", "swap", "attack", "takeout", "putin", "open", "close", "unlock", "break") # Removed 'forceattack'
+        allactions = ("move", "swap", "attack", "takeout", "putin", "open", "close", "unlock", "break", "purchase", "sell") # Removed 'forceattack'
         tmp = []
         for action in allactions:
             if self.check_if_bump_action_possible(actor, action):
@@ -179,7 +179,7 @@ class Entity:
         """Returns a default list of bump action that are available for this entity.
         e.g. an entity that has blocks_movement = True will not get "move" bump action.
         NOTE: "purchase" only exists as a form, and its active condition is decided during NonHostileBumpHandler."""
-        from chest_factories import ChestSemiactor
+        from chests import ChestSemiactor
         if keyword == "move" and not self.blocks_movement:
             return True
         elif keyword == "swap" and self.swappable:
@@ -206,6 +206,15 @@ class Entity:
             return True
         elif keyword == "break" and self.entity_id[-11:] == "locked_door":
             return True
+        elif keyword == "purchase" and self.entity_id[-10:] == "shopkeeper":
+            # Will assume that if entity_id[:-10] is shopkeeper than it has shopping mechanics in its ai.
+            if not actor in self.ai.thieves: # Can sell/buy items from shopkeeper only if you are not a thief.
+                if self.ai.has_dept(actor):
+                    return True
+        elif keyword == "sell" and self.entity_id[-10:] == "shopkeeper":
+            # Will assume that if entity_id[:-10] is shopkeeper than it has shopping mechanics in its ai.
+            if not actor in self.ai.thieves: # Can sell/buy items from shopkeeper only if you are not a thief.
+                return True
         return False
 
     def get_bumpaction(self, actor: Actor, keyword: str) -> Optional[Action]:
@@ -227,11 +236,17 @@ class Entity:
             self.engine.event_handler = ForceAttackInputHandler(melee_action=actions.MeleeAction(actor, dx, dy))
             return None
         elif keyword == "takeout":
-            self.engine.event_handler = ChestTakeEventHandler(self.storage)
-            return None  # TODO Turn should pass
+            if actor == self.engine.player:
+                self.engine.event_handler = ChestTakeEventHandler(self.storage)
+                return None  # TODO Turn should pass
+            else:
+                raise NotImplementedError("ERROR::Nonplayer tried to take out something from a chest.")
         elif keyword == "putin":
-            self.engine.event_handler = ChestPutEventHandler(actor.inventory, self.storage)
-            return None  # TODO Turn should pass
+            if actor == self.engine.player:
+                self.engine.event_handler = ChestPutEventHandler(actor.inventory, self.storage)
+                return None  # TODO Turn should pass
+            else:
+                raise NotImplementedError("ERROR::Nonplayer tried to put in something from a chest.")
         elif keyword == "open":
             return actions.DoorOpenAction(actor, dx, dy)
         elif keyword == "close":
@@ -240,6 +255,21 @@ class Entity:
             return actions.DoorUnlockAction(actor, dx, dy)
         elif keyword == "break":
             return actions.DoorBreakAction(actor, dx, dy)
+        elif keyword == "purchase":
+            if actor == self.engine.player:
+                from input_handlers import MainGameEventHandler
+                self.engine.event_handler = MainGameEventHandler()
+                self.ai.sell_all_picked_ups(customer=actor)
+                return None
+            else:
+                raise NotImplementedError("ERROR::Nonplayer tried to purchase something from a shopkeeper.")
+        elif keyword == "sell":
+            if actor == self.engine.player:
+                from input_handlers import SellItemsHandler
+                self.engine.event_handler = SellItemsHandler(sell_to=self)
+                return None
+            else:
+                raise NotImplementedError("ERROR::Nonplayer tried to sell something to a shopkeeper.")
         raise Exception(f"FATAL ERROR::Cannot find the given keyword {keyword}")
 
     def environmental_hole(self):

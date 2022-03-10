@@ -1,7 +1,5 @@
 import random
-
 import numpy as np
-
 from util import surround_grid_value_with
 from terrain import Terrain
 from typing import Tuple, List

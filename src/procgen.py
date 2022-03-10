@@ -19,9 +19,10 @@ import terrain_factories
 import biome_factories
 import terrain_generation
 
+from actor_db import ActorDB
 from order import TilemapOrder
 from typing import Iterator, List, Tuple, TYPE_CHECKING, Optional
-from room_factories import Room, RectangularRoom, CircularRoom, BlobRoom
+from rooms import Room, RectangularRoom, CircularRoom, BlobRoom
 from game_map import GameMap
 from render import randomized_screen_paint
 
@@ -111,12 +112,12 @@ def choose_monster_by_difficulty(difficulty: int, radius: Tuple[int,int]=(-1,2),
     """
     diff_range = (max(difficulty + radius[0], 1) , max(radius[0], radius[1]) + difficulty)
     if type == "surface":
-        mon_dict = actor_factories.ActorDB.surface_monster_difficulty
+        mon_dict = ActorDB.surface_monster_difficulty
     elif type == "underwater":
-        mon_dict = actor_factories.ActorDB.underwater_monster_difficulty
+        mon_dict = ActorDB.underwater_monster_difficulty
     else:
         print(f"ERROR::Cannot find monster type of {type}")
-        mon_dict = actor_factories.ActorDB.surface_monster_difficulty
+        mon_dict = ActorDB.surface_monster_difficulty
 
     population_list = []
     rarity_list = []
@@ -263,7 +264,7 @@ def spawn_surface_monster(
 
             TRYCOUNT = 100
             i = 0
-            while not (difficulty_chosen in actor_factories.ActorDB.surface_monster_difficulty):
+            while not (difficulty_chosen in ActorDB.surface_monster_difficulty):
                 i += 1
                 print(f"WARNING::Difficulty {difficulty_chosen} missing. Choosing a new difficulty...")
                 difficulty_chosen = choose_monster_difficulty(gamemap=dungeon, toughness=max(dungeon.engine.toughness + room.terrain.adjust_monster_difficulty, 0))
@@ -309,11 +310,11 @@ def spawn_underwater_monster(
             found = False
             SEARCH_RANGE = 100
             for i in range(SEARCH_RANGE):
-                if not (search_diff in actor_factories.ActorDB.underwater_monster_difficulty):
+                if not (search_diff in ActorDB.underwater_monster_difficulty):
                     search_diff = difficulty_chosen + i
-                if not (search_diff in actor_factories.ActorDB.underwater_monster_difficulty) and difficulty_chosen > i:
+                if not (search_diff in ActorDB.underwater_monster_difficulty) and difficulty_chosen > i:
                     search_diff = difficulty_chosen - i
-                if search_diff in actor_factories.ActorDB.underwater_monster_difficulty:
+                if search_diff in ActorDB.underwater_monster_difficulty:
                     difficulty_chosen = search_diff
                     found = True
                     break

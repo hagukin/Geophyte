@@ -8,6 +8,7 @@ import copy
 from shopkeeper import Shopkeeper_Ai
 from order import InventoryOrder
 from korean import grammar as g
+from language import interpret as t
 
 
 ####################################################
@@ -46,9 +47,11 @@ class Floating_Eye_Ai(ai.BaseAI):
                 # Message log
                 if self.engine.game_map.visible[self.parent.x, self.parent.y] or self.engine.game_map.visible[self.attacked_from.x, self.attacked_from.y]:
                     if self.attacked_from.name == self.engine.player:
-                        self.engine.message_log.add_message(f"{g(self.parent.name, '이')} 당신을 바라본다.", color.player_debuff)
+                        self.engine.message_log.add_message(t(f"{g(self.parent.name, '이')} 당신을 바라본다.",
+                                                              f"{self.parent.name} looks at you."), color.player_debuff)
                     else:
-                        self.engine.message_log.add_message(f"{g(self.parent.name, '이')} {g(self.attacked_from.name, '을')} 바라본다.", color.enemy_unique)
+                        self.engine.message_log.add_message(t(f"{g(self.parent.name, '이')} {g(self.attacked_from.name, '을')} 바라본다.",
+                                                              f"{self.parent.name} looks at {self.attacked_from.name}."),color.enemy_unique)
 
             if self.attacked_from.actor_state.has_eye:
                 self.attacked_from.actor_state.apply_paralyzation([0, 15])
@@ -225,14 +228,13 @@ class Chatterbox_Ai(ai.BaseAI):
         lure = random.choice(self.engine.item_manager.items_lists)
         speech = random.choice(
             [
-                "누가 좀 도와주세요! 거기 아무도 없어요?",
-                "살려줘! 이 괴물이 나를 공격하고 있어!",
-                "날 좀 도와주게나. 답례는 충분히 하겠네!",
-                "좋아, 이 정도 돈이면 충분하겠어.",
-                "거기 누구 있나요? 있다면 대답해주세요!",
-                "(노래를 흥얼거리는 소리)",
-                "오늘은 운수가 좋은 날이군, 이런 귀한 걸 얻게 되다니.",
-                "여보, 저에요! 빨리 절 구해줘요!",
+                t("누가 좀 도와주세요! 거기 아무도 없어요?","Somebody help me! Is anybody there?"),
+                t("살려줘! 이 괴물이 나를 공격하고 있어!","Help! This monster is attacking me!"),
+                t("날 좀 도와주게나. 답례는 충분히 하겠네!","Can anyone help me? I'll pay you back!"),
+                t("거기 누구 있나요? 있다면 대답해주세요!","Is anyone there? Please answer me!"),
+                t("(노래를 흥얼거리는 소리)","(Sound of someone humming a song)"),
+                t("오늘은 운수가 좋은 날이군, 이런 귀한 걸 얻게 되다니.","Today is my lucky day, I'd never thought that I would ever get this."),
+                t("여보, 저에요! 빨리 절 구해줘요!","Honey, It's me! Save me!"),
             ]
         )
         self.engine.message_log.add_speech(text=speech, speaker=self.parent, stack=False)

@@ -7,6 +7,7 @@ from actions import Action
 from util import multiline
 from korean import grammar as g
 from language import interpret as i
+from actor_db import ActorDB
 import actor_factories
 import tcod
 import color
@@ -71,7 +72,7 @@ class MonsterBookIndexHandler(AskUserEventHandler):
                 tcod.event.K_a:"a",tcod.event.K_b:"b",tcod.event.K_c:"c",tcod.event.K_d:"d",tcod.event.K_e:"e",tcod.event.K_f:"f",tcod.event.K_g:"g",tcod.event.K_h:"h",tcod.event.K_i:"i",tcod.event.K_j:"j",tcod.event.K_k:"k",tcod.event.K_l:"l",tcod.event.K_m:"m",tcod.event.K_n:"n",tcod.event.K_o:"o",tcod.event.K_p:"p",tcod.event.K_q:"q",tcod.event.K_r:"r",tcod.event.K_s:"s",tcod.event.K_t:"t",tcod.event.K_u:"u",tcod.event.K_v:"v",tcod.event.K_w:"w",tcod.event.K_x:"x",tcod.event.K_y:"y",tcod.event.K_z:"z",
             }
         try:
-            monster = actor_factories.ActorDB.get_actor_by_id(entity_id=actor_db[monchar[self.page]][alphabet[event.sym]])
+            monster = ActorDB.get_actor_by_id(entity_id=actor_db[monchar[self.page]][alphabet[event.sym]])
             if monster == None:
                 raise KeyError()
             self.engine.event_handler = MonsterInfoHandler(monster, self.page)
@@ -99,7 +100,7 @@ class MonsterBookIndexHandler(AskUserEventHandler):
         for presskey, mon_id in actor_db[monchar[self.page]].items():
             if mon_id == None:
                 continue
-            m = actor_factories.ActorDB.get_actor_by_id(entity_id=mon_id)
+            m = ActorDB.get_actor_by_id(entity_id=mon_id)
 
             key = f"({presskey})"
             console.print(start_x + xpad, start_y+ypad, key, fg=color.white)

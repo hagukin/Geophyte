@@ -24,26 +24,29 @@ debug = json.load(f)["debugmode"]
 f.close()
 
 class SystemLog(object):
-    def __init__(self):
-        self.terminal = sys.stdout
-        if os.path.exists("log\\syslog.dat"):
-            os.remove("log\\syslog.dat")
-        if os.path.exists("log\\error_log.txt"):
-            os.remove("log\\error_log.txt")
-        self.log = open("log\\syslog.dat", "a")
+    def __init__(self, origin_stdout):
+        self.terminal = origin_stdout
+        if debug:
+            import datetime
+            date = str(datetime.datetime.now())
+            log = "======================" + date + "======================\n"
+            open("log\\syslog.dat", 'w').write(log) # delete old data
     def write(self, message):
         if debug:
-            self.terminal.write(message)
-        self.log.write(message)
+            open("log\\syslog.dat", 'a+').write(message)
+        self.terminal.write(message)
     def flush(self):
         pass
-sys.stdout = SystemLog()
+tmp = sys.stdout
+sys.stdout = SystemLog(tmp)
 
-def track_error(engine, is_sys_error:bool) -> None:
+
+def track_error(is_sys_error:bool) -> None:
     # Print error to stderr then print the error to the message log
     traceback.print_exc()  # stdout is SystemLog
     if not is_sys_error and debug:
-        engine.message_log.add_message(traceback.format_exc(), color.error)
+        if Game.engine:
+            Game.engine.message_log.add_message(traceback.format_exc(), color.error)
 
     file = "log\\error_log.txt"
     if is_sys_error:
@@ -54,11 +57,12 @@ def track_error(engine, is_sys_error:bool) -> None:
         log = "======================" + date + "======================\n"
         log += traceback.format_exc()
         f.write(log)
-    if engine.config["report_issue_automatically"]:
+    if get_game_config()["report_issue_automatically"]:
         try:
             raise NotImplementedError()
         except Exception as e:
             print(f"ERROR::Issue report failed. - {e}")
+
 
 def main() -> None:
     sound_manager = SoundManager()
@@ -73,19 +77,11 @@ def main() -> None:
     # Get Configuration
     cfg = get_game_config()
 
-    # Initialize book data if there is None. Else load the book data
-    from base.data_loader import load_book
-    load_book()
-
     # Toggle Fullscreen
     if cfg["fullscreen"]:
         set_screen = tcod.context.SDL_WINDOW_FULLSCREEN_DESKTOP
     else:
         set_screen = tcod.context.SDL_WINDOW_ALLOW_HIGHDPI
-
-    # Set language
-    Game.language = cfg['lang']
-    Option.update_lang()
 
     with tcod.context.new(
         columns=cfg["screen_width"],
@@ -104,11 +100,19 @@ def main() -> None:
         try:
             # System loop
             while True:
-                # Title Screen Loop
+                ## Initialization
+                # must set language before title loop
+                Game.language = cfg['lang']
+                Option.update_lang()
+
+                # title Screen Loop
                 Game.engine = Title.title_event_handler(console=root_console, context=context, sound_manager=sound_manager)
                 Game.engine.update_config()
 
-                # Initialization
+                # initialize book data if there is None. Else load the book data
+                from base.data_loader import load_book
+                load_book()
+                # initialize engine
                 engine = Game.engine
                 engine.console = root_console
                 engine.context = context
@@ -117,7 +121,7 @@ def main() -> None:
                 sound_manager.play_bgm_for_biome(engine.game_map.biome)
                 sound_manager.play_bgs_for_biome(engine.game_map.biome)
 
-                # Main Game Loop
+                ## Main Game Loop
                 while True:
                     try:
                         if engine.player_path or engine.player_dir:
@@ -147,9 +151,9 @@ def main() -> None:
                     except RestartException:
                         break
                     except Exception:
-                        track_error(engine, is_sys_error=False)
+                        track_error(is_sys_error=False)
         except Exception as e:
-            track_error(engine, is_sys_error=True)
+            track_error(is_sys_error=True)
             sys.exit()
 
 if __name__ == "__main__":

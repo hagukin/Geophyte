@@ -1,6 +1,4 @@
-import random
-
-import ai_factories
+import ais
 import item_factories
 import ability_factories
 import components.edible as edible
@@ -11,38 +9,11 @@ from components.equipments import Equipments
 from components.actor_state import ActorState
 from entity import Actor
 from order import RenderOrder, InventoryOrder
-from typing import Optional
 from language import interpret as t
 from components.ai import BaseAI
 
-### NOTE: Rarity can have value between 0 and 10 ###
-class ActorDB:
-    monster_difficulty = { # Includes both surface and underwater
-        0: [],
-        1: [], 2: [], 3: [], 4: [], 5: [], 6: [], 7: [], 8: [], 9: [], 10: [],
-        11: [], 12: [], 13: [], 14: [], 15: [], 16: [], 17: [], 18: [], 19: [], 20: [],
-        21: [], 22: [], 23: [], 24: [], 25: [], 26: [], 27: [], 28: [], 29: [], 30: [],
-    }
-
-    monster_rarity_for_each_difficulty = {
-        0: [],
-        1: [], 2: [], 3: [], 4: [], 5: [], 6: [], 7: [], 8: [], 9: [], 10: [],
-        11: [], 12: [], 13: [], 14: [], 15: [], 16: [], 17: [], 18: [], 19: [], 20: [],
-        21: [], 22: [], 23: [], 24: [], 25: [], 26: [], 27: [], 28: [], 29: [], 30: [],
-    }
-
-    surface_monster_difficulty = {}
-    underwater_monster_difficulty = {} # Underwater monsters are also stored in monster_difficulty dictionary.
-    # k, v = difficulty, actor
-    
-    def get_actor_by_id(entity_id: str) -> Optional[Actor]:
-        for monslist in ActorDB.monster_difficulty.values():
-            for mon in monslist:
-                if mon.entity_id == entity_id:
-                    return mon
-        print(f"WARNING::Can't find {entity_id} from ActorDB.")
-        return None
-
+from actor_db import ActorDB
+ActorDB.reset() # ActorDB already contains info when the language is changed, so you should reset it.
 
 ### DEBUG
 DEBUG = Actor(
@@ -111,8 +82,8 @@ player = Actor(
         constitution=15,
         charm=15,
         difficulty=0,
-        base_melee=8, #10
-        additional_melee=8,
+        base_melee=10, #10
+        additional_melee=10,
         protection=8,
         eyesight=20,
         hearing=15,
@@ -131,7 +102,7 @@ player = Actor(
     equipments=Equipments(),
     # initial_items=
     # (
-    #     {"item": item_factories.amulet_of_kugah, "chance": 1, "count": (10, 10), "BUC": {1:0,0:1,-1:0}, "upgrade": None},
+    #     {"item": item_factories.potion_of_flame, "chance": 1, "count": (10, 10), "BUC": {1:0,0:1,-1:0}, "upgrade": None},
     #     {"item": item_factories.potion_of_healing, "chance": 1, "count": (1, 1), "BUC": {1:0,0:1,-1:0}, "upgrade": None},
     # ),
 #     initial_equipments=(
@@ -172,7 +143,7 @@ shopkeeper = Actor(
     swappable=False, # Cannot swap
     spawnable=False,
     edible=edible.RawMeatEdible(nutrition=300),
-    ai_cls=ai_factories.Shopkeeper_Ai(),
+    ai_cls=ais.Shopkeeper_Ai(),
     status=Status(
         hp=650,
         mp=450,
@@ -925,7 +896,7 @@ ActorDB.monster_difficulty[large_dog.status.difficulty].append(cerberus)
 floating_eye = Actor(
     char="e",
     fg=(255, 255, 255),
-    name=t("떠다니는 눈", "floating_eye"),
+    name=t("떠다니는 눈", "floating eye"),
     entity_id="floating_eye",
     entity_desc=t(("던전 안의 많은 생명체들 중에서도 가장 기원을 알 수 없는 존재가 바로 '떠다니는 눈' 들이다. "
         "이들은 눈을 마주치는 것으로 생명체를 마비시킬 수 있는 강력한 힘을 가졌지만 "
@@ -940,7 +911,7 @@ floating_eye = Actor(
     weight=255.8,
     spawnable=True,
     edible=edible.FloatingEyeEdible(nutrition=120),#cannot be cooked
-    ai_cls=ai_factories.Floating_Eye_Ai(),
+    ai_cls=ais.Floating_Eye_Ai(),
     status=Status(
         hp=68,
         mp=30,
@@ -1335,7 +1306,7 @@ black_jelly = Actor(
     weight=187,
     spawnable=True,
     edible=edible.BlackJellyEdible(nutrition=50),
-    ai_cls=ai_factories.Black_Jelly_Ai(),
+    ai_cls=ais.Black_Jelly_Ai(),
     status=Status(
         hp=45,
         mp=0,
@@ -1405,7 +1376,7 @@ elf_herbalist = Actor(
     weight=57,
     spawnable=True,
     edible=edible.RawMeatEdible(nutrition=105),
-    ai_cls=ai_factories.Elf_Herbalist_Ai(),
+    ai_cls=ais.Elf_Herbalist_Ai(),
     status=Status(
         hp=65,
         mp=65,
@@ -1476,7 +1447,7 @@ elf_assasin = Actor(
     weight=71,
     spawnable=True,
     edible=edible.RawMeatEdible(nutrition=135),
-    ai_cls=ai_factories.Elf_Fighter_Ai(),
+    ai_cls=ais.Elf_Fighter_Ai(),
     status=Status(
         hp=68,
         mp=40,
@@ -1624,7 +1595,7 @@ nymph = Actor(
     weight=53,
     spawnable=True,
     edible=edible.RawMeatEdible(nutrition=200),
-    ai_cls=ai_factories.Nymph_Ai(
+    ai_cls=ais.Nymph_Ai(
         alignment=(("hostile",), (1,)),
         do_melee_atk=True,
         do_ranged_atk=False,
@@ -1693,7 +1664,7 @@ sphere_of_acid = Actor(
     weight=0.8,
     spawnable=True,
     edible=None,
-    ai_cls=ai_factories.Sphere_Of_Acid_Ai(),
+    ai_cls=ais.Sphere_Of_Acid_Ai(),
     status=Status(
         hp=20,
         mp=0,
@@ -2751,7 +2722,7 @@ chatterbox = Actor(
     weight=81,
     spawnable=True,
     edible=edible.RawMeatEdible(nutrition=280),
-    ai_cls=ai_factories.Chatterbox_Ai(),
+    ai_cls=ais.Chatterbox_Ai(),
     status=Status(
         hp=73,
         mp=13,

@@ -1365,9 +1365,10 @@ class DoorBreakAction(ActionWithDirection):
 
             if self.entity.status.experience:
                 self.entity.status.experience.gain_strength_exp(30, 17, 500)
-        
-        from input_handlers import MainGameEventHandler
-        self.engine.event_handler = MainGameEventHandler()
+
+        if self.entity == self.engine.player:
+            from input_handlers import MainGameEventHandler
+            self.engine.event_handler = MainGameEventHandler()
 
     def perform(self) -> None:
         # Checking for inability
