@@ -61,6 +61,38 @@ class NameGenInputHandler(CharGenInputHandler):
         console.print(x + int(len(tmp)/2) - int(len(CharGen.player_name)/2), y + 3, string=CharGen.player_name, fg=color.white)
 
 
+class SeedGenInputHandler(CharGenInputHandler):
+    def ev_textinput(self, event):
+        CharGen.world_seed += event.text
+        CharGen.world_seed = CharGen.world_seed[:20] # 20 letters max (unicode)
+        return None
+
+    def ev_keydown(self, event) -> str:
+        if event.sym == tcod.event.K_BACKSPACE:
+            CharGen.world_seed = CharGen.world_seed[:-1]
+            return ""
+        elif event.sym == tcod.event.K_KP_ENTER or event.sym == tcod.event.K_RETURN:
+            return "to_next"
+        elif event.sym == tcod.event.K_ESCAPE:
+            return "to_prev"
+        return ""
+
+    def render_gui(self, console) -> None:
+        """
+        Renders GUI for the title screen.
+        """
+        super().render_gui(console)
+        width = tcod.console_get_width(console)
+        height = tcod.console_get_height(console)
+        tmp = i(f"월드 생성 시드를 입력하세요:", "Enter a seed for world generation:")
+        tmp2 = i(f"공백 입력 시 랜덤으로 결정됩니다.", "Leave blank for a random seed.")
+        x = int(width / 2) - int(len(tmp)/2)
+        y = int(height / 2) - 5
+        console.print(x, y, string=tmp, fg=color.white)
+        console.print(x + int(len(tmp)/2) - int(len(CharGen.world_seed)/2), y + 3, string=CharGen.world_seed, fg=color.white)
+        console.print(x + int(len(tmp)/2) - int(len(tmp2)/2), y + 6, string=tmp2, fg=color.white)
+
+
 class StatusGenInputHandler(CharGenInputHandler):
     DEFAULT_STAT = 15
     MAX_SUB_POINT = 4
@@ -272,6 +304,7 @@ class StatusGenInputHandler(CharGenInputHandler):
 class CharGen():
     player: Any # Actor
     player_name: str
+    world_seed: str = ""
     curr_order: int
     chargen_order: Optional[Tuple]
     warning_msg: str
@@ -289,7 +322,7 @@ class CharGen():
     def clear_all_changes(self) -> None:
         CharGen.player = copy.deepcopy(actor_factories.player) # Cannot use entity.copy() yet
         # NOTE: player.initialize_actor() is called from procgen.generate_entities()
-        CharGen.chargen_order = (NameGenInputHandler(), StatusGenInputHandler(points=0)) # During creation of each inputhandler instances, all changes that were stored in the stack is removed.
+        CharGen.chargen_order = (NameGenInputHandler(), StatusGenInputHandler(points=0), SeedGenInputHandler()) # During creation of each inputhandler instances, all changes that were stored in the stack is removed.
         CharGen.player_name = ""
         CharGen.curr_order = 0
         CharGen.warning_msg = ""
@@ -387,6 +420,11 @@ class CharGen():
                     chargen_action = "end_chargen"
 
             if chargen_action == "end_chargen":
+                from world import World
+                if CharGen.world_seed:
+                    random.seed(CharGen.world_seed)
+                World.set_seed(random.randint(1,4294967295))
+                CharGen.world_seed = ""
                 return self.generate_player()
             elif chargen_action == "exit_chargen":
                 return None # Exit and go back to the main menu

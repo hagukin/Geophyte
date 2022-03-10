@@ -6,11 +6,14 @@ from game import Game
 import shelve
 import os
 import copy
+import random
+import numpy
 
 class World():
+    __seed: int
+
     def __init__(
         self,
-        seed,
         max_depth:int=999 #TODO: Unused value
     ):
         """
@@ -24,7 +27,6 @@ class World():
                 maximum number of (1 + mem_capacity*2) gamemaps will be on the memory.
                 MINIMUM VALUE = 1
         """
-        self.__seed = seed
         self.max_depth = max_depth
         self.mem_world = {}
 
@@ -35,6 +37,13 @@ class World():
         self.mem_capacity = 1 # MINIMUM VALUE = 1
         #TODO DEBUG
         # NOTE: Change this number depending on the RAM size
+
+    @staticmethod
+    def set_seed(seed) -> None:
+        World.__seed = seed
+        random.seed(seed)
+        numpy.random.seed(numpy.int64(seed))
+
     @property
     def engine(self):
         return Game.engine
