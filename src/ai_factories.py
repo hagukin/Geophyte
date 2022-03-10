@@ -77,7 +77,7 @@ class Black_Jelly_Ai(ai.BaseAI):
         ammo = toxic_goo.copy(gamemap=attacker.gamemap)
 
         # Set direction and Check if the target is in attackable radius
-        direction = self.get_ranged_direction(attacker=attacker, target=target, valid_range=999) # Use ammo.throwable.throw_distance(attacker) when making other ais.
+        direction = self.get_ranged_direction(attacker=attacker, target=target, valid_range=20) # Use ammo.throwable.throw_distance(attacker) when making other ais.
 
         if direction:
             return direction, ammo

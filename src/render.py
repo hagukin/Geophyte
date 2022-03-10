@@ -331,13 +331,13 @@ def render_character_state(
         else:
             num1 += 1
             console.print(x=lane1_x, y=y+num1, string=i("중독", "poisoned"), fg=color.purple)
-    if character.actor_state.is_levitating != [0,0]:
+    if character.is_on_air:
         if num1 > window_height:
             num2 += 1
-            console.print(x=lane2_x, y=y+num2, string=i("공중 부양", "levitating"), fg=color.white)
+            console.print(x=lane2_x, y=y+num2, string=i("공중에 떠 있음","airborne"), fg=color.white)
         else:
             num1 += 1
-            console.print(x=lane1_x, y=y+num1, string=i("공중 부양", "levitating"), fg=color.white)
+            console.print(x=lane1_x, y=y+num1, string=i("공중에 떠 있음","airborne"), fg=color.white)
     if character.actor_state.encumbrance == 1:
         if num1 > window_height:
             num2 += 1
