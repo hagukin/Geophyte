@@ -83,6 +83,10 @@ def main() -> None:
     else:
         set_screen = tcod.context.SDL_WINDOW_ALLOW_HIGHDPI
 
+    # must set language before system loop
+    Game.language = cfg['lang']
+    Option.update_lang()
+
     with tcod.context.new(
         columns=cfg["screen_width"],
         rows=cfg["screen_height"],
@@ -100,15 +104,11 @@ def main() -> None:
         try:
             # System loop
             while True:
-                ## Initialization
-                # must set language before title loop
-                Game.language = cfg['lang']
-                Option.update_lang()
-
                 # title Screen Loop
                 Game.engine = Title.title_event_handler(console=root_console, context=context, sound_manager=sound_manager)
                 Game.engine.update_config()
 
+                ## Initializations
                 # initialize book data if there is None. Else load the book data
                 from base.data_loader import load_book
                 load_book()

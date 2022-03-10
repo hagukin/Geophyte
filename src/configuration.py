@@ -95,16 +95,16 @@ def change_language() -> None:
         game_config = json.load(cfg)
 
     # TODO: Find a better way to enumerate through the list of supported languages
-    if game_config["lang"] == "EN":
-        game_config["lang"] = "KR"
-    else:
-        game_config["lang"] = "EN"
-
-    from game import Game
-    Game.update_language(game_config["lang"])
+    support = ("KR", "EN")
+    for i in range(0,len(support)):
+        if game_config["lang"] == support[i]:
+            game_config["lang"] = support[(i+1)%len(support)]
+            break
 
     with open("./config/config.json", "w") as cfg:
         json.dump(game_config, cfg, indent=4)
 
+    from game import Game
+    Game.update_language(game_config["lang"])
     if Game.engine:
         Game.engine.update_config()
