@@ -40,5 +40,10 @@ def grammar(keyword: str, word: str) -> str: #Short function name since its freq
             return keyword + '이라'
         else:
             return keyword + '라'
+    elif word == '와'or word == '과':
+        if batchim:
+            return keyword + '과'
+        else:
+            return keyword + '와'
     else:
         raise NotImplementedError()

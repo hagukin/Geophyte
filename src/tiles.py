@@ -562,8 +562,8 @@ def dense_grass_desert():
             (150, 190, 50),
             (115, 110, 99),
         ),
-        darkest_fg_color=(150, 190, 50),
-        brightest_fg_color=(15, 255, 0),
+        darkest_fg_color=(130, 110, 80),
+        brightest_fg_color=(178, 155, 107),
         tile_name=t("사막 풀","desert grass"),
         tile_id="dense_grass",
     )
@@ -633,7 +633,7 @@ def sparse_grass_desert():
         ), # TODO : If floor tile's bg change, doors' bg should change dynamically as well
         light=(
             ord("\'"),
-            (150, 190, 50),
+            (130, 110, 80),
             (115, 110, 99),
         ),
         tile_name=t("사막 풀","desert grass"),

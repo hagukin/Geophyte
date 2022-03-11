@@ -6,29 +6,29 @@ from entity import Actor
 from actor_factories import shopkeeper
 
 
-class ChamberOfKugahTerrain(Terrain):
+class AltarChamberTerrain(Terrain):
     """
-    Shop terrain component.
+    Altar terrain component.
     """
     def __init__(
         self,
-        name: str = "chamber of Kugah",
-        terrain_id: str = "chamber_of_kugah",
+        name: str = "altar chamber",
+        terrain_id: str = "altar_chamber",
         terrain_desc: str = "",
         rarity: int = 0,
-        min_width: int = 30, # min 6
-        max_width: int = 30,
-        min_height: int = 30, # min 6
-        max_height: int = 30,
+        min_width: int = 6, # min 6
+        max_width: int = 8,
+        min_height: int = 6, # min 6
+        max_height: int = 8,
         shape: dict = None,
         spawn_item: bool = False,
         spawn_monster: bool = False,
-        has_wall: bool = True, #TODO: need to add feature
+        has_wall: bool = True,
         protected: bool = True,
-        has_door: bool = False,
+        has_door: bool = True,
         can_have_stair: bool = True,
-        door_num_range = (0,),
-        door_num_weight = (1,),
+        door_num_range=(1, 2, 3, 4),
+        door_num_weight=(3, 7, 2, 1),
         gen_grass = None,
         gen_holes=None,
         gen_water = None,
@@ -65,26 +65,25 @@ class ChamberOfKugahTerrain(Terrain):
         )
         if shape == None:
             self.shape = {
-            "circular":99, #Shops can be in any shape, but rectangular is most stable
+            "circular":1,
         }
         else:
             self.shape = shape
 
 
-class ChamberOfKugahTerrGen:
+class AltarChamberTerrGen:
     @staticmethod
-    def generate_amulet_of_kugah(gamemap: GameMap, room: Room) -> None:
-        from item_factories import amulet_of_kugah
+    def generate_altar(gamemap: GameMap, room: Room) -> None:
+        # FIXME TODO ADD ALTAR
+        from semiactor_factories import altar
         coors = room.center
-        tmp = amulet_of_kugah.spawn(gamemap, coors[0], coors[1])
+        tmp = altar.spawn(gamemap, coors[0], coors[1])
 
     @staticmethod
-    def generate_chamber_of_kugah(gamemap: GameMap, room: Room) -> None:
+    def generate_altar_chamber(gamemap: GameMap, room: Room) -> None:
         """
         Custom function for generating chamber of kugah.
         """
-        ChamberOfKugahTerrGen.generate_amulet_of_kugah(gamemap, room)
-
-
+        AltarChamberTerrGen.generate_altar(gamemap, room)
 
 

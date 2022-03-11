@@ -2,10 +2,10 @@ from terrain import Terrain
 from typing import TYPE_CHECKING
 from entity import Actor
 from actor_factories import giant
+from rooms import Room
+from game_map import GameMap
+import random
 
-if TYPE_CHECKING:
-    from room_factories import Room
-    from chest_factories import ChestSemiActor
 
 class GuardedTreasureTerrain(Terrain):
     """
@@ -13,7 +13,7 @@ class GuardedTreasureTerrain(Terrain):
     """
     def __init__(
         self,
-        name: str = "Guarded Treasure",
+        name: str = "guarded treasure",
         terrain_id: str = "guarded_treasure",
         terrain_desc: str = "",
         rarity: int = 1,
@@ -95,6 +95,41 @@ class GuardedTreasureTerrain(Terrain):
         self.guardian_type = guardian_type# Actor
 
         self.guardians = [] # List
+
+
+class GuardedTreasureTerrGen:
+    @staticmethod
+    def spawn_guardians(gamemap: GameMap, room: Room) -> None:
+        """Spawn 4 guardian onto 4 corners."""
+        if isinstance(room.terrain, GuardedTreasureTerrain):
+            for x,y in ((room.x1+2,room.y1+2),(room.x1+2,room.y2-2),(room.x2-2,room.y1+2),(room.x2-2,room.y2-2)):
+                monster = room.terrain.guardian_type.spawn(gamemap=gamemap, x=x, y=y)
+                monster.actor_state.apply_sleeping(value=[0,-1], forced=True) # Infinite sleeping
+                room.terrain.guardians.append(monster)
+        return None
+
+    @staticmethod
+    def generate_treasure_chest(gamemap: GameMap, room: Room) -> None:
+        """Spawn 1 chest on the center of the room
+        NOTE: To specify the chest type, modify terrain.gen_chest parameter."""
+        if not isinstance(room.terrain, GuardedTreasureTerrain):
+            return None
+
+        checklist = room.terrain.gen_treasure_chests["checklist"]
+        chest_id_chosen = random.choices(list(checklist.keys()), weights=list(checklist.values()), k=1)[0]
+        chest_num = 1
+
+        from terrain_generation import grow_chest
+        chest = grow_chest(gamemap=gamemap, x=room.center[0], y=room.center[1], chest_id=chest_id_chosen,
+                   initial_items=room.terrain.gen_treasure_chests["initial_items"])
+
+        chest.trigger_when_take = room.terrain.guardians
+
+    @staticmethod
+    def generate_guarded_treasure(gamemap: GameMap, room: Room) -> None:
+        """Custom function for generating guarded treasure terain."""
+        GuardedTreasureTerrGen.spawn_guardians(gamemap, room)
+        GuardedTreasureTerrGen.generate_treasure_chest(gamemap, room)
 
 
 

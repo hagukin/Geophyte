@@ -20,39 +20,38 @@ class Walkable(BaseComponent):
         raise NotImplementedError
 
 
-class TrapWalkable(Walkable):
-    def __init__(self, trigger_once: bool, untrap_chance: float, check_item: bool, check_actor: bool, continuous_effect: bool = False, is_dangerous: bool=True):
+class StepOnWalkable(Walkable):
+    def __init__(self, trigger_once: bool, check_item: bool, check_actor: bool, continuous_effect: bool = False, is_dangerous: bool=True):
         """
         Args:
-            triggered:
-                Boolean. If the trap is triggered once or more before, set to True
             trigger_once:
                 Boolean. If the trap only works once, set to True.
-            untrap_chance:
-                Boolean. Effects the chance of successfully untrapping this trap.
                 NOTE: Currently unused.
             check_item:
                 Boolean. If True, the trap will check whether there is item entity on top of it every single turn.
             check_actor:
                 Boolean. If True, the trap will check whether there is actor entity on top of it every single turn.
-            previous_entity:
-                Save the last entity that triggered(activated) this trap.
             continuous_effect:
                 Boolean. If True, the trap will continuously apply the effect to the target even if the target stays still on the trap.
+        Vars:
+            triggered:
+                Boolean. If the trap is triggered once or more before, set to True
+            previous_entity:
+                Save the last entity that triggered(activated) this trap.
         """
         super().__init__(is_dangerous=is_dangerous)
         self.triggered = False
         self.trigger_once = trigger_once
-        self.untrap_chance = untrap_chance
         self.check_item = check_item
         self.check_actor = check_actor
         self.previous_entity = None
         self.continuous_effect = continuous_effect
+        self.suffix_when_turned_off = "" # e.g. traps: i("(해제됨)",f"(disassembled)")
 
-    def when_item_on_trap(self, target) -> None:
+    def when_item_on_walkable(self, target) -> None:
         pass
 
-    def when_actor_on_trap(self, target) -> None:
+    def when_actor_on_walkable(self, target) -> None:
         pass
 
     def perform(self, target) -> None:
@@ -72,24 +71,37 @@ class TrapWalkable(Walkable):
 
             # Prevent performing multiple times in a single turn
             if self.check_actor and isinstance(target, Actor):
-                self.triggered = True # NOTE: triggered = True must be called before calling when_actor_on_trap()
+                self.triggered = True # NOTE: triggered = True must be called before calling when_actor_on_walkable()
                 self.previous_entity = target
-                self.when_actor_on_trap(target)
+                self.when_actor_on_walkable(target)
                 if self.trigger_once:
                     self.parent._fg = color.black
-                    self.parent._name += i("(해제됨)",f"(disassembled)")
+                    self.parent._name += self.suffix_when_turned_off
                 return None
             if self.check_item and isinstance(target, Item):
-                self.triggered = True # NOTE: triggered = True must be called before calling when_item_on_trap()
+                self.triggered = True # NOTE: triggered = True must be called before calling when_item_on_walkable()
                 self.previous_entity = target
-                self.when_item_on_trap(target)
+                self.when_item_on_walkable(target)
                 if self.trigger_once:
                     self.parent._fg = color.black
-                    self.parent._name += i("(해제됨)",f"(disassembled)")
+                    self.parent._name += self.suffix_when_turned_off
                 return None
         else:
             # If there is no target currently, set previous_entity back to None
             self.previous_entity = None
+
+
+class TrapWalkable(StepOnWalkable):
+    def __init__(self, trigger_once: bool, untrap_chance: float, check_item: bool, check_actor: bool, continuous_effect: bool = False, is_dangerous: bool=True):
+        """
+        Args:
+            untrap_chance:
+                Boolean. Effects the chance of successfully untrapping this trap.
+                NOTE: Currently unused.
+        """
+        super().__init__(trigger_once=trigger_once, check_item=check_item, check_actor=check_actor, continuous_effect=continuous_effect, is_dangerous=is_dangerous)
+        self.untrap_chance = untrap_chance
+        self.suffix_when_turned_off = i("(해제됨)",f"(disassembled)")
 
 
 class SpikeTrapWalkable(TrapWalkable):
@@ -98,7 +110,7 @@ class SpikeTrapWalkable(TrapWalkable):
         self.base_damage = base_damage
         self.add_damage = add_damage
 
-    def when_actor_on_trap(self, target):
+    def when_actor_on_walkable(self, target):
         # No effects when levitating(flying)
         if target.is_on_air:
             if target == self.engine.player:
@@ -118,7 +130,7 @@ class SpikeTrapWalkable(TrapWalkable):
                     if target == self.engine.player:
                         self.engine.message_log.add_message(
                             i(f"당신은 {g(self.parent.name, '을')} 밟았지만, {g(feet_item.name, '이')} 당신을 보호했다!",
-                              f"You stepped on the {self.parent.name}, but your {feet_item.name} protected you!"),
+                              f"You stepped on the {self.parent.name}, but your {feet_item.name} protects you!"),
                             fg=color.player_neutral)
 
                     return None
@@ -147,10 +159,10 @@ class FlameTrapWalkable(TrapWalkable):
         super().__init__(trigger_once, untrap_chance, check_item, check_actor, continuous_effect)
         self.burn_value = burn_value
 
-    def when_item_on_trap(self, target) -> None:
+    def when_item_on_walkable(self, target) -> None:
         target.collided_with_fire()
 
-    def when_actor_on_trap(self, target):
+    def when_actor_on_walkable(self, target):
         # No effects when levitating(flying)
         if target.is_on_air:
             if target == self.engine.player:
@@ -173,7 +185,7 @@ class FlameTrapWalkable(TrapWalkable):
                         self.engine.sound_manager.add_sound_queue("fx_damaged3")
                         self.engine.message_log.add_message(
                             i(f"당신은 {g(self.parent.name, '을')} 밟았지만, {g(feet_item.name, '이')} 당신을 보호했다!",
-                              f"You stepped on the {self.parent.name}, but your {feet_item.name} protected you!"),
+                              f"You stepped on the {self.parent.name}, but your {feet_item.name} protects you!"),
                             fg=color.player_neutral)
 
                     return None
@@ -208,7 +220,7 @@ class IcicleTrapWalkable(TrapWalkable):
         self.freeze_value = freeze_value
         self.bleed_value = bleed_value
 
-    def when_actor_on_trap(self, target):
+    def when_actor_on_walkable(self, target):
         # No effects when levitating(flying)
         if target.is_on_air:
             if target == self.engine.player:
@@ -229,7 +241,7 @@ class IcicleTrapWalkable(TrapWalkable):
                     if target == self.engine.player:
                         self.engine.message_log.add_message(
                             i(f"당신은 {g(self.parent.name, '을')} 밟았지만, {g(feet_item.name, '이')} 당신을 보호했다!",
-                              f"You stepped on the {self.parent.name}, but your {feet_item.name} protected you!"),
+                              f"You stepped on the {self.parent.name}, but your {feet_item.name} protects you!"),
                             fg=color.player_neutral)
 
                     return None
@@ -257,7 +269,7 @@ class AcidSprayTrapWalkable(TrapWalkable):
         super().__init__(trigger_once, untrap_chance, check_item, check_actor, continuous_effect)
         self.melt_value = melt_value
 
-    def when_actor_on_trap(self, target):
+    def when_actor_on_walkable(self, target):
         # No effects when levitating(flying)
         if target.is_on_air:
             if target == self.engine.player:
@@ -280,7 +292,7 @@ class AcidSprayTrapWalkable(TrapWalkable):
                         self.engine.sound_manager.add_sound_queue("fx_damaged3")
                         self.engine.message_log.add_message(
                             i(f"당신은 {g(self.parent.name, '을')} 밟았지만, {g(feet_item.name, '이')} 당신을 보호했다!",
-                              f"You stepped on the {self.parent.name}, but your {feet_item.name} protected you!"),
+                              f"You stepped on the {self.parent.name}, but your {feet_item.name} protects you!"),
                             fg=color.player_neutral)
 
                     return None
@@ -307,7 +319,7 @@ class PoisonSpikeTrapWalkable(TrapWalkable):
         self.add_damage = add_damage
         self.poison_value = poison_value
 
-    def when_actor_on_trap(self, target):
+    def when_actor_on_walkable(self, target):
         # No effects when levitating(flying)
         if target.is_on_air:
             if target == self.engine.player:
@@ -328,7 +340,7 @@ class PoisonSpikeTrapWalkable(TrapWalkable):
                     if target == self.engine.player:
                         self.engine.message_log.add_message(
                             i(f"당신은 {g(self.parent.name, '을')} 밟았지만, {g(feet_item.name, '이')} 당신을 보호했다!",
-                              f"You stepped on the {self.parent.name}, but your {feet_item.name} protected you!"),
+                              f"You stepped on the {self.parent.name}, but your {feet_item.name} protects you!"),
                             fg=color.player_neutral)
 
                     return None
@@ -380,10 +392,10 @@ class SonicBoomTrapWalkable(TrapWalkable):
                     actor.ai.activate()
                 actor.actor_state.apply_wake_up() # sleep check handled inside
 
-    def when_item_on_trap(self, target) -> None:
+    def when_item_on_walkable(self, target) -> None:
         self.sonic_boom(target)
 
-    def when_actor_on_trap(self, target):
+    def when_actor_on_walkable(self, target):
         # No effects when levitating(flying)
         if target.is_on_air:
             if target == self.engine.player:
@@ -441,10 +453,10 @@ class ExplosionTrapWalkable(TrapWalkable):
         )
         expl.perform()
 
-    def when_item_on_trap(self, target) -> None:
+    def when_item_on_walkable(self, target) -> None:
         self.explode(target)
 
-    def when_actor_on_trap(self, target):
+    def when_actor_on_walkable(self, target):
         # No effects when levitating(flying)
         if target.is_on_air:
             if target == self.engine.player:
@@ -467,6 +479,68 @@ class ExplosionTrapWalkable(TrapWalkable):
                                                   f"{target.name} stepped on the {self.parent.name}."), target=target,
                                                 fg=color.enemy_unique)
         self.explode(target)
+
+
+class AltarWalkable(TrapWalkable):
+    def __init__(self, trigger_once, untrap_chance, check_item, check_actor, continuous_effect):
+        super().__init__(trigger_once, untrap_chance, check_item, check_actor, continuous_effect)
+
+    def when_item_on_walkable(self, target) -> None:
+        """NOTE: Unlike nethack, altar will only tell you the current BUC of the item, and will not memo it."""
+        if self.engine.game_map.visible[target.x, target.y]:
+            if target.item_state.BUC == 1:
+                self.engine.message_log.add_message(i(f"제단 위에 놓인 {g(target.name, '가')} 황금빛으로 반짝인다.",
+                                                      f"{target.name} glows gold on the altar."),
+                                                    fg=color.player_sense)
+            elif target.item_state.BUC == 0:
+                self.engine.message_log.add_message(i(f"제단 위에 놓인 {g(target.name, '가')} 하얗게 반짝인다.",
+                                                      f"{target.name} glows white on the altar."),
+                                                    fg=color.player_sense)
+            else:
+                self.engine.message_log.add_message(i(f"제단 위에 놓인 {g(target.name, '가')} 검게 반짝인다.",
+                                                      f"{target.name} glows black on the altar."),
+                                                    fg=color.player_sense)
+        # TODO: Add sacrification
+
+
+class CactusWalkable(StepOnWalkable):
+    """NOTE: You don't technically 'step on' the cactus, but since the contact point is low (legs), we will use StepOnWalkable to detect the collision."""
+    def __init__(self, trigger_once, check_item, check_actor, continuous_effect, base_damage, add_damage):
+        super().__init__(trigger_once=trigger_once, check_item=check_item, check_actor=check_actor, continuous_effect=continuous_effect)
+        self.base_damage = base_damage
+        self.add_damage = add_damage
+
+    def when_actor_on_walkable(self, target):
+        # No effects when levitating(flying)
+        if target.is_on_air:
+            # No log since its quite awkward to mention "a bird flied over the cactus"
+            return None
+
+        # No damage when something is equipped on leg
+        leg_item = target.equipments.equipments["leg"]
+        if leg_item:
+            if leg_item.equipable:
+                if leg_item.equipable.eq_protection > 0:  # Solid boots
+                    if target == self.engine.player:
+                        self.engine.message_log.add_message(
+                            i(f"당신은 {g(self.parent.name, '와')} 맞닿았지만, {g(leg_item.name, '이')} 당신을 보호했다!",
+                              f"Your body touches the {self.parent.name}, but your {leg_item.name} protects you!"),
+                            fg=color.player_neutral)
+                    return None
+
+        # else
+        dmg = self.base_damage + random.randint(0, self.add_damage)
+        if target == self.engine.player:
+            self.engine.message_log.add_message(i(f"당신은 {g(self.parent.name, '와')} 맞닿아 {dmg} 데미지를 받았다.",
+                                                  f"Your body touches the {self.parent.name}, and you took {dmg} damage."),
+                                                fg=color.player_bad)
+        else:
+            self.engine.message_log.add_message(
+                i(f"{g(target.name, '이')} {g(self.parent.name, '와')} 몸이 맞닿아 {dmg} 데미지를 받았다.",
+                  f"{target.name}'s body touches the {self.parent.name} and it took {dmg} damage."),
+                target=target, fg=color.enemy_unique)
+        target.status.take_damage(dmg, fx="fx_damaged3")
+
 
 ############################################################
 ############################################################
@@ -543,4 +617,21 @@ low_dmg_explosion_trap_walkable = ExplosionTrapWalkable(
     radius=2,
     dmg_reduction_by_dist=10,
     cause_fire=3,
+)
+
+altar_walkable = AltarWalkable(
+    trigger_once=False,
+    untrap_chance=0.5,
+    check_item=True,
+    check_actor=False,
+    continuous_effect=False,
+)
+
+cactus_walkable = CactusWalkable(
+    trigger_once=False,
+    check_item=False,
+    check_actor=True,
+    continuous_effect=False,
+    base_damage=2,
+    add_damage=10
 )

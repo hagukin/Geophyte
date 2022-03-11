@@ -65,7 +65,7 @@ forest = Biome(
         "t_sparse_grass":tiles.sparse_grass_forest,
     }),
     additional_terrain=({
-        terrain_factories.forest_chamber : 140,
+        terrain_factories.oak_tree_forest : 140,
     }),
     banned_entities=("closed_door",), # Ban doors
     map_width=80,
@@ -89,6 +89,11 @@ desert_dungeon = Biome(
         "t_floor":tiles.floor_desert,
         "t_dense_grass":tiles.dense_grass_desert,
         "t_sparse_grass":tiles.sparse_grass_desert,
+    }),
+    additional_terrain=({
+        terrain_factories.cactus_field : 80,
+        terrain_factories.oak_tree_forest : 0,
+        terrain_factories.grass_field : 2,
     }),
 )
 biome_dict[desert_dungeon.biome_id] = desert_dungeon

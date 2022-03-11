@@ -579,19 +579,24 @@ def generate_plant(gamemap: GameMap, room: Room) -> None:
 
     # 1. Generate force-generated plants first
     if forced_plants_gen_number:  # if not 0
-        plant_coordinates = random.choices(gen_tiles, k=min(len(room.inner_tiles),
-                                                           forced_plants_gen_number))  # Prevents the plant num going higher than the available inner tiles num
+        plant_coordinates = None
+        try:
+            plant_coordinates = random.choices(gen_tiles, k=min(len(room.inner_tiles),
+                                                               forced_plants_gen_number))  # Prevents the plant num going higher than the available inner tiles num
+        except Exception as e:
+            print(f"ERROR::{e} - generate_plant()")
 
-        for loc in set(plant_coordinates):
-            # Choose plant type
-            plant_chosen = random.choices(list(checklist.keys()), weights=list(checklist.values()), k=1)[0]
+        if plant_coordinates:
+            for loc in set(plant_coordinates):
+                # Choose plant type
+                plant_chosen = random.choices(list(checklist.keys()), weights=list(checklist.values()), k=1)[0]
 
-            # Spawn plant
-            if plant_count <= max_plants_per_room:
-                grow_plant(gamemap=gamemap, x=loc[0], y=loc[1], plant_semiactor=plant_chosen)
-                plant_count += 1
-            else:
-                break
+                # Spawn plant
+                if plant_count <= max_plants_per_room:
+                    grow_plant(gamemap=gamemap, x=loc[0], y=loc[1], plant_semiactor=plant_chosen)
+                    plant_count += 1
+                else:
+                    break
 
     # 2. Spawn inside the given room
     # Shuffle the inner tiles to prevent plants getting crammed in specific location

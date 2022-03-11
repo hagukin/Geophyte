@@ -28,7 +28,7 @@ class Shopkeeper_Ai(ai.BaseAI):
                 Value: Customer who picked up the item. Set to None if its not picked up.
         """
         super().__init__(alignment, do_melee_atk, use_ability, do_ranged_atk)
-        self.room = None # Initialized during custom_terrgen.spawn_shopkeeper() FIXME
+        self.room = None # Initialized during ShopTerrGen.spawn_shopkeeper() FIXME
         self.customers = dict()
         self.thieves = set()
         self.picked_up = dict()

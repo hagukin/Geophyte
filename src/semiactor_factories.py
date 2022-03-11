@@ -147,6 +147,29 @@ explosion_trap = SemiActor(
 
 ##########################################################################
 ##########################################################################
+################################# MISCS ##################################
+##########################################################################
+##########################################################################
+
+altar = SemiActor(
+char="▄",# bottom half block (ascii)
+    fg=(255, 215, 0),
+    bg=None,
+    name=i("제단","altar"),
+    entity_id="altar",
+    entity_desc=i("종교 제사에 사용되는 제단이다.",
+                  "A flat table that is used in some religious ceremonies."),
+    do_action=False,
+    walkable=walkable.altar_walkable,
+    semiactor_info=semiactor_info.Default(),
+    blocks_movement=False,
+    rule_cls=None,
+)
+
+
+
+##########################################################################
+##########################################################################
 ################################ PLANTS ##################################
 ##########################################################################
 ##########################################################################
@@ -157,14 +180,32 @@ oak_tree = SemiActor(
     bg=None,
     name=i("참나무", "oak tree"),
     entity_id="oak_tree",
-    entity_desc=i("참나무다. 각종 도구를 만들 때 자주 사용된다.",
-                  "Oak tree is well known for its hardness, and is often used for tool crafting."),
+    entity_desc=i("참나무다. 넓은 잎사귀를 가지고 있으며 몸체는 단단하다.",
+                  "Oak tree has a wide leaves and is well known for its hardness."),
     do_action=False,
     walkable=None,
     safe_to_move=True,
     semiactor_info=semiactor_info.Default(flammable=0.8, corrodable=0.01),
     blocks_movement=False,
     blocks_sight=True,
+    rule_cls=None,
+    trigger_bump=False,
+)
+
+cactus = SemiActor(
+    char="¥",
+    fg=(96, 168, 50),
+    bg=None,
+    name=i("선인장", "cactus"),
+    entity_id="cactus",
+    entity_desc=i("선인장이다. 비가 적게 내리는 지역에서 서식하며, 몸체 전체에 뾰족한 가시가 나있다.",
+                  "Cactus grows in dry places, and its covered with many spikes."),
+    do_action=False,
+    walkable=walkable.cactus_walkable,
+    safe_to_move=False,
+    semiactor_info=semiactor_info.Default(flammable=0.3, corrodable=0.3),
+    blocks_movement=False,
+    blocks_sight=False,
     rule_cls=None,
     trigger_bump=False,
 )

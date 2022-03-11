@@ -2,6 +2,7 @@ from terrain import Terrain
 from unique_terrains.shop import ShopTerrain
 from unique_terrains.chamber_of_kugah import ChamberOfKugahTerrain
 from unique_terrains.guarded_treasure import GuardedTreasureTerrain
+from unique_terrains.altar_chamber import AltarChamberTerrain
 import semiactor_factories
 import item_factories
 import actor_factories
@@ -81,9 +82,9 @@ monster_lair = Terrain(
 terrain_dict[monster_lair] = monster_lair.rarity
 
 
-# Forest chamber
-forest_chamber = Terrain(
-    name=i("숲", "forest"),
+# oak tree forest
+oak_tree_forest = Terrain(
+    name=i("참나무숲", "forest"),
     terrain_id="forest_chamber",
     terrain_desc="",
     rarity=70,
@@ -99,7 +100,28 @@ forest_chamber = Terrain(
         "forced_plants_gen_number":0
     },
 )
-terrain_dict[forest_chamber] = forest_chamber.rarity
+terrain_dict[oak_tree_forest] = oak_tree_forest.rarity
+
+
+# cactus field
+cactus_field = Terrain(
+    name=i("선인장 지대", "cactus field"),
+    terrain_id="cactus_field",
+    terrain_desc="",
+    rarity=0, # Change rarity in desert biome manually
+    spawn_item=True,
+    spawn_monster=True,
+    gen_grass={"core_num_range":(1,3), "scale_range":(1,4), "density":0.2},
+    gen_plants={
+        "checklist":{
+            semiactor_factories.cactus:5,
+        },
+        "max_plants_per_room":10,
+        "spawn_chance":0.2,
+        "forced_plants_gen_number":3
+    },
+)
+terrain_dict[cactus_field] = cactus_field.rarity
 
 
 # explosion chamber
@@ -194,7 +216,7 @@ chest_room = Terrain(
     name=i("창고", "storage"),
     terrain_id="chest_room",
     terrain_desc="",
-    rarity=5,
+    rarity=7,
     spawn_item=False,
     spawn_monster=False,
     gen_chests={"checklist":{"large_wooden_chest" : 10}, "chest_num_range":(1,3), "initial_items":None},
@@ -307,7 +329,7 @@ terrain_dict[swamp] = swamp.rarity
 
 
 # General shop
-from custom_terrgen import ShopTerrGen
+from unique_terrains.shop import ShopTerrGen
 general_shop = ShopTerrain(
     name=i("잡동사니 상점", "general shop"),
     terrain_id="general_shop",
@@ -326,7 +348,7 @@ terrain_dict[general_shop] = general_shop.rarity
 
 
 # Potion shop
-from custom_terrgen import ShopTerrGen
+from unique_terrains.shop import ShopTerrGen
 potion_shop = ShopTerrain(
     name=i("포션 상점", "potion shop"),
     terrain_id="potion_shop",
@@ -345,7 +367,7 @@ terrain_dict[potion_shop] = potion_shop.rarity
 
 
 # Weapon shop
-from custom_terrgen import ShopTerrGen
+from unique_terrains.shop import ShopTerrGen
 weapon_shop = ShopTerrain(
     name=i("무기 상점", "weapon shop"),
     terrain_id="weapon_shop",
@@ -364,7 +386,7 @@ terrain_dict[weapon_shop] = weapon_shop.rarity
 
 
 # Armor shop
-from custom_terrgen import ShopTerrGen
+from unique_terrains.shop import ShopTerrGen
 armor_shop = ShopTerrain(
     name=i("갑옷 상점", "armor shop"),
     terrain_id="armor_shop",
@@ -383,7 +405,7 @@ terrain_dict[armor_shop] = armor_shop.rarity
 
 
 # Scroll shop
-from custom_terrgen import ShopTerrGen
+from unique_terrains.shop import ShopTerrGen
 scroll_shop = ShopTerrain(
     name=i("주문서 상점", "scroll shop"),
     terrain_id="scroll_shop",
@@ -402,7 +424,7 @@ terrain_dict[scroll_shop] = scroll_shop.rarity
 
 
 # Chamber Of Kugah
-from custom_terrgen import ChamberOfKugahTerrGen
+from unique_terrains.chamber_of_kugah import ChamberOfKugahTerrGen
 chamber_of_kugah = ChamberOfKugahTerrain(
     name=i("쿠가의 성소", "chamber of Kugah"),
     terrain_id="chamber_of_kugah",
@@ -420,13 +442,13 @@ chamber_of_kugah = ChamberOfKugahTerrain(
 terrain_dict[chamber_of_kugah] = chamber_of_kugah.rarity
 
 
-# Chamber Of Kugah
-from custom_terrgen import GuardedTreasureTerrGen
+# Guarded Treasure
+from unique_terrains.guarded_treasure import GuardedTreasureTerrGen
 guarded_treasure = GuardedTreasureTerrain(
     name=i("보호받는 보물", "guarded treasure"),
     terrain_id="guarded_treasure",
     terrain_desc="",
-    rarity=2,
+    rarity=3,
     spawn_item=False,
     spawn_monster=False,
     custom_gen=GuardedTreasureTerrGen.generate_guarded_treasure,
@@ -436,3 +458,17 @@ guarded_treasure = GuardedTreasureTerrain(
                 "initial_items": None},
 )
 terrain_dict[guarded_treasure] = guarded_treasure.rarity
+
+
+# Altar Chamber
+from unique_terrains.altar_chamber import AltarChamberTerrGen
+altar_chamber = AltarChamberTerrain(
+    name=i("제단의 방", "altar chamber"),
+    terrain_id="altar_chamber",
+    terrain_desc="",
+    rarity=10,
+    spawn_item=True,
+    spawn_monster=True,
+    custom_gen=AltarChamberTerrGen.generate_altar_chamber,
+)
+terrain_dict[altar_chamber] = altar_chamber.rarity
