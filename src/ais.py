@@ -4,8 +4,6 @@ from typing import Tuple
 import components.ai as ai
 import color
 import explosion_action
-import copy
-from shopkeeper import Shopkeeper_Ai
 from order import InventoryOrder
 from korean import grammar as g
 from language import interpret as t

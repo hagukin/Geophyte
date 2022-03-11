@@ -210,7 +210,7 @@ class ItemManager:
                     word += vowels[random.randint(0,len(vowels) - 1)]
                 else:
                     word += non_vowels[random.randint(0,len(non_vowels) - 1)]
-        return word
+        return word.upper() # Capital
 
     def gen_randomized_color(self, item_type):
         if item_type.value == InventoryOrder.POTION.value:

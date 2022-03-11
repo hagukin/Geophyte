@@ -33,6 +33,19 @@ class Shopkeeper_Ai(ai.BaseAI):
         self.thieves = set()
         self.picked_up = dict()
 
+    def set_revenge_target(self) -> None:
+        """
+        If attacked, set the attacker as target.
+        If the attacker was a customer, make it a thief.
+        """
+        if self.attacked_from:
+            if self.attacked_from != self.owner:
+                self.target = self.attacked_from
+                if self.attacked_from in self.customers:
+                    tmp = self.attacked_from
+                    self.thieves.add(tmp)
+                self.attacked_from = None
+
     def get_target_shopkeeper(self) -> Optional[Actor]:
         """
         Set target only if the actor fits this ai's condition of being hostile to.
@@ -48,11 +61,11 @@ class Shopkeeper_Ai(ai.BaseAI):
             else:
                 break
 
-            if tmp.actor_state.is_dead:
-                self.thieves.add(tmp)
+            if not tmp.actor_state.is_dead:
+                self.thieves.add(tmp) # target found, return tmp
                 break
             else:
-                continue
+                continue # if the thief is dead, dont add it back to set
         return tmp
 
     def perform_idle_action(self) -> None: #Override
@@ -75,7 +88,7 @@ class Shopkeeper_Ai(ai.BaseAI):
         # Update values
         self.update_pickup_items()
         self.update_customers()
-        self.update_thieves()
+        self.update_thieves() # NOTE: deleting dead thieves is handled in self.get_target_shopkeeper()
 
         action = self.wait_for_customer
         for picked_by in self.picked_up.values():

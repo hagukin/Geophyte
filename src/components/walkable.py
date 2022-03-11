@@ -481,9 +481,9 @@ class ExplosionTrapWalkable(TrapWalkable):
         self.explode(target)
 
 
-class AltarWalkable(TrapWalkable):
-    def __init__(self, trigger_once, untrap_chance, check_item, check_actor, continuous_effect):
-        super().__init__(trigger_once, untrap_chance, check_item, check_actor, continuous_effect)
+class AltarWalkable(StepOnWalkable):
+    def __init__(self, trigger_once, check_item, check_actor, continuous_effect):
+        super().__init__(trigger_once=trigger_once, check_item=check_item, check_actor=check_actor, continuous_effect=continuous_effect)
 
     def when_item_on_walkable(self, target) -> None:
         """NOTE: Unlike nethack, altar will only tell you the current BUC of the item, and will not memo it."""
@@ -621,7 +621,6 @@ low_dmg_explosion_trap_walkable = ExplosionTrapWalkable(
 
 altar_walkable = AltarWalkable(
     trigger_once=False,
-    untrap_chance=0.5,
     check_item=True,
     check_actor=False,
     continuous_effect=False,

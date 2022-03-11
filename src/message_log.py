@@ -49,7 +49,7 @@ class MessageLog:
         if text == '':
             return None
         if Game.language == "EN":
-            text = text.capitalize()
+            text = text[0].upper() + text[1:] # .capitalize() will make other letters lowercase
 
         if target:
             if not self.engine.game_map.visible[target.x, target.y]:
