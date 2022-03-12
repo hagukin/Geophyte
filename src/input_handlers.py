@@ -2331,6 +2331,7 @@ class MainGameEventHandler(EventHandler):
                 for y in range(len(self.engine.game_map.visible[0])):
                     for x in range(len(self.engine.game_map.visible)):
                         self.engine.game_map.visible[x, y] = True
+                self.engine.player.status.experience.gain_agility_exp(100)
 
         # No valid key was pressed
         return action

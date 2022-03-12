@@ -7,6 +7,7 @@ import explosion_action
 from order import InventoryOrder
 from korean import grammar as g
 from language import interpret as t
+from shopkeeper import Shopkeeper_Ai # Do not delete
 
 
 ####################################################

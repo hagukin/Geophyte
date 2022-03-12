@@ -1183,9 +1183,9 @@ class MovementAction(ActionWithDirection):
         self.entity.move(self.dx, self.dy)
 
         if self.entity.status.experience:
-            self.entity.status.experience.gain_agility_exp(0.2, 18) # 1 exp per 5 tiles
+            self.entity.status.experience.gain_agility_exp(1, agi_limit=17, chance=0.2) # about 1 exp per 5 tiles
             if self.entity.actor_state.encumbrance > 0:
-                self.entity.status.experience.gain_strength_exp(0.3*self.entity.actor_state.encumbrance, str_limit=18)
+                self.entity.status.experience.gain_strength_exp(min(self.entity.actor_state.encumbrance, 1), str_limit=17, chance=0.5)
 
 
 class DoorUnlockAction(ActionWithDirection):

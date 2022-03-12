@@ -100,11 +100,11 @@ player = Actor(
     inventory=Inventory(capacity=52, is_fireproof=False, is_acidproof=False, is_waterproof=False),
     ability_inventory=AbilityInventory(capacity=26),
     equipments=Equipments(),
-    # initial_items=
-    # (
-    #     {"item": item_factories.potion_of_flame, "chance": 1, "count": (10, 10), "BUC": {1:0,0:1,-1:0}, "upgrade": None},
-    #     {"item": item_factories.potion_of_healing, "chance": 1, "count": (1, 1), "BUC": {1:0,0:1,-1:0}, "upgrade": None},
-    # ),
+    initial_items=
+    (
+        {"item": item_factories.battle_axe, "chance": 1, "count": (1, 1), "BUC": {1:0,0:1,-1:0}, "upgrade": None},
+        {"item": item_factories.potion_of_healing, "chance": 1, "count": (1, 1), "BUC": {1:0,0:1,-1:0}, "upgrade": None},
+    ),
 #     initial_equipments=(
 #         {"item":item_factories.longsword, "chance":1, "count":(1,1), "BUC":None, "upgrade": {0:1}},
 # {"item":item_factories.iron_plate_armor, "chance":1, "count":(1,1), "BUC":None, "upgrade": {0:1}},

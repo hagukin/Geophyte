@@ -299,6 +299,34 @@ class Equipments(BaseComponent):
         else:
             self.parent.status.remove_bonus("dual_wield", ignore_warning=True)
 
+    def update_strength_debuff_for_all_equipables(self) -> None:
+        for eq in self.equipments.values():
+            if eq:
+                eq.equipable.update_strength_debuff_of_this_equipable()
+
+    def render_str_debuff_log(self, equipped_item: Item) -> None:
+        """
+        If the player equipped an item that requires too much strength,
+        the game will notify it.
+        NOTE: You should ONLY pass in an item that is already equipped!
+        """
+        if equipped_item.equipable:
+            if equipped_item.equipable.strength_debuff < 0.4:
+                self.engine.message_log.add_message(
+                    i(f"당신은 {g(equipped_item.name, '을')} 사용할 만큼 힘이 강하지 않다. {equipped_item.name}의 성능이 심각한 수준으로 제한되고 있다.",
+                      f"Your strength is not high enough to use {equipped_item.name}. Its potential is being severely limited."),
+                    fg=color.player_severe)
+            elif equipped_item.equipable.strength_debuff <= 0.6:
+                self.engine.message_log.add_message(
+                    i(f"당신은 {g(equipped_item.name, '을')} 제대로 사용할 만큼 힘이 강하지 않다. {equipped_item.name}의 성능이 제한되고 있다.",
+                      f"Your strength is not high enough to use {equipped_item.name} properly. Its potential is being limited."),
+                    fg=color.player_bad)
+            elif equipped_item.equipable.strength_debuff < 1:
+                self.engine.message_log.add_message(
+                    i(f"당신은 {g(equipped_item.name, '을')} 자유롭게 사용할 만큼 힘이 강하지 않다. {equipped_item.name}의 성능이 조금 제한되고 있다.",
+                      f"Your strength is not high enough to freely use {equipped_item.name}. It has not reached its full potential."),
+                    fg=color.player_not_good)
+            return None
 
     def equip_equipment(self, item: Item, forced: bool=False, equip_region: Optional[str] = None):
         """
@@ -352,6 +380,7 @@ class Equipments(BaseComponent):
                         text=i(f"당신은 {g(self.equipments['main hand'].name, '와')} {g(self.equipments['off hand'].name, '을')} 쌍수로 장비했다.",
                                f"You duel wield {self.equipments['main hand'].name} and {self.equipments['off hand'].name}."),
                         fg=color.player_buff)
+                self.render_str_debuff_log(equipped_item=item)
             else:
                 self.engine.message_log.add_message(i(f"{g(self.parent.name, '이')} {g(item.name, '을')} {equip_region_name_to_str(curr_equipped_region)} 부위에 장착했다.",
                                                       f"{self.parent.name} equips {item.name} on {equip_region_name_to_str(curr_equipped_region)} region."), fg=color.enemy_unique, target=self.parent)

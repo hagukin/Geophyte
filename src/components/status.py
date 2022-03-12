@@ -685,6 +685,10 @@ class Status(BaseComponent):
 
 
     ### Strength
+    def updates_when_strength_changes(self) -> None:
+        self.parent.inventory.update_burden()
+        self.parent.equipments.update_strength_debuff_for_all_equipables()
+
     @property
     def strength(self) -> int:
         return self._strength
@@ -694,14 +698,15 @@ class Status(BaseComponent):
         self._strength = value
         if self._strength == 0 and self.parent.ai:
             self.parent.die("lack_of_strength")
+        self.updates_when_strength_changes()
 
     def gain_strength(self, amount):
         """
         NOTE: While you can use this function to lose strength as well.
         lose_strength() is deprecated.
         """
-        self._strength += amount
-        self.parent.inventory.update_burden()
+        self._strength = self._strength + amount
+        self.updates_when_strength_changes()
         return amount
 
 

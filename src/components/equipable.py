@@ -119,6 +119,9 @@ class Equipable(BaseComponent):
         self.equip_size = equip_size
 
         # Default status of this item (no upgrades, no downgrades)
+        self.eq_base_melee = base_melee
+        self.eq_additional_melee = additional_melee
+        self.eq_protection = protection
         self.eq_hp = hp
         self.eq_mp = mp
         self.eq_max_hp = max_hp
@@ -129,9 +132,6 @@ class Equipable(BaseComponent):
         self.eq_intelligence = intelligence
         self.eq_constitution = constitution
         self.eq_charm = charm
-        self.eq_base_melee = base_melee
-        self.eq_additional_melee = additional_melee
-        self.eq_protection = protection
         self.eq_hearing = hearing
         self.eq_eyesight = eyesight
         self.eq_fire_resistance = fire_resistance
@@ -144,6 +144,35 @@ class Equipable(BaseComponent):
         self.eq_magic_resistance = magic_resistance
         self.eq_melee_effects = list(melee_effects)
         self.eq_melee_effects_var = list(melee_effects_var)
+
+        # constant
+        self.ORIGIN_EQ_VALUES = {
+            "eq_base_melee":base_melee,
+            "eq_additional_melee":additional_melee,
+            "eq_protection":protection,
+            "eq_hp":hp,
+            "eq_mp":mp,
+            "eq_max_hp":max_hp,
+            "eq_max_mp":max_mp,
+            "eq_strength":strength,
+            "eq_dexterity":dexterity,
+            "eq_agility":agility,
+            "eq_intelligence":intelligence,
+            "eq_constitution":constitution,
+            "eq_charm":charm,
+            "eq_hearing":hearing,
+            "eq_eyesight":eyesight,
+            "eq_fire_resistance":fire_resistance,
+            "eq_poison_resistance":poison_resistance,
+            "eq_cold_resistance":cold_resistance,
+            "eq_acid_resistance":acid_resistance,
+            "eq_psychic_resistance":psychic_resistance,
+            "eq_sleep_resistance":sleep_resistance,
+            "eq_shock_resistance":shock_resistance,
+            "eq_magic_resistance":magic_resistance,
+            "eq_melee_effects":list(melee_effects),
+            "eq_melee_effects_var":list(melee_effects_var)
+        }
 
         # status bonus given when the item is upgraded (bonus are added to the stat each time)
         self.add_hp = 0
@@ -204,6 +233,20 @@ class Equipable(BaseComponent):
         if alter_actor_state:
             self.alter_actor_state = alter_actor_state
         # e.g. {"has_telepathy":True, "can_swim":True}
+
+    @property
+    def strength_debuff(self) -> float:
+        """
+        returns a float between 0~1.
+        The return value will be multiplied to the final self.add_xxxx vairables.
+        TODO: NOTE: Currently there is no strength buff.
+        """
+        if not self.equipper:
+            return 1  # Not equipped = no debuff
+        return round(
+            1 - min((0.2 * max(self.str_requirement - self.owner.status.changed_status["strength"], 0), 0.9)),
+            2
+        )
 
     @property
     def origin_status(self):
@@ -352,13 +395,25 @@ class Equipable(BaseComponent):
         except:
             return None # Has no owner
 
+    @property
+    def equipper(self) -> Optional[Actor]:
+        if self.owner:
+            if self.parent in self.owner.equipments.equipments.values(): # equipped
+                return self.owner
+        return None
+
     def update_stat(self) -> None:
         """
         Actual increase/decrease of equipper's status are handled here.
         """
-        self.eq_protection = round(self.eq_protection * self.corrosion_debuf * self.burnt_debuf)
-        self.eq_base_melee = round(self.eq_base_melee * self.corrosion_debuf * self.burnt_debuf)
-        self.eq_additional_melee = round(self.eq_additional_melee * self.corrosion_debuf * self.burnt_debuf)
+        # NOTE: when updating the eq_xxx values, always use ORIGIN_EQ_VALUES as base reference.
+        self.eq_protection = round(self.ORIGIN_EQ_VALUES["eq_protection"] * self.corrosion_debuf * self.burnt_debuf * self.strength_debuff)
+        self.eq_base_melee = round(self.ORIGIN_EQ_VALUES["eq_base_melee"] * self.corrosion_debuf * self.burnt_debuf * self.strength_debuff)
+        self.eq_additional_melee = round(self.ORIGIN_EQ_VALUES["eq_additional_melee"] * self.corrosion_debuf * self.burnt_debuf * self.strength_debuff)
+
+        self.add_protection = round(self.upgrade * self.protection_mag * self.strength_debuff)
+        self.add_base_melee = round(self.upgrade * self.base_melee_mag * self.strength_debuff)
+        self.add_additional_melee = round(self.upgrade * self.additional_melee_mag * self.strength_debuff)
 
         self.add_hp = round(self.upgrade * self.hp_mag)
         self.add_mp = round(self.upgrade * self.mp_mag)
@@ -370,9 +425,6 @@ class Equipable(BaseComponent):
         self.add_intelligence = round(self.upgrade * self.intelligence_mag)
         self.add_constitution = round(self.upgrade * self.constitution_mag)
         self.add_charm = round(self.upgrade * self.charm_mag)
-        self.add_base_melee = round(self.upgrade * self.base_melee_mag)
-        self.add_additional_melee = round(self.upgrade * self.additional_melee_mag)
-        self.add_protection = round(self.upgrade * self.protection_mag)
         self.add_hearing = round(self.upgrade * self.hearing_mag)
         self.add_eyesight = round(self.upgrade * self.eyesight_mag)
         self.add_fire_resistance = round(self.upgrade * self.fire_resistance_mag)
@@ -400,6 +452,14 @@ class Equipable(BaseComponent):
         self.update_stat()
         if self.owner:
             self.owner.equipments.update_equipment_bonus(self.parent) # Change bonus values
+
+    def update_strength_debuff_of_this_equipable(self) -> None:
+        """
+        Update the equipper's bonus value.
+        """
+        self.update_stat()
+        if self.owner:
+            self.owner.equipments.update_equipment_bonus(self.parent)  # Change bonus values
 
     @property
     def corrosion_debuf(self) -> float:
