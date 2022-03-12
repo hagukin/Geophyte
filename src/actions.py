@@ -1004,7 +1004,7 @@ class MeleeAction(ActionWithDirection):
             if self.entity == self.engine.player:
                 self.engine.message_log.add_message(i("당신은 허공을 공격했다.",
                                                       "You attack nothing."), color.impossible)
-                self.engine.sound_manager.add_sound_queue("fx_miss")
+                self.engine.sound_manager.add_sound_queue("fx_player_miss")
                 return None
             else:
                 print("WARNING::Enemy has no target but attacked. - meleeaction")

@@ -43,6 +43,7 @@ def reimport_all() -> None:
         import item_factories
         import actor_factories
         import terrain_factories
+        import semiactor_factories
         import biome_factories
         import chest_factories
         import ability_factories
@@ -50,6 +51,7 @@ def reimport_all() -> None:
         importlib.reload(item_factories)
         importlib.reload(actor_factories)
         importlib.reload(terrain_factories)
+        importlib.reload(semiactor_factories)
         importlib.reload(biome_factories)
         importlib.reload(chest_factories)
         importlib.reload(ability_factories)

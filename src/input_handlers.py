@@ -873,7 +873,6 @@ class InventoryChooseItemAndCallbackHandler(StorageSelectSingleEventHandler):
             self,
             inventory_component: Inventory,
             callback: Callable,
-            title: str = i("인벤토리","Inventory"),
             show_only_types: Optional[Tuple[InventoryOrder,...]] =None,
             show_only_status: Tuple[str] = None,
             show_if_satisfy_both: bool = True,
@@ -884,7 +883,7 @@ class InventoryChooseItemAndCallbackHandler(StorageSelectSingleEventHandler):
             item_cancel_callback: Callable = None,
         ):
         super().__init__(inventory_component, show_only_types, show_only_status, show_if_satisfy_both, hide_not_tradable, hide_not_owned, hide_equipped, render_sell_price, item_cancel_callback)
-        self.TITLE = title
+        self.TITLE = i("인벤토리","Inventory")
         self.selected_item = None
         self.callback = callback
 
@@ -1189,7 +1188,7 @@ class SleepTurnSelectHandler(AskUserEventHandler):
         console.print(x + x_space + 1, height + 3, i("+,-키:턴수 조작 | 쉬프트를 누른채 조작:10턴씩 선택 | 엔터:확인 | ESC:취소",
                                                      "+,-:Adjust turns | +,- while pressing shift:Adjust by 10 | ENTER:Confirm | ESC:Escape"), color.gui_inventory_fg)
         console.print(x + x_space + 1, y + y_space + 2, i(f"{self.sleep_turn}턴 선택됨.",
-                                                          f"{self.sleep_turn}turns selected."), fg=color.gui_item_description)
+                                                          f"{self.sleep_turn} turns selected."), fg=color.gui_item_description)
 
     def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[Action]:
         player = self.engine.player

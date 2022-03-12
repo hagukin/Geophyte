@@ -100,11 +100,11 @@ player = Actor(
     inventory=Inventory(capacity=52, is_fireproof=False, is_acidproof=False, is_waterproof=False),
     ability_inventory=AbilityInventory(capacity=26),
     equipments=Equipments(),
-    initial_items=
-    (
-        {"item": item_factories.battle_axe, "chance": 1, "count": (1, 1), "BUC": {1:0,0:1,-1:0}, "upgrade": None},
-        {"item": item_factories.potion_of_healing, "chance": 1, "count": (1, 1), "BUC": {1:0,0:1,-1:0}, "upgrade": None},
-    ),
+    # initial_items=
+    # (
+    #     {"item": item_factories.scroll_of_identify, "chance": 1, "count": (1, 1), "BUC": {1:0,0:1,-1:0}, "upgrade": None},
+    #     {"item": item_factories.potion_of_healing, "chance": 1, "count": (1, 1), "BUC": {1:0,0:1,-1:0}, "upgrade": None},
+    # ),
 #     initial_equipments=(
 #         {"item":item_factories.longsword, "chance":1, "count":(1,1), "BUC":None, "upgrade": {0:1}},
 # {"item":item_factories.iron_plate_armor, "chance":1, "count":(1,1), "BUC":None, "upgrade": {0:1}},
@@ -1127,6 +1127,7 @@ electric_eel = Actor(
         eyesight=5,
         melee_effects_var=((20, 0.9),),
         melee_effects=(("electrocute_target", 1),),
+        shock_resistance=1,
         ),
     actor_state=ActorState(
         size=3,
@@ -2156,7 +2157,7 @@ fire_elemental = Actor(
     spawnable=True,
     edible=None,
     ai_cls=BaseAI(
-        alignment=(("hostile","neutral"), (1,1,)),
+        alignment=(("hostile","neutral"), (2,1,)),
         do_melee_atk=True,
         do_ranged_atk=False,
         use_ability=False,
@@ -2224,7 +2225,7 @@ ice_elemental = Actor(
     spawnable=True,
     edible=None,
     ai_cls=BaseAI(
-        alignment=(("hostile", "neutral"), (1, 1,)),
+        alignment=(("hostile", "neutral"), (2, 1,)),
         do_melee_atk=True,
         do_ranged_atk=False,
         use_ability=False,
@@ -2292,7 +2293,7 @@ earth_elemental = Actor(
     spawnable=True,
     edible=None,
     ai_cls=BaseAI(
-        alignment=(("hostile", "neutral"), (1, 1,)),
+        alignment=(("hostile", "neutral"), (2, 1,)),
         do_melee_atk=True,
         do_ranged_atk=False,
         use_ability=False,
@@ -2361,7 +2362,7 @@ acid_elemental = Actor(
     spawnable=True,
     edible=None,
     ai_cls=BaseAI(
-        alignment=(("hostile", "neutral"), (1, 1,)),
+        alignment=(("hostile", "neutral"), (2, 1,)),
         do_melee_atk=True,
         do_ranged_atk=False,
         use_ability=False,
@@ -2428,7 +2429,7 @@ poison_elemental = Actor(
     spawnable=True,
     edible=None,
     ai_cls=BaseAI(
-        alignment=(("hostile", "neutral"), (1, 1,)),
+        alignment=(("hostile", "neutral"), (2, 1,)),
         do_melee_atk=True,
         do_ranged_atk=False,
         use_ability=False,
@@ -2495,7 +2496,7 @@ lightning_elemental = Actor(
     spawnable=True,
     edible=None,
     ai_cls=BaseAI(
-        alignment=(("hostile", "neutral"), (1, 1,)),
+        alignment=(("hostile", "neutral"), (2, 1,)),
         do_melee_atk=True,
         do_ranged_atk=False,
         use_ability=False,
@@ -3476,7 +3477,7 @@ giant = Actor(
     spawnable=True,
     edible=edible.RawMeatEdible(nutrition=420),
     ai_cls=BaseAI(
-        alignment=(("hostile","neutral"), (3,1)),
+        alignment=(("hostile",), (1,)),
         do_melee_atk=True,
         do_ranged_atk=False,
         use_ability=False,
