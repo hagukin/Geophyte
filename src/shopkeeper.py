@@ -41,7 +41,7 @@ class Shopkeeper_Ai(ai.BaseAI):
         if self.attacked_from:
             if self.attacked_from != self.owner:
                 self.target = self.attacked_from
-                if self.attacked_from in self.customers:
+                if self.attacked_from in self.picked_up.values():
                     tmp = self.attacked_from
                     self.thieves.add(tmp)
                 self.attacked_from = None
