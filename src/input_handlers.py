@@ -2304,33 +2304,33 @@ class MainGameEventHandler(EventHandler):
                                                           f"You feel sad."), color.white)
 
 
-                ######### TODO FIXME DEBUG
-                self.engine.change_entity_depth(
-                    self.engine.player,
-                    self.engine.depth + 1,
-                    self.engine.world.get_map(self.engine.depth + 1).ascend_loc[0],
-                    self.engine.world.get_map(self.engine.depth + 1).ascend_loc[1]
-                )
-            elif key == tcod.event.K_F10:
-                ######### TODO FIXME DEBUG
-                self.engine.change_entity_depth(
-                    self.engine.player,
-                    self.engine.depth - 1,
-                    self.engine.world.get_map(self.engine.depth - 1).ascend_loc[0],
-                    self.engine.world.get_map(self.engine.depth - 1).ascend_loc[1] # NOTE: Chamber of Kugah has no descend loc
-                )
-            elif key == tcod.event.K_F9:
-                from util import spawn_entity_8way
-                from actor_factories import chatterbox
-                actors = spawn_entity_8way(entity=chatterbox, gamemap=self.engine.game_map,
-                                           center_x=self.engine.player.x+1, center_y=self.engine.player.y+1,
-                                           spawn_cnt=1, spawn_on_center=True)
-                self.engine.player.status.fully_heal()
-            elif key == tcod.event.K_F8:
-                for y in range(len(self.engine.game_map.visible[0])):
-                    for x in range(len(self.engine.game_map.visible)):
-                        self.engine.game_map.visible[x, y] = True
-                self.engine.player.status.experience.gain_agility_exp(100)
+            #     ######### TODO FIXME DEBUG
+            #     self.engine.change_entity_depth(
+            #         self.engine.player,
+            #         self.engine.depth + 1,
+            #         self.engine.world.get_map(self.engine.depth + 1).ascend_loc[0],
+            #         self.engine.world.get_map(self.engine.depth + 1).ascend_loc[1]
+            #     )
+            # elif key == tcod.event.K_F10:
+            #     ######### TODO FIXME DEBUG
+            #     self.engine.change_entity_depth(
+            #         self.engine.player,
+            #         self.engine.depth - 1,
+            #         self.engine.world.get_map(self.engine.depth - 1).ascend_loc[0],
+            #         self.engine.world.get_map(self.engine.depth - 1).ascend_loc[1] # NOTE: Chamber of Kugah has no descend loc
+            #     )
+            # elif key == tcod.event.K_F9:
+            #     from util import spawn_entity_8way
+            #     from actor_factories import chatterbox
+            #     actors = spawn_entity_8way(entity=chatterbox, gamemap=self.engine.game_map,
+            #                                center_x=self.engine.player.x+1, center_y=self.engine.player.y+1,
+            #                                spawn_cnt=1, spawn_on_center=True)
+            #     self.engine.player.status.fully_heal()
+            # elif key == tcod.event.K_F8:
+            #     for y in range(len(self.engine.game_map.visible[0])):
+            #         for x in range(len(self.engine.game_map.visible)):
+            #             self.engine.game_map.visible[x, y] = True
+            #     self.engine.player.status.experience.gain_agility_exp(100)
 
         # No valid key was pressed
         return action

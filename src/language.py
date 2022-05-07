@@ -40,21 +40,53 @@ def reimport_all() -> None:
     """
     try:
         import importlib
+        import components.rule_factories
+        import ability_factories
         import item_factories
         import actor_factories
-        import terrain_factories
         import semiactor_factories
-        import biome_factories
         import chest_factories
-        import ability_factories
-        import components.rule_factories
+        import terrain_factories
+        import biome_factories
+
+        # NOTE:
+        # The order of reload() call is extremely important since one might reference other,
+        # which could result in storing the objects with previously selected language.
+        # e.g. Terrain object can store actors or semiactors during its declaration as their "actor_to_spawn" or "door_types" variables.
+        # Thus, actors and semiactors should get reimported beforehand.
+        # e.g.2. actor can store items or abilities, so you should reimported them beforehand.
+        # WARNING:
+        # If a object that contains translatable string references each other this could cause an translation issue so you should avoid mutual reference.
+        # One way to get around this problem is by using an object's id instead of the object reference itself.
+        # Currently there is no known case of mutual reference.
+        # Reference map (20220508):
+        #   Rule:
+        #       None
+        #   Ability:
+        #       None
+        #   Item:
+        #       Ability
+        #   Actor:
+        #       Ability
+        #       Item
+        #   SemiActor:
+        #       Rule
+        #   Chest:
+        #       None
+        #   Terrain:
+        #       Item
+        #       Actor
+        #       SemiActor
+        #   Biome:
+        #       Terrain
+
+        importlib.reload(components.rule_factories)
+        importlib.reload(ability_factories)
         importlib.reload(item_factories)
         importlib.reload(actor_factories)
-        importlib.reload(terrain_factories)
         importlib.reload(semiactor_factories)
-        importlib.reload(biome_factories)
         importlib.reload(chest_factories)
-        importlib.reload(ability_factories)
-        importlib.reload(components.rule_factories)
+        importlib.reload(terrain_factories)
+        importlib.reload(biome_factories)
     except Exception as e:
         print(f"ERROR::{e} - language.reimport_all()")
