@@ -447,8 +447,6 @@ class PotionOfFlameThrowable(PotionQuaffAndThrowSameEffectThrowable):
         tmp.rule.base_damage = int(self.parent.quaffable.base_dmg / 2)
         tmp.rule.add_damage = int(self.parent.quaffable.add_dmg / 2)
         tmp.spawn(gamemap=self.engine.game_map, x=self.shattered_x, y=self.shattered_y, lifetime=self.parent.quaffable.fire_lifetime)
-        import actor_factories
-        actor_factories.DEBUG.spawn(self.engine.game_map, x=self.shattered_x, y=self.shattered_y)
         if self.engine.game_map.visible[self.shattered_x, self.shattered_y]:
             self.engine.message_log.add_message(i(f"{self.parent.name}이 깨진 자리에서 불꽃이 피어났다!",
                                                   f"Flames start to rise!"),color.player_sense)
