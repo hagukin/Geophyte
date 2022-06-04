@@ -294,7 +294,7 @@ class NormalThrowable(Throwable):
         return None
 
 
-    def drop_thrown_item(self, thrower, loc: Optional[List]=None):
+    def drop_or_remove_thrown_item(self, thrower, loc: Optional[List]=None):
         if not self.shattered:
             # If collided with actor, drop it on the actor's location
             if self.collision_x and self.collision_y:
@@ -316,7 +316,7 @@ class NormalThrowable(Throwable):
 
     def effects_when_contact_with_ground(self, thrower, loc) -> None:
         """When item reached its destination without colliding with anything and contacts the ground."""
-        self.drop_thrown_item(thrower, loc)
+        self.drop_or_remove_thrown_item(thrower, loc) # item removal when shattered handled here.
 
     def activate_logic(self, action: actions.ThrowItem) -> None:
         thrower = action.entity
@@ -382,16 +382,19 @@ class NormalThrowable(Throwable):
         
         ### D. Effects when shattered ###
         if self.shattered:
-            self.shattered_x, self.shattered_y = dest_x, dest_y
+            if self.collision_x or self.collision_y: # collided with entity (NOTE: collision_xy is not set if collided with map border/walls)
+                self.shattered_x, self.shattered_y = dest_x, dest_y
+            else:
+                self.shattered_x, self.shattered_y = dest_x- self.dx, dest_y - self.dy
             self.effects_when_shattered() # NOTE: Seperate from effects_when_collided_with_actor_and_shattered
-            # throwable component is shared through the entire stack, so .shattered should be set back to False after the item was thrown
+            # throwable component is shared through the entire stack, so shattered should be set back to False after the item was thrown
             # (So that the rest of the item stack can work properly)
 
         # Call is necessary
         self.reset_values()
 
 
-class ShatterWhenContactGroundThrowable(NormalThrowable):
+class CouldShatterWhenContactGroundThrowable(NormalThrowable):
     """
     Items that COULD shatter when thrown at the ground.
     e.g. potions
@@ -401,7 +404,8 @@ class ShatterWhenContactGroundThrowable(NormalThrowable):
     """
     def effects_when_contact_with_ground(self, thrower, loc) -> None:
         # Check for breaking
-        self.break_calculation() # NOTE: potion break guarenteed
+        self.break_calculation() # NOTE: breaking is not 100% guarenteed and is affected by its break_chance
+        super().effects_when_contact_with_ground(thrower, loc)
 
 
 ###########################################################################################################################
@@ -409,7 +413,7 @@ class ShatterWhenContactGroundThrowable(NormalThrowable):
 ###########################################################################################################################
 ###########################################################################################################################
 
-class PotionQuaffAndThrowSameEffectThrowable(ShatterWhenContactGroundThrowable):
+class PotionQuaffAndThrowSameEffectThrowable(CouldShatterWhenContactGroundThrowable):
     """Potion that applies the same effect when quaffed and when thrown(collided) should use this general throwable component.
     If there is any difference between the two, you should override NormalThrowable class and make a new one."""
     def __init__(self,
@@ -439,11 +443,12 @@ class PotionOfFlameThrowable(PotionQuaffAndThrowSameEffectThrowable):
     def effects_when_shattered(self):
         super().effects_when_shattered()
         import semiactor_factories
-        from util import spawn_entity_8way
         tmp = semiactor_factories.fire.copy(self.engine.game_map, exact_copy=False, lifetime=self.parent.quaffable.fire_lifetime)
         tmp.rule.base_damage = int(self.parent.quaffable.base_dmg / 2)
         tmp.rule.add_damage = int(self.parent.quaffable.add_dmg / 2)
-        spawn_entity_8way(entity=tmp, gamemap=self.engine.game_map, center_x=self.shattered_x-self.dx, center_y=self.shattered_y-self.dy, spawn_cnt=8, spawn_on_center=True)
+        tmp.spawn(gamemap=self.engine.game_map, x=self.shattered_x, y=self.shattered_y, lifetime=self.parent.quaffable.fire_lifetime)
+        import actor_factories
+        actor_factories.DEBUG.spawn(self.engine.game_map, x=self.shattered_x, y=self.shattered_y)
         if self.engine.game_map.visible[self.shattered_x, self.shattered_y]:
             self.engine.message_log.add_message(i(f"{self.parent.name}이 깨진 자리에서 불꽃이 피어났다!",
                                                   f"Flames start to rise!"),color.player_sense)
@@ -456,10 +461,10 @@ class PotionOfFrostThrowable(PotionQuaffAndThrowSameEffectThrowable):
         super().effects_when_shattered()
         for dx in (1, 0, -1):
             for dy in (1, 0, -1):
-                self.engine.game_map.tiles[self.shattered_x-self.dx+dx, self.shattered_y-self.dy+dy] = TileUtil.freeze(self.engine.game_map.tiles[self.shattered_x-self.dx+dx, self.shattered_y-self.dy+dy])
+                self.engine.game_map.tiles[self.shattered_x+dx, self.shattered_y+dy] = TileUtil.freeze(self.engine.game_map.tiles[self.shattered_x+dx, self.shattered_y+dy])
 
 
-class PotionOfLiquifiedAntsThrowable(ShatterWhenContactGroundThrowable):
+class PotionOfLiquifiedAntsThrowable(CouldShatterWhenContactGroundThrowable):
     def effects_when_shattered(self):
         super().effects_when_shattered()
         # Spawn 8 ants maximum surrounding the consumer.
@@ -469,7 +474,7 @@ class PotionOfLiquifiedAntsThrowable(ShatterWhenContactGroundThrowable):
         spawn_cnt = random.randint(5,8)
         if self.parent.item_state.BUC == 1:
             spawn_cnt = 8
-        actors = spawn_entity_8way(entity=spawn, gamemap=self.engine.game_map, center_x=self.shattered_x - self.dx, center_y=self.shattered_y - self.dy, spawn_cnt=spawn_cnt, spawn_on_center=True)
+        actors = spawn_entity_8way(entity=spawn, gamemap=self.engine.game_map, center_x=self.shattered_x, center_y=self.shattered_y, spawn_cnt=spawn_cnt, spawn_on_center=True)
         for actor in actors:
             trigger_actor = self.engine.game_map.get_actor_at_location(x=self.collision_x, y=self.collision_y)
             actor.status.take_damage(amount=0, attacked_from=trigger_actor) # Trigger ants
@@ -480,7 +485,7 @@ class PotionOfLiquifiedAntsThrowable(ShatterWhenContactGroundThrowable):
             self.parent.item_state.identify_self(self.identify_when_shattered)
 
 
-class ToxicGooThrowable(ShatterWhenContactGroundThrowable):
+class ToxicGooThrowable(CouldShatterWhenContactGroundThrowable):
     def effect_when_collided_with_actor(self, target: Actor, thrower: Actor) -> None:
         super().effect_when_collided_with_actor(target, thrower)
         if target.actor_state.is_poisoned == [0,0,0,0]:

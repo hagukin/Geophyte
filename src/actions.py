@@ -1305,9 +1305,8 @@ class DoorUnlockAction(ActionWithDirection):
             from order import InventoryOrder
             self.free_action = True
             self.engine.event_handler = InventoryChooseItemAndCallbackHandler(
-                self.engine.player.inventory, 
-                self.unlock,
-                title=i("잠금 해제에 사용할 아이템을 선택하세요.","Choose an item to use."),
+                inventory_component=self.engine.player.inventory, 
+                callback=self.unlock,
                 show_only_types=(
                     InventoryOrder.MELEE_WEAPON,
                     InventoryOrder.TOOL,
