@@ -7,4 +7,4 @@
 https://gamesm1th.itch.io/geophyte
 
 #### About Geophyte (Written in Korean)
-https://gamesmith.tistory.com/11?category=945745
+https://gamesmith.tistory.com/11
