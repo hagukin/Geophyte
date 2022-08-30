@@ -74,7 +74,7 @@ class ItemState(BaseComponent):
             print("WARNING::Use unidentify_self() instead.")
             return None
         self.is_identified = max(identify_level, self.is_identified)
-        self.engine.item_manager.identify_type(self.parent.entity_id, 1) # "semi identify" the entire item type.
+        self.engine.item_manager.identify_type(self.parent, 1) # "semi identify" the entire item type.
     
     def unidentify_self(self):
         self.is_identified = 0 # Full-identification

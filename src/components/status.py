@@ -584,12 +584,12 @@ class Status(BaseComponent):
                 # if dmg type is physical, use protection to calculate reduction
                 penetration = max(1, round(math.log10(penetration_constant + 1)))
                 dmg_absorbed = random.randint(int(protection * 0.1 /penetration), int(protection * 0.3 /penetration))
-                dmg_reduced = 1 + protection / 150
+                dmg_reduced = 1 + protection / 160
                 dmg = (dmg - dmg_absorbed) / dmg_reduced
             elif damage_type == "explosion":
                 # NOTE: explosion damages are exactly like physical damage, except that is ignores any penetration constants given.
                 dmg_absorbed = random.randint(int(protection * 0.1), int(protection * 0.3))
-                dmg_reduced = 1 + protection / 150
+                dmg_reduced = 1 + protection / 160
                 dmg = (dmg - dmg_absorbed) / dmg_reduced
             elif damage_type == "fire":
                 dmg *= (1 - self.changed_status["fire_resistance"])
@@ -611,7 +611,7 @@ class Status(BaseComponent):
                 dmg *= (1 - self.changed_status["psychic_resistance"])
             elif damage_type == "shock":
                 dmg *= (1 - self.changed_status["shock_resistance"])
-                dmg_reduced = 1 + protection / 120
+                dmg_reduced = 1 + protection / 240
                 dmg = dmg / dmg_reduced
             elif damage_type == "magic":
                 protection = self.origin_status["protection"] # when calculating magic dmg, use origin_status["protection"]. -> armor will have no effects.

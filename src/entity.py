@@ -1092,7 +1092,7 @@ class Item(Entity):
             self.initial_BUC = initial_BUC
 
         if initial_upgrades == None:
-            self.initial_upgrades = {-3:1, -2:5, -1:10, 0:40, 1:8, 2:3, 3:1}
+            self.initial_upgrades = {-3:3, -2:8, -1:20, 0:60, 1:8, 2:3, 3:1}
         else:
             self.initial_upgrades = initial_upgrades
 

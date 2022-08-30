@@ -5,6 +5,7 @@ from typing import Optional, Tuple, TYPE_CHECKING
 from util import draw_thick_frame
 from entity import Actor, Item
 from language import interpret as i
+from game import Game
 
 import tcod
 import color
@@ -50,27 +51,10 @@ def get_names_at_location(x: int, y: int, game_map: GameMap, display_id: bool=Fa
 
     for entity in reversed(game_map.entities):
         if entity.x == x and entity.y == y:
-            name = entity.name
             if display_id:
                 names.append(f"{id(entity)}:{entity.name}")
                 continue
-
-            if isinstance(entity, Item):
-                # If entity is a item, display stack_count as well
-                if entity.stack_count > 1:
-                    name += f" x{entity.stack_count}"
-            elif isinstance(entity, Actor):
-                if entity.ai:
-                    if entity.ai.owner == game_map.engine.player:
-                        name += i("(아군)","(ally)")
-                    # else:
-                    #     if entity.ai:
-                    #         if not entity.ai.check_if_enemy(game_map.engine.player):
-                    #             name += "(우호적)"
-
-            if entity.is_on_air:
-                name += i("(공중에 떠 있음)","(airborne)")
-
+            name = Game.engine.modify_entity_name_to_render(entity)
             names.append(name)
 
     names = ", ".join(names)

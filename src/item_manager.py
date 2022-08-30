@@ -7,6 +7,7 @@ from language import interpret as i
 
 import random
 import copy
+import color
 
 class ItemManager:
     def __init__(self):
@@ -121,13 +122,17 @@ class ItemManager:
     def reenable_artifact_from_spawning(self, item_id: str) -> None:
         self.generated_artifacts.remove(item_id)
 
-    def identify_type(self, item_id:str, identify_level: int=1):
+    def identify_type(self, item:Item, identify_level: int=1):
         """
         NOTE: When identifying an entire type, use item_manager.identify_type instead.
         NOTE: Normally, you should not "fully identify" the entire item type.
         Thus, identify_level should stay 1 in normal occasions.
         """
-        self.items_identified[item_id] = identify_level
+
+        if (self.items_identified[item.entity_id] == 0) and (identify_level >= 1):
+            Game.engine.message_log.add_message(i(f"당신은 {g(self.items_fake_info[item.entity_id]['name'], '이')} {item._name}임을 알게 되었다.",
+                                                  f"You realized that {self.items_fake_info[item.entity_id]['name']} is {item._name}."), color.player_sense)
+        self.items_identified[item.entity_id] = identify_level
 
     def unidentify_type(self, item_id:str):
         self.items_identified[item_id] = 0

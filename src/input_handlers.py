@@ -883,7 +883,7 @@ class InventoryChooseItemAndCallbackHandler(StorageSelectSingleEventHandler):
             item_cancel_callback: Callable = None,
         ):
         super().__init__(inventory_component, show_only_types, show_only_status, show_if_satisfy_both, hide_not_tradable, hide_not_owned, hide_equipped, render_sell_price, item_cancel_callback)
-        self.TITLE = i("잠금 해제에 사용할 아이템을 선택하세요.","Choose an item to use.")
+        self.TITLE = i("아이템을 선택하세요.","Choose an item.")
         self.selected_item = None
         self.callback = callback
 

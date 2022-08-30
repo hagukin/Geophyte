@@ -760,34 +760,60 @@ class Engine:
         self.render(self.console)
         self.context.present(self.console)
 
+    def modify_entity_name_to_render(self, entity: Entity) -> str:
+        name = entity.name
+        if isinstance(entity, Item):
+            # If entity is an item, display stack_count as well
+            if entity.stack_count > 1:
+                name += f" x{entity.stack_count}"
+        elif isinstance(entity, Actor):
+            if entity.ai:
+                if entity.ai.owner == self.player:
+                    name += i("(아군)", "(ally)")
+                # else:
+                #     if entity.ai:
+                #         if not entity.ai.check_if_enemy(game_map.engine.player):
+                #             name += "(우호적)"
+            if entity.actor_state.is_sleeping != [0, 0]:
+                name += i("(잠들음)", "(asleep)")
+            if entity.actor_state.is_paralyzing != [0, 0]:
+                name += i("(마비됨)", "(paralyzed)")
+
+        if entity.is_on_air:
+            name += i("(비행중)", "(airborne)")
+
+        return name
+
     def render_visible_entities(self, console: Console, gui_x: int, gui_y: int, height: int, draw_frame: bool=False) -> None:
         x = gui_x
         num = gui_y
 
         for actor in self.actors_in_sight:
+            name = self.modify_entity_name_to_render(actor)
             if num - gui_y >= height - 3: # Out of border
                 console.print(x=x, y=num, string="...", fg=color.gray)
                 break
             console.print(x=x, y=num, string=actor.char, fg=actor.fg)
             if actor.ai:
                 if actor.ai.check_if_enemy(self.player):
-                    console.print(x=x+2, y=num, string=actor.name, fg=color.light_red)
+                    console.print(x=x+2, y=num, string=name, fg=color.light_red)
                 else:
                     if actor.ai.owner == self.player:
-                        console.print(x=x + 2, y=num, string=actor.name, fg=color.light_green)
+                        console.print(x=x + 2, y=num, string=name, fg=color.light_green)
                     else:
-                        console.print(x=x + 2, y=num, string=actor.name, fg=color.light_gray)
+                        console.print(x=x + 2, y=num, string=name, fg=color.light_gray)
             else:
-                console.print(x=x + 2, y=num, string=actor.name, fg=color.light_gray)
+                console.print(x=x + 2, y=num, string=name, fg=color.light_gray)
 
             num += 1
 
         for item in self.items_in_sight:
+            name = self.modify_entity_name_to_render(item)
             if num - gui_y >= height - 3: # Out of border
                 console.print(x=x, y=num, string="...", fg=color.gray)
                 break
             console.print(x=x, y=num, string=item.char, fg=item.fg)
-            console.print(x=x+2, y=num, string=item.name, fg=color.light_gray)
+            console.print(x=x+2, y=num, string=name, fg=color.light_gray)
             num += 1
         
         # draw frame
